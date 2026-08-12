@@ -9,8 +9,8 @@ class CloudflareAPIClient {
     private init() {}
     
     func getZones(page: Int = 1, perPage: Int = 50) async throws -> ([Zone], ResultInfo?) {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -58,8 +58,8 @@ class CloudflareAPIClient {
     }
     
     func getAccounts() async throws -> [Account] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -101,8 +101,8 @@ class CloudflareAPIClient {
     }
     
     func createZone(name: String, accountId: String) async throws -> Zone {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -154,8 +154,8 @@ class CloudflareAPIClient {
     }
     
     func deleteZone(zoneId: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -202,8 +202,8 @@ class CloudflareAPIClient {
     }
     
     func getDNSRecords(zoneId: String, page: Int = 1, perPage: Int = 50) async throws -> ([DNSRecord], ResultInfo?) {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -259,8 +259,8 @@ class CloudflareAPIClient {
     }
     
     func deleteDNSRecord(zoneId: String, recordId: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -290,8 +290,8 @@ class CloudflareAPIClient {
     }
     
     private func performDNSMutation(zoneId: String, recordId: String?, method: String, payload: DNSRecordPayload) async throws -> DNSRecord {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -340,8 +340,8 @@ class CloudflareAPIClient {
     }
     
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -437,8 +437,8 @@ class CloudflareAPIClient {
     
     // MARK: - Zone Settings API
     func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -476,8 +476,8 @@ class CloudflareAPIClient {
     }
     
     func updateZoneSetting(zoneId: String, settingId: String, value: SettingValue) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -514,8 +514,8 @@ class CloudflareAPIClient {
     }
     
     func fetchCustomCertificates(zoneId: String) async throws -> [CustomCertificate] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -560,8 +560,8 @@ class CloudflareAPIClient {
     }
     
     func fetchCertificatePacks(zoneId: String) async throws -> [CertificatePack] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -599,8 +599,8 @@ class CloudflareAPIClient {
     }
     
     func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -641,8 +641,8 @@ class CloudflareAPIClient {
     }
     
     func purgeCacheEverything(zoneId: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -677,8 +677,8 @@ class CloudflareAPIClient {
     }
     
     func purgeCacheByURLs(zoneId: String, urls: [String]) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -713,8 +713,8 @@ class CloudflareAPIClient {
     }
 
     func fetchIPAccessRules(zoneId: String) async throws -> [IPAccessRule] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -744,8 +744,8 @@ class CloudflareAPIClient {
     }
     
     func createIPAccessRule(zoneId: String, mode: String, target: String, value: String, notes: String) async throws -> IPAccessRule {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -790,8 +790,8 @@ class CloudflareAPIClient {
     }
     
     func createIPAccessRule(zoneId: String, mode: String, target: String, value: String, notes: String?) async throws -> IPAccessRule {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -837,8 +837,8 @@ class CloudflareAPIClient {
     }
     
     func deleteIPAccessRule(zoneId: String, ruleId: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -872,8 +872,8 @@ class CloudflareAPIClient {
     // MARK: - Page Rules
     
     func getPageRules(zoneId: String) async throws -> [PageRule] {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -904,8 +904,8 @@ class CloudflareAPIClient {
     }
     
     func updatePageRuleStatus(zoneId: String, ruleId: String, status: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -934,8 +934,8 @@ class CloudflareAPIClient {
     }
     
     func deletePageRule(zoneId: String, ruleId: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -963,8 +963,8 @@ class CloudflareAPIClient {
     // MARK: - DNSSEC
     
     func getDNSSEC(zoneId: String) async throws -> DNSSEC {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
@@ -1002,8 +1002,8 @@ class CloudflareAPIClient {
     }
     
     func updateDNSSEC(zoneId: String, status: String) async throws {
-        guard let email = KeychainHelper.standard.readString(service: serviceName, account: "email"),
-              let apiKey = KeychainHelper.standard.readString(service: serviceName, account: "apiKey") else {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         

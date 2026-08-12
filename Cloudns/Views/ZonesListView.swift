@@ -81,21 +81,11 @@ struct ZonesListView: View {
             .searchable(text: $searchText, prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
                         Button(action: {
                             viewModel.isAddingZone = true
                         }) {
                             Image(systemName: "plus")
                         }
-                        
-                        Button(action: {
-                            let loginVM = LoginViewModel()
-                            loginVM.logout()
-                        }) {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.red)
-                        }
-                    }
                 }
             }
             .sheet(isPresented: $viewModel.isAddingZone) {

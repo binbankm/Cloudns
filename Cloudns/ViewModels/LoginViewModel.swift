@@ -12,17 +12,9 @@ class LoginViewModel: ObservableObject {
     
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
-    init() {
-        // Pre-fill if they exist (for convenience during development, though usually you don't read them out to text fields)
-        if let savedEmail = KeychainHelper.standard.readString(service: CloudflareAPIClient.shared.serviceName, account: "email") {
-            self.email = savedEmail
-        }
-        if let savedKey = KeychainHelper.standard.readString(service: CloudflareAPIClient.shared.serviceName, account: "apiKey") {
-            self.apiKey = savedKey
-        }
-    }
+    init() {}
     
-    func login() async {
+    func login(onSuccess: (() -> Void)? = nil) async {
         errorMessage = nil
         
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -35,20 +27,26 @@ class LoginViewModel: ObservableObject {
         
         isLoading = true
         
-        // Temporarily save to Keychain so the API client can use them for the test request
-        KeychainHelper.standard.saveString(trimmedEmail, service: CloudflareAPIClient.shared.serviceName, account: "email")
-        KeychainHelper.standard.saveString(trimmedKey, service: CloudflareAPIClient.shared.serviceName, account: "apiKey")
+        // Save temporarily to validate
+        let previousActive = UserDefaults.standard.string(forKey: "activeAccountEmail")
+        UserDefaults.standard.set(trimmedEmail, forKey: "activeAccountEmail")
+        KeychainHelper.standard.saveString(trimmedKey, service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
         
         do {
             // Validate credentials by attempting to fetch zones
             _ = try await CloudflareAPIClient.shared.getZones(page: 1, perPage: 1)
             
-            // If successful, update state
-            isLoggedIn = true
+            // If successful, permanently add to AccountManager
+            AccountManager.shared.addAccount(email: trimmedEmail, apiKey: trimmedKey)
+            onSuccess?()
         } catch {
-            // If failed, remove from keychain and show error
-            KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: "email")
-            KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: "apiKey")
+            // If failed, remove from keychain and rollback active email
+            KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
+            if let prev = previousActive {
+                UserDefaults.standard.set(prev, forKey: "activeAccountEmail")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "activeAccountEmail")
+            }
             self.errorMessage = error.localizedDescription
         }
         
@@ -56,10 +54,8 @@ class LoginViewModel: ObservableObject {
     }
     
     func logout() {
-        KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: "email")
-        KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: "apiKey")
+        AccountManager.shared.logoutAll()
         email = ""
         apiKey = ""
-        isLoggedIn = false
     }
 }

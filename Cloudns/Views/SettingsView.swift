@@ -6,7 +6,7 @@ struct SettingsView: View {
     @AppStorage("isLoggedIn") private var isLoggedIn = false
     
     @State private var showingLogoutAlert = false
-    @State private var userEmail: String = "Loading..."
+    @StateObject private var accountManager = AccountManager.shared
     
     // Cloudflare uses Gravatar for profile pictures based on email
     // But for simplicity, we use a placeholder or system image.
@@ -16,28 +16,30 @@ struct SettingsView: View {
             List {
                 // MARK: - Profile Section
                 Section {
-                    HStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(LinearGradient(gradient: Gradient(colors: [.blue, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 60, height: 60)
+                    NavigationLink(destination: AccountsView()) {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(gradient: Gradient(colors: [.blue, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 60, height: 60)
+                                
+                                Text(accountManager.activeEmail.prefix(1).uppercased())
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
                             
-                            Text(userEmail.prefix(1).uppercased())
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Accounts")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text(accountManager.activeEmail)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
                         }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Cloudflare Account")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            Text(userEmail)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
+                        .padding(.vertical, 8)
                     }
-                    .padding(.vertical, 8)
                 }
                 
                 // MARK: - Security Section
@@ -75,26 +77,16 @@ struct SettingsView: View {
                 
                 // MARK: - Support & About Section
                 Section {
+
                     Button(action: {
-                        // Action for rating app
-                    }) {
-                        SettingsRowView(
-                            icon: "star.fill",
-                            color: .yellow,
-                            title: "Rate Cloudns"
-                        )
-                    }
-                    .foregroundColor(.primary)
-                    
-                    Button(action: {
-                        if let url = URL(string: "https://github.com") {
+                        if let url = URL(string: "https://github.com/binbankm/Cloudns") {
                             UIApplication.shared.open(url)
                         }
                     }) {
                         SettingsRowView(
-                            icon: "chevron.left.forwardslash.chevron.right",
-                            color: .gray,
-                            title: "Open Source Licenses"
+                            icon: "swift",
+                            color: .black,
+                            title: "GitHub Repository"
                         )
                     }
                     .foregroundColor(.primary)
@@ -136,29 +128,15 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .onAppear {
-                fetchUserEmail()
+            .alert("Log Out", isPresented: $showingLogoutAlert) {
+                Button("Log Out", role: .destructive) {
+                    let loginVM = LoginViewModel()
+                    loginVM.logout()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to log out of your Cloudflare account?")
             }
-            .alert(isPresented: $showingLogoutAlert) {
-                Alert(
-                    title: Text("Log Out"),
-                    message: Text("Are you sure you want to log out of your Cloudflare account?"),
-                    primaryButton: .destructive(Text("Log Out")) {
-                        let loginVM = LoginViewModel()
-                        loginVM.logout()
-                    },
-                    secondaryButton: .cancel()
-                )
-            }
-        }
-    }
-    
-    private func fetchUserEmail() {
-        let service = CloudflareAPIClient.shared.serviceName
-        if let email = KeychainHelper.standard.readString(service: service, account: "email") {
-            self.userEmail = email
-        } else {
-            self.userEmail = "Unknown User"
         }
     }
 }

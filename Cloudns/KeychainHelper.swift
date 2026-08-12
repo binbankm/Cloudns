@@ -44,6 +44,32 @@ class KeychainHelper {
         
         return (result as? Data)
     }
+    func readAll(service: String) -> [String: String] {
+        let query = [
+            kSecAttrService: service,
+            kSecClass: kSecClassGenericPassword,
+            kSecReturnAttributes: true,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitAll
+        ] as CFDictionary
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query, &result)
+        
+        var accounts: [String: String] = [:]
+        
+        if status == errSecSuccess, let items = result as? [[String: Any]] {
+            for item in items {
+                if let account = item[kSecAttrAccount as String] as? String,
+                   let data = item[kSecValueData as String] as? Data,
+                   let value = String(data: data, encoding: .utf8) {
+                    accounts[account] = value
+                }
+            }
+        }
+        
+        return accounts
+    }
     
     func delete(service: String, account: String) {
         let query = [

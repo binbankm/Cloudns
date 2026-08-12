@@ -10,6 +10,8 @@ struct LoginView: View {
     }
     @FocusState private var focusedField: Field?
     
+    var onLoginSuccess: (() -> Void)? = nil
+    
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -24,11 +26,11 @@ struct LoginView: View {
                     .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
                 
                 VStack(spacing: 8) {
-                    Text("Welcome Back")
+                    Text(onLoginSuccess == nil ? "Welcome Back" : "Add Account")
                         .font(.title.weight(.bold))
                         .foregroundColor(.primary)
                     
-                    Text("Manage your domains with ease.")
+                    Text(onLoginSuccess == nil ? "Manage your domains with ease." : "Enter your Cloudflare credentials.")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -70,7 +72,7 @@ struct LoginView: View {
                 
                 // API Key Field
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("API Key")
+                    Text("Global API Key")
                         .font(.footnote)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
@@ -79,16 +81,16 @@ struct LoginView: View {
                         Image(systemName: "key")
                             .foregroundColor(.gray)
                             .accessibilityHidden(true)
-                        SecureField("Enter your API key", text: $viewModel.apiKey)
+                        SecureField("Enter your Global API Key", text: $viewModel.apiKey)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .focused($focusedField, equals: .apiKey)
-                            .submitLabel(.go)
+                            .submitLabel(.done)
                             .disabled(viewModel.isLoading)
                             .onSubmit {
                                 focusedField = nil
                                 Task {
-                                    await viewModel.login()
+                                    await viewModel.login(onSuccess: onLoginSuccess)
                                 }
                             }
                     }
@@ -121,9 +123,9 @@ struct LoginView: View {
             Button(action: {
                 focusedField = nil // Dismiss keyboard
                 let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+                impact.impactOccurred()
                 Task {
-                    await viewModel.login()
+                    await viewModel.login(onSuccess: onLoginSuccess)
                 }
             }) {
                 Group {

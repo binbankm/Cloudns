@@ -45,6 +45,9 @@ struct ContentView: View {
         .animation(.default, value: hasSeenOnboarding)
         .animation(.default, value: authManager.isUnlocked)
         .preferredColorScheme(themePreference == "light" ? .light : (themePreference == "dark" ? .dark : nil))
+        .onAppear {
+            _ = AccountManager.shared
+        }
     }
 }
 
