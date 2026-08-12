@@ -1,0 +1,196 @@
+import SwiftUI
+
+struct SSLSettingsView: View {
+    let zoneId: String
+    @StateObject private var viewModel = SSLSettingsViewModel()
+    
+    var body: some View {
+        Form {
+            Section(header: Text("SSL/TLS Encryption Mode"), footer: Text("Choose the encryption mode for your website. Full or Strict is recommended if your origin server has an SSL certificate.")) {
+                Picker("Encryption Mode", selection: $viewModel.sslMode) {
+                    Text("Off (Not Secure)").tag("off")
+                    Text("Flexible").tag("flexible")
+                    Text("Full").tag("full")
+                    Text("Full (Strict)").tag("strict")
+                }
+                .pickerStyle(.menu)
+                .onChange(of: viewModel.sslMode) { newValue in
+                    Task {
+                        await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue)
+                    }
+                }
+            }
+            
+            Section(header: Text("Edge Certificates"), footer: Text("Redirect all requests with scheme 'http' to 'https'. This applies to all http requests to the zone.")) {
+                Toggle(isOn: $viewModel.alwaysUseHTTPS) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Always Use HTTPS")
+                            .font(.headline)
+                        Text("Redirect all HTTP requests to HTTPS.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: viewModel.alwaysUseHTTPS) { newValue in
+                    Task {
+                        await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue)
+                    }
+                }
+                
+                Toggle(isOn: $viewModel.automaticHTTPSRewrites) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Automatic HTTPS Rewrites")
+                            .font(.headline)
+                        Text("Automatically rewrite HTTP resources to HTTPS to avoid mixed content warnings.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: viewModel.automaticHTTPSRewrites) { newValue in
+                    Task {
+                        await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue)
+                    }
+                }
+            }
+            
+            Section(header: Text("Advanced SSL/TLS Settings"), footer: Text("Configure TLS versions and opportunistic encryption features for legacy or specialized clients.")) {
+                Picker("Minimum TLS Version", selection: $viewModel.minTLSVersion) {
+                    Text("TLS 1.0").tag("1.0")
+                    Text("TLS 1.1").tag("1.1")
+                    Text("TLS 1.2").tag("1.2")
+                    Text("TLS 1.3").tag("1.3")
+                }
+                .onChange(of: viewModel.minTLSVersion) { newValue in
+                    Task {
+                        await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue)
+                    }
+                }
+                
+                Toggle(isOn: $viewModel.tls13) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("TLS 1.3")
+                            .font(.headline)
+                        Text("Enable the latest version of the TLS protocol for improved security and performance.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: viewModel.tls13) { newValue in
+                    Task {
+                        await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue)
+                    }
+                }
+                
+                Toggle(isOn: $viewModel.opportunisticEncryption) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Opportunistic Encryption")
+                            .font(.headline)
+                        Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: viewModel.opportunisticEncryption) { newValue in
+                    Task {
+                        await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue)
+                    }
+                }
+                
+                Toggle(isOn: $viewModel.opportunisticOnion) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Opportunistic Onion")
+                            .font(.headline)
+                        Text("Route Tor users through the Cloudflare Onion service to improve privacy.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: viewModel.opportunisticOnion) { newValue in
+                    Task {
+                        await viewModel.updateOpportunisticOnion(zoneId: zoneId, isOn: newValue)
+                    }
+                }
+            }
+            
+            Section(header: Text("HSTS (Strict Transport Security)"), footer: Text("DANGER: Enabling HSTS will force browsers to connect via HTTPS only. If your origin server loses HTTPS support, your site will be inaccessible until the Max-Age expires.")) {
+                Toggle(isOn: $viewModel.hstsEnabled) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Enable HSTS")
+                            .font(.headline)
+                            .foregroundColor(viewModel.hstsEnabled ? .red : .primary)
+                        Text("Strict Transport Security (HSTS)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                .tint(.red)
+                
+                if viewModel.hstsEnabled {
+                    Picker("Max-Age (Seconds)", selection: $viewModel.hstsMaxAge) {
+                        Text("1 Month (2592000)").tag(2592000)
+                        Text("3 Months (7776000)").tag(7776000)
+                        Text("6 Months (15552000)").tag(15552000)
+                        Text("12 Months (31536000)").tag(31536000)
+                    }
+                    
+                    Toggle("Include Subdomains", isOn: $viewModel.hstsIncludeSubdomains)
+                    Toggle("No-Sniff", isOn: $viewModel.hstsNoSniff)
+                    
+                    Button("Save HSTS Configuration") {
+                        Task {
+                            await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff)
+                        }
+                    }
+                    .foregroundColor(.blue)
+                } else {
+                    Button("Save HSTS (Disable)") {
+                        Task {
+                            await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false)
+                        }
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+            
+            Section(header: Text("Edge Certificates")) {
+                NavigationLink(destination: EdgeCertificatesView(zoneId: zoneId)) {
+                    HStack {
+                        Image(systemName: "seal.fill")
+                            .foregroundColor(.orange)
+                        Text("Manage Edge Certificates")
+                    }
+                }
+            }
+        }
+        .redacted(reason: viewModel.hasFetchedData ? [] : .placeholder)
+        .disabled(!viewModel.hasFetchedData)
+        .navigationTitle("SSL/TLS")
+        .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if viewModel.isLoading {
+                ProgressView()
+                    .padding()
+                    .background(Color(.systemBackground).opacity(0.8))
+                    .cornerRadius(8)
+            }
+        }
+        .alert(isPresented: .constant(viewModel.errorMessage != nil), content: {
+            Alert(
+                title: Text("Error"),
+                message: Text(viewModel.errorMessage ?? ""),
+                dismissButton: .default(Text("OK")) {
+                    viewModel.errorMessage = nil
+                }
+            )
+        })
+        .task {
+            await viewModel.fetchSettings(zoneId: zoneId)
+        }
+    }
+}
