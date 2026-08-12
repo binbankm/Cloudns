@@ -351,7 +351,8 @@ class CloudflareAPIClient {
         
         if days == 1 {
             let formatter = ISO8601DateFormatter()
-            let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
+            // Use -23 hours to stay strictly under the 1d limit (avoiding the 1d1s error)
+            let pastDate = Calendar.current.date(byAdding: .hour, value: -23, to: Date())!
             let dateString = formatter.string(from: pastDate)
             
             query = """
@@ -369,6 +370,12 @@ class CloudflareAPIClient {
                       cachedBytes
                     }
                   }
+                  trafficByCountry1h: httpRequestsAdaptiveGroups(limit: 50, filter: { datetime_gt: "\(dateString)" }, orderBy: [count_DESC]) {
+                    dimensions {
+                      clientCountryName
+                    }
+                    count
+                  }
                 }
               }
             }
@@ -378,6 +385,11 @@ class CloudflareAPIClient {
             formatter.dateFormat = "yyyy-MM-dd"
             let pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
             let dateString = formatter.string(from: pastDate)
+            
+            // Map query must be restricted to under 24h due to API limits on Free plans
+            let isoFormatter = ISO8601DateFormatter()
+            let mapPastDate = Calendar.current.date(byAdding: .hour, value: -23, to: Date())!
+            let mapDateString = isoFormatter.string(from: mapPastDate)
             
             query = """
             query {
@@ -393,6 +405,12 @@ class CloudflareAPIClient {
                       cachedRequests
                       cachedBytes
                     }
+                  }
+                  trafficByCountry1d: httpRequestsAdaptiveGroups(limit: 50, filter: { datetime_gt: "\(mapDateString)" }, orderBy: [count_DESC]) {
+                    dimensions {
+                      clientCountryName
+                    }
+                    count
                   }
                 }
               }

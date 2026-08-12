@@ -48,39 +48,44 @@ struct ZonesListView: View {
                             message: "No domains match your search."
                         )
                     } else {
-                        ScrollView {
-                            LazyVStack(spacing: 16) {
-                                ForEach(filteredZones) { zone in
+                        List {
+                            ForEach(filteredZones) { zone in
+                                ZStack {
                                     NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                                        ZoneCardView(zone: zone)
+                                        EmptyView()
                                     }
-                                    .buttonStyle(PlainButtonStyle()) // Removes the default blue highlight and arrow
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
-                                            zoneToDelete = zone
-                                            showingDeleteAlert = true
-                                        } label: {
-                                            Label("Remove Zone from Cloudflare", systemImage: "trash")
-                                        }
-                                    }
-                                    .padding(.horizontal, 16)
+                                    .opacity(0)
+                                    
+                                    ZoneCardView(zone: zone)
                                 }
-                                .animation(.easeInOut, value: filteredZones)
-                                
-                                if viewModel.canLoadMore && searchText.isEmpty {
-                                    ProgressView()
-                                        .padding()
-                                        .onAppear {
-                                            Task {
-                                                await viewModel.fetchZones(isRefresh: false)
-                                            }
-                                        }
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                                        impact.impactOccurred()
+                                        zoneToDelete = zone
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label("Remove", systemImage: "trash")
+                                    }
                                 }
                             }
-                            .padding(.vertical, 16)
+                            
+                            if viewModel.canLoadMore && searchText.isEmpty {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .listRowSeparator(.hidden)
+                                    .listRowBackground(Color.clear)
+                                    .onAppear {
+                                        Task {
+                                            await viewModel.fetchZones(isRefresh: false)
+                                        }
+                                    }
+                            }
                         }
+                        .listStyle(.plain)
                         .refreshable {
                             await viewModel.fetchZones(isRefresh: true)
                         }

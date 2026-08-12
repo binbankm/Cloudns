@@ -5,6 +5,7 @@ import Combine
 @MainActor
 class AnalyticsViewModel: ObservableObject {
     @Published var dataPoints: [AnalyticsDataPoint] = []
+    @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var isLoading: Bool = false
     @Published var hasFetchedData: Bool = false
     @Published var errorMessage: String? = nil
@@ -50,16 +51,24 @@ class AnalyticsViewModel: ObservableObject {
             if let zones = result.viewer.zones,
                let zone = zones.first {
                 let groups = zone.httpRequests1dGroups ?? zone.httpRequests1hGroups ?? []
+                let countryGroups = zone.trafficByCountry1d ?? zone.trafficByCountry1h ?? []
                 self.dataPoints = groups
+                self.mapDataPoints = countryGroups
                 self.hasFetchedData = true
             } else {
                 self.dataPoints = []
+                self.mapDataPoints = []
                 self.hasFetchedData = true
             }
         } catch APIError.cloudflareError(let message) {
             self.errorMessage = message
+            self.hasFetchedData = true
+        } catch APIError.decodingError(let error) {
+            self.errorMessage = "Decoding Error: \(error)"
+            self.hasFetchedData = true
         } catch {
-            self.errorMessage = "Failed to fetch analytics data."
+            self.errorMessage = "Failed to fetch analytics data: \(error.localizedDescription)"
+            self.hasFetchedData = true
         }
         
         isLoading = false

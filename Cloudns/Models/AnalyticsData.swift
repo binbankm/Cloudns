@@ -20,6 +20,18 @@ struct AnalyticsViewer: Codable {
 struct AnalyticsZone: Codable {
     let httpRequests1dGroups: [AnalyticsDataPoint]?
     let httpRequests1hGroups: [AnalyticsDataPoint]?
+    let trafficByCountry1d: [CountryDataPoint]?
+    let trafficByCountry1h: [CountryDataPoint]?
+}
+
+struct CountryDataPoint: Codable, Identifiable {
+    var id: String { dimensions.clientCountryName ?? UUID().uuidString }
+    let dimensions: CountryDimensions
+    let count: Int
+}
+
+struct CountryDimensions: Codable {
+    let clientCountryName: String?
 }
 
 struct AnalyticsDataPoint: Codable, Identifiable {

@@ -12,8 +12,8 @@ struct ContentView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
     @AppStorage("themePreference") private var themePreference = "system"
-    
     @StateObject private var authManager = AppAuthManager.shared
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
         Group {
@@ -32,6 +32,7 @@ struct ContentView: View {
                                 Label("Settings", systemImage: "gearshape")
                             }
                     }
+                    .blur(radius: (isAppLockEnabled && scenePhase != .active) ? 15 : 0)
                     
                     if isAppLockEnabled && !authManager.isUnlocked {
                         AppLockView()

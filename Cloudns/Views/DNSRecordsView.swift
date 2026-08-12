@@ -34,132 +34,140 @@ struct DNSRecordsView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    // DNSSEC Panel
-                    if let dnssec = viewModel.dnssec {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "lock.shield")
-                                    .foregroundColor(.green)
-                                Text("DNSSEC")
-                                    .font(.headline)
-                                Spacer()
-                                if dnssec.status == "active" {
-                                    Text("Active")
-                                        .font(.caption.bold())
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.green)
-                                        .cornerRadius(8)
-                                } else if dnssec.status == "pending" {
-                                    Text("Pending")
-                                        .font(.caption.bold())
-                                        .foregroundColor(.black)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.yellow)
-                                        .cornerRadius(8)
-                                }
+            List {
+                // DNSSEC Panel
+                if let dnssec = viewModel.dnssec {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "lock.shield")
+                                .foregroundColor(.green)
+                            Text("DNSSEC")
+                                .font(.headline)
+                            Spacer()
+                            if dnssec.status == "active" {
+                                Text("Active")
+                                    .font(.caption.bold())
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.green)
+                                    .cornerRadius(8)
+                            } else if dnssec.status == "pending" {
+                                Text("Pending")
+                                    .font(.caption.bold())
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.yellow)
+                                    .cornerRadius(8)
                             }
-                            
-                            Text("Protect your domain from DNS spoofing and cache poisoning.")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            Toggle(isOn: Binding(
-                                get: { dnssec.status == "active" || dnssec.status == "pending" },
-                                set: { _ in Task { await viewModel.toggleDNSSEC() } }
-                            )) {
-                                Text("Enable DNSSEC")
-                                    .font(.body)
-                            }
-                            .disabled(viewModel.isDNSSECLoading)
                         }
-                        .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .padding(.top, 16)
+                        
+                        Text("Protect your domain from DNS spoofing and cache poisoning.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Toggle(isOn: Binding(
+                            get: { dnssec.status == "active" || dnssec.status == "pending" },
+                            set: { _ in Task { await viewModel.toggleDNSSEC() } }
+                        )) {
+                            Text("Enable DNSSEC")
+                                .font(.body)
+                        }
+                        .disabled(viewModel.isDNSSECLoading)
+                    }
+                    .padding()
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .cornerRadius(12)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+                }
+                
+                if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 48))
+                            .foregroundColor(.red)
+                        Text(errorMessage)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                        Button("Retry") {
+                            Task {
+                                await viewModel.fetchRecords(isRefresh: true)
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding()
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "server.rack",
+                        title: "No DNS Records",
+                        message: "No DNS records found for this domain."
+                    )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else if displayRecords.isEmpty {
+                    EmptyStateView(
+                        icon: "magnifyingglass",
+                        title: "No Results",
+                        message: "No records match your search."
+                    )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else {
+                    ForEach(displayRecords) { record in
+                        DNSRecordCardView(record: record)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        try? await viewModel.deleteRecord(recordId: record.id)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                
+                                Button {
+                                    recordToEdit = record
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.orange)
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button {
+                                    let impact = UIImpactFeedbackGenerator(style: .light)
+                                    impact.impactOccurred()
+                                    UIPasteboard.general.string = record.content ?? record.name
+                                } label: {
+                                    Label("Copy", systemImage: "doc.on.doc")
+                                }
+                                .tint(.blue)
+                            }
                     }
                     
-                    if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
-                        VStack(spacing: 16) {
-                            Image(systemName: "exclamationmark.triangle")
-                                .font(.system(size: 48))
-                                .foregroundColor(.red)
-                            Text(errorMessage)
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(.secondary)
-                            Button("Retry") {
+                    if viewModel.canLoadMore && viewModel.hasFetchedData && searchText.isEmpty {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .onAppear {
                                 Task {
-                                    await viewModel.fetchRecords(isRefresh: true)
+                                    await viewModel.fetchRecords()
                                 }
                             }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        .padding()
-                    } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
-                        EmptyStateView(
-                            icon: "server.rack",
-                            title: "No DNS Records",
-                            message: "No DNS records found for this domain."
-                        )
-                    } else if displayRecords.isEmpty {
-                        EmptyStateView(
-                            icon: "magnifyingglass",
-                            title: "No Results",
-                            message: "No records match your search."
-                        )
-                    } else {
-                        LazyVStack(spacing: 12) {
-                            ForEach(displayRecords) { record in
-                                DNSRecordCardView(record: record)
-                                    .contextMenu {
-                                        Button {
-                                            let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-                                            UIPasteboard.general.string = record.content ?? record.name
-                                        } label: {
-                                            Label("Copy Content", systemImage: "doc.on.doc")
-                                        }
-                                        
-                                        Button {
-                                            let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-                                            recordToEdit = record
-                                        } label: {
-                                            Label("Edit", systemImage: "pencil")
-                                        }
-                                        
-                                        Button(role: .destructive) {
-                                            Task {
-                                                try? await viewModel.deleteRecord(recordId: record.id)
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
-                                    .padding(.horizontal, 16)
-                            }
-                            
-                            if viewModel.canLoadMore && viewModel.hasFetchedData && searchText.isEmpty {
-                                ProgressView()
-                                    .onAppear {
-                                        Task {
-                                            await viewModel.fetchRecords()
-                                        }
-                                    }
-                                    .padding()
-                            }
-                        }
-                        .padding(.vertical, 16)
-                        .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-                        .disabled(!viewModel.hasFetchedData)
                     }
                 }
             }
+            .listStyle(.plain)
+            .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
+            .disabled(!viewModel.hasFetchedData)
             .refreshable {
                 await withTaskGroup(of: Void.self) { group in
                     group.addTask { await viewModel.fetchRecords(isRefresh: true) }

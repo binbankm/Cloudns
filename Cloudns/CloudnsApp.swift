@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct CloudnsApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .background {
+                // Lock the app when it goes to the background
+                let isAppLockEnabled = UserDefaults.standard.bool(forKey: "isAppLockEnabled")
+                if isAppLockEnabled {
+                    AppAuthManager.shared.isUnlocked = false
+                }
+            }
         }
     }
 }

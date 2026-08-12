@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import MapKit
 
 struct AnalyticsView: View {
     let zoneId: String
@@ -67,6 +68,19 @@ struct AnalyticsView: View {
                     .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     .padding(.horizontal)
+                    
+                    if !viewModel.mapDataPoints.isEmpty {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Traffic by Country")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            
+                            trafficMapView
+                                .frame(height: 300)
+                                .cornerRadius(16)
+                                .padding(.horizontal)
+                        }
+                    }
                 }
             }
             .padding(.vertical)
@@ -175,6 +189,133 @@ struct AnalyticsView: View {
                         Text(viewModel.formatBytes(bytes))
                     }
                 }
+            }
+        }
+    }
+    
+    // MARK: - Map Component
+    struct MapAnnotationItem: Identifiable {
+        let id = UUID()
+        let countryCode: String
+        let coordinate: CLLocationCoordinate2D
+        let size: CGFloat
+        let requests: Int
+        let ratio: Double
+    }
+    
+    private var mapAnnotations: [MapAnnotationItem] {
+        guard let maxRequests = viewModel.mapDataPoints.map({ $0.count }).max(), maxRequests > 0 else { return [] }
+        return viewModel.mapDataPoints.compactMap { point in
+            guard let code = point.dimensions.clientCountryName,
+                  let coordinate = CountryCoordinates.map[code] else { return nil }
+            let ratio = Double(point.count) / Double(maxRequests)
+            let size = 12.0 // Uniform small size to avoid overlapping
+            return MapAnnotationItem(countryCode: code, coordinate: coordinate, size: size, requests: point.count, ratio: ratio)
+        }
+    }
+    
+    @State private var mapRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 30, longitude: 0),
+        span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
+    )
+    
+    @State private var selectedCountry: String? = nil
+    
+    @ViewBuilder
+    private var trafficMapView: some View {
+        ZStack(alignment: .bottom) {
+            Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
+                MapAnnotation(coordinate: item.coordinate) {
+                    PulsingAnnotationView(item: item, isSelected: selectedCountry == item.countryCode)
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                selectedCountry = item.countryCode
+                            }
+                        }
+                }
+            }
+            
+            // Interaction overlay (invisible layer to catch taps outside annotations)
+            Color.white.opacity(0.001)
+                .onTapGesture {
+                    withAnimation(.easeInOut) {
+                        selectedCountry = nil
+                    }
+                }
+                .allowsHitTesting(selectedCountry != nil)
+            
+            if let selected = selectedCountry,
+               let item = mapAnnotations.first(where: { $0.countryCode == selected }) {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Country Code: \(item.countryCode)")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                        Text("\(item.requests) Requests")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer(minLength: 0)
+                    
+                    Button(action: {
+                        withAnimation(.easeInOut) {
+                            selectedCountry = nil
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(UIColor.systemBackground).opacity(0.95))
+                .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+                .padding(.horizontal, 40)
+                .padding(.bottom, 16)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(1)
+            }
+        }
+    }
+}
+
+struct PulsingAnnotationView: View {
+    let item: AnalyticsView.MapAnnotationItem
+    let isSelected: Bool
+    @State private var isPulsing = false
+    
+    private var heatColor: Color {
+        switch item.ratio {
+        case 0.7...: return .red
+        case 0.3..<0.7: return .orange
+        case 0.1..<0.3: return .yellow
+        default: return .cyan
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            // Pulse ring
+            Circle()
+                .stroke(heatColor, lineWidth: 2)
+                .frame(width: item.size, height: item.size)
+                .scaleEffect(isPulsing ? 2.5 : 1.0)
+                .opacity(isPulsing ? 0.0 : 0.8)
+            
+            // Core bubble
+            Circle()
+                .fill(heatColor)
+                .frame(width: item.size, height: item.size)
+                .overlay(Circle().stroke(Color.white, lineWidth: isSelected ? 2.5 : 0.5))
+                .shadow(color: heatColor.opacity(0.6), radius: isSelected ? 10 : 3, x: 0, y: 0)
+                .scaleEffect(isSelected ? 1.3 : 1.0)
+        }
+        .onAppear {
+            withAnimation(Animation.easeOut(duration: 2.0).repeatForever(autoreverses: false)) {
+                isPulsing = true
             }
         }
     }
