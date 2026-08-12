@@ -26,18 +26,11 @@ struct IPAccessRulesView: View {
                     Spacer()
                 } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
                     Spacer()
-                    VStack(spacing: 12) {
-                        Image(systemName: "network.badge.shield.half.filled")
-                            .font(.system(size: 50))
-                            .foregroundColor(.secondary)
-                        Text("No IP Access Rules")
-                            .font(.headline)
-                        Text("You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
-                    }
+                    EmptyStateView(
+                        icon: "network.badge.shield.half.filled",
+                        title: "No IP Access Rules",
+                        message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries."
+                    )
                     Spacer()
                 } else {
                     List {

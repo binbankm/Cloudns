@@ -176,7 +176,7 @@ struct ZoneDetailView: View {
 }
 
 struct FeatureRowContent: View {
-    let title: String
+    let title: LocalizedStringKey
     let icon: String
     let color: Color
     

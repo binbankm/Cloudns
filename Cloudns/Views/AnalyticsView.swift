@@ -30,9 +30,11 @@ struct AnalyticsView: View {
                         .foregroundColor(.red)
                         .padding()
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
-                    Text("No data available.")
-                        .foregroundColor(.secondary)
-                        .padding()
+                    EmptyStateView(
+                        icon: "chart.bar.xaxis",
+                        title: "No Data",
+                        message: "No data available."
+                    )
                 } else {
                     // Summary Cards
                     HStack(spacing: 12) {
@@ -179,7 +181,7 @@ struct AnalyticsView: View {
 }
 
 struct SummaryCard: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     let icon: String
     let color: Color

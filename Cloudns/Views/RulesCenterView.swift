@@ -82,15 +82,11 @@ struct RulesCenterView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     } else if viewModel.rules.isEmpty {
-                        VStack(spacing: 8) {
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .font(.largeTitle)
-                                .foregroundColor(.gray)
-                            Text("No page rules configured.")
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        EmptyStateView(
+                            icon: "list.bullet.rectangle",
+                            title: "No Page Rules",
+                            message: "No page rules configured."
+                        )
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .cornerRadius(12)
                         .padding(.horizontal)

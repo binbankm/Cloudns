@@ -33,13 +33,11 @@ struct EdgeCertificatesView: View {
                 }
                 .padding()
             } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                VStack(spacing: 16) {
-                    Image(systemName: "shield.slash")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
-                    Text("No Edge Certificates found.")
-                        .foregroundColor(.secondary)
-                }
+                EmptyStateView(
+                    icon: "lock.shield",
+                    title: "No Edge Certificates",
+                    message: "No Edge Certificates found."
+                )
             } else {
                 ScrollView {
                     LazyVStack(spacing: 16) {

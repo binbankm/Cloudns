@@ -11,7 +11,9 @@ struct AccountsView: View {
                 Section(header: Text("Logged In Accounts")) {
                     ForEach(Array(accountManager.accounts.keys), id: \.self) { email in
                         Button(action: {
-                            accountManager.switchAccount(to: email)
+                            withAnimation {
+                                accountManager.switchAccount(to: email)
+                            }
                         }) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
@@ -20,7 +22,7 @@ struct AccountsView: View {
                                         .foregroundColor(.primary)
                                     
                                     if accountManager.activeEmail == email {
-                                        Text("Active")
+                                        Text("Current")
                                             .font(.caption)
                                             .foregroundColor(.orange)
                                     }
@@ -72,9 +74,13 @@ struct AccountsView: View {
     
     private func deleteAccount(at offsets: IndexSet) {
         let keys = Array(accountManager.accounts.keys)
-        for index in offsets {
-            let email = keys[index]
-            accountManager.removeAccount(email: email)
+        withAnimation {
+            for index in offsets {
+                let email = keys[index]
+                accountManager.removeAccount(email: email)
+            }
         }
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
     }
 }

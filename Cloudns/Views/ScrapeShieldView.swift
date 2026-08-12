@@ -130,8 +130,8 @@ struct ScrapeShieldView: View {
 }
 
 struct ScrapeShieldRow: View {
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
     let icon: String
     let iconColor: Color
     @Binding var isOn: Bool

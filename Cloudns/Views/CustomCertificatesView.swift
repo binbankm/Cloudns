@@ -16,11 +16,12 @@ struct CustomCertificatesView: View {
             }
             
             if viewModel.certificates.isEmpty && !viewModel.isLoading {
-                Section {
-                    Text("No custom certificates found. Note: This feature requires Cloudflare Advanced Certificate Manager or a Business/Enterprise plan.")
-                        .foregroundColor(.secondary)
-                        .font(.subheadline)
-                }
+                EmptyStateView(
+                    icon: "lock.shield",
+                    title: "No Custom Certificates",
+                    message: "No custom certificates found. Note: This feature requires Cloudflare Advanced Certificate Manager or a Business/Enterprise plan."
+                )
+                .listRowBackground(Color.clear)
             }
             
             ForEach(viewModel.certificates) { cert in

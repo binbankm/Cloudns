@@ -33,7 +33,7 @@ struct CloudflareError: Codable {
     let message: String
 }
 
-struct Zone: Codable, Identifiable {
+struct Zone: Codable, Identifiable, Equatable {
     let id: String
     let name: String
     let status: String

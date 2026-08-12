@@ -107,13 +107,17 @@ struct LoginView: View {
             
             // Error Message
             if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
+                Text(LocalizedStringKey(errorMessage))
                     .font(.footnote)
                     .foregroundColor(.red)
                     .multilineTextAlignment(.center)
                     .padding(.top, 16)
                     .padding(.horizontal, 24)
                     .accessibilityLabel(errorMessage)
+                    .onAppear {
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.error)
+                    }
             }
             
             // Login Button

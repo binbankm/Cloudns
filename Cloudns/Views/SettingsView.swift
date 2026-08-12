@@ -51,6 +51,10 @@ struct SettingsView: View {
                             title: "App Lock"
                         )
                     }
+                    .onChange(of: isAppLockEnabled) { _ in
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
+                    }
                 } header: {
                     Text("Security")
                 } footer: {
@@ -71,6 +75,10 @@ struct SettingsView: View {
                         )
                     }
                     .pickerStyle(.menu)
+                    .onChange(of: themePreference) { _ in
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
+                    }
                 } header: {
                     Text("Appearance")
                 }
@@ -145,7 +153,7 @@ struct SettingsView: View {
 struct SettingsRowView: View {
     let icon: String
     let color: Color
-    let title: String
+    let title: LocalizedStringKey
     
     var body: some View {
         HStack(spacing: 12) {

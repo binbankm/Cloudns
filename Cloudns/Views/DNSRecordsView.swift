@@ -101,14 +101,17 @@ struct DNSRecordsView: View {
                         }
                         .padding()
                     } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
-                        VStack(spacing: 16) {
-                            Image(systemName: "server.rack")
-                                .font(.system(size: 48))
-                                .foregroundColor(.secondary)
-                            Text("No DNS records found for this domain.")
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.top, 40)
+                        EmptyStateView(
+                            icon: "server.rack",
+                            title: "No DNS Records",
+                            message: "No DNS records found for this domain."
+                        )
+                    } else if displayRecords.isEmpty {
+                        EmptyStateView(
+                            icon: "magnifyingglass",
+                            title: "No Results",
+                            message: "No records match your search."
+                        )
                     } else {
                         LazyVStack(spacing: 12) {
                             ForEach(displayRecords) { record in

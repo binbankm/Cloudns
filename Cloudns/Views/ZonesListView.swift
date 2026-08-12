@@ -36,8 +36,17 @@ struct ZonesListView: View {
                             }
                         }
                     } else if viewModel.zones.isEmpty {
-                        Text("No domains found.")
-                            .foregroundColor(.gray)
+                        EmptyStateView(
+                            icon: "globe",
+                            title: "No domains found.",
+                            message: "You haven't added any domains to this account yet."
+                        )
+                    } else if filteredZones.isEmpty {
+                        EmptyStateView(
+                            icon: "magnifyingglass",
+                            title: "No Results",
+                            message: "No domains match your search."
+                        )
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
@@ -58,6 +67,7 @@ struct ZonesListView: View {
                                     }
                                     .padding(.horizontal, 16)
                                 }
+                                .animation(.easeInOut, value: filteredZones)
                                 
                                 if viewModel.canLoadMore && searchText.isEmpty {
                                     ProgressView()
