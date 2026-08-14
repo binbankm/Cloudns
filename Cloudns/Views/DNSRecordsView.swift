@@ -1,13 +1,21 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct DNSRecordsView: View {
     let zoneId: String
     let zoneName: String
     
     @StateObject private var viewModel: DNSRecordsViewModel
-    @State private var searchText = ""
     @State private var showingForm = false
     @State private var recordToEdit: DNSRecord? = nil
+    
+    // Export/Import/Edit states
+    @State private var showingExporter = false
+    @State private var exportedFileURL: URL? = nil
+    @State private var showingImporter = false
+    @State private var multiSelection = Set<String>()
+    
+    @Environment(\.editMode) private var editMode
     
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
@@ -15,74 +23,19 @@ struct DNSRecordsView: View {
         _viewModel = StateObject(wrappedValue: DNSRecordsViewModel(zoneId: zoneId))
     }
     
-    var filteredRecords: [DNSRecord] {
-        if searchText.isEmpty {
-            return viewModel.records
-        } else {
-            return viewModel.records.filter { $0.name.lowercased().contains(searchText.lowercased()) || ($0.content ?? "").lowercased().contains(searchText.lowercased()) || $0.type.lowercased().contains(searchText.lowercased()) }
-        }
-    }
-    
     var displayRecords: [DNSRecord] {
         if !viewModel.hasFetchedData {
             return DNSRecord.dummyData
         }
-        return filteredRecords
+        return viewModel.records
     }
     
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
-            List {
-                // DNSSEC Panel
-                if let dnssec = viewModel.dnssec {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "lock.shield")
-                                .foregroundColor(.green)
-                            Text("DNSSEC")
-                                .font(.headline)
-                            Spacer()
-                            if dnssec.status == "active" {
-                                Text("Active")
-                                    .font(.caption.bold())
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.green)
-                                    .cornerRadius(8)
-                            } else if dnssec.status == "pending" {
-                                Text("Pending")
-                                    .font(.caption.bold())
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.yellow)
-                                    .cornerRadius(8)
-                            }
-                        }
-                        
-                        Text("Protect your domain from DNS spoofing and cache poisoning.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Toggle(isOn: Binding(
-                            get: { dnssec.status == "active" || dnssec.status == "pending" },
-                            set: { _ in Task { await viewModel.toggleDNSSEC() } }
-                        )) {
-                            Text("Enable DNSSEC")
-                                .font(.body)
-                        }
-                        .disabled(viewModel.isDNSSECLoading)
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(12)
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
-                }
+            List(selection: $multiSelection) {
+
                 
                 if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
                     VStack(spacing: 16) {
@@ -121,6 +74,7 @@ struct DNSRecordsView: View {
                 } else {
                     ForEach(displayRecords) { record in
                         DNSRecordCardView(record: record)
+                            .tag(record.id)
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
@@ -151,8 +105,9 @@ struct DNSRecordsView: View {
                                 .tint(.blue)
                             }
                     }
+                    .onDelete(perform: viewModel.deleteRecord)
                     
-                    if viewModel.canLoadMore && viewModel.hasFetchedData && searchText.isEmpty {
+                    if viewModel.canLoadMore && viewModel.hasFetchedData {
                         ProgressView()
                             .frame(maxWidth: .infinity, alignment: .center)
                             .listRowSeparator(.hidden)
@@ -169,38 +124,96 @@ struct DNSRecordsView: View {
             .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
             .disabled(!viewModel.hasFetchedData)
             .refreshable {
-                await withTaskGroup(of: Void.self) { group in
-                    group.addTask { await viewModel.fetchRecords(isRefresh: true) }
-                    group.addTask { await viewModel.fetchDNSSEC() }
-                }
+                await viewModel.fetchRecords(isRefresh: true)
             }
         }
         .navigationTitle("DNS Records")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    recordToEdit = nil
-                    showingForm = true
-                }) {
-                    Image(systemName: "plus")
+                HStack {
+                    EditButton()
+                    
+                    Menu {
+                        Picker("Sort By", selection: $viewModel.sortOption) {
+                            Text("Name").tag("name")
+                            Text("Type").tag("type")
+                            Text("Proxied").tag("proxied")
+                            Text("Content").tag("content")
+                        }
+                        
+                        Divider()
+                        
+                        Button {
+                            Task {
+                                if let url = try? await viewModel.exportRecords() {
+                                    self.exportedFileURL = url
+                                    self.showingExporter = true
+                                }
+                            }
+                        } label: {
+                            Label("Export Records", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Button {
+                            showingImporter = true
+                        } label: {
+                            Label("Import BIND File", systemImage: "square.and.arrow.down")
+                        }
+                        
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    
+                    Button(action: {
+                        recordToEdit = nil
+                        showingForm = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            
+            ToolbarItem(placement: .bottomBar) {
+                if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
+                    Button(role: .destructive) {
+                        let indicesToDelete = viewModel.records.enumerated().compactMap { (index, record) in
+                            multiSelection.contains(record.id) ? index : nil
+                        }
+                        viewModel.deleteRecord(at: IndexSet(indicesToDelete))
+                        multiSelection.removeAll()
+                        editMode?.wrappedValue = .inactive
+                    } label: {
+                        Text("Delete Selected (\(multiSelection.count))")
+                            .foregroundColor(.red)
+                    }
                 }
             }
         }
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records")
-        .task {
-            await withTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    if await viewModel.records.isEmpty {
-                        await viewModel.fetchRecords()
-                    }
+        .searchable(text: $viewModel.searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records")
+        .fileExporter(isPresented: $showingExporter, document: TextDocument(url: exportedFileURL), contentType: .plainText, defaultFilename: "dns_records_\(zoneName).txt") { result in
+            // Handle export result if needed
+        }
+        .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.plainText, .data]) { result in
+            switch result {
+            case .success(let fileURL):
+                Task {
+                    _ = fileURL.startAccessingSecurityScopedResource()
+                    try? await viewModel.importRecords(fileURL: fileURL)
+                    fileURL.stopAccessingSecurityScopedResource()
                 }
-                group.addTask {
-                    if await viewModel.dnssec == nil {
-                        await viewModel.fetchDNSSEC()
-                    }
-                }
+            case .failure(let error):
+                print("Import failed: \(error.localizedDescription)")
             }
+        }
+        .task {
+            if viewModel.records.isEmpty {
+                await viewModel.fetchRecords()
+            }
+        }
+        .onChange(of: editMode?.wrappedValue) { newValue in
+            // Always clear selection when entering or exiting edit mode
+            multiSelection.removeAll()
         }
         .sheet(isPresented: $showingForm) {
             DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
@@ -273,5 +286,26 @@ struct DNSRecordCardView: View {
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
+    }
+}
+
+struct TextDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.plainText] }
+    
+    var url: URL?
+    
+    init(url: URL?) {
+        self.url = url
+    }
+    
+    init(configuration: ReadConfiguration) throws {
+        // Not used for exporting
+    }
+    
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        if let url = url {
+            return try FileWrapper(url: url)
+        }
+        return FileWrapper(regularFileWithContents: Data())
     }
 }

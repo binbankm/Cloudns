@@ -47,25 +47,7 @@ struct EdgeCertificatesView: View {
                         
                         Divider().padding(.vertical)
                         
-                        // Upload custom cert section
-                        NavigationLink(destination: UploadCertificateView(zoneId: zoneId, viewModel: CustomCertificatesViewModel())) {
-                            HStack {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .font(.title3)
-                                Text("Upload Custom Certificate")
-                                    .font(.headline)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Color(UIColor.tertiaryLabel))
-                            }
-                            .padding()
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+
                     }
                     .padding()
                     .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])

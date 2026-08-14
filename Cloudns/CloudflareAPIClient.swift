@@ -201,17 +201,52 @@ class CloudflareAPIClient {
         }
     }
     
-    func getDNSRecords(zoneId: String, page: Int = 1, perPage: Int = 50) async throws -> ([DNSRecord], ResultInfo?) {
+    func updateZoneStatus(zoneId: String, paused: Bool) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/zones/\(zoneId)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.addValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let payload: [String: Any] = ["paused": paused]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Failed to update zone status: \(errStr)"])
+        }
+    }
+    
+    func getDNSRecords(zoneId: String, page: Int = 1, perPage: Int = 50, search: String? = nil, order: String = "name", direction: String = "asc") async throws -> ([DNSRecord], ResultInfo?) {
         let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
         guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
         }
         
         var components = URLComponents(string: "\(baseURL)/zones/\(zoneId)/dns_records")
-        components?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "page", value: "\(page)"),
-            URLQueryItem(name: "per_page", value: "\(perPage)")
+            URLQueryItem(name: "per_page", value: "\(perPage)"),
+            URLQueryItem(name: "order", value: order),
+            URLQueryItem(name: "direction", value: direction)
         ]
+        
+        if let search = search, !search.isEmpty {
+            queryItems.append(URLQueryItem(name: "search", value: search))
+        }
+        
+        components?.queryItems = queryItems
         
         guard let url = components?.url else {
             throw APIError.invalidURL
@@ -1050,4 +1085,531 @@ class CloudflareAPIClient {
             throw APIError.invalidResponse
         }
     }
+    func batchDNSRecords(zoneId: String, deletes: [String]) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/dns_records/batch")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let batchDeletes = deletes.map { BatchDNSRecordDelete(id: $0) }
+        let payload = BatchDNSRecordsRequest(deletes: batchDeletes)
+        request.httpBody = try JSONEncoder().encode(payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let errorStr = String(data: data, encoding: .utf8) {
+                throw APIError.cloudflareError("Batch delete failed: \(errorStr)")
+            }
+            throw APIError.invalidResponse
+        }
+    }
+    
+    func exportDNSRecords(zoneId: String) async throws -> URL {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/dns_records/export")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        if httpResponse.statusCode == 200 {
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("dns_records_\(zoneId).txt")
+            try data.write(to: tempURL)
+            return tempURL
+        } else {
+            if let errorStr = String(data: data, encoding: .utf8) {
+                throw APIError.cloudflareError("Export failed: \(errorStr)")
+            }
+            throw APIError.invalidResponse
+        }
+    }
+    
+    func importDNSRecords(zoneId: String, fileURL: URL) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/dns_records/import")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileURL.lastPathComponent)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: text/plain\r\n\r\n".data(using: .utf8)!)
+        let fileData = try Data(contentsOf: fileURL)
+        body.append(fileData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let errorStr = String(data: data, encoding: .utf8) {
+                throw APIError.cloudflareError("Import failed: \(errorStr)")
+            }
+            throw APIError.invalidResponse
+        }
+    }
+    
+    // MARK: - Rulesets (WAF, Rate Limiting, etc.)
+    func fetchRulesetByPhase(zoneId: String, phase: String) async throws -> Ruleset? {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        if httpResponse.statusCode == 200 {
+            let decoded = try JSONDecoder().decode(RulesetsResponse.self, from: data)
+            if let rulesets = decoded.result {
+                if let targetRuleset = rulesets.first(where: { $0.phase == phase }) {
+                    return try await fetchRulesetDetails(zoneId: zoneId, rulesetId: targetRuleset.id)
+                }
+            }
+            return nil
+        } else {
+            throw APIError.invalidResponse
+        }
+    }
+
+    private func fetchRulesetDetails(zoneId: String, rulesetId: String) async throws -> Ruleset {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets/\(rulesetId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        if httpResponse.statusCode == 200 {
+            let decoded = try JSONDecoder().decode(SingleRulesetResponse.self, from: data)
+            if let ruleset = decoded.result {
+                return ruleset
+            }
+            throw APIError.invalidResponse
+        } else {
+            throw APIError.invalidResponse
+        }
+    }
+
+    func updateWAFRule(zoneId: String, rulesetId: String, ruleId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig? = nil, actionParameters: ActionParameters? = nil) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let payload = UpdateWAFRuleRequest(action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, action_parameters: actionParameters)
+        request.httpBody = try JSONEncoder().encode(payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+    }
+    
+    func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+    }
+    
+    func createWAFRule(zoneId: String, rulesetId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig? = nil, actionParameters: ActionParameters? = nil) async throws -> Ruleset {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets/\(rulesetId)/rules")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let payload = UpdateWAFRuleRequest(action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, action_parameters: actionParameters)
+        request.httpBody = try JSONEncoder().encode(payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+        
+        let decoded = try JSONDecoder().decode(SingleRulesetResponse.self, from: data)
+        if let ruleset = decoded.result {
+            return ruleset
+        }
+        throw APIError.invalidResponse
+    }
+    
+    func createRuleset(zoneId: String, phase: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig? = nil, actionParameters: ActionParameters? = nil) async throws -> Ruleset {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/rulesets/phases/\(phase)/entrypoint")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let rule = UpdateWAFRuleRequest(action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, action_parameters: actionParameters)
+        let payload = WAFEntrypointUpdate(rules: [rule])
+        request.httpBody = try JSONEncoder().encode(payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+        
+        let decoded = try JSONDecoder().decode(SingleRulesetResponse.self, from: data)
+        if let ruleset = decoded.result {
+            return ruleset
+        }
+        throw APIError.invalidResponse
+    }
+    
+    // MARK: - Security Events
+    func fetchSecurityEvents(zoneId: String, limit: Int = 30) async throws -> [SecurityEvent] {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        let url = URL(string: "\(baseURL)/graphql")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let date = Calendar.current.date(byAdding: .hour, value: -23, to: Date()) ?? Date()
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: date)
+        
+        let query = """
+        query {
+            viewer {
+                zones(filter: { zoneTag: "\(zoneId)" }) {
+                    firewallEventsAdaptive(filter: { datetime_gt: "\(dateString)" }, limit: \(limit), orderBy: [datetime_DESC]) {
+                        action
+                        clientIP
+                        clientCountryName
+                        clientAsn
+                        datetime
+                        source
+                        edgeResponseStatus
+                        clientRequestHTTPHost
+                        ruleId
+                    }
+                }
+            }
+        }
+        """
+        
+        let payload: [String: Any] = ["query": query]
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+        
+        let decoded = try JSONDecoder().decode(GraphQLResponse<SecurityGraphQLData>.self, from: data)
+        
+        if let errors = decoded.errors, !errors.isEmpty {
+            throw APIError.cloudflareError(errors.first?.message ?? "GraphQL Error")
+        }
+        
+        return decoded.data?.viewer.zones.first?.firewallEventsAdaptive ?? []
+    }
+
+
+    // MARK: - Email Routing
+    
+    func getEmailRoutingSettings(zoneId: String) async throws -> EmailRoutingSettings? {
+        let endpoint = "zones/\(zoneId)/email/routing"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(SingleResponse<EmailRoutingSettings>.self, from: data)
+        return response.result
+    }
+    
+    func getEmailRoutingRules(zoneId: String) async throws -> [EmailRoutingRule] {
+        let endpoint = "zones/\(zoneId)/email/routing/rules"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(ListResponse<EmailRoutingRule>.self, from: data)
+        return response.result ?? []
+    }
+    
+    func getEmailDestinations(accountId: String) async throws -> [EmailDestinationAddress] {
+        let endpoint = "accounts/\(accountId)/email/routing/addresses"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(ListResponse<EmailDestinationAddress>.self, from: data)
+        return response.result ?? []
+    }
+    
+    func createEmailRoutingRule(zoneId: String, rule: EmailRoutingRuleInput) async throws -> EmailRoutingRule {
+        let endpoint = "zones/\(zoneId)/email/routing/rules"
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        var request = URLRequest(url: URL(string: "\(baseURL)/\(endpoint)")!)
+        request.httpMethod = "POST"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(rule)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+        
+        let apiResponse = try JSONDecoder().decode(SingleResponse<EmailRoutingRule>.self, from: data)
+        if let result = apiResponse.result {
+            return result
+        }
+        throw APIError.invalidResponse
+    }
+    
+    func deleteEmailRoutingRule(zoneId: String, ruleId: String) async throws {
+        let endpoint = "zones/\(zoneId)/email/routing/rules/\(ruleId)"
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        var request = URLRequest(url: URL(string: "\(baseURL)/\(endpoint)")!)
+        request.httpMethod = "DELETE"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+    }
+
+
+
+    // MARK: - Load Balancing
+    
+    func getLoadBalancers(zoneId: String) async throws -> [LoadBalancer] {
+        let endpoint = "zones/\(zoneId)/load_balancers"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(ListResponse<LoadBalancer>.self, from: data)
+        return response.result ?? []
+    }
+    
+    func getLBPools(accountId: String) async throws -> [LBPool] {
+        let endpoint = "accounts/\(accountId)/load_balancers/pools"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(ListResponse<LBPool>.self, from: data)
+        return response.result ?? []
+    }
+    
+    func getLBMonitors(accountId: String) async throws -> [LBMonitor] {
+        let endpoint = "accounts/\(accountId)/load_balancers/monitors"
+        let data = try await performGetRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(ListResponse<LBMonitor>.self, from: data)
+        return response.result ?? []
+    }
+    
+    func createLoadBalancer(zoneId: String, payload: LoadBalancerUpdate) async throws -> LoadBalancer {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/zones/\(zoneId)/load_balancers") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.addValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        request.httpBody = try JSONEncoder().encode(payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Failed to create load balancer: \(errStr)"])
+        }
+        
+        let lbResponse = try JSONDecoder().decode(SingleResponse<LoadBalancer>.self, from: data)
+        guard let lb = lbResponse.result else {
+            throw APIError.invalidResponse
+        }
+        return lb
+    }
+    
+    func deleteLoadBalancer(zoneId: String, lbId: String) async throws {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/zones/\(zoneId)/load_balancers/\(lbId)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.addValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Failed to delete load balancer: \(errStr)"])
+        }
+    }
+
+
+
+    func getZoneDetails(zoneId: String) async throws -> Zone {
+        let endpoint = "zones/\(zoneId)"
+        let data = try await performGetRequest(endpoint: endpoint)
+        
+        struct ZoneResponse: Codable {
+            let success: Bool
+            let result: Zone?
+        }
+        
+        let response = try JSONDecoder().decode(ZoneResponse.self, from: data)
+        guard response.success, let zone = response.result else {
+            throw APIError.invalidResponse
+        }
+        return zone
+    }
+
+    private struct SingleResponse<T: Codable>: Codable {
+        let success: Bool
+        let result: T?
+    }
+    
+    private struct ListResponse<T: Codable>: Codable {
+        let success: Bool
+        let result: [T]?
+    }
+
+
+    private func performGetRequest(endpoint: String) async throws -> Data {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            throw APIError.invalidResponse
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Invalid response from Cloudflare: \(errStr)"])
+        }
+        
+        return data
+    }
+
 }

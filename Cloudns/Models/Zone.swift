@@ -33,14 +33,21 @@ struct CloudflareError: Codable {
     let message: String
 }
 
+
+struct ZoneAccount: Codable, Equatable {
+    let id: String
+    let name: String?
+}
+
 struct Zone: Codable, Identifiable, Equatable {
+    let account: ZoneAccount?
     let id: String
     let name: String
     let status: String
     let paused: Bool
-    let type: String
-    let developmentMode: Int
-    let nameServers: [String]
+    let type: String?
+    let developmentMode: Int?
+    let nameServers: [String]?
     let originalNameServers: [String]?
     let originalRegistrar: String?
     let originalDnshost: String?
@@ -58,5 +65,6 @@ struct Zone: Codable, Identifiable, Equatable {
         case modifiedOn = "modified_on"
         case createdOn = "created_on"
         case activatedOn = "activated_on"
+        case account
     }
 }

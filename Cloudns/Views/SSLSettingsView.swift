@@ -158,15 +158,6 @@ struct SSLSettingsView: View {
                 }
             }
             
-            Section(header: Text("Edge Certificates")) {
-                NavigationLink(destination: EdgeCertificatesView(zoneId: zoneId)) {
-                    HStack {
-                        Image(systemName: "seal.fill")
-                            .foregroundColor(.orange)
-                        Text("Manage Edge Certificates")
-                    }
-                }
-            }
         }
         .redacted(reason: viewModel.hasFetchedData ? [] : .placeholder)
         .disabled(!viewModel.hasFetchedData)

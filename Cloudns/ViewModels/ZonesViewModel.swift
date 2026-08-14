@@ -51,7 +51,7 @@ class ZonesViewModel: ObservableObject {
     @Published var isAddingZone: Bool = false
     @Published var addZoneError: String? = nil
     
-    func addZone(name: String) async -> Bool {
+    func addZone(name: String) async -> Zone? {
         isAddingZone = true
         addZoneError = nil
         do {
@@ -59,20 +59,19 @@ class ZonesViewModel: ObservableObject {
             guard let firstAccount = accounts.first else {
                 addZoneError = "No Cloudflare account found."
                 isAddingZone = false
-                return false
+                return nil
             }
             
-            _ = try await CloudflareAPIClient.shared.createZone(name: name, accountId: firstAccount.id)
+            let zone = try await CloudflareAPIClient.shared.createZone(name: name, accountId: firstAccount.id)
             await fetchZones(isRefresh: true)
             isAddingZone = false
-            return true
+            return zone
         } catch {
             addZoneError = error.localizedDescription
             isAddingZone = false
-            return false
+            return nil
         }
-    }
-    
+     }
     @Published var isDeleting: Bool = false
     
     func deleteZone(zoneId: String) async {

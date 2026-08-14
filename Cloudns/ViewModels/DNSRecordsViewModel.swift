@@ -11,9 +11,12 @@ class DNSRecordsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var totalCount: Int = 0
     
-    // DNSSEC
-    @Published var dnssec: DNSSEC?
-    @Published var isDNSSECLoading = false
+    // Removed DNSSEC
+    
+    @Published var searchQuery: String = ""
+    @Published var sortOption: String = "name"
+    
+    private var cancellables = Set<AnyCancellable>()
     
     private var currentPage = 1
     private var totalPages = 1
@@ -25,6 +28,27 @@ class DNSRecordsViewModel: ObservableObject {
     
     init(zoneId: String) {
         self.zoneId = zoneId
+        
+        $searchQuery
+            .dropFirst()
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                Task {
+                    await self?.fetchRecords(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
+            
+        $sortOption
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                Task {
+                    await self?.fetchRecords(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func fetchRecords(isRefresh: Bool = false) async {
@@ -39,7 +63,13 @@ class DNSRecordsViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let (newRecords, resultInfo) = try await CloudflareAPIClient.shared.getDNSRecords(zoneId: zoneId, page: currentPage)
+            let (newRecords, resultInfo) = try await CloudflareAPIClient.shared.getDNSRecords(
+                zoneId: zoneId,
+                page: currentPage,
+                search: searchQuery,
+                order: sortOption,
+                direction: sortOption == "name" ? "asc" : "desc" // Or let user choose direction
+            )
             
             if isRefresh {
                 self.records = newRecords
@@ -62,39 +92,7 @@ class DNSRecordsViewModel: ObservableObject {
         isLoading = false
     }
     
-    func fetchDNSSEC() async {
-        guard !isDNSSECLoading else { return }
-        isDNSSECLoading = true
-        do {
-            self.dnssec = try await CloudflareAPIClient.shared.getDNSSEC(zoneId: zoneId)
-        } catch {
-            // Silently fail DNSSEC fetch to not interrupt the main DNS flow
-            print("Failed to fetch DNSSEC: \(error)")
-        }
-        isDNSSECLoading = false
-    }
-    
-    func toggleDNSSEC() async {
-        guard let current = dnssec else { return }
-        isDNSSECLoading = true
-        
-        // impact
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
-        
-        do {
-            let isActiveOrPending = current.status == "active" || current.status == "pending"
-            let targetStatus = isActiveOrPending ? "disabled" : "active"
-            try await CloudflareAPIClient.shared.updateDNSSEC(zoneId: zoneId, status: targetStatus)
-            
-            // Re-fetch after update
-            self.dnssec = try await CloudflareAPIClient.shared.getDNSSEC(zoneId: zoneId)
-        } catch {
-            self.errorMessage = "Failed to update DNSSEC: \(error.localizedDescription)"
-        }
-        
-        isDNSSECLoading = false
-    }
+
     
     func deleteRecord(at offsets: IndexSet) {
         let recordsToDelete = offsets.map { records[$0] }
@@ -106,13 +104,18 @@ class DNSRecordsViewModel: ObservableObject {
         records.remove(atOffsets: offsets)
         
         Task {
-            for record in recordsToDelete {
-                do {
-                    try await CloudflareAPIClient.shared.deleteDNSRecord(zoneId: zoneId, recordId: record.id)
-                } catch {
-                    DispatchQueue.main.async {
-                        self.errorMessage = "Failed to delete \(record.name): \(error.localizedDescription)"
-                        // Optionally re-insert the record
+            do {
+                let idsToDelete = recordsToDelete.map { $0.id }
+                try await CloudflareAPIClient.shared.batchDNSRecords(zoneId: zoneId, deletes: idsToDelete)
+                DispatchQueue.main.async {
+                    self.totalCount = max(0, self.totalCount - idsToDelete.count)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to batch delete records: \(error.localizedDescription)"
+                    // Re-fetch to restore correct state
+                    Task {
+                        await self.fetchRecords(isRefresh: true)
                     }
                 }
             }
@@ -138,5 +141,23 @@ class DNSRecordsViewModel: ObservableObject {
         try await CloudflareAPIClient.shared.deleteDNSRecord(zoneId: zoneId, recordId: recordId)
         self.records.removeAll { $0.id == recordId }
         self.totalCount = max(0, self.totalCount - 1)
+    }
+    
+    func exportRecords() async throws -> URL {
+        isLoading = true
+        defer { isLoading = false }
+        return try await CloudflareAPIClient.shared.exportDNSRecords(zoneId: zoneId)
+    }
+    
+    func importRecords(fileURL: URL) async throws {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await CloudflareAPIClient.shared.importDNSRecords(zoneId: zoneId, fileURL: fileURL)
+            await fetchRecords(isRefresh: true)
+        } catch {
+            errorMessage = "Failed to import DNS records: \(error.localizedDescription)"
+        }
+        isLoading = false
     }
 }

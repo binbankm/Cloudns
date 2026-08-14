@@ -1,4 +1,5 @@
 import SwiftUI
+import Network
 
 struct DNSRecordFormView: View {
     @Environment(\.dismiss) var dismiss
@@ -195,6 +196,18 @@ struct DNSRecordFormView: View {
     }
     
     private func saveRecord() async {
+        if type == "A" {
+            if IPv4Address(content) == nil {
+                errorMessage = "Invalid IPv4 address format."
+                return
+            }
+        } else if type == "AAAA" {
+            if IPv6Address(content) == nil {
+                errorMessage = "Invalid IPv6 address format."
+                return
+            }
+        }
+        
         isSaving = true
         errorMessage = nil
         

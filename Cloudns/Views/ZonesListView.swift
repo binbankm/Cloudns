@@ -6,6 +6,7 @@ struct ZonesListView: View {
     @State private var searchText = ""
     @State private var zoneToDelete: Zone?
     @State private var showingDeleteAlert = false
+    @State private var showAddZoneSheet = false
     
     var filteredZones: [Zone] {
         if searchText.isEmpty {
@@ -97,15 +98,22 @@ struct ZonesListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
-                            viewModel.isAddingZone = true
+                            viewModel.addZoneError = nil
+                            showAddZoneSheet = true
                         }) {
                             Image(systemName: "plus")
                         }
                 }
             }
-            .sheet(isPresented: $viewModel.isAddingZone) {
-                AddZoneView(viewModel: viewModel)
+            .sheet(isPresented: $showAddZoneSheet) {
+                AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoneDeleted"))) { _ in
+            Task { await viewModel.fetchZones(isRefresh: true) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoneUpdated"))) { _ in
+            Task { await viewModel.fetchZones(isRefresh: true) }
         }
         .task {
             if viewModel.zones.isEmpty {
@@ -131,57 +139,173 @@ struct ZonesListView: View {
 
 struct AddZoneView: View {
     @ObservedObject var viewModel: ZonesViewModel
-    @Environment(\.dismiss) var dismiss
+    @Binding var isPresented: Bool
+
     @State private var domainName: String = ""
     @State private var isSubmitting: Bool = false
-    
+    @State private var createdZone: Zone? = nil
+
     var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Domain Information"), footer: Text("Enter the root domain you want to add to Cloudflare, e.g. example.com")) {
-                    TextField("example.com", text: $domainName)
-                        .keyboardType(.URL)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                }
-                
-                if let error = viewModel.addZoneError {
+        if let zone = createdZone {
+            NavigationStack {
+                // ── Step 2: Nameserver Setup Guide ────────────────────
+                List {
+                    // Header
                     Section {
-                        Text(error)
-                            .foregroundColor(.red)
+                        VStack(spacing: 16) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 52))
+                                .foregroundColor(.green)
+
+                            VStack(spacing: 6) {
+                                Text("\(zone.name) Added")
+                                    .font(.title2.bold())
+                                Text("Update your nameservers at your domain registrar to activate Cloudflare protection.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    }
+
+                    // Nameservers
+                    Section(header: Text("Replace your current nameservers with")) {
+                        ForEach(zone.nameServers ?? [], id: \.self) { ns in
+                            HStack {
+                                Image(systemName: "server.rack")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 28)
+                                Text(ns)
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Button {
+                                    UIPasteboard.general.string = ns
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                } label: {
+                                    Image(systemName: "doc.on.doc")
+                                        .foregroundColor(.blue)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
+                        Button {
+                            UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        } label: {
+                            Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
+                                .font(.subheadline.bold())
+                                .frame(maxWidth: .infinity)
+                        }
+                        .foregroundColor(.blue)
+                    }
+
+                    // Instructions
+                    Section(header: Text("What to do next")) {
+                        Label("Log in to your domain registrar (e.g. GoDaddy, Namecheap, Aliyun)", systemImage: "1.circle.fill")
                             .font(.subheadline)
+                            .foregroundColor(.primary)
+                        Label("Find the DNS or Nameserver settings for \(zone.name)", systemImage: "2.circle.fill")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        Label("Replace existing nameservers with the Cloudflare ones above", systemImage: "3.circle.fill")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        Label("Save and wait for propagation (up to 24 hours)", systemImage: "4.circle.fill")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Section(
+                        footer: Text("Your domain will show as Pending until Cloudflare detects the nameserver update. This can take a few minutes to 24 hours.")
+                    ) {
+                        EmptyView()
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .navigationTitle("Setup Nameservers")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            isPresented = false
+                        }
+                        .fontWeight(.bold)
                     }
                 }
             }
-            .navigationTitle("Add Domain")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        viewModel.isAddingZone = false
+        } else {
+            NavigationStack {
+                // ── Step 1: Enter Domain Name ─────────────────────────
+                Form {
+                    Section(
+                        header: Text("Domain Information"),
+                        footer: Text("Enter the root domain you want to add to Cloudflare, e.g. example.com")
+                    ) {
+                        TextField("example.com", text: $domainName)
+                            .keyboardType(.URL)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
                     }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add") {
-                        Task {
-                            isSubmitting = true
-                            let success = await viewModel.addZone(name: domainName.trimmingCharacters(in: .whitespacesAndNewlines))
-                            isSubmitting = false
-                            if success {
-                                dismiss()
+
+                    if let error = viewModel.addZoneError {
+                        Section {
+                            HStack(spacing: 10) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                Text(error)
+                                    .foregroundColor(.primary)
+                                    .font(.subheadline)
                             }
                         }
                     }
-                    .disabled(domainName.isEmpty || isSubmitting)
-                    .fontWeight(.bold)
                 }
-            }
-            .overlay {
-                if isSubmitting {
-                    ProgressView("Adding...")
-                        .padding()
-                        .background(Color(UIColor.systemBackground).opacity(0.8))
-                        .cornerRadius(10)
+                .navigationTitle("Add Domain")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            isPresented = false
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Add") {
+                            Task {
+                                isSubmitting = true
+                                let zone = await viewModel.addZone(
+                                    name: domainName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                )
+                                isSubmitting = false
+                                if let zone = zone {
+                                    createdZone = zone
+                                }
+                            }
+                        }
+                        .disabled(domainName.isEmpty || isSubmitting)
+                        .fontWeight(.bold)
+                    }
+                }
+                .overlay {
+                    if isSubmitting {
+                        ZStack {
+                            Color.black.opacity(0.15).ignoresSafeArea()
+                            VStack(spacing: 12) {
+                                ProgressView()
+                                    .controlSize(.large)
+                                Text("Adding domain...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(24)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(16)
+                        }
+                    }
                 }
             }
         }
@@ -199,7 +323,7 @@ struct ZoneCardView: View {
                     .foregroundColor(.primary)
                 
                 // Professional Warning Badges (Only show when active)
-                if zone.paused || zone.developmentMode > 0 {
+                if zone.paused || (zone.developmentMode ?? 0) > 0 {
                     HStack(spacing: 6) {
                         if zone.paused {
                             Text("Paused")
@@ -211,7 +335,7 @@ struct ZoneCardView: View {
                                 .cornerRadius(4)
                         }
                         
-                        if zone.developmentMode > 0 {
+                        if (zone.developmentMode ?? 0) > 0 {
                             Text("Dev Mode")
                                 .font(.system(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)

@@ -74,3 +74,11 @@ struct DNSRecordPayload: Codable {
     let comment: String?
     let data: DNSRecordData?
 }
+
+struct BatchDNSRecordDelete: Codable {
+    let id: String
+}
+
+struct BatchDNSRecordsRequest: Codable {
+    let deletes: [BatchDNSRecordDelete]?
+}
