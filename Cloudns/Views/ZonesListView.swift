@@ -21,77 +21,7 @@ struct ZonesListView: View {
             ZStack {
                 Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
                 
-                Group {
-                    if viewModel.isLoading && viewModel.zones.isEmpty {
-                        ProgressView("Loading zones...")
-                    } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-                        VStack {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .multilineTextAlignment(.center)
-                                .padding()
-                            Button("Retry") {
-                                Task {
-                                    await viewModel.fetchZones()
-                                }
-                            }
-                        }
-                    } else if viewModel.zones.isEmpty {
-                        EmptyStateView(
-                            icon: "globe",
-                            title: "No domains found.",
-                            message: "You haven't added any domains to this account yet."
-                        )
-                    } else if filteredZones.isEmpty {
-                        EmptyStateView(
-                            icon: "magnifyingglass",
-                            title: "No Results",
-                            message: "No domains match your search."
-                        )
-                    } else {
-                        List {
-                            ForEach(filteredZones) { zone in
-                                ZStack {
-                                    NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                                        EmptyView()
-                                    }
-                                    .opacity(0)
-                                    
-                                    ZoneCardView(zone: zone)
-                                }
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                                        impact.impactOccurred()
-                                        zoneToDelete = zone
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Label("Remove", systemImage: "trash")
-                                    }
-                                }
-                            }
-                            
-                            if viewModel.canLoadMore && searchText.isEmpty {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .listRowSeparator(.hidden)
-                                    .listRowBackground(Color.clear)
-                                    .onAppear {
-                                        Task {
-                                            await viewModel.fetchZones(isRefresh: false)
-                                        }
-                                    }
-                            }
-                        }
-                        .listStyle(.plain)
-                        .refreshable {
-                            await viewModel.fetchZones(isRefresh: true)
-                        }
-                    }
-                }
+                listViewContent
             }
             .navigationTitle("My Domains")
             .searchable(text: $searchText, prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains")
@@ -128,11 +58,92 @@ struct ZonesListView: View {
                     if let zone = zoneToDelete {
                         Task {
                             await viewModel.deleteZone(zoneId: zone.id)
+                            ToastManager.shared.showSuccess("Domain Removed", message: "\(zone.name) was removed.")
                         }
                     }
                 },
                 secondaryButton: .cancel()
             )
+        }
+    }
+    
+    @ViewBuilder
+    private var listViewContent: some View {
+        if viewModel.isLoading && viewModel.zones.isEmpty {
+            List {
+                ForEach(0..<6, id: \.self) { _ in
+                    SkeletonRowView()
+                }
+            }
+            .listStyle(.insetGrouped)
+        } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
+            EmptyStateView.error(
+                message: LocalizedStringKey(errorMessage),
+                retryAction: {
+                    Task {
+                        await viewModel.fetchZones(isRefresh: true)
+                    }
+                }
+            )
+        } else {
+            List {
+                if viewModel.zones.isEmpty {
+                    EmptyStateView(
+                        icon: "globe",
+                        title: "No Domains Found",
+                        message: "You haven't added any domains to this account yet.",
+                        actionTitle: "Add Domain",
+                        action: {
+                            viewModel.addZoneError = nil
+                            showAddZoneSheet = true
+                        }
+                    )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else if filteredZones.isEmpty {
+                    EmptyStateView.search(query: searchText) {
+                        searchText = ""
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else {
+                    Section {
+                        ForEach(filteredZones) { zone in
+                            NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                                ZoneRowView(zone: zone)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    zoneToDelete = zone
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
+                            }
+                        }
+                        
+                        if viewModel.canLoadMore && searchText.isEmpty {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                            .listRowBackground(Color.clear)
+                            .onAppear {
+                                Task {
+                                    await viewModel.fetchZones(isRefresh: false)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .refreshable {
+                await viewModel.fetchZones(isRefresh: true)
+            }
         }
     }
 }
@@ -185,7 +196,7 @@ struct AddZoneView: View {
                                 Spacer()
                                 Button {
                                     UIPasteboard.general.string = ns
-                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    ToastManager.shared.showCopied("Nameserver copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
                                         .foregroundColor(.blue)
@@ -196,7 +207,7 @@ struct AddZoneView: View {
 
                         Button {
                             UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            ToastManager.shared.showCopied("All nameservers copied")
                         } label: {
                             Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
                                 .font(.subheadline.bold())
@@ -312,14 +323,30 @@ struct AddZoneView: View {
     }
 }
 
-struct ZoneCardView: View {
+struct ZoneRowView: View {
     let zone: Zone
     
+    private var initialChar: String {
+        guard let first = zone.name.first else { return "D" }
+        return String(first).uppercased()
+    }
+    
     var body: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .center, spacing: 14) {
+            // Leading Initial Avatar
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.12))
+                    .frame(width: 38, height: 38)
+                Text(initialChar)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.blue)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
                 Text(zone.name)
-                    .font(.headline)
+                    .font(.body)
+                    .fontWeight(.medium)
                     .foregroundColor(.primary)
                 
                 // Professional Warning Badges (Only show when active)
@@ -330,7 +357,7 @@ struct ZoneCardView: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.red.opacity(0.1))
+                                .background(Color.red.opacity(0.15))
                                 .foregroundColor(.red)
                                 .cornerRadius(4)
                         }
@@ -340,12 +367,11 @@ struct ZoneCardView: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange.opacity(0.1))
+                                .background(Color.orange.opacity(0.15))
                                 .foregroundColor(.orange)
                                 .cornerRadius(4)
                         }
                     }
-                    .padding(.top, 2)
                 }
             }
             
@@ -354,35 +380,27 @@ struct ZoneCardView: View {
             // Status Badge
             if zone.status == "active" {
                 HStack(spacing: 3) {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 9, weight: .bold))
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 10))
                     Text("Active")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 11, weight: .medium))
                 }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(Color.green)
-                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.green.opacity(0.15))
+                .foregroundColor(.green)
                 .cornerRadius(10)
             } else {
                 Text(zone.status.capitalized)
-                    .font(.caption.weight(.bold))
+                    .font(.system(size: 11, weight: .medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.gray)
-                    .foregroundColor(.white)
+                    .background(Color.gray.opacity(0.15))
+                    .foregroundColor(.secondary)
                     .cornerRadius(8)
             }
-            
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(Color(UIColor.tertiaryLabel))
-                .padding(.leading, 8)
         }
-        .padding(16)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
+        .padding(.vertical, 8)
     }
 }
 

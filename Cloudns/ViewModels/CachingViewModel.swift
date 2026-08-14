@@ -54,15 +54,10 @@ class CachingViewModel: ObservableObject {
         do {
             try await apiClient.purgeCacheEverything(zoneId: zoneId)
             purgeSuccessMessage = "Successfully purged all cache!"
-            
-            // Haptic feedback
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.success)
+            ToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
         } catch {
             purgeErrorMessage = "Failed to purge cache: \(error.localizedDescription)"
-            
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.error)
+            ToastManager.shared.showError("Purge Cache Failed", message: error.localizedDescription)
         }
         
         isPurging = false
@@ -76,14 +71,10 @@ class CachingViewModel: ObservableObject {
         do {
             try await apiClient.purgeCacheByURLs(zoneId: zoneId, urls: urls)
             purgeSuccessMessage = "Successfully purged requested URLs!"
-            
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.success)
+            ToastManager.shared.showSuccess("URLs Purged", message: "\(urls.count) URL(s) purged from cache.")
         } catch {
             purgeErrorMessage = "Failed to purge URLs: \(error.localizedDescription)"
-            
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.error)
+            ToastManager.shared.showError("Purge URLs Failed", message: error.localizedDescription)
         }
         
         isPurging = false

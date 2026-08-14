@@ -20,30 +20,50 @@ struct RateLimitingRulesView: View {
                         .padding()
                 }
                 
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    Spacer()
-                    ProgressView("Loading Rate Limiting Rules...")
-                    Spacer()
-                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                    Spacer()
-                    EmptyStateView(
-                        icon: "speedometer",
-                        title: "No Rate Limiting Rules",
-                        message: "You haven't created any rate limiting rules yet. Protect your site from CC attacks by setting threshold rules."
+                if viewModel.isLoading && viewModel.rules.isEmpty {
+                    List {
+                        ForEach(0..<4, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchRateLimitingRules(zoneId: zoneId)
+                            }
+                        }
                     )
-                    Spacer()
                 } else {
                     List {
-                        ForEach(viewModel.rules) { rule in
-                            WAFRuleCardView(rule: rule, onToggle: {
-                                Task {
-                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                }
-                            })
+                        if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                            EmptyStateView(
+                                icon: "speedometer",
+                                title: "No Rate Limiting Rules",
+                                message: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
+                                actionTitle: "Add Rule",
+                                action: { showingAddSheet = true }
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.rules) { rule in
+                                WAFRuleCardView(rule: rule, onToggle: {
+                                    Task {
+                                        await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                        ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                    }
+                                })
+                            }
+                            .onDelete(perform: deleteRules)
                         }
-                        .onDelete(perform: deleteRules)
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .listStyle(.insetGrouped)
+                    .refreshable {
+                        await viewModel.fetchRateLimitingRules(zoneId: zoneId)
+                    }
                 }
             }
         }
@@ -76,6 +96,7 @@ struct RateLimitingRulesView: View {
             let rule = viewModel.rules[index]
             Task {
                 await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                ToastManager.shared.showSuccess("Rate Limiting Rule Deleted", message: rule.description ?? "")
             }
         }
     }

@@ -6,10 +6,8 @@ struct ScrapeShieldView: View {
     @StateObject private var viewModel = ScrapeShieldViewModel()
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                
-                // Header
+        List {
+            Section {
                 VStack(spacing: 12) {
                     Image(systemName: "eye.slash.fill")
                         .font(.system(size: 52, weight: .light))
@@ -25,100 +23,102 @@ struct ScrapeShieldView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
-                .padding(.bottom, 10)
-                
-                if let errorMessage = viewModel.errorMessage {
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
+            }
+            
+            if let errorMessage = viewModel.errorMessage {
+                Section {
                     Text(errorMessage)
                         .foregroundColor(.white)
                         .padding()
                         .background(Color.red.opacity(0.8))
                         .cornerRadius(10)
                 }
-                
-                if let successMessage = viewModel.successMessage {
+                .listRowBackground(Color.clear)
+            }
+            
+            if let successMessage = viewModel.successMessage {
+                Section {
                     Text(successMessage)
                         .foregroundColor(.white)
                         .padding()
                         .background(Color.green.opacity(0.8))
                         .cornerRadius(10)
                 }
-                
-                // Settings Cards
-                VStack(spacing: 0) {
-                    
-                    // Email Obfuscation
-                    ScrapeShieldRow(
-                        title: "Email Address Obfuscation",
-                        subtitle: "Hides your email addresses from scrapers. Visitors can still see them.",
-                        icon: "envelope.badge.shield.half.filled.fill",
-                        iconColor: .blue,
-                        isOn: Binding(
-                            get: { viewModel.emailObfuscationEnabled },
-                            set: { val in
-                                viewModel.emailObfuscationEnabled = val
-                                Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off") }
-                            }
-                        ),
-                        isLoading: viewModel.isLoading && !viewModel.hasFetchedData
-                    )
-                    
-                    Divider().padding(.leading, 64)
-                    
-                    // Server Side Excludes
-                    ScrapeShieldRow(
-                        title: "Server-Side Excludes",
-                        subtitle: "Hides specific page content from suspicious visitors.",
-                        icon: "server.rack",
-                        iconColor: .orange,
-                        isOn: Binding(
-                            get: { viewModel.serverSideExcludesEnabled },
-                            set: { val in
-                                viewModel.serverSideExcludesEnabled = val
-                                Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_exclude", value: val ? "on" : "off") }
-                            }
-                        ),
-                        isLoading: viewModel.isLoading && !viewModel.hasFetchedData
-                    )
-                    
-                    Divider().padding(.leading, 64)
-                    
-                    // Hotlink Protection
-                    ScrapeShieldRow(
-                        title: "Hotlink Protection",
-                        subtitle: "Prevents other sites from embedding your images, saving your bandwidth.",
-                        icon: "photo.fill",
-                        iconColor: .red,
-                        isOn: Binding(
-                            get: { viewModel.hotlinkProtectionEnabled },
-                            set: { val in
-                                viewModel.hotlinkProtectionEnabled = val
-                                Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off") }
-                            }
-                        ),
-                        isLoading: viewModel.isLoading && !viewModel.hasFetchedData
-                    )
-                }
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
-                
-                // Info Box
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("About Scrape Shield", systemImage: "info.circle")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.purple)
-                    
-                    Text("These protections help safeguard your content without impacting real visitors. Email obfuscation uses JavaScript to rewrite addresses, while hotlink protection blocks image requests from external domains.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .background(Color.purple.opacity(0.07))
-                .cornerRadius(12)
+                .listRowBackground(Color.clear)
             }
-            .padding()
+            
+            if viewModel.isLoading && !viewModel.hasFetchedData {
+                Section {
+                    SkeletonRowView()
+                    SkeletonRowView()
+                    SkeletonRowView()
+                }
+            } else {
+                Section(footer: 
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("About Scrape Shield", systemImage: "info.circle")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.purple)
+                        
+                        Text("These protections help safeguard your content without impacting real visitors. Email obfuscation uses JavaScript to rewrite addresses, while hotlink protection blocks image requests from external domains.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 8)
+                ) {
+                // Email Obfuscation
+                ScrapeShieldRow(
+                    title: "Email Address Obfuscation",
+                    subtitle: "Hides your email addresses from scrapers. Visitors can still see them.",
+                    icon: "envelope.badge.shield.half.filled.fill",
+                    iconColor: .blue,
+                    isOn: Binding(
+                        get: { viewModel.emailObfuscationEnabled },
+                        set: { val in
+                            viewModel.emailObfuscationEnabled = val
+                            Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off") }
+                        }
+                    ),
+                    isLoading: viewModel.isLoading && !viewModel.hasFetchedData
+                )
+                
+                // Server Side Excludes
+                ScrapeShieldRow(
+                    title: "Server-Side Excludes",
+                    subtitle: "Hides specific page content from suspicious visitors.",
+                    icon: "server.rack",
+                    iconColor: .orange,
+                    isOn: Binding(
+                        get: { viewModel.serverSideExcludesEnabled },
+                        set: { val in
+                            viewModel.serverSideExcludesEnabled = val
+                            Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_exclude", value: val ? "on" : "off") }
+                        }
+                    ),
+                    isLoading: viewModel.isLoading && !viewModel.hasFetchedData
+                )
+                
+                // Hotlink Protection
+                ScrapeShieldRow(
+                    title: "Hotlink Protection",
+                    subtitle: "Prevents other sites from embedding your images, saving your bandwidth.",
+                    icon: "photo.fill",
+                    iconColor: .red,
+                    isOn: Binding(
+                        get: { viewModel.hotlinkProtectionEnabled },
+                        set: { val in
+                            viewModel.hotlinkProtectionEnabled = val
+                            Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off") }
+                        }
+                    ),
+                    isLoading: viewModel.isLoading && !viewModel.hasFetchedData
+                )
+            }
+            }
         }
-        .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+        .listStyle(.insetGrouped)
         .navigationTitle("Scrape Shield")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -160,15 +160,10 @@ struct ScrapeShieldRow: View {
             
             Spacer()
             
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(0.8)
-            } else {
-                Toggle("", isOn: $isOn)
-                    .labelsHidden()
-            }
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .disabled(isLoading)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, 8)
     }
 }

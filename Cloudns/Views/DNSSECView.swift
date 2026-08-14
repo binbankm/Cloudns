@@ -17,89 +17,67 @@ struct DNSSECView: View {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
             if viewModel.isLoading && viewModel.dnssec == nil {
-                ProgressView()
-                    .scaleEffect(1.5)
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
+                }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.red)
-                    Text(errorMessage)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
-                    Button("Retry") {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
                         Task { await viewModel.fetchDNSSEC() }
                     }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
+                )
             } else if let dnssec = viewModel.dnssec {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Header Status Card
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack {
-                                Image(systemName: "lock.shield.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(statusColor(for: dnssec.status))
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("DNSSEC Status")
-                                        .font(.headline)
-                                    Text(dnssec.status.capitalized)
-                                        .font(.subheadline.bold())
-                                        .foregroundColor(statusColor(for: dnssec.status))
-                                }
-                                
-                                Spacer()
-                                
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                }
-                            }
+                List {
+                    // Header Status Section
+                    Section(footer: 
+                        Text("Protect your domain from DNS spoofing and cache poisoning by enabling DNSSEC and adding the DS record to your domain registrar.")
+                    ) {
+                        HStack {
+                            Image(systemName: "lock.shield.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(statusColor(for: dnssec.status))
                             
-                            Text("Protect your domain from DNS spoofing and cache poisoning by enabling DNSSEC and adding the DS record to your domain registrar.")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            Toggle(isOn: Binding(
-                                get: { dnssec.status == "active" || dnssec.status == "pending" },
-                                set: { _ in Task { await viewModel.toggleDNSSEC() } }
-                            )) {
-                                Text(dnssec.status == "active" ? "Enabled" : "Enable DNSSEC")
-                                    .font(.body.bold())
-                            }
-                            .disabled(viewModel.isLoading)
-                        }
-                        .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(12)
-                        
-                        if dnssec.status == "active" || dnssec.status == "pending" {
-                            // Details Card
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text("DS Record Details")
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("DNSSEC Status")
                                     .font(.headline)
-                                    .padding(.horizontal, 16)
-                                    .padding(.top, 16)
-                                    .padding(.bottom, 8)
-                                
-                                Divider()
-                                
-                                DetailRow(title: "DS Record", value: dnssec.ds)
-                                DetailRow(title: "Digest", value: dnssec.digest)
-                                DetailRow(title: "Digest Type", value: dnssec.digest_type)
-                                DetailRow(title: "Digest Algorithm", value: dnssec.digest_algorithm)
-                                DetailRow(title: "Algorithm", value: dnssec.algorithm)
-                                DetailRow(title: "Public Key", value: dnssec.public_key)
-                                DetailRow(title: "Key Tag", value: dnssec.key_tag != nil ? String(dnssec.key_tag!) : nil)
-                                DetailRow(title: "Flags", value: dnssec.flags != nil ? String(dnssec.flags!) : nil, isLast: true)
+                                Text(dnssec.status.capitalized)
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(statusColor(for: dnssec.status))
                             }
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
+                        }
+                        .padding(.vertical, 4)
+                        
+                        Toggle(isOn: Binding(
+                            get: { dnssec.status == "active" || dnssec.status == "pending" },
+                            set: { _ in Task { await viewModel.toggleDNSSEC() } }
+                        )) {
+                            Text(dnssec.status == "active" ? "Enabled" : "Enable DNSSEC")
+                                .font(.body.bold())
+                        }
+                        .disabled(viewModel.isLoading)
+                    }
+                    
+                    if dnssec.status == "active" || dnssec.status == "pending" {
+                        // Details Section
+                        Section(header: Text("DS Record Details")) {
+                            DetailRow(title: "DS Record", value: dnssec.ds)
+                            DetailRow(title: "Digest", value: dnssec.digest)
+                            DetailRow(title: "Digest Type", value: dnssec.digest_type)
+                            DetailRow(title: "Digest Algorithm", value: dnssec.digest_algorithm)
+                            DetailRow(title: "Algorithm", value: dnssec.algorithm)
+                            DetailRow(title: "Public Key", value: dnssec.public_key)
+                            DetailRow(title: "Key Tag", value: dnssec.key_tag != nil ? String(dnssec.key_tag!) : nil)
+                            DetailRow(title: "Flags", value: dnssec.flags != nil ? String(dnssec.flags!) : nil, isLast: true)
                         }
                     }
-                    .padding()
+                }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await viewModel.fetchDNSSEC()
                 }
             }
         }
@@ -127,33 +105,29 @@ struct DetailRow: View {
     
     var body: some View {
         if let validValue = value, !validValue.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(title)
-                        .font(.subheadline)
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(LocalizedStringKey(title))
+                        .font(.caption)
                         .foregroundColor(.secondary)
-                    Spacer()
-                    Button(action: {
-                        UIPasteboard.general.string = validValue
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
-                    }) {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundColor(.blue)
-                            .font(.subheadline)
-                    }
+                    Text(validValue)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.primary)
                 }
+                .padding(.vertical, 4)
                 
-                Text(validValue)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.primary)
+                Spacer()
                 
-                if !isLast {
-                    Divider().padding(.top, 8)
+                Button(action: {
+                    UIPasteboard.general.string = validValue
+                    let localizedTitle = NSLocalizedString(title, comment: "")
+                    let copyFormat = NSLocalizedString("%@ copied", comment: "")
+                    ToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
+                }) {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundColor(.blue)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
     }
 }

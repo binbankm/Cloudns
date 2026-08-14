@@ -19,25 +19,39 @@ struct SecurityEventsView: View {
                         .padding()
                 }
                 
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    Spacer()
-                    ProgressView("Loading Security Events...")
-                    Spacer()
-                } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
-                    Spacer()
-                    EmptyStateView(
-                        icon: "checkmark.shield",
-                        title: "No Security Events",
-                        message: "Your site hasn't blocked any threats recently. Everything is secure!"
-                    )
-                    Spacer()
-                } else {
+                if viewModel.isLoading && viewModel.events.isEmpty {
                     List {
-                        ForEach(viewModel.events) { event in
-                            SecurityEventCardView(event: event)
+                        ForEach(0..<6, id: \.self) { _ in
+                            SkeletonRowView()
                         }
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .listStyle(.insetGrouped)
+                } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchEvents(zoneId: zoneId)
+                            }
+                        }
+                    )
+                } else {
+                    List {
+                        if viewModel.events.isEmpty && viewModel.hasFetchedData {
+                            EmptyStateView(
+                                icon: "checkmark.shield",
+                                title: "No Security Events",
+                                message: "Your site hasn't blocked any threats recently. Everything is secure!"
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.events) { event in
+                                SecurityEventCardView(event: event)
+                            }
+                        }
+                    }
+                    .listStyle(.insetGrouped)
                 }
             }
         }

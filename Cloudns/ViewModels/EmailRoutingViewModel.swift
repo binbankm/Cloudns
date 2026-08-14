@@ -12,6 +12,7 @@ class EmailRoutingViewModel: ObservableObject {
     @Published var destinations: [EmailDestinationAddress] = []
     
     @Published var isLoading = false
+    @Published var hasFetchedData = false
     @Published var errorMessage: String?
     
     init(zoneId: String) {
@@ -30,10 +31,11 @@ class EmailRoutingViewModel: ObservableObject {
             async let fetchRules = apiClient.getEmailRoutingRules(zoneId: zoneId)
             async let fetchDests = apiClient.getEmailDestinations(accountId: accountId)
             
-            self.settings = try await fetchSettings
-            self.rules = try await fetchRules
-            self.destinations = try await fetchDests
-            
+            let (newSettings, newRules, newDests) = try await (fetchSettings, fetchRules, fetchDests)
+            self.settings = newSettings
+            self.rules = newRules
+            self.destinations = newDests
+            self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load email routing data: \(error.localizedDescription)"
         }

@@ -20,30 +20,50 @@ struct WAFCustomRulesView: View {
                         .padding()
                 }
                 
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    Spacer()
-                    ProgressView("Loading WAF Rules...")
-                    Spacer()
-                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                    Spacer()
-                    EmptyStateView(
-                        icon: "checkerboard.shield",
-                        title: "No Custom WAF Rules",
-                        message: "You haven't created any custom WAF rules yet. Please create them in the Cloudflare Dashboard."
+                if viewModel.isLoading && viewModel.rules.isEmpty {
+                    List {
+                        ForEach(0..<5, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchWAFRules(zoneId: zoneId)
+                            }
+                        }
                     )
-                    Spacer()
                 } else {
                     List {
-                        ForEach(viewModel.rules) { rule in
-                            WAFRuleCardView(rule: rule, onToggle: {
-                                Task {
-                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                }
-                            })
+                        if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                            EmptyStateView(
+                                icon: "shield.checkerboard",
+                                title: "No WAF Rules",
+                                message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
+                                actionTitle: "Add WAF Rule",
+                                action: { showingAddSheet = true }
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.rules) { rule in
+                                WAFRuleCardView(rule: rule, onToggle: {
+                                    Task {
+                                        await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                        ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                    }
+                                })
+                            }
+                            .onDelete(perform: deleteRules)
                         }
-                        .onDelete(perform: deleteRules)
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .listStyle(.insetGrouped)
+                    .refreshable {
+                        await viewModel.fetchWAFRules(zoneId: zoneId)
+                    }
                 }
             }
         }
@@ -76,6 +96,7 @@ struct WAFCustomRulesView: View {
             let rule = viewModel.rules[index]
             Task {
                 await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                ToastManager.shared.showSuccess("WAF Rule Deleted", message: rule.description ?? "")
             }
         }
     }

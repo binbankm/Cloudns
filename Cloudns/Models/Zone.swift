@@ -34,6 +34,39 @@ struct CloudflareError: Codable {
 }
 
 
+struct ZonePlan: Codable, Equatable {
+    let id: String?
+    let name: String?
+    let price: Double?
+    let currency: String?
+    let frequency: String?
+    let isSubscribed: Bool?
+    let canSubscribe: Bool?
+    let legacyId: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, price, currency, frequency
+        case isSubscribed = "is_subscribed"
+        case canSubscribe = "can_subscribe"
+        case legacyId = "legacy_id"
+    }
+    
+    var displayName: String {
+        if let name = name, !name.isEmpty {
+            let lower = name.lowercased()
+            if lower.contains("free") { return "Free" }
+            if lower.contains("pro") { return "Pro" }
+            if lower.contains("business") { return "Business" }
+            if lower.contains("enterprise") { return "Enterprise" }
+            return name
+        }
+        if let legacy = legacyId, !legacy.isEmpty {
+            return legacy.capitalized
+        }
+        return "Free"
+    }
+}
+
 struct ZoneAccount: Codable, Equatable {
     let id: String
     let name: String?
@@ -46,6 +79,7 @@ struct Zone: Codable, Identifiable, Equatable {
     let status: String
     let paused: Bool
     let type: String?
+    let plan: ZonePlan?
     let developmentMode: Int?
     let nameServers: [String]?
     let originalNameServers: [String]?
@@ -56,7 +90,7 @@ struct Zone: Codable, Identifiable, Equatable {
     let activatedOn: String?
     
     enum CodingKeys: String, CodingKey {
-        case id, name, status, paused, type
+        case id, name, status, paused, type, plan
         case developmentMode = "development_mode"
         case nameServers = "name_servers"
         case originalNameServers = "original_name_servers"

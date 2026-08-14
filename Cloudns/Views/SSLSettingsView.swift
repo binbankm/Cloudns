@@ -163,14 +163,7 @@ struct SSLSettingsView: View {
         .disabled(!viewModel.hasFetchedData)
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if viewModel.isLoading {
-                ProgressView()
-                    .padding()
-                    .background(Color(.systemBackground).opacity(0.8))
-                    .cornerRadius(8)
-            }
-        }
+
         .alert(isPresented: .constant(viewModel.errorMessage != nil), content: {
             Alert(
                 title: Text("Error"),

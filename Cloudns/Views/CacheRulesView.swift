@@ -16,37 +16,46 @@ struct CacheRulesView: View {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
             VStack {
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    Spacer()
-                    ProgressView("Loading Cache Rules...")
-                    Spacer()
-                } else if viewModel.rules.isEmpty {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "memorychip")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
-                        Text("No Cache Rules")
-                            .font(.title2.bold())
-                        Text("You haven't created any cache rules yet. Create one to customize caching behavior.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                if viewModel.isLoading && viewModel.rules.isEmpty {
+                    List {
+                        ForEach(0..<4, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
                     }
-                    Spacer()
+                    .listStyle(.insetGrouped)
                 } else {
                     List {
-                        ForEach(viewModel.rules) { rule in
-                            CacheRuleCardView(rule: rule) {
-                                Task {
-                                    await viewModel.toggleRule(rule: rule)
+                        if viewModel.rules.isEmpty {
+                            EmptyStateView(
+                                icon: "bolt.badge.clock",
+                                title: "No Cache Rules",
+                                message: "You haven't created any custom cache rules yet.",
+                                actionTitle: "Add Cache Rule",
+                                action: { showingAddSheet = true }
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.rules) { rule in
+                                CacheRuleCardView(rule: rule) {
+                                    Task {
+                                        await viewModel.toggleRule(rule: rule)
+                                    }
                                 }
                             }
+                            .onDelete(perform: { indexSet in
+                                for index in indexSet {
+                                    let rule = viewModel.rules[index]
+                                    viewModel.deleteRule(at: IndexSet(integer: index))
+                                    ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
+                                }
+                            })
                         }
-                        .onDelete(perform: viewModel.deleteRule)
                     }
                     .listStyle(InsetGroupedListStyle())
+                    .refreshable {
+                        await viewModel.fetchCacheRules()
+                    }
                 }
             }
         }

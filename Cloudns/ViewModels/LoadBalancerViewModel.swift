@@ -12,6 +12,7 @@ class LoadBalancerViewModel: ObservableObject {
     @Published var monitors: [LBMonitor] = []
     
     @Published var isLoading = false
+    @Published var hasFetchedData = false
     @Published var errorMessage: String?
     
     init(zoneId: String) {
@@ -30,10 +31,11 @@ class LoadBalancerViewModel: ObservableObject {
             async let fetchPools = apiClient.getLBPools(accountId: accountId)
             async let fetchMonitors = apiClient.getLBMonitors(accountId: accountId)
             
-            self.loadBalancers = try await fetchLBs
-            self.pools = try await fetchPools
-            self.monitors = try await fetchMonitors
-            
+            let (newLBs, newPools, newMonitors) = try await (fetchLBs, fetchPools, fetchMonitors)
+            self.loadBalancers = newLBs
+            self.pools = newPools
+            self.monitors = newMonitors
+            self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load Load Balancer data: \(error.localizedDescription)"
         }

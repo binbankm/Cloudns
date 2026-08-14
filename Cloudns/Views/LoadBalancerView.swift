@@ -25,16 +25,35 @@ struct LoadBalancerView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
                 
-                if viewModel.isLoading {
-                    Spacer()
-                    ProgressView("Loading...")
-                    Spacer()
+                if viewModel.isLoading && !viewModel.hasFetchedData {
+                    List {
+                        ForEach(0..<4, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchData()
+                            }
+                        }
+                    )
                 } else {
                     List {
                         if selectedTab == 0 {
                             if viewModel.loadBalancers.isEmpty {
-                                Text("No Load Balancers configured.")
-                                    .foregroundColor(.secondary)
+                                EmptyStateView(
+                                    icon: "arrow.triangle.branch",
+                                    title: "No Load Balancers",
+                                    message: "Distribute incoming traffic across server pools for high availability.",
+                                    actionTitle: "Add Load Balancer",
+                                    action: { showingAddSheet = true }
+                                )
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
                             } else {
                                 ForEach(viewModel.loadBalancers) { lb in
                                     VStack(alignment: .leading, spacing: 6) {
@@ -63,6 +82,7 @@ struct LoadBalancerView: View {
                                         Button(role: .destructive) {
                                             Task {
                                                 await viewModel.deleteLoadBalancer(id: lb.id)
+                                                ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
                                             }
                                         } label: {
                                             Label("Delete", systemImage: "trash")
@@ -72,8 +92,13 @@ struct LoadBalancerView: View {
                             }
                         } else if selectedTab == 1 {
                             if viewModel.pools.isEmpty {
-                                Text("No Pools configured.")
-                                    .foregroundColor(.secondary)
+                                EmptyStateView(
+                                    icon: "server.rack",
+                                    title: "No Origin Pools",
+                                    message: "Group multiple origin servers together with health monitoring."
+                                )
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
                             } else {
                                 ForEach(viewModel.pools) { pool in
                                     VStack(alignment: .leading, spacing: 6) {
@@ -96,8 +121,13 @@ struct LoadBalancerView: View {
                             }
                         } else if selectedTab == 2 {
                             if viewModel.monitors.isEmpty {
-                                Text("No Monitors configured.")
-                                    .foregroundColor(.secondary)
+                                EmptyStateView(
+                                    icon: "waveform.path.ecg",
+                                    title: "No Health Monitors",
+                                    message: "Send automated HTTP/HTTPS health checks to your origin servers."
+                                )
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
                             } else {
                                 ForEach(viewModel.monitors) { monitor in
                                     VStack(alignment: .leading, spacing: 6) {

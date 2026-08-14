@@ -26,15 +26,20 @@ struct AnalyticsView: View {
                     }
                 }
                 
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
+                if let errorMessage = viewModel.errorMessage, viewModel.dataPoints.isEmpty {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange)
+                            }
+                        }
+                    )
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                     EmptyStateView(
-                        icon: "chart.bar.xaxis",
-                        title: "No Data",
-                        message: "No data available."
+                        icon: "chart.xyaxis.line",
+                        title: "No Analytics Data",
+                        message: "Traffic metrics for the selected time range are currently unavailable."
                     )
                 } else {
                     // Summary Cards
@@ -85,12 +90,8 @@ struct AnalyticsView: View {
             }
             .padding(.vertical)
             .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
+            .shimmering(active: !viewModel.hasFetchedData)
             .disabled(!viewModel.hasFetchedData)
-        }
-        .overlay {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                ProgressView()
-            }
         }
         .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
         .navigationTitle("Analytics")

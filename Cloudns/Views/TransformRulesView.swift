@@ -16,37 +16,47 @@ struct TransformRulesView: View {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
             VStack {
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    Spacer()
-                    ProgressView("Loading Transform Rules...")
-                    Spacer()
-                } else if viewModel.rules.isEmpty {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "arrow.left.arrow.right")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
-                        Text("No Transform Rules")
-                            .font(.title2.bold())
-                        Text("You haven't created any URL rewrite or header modification rules yet.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                if viewModel.isLoading && viewModel.rules.isEmpty {
+                    List {
+                        ForEach(0..<4, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
                     }
-                    Spacer()
+                    .listStyle(.insetGrouped)
                 } else {
                     List {
-                        ForEach(viewModel.rules) { rule in
-                            TransformRuleCardView(rule: rule) {
-                                Task {
-                                    await viewModel.toggleRule(rule: rule)
+                        if viewModel.rules.isEmpty {
+                            EmptyStateView(
+                                icon: "arrow.triangle.2.circlepath",
+                                title: "No Transform Rules",
+                                message: "You haven't created any URL rewrite or header modification rules yet.",
+                                actionTitle: "Add Transform Rule",
+                                action: { showingAddSheet = true }
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.rules) { rule in
+                                TransformRuleCardView(rule: rule) {
+                                    Task {
+                                        await viewModel.toggleRule(rule: rule)
+                                        ToastManager.shared.showSuccess("Transform Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                    }
                                 }
                             }
+                            .onDelete(perform: { indexSet in
+                                for index in indexSet {
+                                    let rule = viewModel.rules[index]
+                                    viewModel.deleteRule(at: IndexSet(integer: index))
+                                    ToastManager.shared.showSuccess("Transform Rule Deleted", message: rule.description ?? "")
+                                }
+                            })
                         }
-                        .onDelete(perform: viewModel.deleteRule)
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .listStyle(.insetGrouped)
+                    .refreshable {
+                        await viewModel.fetchTransformRules()
+                    }
                 }
             }
         }

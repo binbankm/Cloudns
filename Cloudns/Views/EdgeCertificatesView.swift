@@ -16,43 +16,42 @@ struct EdgeCertificatesView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
-            if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.red)
-                    Text(errorMessage)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
-                    Button("Retry") {
+            if viewModel.isLoading && viewModel.certificates.isEmpty {
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
+                }
+                .listStyle(.insetGrouped)
+            } else if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty && viewModel.hasFetchedData {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
                         Task {
                             await viewModel.fetchCertificates(zoneId: zoneId)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
-            } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "lock.shield",
-                    title: "No Edge Certificates",
-                    message: "No Edge Certificates found."
                 )
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) {
+                List {
+                    if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
+                        EmptyStateView(
+                            icon: "lock.shield",
+                            title: "No Edge Certificates",
+                            message: "No Edge Certificates found."
+                        )
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    } else {
                         ForEach(displayCertificates) { cert in
                             EdgeCertificateCardView(certificate: cert)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                         }
-                        
-                        Divider().padding(.vertical)
-                        
-
                     }
-                    .padding()
-                    .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-                    .disabled(!viewModel.hasFetchedData)
                 }
+                .listStyle(.insetGrouped)
+                .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
+                .disabled(!viewModel.hasFetchedData)
                 .refreshable {
                     await viewModel.fetchCertificates(zoneId: zoneId)
                 }
@@ -150,14 +149,19 @@ struct EdgeCertificateCardView: View {
                     Text(certificate.signature)
                         .font(.system(.subheadline, design: .monospaced))
                 }
-                
+                    
                 HStack {
-                    Text("Expires")
+                    Text(certificate.id)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    
+                    Spacer()
+                    
+                    Text(formatDate(certificate.expiresOn))
                         .font(.caption)
                         .foregroundColor(.secondary)
-                        .frame(width: 80, alignment: .leading)
-                    Text(formatDate(certificate.expiresOn))
-                        .font(.subheadline)
                 }
             }
         }
@@ -165,6 +169,7 @@ struct EdgeCertificateCardView: View {
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+        .padding(.vertical, 4)
     }
     
     private func formatDate(_ dateString: String) -> String {

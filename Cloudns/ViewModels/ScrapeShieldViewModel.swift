@@ -60,21 +60,12 @@ class ScrapeShieldViewModel: ObservableObject {
     }
     
     func updateSetting(zoneId: String, settingId: String, value: String) async {
-        let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.success)
-        
         do {
             try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: .string(value))
-            
-            successMessage = "Setting updated."
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.successMessage = nil
-            }
+            ToastManager.shared.showSuccess("Setting Updated")
         } catch {
             self.errorMessage = "Update failed: \(error.localizedDescription)"
-            
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.error)
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

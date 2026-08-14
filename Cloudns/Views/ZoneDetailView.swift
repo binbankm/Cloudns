@@ -14,8 +14,6 @@ struct ZoneDetailView: View {
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
 
-            // ── Quick Controls ───────────────────────────────────────────
-            QuickControlsSection(zoneId: zone.id, initialPaused: zone.paused)
 
             // ── Analytics ────────────────────────────────────────────────
             Section(header: Text("Analytics")) {
@@ -168,6 +166,9 @@ struct ZoneDetailView: View {
                 )
             }
 
+            // ── Quick Controls ───────────────────────────────────────────
+            QuickControlsSection(zoneId: zone.id, initialPaused: zone.paused)
+
             // ── Advanced ─────────────────────────────────────────────────
             Section(header: Text("Advanced")) {
                 ZoneNavRow(
@@ -250,14 +251,26 @@ private struct ZoneHeaderCard: View {
                         }
                     }
 
-                    Spacer()
+                    Spacer(minLength: 8)
 
-                    Text((zone.type ?? "full").uppercased())
-                        .font(.caption2.bold())
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
+                    HStack(spacing: 6) {
+                        if let planName = zone.plan?.displayName {
+                            Text(planName.uppercased())
+                                .font(.caption2.bold())
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.white.opacity(0.22))
+                                .clipShape(Capsule())
+                        }
+
+                        Text((zone.type ?? "full").uppercased())
+                            .font(.caption2.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
+                    }
                 }
 
                 // Nameservers
@@ -281,7 +294,7 @@ private struct ZoneHeaderCard: View {
                         Spacer()
                         Button {
                             UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            ToastManager.shared.showCopied("Nameservers copied to clipboard")
                         } label: {
                             Image(systemName: "doc.on.doc.fill")
                                 .font(.subheadline)
@@ -307,6 +320,7 @@ private struct QuickControlsSection: View {
     @State private var isDevMode: Bool = false
     @State private var isPaused: Bool
     @State private var isLoading: Bool = true
+    @State private var hasFetchedData: Bool = false
 
     @State private var updatingAttack: Bool = false
     @State private var updatingDev: Bool = false
@@ -418,6 +432,7 @@ private struct QuickControlsSection: View {
     // MARK: Fetch
 
     private func fetchInitialStates() async {
+        if hasFetchedData { return }
         isLoading = true
         do {
             let settings = try await CloudflareAPIClient.shared.fetchZoneSettings(zoneId: zoneId)
@@ -434,6 +449,7 @@ private struct QuickControlsSection: View {
             // silently fail — toggles stay at defaults
         }
         isLoading = false
+        hasFetchedData = true
     }
 
     // MARK: Mutations
@@ -445,8 +461,10 @@ private struct QuickControlsSection: View {
                 zoneId: zoneId, settingId: "security_level",
                 value: .string(on ? "under_attack" : "medium")
             )
+            ToastManager.shared.showSuccess("Under Attack Mode", message: on ? "Enabled (5s challenge active)" : "Disabled")
         } catch {
             isUnderAttack = !on
+            ToastManager.shared.showError("Failed to update Under Attack Mode")
         }
         updatingAttack = false
     }
@@ -459,8 +477,10 @@ private struct QuickControlsSection: View {
                 value: .string(on ? "on" : "off")
             )
             NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            ToastManager.shared.showSuccess("Development Mode", message: on ? "Enabled (Cache bypassed for 3h)" : "Disabled")
         } catch {
             isDevMode = !on
+            ToastManager.shared.showError("Failed to update Development Mode")
         }
         updatingDev = false
     }
@@ -470,8 +490,10 @@ private struct QuickControlsSection: View {
         do {
             try await CloudflareAPIClient.shared.updateZoneStatus(zoneId: zoneId, paused: on)
             NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            ToastManager.shared.showSuccess("Zone Status", message: on ? "Domain paused on Cloudflare" : "Domain active on Cloudflare")
         } catch {
             isPaused = !on
+            ToastManager.shared.showError("Failed to update Zone Status")
         }
         updatingPause = false
     }

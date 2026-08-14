@@ -15,8 +15,22 @@ struct EmailRoutingView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
-            if viewModel.isLoading && viewModel.settings == nil {
-                ProgressView("Loading Email Routing...")
+            if viewModel.isLoading && !viewModel.hasFetchedData {
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
+                }
+                .listStyle(.insetGrouped)
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task {
+                            await viewModel.fetchData()
+                        }
+                    }
+                )
             } else {
                 List {
                     Section(header: Text("Status")) {
@@ -48,8 +62,15 @@ struct EmailRoutingView: View {
                         }
                     ) {
                         if viewModel.rules.isEmpty {
-                            Text("No routing rules configured.")
-                                .foregroundColor(.secondary)
+                            EmptyStateView(
+                                icon: "envelope.badge.shield.half.filled",
+                                title: "No Email Rules",
+                                message: "Create custom routing rules to forward incoming emails to external addresses.",
+                                actionTitle: "Add Rule",
+                                action: { showingAddSheet = true }
+                            )
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
                         } else {
                             ForEach(viewModel.rules) { rule in
                                 VStack(alignment: .leading, spacing: 6) {
@@ -86,14 +107,21 @@ struct EmailRoutingView: View {
                                 }
                                 .padding(.vertical, 4)
                             }
-                            .onDelete(perform: viewModel.deleteRule)
+                            .onDelete(perform: { indexSet in
+                                for index in indexSet {
+                                    let rule = viewModel.rules[index]
+                                    viewModel.deleteRule(at: IndexSet(integer: index))
+                                    ToastManager.shared.showSuccess("Email Rule Deleted", message: rule.name ?? "")
+                                }
+                            })
                         }
                     }
                     
                     Section(header: Text("Destination Addresses")) {
                         if viewModel.destinations.isEmpty {
-                            Text("No destination addresses.")
+                            Text("No destination addresses configured.")
                                 .foregroundColor(.secondary)
+                                .padding(.vertical, 4)
                         } else {
                             ForEach(viewModel.destinations) { dest in
                                 HStack {

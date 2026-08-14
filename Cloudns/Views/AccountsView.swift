@@ -13,6 +13,7 @@ struct AccountsView: View {
                         Button(action: {
                             withAnimation {
                                 accountManager.switchAccount(to: email)
+                                ToastManager.shared.showSuccess("Switched Account", message: email)
                             }
                         }) {
                             HStack {
@@ -67,6 +68,7 @@ struct AccountsView: View {
             .sheet(isPresented: $isShowingAddAccount) {
                 LoginView(onLoginSuccess: {
                     isShowingAddAccount = false
+                    ToastManager.shared.showSuccess("Account Added")
                 })
             }
         }
@@ -78,9 +80,8 @@ struct AccountsView: View {
             for index in offsets {
                 let email = keys[index]
                 accountManager.removeAccount(email: email)
+                ToastManager.shared.showSuccess("Account Removed", message: email)
             }
         }
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
     }
 }
