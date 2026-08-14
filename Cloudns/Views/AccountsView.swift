@@ -71,6 +71,7 @@ struct AccountsView: View {
                     ToastManager.shared.showSuccess("Account Added")
                 })
             }
+            .toastContainer()
         }
     }
     

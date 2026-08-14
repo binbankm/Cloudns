@@ -18,26 +18,22 @@ struct ZonesListView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-                
-                listViewContent
-            }
-            .navigationTitle("My Domains")
-            .searchable(text: $searchText, prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            listViewContent
+                .navigationTitle("My Domains")
+                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             viewModel.addZoneError = nil
                             showAddZoneSheet = true
                         }) {
                             Image(systemName: "plus")
                         }
+                    }
                 }
-            }
-            .sheet(isPresented: $showAddZoneSheet) {
-                AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
-            }
+                .sheet(isPresented: $showAddZoneSheet) {
+                    AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
+                }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoneDeleted"))) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
@@ -69,81 +65,80 @@ struct ZonesListView: View {
     
     @ViewBuilder
     private var listViewContent: some View {
-        if viewModel.isLoading && viewModel.zones.isEmpty {
-            List {
-                ForEach(0..<6, id: \.self) { _ in
-                    SkeletonRowView()
-                }
-            }
-            .listStyle(.insetGrouped)
-        } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-            EmptyStateView.error(
-                message: LocalizedStringKey(errorMessage),
-                retryAction: {
-                    Task {
-                        await viewModel.fetchZones(isRefresh: true)
+        List {
+            if !viewModel.hasFetchedData {
+                Section {
+                    ForEach(0..<6, id: \.self) { _ in
+                        SkeletonRowView()
                     }
                 }
-            )
-        } else {
-            List {
-                if viewModel.zones.isEmpty {
-                    EmptyStateView(
-                        icon: "globe",
-                        title: "No Domains Found",
-                        message: "You haven't added any domains to this account yet.",
-                        actionTitle: "Add Domain",
-                        action: {
-                            viewModel.addZoneError = nil
-                            showAddZoneSheet = true
+            } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task {
+                            await viewModel.fetchZones(isRefresh: true)
                         }
-                    )
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                } else if filteredZones.isEmpty {
-                    EmptyStateView.search(query: searchText) {
-                        searchText = ""
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                } else {
-                    Section {
-                        ForEach(filteredZones) { zone in
-                            NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                                ZoneRowView(zone: zone)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    zoneToDelete = zone
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            }
+                )
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            } else if viewModel.zones.isEmpty {
+                EmptyStateView(
+                    icon: "globe",
+                    title: "No Domains Found",
+                    message: "You haven't added any domains to this account yet.",
+                    actionTitle: "Add Domain",
+                    action: {
+                        viewModel.addZoneError = nil
+                        showAddZoneSheet = true
+                    }
+                )
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            } else if filteredZones.isEmpty {
+                EmptyStateView.search(query: searchText) {
+                    searchText = ""
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            } else {
+                Section {
+                    ForEach(filteredZones) { zone in
+                        NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                            ZoneRowView(zone: zone)
                         }
-                        
-                        if viewModel.canLoadMore && searchText.isEmpty {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                Spacer()
-                            }
-                            .listRowBackground(Color.clear)
-                            .onAppear {
-                                Task {
-                                    await viewModel.fetchZones(isRefresh: false)
-                                }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                let impact = UIImpactFeedbackGenerator(style: .medium)
+                                impact.impactOccurred()
+                                zoneToDelete = zone
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Remove", systemImage: "trash")
                             }
                         }
                     }
+                    
+                    if viewModel.canLoadMore && searchText.isEmpty {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                        .onAppear {
+                            Task {
+                                await viewModel.fetchZones(isRefresh: false)
+                            }
+                        }
+                    }
                 }
             }
-            .listStyle(.insetGrouped)
-            .refreshable {
-                await viewModel.fetchZones(isRefresh: true)
-            }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchZones(isRefresh: true)
         }
     }
 }
@@ -249,6 +244,7 @@ struct AddZoneView: View {
                         .fontWeight(.bold)
                     }
                 }
+                .toastContainer()
             }
         } else {
             NavigationStack {
@@ -318,6 +314,7 @@ struct AddZoneView: View {
                         }
                     }
                 }
+                .toastContainer()
             }
         }
     }

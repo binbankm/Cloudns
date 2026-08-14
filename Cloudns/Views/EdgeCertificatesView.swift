@@ -32,30 +32,26 @@ struct EdgeCertificatesView: View {
                         }
                     }
                 )
-            } else {
-                List {
-                    if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                        EmptyStateView(
-                            icon: "lock.shield",
-                            title: "No Edge Certificates",
-                            message: "No Edge Certificates found."
-                        )
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                    } else {
+                } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "lock.shield",
+                        title: "No Edge Certificates",
+                        message: "No Edge Certificates found."
+                    )
+                } else {
+                    List {
                         ForEach(displayCertificates) { cert in
                             EdgeCertificateCardView(certificate: cert)
                                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                         }
                     }
+                    .listStyle(.insetGrouped)
+                    .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
+                    .disabled(!viewModel.hasFetchedData)
+                    .refreshable {
+                        await viewModel.fetchCertificates(zoneId: zoneId)
+                    }
                 }
-                .listStyle(.insetGrouped)
-                .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-                .disabled(!viewModel.hasFetchedData)
-                .refreshable {
-                    await viewModel.fetchCertificates(zoneId: zoneId)
-                }
-            }
         }
         .navigationTitle("Edge Certificates")
         .navigationBarTitleDisplayMode(.inline)

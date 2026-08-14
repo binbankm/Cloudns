@@ -75,7 +75,7 @@ struct DNSRecordFormView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Record Details")) {
                     Picker("Type", selection: $type) {
@@ -118,30 +118,30 @@ struct DNSRecordFormView: View {
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                     } else {
-                        TextField("Target (IPv4, IPv6, or domain)", text: $content)
+                        TextField("Content (e.g., 192.0.2.1)", text: $content)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                        
-                        if type == "MX" || type == "URI" {
-                            TextField("Priority (e.g., 10)", text: $priority)
-                                .keyboardType(.numberPad)
-                        }
                     }
                 }
                 
-                Section(header: Text("Cloudflare Settings")) {
+                Section(header: Text("Configuration")) {
+                    if type == "MX" || type == "URI" {
+                        TextField("Priority", text: $priority)
+                            .keyboardType(.numberPad)
+                    }
+                    
                     if isProxySupported {
-                        Toggle(isOn: $proxied) {
-                            HStack {
-                                Image(systemName: "cloud.fill")
-                                    .foregroundColor(proxied ? .orange : .gray)
-                                VStack(alignment: .leading) {
-                                    Text("Proxy status")
-                                    Text(proxied ? "Proxied" : "DNS only")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Proxy Status")
+                                    .font(.body)
+                                Text(proxied ? "Proxied (Accelerated & Protected)" : "DNS Only")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
+                            Spacer()
+                            Toggle("", isOn: $proxied)
+                                .labelsHidden()
                         }
                     }
                     
@@ -152,15 +152,15 @@ struct DNSRecordFormView: View {
                     }
                 }
                 
-                Section(header: Text("Notes")) {
-                    TextField("Comment (Optional)", text: $comment)
+                Section(header: Text("Comment (Optional)")) {
+                    TextField("Add a note about this record", text: $comment)
                 }
                 
-                if let errorMessage = errorMessage {
+                if let error = errorMessage {
                     Section {
-                        Text(errorMessage)
+                        Text(error)
                             .foregroundColor(.red)
-                            .font(.callout)
+                            .font(.caption)
                     }
                 }
             }
@@ -192,6 +192,7 @@ struct DNSRecordFormView: View {
                     }
                 }
             }
+            .toastContainer()
         }
     }
     

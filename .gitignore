@@ -1,0 +1,41 @@
+# Xcode
+## User settings
+xcuserdata/
+*.xcuserdatad
+
+## Build generated
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+
+## Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+
+## App-specific ignores
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.Spotlight-V100
+.Trashes
+
+# Development & Temporary
+*.swp
+*~
+.tmp/
+.gemini/
+.claude/

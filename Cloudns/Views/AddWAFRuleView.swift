@@ -53,7 +53,7 @@ struct AddWAFRuleView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Block bad bots)", text: $ruleName)
@@ -134,6 +134,7 @@ struct AddWAFRuleView: View {
                     }
                 }
             )
+            .toastContainer()
         }
     }
     

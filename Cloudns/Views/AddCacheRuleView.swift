@@ -17,7 +17,7 @@ struct AddCacheRuleView: View {
     @State private var isSubmitting = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Cache static assets)", text: $ruleName)
@@ -100,6 +100,7 @@ struct AddCacheRuleView: View {
                     }
                 }
             )
+            .toastContainer()
         }
     }
     

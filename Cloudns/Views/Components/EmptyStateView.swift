@@ -80,9 +80,9 @@ public struct EmptyStateView: View {
                 .padding(.top, 24)
             }
         }
-        .padding(.vertical, 48)
+        .padding(.vertical, 36)
         .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 340, alignment: .center)
     }
 }
 

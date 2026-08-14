@@ -3,43 +3,108 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
     @AppStorage("themePreference") private var themePreference = "system"
+    @AppStorage("appLanguage") private var appLanguage = "system"
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @AppStorage("isLoggedIn") private var isLoggedIn = false
     
     @State private var showingLogoutAlert = false
+    @State private var showingClearCacheAlert = false
     @StateObject private var accountManager = AccountManager.shared
-    
-    // Cloudflare uses Gravatar for profile pictures based on email
-    // But for simplicity, we use a placeholder or system image.
     
     var body: some View {
         NavigationStack {
             List {
-                // MARK: - Profile Section
+                // MARK: - Profile Card Section
                 Section {
                     NavigationLink(destination: AccountsView()) {
                         HStack(spacing: 16) {
                             ZStack {
                                 Circle()
-                                    .fill(LinearGradient(gradient: Gradient(colors: [.blue, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 60, height: 60)
+                                    .fill(LinearGradient(gradient: Gradient(colors: [.orange, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 54, height: 54)
+                                    .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
-                                    .font(.title)
-                                    .fontWeight(.bold)
+                                    .font(.title2.bold())
                                     .foregroundColor(.white)
                             }
                             
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Accounts")
-                                    .font(.headline)
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(spacing: 6) {
+                                    Text("Active Account")
+                                        .font(.caption2.bold())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.12))
+                                        .foregroundColor(.orange)
+                                        .cornerRadius(4)
+                                }
+                                
+                                Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
+                                    .font(.body.weight(.semibold))
                                     .foregroundColor(.primary)
-                                Text(accountManager.activeEmail)
-                                    .font(.subheadline)
+                                    .lineLimit(1)
+                                
+                                Text("Tap to switch or add accounts")
+                                    .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                     }
+                }
+                
+                // MARK: - Cloudflare Operations & Status
+                Section {
+                    NavigationLink(destination: CloudflareStatusView()) {
+                        HStack(spacing: 14) {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.green)
+                                .frame(width: 32, height: 32)
+                                .background(Color.green.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("System Status")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                Text("Live Cloudflare network & service health")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    
+                    NavigationLink(destination: AuditLogsView(accountId: "")) {
+                        HStack(spacing: 14) {
+                            Image(systemName: "list.bullet.rectangle.portrait.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.blue)
+                                .frame(width: 32, height: 32)
+                                .background(Color.blue.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Audit Logs")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                Text("Account change history & actor records")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                } header: {
+                    Text("Cloudflare Services")
                 }
                 
                 // MARK: - Security Section
@@ -52,8 +117,10 @@ struct SettingsView: View {
                         )
                     }
                     .onChange(of: isAppLockEnabled) { _ in
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+                        if hapticsEnabled {
+                            let impact = UIImpactFeedbackGenerator(style: .light)
+                            impact.impactOccurred()
+                        }
                     }
                 } header: {
                     Text("Security")
@@ -61,7 +128,7 @@ struct SettingsView: View {
                     Text("Require Face ID or Touch ID to unlock the app when returning from the background.")
                 }
                 
-                // MARK: - Appearance Section
+                // MARK: - Preferences & Appearance Section
                 Section {
                     Picker(selection: $themePreference) {
                         Text("System").tag("system")
@@ -71,28 +138,78 @@ struct SettingsView: View {
                         SettingsRowView(
                             icon: "paintbrush.fill",
                             color: .orange,
-                            title: "Theme"
+                            title: "Appearance"
                         )
                     }
                     .pickerStyle(.menu)
                     .onChange(of: themePreference) { _ in
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+                        if hapticsEnabled {
+                            let impact = UIImpactFeedbackGenerator(style: .light)
+                            impact.impactOccurred()
+                        }
                     }
+                    
+                    Picker(selection: $appLanguage) {
+                        Text("Follow System").tag("system")
+                        Text("English").tag("en")
+                        Text("简体中文").tag("zh-Hans")
+                    } label: {
+                        SettingsRowView(
+                            icon: "globe",
+                            color: .blue,
+                            title: "Language"
+                        )
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: appLanguage) { _ in
+                        if hapticsEnabled {
+                            let impact = UIImpactFeedbackGenerator(style: .light)
+                            impact.impactOccurred()
+                        }
+                    }
+                    
+                    Toggle(isOn: $hapticsEnabled) {
+                        SettingsRowView(
+                            icon: "hand.tap.fill",
+                            color: .purple,
+                            title: "Haptic Feedback"
+                        )
+                    }
+                    
+                    Button {
+                        showingClearCacheAlert = true
+                    } label: {
+                        HStack {
+                            SettingsRowView(
+                                icon: "trash.fill",
+                                color: .red,
+                                title: "Clear Local Cache"
+                            )
+                            Spacer()
+                        }
+                    }
+                    .foregroundColor(.primary)
                 } header: {
-                    Text("Appearance")
+                    Text("Preferences")
                 }
                 
                 // MARK: - Support & About Section
                 Section {
-
+                    NavigationLink(destination: FeedbackView()) {
+                        SettingsRowView(
+                            icon: "envelope.badge.fill",
+                            color: .blue,
+                            title: "Feedback & Diagnostics"
+                        )
+                    }
+                    
                     Button(action: {
                         if let url = URL(string: "https://github.com/binbankm/Cloudns") {
                             UIApplication.shared.open(url)
                         }
                     }) {
                         SettingsRowView(
-                            icon: "swift",
+                            icon: "chevron.left.forwardslash.chevron.right",
                             color: .black,
                             title: "GitHub Repository"
                         )
@@ -100,19 +217,19 @@ struct SettingsView: View {
                     .foregroundColor(.primary)
                     
                     Button(action: {
-                        if let url = URL(string: "https://cloudflare.com") {
+                        if let url = URL(string: "https://www.cloudflare.com/privacypolicy/") {
                             UIApplication.shared.open(url)
                         }
                     }) {
                         SettingsRowView(
                             icon: "shield.fill",
-                            color: .blue,
+                            color: .cyan,
                             title: "Privacy Policy"
                         )
                     }
                     .foregroundColor(.primary)
                 } header: {
-                    Text("About")
+                    Text("About & Support")
                 } footer: {
                     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
                     let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -121,6 +238,7 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 8)
                 }
+                
                 // MARK: - Log Out Section
                 Section {
                     Button(role: .destructive, action: {
@@ -136,6 +254,15 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Clear", role: .destructive) {
+                    URLCache.shared.removeAllCachedResponses()
+                    ToastManager.shared.showSuccess("Cache Cleared", message: "Local network cache purged")
+                }
+            } message: {
+                Text("Are you sure you want to clear cached network responses and temporary storage?")
+            }
             .alert("Log Out", isPresented: $showingLogoutAlert) {
                 Button("Log Out", role: .destructive) {
                     let loginVM = LoginViewModel()
@@ -149,7 +276,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Helper View for Settings Row
 struct SettingsRowView: View {
     let icon: String
     let color: Color
@@ -157,22 +283,16 @@ struct SettingsRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(color)
-                    .frame(width: 30, height: 30)
-                
-                Image(systemName: icon)
-                    .foregroundColor(.white)
-                    .font(.system(size: 14, weight: .semibold))
-            }
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 28, height: 28)
+                .background(color)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             
             Text(title)
                 .font(.body)
+                .foregroundColor(.primary)
         }
     }
-}
-
-#Preview {
-    SettingsView()
 }

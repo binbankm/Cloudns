@@ -9,7 +9,7 @@ struct AddEmailRuleView: View {
     @State private var isSubmitting = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Custom Address"), footer: Text("The email address on your domain that will receive messages.")) {
                     HStack {
@@ -68,6 +68,7 @@ struct AddEmailRuleView: View {
                     }
                 }
             )
+            .toastContainer()
         }
     }
     

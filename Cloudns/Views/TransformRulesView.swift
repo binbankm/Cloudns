@@ -23,35 +23,31 @@ struct TransformRulesView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
+                } else if viewModel.rules.isEmpty {
+                    EmptyStateView(
+                        icon: "arrow.triangle.2.circlepath",
+                        title: "No Transform Rules",
+                        message: "You haven't created any URL rewrite or header modification rules yet.",
+                        actionTitle: "Add Transform Rule",
+                        action: { showingAddSheet = true }
+                    )
                 } else {
                     List {
-                        if viewModel.rules.isEmpty {
-                            EmptyStateView(
-                                icon: "arrow.triangle.2.circlepath",
-                                title: "No Transform Rules",
-                                message: "You haven't created any URL rewrite or header modification rules yet.",
-                                actionTitle: "Add Transform Rule",
-                                action: { showingAddSheet = true }
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(viewModel.rules) { rule in
-                                TransformRuleCardView(rule: rule) {
-                                    Task {
-                                        await viewModel.toggleRule(rule: rule)
-                                        ToastManager.shared.showSuccess("Transform Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                                    }
+                        ForEach(viewModel.rules) { rule in
+                            TransformRuleCardView(rule: rule) {
+                                Task {
+                                    await viewModel.toggleRule(rule: rule)
+                                    ToastManager.shared.showSuccess("Transform Rule Updated", message: "\(rule.description ?? "Rule") status updated")
                                 }
                             }
-                            .onDelete(perform: { indexSet in
-                                for index in indexSet {
-                                    let rule = viewModel.rules[index]
-                                    viewModel.deleteRule(at: IndexSet(integer: index))
-                                    ToastManager.shared.showSuccess("Transform Rule Deleted", message: rule.description ?? "")
-                                }
-                            })
                         }
+                        .onDelete(perform: { indexSet in
+                            for index in indexSet {
+                                let rule = viewModel.rules[index]
+                                viewModel.deleteRule(at: IndexSet(integer: index))
+                                ToastManager.shared.showSuccess("Transform Rule Deleted", message: rule.description ?? "")
+                            }
+                        })
                     }
                     .listStyle(.insetGrouped)
                     .refreshable {

@@ -36,29 +36,25 @@ struct WAFCustomRulesView: View {
                             }
                         }
                     )
+                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "shield.checkerboard",
+                        title: "No WAF Rules",
+                        message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
+                        actionTitle: "Add WAF Rule",
+                        action: { showingAddSheet = true }
+                    )
                 } else {
                     List {
-                        if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                            EmptyStateView(
-                                icon: "shield.checkerboard",
-                                title: "No WAF Rules",
-                                message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
-                                actionTitle: "Add WAF Rule",
-                                action: { showingAddSheet = true }
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(viewModel.rules) { rule in
-                                WAFRuleCardView(rule: rule, onToggle: {
-                                    Task {
-                                        await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                        ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                                    }
-                                })
-                            }
-                            .onDelete(perform: deleteRules)
+                        ForEach(viewModel.rules) { rule in
+                            WAFRuleCardView(rule: rule, onToggle: {
+                                Task {
+                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                    ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                }
+                            })
                         }
+                        .onDelete(perform: deleteRules)
                     }
                     .listStyle(.insetGrouped)
                     .refreshable {

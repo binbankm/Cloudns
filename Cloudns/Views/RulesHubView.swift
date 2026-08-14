@@ -20,6 +20,20 @@ struct RulesHubView: View {
                     color: .indigo,
                     destination: CacheRulesView(zoneId: zoneId)
                 )
+                ZoneNavRow(
+                    title: "Redirect Rules",
+                    subtitle: "Static & dynamic 301/302 URL redirects",
+                    icon: "arrow.turn.up.right",
+                    color: .blue,
+                    destination: RedirectRulesView(zoneId: zoneId)
+                )
+                ZoneNavRow(
+                    title: "Edge Snippets",
+                    subtitle: "Lightweight JavaScript on HTTP requests",
+                    icon: "curlybraces",
+                    color: .orange,
+                    destination: SnippetsListView(zoneId: zoneId)
+                )
             }
         }
         .listStyle(.insetGrouped)

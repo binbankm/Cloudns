@@ -1,0 +1,148 @@
+import SwiftUI
+
+struct D1ConsoleView: View {
+    let accountId: String
+    let database: D1Database
+    @StateObject private var viewModel: D1ConsoleViewModel
+    @FocusState private var isEditorFocused: Bool
+    
+    init(accountId: String, database: D1Database) {
+        self.accountId = accountId
+        self.database = database
+        _viewModel = StateObject(wrappedValue: D1ConsoleViewModel(accountId: accountId, database: database))
+    }
+    
+    var body: some View {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
+            List {
+                // Section: DB Summary
+                Section(header: Text("Database Overview")) {
+                    HStack {
+                        Text("Database Name")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(database.name)
+                            .font(.body.bold())
+                            .foregroundColor(.primary)
+                    }
+                    
+                    HStack {
+                        Text("UUID")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(database.uuid)
+                            .font(.caption2.monospaced())
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if database.fileSize != nil {
+                        HStack {
+                            Text("Storage Size")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(database.formattedSize)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+                
+                // Section: SQL Query Editor
+                Section(header: Text("SQL Query Console")) {
+                    // Presets
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(viewModel.sqlPresets, id: \.name) { preset in
+                                Button {
+                                    viewModel.sqlInput = preset.sql
+                                } label: {
+                                    Text(preset.name)
+                                        .font(.caption2.weight(.medium))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 5)
+                                        .background(Color(UIColor.secondarySystemFill))
+                                        .foregroundColor(.purple)
+                                        .cornerRadius(6)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    
+                    TextEditor(text: $viewModel.sqlInput)
+                        .font(.system(size: 13, design: .monospaced))
+                        .frame(minHeight: 80)
+                        .focused($isEditorFocused)
+                    
+                    Button {
+                        isEditorFocused = false
+                        Task { await viewModel.runQuery() }
+                    } label: {
+                        HStack {
+                            Spacer()
+                            if viewModel.isExecuting {
+                                ProgressView()
+                                    .padding(.trailing, 4)
+                            } else {
+                                Image(systemName: "play.fill")
+                            }
+                            Text("Execute SQL")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(.purple)
+                            Spacer()
+                        }
+                    }
+                    .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
+                }
+                
+                // Section: Results
+                if let result = viewModel.queryResult {
+                    Section(header: HStack {
+                        Text("Query Results (\(result.rows.count) rows)")
+                        Spacer()
+                        Text(String(format: "%.1f ms", result.durationMs))
+                            .font(.caption2.bold())
+                            .foregroundColor(.green)
+                    }) {
+                        if result.rows.isEmpty {
+                            Text("Query executed successfully. 0 rows returned.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(0..<result.rows.count, id: \.self) { idx in
+                                let row = result.rows[idx]
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(result.columns, id: \.self) { col in
+                                        HStack(alignment: .top) {
+                                            Text(col)
+                                                .font(.caption2.monospaced())
+                                                .foregroundColor(.secondary)
+                                                .frame(width: 80, alignment: .leading)
+                                            
+                                            Text(row[col] ?? "null")
+                                                .font(.caption.monospaced())
+                                                .foregroundColor(.primary)
+                                            
+                                            Spacer()
+                                        }
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    }
+                } else if let error = viewModel.errorMessage {
+                    Section {
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+        }
+        .navigationTitle(database.name)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}

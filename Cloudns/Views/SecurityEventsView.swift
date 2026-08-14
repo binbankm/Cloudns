@@ -35,20 +35,16 @@ struct SecurityEventsView: View {
                             }
                         }
                     )
+                } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "checkmark.shield",
+                        title: "No Security Events",
+                        message: "Your site hasn't blocked any threats recently. Everything is secure!"
+                    )
                 } else {
                     List {
-                        if viewModel.events.isEmpty && viewModel.hasFetchedData {
-                            EmptyStateView(
-                                icon: "checkmark.shield",
-                                title: "No Security Events",
-                                message: "Your site hasn't blocked any threats recently. Everything is secure!"
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(viewModel.events) { event in
-                                SecurityEventCardView(event: event)
-                            }
+                        ForEach(viewModel.events) { event in
+                            SecurityEventCardView(event: event)
                         }
                     }
                     .listStyle(.insetGrouped)

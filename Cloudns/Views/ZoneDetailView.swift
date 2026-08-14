@@ -115,11 +115,11 @@ struct ZoneDetailView: View {
                     subtitle: "Cache level, browser TTL, purge cache",
                     icon: "memorychip",
                     color: .cyan,
-                    destination: CachingHubView(zoneId: zone.id)
+                    destination: CachingView(zoneId: zone.id)
                 )
                 ZoneNavRow(
                     title: "Rules",
-                    subtitle: "Transform Rules, Cache Rules",
+                    subtitle: "Transform, Cache, Redirect, Snippets",
                     icon: "arrow.triangle.2.circlepath",
                     color: .teal,
                     destination: RulesHubView(zoneId: zone.id)

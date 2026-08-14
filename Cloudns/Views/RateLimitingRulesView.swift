@@ -36,29 +36,25 @@ struct RateLimitingRulesView: View {
                             }
                         }
                     )
+                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "speedometer",
+                        title: "No Rate Limiting Rules",
+                        message: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
+                        actionTitle: "Add Rule",
+                        action: { showingAddSheet = true }
+                    )
                 } else {
                     List {
-                        if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                            EmptyStateView(
-                                icon: "speedometer",
-                                title: "No Rate Limiting Rules",
-                                message: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
-                                actionTitle: "Add Rule",
-                                action: { showingAddSheet = true }
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(viewModel.rules) { rule in
-                                WAFRuleCardView(rule: rule, onToggle: {
-                                    Task {
-                                        await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                        ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                                    }
-                                })
-                            }
-                            .onDelete(perform: deleteRules)
+                        ForEach(viewModel.rules) { rule in
+                            WAFRuleCardView(rule: rule, onToggle: {
+                                Task {
+                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                    ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                }
+                            })
                         }
+                        .onDelete(perform: deleteRules)
                     }
                     .listStyle(.insetGrouped)
                     .refreshable {

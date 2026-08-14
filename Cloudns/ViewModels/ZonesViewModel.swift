@@ -6,6 +6,7 @@ import Combine
 class ZonesViewModel: ObservableObject {
     @Published var zones: [Zone] = []
     @Published var isLoading: Bool = false
+    @Published var hasFetchedData: Bool = false
     @Published var errorMessage: String? = nil
     @Published var canLoadMore: Bool = false
     @Published var totalCount: Int = 0
@@ -37,8 +38,10 @@ class ZonesViewModel: ObservableObject {
             } else {
                 canLoadMore = false
             }
+            self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
+            self.hasFetchedData = true
             if let apiError = error as? APIError, case .unauthorized = apiError {
                 // Handle unauthorized globally if needed, for example by logging out
                 // UserDefaults.standard.set(false, forKey: "isLoggedIn")

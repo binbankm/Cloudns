@@ -10,7 +10,7 @@ struct AddTransformRuleView: View {
     @State private var isSubmitting = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Rewrite API to v2)", text: $ruleName)
@@ -54,6 +54,7 @@ struct AddTransformRuleView: View {
                     }
                 }
             )
+            .toastContainer()
         }
     }
     

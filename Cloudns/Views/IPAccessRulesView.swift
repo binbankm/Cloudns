@@ -36,32 +36,28 @@ struct IPAccessRulesView: View {
                             }
                         }
                     )
+                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                    EmptyStateView(
+                        icon: "network.badge.shield.half.filled",
+                        title: "No IP Access Rules",
+                        message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                        actionTitle: "Add IP Rule",
+                        action: { showingAddRule = true }
+                    )
                 } else {
                     List {
-                        if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                            EmptyStateView(
-                                icon: "network.badge.shield.half.filled",
-                                title: "No IP Access Rules",
-                                message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                                actionTitle: "Add IP Rule",
-                                action: { showingAddRule = true }
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(viewModel.rules) { rule in
-                                IPAccessRuleRow(rule: rule)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            Task {
-                                                await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                                ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                        ForEach(viewModel.rules) { rule in
+                            IPAccessRuleRow(rule: rule)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task {
+                                            await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                                            ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
                                         }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                            }
+                                }
                         }
                     }
                     .listStyle(.insetGrouped)
@@ -207,6 +203,7 @@ struct AddIPAccessRuleView: View {
                     .disabled(value.isEmpty || viewModel.isCreating)
                 }
             }
+            .toastContainer()
         }
     }
 }

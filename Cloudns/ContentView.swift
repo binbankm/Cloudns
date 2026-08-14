@@ -12,8 +12,17 @@ struct ContentView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
     @AppStorage("themePreference") private var themePreference = "system"
+    @AppStorage("appLanguage") private var appLanguage = "system"
+    @State private var selectedTab = 0
     @StateObject private var authManager = AppAuthManager.shared
     @Environment(\.scenePhase) private var scenePhase
+    
+    var currentLocale: Locale {
+        if appLanguage == "system" {
+            return Locale.autoupdatingCurrent
+        }
+        return Locale(identifier: appLanguage)
+    }
     
     var body: some View {
         Group {
@@ -21,16 +30,30 @@ struct ContentView: View {
                 OnboardingView()
             } else if isLoggedIn {
                 ZStack {
-                    TabView {
+                    TabView(selection: $selectedTab) {
+                        DashboardView()
+                            .tabItem {
+                                Label("Dashboard", systemImage: "square.grid.2x2.fill")
+                            }
+                            .tag(0)
+                        
                         ZonesListView()
                             .tabItem {
                                 Label("Domains", systemImage: "network")
                             }
+                            .tag(1)
+                        
+                        DeveloperHubView()
+                            .tabItem {
+                                Label("Developer", systemImage: "cpu.fill")
+                            }
+                            .tag(2)
                         
                         SettingsView()
                             .tabItem {
-                                Label("Settings", systemImage: "gearshape")
+                                Label("Settings", systemImage: "gearshape.fill")
                             }
+                            .tag(3)
                     }
                     .blur(radius: (isAppLockEnabled && scenePhase != .active) ? 15 : 0)
                     
@@ -47,6 +70,8 @@ struct ContentView: View {
         .animation(.default, value: authManager.isUnlocked)
         .toastContainer()
         .preferredColorScheme(themePreference == "light" ? .light : (themePreference == "dark" ? .dark : nil))
+        .environment(\.locale, currentLocale)
+        .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
         }

@@ -39,7 +39,7 @@ struct AddLoadBalancerView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
@@ -124,19 +124,24 @@ struct AddLoadBalancerView: View {
             }
             .navigationTitle("Create Load Balancer")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button(action: save) {
-                    if isSubmitting {
-                        ProgressView().progressViewStyle(CircularProgressViewStyle())
-                    } else {
-                        Text("Save").fontWeight(.bold)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
-                .disabled(!isValid || isSubmitting)
-            )
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: save) {
+                        if isSubmitting {
+                            ProgressView().progressViewStyle(CircularProgressViewStyle())
+                        } else {
+                            Text("Save").fontWeight(.bold)
+                        }
+                    }
+                    .disabled(!isValid || isSubmitting)
+                }
+            }
+            .toastContainer()
         }
     }
     

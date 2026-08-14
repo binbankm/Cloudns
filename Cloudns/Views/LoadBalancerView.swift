@@ -41,107 +41,95 @@ struct LoadBalancerView: View {
                             }
                         }
                     )
+                } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
+                    EmptyStateView(
+                        icon: "arrow.triangle.branch",
+                        title: "No Load Balancers",
+                        message: "Distribute incoming traffic across server pools for high availability.",
+                        actionTitle: "Add Load Balancer",
+                        action: { showingAddSheet = true }
+                    )
+                } else if selectedTab == 1 && viewModel.pools.isEmpty {
+                    EmptyStateView(
+                        icon: "server.rack",
+                        title: "No Origin Pools",
+                        message: "Group multiple origin servers together with health monitoring."
+                    )
+                } else if selectedTab == 2 && viewModel.monitors.isEmpty {
+                    EmptyStateView(
+                        icon: "waveform.path.ecg",
+                        title: "No Health Monitors",
+                        message: "Send automated HTTP/HTTPS health checks to your origin servers."
+                    )
                 } else {
                     List {
                         if selectedTab == 0 {
-                            if viewModel.loadBalancers.isEmpty {
-                                EmptyStateView(
-                                    icon: "arrow.triangle.branch",
-                                    title: "No Load Balancers",
-                                    message: "Distribute incoming traffic across server pools for high availability.",
-                                    actionTitle: "Add Load Balancer",
-                                    action: { showingAddSheet = true }
-                                )
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                            } else {
-                                ForEach(viewModel.loadBalancers) { lb in
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        HStack {
-                                            Text(lb.name ?? lb.id)
-                                                .font(.headline)
-                                            Spacer()
-                                            if lb.enabled == true {
-                                                Text("Active")
-                                                    .font(.caption)
-                                                    .foregroundColor(.green)
-                                            } else {
-                                                Text("Inactive")
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                        }
-                                        if let fallback = lb.fallbackPool {
-                                            Text("Fallback: \(fallback)")
+                            ForEach(viewModel.loadBalancers) { lb in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    HStack {
+                                        Text(lb.name ?? lb.id)
+                                            .font(.headline)
+                                        Spacer()
+                                        if lb.enabled == true {
+                                            Text("Active")
+                                                .font(.caption)
+                                                .foregroundColor(.green)
+                                        } else {
+                                            Text("Inactive")
                                                 .font(.caption)
                                                 .foregroundColor(.secondary)
                                         }
                                     }
-                                    .padding(.vertical, 4)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            Task {
-                                                await viewModel.deleteLoadBalancer(id: lb.id)
-                                                ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                                    if let fallback = lb.fallbackPool {
+                                        Text("Fallback: \(fallback)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task {
+                                            await viewModel.deleteLoadBalancer(id: lb.id)
+                                            ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
                                         }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
                             }
                         } else if selectedTab == 1 {
-                            if viewModel.pools.isEmpty {
-                                EmptyStateView(
-                                    icon: "server.rack",
-                                    title: "No Origin Pools",
-                                    message: "Group multiple origin servers together with health monitoring."
-                                )
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                            } else {
-                                ForEach(viewModel.pools) { pool in
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        HStack {
-                                            Text(pool.name ?? pool.id)
-                                                .font(.headline)
-                                            Spacer()
-                                            Text("\(pool.origins?.count ?? 0) Origins")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-                                        if let desc = pool.description, !desc.isEmpty {
-                                            Text(desc)
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
+                            ForEach(viewModel.pools) { pool in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    HStack {
+                                        Text(pool.name ?? pool.id)
+                                            .font(.headline)
+                                        Spacer()
+                                        Text("\(pool.origins?.count ?? 0) Origins")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
                                     }
-                                    .padding(.vertical, 4)
+                                    if let desc = pool.description, !desc.isEmpty {
+                                        Text(desc)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
                         } else if selectedTab == 2 {
-                            if viewModel.monitors.isEmpty {
-                                EmptyStateView(
-                                    icon: "waveform.path.ecg",
-                                    title: "No Health Monitors",
-                                    message: "Send automated HTTP/HTTPS health checks to your origin servers."
-                                )
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                            } else {
-                                ForEach(viewModel.monitors) { monitor in
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(monitor.description ?? monitor.id)
-                                            .font(.headline)
-                                        HStack {
-                                            Text(monitor.method ?? "GET")
-                                            Text(monitor.path ?? "/")
-                                        }
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                            ForEach(viewModel.monitors) { monitor in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(monitor.description ?? monitor.id)
+                                        .font(.headline)
+                                    HStack {
+                                        Text(monitor.method ?? "GET")
+                                        Text(monitor.path ?? "/")
                                     }
-                                    .padding(.vertical, 4)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
                     }

@@ -35,26 +35,25 @@ struct AddRateLimitingRuleView: View {
     ]
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Rule Details"), footer: Text("Protect your site from DDoS and brute force attacks.")) {
-                    TextField("Rule Name (e.g. Block aggressive IPs)", text: $ruleName)
+                    TextField("Rule Name (e.g. Protect login)", text: $ruleName)
                 }
                 
-                Section(header: Text("When traffic exceeds...")) {
-                    HStack {
-                        Text("Requests")
-                        Spacer()
-                        TextField("e.g. 50", text: $requests)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
-                    }
-                    
-                    Picker("In a period of", selection: $period) {
+                Section(header: Text("Rate Limit Configuration")) {
+                    Picker("Time Window", selection: $period) {
                         ForEach(periods, id: \.0) { val, name in
                             Text(name).tag(val)
                         }
+                    }
+                    
+                    HStack {
+                        Text("Requests Per Window")
+                        Spacer()
+                        TextField("50", text: $requests)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
                     }
                 }
                 
@@ -103,6 +102,7 @@ struct AddRateLimitingRuleView: View {
                     }
                 }
             )
+            .toastContainer()
         }
     }
     
