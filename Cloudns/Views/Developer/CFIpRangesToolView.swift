@@ -63,13 +63,16 @@ struct CFIpRangesToolView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<6, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -77,46 +80,44 @@ struct CFIpRangesToolView: View {
                         Task { await viewModel.fetchIPRanges() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
                 let activeList = viewModel.selectedSegment == 0 ? viewModel.filteredIPv4 : viewModel.filteredIPv6
                 if activeList.isEmpty {
                     EmptyStateView.search(query: viewModel.searchText) {
                         viewModel.searchText = ""
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
-                    Section(header: Text(viewModel.selectedSegment == 0 ? "Official IPv4 CIDRs" : "Official IPv6 CIDRs"), footer: Text("Use these official Cloudflare Edge IP subnets for origin firewall rules (iptables, UFW, Nginx).")) {
-                        ForEach(activeList, id: \.self) { cidr in
-                            HStack {
-                                Image(systemName: "network")
-                                    .foregroundColor(.blue)
-                                    .font(.caption)
-                                
-                                Text(cidr)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
-                                
-                                Spacer()
-                                
-                                Button {
-                                    UIPasteboard.general.string = cidr
-                                    ToastManager.shared.showCopied("CIDR copied")
-                                } label: {
-                                    Image(systemName: "doc.on.doc")
+                    List {
+                        Section(header: Text(viewModel.selectedSegment == 0 ? "Official IPv4 CIDRs" : "Official IPv6 CIDRs"), footer: Text("Use these official Cloudflare Edge IP subnets for origin firewall rules (iptables, UFW, Nginx).")) {
+                            ForEach(activeList, id: \.self) { cidr in
+                                HStack {
+                                    Image(systemName: "network")
+                                        .foregroundColor(.blue)
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+
+                                    Text(cidr)
+                                        .font(.body.monospacedDigit())
+                                        .foregroundColor(.primary)
+
+                                    Spacer()
+
+                                    Button {
+                                        UIPasteboard.general.string = cidr
+                                        ToastManager.shared.showCopied("CIDR copied")
+                                    } label: {
+                                        Image(systemName: "doc.on.doc")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .buttonStyle(.borderless)
                                 }
-                                .buttonStyle(.borderless)
+                                .padding(.vertical, 3)
                             }
-                            .padding(.vertical, 3)
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
         }
-        .listStyle(.insetGrouped)
     }
 }

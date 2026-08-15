@@ -72,8 +72,6 @@ struct RedirectRulesView: View {
                 message: LocalizedStringKey(err),
                 retryAction: { Task { await fetchRules() } }
             )
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets())
         } else if rules.isEmpty {
             EmptyStateView(
                 icon: "arrow.turn.up.right",
@@ -82,8 +80,6 @@ struct RedirectRulesView: View {
                 actionTitle: "Create Redirect Rule",
                 action: { showingAddSheet = true }
             )
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets())
         } else {
             List {
                 Section(header: Text("Configured Redirects (\(rules.count))")) {

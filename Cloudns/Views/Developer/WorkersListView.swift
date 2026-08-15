@@ -93,13 +93,16 @@ struct WorkersListView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<5, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -107,8 +110,6 @@ struct WorkersListView: View {
                         Task { await viewModel.fetchData() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.selectedSegment == 0 {
                 if viewModel.workers.isEmpty {
                     EmptyStateView(
@@ -118,32 +119,31 @@ struct WorkersListView: View {
                         actionTitle: "Create Worker",
                         action: { showingCreateWorkerSheet = true }
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else if viewModel.filteredWorkers.isEmpty {
                     EmptyStateView.search(query: viewModel.searchText) {
                         viewModel.searchText = ""
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
-                    ForEach(viewModel.filteredWorkers) { worker in
-                        NavigationLink {
-                            WorkerDetailView(accountId: accountId, worker: worker)
-                        } label: {
-                            WorkerRowView(worker: worker)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                workerToDelete = worker
-                                showingDeleteWorkerAlert = true
+                    List {
+                        ForEach(viewModel.filteredWorkers) { worker in
+                            NavigationLink {
+                                WorkerDetailView(accountId: accountId, worker: worker)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                WorkerRowView(worker: worker)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    workerToDelete = worker
+                                    showingDeleteWorkerAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
             } else {
                 if viewModel.pages.isEmpty {
@@ -154,72 +154,70 @@ struct WorkersListView: View {
                         actionTitle: "Create Project",
                         action: { showingCreatePagesSheet = true }
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else if viewModel.filteredPages.isEmpty {
                     EmptyStateView.search(query: viewModel.searchText) {
                         viewModel.searchText = ""
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
-                    ForEach(viewModel.filteredPages) { page in
-                        NavigationLink {
-                            PagesProjectDetailView(accountId: accountId, project: page)
-                        } label: {
-                            HStack(alignment: .center, spacing: 14) {
-                                Image(systemName: "doc.richtext.fill")
-                                    .font(.body)
-                                    .foregroundColor(.blue)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.blue.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(page.name)
-                                        .font(.body)
-                                        .foregroundColor(.primary)
-                                    
-                                    if let sub = page.subdomain {
-                                        Text(sub)
-                                            .font(.caption.monospacedDigit())
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                if let branch = page.productionBranch {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "arrow.triangle.branch")
-                                            .font(.caption2)
-                                        Text(branch)
-                                            .font(.caption2)
-                                    }
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 3)
-                                    .background(Color(UIColor.tertiarySystemGroupedBackground))
-                                    .cornerRadius(6)
-                                }
-                            }
-                            .padding(.vertical, 2)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                projectToDelete = page
-                                showingDeletePagesAlert = true
+                    List {
+                        ForEach(viewModel.filteredPages) { page in
+                            NavigationLink {
+                                PagesProjectDetailView(accountId: accountId, project: page)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                HStack(alignment: .center, spacing: 14) {
+                                    Image(systemName: "doc.richtext.fill")
+                                        .font(.body)
+                                        .foregroundColor(.blue)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.blue.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(page.name)
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                        
+                                        if let sub = page.subdomain {
+                                            Text(sub)
+                                                .font(.caption.monospacedDigit())
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    if let branch = page.productionBranch {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "arrow.triangle.branch")
+                                                .font(.caption2)
+                                            Text(branch)
+                                                .font(.caption2)
+                                        }
+                                        .foregroundColor(.secondary)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color(UIColor.tertiarySystemGroupedBackground))
+                                        .cornerRadius(6)
+                                    }
+                                }
+                                .padding(.vertical, 2)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    projectToDelete = page
+                                    showingDeletePagesAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

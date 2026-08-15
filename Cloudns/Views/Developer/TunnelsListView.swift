@@ -26,13 +26,18 @@ struct TunnelsListView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<4, id: \.self) { _ in
-                        SkeletonRowView()
+                List {
+                    Section {
+                        ForEach(0..<4, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -40,8 +45,6 @@ struct TunnelsListView: View {
                         Task { await viewModel.fetchTunnels() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.tunnels.isEmpty {
                 EmptyStateView(
                     icon: "network.badge.shield.half.filled",
@@ -50,25 +53,23 @@ struct TunnelsListView: View {
                     actionTitle: nil,
                     action: nil
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredTunnels.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(viewModel.filteredTunnels) { tunnel in
-                    NavigationLink {
-                        TunnelDetailView(accountId: accountId, tunnel: tunnel)
-                    } label: {
-                        TunnelRowView(tunnel: tunnel)
+                List {
+                    ForEach(viewModel.filteredTunnels) { tunnel in
+                        NavigationLink {
+                            TunnelDetailView(accountId: accountId, tunnel: tunnel)
+                        } label: {
+                            TunnelRowView(tunnel: tunnel)
+                        }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

@@ -15,45 +15,41 @@ struct CacheRulesView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
             
-            VStack {
-                if viewModel.isLoading && viewModel.rules.isEmpty {
-                    List {
-                        ForEach(0..<4, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
+            if viewModel.isLoading && viewModel.rules.isEmpty {
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
                     }
-                    .listStyle(.insetGrouped)
-                } else if viewModel.rules.isEmpty {
-                    EmptyStateView(
-                        icon: "bolt.badge.clock",
-                        title: "No Cache Rules",
-                        message: "You haven't created any custom cache rules yet.",
-                        actionTitle: "Add Cache Rule",
-                        action: { showingAddSheet = true }
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else {
-                    List {
-                        ForEach(viewModel.rules) { rule in
-                            CacheRuleCardView(rule: rule) {
-                                Task {
-                                    await viewModel.toggleRule(rule: rule)
-                                }
+                }
+                .listStyle(.insetGrouped)
+            } else if viewModel.rules.isEmpty {
+                EmptyStateView(
+                    icon: "bolt.badge.clock",
+                    title: "No Cache Rules",
+                    message: "You haven't created any custom cache rules yet.",
+                    actionTitle: "Add Cache Rule",
+                    action: { showingAddSheet = true }
+                )
+            } else {
+                List {
+                    ForEach(viewModel.rules) { rule in
+                        CacheRuleCardView(rule: rule) {
+                            Task {
+                                await viewModel.toggleRule(rule: rule)
                             }
                         }
-                        .onDelete(perform: { indexSet in
-                            for index in indexSet {
-                                let rule = viewModel.rules[index]
-                                viewModel.deleteRule(at: IndexSet(integer: index))
-                                ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
-                            }
-                        })
                     }
-                    .listStyle(InsetGroupedListStyle())
-                    .refreshable {
-                        await viewModel.fetchCacheRules()
-                    }
+                    .onDelete(perform: { indexSet in
+                        for index in indexSet {
+                            let rule = viewModel.rules[index]
+                            viewModel.deleteRule(at: IndexSet(integer: index))
+                            ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
+                        }
+                    })
+                }
+                .listStyle(InsetGroupedListStyle())
+                .refreshable {
+                    await viewModel.fetchCacheRules()
                 }
             }
         }

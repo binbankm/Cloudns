@@ -30,8 +30,6 @@ struct DNSSECView: View {
                         Task { await viewModel.fetchDNSSEC() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if let dnssec = viewModel.dnssec {
                 List {
                     // Header Status Section

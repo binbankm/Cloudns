@@ -28,59 +28,71 @@ struct R2BucketDetailView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<5, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-            } else {
-                // Section: Bucket Info
-                Section(header: Text("Bucket Information")) {
-                    HStack {
-                        Text("Bucket Name")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text(bucket.name)
-                            .font(.body.monospacedDigit())
-                            .foregroundColor(.primary)
+                .listStyle(.insetGrouped)
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task { await viewModel.fetchObjects() }
                     }
-                    
-                    if let loc = bucket.location {
-                        HStack {
-                            Text("Location")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text(loc.uppercased())
-                                .foregroundColor(.primary)
-                        }
-                    }
-                    
-                    if let date = bucket.creationDate {
-                        HStack {
-                            Text("Created On")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text(String(date.prefix(10)))
-                                .foregroundColor(.primary)
-                        }
-                    }
+                )
+            } else if viewModel.objects.isEmpty {
+                EmptyStateView(
+                    icon: "externaldrive.badge.icloud",
+                    title: "No Objects in Bucket",
+                    message: "This R2 bucket is currently empty. Upload objects to get started.",
+                    actionTitle: nil,
+                    action: nil
+                )
+            } else if viewModel.filteredObjects.isEmpty {
+                EmptyStateView.search(query: viewModel.searchText) {
+                    viewModel.searchText = ""
                 }
-                
-                // Section: Objects List
-                Section(header: Text("Objects (\(viewModel.objects.count))")) {
-                    if viewModel.objects.isEmpty {
-                        Text("No objects stored in this bucket.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    } else if viewModel.filteredObjects.isEmpty {
-                        EmptyStateView.search(query: viewModel.searchText) {
-                            viewModel.searchText = ""
+            } else {
+                List {
+                    // Section: Bucket Info
+                    Section(header: Text("Bucket Information")) {
+                        HStack {
+                            Text("Bucket Name")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(bucket.name)
+                                .font(.body.monospacedDigit())
+                                .foregroundColor(.primary)
                         }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    } else {
+                        
+                        if let loc = bucket.location {
+                            HStack {
+                                Text("Location")
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(loc.uppercased())
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                        
+                        if let date = bucket.creationDate {
+                            HStack {
+                                Text("Created On")
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(String(date.prefix(10)))
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
+                    
+                    // Section: Objects List
+                    Section(header: Text("Objects (\(viewModel.objects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in
                             R2ObjectRowView(object: obj)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -100,9 +112,9 @@ struct R2BucketDetailView: View {
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

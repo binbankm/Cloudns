@@ -63,18 +63,21 @@ struct SnippetsListView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if isLoading && !hasFetchedData {
-                ForEach(0..<4, id: \.self) { _ in
-                    SkeletonRowView()
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
                 }
+                .listStyle(.insetGrouped)
             } else if let err = errorMessage, !hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(err),
                     retryAction: { Task { await fetchSnippets() } }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if snippets.isEmpty {
                 EmptyStateView(
                     icon: "curlybraces",
@@ -86,58 +89,58 @@ struct SnippetsListView: View {
                         showingEditorSheet = true
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                Section(header: Text("Snippets (\(snippets.count))"), footer: Text("Snippets run micro JavaScript functions on HTTP requests with sub-millisecond execution time.")) {
-                    ForEach(snippets) { snip in
-                        Button {
-                            editingSnippet = snip
-                            showingEditorSheet = true
-                        } label: {
-                            HStack(spacing: 14) {
-                                Image(systemName: "curlybraces")
-                                    .font(.body)
-                                    .foregroundColor(.orange)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.orange.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(snip.snippet_name)
-                                        .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
-                                    
-                                    if let mod = snip.modifiedOn {
-                                        Text("Modified: \(String(mod.prefix(10)))")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(Color(UIColor.tertiaryLabel))
-                            }
-                            .padding(.vertical, 3)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                snippetToDelete = snip
-                                showingDeleteAlert = true
+                List {
+                    Section(header: Text("Snippets (\(snippets.count))"), footer: Text("Snippets run micro JavaScript functions on HTTP requests with sub-millisecond execution time.")) {
+                        ForEach(snippets) { snip in
+                            Button {
+                                editingSnippet = snip
+                                showingEditorSheet = true
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                HStack(spacing: 14) {
+                                    Image(systemName: "curlybraces")
+                                        .font(.body)
+                                        .foregroundColor(.orange)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.orange.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(snip.snippet_name)
+                                            .font(.body.monospacedDigit())
+                                            .foregroundColor(.primary)
+
+                                        if let mod = snip.modifiedOn {
+                                            Text("Modified: \(String(mod.prefix(10)))")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(Color(UIColor.tertiaryLabel))
+                                }
+                                .padding(.vertical, 3)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    snippetToDelete = snip
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
     
     private func fetchSnippets() async {

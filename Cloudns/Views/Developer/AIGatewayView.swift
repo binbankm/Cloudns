@@ -56,13 +56,16 @@ struct AIGatewayView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<4, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -70,8 +73,6 @@ struct AIGatewayView: View {
                         Task { await viewModel.fetchGateways() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.gateways.isEmpty {
                 EmptyStateView(
                     icon: "brain.head.profile",
@@ -80,71 +81,69 @@ struct AIGatewayView: View {
                     actionTitle: "Create Gateway",
                     action: { showingCreateSheet = true }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredGateways.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
-                    ForEach(viewModel.filteredGateways) { gw in
-                        HStack(alignment: .center, spacing: 14) {
-                            Image(systemName: "brain.head.profile")
-                                .font(.body)
-                                .foregroundColor(.pink)
-                                .frame(width: 32, height: 32)
-                                .background(Color.pink.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(gw.id)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
-                                
-                                HStack(spacing: 8) {
-                                    if gw.collectLogs == true {
-                                        Label("Logs Active", systemImage: "checkmark.circle.fill")
-                                            .font(.caption2)
-                                            .foregroundColor(.green)
-                                    }
-                                    
-                                    if let created = gw.createdOn {
-                                        Text("Created: \(String(created.prefix(10)))")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
+                List {
+                    Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
+                        ForEach(viewModel.filteredGateways) { gw in
+                            HStack(alignment: .center, spacing: 14) {
+                                Image(systemName: "brain.head.profile")
+                                    .font(.body)
+                                    .foregroundColor(.pink)
+                                    .frame(width: 32, height: 32)
+                                    .background(Color.pink.opacity(0.12))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(gw.id)
+                                        .font(.body.monospacedDigit())
+                                        .foregroundColor(.primary)
+
+                                    HStack(spacing: 8) {
+                                        if gw.collectLogs == true {
+                                            Label("Logs Active", systemImage: "checkmark.circle.fill")
+                                                .font(.caption2)
+                                                .foregroundColor(.green)
+                                        }
+
+                                        if let created = gw.createdOn {
+                                            Text("Created: \(String(created.prefix(10)))")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
                                     }
                                 }
+
+                                Spacer()
                             }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 3)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                gatewayToDelete = gw
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                            .padding(.vertical, 3)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    gatewayToDelete = gw
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
-                        }
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = "https://gateway.ai.cloudflare.com/v1/\(viewModel.accountId)/\(gw.id)"
-                                ToastManager.shared.showCopied("Gateway URL copied")
-                            } label: {
-                                Label("Copy Gateway URL", systemImage: "link")
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = "https://gateway.ai.cloudflare.com/v1/\(viewModel.accountId)/\(gw.id)"
+                                    ToastManager.shared.showCopied("Gateway URL copied")
+                                } label: {
+                                    Label("Copy Gateway URL", systemImage: "link")
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

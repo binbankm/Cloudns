@@ -26,13 +26,16 @@ struct AuditLogsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<5, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -40,8 +43,6 @@ struct AuditLogsView: View {
                         Task { await viewModel.fetchLogs() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.logs.isEmpty {
                 EmptyStateView(
                     icon: "list.clipboard.fill",
@@ -50,21 +51,19 @@ struct AuditLogsView: View {
                     actionTitle: nil,
                     action: nil
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredLogs.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(viewModel.filteredLogs) { log in
-                    AuditLogRowView(log: log)
+                List {
+                    ForEach(viewModel.filteredLogs) { log in
+                        AuditLogRowView(log: log)
+                    }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

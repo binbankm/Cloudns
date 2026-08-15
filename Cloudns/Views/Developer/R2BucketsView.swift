@@ -56,13 +56,16 @@ struct R2BucketsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<4, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -70,8 +73,6 @@ struct R2BucketsView: View {
                         Task { await viewModel.fetchBuckets() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.buckets.isEmpty {
                 EmptyStateView(
                     icon: "externaldrive.badge.icloud",
@@ -80,35 +81,33 @@ struct R2BucketsView: View {
                     actionTitle: "Create Bucket",
                     action: { showingCreateSheet = true }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredBuckets.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(viewModel.filteredBuckets) { bucket in
-                    NavigationLink {
-                        R2BucketDetailView(accountId: accountId, bucket: bucket)
-                    } label: {
-                        R2BucketRowView(bucket: bucket)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            let impact = UIImpactFeedbackGenerator(style: .medium)
-                            impact.impactOccurred()
-                            bucketToDelete = bucket
-                            showingDeleteAlert = true
+                List {
+                    ForEach(viewModel.filteredBuckets) { bucket in
+                        NavigationLink {
+                            R2BucketDetailView(accountId: accountId, bucket: bucket)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            R2BucketRowView(bucket: bucket)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                let impact = UIImpactFeedbackGenerator(style: .medium)
+                                impact.impactOccurred()
+                                bucketToDelete = bucket
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

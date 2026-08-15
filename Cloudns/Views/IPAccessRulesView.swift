@@ -9,65 +9,50 @@ struct IPAccessRulesView: View {
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.red.opacity(0.8))
-                        .cornerRadius(8)
-                        .padding()
+
+            if viewModel.isLoading && viewModel.rules.isEmpty {
+                List {
+                    ForEach(0..<5, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
                 }
-                
-                if viewModel.isLoading && viewModel.rules.isEmpty {
-                    List {
-                        ForEach(0..<5, id: \.self) { _ in
-                            SkeletonRowView()
+                .listStyle(.insetGrouped)
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task {
+                            await viewModel.fetchRules(zoneId: zoneId)
                         }
                     }
-                    .listStyle(.insetGrouped)
-                } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchRules(zoneId: zoneId)
-                            }
-                        }
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                    EmptyStateView(
-                        icon: "network.badge.shield.half.filled",
-                        title: "No IP Access Rules",
-                        message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                        actionTitle: "Add IP Rule",
-                        action: { showingAddRule = true }
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else {
-                    List {
-                        ForEach(viewModel.rules) { rule in
-                            IPAccessRuleRow(rule: rule)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        Task {
-                                            await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                            ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
-                                        }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
+                )
+            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                EmptyStateView(
+                    icon: "network.badge.shield.half.filled",
+                    title: "No IP Access Rules",
+                    message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                    actionTitle: "Add IP Rule",
+                    action: { showingAddRule = true }
+                )
+            } else {
+                List {
+                    ForEach(viewModel.rules) { rule in
+                        IPAccessRuleRow(rule: rule)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                                        ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                        }
+                            }
                     }
-                    .listStyle(.insetGrouped)
-                    .refreshable {
-                        await viewModel.fetchRules(zoneId: zoneId)
-                    }
+                }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await viewModel.fetchRules(zoneId: zoneId)
                 }
             }
         }

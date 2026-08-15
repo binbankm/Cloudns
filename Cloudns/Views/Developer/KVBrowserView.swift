@@ -93,13 +93,16 @@ struct KVBrowserView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<4, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -107,8 +110,6 @@ struct KVBrowserView: View {
                         Task { await viewModel.fetchData() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.selectedSegment == 0 {
                 if viewModel.namespaces.isEmpty {
                     EmptyStateView(
@@ -118,45 +119,46 @@ struct KVBrowserView: View {
                         actionTitle: "Create Namespace",
                         action: { showingCreateKVSheet = true }
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
-                    ForEach(viewModel.namespaces) { ns in
-                        NavigationLink {
-                            KVNamespaceKeysView(accountId: accountId, namespace: ns)
-                        } label: {
-                            HStack(alignment: .center, spacing: 14) {
-                                Image(systemName: "key.horizontal.fill")
-                                    .font(.body)
-                                    .foregroundColor(.purple)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.purple.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(ns.title)
-                                        .font(.body)
-                                        .foregroundColor(.primary)
-                                    
-                                    Text(ns.id)
-                                        .font(.caption.monospacedDigit())
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .padding(.vertical, 3)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                namespaceToDelete = ns
-                                showingDeleteKVAlert = true
+                    List {
+                        ForEach(viewModel.namespaces) { ns in
+                            NavigationLink {
+                                KVNamespaceKeysView(accountId: accountId, namespace: ns)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                HStack(alignment: .center, spacing: 14) {
+                                    Image(systemName: "key.horizontal.fill")
+                                        .font(.body)
+                                        .foregroundColor(.purple)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.purple.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(ns.title)
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                        
+                                        Text(ns.id)
+                                            .font(.caption.monospacedDigit())
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                }
+                                .padding(.vertical, 3)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    namespaceToDelete = ns
+                                    showingDeleteKVAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
             } else {
                 if viewModel.d1Databases.isEmpty {
@@ -167,71 +169,71 @@ struct KVBrowserView: View {
                         actionTitle: "Create Database",
                         action: { showingCreateD1Sheet = true }
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
-                    ForEach(viewModel.d1Databases) { db in
-                        NavigationLink {
-                            D1ConsoleView(accountId: accountId, database: db)
-                        } label: {
-                            HStack(alignment: .center, spacing: 14) {
-                                Image(systemName: "cylinder.split.1x2.fill")
-                                    .font(.body)
-                                    .foregroundColor(.purple)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.purple.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    HStack(spacing: 6) {
-                                        Text(db.name)
-                                            .font(.body)
-                                            .foregroundColor(.primary)
-                                        
-                                        if let version = db.version {
-                                            Text(version.uppercased())
-                                                .font(.caption2.weight(.medium))
-                                                .foregroundColor(.purple)
-                                                .padding(.horizontal, 5)
-                                                .padding(.vertical, 1)
-                                                .background(Color.purple.opacity(0.12))
-                                                .cornerRadius(4)
-                                        }
-                                    }
+                    List {
+                        ForEach(viewModel.d1Databases) { db in
+                            NavigationLink {
+                                D1ConsoleView(accountId: accountId, database: db)
+                            } label: {
+                                HStack(alignment: .center, spacing: 14) {
+                                    Image(systemName: "cylinder.split.1x2.fill")
+                                        .font(.body)
+                                        .foregroundColor(.purple)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.purple.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                     
-                                    HStack(spacing: 8) {
-                                        Text(db.uuid)
-                                            .font(.caption2.monospacedDigit())
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(1)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        HStack(spacing: 6) {
+                                            Text(db.name)
+                                                .font(.body)
+                                                .foregroundColor(.primary)
+                                            
+                                            if let version = db.version {
+                                                Text(version.uppercased())
+                                                    .font(.caption2.weight(.medium))
+                                                    .foregroundColor(.purple)
+                                                    .padding(.horizontal, 5)
+                                                    .padding(.vertical, 1)
+                                                    .background(Color.purple.opacity(0.12))
+                                                    .cornerRadius(4)
+                                            }
+                                        }
                                         
-                                        if let size = db.fileSize {
-                                            Text("·")
+                                        HStack(spacing: 8) {
+                                            Text(db.uuid)
+                                                .font(.caption2.monospacedDigit())
                                                 .foregroundColor(.secondary)
-                                            Text(formatBytes(size))
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .lineLimit(1)
+                                            
+                                            if let size = db.fileSize {
+                                                Text("·")
+                                                    .foregroundColor(.secondary)
+                                                Text(formatBytes(size))
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
                                         }
                                     }
                                 }
+                                .padding(.vertical, 3)
                             }
-                            .padding(.vertical, 3)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                databaseToDelete = db
-                                showingDeleteD1Alert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    databaseToDelete = db
+                                    showingDeleteD1Alert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
         }
-        .listStyle(.insetGrouped)
     }
     
     private func formatBytes(_ bytes: Int) -> String {
@@ -431,13 +433,16 @@ struct KVNamespaceKeysView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<5, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -445,8 +450,6 @@ struct KVNamespaceKeysView: View {
                         Task { await viewModel.fetchKeys() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.keys.isEmpty {
                 EmptyStateView(
                     icon: "tray",
@@ -455,61 +458,59 @@ struct KVNamespaceKeysView: View {
                     actionTitle: "Add Key",
                     action: { showingAddSheet = true }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if filteredKeys.isEmpty {
                 EmptyStateView.search(query: searchKey) {
                     searchKey = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(filteredKeys) { key in
-                    Button {
-                        Task {
-                            await viewModel.fetchValue(key: key.name)
-                            showingValueSheet = true
-                        }
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(key.name)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
-                                
-                                if let exp = key.expiration {
-                                    Text("Expires: \(exp)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(Color(UIColor.tertiaryLabel))
-                        }
-                        .padding(.vertical, 3)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
+                List {
+                    ForEach(filteredKeys) { key in
+                        Button {
                             Task {
-                                do {
-                                    try await viewModel.deleteKey(key: key.name)
-                                    ToastManager.shared.showSuccess("Key Deleted", message: key.name)
-                                } catch {
-                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                }
+                                await viewModel.fetchValue(key: key.name)
+                                showingValueSheet = true
                             }
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(key.name)
+                                        .font(.body.monospacedDigit())
+                                        .foregroundColor(.primary)
+                                    
+                                    if let exp = key.expiration {
+                                        Text("Expires: \(exp)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                            }
+                            .padding(.vertical, 3)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                Task {
+                                    do {
+                                        try await viewModel.deleteKey(key: key.name)
+                                        ToastManager.shared.showSuccess("Key Deleted", message: key.name)
+                                    } catch {
+                                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                    }
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

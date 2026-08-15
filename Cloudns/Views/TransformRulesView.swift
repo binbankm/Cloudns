@@ -14,47 +14,43 @@ struct TransformRulesView: View {
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                if viewModel.isLoading && viewModel.rules.isEmpty {
-                    List {
-                        ForEach(0..<4, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
+
+            if viewModel.isLoading && viewModel.rules.isEmpty {
+                List {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SkeletonRowView()
                     }
-                    .listStyle(.insetGrouped)
-                } else if viewModel.rules.isEmpty {
-                    EmptyStateView(
-                        icon: "arrow.triangle.2.circlepath",
-                        title: "No Transform Rules",
-                        message: "You haven't created any URL rewrite or header modification rules yet.",
-                        actionTitle: "Add Transform Rule",
-                        action: { showingAddSheet = true }
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else {
-                    List {
-                        ForEach(viewModel.rules) { rule in
-                            TransformRuleCardView(rule: rule) {
-                                Task {
-                                    await viewModel.toggleRule(rule: rule)
-                                    ToastManager.shared.showSuccess("Transform Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                                }
+                }
+                .listStyle(.insetGrouped)
+            } else if viewModel.rules.isEmpty {
+                EmptyStateView(
+                    icon: "arrow.triangle.2.circlepath",
+                    title: "No Transform Rules",
+                    message: "You haven't created any URL rewrite or header modification rules yet.",
+                    actionTitle: "Add Transform Rule",
+                    action: { showingAddSheet = true }
+                )
+            } else {
+                List {
+                    ForEach(viewModel.rules) { rule in
+                        TransformRuleCardView(rule: rule) {
+                            Task {
+                                await viewModel.toggleRule(rule: rule)
+                                ToastManager.shared.showSuccess("Transform Rule Updated", message: "\(rule.description ?? "Rule") status updated")
                             }
                         }
-                        .onDelete(perform: { indexSet in
-                            for index in indexSet {
-                                let rule = viewModel.rules[index]
-                                viewModel.deleteRule(at: IndexSet(integer: index))
-                                ToastManager.shared.showSuccess("Transform Rule Deleted", message: rule.description ?? "")
-                            }
-                        })
                     }
-                    .listStyle(.insetGrouped)
-                    .refreshable {
-                        await viewModel.fetchTransformRules()
-                    }
+                    .onDelete(perform: { indexSet in
+                        for index in indexSet {
+                            let rule = viewModel.rules[index]
+                            viewModel.deleteRule(at: IndexSet(integer: index))
+                            ToastManager.shared.showSuccess("Transform Rule Deleted", message: rule.description ?? "")
+                        }
+                    })
+                }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await viewModel.fetchTransformRules()
                 }
             }
         }

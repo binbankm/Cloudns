@@ -32,16 +32,12 @@ struct EdgeCertificatesView: View {
                         }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
                 } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "lock.shield",
                         title: "No Edge Certificates",
                         message: "No Edge Certificates found."
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(displayCertificates) { cert in

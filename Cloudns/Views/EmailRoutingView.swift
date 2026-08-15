@@ -31,8 +31,6 @@ struct EmailRoutingView: View {
                         }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
                 List {
                     Section(header: Text("Status")) {
@@ -71,9 +69,6 @@ struct EmailRoutingView: View {
                                 actionTitle: "Add Rule",
                                 action: { showingAddSheet = true }
                             )
-                            .listRowInsets(EdgeInsets())
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
                         } else {
                             ForEach(viewModel.rules) { rule in
                                 VStack(alignment: .leading, spacing: 6) {

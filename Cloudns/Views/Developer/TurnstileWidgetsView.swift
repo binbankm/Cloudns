@@ -26,13 +26,16 @@ struct TurnstileWidgetsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<4, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -40,8 +43,6 @@ struct TurnstileWidgetsView: View {
                         Task { await viewModel.fetchWidgets() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.widgets.isEmpty {
                 EmptyStateView(
                     icon: "checkmark.shield.fill",
@@ -50,21 +51,19 @@ struct TurnstileWidgetsView: View {
                     actionTitle: nil,
                     action: nil
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredWidgets.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(viewModel.filteredWidgets) { widget in
-                    TurnstileWidgetRowView(widget: widget)
+                List {
+                    ForEach(viewModel.filteredWidgets) { widget in
+                        TurnstileWidgetRowView(widget: widget)
+                    }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

@@ -8,51 +8,36 @@ struct SecurityEventsView: View {
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.red.opacity(0.8))
-                        .cornerRadius(8)
-                        .padding()
+
+            if viewModel.isLoading && viewModel.events.isEmpty {
+                List {
+                    ForEach(0..<6, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
                 }
-                
-                if viewModel.isLoading && viewModel.events.isEmpty {
-                    List {
-                        ForEach(0..<6, id: \.self) { _ in
-                            SkeletonRowView()
+                .listStyle(.insetGrouped)
+            } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
+                EmptyStateView.error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task {
+                            await viewModel.fetchEvents(zoneId: zoneId)
                         }
                     }
-                    .listStyle(.insetGrouped)
-                } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchEvents(zoneId: zoneId)
-                            }
-                        }
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
-                    EmptyStateView(
-                        icon: "checkmark.shield",
-                        title: "No Security Events",
-                        message: "Your site hasn't blocked any threats recently. Everything is secure!"
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                } else {
-                    List {
-                        ForEach(viewModel.events) { event in
-                            SecurityEventCardView(event: event)
-                        }
+                )
+            } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
+                EmptyStateView(
+                    icon: "checkmark.shield",
+                    title: "No Security Events",
+                    message: "Your site hasn't blocked any threats recently. Everything is secure!"
+                )
+            } else {
+                List {
+                    ForEach(viewModel.events) { event in
+                        SecurityEventCardView(event: event)
                     }
-                    .listStyle(.insetGrouped)
                 }
+                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle("Security Events")

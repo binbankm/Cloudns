@@ -89,13 +89,16 @@ struct DNSRecordsView: View {
     
     @ViewBuilder
     private var listViewContent: some View {
-        List(selection: $multiSelection) {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if viewModel.isLoading && viewModel.records.isEmpty {
-                Section {
+                List {
                     ForEach(0..<6, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -105,8 +108,6 @@ struct DNSRecordsView: View {
                         }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
                 EmptyStateView(
                     icon: "server.rack",
@@ -115,35 +116,33 @@ struct DNSRecordsView: View {
                     actionTitle: "Add Record",
                     action: { showingForm = true }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if displayRecords.isEmpty {
                 EmptyStateView.search(
                     query: viewModel.searchQuery,
                     action: { viewModel.searchQuery = "" }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                recordsSections
-                
-                if viewModel.canLoadMore && viewModel.hasFetchedData {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-                .onAppear {
-                            Task {
-                                await viewModel.fetchRecords()
+                List(selection: $multiSelection) {
+                    recordsSections
+
+                    if viewModel.canLoadMore && viewModel.hasFetchedData {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
+                            .onAppear {
+                                Task {
+                                    await viewModel.fetchRecords()
+                                }
                             }
-                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await viewModel.fetchRecords(isRefresh: true)
                 }
             }
-        }
-        .listStyle(.insetGrouped)
-        .refreshable {
-            await viewModel.fetchRecords(isRefresh: true)
         }
     }
     

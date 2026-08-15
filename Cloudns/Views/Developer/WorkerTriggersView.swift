@@ -59,13 +59,16 @@ struct WorkerTriggersView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<3, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -73,8 +76,6 @@ struct WorkerTriggersView: View {
                         Task { await viewModel.fetchSchedules() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.schedules.isEmpty {
                 EmptyStateView(
                     icon: "clock.badge.exclamationmark",
@@ -85,40 +86,41 @@ struct WorkerTriggersView: View {
                         showingAddCronSheet = true
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                Section(header: Text("Scheduled Triggers (\(viewModel.schedules.count))"), footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")) {
-                    ForEach(viewModel.schedules) { schedule in
-                        HStack(spacing: 12) {
-                            Image(systemName: "clock.arrow.2.circlepath")
-                                .font(.title3)
-                                .foregroundColor(.purple)
-                                .frame(width: 32)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(schedule.cron)
-                                    .font(.body)
-                                    .foregroundColor(.primary)
+                List {
+                    Section(header: Text("Scheduled Triggers (\(viewModel.schedules.count))"), footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")) {
+                        ForEach(viewModel.schedules) { schedule in
+                            HStack(spacing: 12) {
+                                Image(systemName: "clock.arrow.2.circlepath")
+                                    .font(.title3)
+                                    .foregroundColor(.purple)
+                                    .frame(width: 32)
                                 
-                                Text(humanReadableCron(schedule.cron))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(schedule.cron)
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                    
+                                    Text(humanReadableCron(schedule.cron))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
                             }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                cronToDelete = schedule
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                            .padding(.vertical, 4)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    cronToDelete = schedule
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
     }

@@ -65,13 +65,16 @@ struct ZonesListView: View {
     
     @ViewBuilder
     private var listViewContent: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+
             if !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<6, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -81,8 +84,6 @@ struct ZonesListView: View {
                         }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.zones.isEmpty {
                 EmptyStateView(
                     icon: "globe",
@@ -94,52 +95,50 @@ struct ZonesListView: View {
                         showAddZoneSheet = true
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if filteredZones.isEmpty {
                 EmptyStateView.search(query: searchText) {
                     searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                Section {
-                    ForEach(filteredZones) { zone in
-                        NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                            ZoneRowView(zone: zone)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                zoneToDelete = zone
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Remove", systemImage: "trash")
+                List {
+                    Section {
+                        ForEach(filteredZones) { zone in
+                            NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                                ZoneRowView(zone: zone)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    zoneToDelete = zone
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
                             }
                         }
-                    }
-                    
-                    if viewModel.canLoadMore && searchText.isEmpty {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                            Spacer()
-                        }
-                        .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-                .onAppear {
-                            Task {
-                                await viewModel.fetchZones(isRefresh: false)
+
+                        if viewModel.canLoadMore && searchText.isEmpty {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
+                            .onAppear {
+                                Task {
+                                    await viewModel.fetchZones(isRefresh: false)
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await viewModel.fetchZones(isRefresh: true)
+                }
             }
-        }
-        .listStyle(.insetGrouped)
-        .refreshable {
-            await viewModel.fetchZones(isRefresh: true)
         }
     }
 }

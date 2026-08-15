@@ -75,8 +75,6 @@ struct WorkerRoutesView: View {
                 message: LocalizedStringKey(err),
                 retryAction: { Task { await fetchDomains() } }
             )
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets())
         } else {
             List {
                 // Section: Custom Domains

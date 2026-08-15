@@ -35,16 +35,12 @@ struct AnalyticsView: View {
                             }
                         }
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                     EmptyStateView(
                         icon: "chart.xyaxis.line",
                         title: "No Analytics Data",
                         message: "Traffic metrics for the selected time range are currently unavailable."
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
                 } else {
                     // Summary Cards
                     HStack(spacing: 12) {

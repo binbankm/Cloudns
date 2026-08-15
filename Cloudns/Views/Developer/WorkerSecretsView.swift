@@ -58,13 +58,16 @@ struct WorkerSecretsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
+                List {
                     ForEach(0..<4, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -72,8 +75,6 @@ struct WorkerSecretsView: View {
                         Task { await viewModel.fetchSecrets() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.secrets.isEmpty {
                 EmptyStateView(
                     icon: "key.fill",
@@ -82,71 +83,69 @@ struct WorkerSecretsView: View {
                     actionTitle: "Add Secret",
                     action: { showingAddSheet = true }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredSecrets.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                Section(header: Text("Encrypted Secrets (\(viewModel.secrets.count))"), footer: Text("Secrets are encrypted and exposed as environment variables to your Worker script at runtime.")) {
-                    ForEach(viewModel.filteredSecrets) { secret in
-                        HStack(alignment: .center, spacing: 14) {
-                            Image(systemName: "key.fill")
-                                .font(.body)
-                                .foregroundColor(.orange)
-                                .frame(width: 30, height: 30)
-                                .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(secret.name)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
+                List {
+                    Section(header: Text("Encrypted Secrets (\(viewModel.secrets.count))"), footer: Text("Secrets are encrypted and exposed as environment variables to your Worker script at runtime.")) {
+                        ForEach(viewModel.filteredSecrets) { secret in
+                            HStack(alignment: .center, spacing: 14) {
+                                Image(systemName: "key.fill")
+                                    .font(.body)
+                                    .foregroundColor(.orange)
+                                    .frame(width: 30, height: 30)
+                                    .background(Color.orange.opacity(0.12))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                                 
-                                if let mod = secret.modifiedOn {
-                                    Text("Modified: \(String(mod.prefix(10)))")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(secret.name)
+                                        .font(.body.monospacedDigit())
+                                        .foregroundColor(.primary)
+                                    
+                                    if let mod = secret.modifiedOn {
+                                        Text("Modified: \(String(mod.prefix(10)))")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Text("ENCRYPTED")
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundColor(.green)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.12))
+                                    .cornerRadius(4)
+                            }
+                            .padding(.vertical, 3)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    secretToDelete = secret
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
-                            
-                            Spacer()
-                            
-                            Text("ENCRYPTED")
-                                .font(.caption2.weight(.medium))
-                                .foregroundColor(.green)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(Color.green.opacity(0.12))
-                                .cornerRadius(4)
-                        }
-                        .padding(.vertical, 3)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                secretToDelete = secret
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = secret.name
-                                ToastManager.shared.showCopied("Secret name copied")
-                            } label: {
-                                Label("Copy Name", systemImage: "doc.on.doc")
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = secret.name
+                                    ToastManager.shared.showCopied("Secret name copied")
+                                } label: {
+                                    Label("Copy Name", systemImage: "doc.on.doc")
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 

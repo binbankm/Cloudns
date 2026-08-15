@@ -30,13 +30,18 @@ struct WorkersAIView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        List {
+        ZStack {
+            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<6, id: \.self) { _ in
-                        SkeletonRowView()
+                List {
+                    Section {
+                        ForEach(0..<6, id: \.self) { _ in
+                            SkeletonRowView()
+                        }
                     }
                 }
+                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
                     message: LocalizedStringKey(errorMessage),
@@ -44,8 +49,6 @@ struct WorkersAIView: View {
                         Task { await viewModel.fetchModels() }
                     }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.models.isEmpty {
                 EmptyStateView(
                     icon: "brain",
@@ -54,63 +57,61 @@ struct WorkersAIView: View {
                     actionTitle: "Retry",
                     action: { Task { await viewModel.fetchModels() } }
                 )
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else if viewModel.filteredModels.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
                     viewModel.searchText = ""
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
             } else {
-                ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
-                    if let list = viewModel.groupedModels[taskName], !list.isEmpty {
-                        Section(header: Text(taskName)) {
-                            ForEach(list) { model in
-                                Button {
-                                    selectedModelForPlayground = model
-                                } label: {
-                                    HStack(alignment: .center, spacing: 14) {
-                                        Image(systemName: "sparkles")
-                                            .font(.body)
-                                            .foregroundColor(.purple)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.purple.opacity(0.12))
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(model.shortName)
+                List {
+                    ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
+                        if let list = viewModel.groupedModels[taskName], !list.isEmpty {
+                            Section(header: Text(taskName)) {
+                                ForEach(list) { model in
+                                    Button {
+                                        selectedModelForPlayground = model
+                                    } label: {
+                                        HStack(alignment: .center, spacing: 14) {
+                                            Image(systemName: "sparkles")
                                                 .font(.body)
-                                                .foregroundColor(.primary)
+                                                .foregroundColor(.purple)
+                                                .frame(width: 32, height: 32)
+                                                .background(Color.purple.opacity(0.12))
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
                                             
-                                            if let desc = model.description, !desc.isEmpty {
-                                                Text(desc)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                                    .lineLimit(2)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(model.shortName)
+                                                    .font(.body)
+                                                    .foregroundColor(.primary)
+                                                
+                                                if let desc = model.description, !desc.isEmpty {
+                                                    Text(desc)
+                                                        .font(.caption)
+                                                        .foregroundColor(.secondary)
+                                                        .lineLimit(2)
+                                                }
+                                                
+                                                Text(model.id)
+                                                    .font(.caption2.monospacedDigit())
+                                                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                                                    .lineLimit(1)
                                             }
                                             
-                                            Text(model.id)
-                                                .font(.caption2.monospacedDigit())
+                                            Spacer()
+                                            
+                                            Image(systemName: "chevron.right")
+                                                .font(.caption)
                                                 .foregroundColor(Color(UIColor.tertiaryLabel))
-                                                .lineLimit(1)
                                         }
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                            .foregroundColor(Color(UIColor.tertiaryLabel))
+                                        .padding(.vertical, 2)
                                     }
-                                    .padding(.vertical, 2)
                                 }
                             }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
 
