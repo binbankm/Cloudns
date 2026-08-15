@@ -28,7 +28,7 @@ struct PagesDeploymentDetailView: View {
             Section(header: Text("Deployment Overview")) {
                 HStack {
                     Text("Status")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Spacer()
                     HStack(spacing: 6) {
                         Circle()
@@ -36,39 +36,39 @@ struct PagesDeploymentDetailView: View {
                             .frame(width: 8, height: 8)
                         Text(deployment.latestStage?.status?.capitalized ?? "Unknown")
                             .font(.body)
-                            .foregroundColor(isSuccess ? .green : .orange)
+                            .foregroundStyle(isSuccess ? .green : .orange)
                     }
                 }
                 
                 if let env = deployment.environment {
                     HStack {
                         Text("Environment")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(env.capitalized)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                 }
                 
                 if let branch = deployment.deploymentTrigger?.metadata?.branch {
                     HStack {
                         Text("Branch")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(branch)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                 }
                 
                 if let hash = deployment.deploymentTrigger?.metadata?.commitHash {
                     HStack {
                         Text("Commit")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(String(hash.prefix(7)))
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                 }
                 
@@ -76,10 +76,10 @@ struct PagesDeploymentDetailView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Commit Message")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text(msg)
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     .padding(.vertical, 2)
                 }
@@ -92,10 +92,10 @@ struct PagesDeploymentDetailView: View {
                             Text(urlStr)
                                 .font(.caption)
                                 .lineLimit(1)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                             Image(systemName: "arrow.up.right")
                                 .font(.caption)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                         }
                     }
                 }
@@ -108,9 +108,9 @@ struct PagesDeploymentDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.uturn.backward.circle.fill")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                         Text("Rollback / Promote to Production")
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                 }
                 .disabled(isActionRunning)
@@ -130,9 +130,9 @@ struct PagesDeploymentDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.clockwise")
-                            .foregroundColor(.orange)
+                            .foregroundStyle(.orange)
                         Text("Retry Deployment")
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                 }
                 .disabled(isActionRunning)
@@ -142,9 +142,9 @@ struct PagesDeploymentDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "trash")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                         Text("Delete Deployment")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
                 .disabled(isActionRunning)
@@ -162,14 +162,14 @@ struct PagesDeploymentDetailView: View {
                 } else if viewModel.logs.isEmpty {
                     Text("No build logs available for this deployment.")
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 } else {
                     ScrollView(.horizontal, showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 2) {
                             ForEach(viewModel.logs) { log in
                                 Text(log.line)
                                     .font(.caption2.monospacedDigit())
-                                    .foregroundColor(logColor(log.line))
+                                    .foregroundStyle(logColor(log.line))
                             }
                         }
                         .padding(8)

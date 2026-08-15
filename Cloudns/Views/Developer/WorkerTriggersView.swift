@@ -21,12 +21,13 @@ struct WorkerTriggersView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddCronSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+                Button {
+                    showingAddCronSheet = true
+                } label: {
+                    Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加定时触发器")
+            }
             }
             .refreshable {
                 await viewModel.fetchSchedules()
@@ -93,17 +94,17 @@ struct WorkerTriggersView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "clock.arrow.2.circlepath")
                                     .font(.title3)
-                                    .foregroundColor(.purple)
+                                    .foregroundStyle(.purple)
                                     .frame(width: 32)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(schedule.cron)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     Text(humanReadableCron(schedule.cron))
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                                 
                                 Spacer()
@@ -152,14 +153,20 @@ private struct AddCronTriggerSheet: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     
-    let presets = [
-        ("Every 5 minutes", "*/5 * * * *"),
-        ("Every 15 minutes", "*/15 * * * *"),
-        ("Every hour", "0 * * * *"),
-        ("Daily at midnight (UTC)", "0 0 * * *"),
-        ("Daily at noon (UTC)", "0 12 * * *"),
-        ("Weekly on Sunday", "0 0 * * 0"),
-        ("Monthly on 1st", "0 0 1 * *")
+    private struct CronPreset: Identifiable {
+        var id: String { expr }
+        let name: String
+        let expr: String
+    }
+    
+    private let presets: [CronPreset] = [
+        CronPreset(name: "Every 5 minutes", expr: "*/5 * * * *"),
+        CronPreset(name: "Every 15 minutes", expr: "*/15 * * * *"),
+        CronPreset(name: "Every hour", expr: "0 * * * *"),
+        CronPreset(name: "Daily at midnight (UTC)", expr: "0 0 * * *"),
+        CronPreset(name: "Daily at noon (UTC)", expr: "0 12 * * *"),
+        CronPreset(name: "Weekly on Sunday", expr: "0 0 * * 0"),
+        CronPreset(name: "Monthly on 1st", expr: "0 0 1 * *")
     ]
     
     var body: some View {
@@ -173,20 +180,20 @@ private struct AddCronTriggerSheet: View {
                 }
                 
                 Section(header: Text("Common Presets")) {
-                    ForEach(presets, id: \.1) { name, expr in
+                    ForEach(presets) { preset in
                         Button {
-                            cronExpression = expr
+                            cronExpression = preset.expr
                         } label: {
                             HStack {
-                                Text(name)
-                                    .foregroundColor(.primary)
+                                Text(preset.name)
+                                    .foregroundStyle(.primary)
                                 Spacer()
-                                Text(expr)
+                                Text(preset.expr)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.secondary)
-                                if cronExpression == expr {
+                                    .foregroundStyle(.secondary)
+                                if cronExpression == preset.expr {
                                     Image(systemName: "checkmark")
-                                        .foregroundColor(.accentColor)
+                                        .foregroundStyle(.tint)
                                 }
                             }
                         }
@@ -197,7 +204,7 @@ private struct AddCronTriggerSheet: View {
                     Section {
                         Text(error)
                             .font(.footnote)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

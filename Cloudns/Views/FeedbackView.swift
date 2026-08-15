@@ -43,28 +43,28 @@ struct FeedbackView: View {
             Section(header: Text("Environment Diagnostics"), footer: Text("Diagnostics info helps developers identify and resolve technical issues faster.")) {
                 HStack {
                     Text("App Version")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Spacer()
                     Text("v\(appVersion) (\(buildNumber))")
                         .font(.subheadline.monospacedDigit())
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                 }
                 
                 HStack {
                     Text("iOS System")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Spacer()
                     Text("iOS \(systemVersion)")
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                 }
                 
                 HStack {
                     Text("Account")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Spacer()
                     Text(accountManager.activeEmail)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Button {
@@ -76,7 +76,7 @@ struct FeedbackView: View {
                         Text("Copy Diagnostic Info")
                     }
                     .font(.subheadline)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                 }
             }
             
@@ -93,7 +93,7 @@ struct FeedbackView: View {
                             .fontWeight(.semibold)
                         Spacer()
                     }
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                 }
             }
         }

@@ -40,14 +40,14 @@ struct EmailRoutingView: View {
                             if let settings = viewModel.settings {
                                 if settings.isEnabled {
                                     Text("Enabled")
-                                        .foregroundColor(.green)
+                                        .foregroundStyle(.green)
                                 } else {
                                     Text("Disabled")
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             } else {
                                 Text("Unknown")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -59,6 +59,7 @@ struct EmailRoutingView: View {
                             Button(action: { showingAddSheet = true }) {
                                 Image(systemName: "plus")
                             }
+                            .accessibilityLabel("添加邮件路由规则")
                         }
                     ) {
                         if viewModel.rules.isEmpty {
@@ -87,20 +88,20 @@ struct EmailRoutingView: View {
                                         if rule.isEnabled {
                                             Text("Active")
                                                 .font(.caption)
-                                                .foregroundColor(.green)
+                                                .foregroundStyle(.green)
                                         } else {
                                             Text("Inactive")
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                     
                                     HStack {
                                         Image(systemName: "arrow.turn.down.right")
-                                            .foregroundColor(.gray)
+                                            .foregroundStyle(.gray)
                                         Text(rule.actionSummary)
                                             .font(.subheadline)
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -118,7 +119,7 @@ struct EmailRoutingView: View {
                     Section(header: Text("Destination Addresses")) {
                         if viewModel.destinations.isEmpty {
                             Text("No destination addresses configured.")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .padding(.vertical, 4)
                         } else {
                             ForEach(viewModel.destinations) { dest in
@@ -127,11 +128,11 @@ struct EmailRoutingView: View {
                                     Spacer()
                                     if dest.isVerified {
                                         Image(systemName: "checkmark.seal.fill")
-                                            .foregroundColor(.green)
+                                            .foregroundStyle(.green)
                                     } else {
                                         Text("Unverified")
                                             .font(.caption)
-                                            .foregroundColor(.orange)
+                                            .foregroundStyle(.orange)
                                     }
                                 }
                             }
@@ -149,14 +150,13 @@ struct EmailRoutingView: View {
         .task {
             await viewModel.fetchData()
         }
-        .alert(isPresented: .constant(viewModel.errorMessage != nil)) {
-            Alert(
-                title: Text("Error"),
-                message: Text(viewModel.errorMessage ?? "Unknown error"),
-                dismissButton: .default(Text("OK")) {
-                    viewModel.errorMessage = nil
-                }
-            )
-        }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(viewModel.errorMessage ?? "Unknown error")
+        })
     }
 }

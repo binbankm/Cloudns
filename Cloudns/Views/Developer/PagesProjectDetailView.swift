@@ -52,6 +52,7 @@ struct PagesProjectDetailView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .accessibilityLabel("更多操作")
                 }
             }
             .alert("Delete Pages Project", isPresented: $showingDeleteAlert) {
@@ -118,25 +119,25 @@ struct PagesProjectDetailView: View {
                 Section(header: Text("Project Overview")) {
                     HStack {
                         Text("Project Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(project.name)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     
                     if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
                         Link(destination: url) {
                             HStack {
                                 Text("Production URL")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(sub)
                                     .font(.caption)
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                                 Image(systemName: "arrow.up.right")
                                     .font(.caption)
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                             }
                         }
                     }
@@ -144,22 +145,22 @@ struct PagesProjectDetailView: View {
                     if let branch = project.productionBranch {
                         HStack {
                             Text("Production Branch")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(branch)
                                 .font(.body)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let repo = project.source?.config?.repoName {
                         HStack {
                             Text("Repository")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(repo)
                                 .font(.body)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -172,17 +173,17 @@ struct PagesProjectDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "globe")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                                 .frame(width: 24)
                             Text("Custom Domains")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             Text("\(viewModel.domains.count)")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(Color(UIColor.tertiaryLabel))
+                                .foregroundStyle(Color(UIColor.tertiaryLabel))
                         }
                     }
                     
@@ -192,14 +193,14 @@ struct PagesProjectDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "gearshape")
                                 .font(.body)
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                                 .frame(width: 24)
                             Text("Build Configuration")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(Color(UIColor.tertiaryLabel))
+                                .foregroundStyle(Color(UIColor.tertiaryLabel))
                         }
                     }
                 }
@@ -209,7 +210,7 @@ struct PagesProjectDetailView: View {
                     if viewModel.deployments.isEmpty {
                         Text("No recent deployments found.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.deployments) { dep in
                             Button {
@@ -223,7 +224,7 @@ struct PagesProjectDetailView: View {
                                                 .frame(width: 8, height: 8)
                                             Text((dep.environment ?? "Production").capitalized)
                                                 .font(.body)
-                                                .foregroundColor(.primary)
+                                                .foregroundStyle(.primary)
                                         }
                                         
                                         Spacer()
@@ -235,25 +236,25 @@ struct PagesProjectDetailView: View {
                                                 .padding(.vertical, 2)
                                                 .background(Color(UIColor.secondarySystemFill))
                                                 .cornerRadius(4)
-                                                .foregroundColor(.primary)
+                                                .foregroundStyle(.primary)
                                         }
                                         
                                         Image(systemName: "chevron.right")
                                             .font(.caption2)
-                                            .foregroundColor(Color(UIColor.tertiaryLabel))
+                                            .foregroundStyle(Color(UIColor.tertiaryLabel))
                                     }
                                     
                                     if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
                                         Text(msg)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                             .lineLimit(1)
                                     }
                                     
                                     if let created = dep.createdOn {
                                         Text(created.prefix(19).replacingOccurrences(of: "T", with: " "))
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 .padding(.vertical, 4)

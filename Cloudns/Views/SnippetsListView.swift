@@ -27,6 +27,7 @@ struct SnippetsListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加代码片段")
             }
         }
         .sheet(isPresented: $showingEditorSheet) {
@@ -100,7 +101,7 @@ struct SnippetsListView: View {
                                 HStack(spacing: 14) {
                                     Image(systemName: "curlybraces")
                                         .font(.body)
-                                        .foregroundColor(.orange)
+                                        .foregroundStyle(.orange)
                                         .frame(width: 32, height: 32)
                                         .background(Color.orange.opacity(0.12))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -108,12 +109,12 @@ struct SnippetsListView: View {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(snip.snippet_name)
                                             .font(.body.monospacedDigit())
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
 
                                         if let mod = snip.modifiedOn {
                                             Text("Modified: \(String(mod.prefix(10)))")
                                                 .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
 
@@ -121,7 +122,7 @@ struct SnippetsListView: View {
 
                                     Image(systemName: "chevron.right")
                                         .font(.caption)
-                                        .foregroundColor(Color(UIColor.tertiaryLabel))
+                                        .foregroundStyle(Color(UIColor.tertiaryLabel))
                                 }
                                 .padding(.vertical, 3)
                             }
@@ -194,7 +195,7 @@ struct SnippetEditorSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

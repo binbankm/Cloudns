@@ -25,6 +25,7 @@ struct RedirectRulesView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加重定向规则")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -88,7 +89,7 @@ struct RedirectRulesView: View {
                             HStack {
                                 Text(rule.description ?? "Redirect Rule")
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 
                                 Spacer()
                                 
@@ -98,7 +99,7 @@ struct RedirectRulesView: View {
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                         .cornerRadius(4)
                                 }
                             }
@@ -106,7 +107,7 @@ struct RedirectRulesView: View {
                             if let expr = rule.expression {
                                 Text(expr)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                     .lineLimit(2)
                             }
                             
@@ -114,10 +115,10 @@ struct RedirectRulesView: View {
                                 HStack(spacing: 4) {
                                     Image(systemName: "arrow.right")
                                         .font(.caption2)
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                     Text(target)
                                         .font(.caption.monospacedDigit())
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                         .lineLimit(1)
                                 }
                             }
@@ -198,7 +199,7 @@ struct AddRedirectRuleSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

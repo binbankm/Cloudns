@@ -13,7 +13,7 @@ struct HTTPHeaderInspectorView: View {
                 Section(header: Text("Target URL")) {
                     HStack {
                         Image(systemName: "link")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                         
                         TextField("https://example.com", text: $viewModel.httpUrlInput)
                             .textInputAutocapitalization(.never)
@@ -29,7 +29,7 @@ struct HTTPHeaderInspectorView: View {
                                 viewModel.httpUrlInput = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -48,7 +48,7 @@ struct HTTPHeaderInspectorView: View {
                             }
                             Text("Inspect HTTP Headers")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                             Spacer()
                         }
                     }
@@ -60,30 +60,30 @@ struct HTTPHeaderInspectorView: View {
                     Section(header: Text("Response Overview")) {
                         HStack {
                             Text("Status Code")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text("\(result.statusCode) \(result.statusText)")
                                 .font(.body)
-                                .foregroundColor((200...299).contains(result.statusCode) ? .green : .orange)
+                                .foregroundStyle((200...299).contains(result.statusCode) ? .green : .orange)
                         }
                         
                         HStack {
                             Text("Response Latency")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(String(format: "%.1f ms", result.durationMs))
                                 .font(.caption)
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                         }
                         
                         if let cache = result.cfCacheStatus {
                             HStack {
                                 Text("CF-Cache-Status")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(cache.uppercased())
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(cache.uppercased() == "HIT" ? .green : .orange)
+                                    .foregroundStyle(cache.uppercased() == "HIT" ? .green : .orange)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background((cache.uppercased() == "HIT" ? Color.green : Color.orange).opacity(0.12))
@@ -94,11 +94,11 @@ struct HTTPHeaderInspectorView: View {
                         if let ray = result.cfRay {
                             HStack {
                                 Text("CF-RAY")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(ray)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                     }
@@ -120,11 +120,11 @@ struct HTTPHeaderInspectorView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(h.key)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 
                                 Text(h.value)
                                     .font(.caption2.monospacedDigit())
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                             .padding(.vertical, 2)
                         }
@@ -133,7 +133,7 @@ struct HTTPHeaderInspectorView: View {
                     Section {
                         Text(error)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

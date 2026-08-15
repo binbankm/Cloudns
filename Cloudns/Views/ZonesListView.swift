@@ -29,6 +29,7 @@ struct ZonesListView: View {
                         }) {
                             Image(systemName: "plus")
                         }
+                        .accessibilityLabel("添加域名")
                     }
                 }
                 .sheet(isPresented: $showAddZoneSheet) {
@@ -46,21 +47,19 @@ struct ZonesListView: View {
                 await viewModel.fetchZones()
             }
         }
-        .alert(isPresented: $showingDeleteAlert) {
-            Alert(
-                title: Text("Remove Zone"),
-                message: Text("Are you sure you want to remove \(zoneToDelete?.name ?? "this zone") from Cloudflare? This action cannot be undone and will permanently delete all DNS records and settings."),
-                primaryButton: .destructive(Text("Remove")) {
-                    if let zone = zoneToDelete {
-                        Task {
-                            await viewModel.deleteZone(zoneId: zone.id)
-                            ToastManager.shared.showSuccess("Domain Removed", message: "\(zone.name) was removed.")
-                        }
+        .alert("Remove Zone", isPresented: $showingDeleteAlert, actions: {
+            Button("Remove", role: .destructive) {
+                if let zone = zoneToDelete {
+                    Task {
+                        await viewModel.deleteZone(zoneId: zone.id)
+                        ToastManager.shared.showSuccess("Domain Removed", message: "\(zone.name) was removed.")
                     }
-                },
-                secondaryButton: .cancel()
-            )
-        }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }, message: {
+            Text("Are you sure you want to remove \(zoneToDelete?.name ?? "this zone") from Cloudflare? This action cannot be undone and will permanently delete all DNS records and settings.")
+        })
     }
     
     @ViewBuilder
@@ -161,14 +160,14 @@ struct AddZoneView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 52))
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
 
                             VStack(spacing: 6) {
                                 Text("\(zone.name) Added")
                                     .font(.title2)
                                 Text("Update your nameservers at your domain registrar to activate Cloudflare protection.")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
                             }
                         }
@@ -183,18 +182,18 @@ struct AddZoneView: View {
                         ForEach(zone.nameServers ?? [], id: \.self) { ns in
                             HStack {
                                 Image(systemName: "server.rack")
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                                     .frame(width: 28)
                                 Text(ns)
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 Spacer()
                                 Button {
                                     UIPasteboard.general.string = ns
                                     ToastManager.shared.showCopied("Nameserver copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -208,23 +207,23 @@ struct AddZoneView: View {
                                 .font(.subheadline)
                                 .frame(maxWidth: .infinity)
                         }
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                     }
 
                     // Instructions
                     Section(header: Text("What to do next")) {
                         Label("Log in to your domain registrar (e.g. GoDaddy, Namecheap, Aliyun)", systemImage: "1.circle.fill")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                         Label("Find the DNS or Nameserver settings for \(zone.name)", systemImage: "2.circle.fill")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                         Label("Replace existing nameservers with the Cloudflare ones above", systemImage: "3.circle.fill")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                         Label("Save and wait for propagation (up to 24 hours)", systemImage: "4.circle.fill")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
 
                     Section(
@@ -264,9 +263,10 @@ struct AddZoneView: View {
                         Section {
                             HStack(spacing: 10) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
+                                    .accessibilityHidden(true)
                                 Text(error)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                     .font(.subheadline)
                             }
                         }
@@ -306,7 +306,7 @@ struct AddZoneView: View {
                                     .controlSize(.large)
                                 Text("Adding domain...")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                             .padding(24)
                             .background(.ultraThinMaterial)
@@ -337,14 +337,14 @@ struct ZoneRowView: View {
                     .frame(width: 38, height: 38)
                 Text(initialChar)
                     .font(.system(.body, design: .rounded))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(zone.name)
                     .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 // Professional Warning Badges (Only show when active)
                 if zone.paused || (zone.developmentMode ?? 0) > 0 {
@@ -355,7 +355,7 @@ struct ZoneRowView: View {
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.red.opacity(0.15))
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                                 .cornerRadius(4)
                         }
                         
@@ -365,7 +365,7 @@ struct ZoneRowView: View {
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.orange.opacity(0.15))
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                                 .cornerRadius(4)
                         }
                     }
@@ -385,7 +385,7 @@ struct ZoneRowView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(Color.green.opacity(0.15))
-                .foregroundColor(.green)
+                .foregroundStyle(.green)
                 .cornerRadius(10)
             } else {
                 Text(zone.status.capitalized)
@@ -393,7 +393,7 @@ struct ZoneRowView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.gray.opacity(0.15))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .cornerRadius(8)
             }
         }

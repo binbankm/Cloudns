@@ -17,14 +17,14 @@ struct AddEmailRuleView: View {
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                         Text("@yourdomain.com")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
                 Section(header: Text("Destination"), footer: Text("The verified destination address where messages will be forwarded.")) {
                     if viewModel.destinations.isEmpty {
                         Text("No verified destinations available.")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in

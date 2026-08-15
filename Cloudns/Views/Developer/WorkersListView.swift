@@ -43,6 +43,7 @@ struct WorkersListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加 Worker 或 Pages")
             }
         }
         .sheet(isPresented: $showingCreateWorkerSheet) {
@@ -167,7 +168,7 @@ struct WorkersListView: View {
                                 HStack(alignment: .center, spacing: 14) {
                                     Image(systemName: "doc.richtext.fill")
                                         .font(.body)
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                         .frame(width: 32, height: 32)
                                         .background(Color.blue.opacity(0.12))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -175,12 +176,12 @@ struct WorkersListView: View {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(page.name)
                                             .font(.body)
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
                                         
                                         if let sub = page.subdomain {
                                             Text(sub)
                                                 .font(.caption.monospacedDigit())
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                     
@@ -193,7 +194,7 @@ struct WorkersListView: View {
                                             Text(branch)
                                                 .font(.caption2)
                                         }
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 3)
                                         .background(Color(UIColor.tertiarySystemGroupedBackground))
@@ -228,7 +229,7 @@ struct WorkerRowView: View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "bolt.fill")
                 .font(.body)
-                .foregroundColor(.orange)
+                .foregroundStyle(.orange)
                 .frame(width: 32, height: 32)
                 .background(Color.orange.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -236,12 +237,12 @@ struct WorkerRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 if let mod = worker.modifiedOn {
                     Text("Modified: \(String(mod.prefix(10)))")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             
@@ -250,7 +251,7 @@ struct WorkerRowView: View {
             if let routes = worker.routes, !routes.isEmpty {
                 Text("\(routes.count) Route(s)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 2)
@@ -345,7 +346,7 @@ struct WorkerCreateSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -407,7 +408,7 @@ struct PagesCreateProjectSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

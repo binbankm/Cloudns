@@ -64,21 +64,21 @@ struct SecurityEventCardView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForAction(event.action).opacity(0.1))
-                    .foregroundColor(colorForAction(event.action))
+                    .foregroundStyle(colorForAction(event.action))
                     .cornerRadius(6)
                 
                 Spacer()
                 
                 Text(formatDate(event.datetime))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("IP Address")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     HStack(spacing: 4) {
                         Text(countryFlag(countryCode: event.clientCountryName))
@@ -93,7 +93,7 @@ struct SecurityEventCardView: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("ASN")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("AS\(asn)")
                             .font(.subheadline)
                     }
@@ -105,7 +105,7 @@ struct SecurityEventCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Source / Engine")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 Text(event.source.capitalized)
                     .font(.footnote)
             }
@@ -113,10 +113,10 @@ struct SecurityEventCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Target URL")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 Text(event.host)
                     .font(.footnote.monospacedDigit())
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
             }
         }
         .padding(.vertical, 4)

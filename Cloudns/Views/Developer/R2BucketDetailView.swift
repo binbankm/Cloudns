@@ -63,30 +63,30 @@ struct R2BucketDetailView: View {
                     Section(header: Text("Bucket Information")) {
                         HStack {
                             Text("Bucket Name")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(bucket.name)
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                         
                         if let loc = bucket.location {
                             HStack {
                                 Text("Location")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(loc.uppercased())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let date = bucket.creationDate {
                             HStack {
                                 Text("Created On")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(String(date.prefix(10)))
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                     }
@@ -125,7 +125,7 @@ struct R2ObjectRowView: View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: fileIcon(for: object.key))
                 .font(.body)
-                .foregroundColor(.blue)
+                .foregroundStyle(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -133,18 +133,18 @@ struct R2ObjectRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(object.key)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 HStack(spacing: 10) {
                     Text(object.formattedSize)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     if let up = object.uploaded {
                         Text(String(up.prefix(10)))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }

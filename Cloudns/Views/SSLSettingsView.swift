@@ -28,7 +28,7 @@ struct SSLSettingsView: View {
                             .font(.body)
                         Text("Redirect all HTTP requests to HTTPS.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -44,7 +44,7 @@ struct SSLSettingsView: View {
                             .font(.body)
                         Text("Automatically rewrite HTTP resources to HTTPS to avoid mixed content warnings.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -74,7 +74,7 @@ struct SSLSettingsView: View {
                             .font(.body)
                         Text("Enable the latest version of the TLS protocol for improved security and performance.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -90,7 +90,7 @@ struct SSLSettingsView: View {
                             .font(.body)
                         Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -106,7 +106,7 @@ struct SSLSettingsView: View {
                             .font(.body)
                         Text("Route Tor users through the Cloudflare Onion service to improve privacy.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -122,10 +122,10 @@ struct SSLSettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Enable HSTS")
                             .font(.body)
-                            .foregroundColor(viewModel.hstsEnabled ? .red : .primary)
+                            .foregroundStyle(viewModel.hstsEnabled ? .red : .primary)
                         Text("Strict Transport Security (HSTS)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -147,14 +147,14 @@ struct SSLSettingsView: View {
                             await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff)
                         }
                     }
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                 } else {
                     Button("Save HSTS (Disable)") {
                         Task {
                             await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false)
                         }
                     }
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                 }
             }
             
@@ -164,14 +164,13 @@ struct SSLSettingsView: View {
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
 
-        .alert(isPresented: .constant(viewModel.errorMessage != nil), content: {
-            Alert(
-                title: Text("Error"),
-                message: Text(viewModel.errorMessage ?? ""),
-                dismissButton: .default(Text("OK")) {
-                    viewModel.errorMessage = nil
-                }
-            )
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(viewModel.errorMessage ?? "")
         })
         .task {
             await viewModel.fetchSettings(zoneId: zoneId)

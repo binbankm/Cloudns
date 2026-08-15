@@ -73,17 +73,17 @@ struct LoadBalancerView: View {
                                         if lb.enabled == true {
                                             Text("Active")
                                                 .font(.caption)
-                                                .foregroundColor(.green)
+                                                .foregroundStyle(.green)
                                         } else {
                                             Text("Inactive")
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                     if let fallback = lb.fallbackPool {
                                         Text("Fallback: \(fallback)")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -107,12 +107,12 @@ struct LoadBalancerView: View {
                                         Spacer()
                                         Text("\(pool.origins?.count ?? 0) Origins")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                     if let desc = pool.description, !desc.isEmpty {
                                         Text(desc)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -127,7 +127,7 @@ struct LoadBalancerView: View {
                                         Text(monitor.path ?? "/")
                                     }
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 }
                                 .padding(.vertical, 4)
                             }
@@ -146,18 +146,18 @@ struct LoadBalancerView: View {
             showingAddSheet = true
         }) {
             Image(systemName: "plus")
-        })
+        }
+        .accessibilityLabel("添加负载均衡"))
         .sheet(isPresented: $showingAddSheet) {
             AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
         }
-        .alert(isPresented: .constant(viewModel.errorMessage != nil)) {
-            Alert(
-                title: Text("Error"),
-                message: Text(viewModel.errorMessage ?? "Unknown error"),
-                dismissButton: .default(Text("OK")) {
-                    viewModel.errorMessage = nil
-                }
-            )
-        }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(viewModel.errorMessage ?? "Unknown error")
+        })
     }
 }

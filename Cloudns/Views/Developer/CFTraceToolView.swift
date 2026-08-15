@@ -13,7 +13,7 @@ struct CFTraceToolView: View {
                 Section(header: Text("Trace Host")) {
                     HStack {
                         Image(systemName: "network")
-                            .foregroundColor(.orange)
+                            .foregroundStyle(.orange)
                         
                         TextField("www.cloudflare.com", text: $viewModel.host)
                             .textInputAutocapitalization(.never)
@@ -39,7 +39,7 @@ struct CFTraceToolView: View {
                             }
                             Text("Trace PoP & Network")
                                 .font(.body)
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                             Spacer()
                         }
                     }
@@ -51,47 +51,47 @@ struct CFTraceToolView: View {
                     Section(header: Text("Connection Summary")) {
                         HStack {
                             Text("Edge PoP Data Center")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(colo)
                                 .font(.body.monospacedDigit())
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(Color.orange.opacity(0.15))
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                                 .cornerRadius(6)
                         }
                         
                         if let ip = viewModel.clientIp {
                             HStack {
                                 Text("Client IP")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(ip)
                                     .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let loc = viewModel.locCountry {
                             HStack {
                                 Text("Country / Region")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(loc)
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let warp = viewModel.warpStatus {
                             HStack {
                                 Text("Cloudflare WARP")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(warp.uppercased())
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(warp == "on" || warp == "plus" ? .green : .secondary)
+                                    .foregroundStyle(warp == "on" || warp == "plus" ? .green : .secondary)
                             }
                         }
                     }
@@ -115,13 +115,13 @@ struct CFTraceToolView: View {
                             HStack {
                                 Text(item.key)
                                     .font(.body)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 
                                 Spacer()
                                 
                                 Text(item.value)
                                     .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                             .padding(.vertical, 2)
                         }
@@ -130,7 +130,7 @@ struct CFTraceToolView: View {
                     Section {
                         Text(err)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

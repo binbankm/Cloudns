@@ -13,7 +13,7 @@ struct DNSDigToolView: View {
                 Section(header: Text("Query Target")) {
                     HStack {
                         Image(systemName: "globe")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                         
                         TextField("e.g. example.com", text: $viewModel.domainInput)
                             .textInputAutocapitalization(.never)
@@ -29,7 +29,8 @@ struct DNSDigToolView: View {
                                 viewModel.domainInput = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityLabel("清除输入")
                             }
                         }
                     }
@@ -67,12 +68,12 @@ struct DNSDigToolView: View {
                         Spacer()
                         Text(String(format: "%.1f ms", result.latencyMs))
                             .font(.caption2.weight(.medium))
-                            .foregroundColor(.green)
+                            .foregroundStyle(.green)
                     }) {
                         if result.answers.isEmpty {
                             Text("No DNS records returned for this query.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         } else {
                             ForEach(result.answers) { item in
                                 DNSAnswerRowView(item: item)
@@ -83,7 +84,7 @@ struct DNSDigToolView: View {
                     Section {
                         Text(error)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -105,23 +106,23 @@ struct DNSAnswerRowView: View {
                     .frame(width: 48)
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.12))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                     .cornerRadius(6)
                 
                 Text(item.name)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 Spacer()
                 
                 Text("\(item.ttl)s")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             
             Text(item.data)
                 .font(.body.monospacedDigit())
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .lineLimit(3)
         }
         .padding(.vertical, 4)

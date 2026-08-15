@@ -65,6 +65,7 @@ struct IPAccessRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加规则")
             }
         }
         .task {
@@ -94,21 +95,21 @@ struct IPAccessRuleRow: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForMode(rule.mode).opacity(0.1))
-                    .foregroundColor(colorForMode(rule.mode))
+                    .foregroundStyle(colorForMode(rule.mode))
                     .cornerRadius(6)
             }
             
             HStack {
                 Text(rule.configuration.target.uppercased().replacingOccurrences(of: "_", with: " "))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 if let notes = rule.notes, !notes.isEmpty {
                     Text("•")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Text(notes)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }

@@ -31,7 +31,7 @@ struct PagesBuildConfigEditorView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Build Command")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         TextField("npm run build / hugo / next build", text: $buildCommand)
                             .font(.body)
                             .autocorrectionDisabled()
@@ -42,7 +42,7 @@ struct PagesBuildConfigEditorView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Build Output Directory")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         TextField("dist / public / .next", text: $destinationDir)
                             .font(.body)
                             .autocorrectionDisabled()
@@ -53,7 +53,7 @@ struct PagesBuildConfigEditorView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Root Directory (Optional)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         TextField("/", text: $rootDir)
                             .font(.body)
                             .autocorrectionDisabled()
@@ -66,7 +66,7 @@ struct PagesBuildConfigEditorView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Production Branch")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         TextField("main / master", text: $productionBranch)
                             .font(.body)
                             .autocorrectionDisabled()
@@ -79,7 +79,7 @@ struct PagesBuildConfigEditorView: View {
                     Section {
                         Text(error)
                             .font(.footnote)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

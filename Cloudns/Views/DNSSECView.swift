@@ -39,14 +39,14 @@ struct DNSSECView: View {
                         HStack {
                             Image(systemName: "lock.shield.fill")
                                 .font(.system(size: 28))
-                                .foregroundColor(statusColor(for: dnssec.status))
+                                .foregroundStyle(statusColor(for: dnssec.status))
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("DNSSEC Status")
                                     .font(.body)
                                 Text(dnssec.status.capitalized)
                                     .font(.subheadline)
-                                    .foregroundColor(statusColor(for: dnssec.status))
+                                    .foregroundStyle(statusColor(for: dnssec.status))
                             }
                         }
                         .padding(.vertical, 4)
@@ -109,10 +109,10 @@ struct DetailRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(LocalizedStringKey(title))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Text(validValue)
                         .font(.body.monospacedDigit())
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                 }
                 .padding(.vertical, 4)
                 
@@ -125,8 +125,9 @@ struct DetailRow: View {
                     ToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
                 }) {
                     Image(systemName: "doc.on.doc")
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                 }
+                .accessibilityLabel("复制\(title)")
             }
         }
     }

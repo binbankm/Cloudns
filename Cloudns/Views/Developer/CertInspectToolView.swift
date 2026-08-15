@@ -13,7 +13,7 @@ struct CertInspectToolView: View {
                 Section(header: Text("Target Domain")) {
                     HStack {
                         Image(systemName: "lock.shield")
-                            .foregroundColor(.green)
+                            .foregroundStyle(.green)
                         
                         TextField("cloudflare.com", text: $viewModel.domainInput)
                             .textInputAutocapitalization(.never)
@@ -39,7 +39,7 @@ struct CertInspectToolView: View {
                             }
                             Text("Inspect SSL / TLS Certificate")
                                 .font(.body)
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                             Spacer()
                         }
                     }
@@ -51,62 +51,62 @@ struct CertInspectToolView: View {
                     Section(header: Text("Certificate Status")) {
                         HStack {
                             Text("Common Name (CN)")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(cert.commonName)
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                         
                         if let issuer = cert.issuer {
                             HStack {
                                 Text("Issuer CA")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(issuer)
                                     .font(.caption)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let days = cert.validityDaysRemaining {
                             HStack {
                                 Text("Validity Remaining")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text("\(days) Days")
                                     .font(.subheadline)
-                                    .foregroundColor(days > 30 ? .green : .orange)
+                                    .foregroundStyle(days > 30 ? .green : .orange)
                             }
                         }
                         
                         if let proto = cert.protocolNegotiated {
                             HStack {
                                 Text("Negotiated Protocol")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(proto)
                                     .font(.caption.monospacedDigit())
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.green.opacity(0.12))
-                                    .foregroundColor(.green)
+                                    .foregroundStyle(.green)
                                     .cornerRadius(4)
                             }
                         }
                         
                         HStack {
                             Text("Edge Provider")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             if cert.isCloudflareEdge {
                                 Text("Cloudflare Edge Network")
                                     .font(.caption)
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
                             } else {
                                 Text("External TLS Server")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -118,10 +118,10 @@ struct CertInspectToolView: View {
                                 HStack {
                                     Image(systemName: "globe")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                     Text(san)
                                         .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                 }
                             }
                         }
@@ -130,7 +130,7 @@ struct CertInspectToolView: View {
                     Section {
                         Text(err)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

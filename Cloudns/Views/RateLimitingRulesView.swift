@@ -61,6 +61,7 @@ struct RateLimitingRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加速率限制规则")
             }
         }
         .sheet(isPresented: $showingAddSheet) {

@@ -51,22 +51,22 @@ struct WorkerDetailView: View {
                 Section(header: Text("Script Overview")) {
                     HStack {
                         Text("Script Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(worker.id)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     
                     if let sub = viewModel.subdomain {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("workers.dev Subdomain")
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 if sub.enabled, let id = sub.id {
                                     Text("https://\(id)")
                                         .font(.caption2.monospacedDigit())
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                             Spacer()
@@ -83,53 +83,53 @@ struct WorkerDetailView: View {
                     if !viewModel.modules.isEmpty {
                         HStack {
                             Text("Modules")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(viewModel.modules.count > 1 ? "\(viewModel.modules.count) Modules (ESM)" : "1 Module")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if !viewModel.scriptContent.isEmpty {
                         HStack {
                             Text("Total Size")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(formatBytes(viewModel.scriptContent.utf8.count))
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let usage = worker.usageModel {
                         HStack {
                             Text("Usage Model")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(usage.capitalized)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let compat = worker.compatibilityDate {
                         HStack {
                             Text("Compatibility Date")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(compat)
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let modified = worker.modifiedOn {
                         HStack {
                             Text("Last Modified")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(String(modified.prefix(19)).replacingOccurrences(of: "T", with: " "))
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -151,7 +151,7 @@ struct WorkerDetailView: View {
                     if viewModel.modules.isEmpty && viewModel.scriptContent.isEmpty {
                         Text(viewModel.errorMessage ?? "No script source code available.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     } else {
                         VStack(alignment: .leading, spacing: 10) {
                             // Module tabs if multi-module
@@ -171,7 +171,7 @@ struct WorkerDetailView: View {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 5)
                                                 .background(viewModel.selectedModule?.name == mod.name ? Color.orange : Color(UIColor.tertiarySystemFill))
-                                                .foregroundColor(viewModel.selectedModule?.name == mod.name ? .white : .primary)
+                                                .foregroundStyle(viewModel.selectedModule?.name == mod.name ? .white : .primary)
                                                 .clipShape(Capsule())
                                             }
                                             .buttonStyle(.plain)
@@ -186,7 +186,7 @@ struct WorkerDetailView: View {
                             
                             Text(previewText)
                                 .font(.caption.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                                 .padding(10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -202,7 +202,7 @@ struct WorkerDetailView: View {
                                         systemImage: "curlybraces"
                                     )
                                     .font(.caption)
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
                                     Spacer()
                                 }
                                 .padding(.vertical, 4)
@@ -220,15 +220,15 @@ struct WorkerDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "globe")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                                 .frame(width: 24)
                             Text("Domains & Routes")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             if let routes = worker.routes, !routes.isEmpty {
                                 Text("\(routes.count)")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -239,10 +239,10 @@ struct WorkerDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "key.fill")
                                 .font(.body)
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                                 .frame(width: 24)
                             Text("Environment Secrets")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                         }
                     }
@@ -253,15 +253,15 @@ struct WorkerDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "clock")
                                 .font(.body)
-                                .foregroundColor(.purple)
+                                .foregroundStyle(.purple)
                                 .frame(width: 24)
                             Text("Cron Triggers")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             if !viewModel.schedules.isEmpty {
                                 Text("\(viewModel.schedules.count)")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -275,10 +275,10 @@ struct WorkerDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "terminal.fill")
                                 .font(.body)
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                                 .frame(width: 24)
                             Text("Live Tail Logs")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                         }
                     }
@@ -289,10 +289,10 @@ struct WorkerDetailView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "paperplane.fill")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                                 .frame(width: 24)
                             Text("Test Dispatch")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                         }
                     }
@@ -303,19 +303,19 @@ struct WorkerDetailView: View {
                     if viewModel.bindings.isEmpty {
                         Text("No KV, R2, D1 or secret bindings configured.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.bindings) { binding in
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(binding.name)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if let extra = binding.namespaceId ?? binding.bucketName ?? binding.databaseId {
                                         Text(extra)
                                             .font(.caption2.monospacedDigit())
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
@@ -323,7 +323,7 @@ struct WorkerDetailView: View {
                                 
                                 Text(binding.type.uppercased())
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.orange.opacity(0.12))
@@ -380,6 +380,80 @@ struct WorkerSourceCodeViewerSheet: View {
         currentModule?.code ?? parentViewModel.scriptContent
     }
     
+    @ViewBuilder
+    private var modeSwitcherBar: some View {
+        HStack {
+            HStack(spacing: 0) {
+                Button {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    UISelectionFeedbackGenerator().selectionChanged()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isEditingMode = false
+                    }
+                } label: {
+                    let isActive = !isEditingMode
+                    Text("View Code")
+                        .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(isActive ? Color(UIColor.systemBackground) : Color.clear)
+                        .cornerRadius(6)
+                        .shadow(color: isActive ? Color.black.opacity(0.08) : Color.clear, radius: 2, y: 1)
+                }
+                .buttonStyle(.plain)
+                
+                Button {
+                    UISelectionFeedbackGenerator().selectionChanged()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isEditingMode = true
+                    }
+                } label: {
+                    Text("Edit & Deploy")
+                        .font(.system(size: 13, weight: isEditingMode ? .semibold : .regular))
+                        .foregroundStyle(isEditingMode ? Color.primary : Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(isEditingMode ? Color(UIColor.systemBackground) : Color.clear)
+                        .cornerRadius(6)
+                        .shadow(color: isEditingMode ? Color.black.opacity(0.08) : Color.clear, radius: 2, y: 1)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(3)
+            .background(Color(UIColor.tertiarySystemFill))
+            .cornerRadius(8)
+            .frame(maxWidth: 220)
+            
+            Spacer()
+            
+            if isEditingMode {
+                Button {
+                    showingDeployAlert = true
+                } label: {
+                    HStack(spacing: 4) {
+                        if isDeploying {
+                            ProgressView().scaleEffect(0.8)
+                        } else {
+                            Image(systemName: "arrow.up.circle.fill")
+                            Text("Deploy")
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Color.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.blue)
+                    .cornerRadius(8)
+                }
+                .disabled(isDeploying || editableCode.isEmpty)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -401,7 +475,7 @@ struct WorkerSourceCodeViewerSheet: View {
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                                     .background(selectedModuleName == mod.name ? Color.orange : Color(UIColor.secondarySystemGroupedBackground))
-                                    .foregroundColor(selectedModuleName == mod.name ? .white : .primary)
+                                    .foregroundStyle(selectedModuleName == mod.name ? .white : .primary)
                                     .cornerRadius(8)
                                 }
                                 .buttonStyle(.plain)
@@ -415,75 +489,7 @@ struct WorkerSourceCodeViewerSheet: View {
                 }
                 
                 // Mode switcher bar (View / Edit)
-                HStack {
-                    HStack(spacing: 0) {
-                        Button {
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                            UISelectionFeedbackGenerator().selectionChanged()
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isEditingMode = false
-                            }
-                        } label: {
-                            Text("View Code")
-                                .font(.system(size: 13, weight: isEditingMode ? .regular : .semibold))
-                                .foregroundColor(isEditingMode ? .secondary : .primary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 6)
-                                .background(isEditingMode ? Color.clear : Color(UIColor.systemBackground))
-                                .cornerRadius(6)
-                                .shadow(color: isEditingMode ? .clear : Color.black.opacity(0.08), radius: 2, y: 1)
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Button {
-                            UISelectionFeedbackGenerator().selectionChanged()
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isEditingMode = true
-                            }
-                        } label: {
-                            Text("Edit & Deploy")
-                                .font(.system(size: 13, weight: isEditingMode ? .semibold : .regular))
-                                .foregroundColor(isEditingMode ? .primary : .secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 6)
-                                .background(isEditingMode ? Color(UIColor.systemBackground) : Color.clear)
-                                .cornerRadius(6)
-                                .shadow(color: isEditingMode ? Color.black.opacity(0.08) : .clear, radius: 2, y: 1)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(3)
-                    .background(Color(UIColor.tertiarySystemFill))
-                    .cornerRadius(8)
-                    .frame(maxWidth: 220)
-                    
-                    Spacer()
-                    
-                    if isEditingMode {
-                        Button {
-                            showingDeployAlert = true
-                        } label: {
-                            HStack(spacing: 4) {
-                                if isDeploying {
-                                    ProgressView().scaleEffect(0.8)
-                                } else {
-                                    Image(systemName: "arrow.up.circle.fill")
-                                    Text("Deploy")
-                                }
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                        }
-                        .disabled(isDeploying || editableCode.isEmpty)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                modeSwitcherBar
                 
                 Divider()
                 
@@ -510,7 +516,7 @@ struct WorkerSourceCodeViewerSheet: View {
                     } label: {
                         Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
                             .font(.subheadline)
-                            .foregroundColor(wrapLines ? .accentColor : .secondary)
+                            .foregroundStyle(wrapLines ? Color.accentColor : Color.secondary)
                     }
                     
                     ShareLink(

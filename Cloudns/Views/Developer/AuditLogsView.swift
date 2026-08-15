@@ -75,14 +75,14 @@ struct AuditLogRowView: View {
             HStack(spacing: 8) {
                 Text(log.action?.type ?? "action")
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 Spacer()
                 
                 if let res = log.action?.result {
                     Text(res ? "Success" : "Failed")
                         .font(.caption2.weight(.medium))
-                        .foregroundColor(res ? .green : .red)
+                        .foregroundStyle(res ? .green : .red)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background((res ? Color.green : Color.red).opacity(0.12))
@@ -94,20 +94,20 @@ struct AuditLogRowView: View {
                 if let email = log.actor?.email {
                     Label(email, systemImage: "person.circle")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 if let ip = log.actor?.ip {
                     Text(ip)
                         .font(.caption.monospacedDigit())
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             
             if let when = log.when {
                 Text(String(when.prefix(19)).replacingOccurrences(of: "T", with: " "))
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 3)

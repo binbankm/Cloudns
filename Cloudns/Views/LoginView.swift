@@ -22,17 +22,17 @@ struct LoginView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 60, height: 60)
-                    .foregroundColor(.orange)
+                    .foregroundStyle(.orange)
                     .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
                 
                 VStack(spacing: 8) {
                     Text(onLoginSuccess == nil ? "Welcome Back" : "Add Account")
                         .font(.title)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     
                     Text(onLoginSuccess == nil ? "Manage your domains with ease." : "Enter your Cloudflare credentials.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(.bottom, 40)
@@ -44,11 +44,11 @@ struct LoginView: View {
                     Text("Email")
                         .font(.footnote)
                         .fontWeight(.medium)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     HStack {
                         Image(systemName: "envelope")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                             .accessibilityHidden(true)
                         TextField("Enter your email", text: $viewModel.email)
                             .keyboardType(.emailAddress)
@@ -75,11 +75,11 @@ struct LoginView: View {
                     Text("Global API Key")
                         .font(.footnote)
                         .fontWeight(.medium)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     HStack {
                         Image(systemName: "key")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                             .accessibilityHidden(true)
                         SecureField("Enter your Global API Key", text: $viewModel.apiKey)
                             .autocapitalization(.none)
@@ -109,7 +109,7 @@ struct LoginView: View {
             if let errorMessage = viewModel.errorMessage {
                 Text(LocalizedStringKey(errorMessage))
                     .font(.footnote)
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .padding(.top, 16)
                     .padding(.horizontal, 24)
@@ -141,7 +141,7 @@ struct LoginView: View {
                             .font(.body)
                     }
                 }
-                .foregroundColor(isButtonDisabled ? .gray : .white)
+                .foregroundStyle(isButtonDisabled ? .gray : .white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
                 .background(isButtonDisabled ? Color.gray.opacity(0.2) : Color.orange)
@@ -163,14 +163,14 @@ struct LoginView: View {
                 }) {
                     Text("Forgot your API key?")
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 HStack {
                     VStack { Divider() }
                     Text("or")
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .padding(.horizontal, 8)
                     VStack { Divider() }
                 }
@@ -183,9 +183,9 @@ struct LoginView: View {
                 }) {
                     HStack(spacing: 4) {
                         Text("Don't have an account?")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("Sign Up")
-                            .foregroundColor(.orange)
+                            .foregroundStyle(.orange)
                             .fontWeight(.medium)
                     }
                     .font(.footnote)
@@ -195,11 +195,13 @@ struct LoginView: View {
             Spacer()
         }
         .background(
-            Color(UIColor.systemBackground)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    focusedField = nil
-                }
+            Button {
+                focusedField = nil
+            } label: {
+                Color(UIColor.systemBackground)
+                    .edgesIgnoringSafeArea(.all)
+            }
+            .buttonStyle(.plain)
         )
     }
 }

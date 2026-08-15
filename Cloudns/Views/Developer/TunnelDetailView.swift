@@ -44,16 +44,16 @@ struct TunnelDetailView: View {
                 Section(header: Text("Tunnel Overview")) {
                     HStack {
                         Text("Tunnel Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(tunnel.name)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     
                     HStack {
                         Text("Status")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         HStack(spacing: 4) {
                             Circle()
@@ -61,17 +61,17 @@ struct TunnelDetailView: View {
                                 .frame(width: 6, height: 6)
                             Text((tunnel.status ?? "Inactive").capitalized)
                                 .font(.body)
-                                .foregroundColor(tunnel.isHealthy ? .green : .red)
+                                .foregroundStyle(tunnel.isHealthy ? .green : .red)
                         }
                     }
                     
                     HStack {
                         Text("UUID")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(tunnel.id)
                             .font(.caption2.monospacedDigit())
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
@@ -80,7 +80,7 @@ struct TunnelDetailView: View {
                     if viewModel.ingressRules.isEmpty {
                         Text("No public ingress hostnames configured for this tunnel.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.ingressRules) { rule in
                             VStack(alignment: .leading, spacing: 4) {
@@ -88,10 +88,10 @@ struct TunnelDetailView: View {
                                     HStack {
                                         Image(systemName: "globe")
                                             .font(.caption)
-                                            .foregroundColor(.blue)
+                                            .foregroundStyle(.blue)
                                         Text(host)
                                             .font(.body)
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
                                     }
                                 }
                                 
@@ -99,10 +99,10 @@ struct TunnelDetailView: View {
                                     HStack {
                                         Image(systemName: "arrow.right.circle.fill")
                                             .font(.caption2)
-                                            .foregroundColor(.green)
+                                            .foregroundStyle(.green)
                                         Text(svc)
                                             .font(.caption.monospacedDigit())
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                             }
@@ -123,14 +123,14 @@ struct TunnelDetailView: View {
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
                                             .background(Color.blue.opacity(0.12))
-                                            .foregroundColor(.blue)
+                                            .foregroundStyle(.blue)
                                             .cornerRadius(4)
                                     }
                                     
                                     if let ip = conn.originIp {
                                         Text(ip)
                                             .font(.caption.monospacedDigit())
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
                                     }
                                     
                                     Spacer()
@@ -138,14 +138,14 @@ struct TunnelDetailView: View {
                                     if let arch = conn.arch {
                                         Text(arch)
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
                                 if let ver = conn.version {
                                     Text("cloudflared v\(ver)")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                             .padding(.vertical, 3)

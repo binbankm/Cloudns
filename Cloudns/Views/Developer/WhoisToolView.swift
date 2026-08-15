@@ -220,7 +220,7 @@ struct WhoisToolView: View {
             Section(header: Text("WHOIS & RDAP Lookup"), footer: Text("Queries global IANA RDAP directory over encrypted HTTPS (no account needed).")) {
                 HStack(spacing: 8) {
                     Image(systemName: "globe")
-                        .foregroundColor(.teal)
+                        .foregroundStyle(.teal)
                     
                     TextField("example.com", text: $viewModel.domainInput)
                         .font(.body.monospacedDigit())
@@ -236,7 +236,7 @@ struct WhoisToolView: View {
                             viewModel.domainInput = ""
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -283,10 +283,10 @@ struct WhoisToolView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
                             .font(.body)
-                            .foregroundColor(.orange)
+                            .foregroundStyle(.orange)
                         Text(error)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -294,21 +294,21 @@ struct WhoisToolView: View {
                 Section(header: Text("Registration Information")) {
                     HStack {
                         Text("Domain Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(info.domain)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     
                     if let reg = info.registrar {
                         HStack {
                             Text("Registrar")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(reg)
                                 .font(.body)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                                 .multilineTextAlignment(.trailing)
                         }
                     }
@@ -316,39 +316,39 @@ struct WhoisToolView: View {
                     if let created = info.created {
                         HStack {
                             Text("Created Date")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(formatDate(created))
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let updated = info.updated {
                         HStack {
                             Text("Updated Date")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(formatDate(updated))
                                 .font(.body.monospacedDigit())
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     if let expires = info.expires {
                         HStack {
                             Text("Expiration Date")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             VStack(alignment: .trailing, spacing: 2) {
                                 Text(formatDate(expires))
                                     .font(.body.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 
                                 let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
                                 Text(days > 0 ? "\(days) days remaining" : "Expired")
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(days > 30 ? .green : .red)
+                                    .foregroundStyle(days > 30 ? .green : .red)
                             }
                         }
                     }
@@ -364,7 +364,7 @@ struct WhoisToolView: View {
                                     .frame(width: 6, height: 6)
                                 Text(status)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                             .padding(.vertical, 2)
                         }
@@ -378,10 +378,10 @@ struct WhoisToolView: View {
                             HStack {
                                 Image(systemName: "server.rack")
                                     .font(.caption)
-                                    .foregroundColor(.teal)
+                                    .foregroundStyle(.teal)
                                 Text(ns.lowercased())
                                     .font(.subheadline.monospacedDigit())
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 Spacer()
                                 Button {
                                     UIPasteboard.general.string = ns.lowercased()
@@ -389,7 +389,7 @@ struct WhoisToolView: View {
                                 } label: {
                                     Image(systemName: "doc.on.doc")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                                 .buttonStyle(.plain)
                             }

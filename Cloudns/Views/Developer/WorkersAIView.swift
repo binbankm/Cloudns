@@ -73,7 +73,7 @@ struct WorkersAIView: View {
                                         HStack(alignment: .center, spacing: 14) {
                                             Image(systemName: "sparkles")
                                                 .font(.body)
-                                                .foregroundColor(.purple)
+                                                .foregroundStyle(.purple)
                                                 .frame(width: 32, height: 32)
                                                 .background(Color.purple.opacity(0.12))
                                                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -81,18 +81,18 @@ struct WorkersAIView: View {
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(model.shortName)
                                                     .font(.body)
-                                                    .foregroundColor(.primary)
+                                                    .foregroundStyle(.primary)
                                                 
                                                 if let desc = model.description, !desc.isEmpty {
                                                     Text(desc)
                                                         .font(.caption)
-                                                        .foregroundColor(.secondary)
+                                                        .foregroundStyle(.secondary)
                                                         .lineLimit(2)
                                                 }
                                                 
                                                 Text(model.id)
                                                     .font(.caption2.monospacedDigit())
-                                                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                                                    .foregroundStyle(Color(UIColor.tertiaryLabel))
                                                     .lineLimit(1)
                                             }
                                             
@@ -100,7 +100,7 @@ struct WorkersAIView: View {
                                             
                                             Image(systemName: "chevron.right")
                                                 .font(.caption)
-                                                .foregroundColor(Color(UIColor.tertiaryLabel))
+                                                .foregroundStyle(Color(UIColor.tertiaryLabel))
                                         }
                                         .padding(.vertical, 2)
                                     }
@@ -126,7 +126,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 Section(header: Text("Model Information")) {
                     HStack {
                         Text("Model Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(model.shortName)
                             .font(.body)
@@ -134,21 +134,21 @@ struct WorkersAIPlaygroundSheetView: View {
                     
                     HStack {
                         Text("Task Type")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(model.taskName)
                             .font(.caption)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.purple.opacity(0.12))
-                            .foregroundColor(.purple)
+                            .foregroundStyle(.purple)
                             .cornerRadius(4)
                     }
                     
                     if let desc = model.description {
                         Text(desc)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
@@ -171,7 +171,7 @@ struct WorkersAIPlaygroundSheetView: View {
                             }
                             Text("Run Model Inference")
                                 .font(.body)
-                                .foregroundColor(.purple)
+                                .foregroundStyle(.purple)
                             Spacer()
                         }
                     }

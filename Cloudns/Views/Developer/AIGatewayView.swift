@@ -24,6 +24,7 @@ struct AIGatewayView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("创建 AI 网关")
                 }
             }
             .sheet(isPresented: $showingCreateSheet) {
@@ -92,7 +93,7 @@ struct AIGatewayView: View {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: "brain.head.profile")
                                     .font(.body)
-                                    .foregroundColor(.pink)
+                                    .foregroundStyle(.pink)
                                     .frame(width: 32, height: 32)
                                     .background(Color.pink.opacity(0.12))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -100,19 +101,19 @@ struct AIGatewayView: View {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(gw.id)
                                         .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
 
                                     HStack(spacing: 8) {
                                         if gw.collectLogs == true {
                                             Label("Logs Active", systemImage: "checkmark.circle.fill")
                                                 .font(.caption2)
-                                                .foregroundColor(.green)
+                                                .foregroundStyle(.green)
                                         }
 
                                         if let created = gw.createdOn {
                                             Text("Created: \(String(created.prefix(10)))")
                                                 .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                 }
@@ -168,7 +169,7 @@ struct AIGatewayCreateSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

@@ -21,7 +21,7 @@ struct WorkerTestView: View {
                 Section {
                     HStack {
                         Text("HTTP Method")
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                         Spacer()
                         Picker("Method", selection: $viewModel.selectedMethod) {
                             ForEach(viewModel.methods, id: \.self) { method in
@@ -34,11 +34,11 @@ struct WorkerTestView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Target URL")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         
                         HStack {
                             Image(systemName: "link")
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                             
                             TextField("https://...", text: $viewModel.targetUrl)
                                 .font(.body.monospacedDigit())
@@ -52,7 +52,7 @@ struct WorkerTestView: View {
                                     viewModel.targetUrl = ""
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                         }
@@ -102,7 +102,7 @@ struct WorkerTestView: View {
                             }
                             Text("Send Test Request")
                                 .font(.body)
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                             Spacer()
                         }
                     }
@@ -114,7 +114,7 @@ struct WorkerTestView: View {
                     Section {
                         HStack {
                             Text("Status Code")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             HStack(spacing: 6) {
                                 Circle()
@@ -122,18 +122,18 @@ struct WorkerTestView: View {
                                     .frame(width: 8, height: 8)
                                 Text("\(status) \(viewModel.responseStatusText ?? "")")
                                     .font(.body)
-                                    .foregroundColor((200...299).contains(status) ? .green : .orange)
+                                    .foregroundStyle((200...299).contains(status) ? .green : .orange)
                             }
                         }
                         
                         if let dur = viewModel.responseDurationMs {
                             HStack {
                                 Text("Latency / Time")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(String(format: "%.1f ms", dur))
                                     .font(.caption)
-                                    .foregroundColor(.green)
+                                    .foregroundStyle(.green)
                             }
                         }
                     } header: {
@@ -168,10 +168,11 @@ struct WorkerTestView: View {
                     Section {
                         HStack(spacing: 12) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
+                                .accessibilityHidden(true)
                             Text(err)
                                 .font(.subheadline)
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                         }
                         .padding(.vertical, 4)
                     } header: {
@@ -183,15 +184,15 @@ struct WorkerTestView: View {
                         VStack(spacing: 10) {
                             Image(systemName: "bolt.horizontal.circle.fill")
                                 .font(.system(size: 38))
-                                .foregroundColor(.orange.opacity(0.8))
+                                .foregroundStyle(.orange.opacity(0.8))
                             
                             Text("Ready to Probe Worker")
                                 .font(.subheadline)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             
                             Text("Send live HTTP requests directly from your device to test edge routing, response headers, and latency in real time.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.vertical, 16)
@@ -218,7 +219,7 @@ struct WorkerTestView: View {
         } label: {
             Text(path)
                 .font(.caption2.monospacedDigit())
-                .foregroundColor(.orange)
+                .foregroundStyle(.orange)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
                 .background(Color.orange.opacity(0.12))

@@ -132,7 +132,7 @@ struct DashboardView: View {
                                 .overlay(
                                     Text(accountManager.activeEmail.prefix(1).uppercased())
                                         .font(.caption2.weight(.medium))
-                                        .foregroundColor(.white)
+                                        .foregroundStyle(.white)
                                 )
                         }
                     }
@@ -156,11 +156,11 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(viewModel.timeGreeting)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     Text(accountManager.activeEmail.isEmpty ? "Cloudflare Command" : accountManager.activeEmail)
                         .font(.title3)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
                 
@@ -175,7 +175,7 @@ struct DashboardView: View {
                     
                     Text("Edge: Optimal")
                         .font(.caption2.weight(.medium))
-                        .foregroundColor(.green)
+                        .foregroundStyle(.green)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -251,7 +251,7 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Quick Diagnostics & Tools")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -297,14 +297,14 @@ struct DashboardView: View {
             HStack {
                 Text("Active Zones")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 NavigationLink(destination: ZonesListView()) {
                     Text("See All (\(viewModel.zones.count))")
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                 }
             }
             .padding(.horizontal, 4)
@@ -315,10 +315,10 @@ struct DashboardView: View {
                     VStack(spacing: 6) {
                         Image(systemName: "globe")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("No domain zones loaded")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 20)
                     Spacer()
@@ -337,12 +337,12 @@ struct DashboardView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(zone.name)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if let plan = zone.plan?.name {
                                         Text(plan)
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
@@ -350,7 +350,7 @@ struct DashboardView: View {
                                 
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                                    .foregroundStyle(Color(UIColor.tertiaryLabel))
                             }
                             .padding(14)
                             .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -369,22 +369,22 @@ struct DashboardView: View {
             HStack(spacing: 12) {
                 Image(systemName: "checkmark.shield.fill")
                     .font(.title3)
-                    .foregroundColor(.green)
+                    .foregroundStyle(.green)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Cloudflare Operational Status")
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     Text("CDN, DNS, WAF and Global Edge Centers")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
                 
                 Text("View")
                     .font(.caption)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
             }
             .padding(14)
             .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -409,7 +409,7 @@ struct DashboardMetricCard: View {
             HStack {
                 Image(systemName: icon)
                     .font(.subheadline)
-                    .foregroundColor(iconColor)
+                    .foregroundStyle(iconColor)
                     .frame(width: 28, height: 28)
                     .background(iconColor.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -418,7 +418,7 @@ struct DashboardMetricCard: View {
                 
                 Text(badge)
                     .font(.caption2.weight(.medium))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color(UIColor.tertiarySystemGroupedBackground))
@@ -427,17 +427,17 @@ struct DashboardMetricCard: View {
             
             Text(value)
                 .font(.system(size: 26, weight: .medium, design: .rounded))
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 Text(subtitle)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
                     .fixedSize(horizontal: false, vertical: true)
@@ -460,14 +460,14 @@ struct QuickDeckButton: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(color)
+                .foregroundStyle(color)
                 .frame(width: 44, height: 44)
                 .background(color.opacity(0.12))
                 .clipShape(Circle())
             
             Text(title)
                 .font(.caption2.weight(.medium))
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .lineLimit(1)
         }
         .frame(width: 78)

@@ -11,15 +11,16 @@ struct ScrapeShieldView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "eye.slash.fill")
                         .font(.system(size: 52, weight: .light))
-                        .foregroundColor(.purple)
+                        .foregroundStyle(.purple)
                         .padding(.top, 10)
+                        .accessibilityHidden(true)
                     
                     Text("Scrape Shield")
                         .font(.title2)
                     
                     Text("Protect your content from scrapers, hotlinkers, and email harvesters.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
@@ -30,7 +31,7 @@ struct ScrapeShieldView: View {
             if let errorMessage = viewModel.errorMessage {
                 Section {
                     Text(errorMessage)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding()
                         .background(Color.red.opacity(0.8))
                         .cornerRadius(10)
@@ -41,7 +42,7 @@ struct ScrapeShieldView: View {
             if let successMessage = viewModel.successMessage {
                 Section {
                     Text(successMessage)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding()
                         .background(Color.green.opacity(0.8))
                         .cornerRadius(10)
@@ -60,11 +61,11 @@ struct ScrapeShieldView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("About Scrape Shield", systemImage: "info.circle")
                             .font(.subheadline)
-                            .foregroundColor(.purple)
+                            .foregroundStyle(.purple)
                         
                         Text("These protections help safeguard your content without impacting real visitors. Email obfuscation uses JavaScript to rewrite addresses, while hotlink protection blocks image requests from external domains.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.top, 8)
                 ) {
@@ -142,7 +143,7 @@ struct ScrapeShieldRow: View {
             ZStack {
                 iconColor.opacity(0.15)
                 Image(systemName: icon)
-                    .foregroundColor(iconColor)
+                    .foregroundStyle(iconColor)
                     .font(.body)
             }
             .frame(width: 36, height: 36)
@@ -151,10 +152,10 @@ struct ScrapeShieldRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             

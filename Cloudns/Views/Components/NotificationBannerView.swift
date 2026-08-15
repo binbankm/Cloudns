@@ -138,20 +138,20 @@ public struct ToastBannerView: View {
         HStack(spacing: 12) {
             Image(systemName: item.type.iconName)
                 .font(.title3)
-                .foregroundColor(item.type.iconColor)
+                .foregroundStyle(item.type.iconColor)
                 .symbolRenderingMode(.multicolor)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(LocalizedStringKey(item.title))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 if let msg = item.message, !msg.isEmpty {
                     Text(LocalizedStringKey(msg))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             }
@@ -189,9 +189,11 @@ public struct ToastBannerView: View {
                     }
                 }
         )
+        .contentShape(Rectangle())
         .onTapGesture {
             onDismiss()
         }
+        .accessibilityAddTraits(.isButton)
     }
 }
 

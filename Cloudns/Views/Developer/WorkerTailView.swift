@@ -31,12 +31,13 @@ struct WorkerTailView: View {
                 ScrollViewReader { proxy in
                     List {
                         ForEach(viewModel.filteredEvents) { item in
-                            TailEventRow(item: item)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
-                                .listRowBackground(Color(UIColor.systemBackground))
-                                .onTapGesture {
-                                    selectedEvent = item
-                                }
+                            Button {
+                                selectedEvent = item
+                            } label: {
+                                TailEventRow(item: item)
+                            }
+                            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                            .listRowBackground(Color(UIColor.systemBackground))
                         }
                     }
                     .listStyle(.plain)
@@ -64,7 +65,7 @@ struct WorkerTailView: View {
                         }
                     } label: {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
-                            .foregroundColor(viewModel.isStreaming ? .orange : .green)
+                            .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
                 }
             }
@@ -89,7 +90,7 @@ struct WorkerTailView: View {
                     .frame(width: 8, height: 8)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
                     .font(.caption)
-                    .foregroundColor(viewModel.isStreaming ? .green : .secondary)
+                    .foregroundStyle(viewModel.isStreaming ? .green : .secondary)
             }
             
             Spacer()
@@ -114,13 +115,13 @@ struct WorkerTailView: View {
                     .font(.body)
                 Text("Send an HTTP request or wait for a cron trigger to see logs appear in real time.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             } else {
                 Image(systemName: "pause.circle")
                     .font(.system(size: 44))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 Text("Log stream paused")
                     .font(.body)
                 Button("Resume Stream") {
@@ -159,31 +160,31 @@ private struct TailEventRow: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(methodColor(method).opacity(0.15))
-                        .foregroundColor(methodColor(method))
+                        .foregroundStyle(methodColor(method))
                         .cornerRadius(4)
                 } else if let cron = item.event?.cron {
                     Label(cron, systemImage: "clock")
                         .font(.caption.monospaced())
-                        .foregroundColor(.purple)
+                        .foregroundStyle(.purple)
                 }
                 
                 // Outcome
                 Text(item.outcome ?? "unknown")
                     .font(.caption)
-                    .foregroundColor(isOk ? .green : .red)
+                    .foregroundStyle(isOk ? .green : .red)
                 
                 Spacer()
                 
                 Text(timestampStr)
                     .font(.caption2.monospaced())
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             
             // URL
             if let url = item.event?.request?.url {
                 Text(url)
                     .font(.footnote.monospaced())
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(2)
             }
             
@@ -194,19 +195,19 @@ private struct TailEventRow: View {
                         HStack(alignment: .top, spacing: 6) {
                             Text(log.level?.uppercased() ?? "LOG")
                                 .font(.caption2.monospaced().weight(.bold))
-                                .foregroundColor(logLevelColor(log.level))
+                                .foregroundStyle(logLevelColor(log.level))
                             
                             let msg = log.message?.map(\.displayText).joined(separator: " ") ?? ""
                             Text(msg)
                                 .font(.caption.monospaced())
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
                     }
                     if logs.count > 3 {
                         Text("+ \(logs.count - 3) more log lines")
                             .font(.caption2)
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                     }
                 }
                 .padding(8)
@@ -220,10 +221,10 @@ private struct TailEventRow: View {
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                         Text(ex.message ?? ex.name ?? "Exception occurred")
                             .font(.caption.monospaced())
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                             .lineLimit(2)
                     }
                     .padding(6)
@@ -288,7 +289,7 @@ private struct TailEventDetailSheet: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(log.level?.uppercased() ?? "LOG")
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                                 let msg = log.message?.map(\.displayText).joined(separator: " ") ?? ""
                                 Text(msg)
                                     .font(.footnote.monospaced())
@@ -303,10 +304,10 @@ private struct TailEventDetailSheet: View {
                         ForEach(exceptions) { ex in
                             VStack(alignment: .leading, spacing: 4) {
                                 if let name = ex.name {
-                                    Text(name).font(.caption).foregroundColor(.red)
+                                    Text(name).font(.caption).foregroundStyle(.red)
                                 }
                                 if let msg = ex.message {
-                                    Text(msg).font(.footnote.monospaced()).foregroundColor(.red)
+                                    Text(msg).font(.footnote.monospaced()).foregroundStyle(.red)
                                 }
                             }
                             .padding(.vertical, 2)

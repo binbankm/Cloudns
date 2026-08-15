@@ -43,6 +43,7 @@ struct KVBrowserView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加存储")
             }
         }
         .sheet(isPresented: $showingCreateKVSheet) {
@@ -128,7 +129,7 @@ struct KVBrowserView: View {
                                 HStack(alignment: .center, spacing: 14) {
                                     Image(systemName: "key.horizontal.fill")
                                         .font(.body)
-                                        .foregroundColor(.purple)
+                                        .foregroundStyle(.purple)
                                         .frame(width: 32, height: 32)
                                         .background(Color.purple.opacity(0.12))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -136,11 +137,11 @@ struct KVBrowserView: View {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(ns.title)
                                             .font(.body)
-                                            .foregroundColor(.primary)
+                                            .foregroundStyle(.primary)
                                         
                                         Text(ns.id)
                                             .font(.caption.monospacedDigit())
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                             .lineLimit(1)
                                     }
                                 }
@@ -178,7 +179,7 @@ struct KVBrowserView: View {
                                 HStack(alignment: .center, spacing: 14) {
                                     Image(systemName: "cylinder.split.1x2.fill")
                                         .font(.body)
-                                        .foregroundColor(.purple)
+                                        .foregroundStyle(.purple)
                                         .frame(width: 32, height: 32)
                                         .background(Color.purple.opacity(0.12))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -187,12 +188,12 @@ struct KVBrowserView: View {
                                         HStack(spacing: 6) {
                                             Text(db.name)
                                                 .font(.body)
-                                                .foregroundColor(.primary)
+                                                .foregroundStyle(.primary)
                                             
                                             if let version = db.version {
                                                 Text(version.uppercased())
                                                     .font(.caption2.weight(.medium))
-                                                    .foregroundColor(.purple)
+                                                    .foregroundStyle(.purple)
                                                     .padding(.horizontal, 5)
                                                     .padding(.vertical, 1)
                                                     .background(Color.purple.opacity(0.12))
@@ -203,15 +204,15 @@ struct KVBrowserView: View {
                                         HStack(spacing: 8) {
                                             Text(db.uuid)
                                                 .font(.caption2.monospacedDigit())
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                                 .lineLimit(1)
                                             
                                             if let size = db.fileSize {
                                                 Text("·")
-                                                    .foregroundColor(.secondary)
+                                                    .foregroundStyle(.secondary)
                                                 Text(formatBytes(size))
                                                     .font(.caption2)
-                                                    .foregroundColor(.secondary)
+                                                    .foregroundStyle(.secondary)
                                             }
                                         }
                                     }
@@ -270,7 +271,7 @@ struct KVCreateNamespaceSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -342,7 +343,7 @@ struct D1CreateDatabaseSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -475,12 +476,12 @@ struct KVNamespaceKeysView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(key.name)
                                         .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if let exp = key.expiration {
                                         Text("Expires: \(exp)")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
@@ -488,7 +489,7 @@ struct KVNamespaceKeysView: View {
                                 
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                                    .foregroundStyle(Color(UIColor.tertiaryLabel))
                             }
                             .padding(.vertical, 3)
                         }
@@ -548,7 +549,7 @@ struct KVAddKeySheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

@@ -279,18 +279,18 @@ struct DeveloperHubView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Developer Suite")
                             .font(.title2)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                         
                         Text(viewModel.selectedAccount?.name ?? "Active Account")
                             .font(.caption)
-                            .foregroundColor(.white.opacity(0.85))
+                            .foregroundStyle(.white.opacity(0.85))
                     }
                     
                     Spacer()
                     
                     Image(systemName: "cpu.fill")
                         .font(.system(size: 28))
-                        .foregroundColor(.white.opacity(0.85))
+                        .foregroundStyle(.white.opacity(0.85))
                 }
                 
                 Divider()
@@ -315,10 +315,10 @@ struct DeveloperHubView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
                 .font(.body)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
             Text(title)
                 .font(.caption2)
-                .foregroundColor(.white.opacity(0.75))
+                .foregroundStyle(.white.opacity(0.75))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -339,7 +339,7 @@ struct DeveloperHubRow: View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(iconColor)
+                .foregroundStyle(iconColor)
                 .frame(width: 32, height: 32)
                 .background(iconColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -347,11 +347,11 @@ struct DeveloperHubRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(LocalizedStringKey(title))
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 Text(LocalizedStringKey(subtitle))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             
             Spacer()
@@ -364,7 +364,7 @@ struct DeveloperHubRow: View {
                             .frame(width: 6, height: 6)
                         Text(badge)
                             .font(.caption)
-                            .foregroundColor(isHealthy ? .green : .orange)
+                            .foregroundStyle(isHealthy ? .green : .orange)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -373,7 +373,7 @@ struct DeveloperHubRow: View {
                 } else {
                     Text(badge)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.gray.opacity(0.12))

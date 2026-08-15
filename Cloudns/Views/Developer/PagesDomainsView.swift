@@ -15,12 +15,13 @@ struct PagesDomainsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddDomainSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+                Button {
+                    showingAddDomainSheet = true
+                } label: {
+                    Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加域名")
+            }
             }
             .refreshable {
                 await viewModel.fetchProjectDetails()
@@ -75,13 +76,13 @@ struct PagesDomainsView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "globe")
                                     .font(.title3)
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                                     .frame(width: 28)
 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(domain.name)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
 
                                     HStack(spacing: 8) {
                                         HStack(spacing: 4) {
@@ -90,13 +91,13 @@ struct PagesDomainsView: View {
                                                 .frame(width: 6, height: 6)
                                             Text(domain.status?.capitalized ?? "Active")
                                                 .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
 
                                         if let ssl = domain.sslStatus {
                                             Text("• SSL: \(ssl.capitalized)")
                                                 .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                 }
@@ -145,7 +146,7 @@ private struct AddPagesDomainSheet: View {
                     Section {
                         Text(error)
                             .font(.footnote)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

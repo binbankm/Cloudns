@@ -13,7 +13,7 @@ struct IPLookupToolView: View {
                 Section(header: Text("Query Target")) {
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                         
                         TextField("e.g. 1.1.1.1 or cloudflare.com", text: $viewModel.ipInput)
                             .textInputAutocapitalization(.never)
@@ -29,7 +29,8 @@ struct IPLookupToolView: View {
                                 viewModel.ipInput = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityLabel("清除输入")
                             }
                         }
                     }
@@ -48,7 +49,7 @@ struct IPLookupToolView: View {
                             }
                             Text("Query IP / ASN Info")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                             Spacer()
                         }
                     }
@@ -60,40 +61,40 @@ struct IPLookupToolView: View {
                     Section(header: Text("IP & Geolocation")) {
                         HStack {
                             Text("IP Address")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(res.ip)
                                 .font(.body)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                         
                         if let country = res.country {
                             HStack {
                                 Text("Country / Region")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text("\(country) \(res.countryCode ?? "")")
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let city = res.city {
                             HStack {
                                 Text("City")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(city)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         
                         if let tz = res.timezone {
                             HStack {
                                 Text("Timezone")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(tz)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                     }
@@ -102,14 +103,14 @@ struct IPLookupToolView: View {
                         if let asn = res.asn {
                             HStack {
                                 Text("ASN")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(asn)
                                     .font(.caption.monospacedDigit())
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.blue.opacity(0.12))
-                                    .foregroundColor(.blue)
+                                    .foregroundStyle(.blue)
                                     .cornerRadius(4)
                             }
                         }
@@ -117,11 +118,11 @@ struct IPLookupToolView: View {
                         if let org = res.org {
                             HStack {
                                 Text("ISP / Organization")
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Text(org)
                                     .font(.subheadline)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
                     }
@@ -129,7 +130,7 @@ struct IPLookupToolView: View {
                     Section {
                         Text(error)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

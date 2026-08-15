@@ -26,7 +26,7 @@ struct SettingsView: View {
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
                                     .font(.title2)
-                                    .foregroundColor(.white)
+                                    .foregroundStyle(.white)
                             }
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -36,18 +36,18 @@ struct SettingsView: View {
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
-                                        .foregroundColor(.orange)
+                                        .foregroundStyle(.orange)
                                         .cornerRadius(4)
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                     .lineLimit(1)
                                 
                                 Text("Tap to switch or add accounts")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         .padding(.vertical, 4)
@@ -60,7 +60,7 @@ struct SettingsView: View {
                         HStack(spacing: 14) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                                 .font(.body)
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                                 .frame(width: 32, height: 32)
                                 .background(Color.green.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -68,10 +68,10 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 Text("Live Cloudflare network & service health")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                             
                             Spacer()
@@ -87,7 +87,7 @@ struct SettingsView: View {
                         HStack(spacing: 14) {
                             Image(systemName: "list.bullet.rectangle.portrait.fill")
                                 .font(.body)
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                                 .frame(width: 32, height: 32)
                                 .background(Color.blue.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -95,10 +95,10 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 Text("Account change history & actor records")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         .padding(.vertical, 2)
@@ -188,7 +188,7 @@ struct SettingsView: View {
                             Spacer()
                         }
                     }
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 } header: {
                     Text("Preferences")
                 }
@@ -214,7 +214,7 @@ struct SettingsView: View {
                             title: "GitHub Repository"
                         )
                     }
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     
                     Button(action: {
                         if let url = URL(string: "https://www.cloudflare.com/privacypolicy/") {
@@ -227,7 +227,7 @@ struct SettingsView: View {
                             title: "Privacy Policy"
                         )
                     }
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 } header: {
                     Text("About & Support")
                 } footer: {
@@ -285,14 +285,14 @@ struct SettingsRowView: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
                 .background(color)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
             
             Text(title)
                 .font(.body)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
         }
     }
 }

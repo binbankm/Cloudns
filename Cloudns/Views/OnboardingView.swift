@@ -58,7 +58,7 @@ struct OnboardingView: View {
                 }) {
                     Text(currentPage == 3 ? "Get Started" : "Next")
                         .font(.body)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
@@ -88,7 +88,8 @@ struct OnboardingPage: View {
                 
                 Image(systemName: icon)
                     .font(.system(size: 80))
-                    .foregroundColor(color)
+                    .foregroundStyle(color)
+                    .accessibilityHidden(true)
             }
             
             Text(title)
@@ -98,7 +99,7 @@ struct OnboardingPage: View {
             
             Text(description)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
             

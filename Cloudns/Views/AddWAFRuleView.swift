@@ -102,7 +102,7 @@ struct AddWAFRuleView: View {
                 Section(header: Text("Generated Expression")) {
                     Text(generatedExpression)
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             .navigationTitle("New WAF Rule")

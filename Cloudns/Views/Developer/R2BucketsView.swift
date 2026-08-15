@@ -27,6 +27,7 @@ struct R2BucketsView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("创建 R2 存储桶")
                 }
             }
             .sheet(isPresented: $showingCreateSheet) {
@@ -148,7 +149,7 @@ struct R2CreateBucketSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -189,7 +190,7 @@ struct R2BucketRowView: View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "externaldrive.fill")
                 .font(.body)
-                .foregroundColor(.blue)
+                .foregroundStyle(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -197,19 +198,19 @@ struct R2BucketRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(bucket.name)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 HStack(spacing: 10) {
                     if let loc = bucket.location, !loc.isEmpty {
                         Text(loc.uppercased())
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     
                     if let date = bucket.creationDate {
                         Text(String(date.prefix(10)))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -218,7 +219,7 @@ struct R2BucketRowView: View {
             
             Text("S3 Compatible")
                 .font(.caption2.weight(.medium))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
                 .background(Color(UIColor.secondarySystemFill))

@@ -84,7 +84,7 @@ struct TunnelRowView: View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "network")
                 .font(.body)
-                .foregroundColor(isHealthy ? .green : .red)
+                .foregroundStyle(isHealthy ? .green : .red)
                 .frame(width: 32, height: 32)
                 .background((isHealthy ? Color.green : Color.red).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -93,11 +93,11 @@ struct TunnelRowView: View {
                 HStack(spacing: 6) {
                     Text(tunnel.name)
                         .font(.body)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     
                     Text((tunnel.status ?? "Inactive").capitalized)
                         .font(.caption2.weight(.medium))
-                        .foregroundColor(isHealthy ? .green : .red)
+                        .foregroundStyle(isHealthy ? .green : .red)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background((isHealthy ? Color.green : Color.red).opacity(0.12))
@@ -106,7 +106,7 @@ struct TunnelRowView: View {
                 
                 Text(tunnel.id)
                     .font(.caption.monospacedDigit())
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             
@@ -115,7 +115,7 @@ struct TunnelRowView: View {
             if let count = tunnel.connections?.count {
                 Text("\(count) Connectors")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 3)

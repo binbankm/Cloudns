@@ -137,7 +137,7 @@ struct DNSRecordFormView: View {
                                     .font(.body)
                                 Text(proxied ? "Proxied (Accelerated & Protected)" : "DNS Only")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                             Spacer()
                             Toggle("", isOn: $proxied)
@@ -159,7 +159,7 @@ struct DNSRecordFormView: View {
                 if let error = errorMessage {
                     Section {
                         Text(error)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                             .font(.caption)
                     }
                 }

@@ -61,6 +61,7 @@ struct WAFCustomRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加 WAF 规则")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -113,14 +114,14 @@ struct WAFRuleCardView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForAction(rule.action).opacity(0.1))
-                    .foregroundColor(colorForAction(rule.action))
+                    .foregroundStyle(colorForAction(rule.action))
                     .cornerRadius(6)
                 
                 Spacer()
                 
                 Text(rule.enabled ? "Active" : "Disabled")
                     .font(.caption)
-                    .foregroundColor(rule.enabled ? .green : .secondary)
+                    .foregroundStyle(rule.enabled ? .green : .secondary)
             }
             
             Divider()
@@ -128,11 +129,11 @@ struct WAFRuleCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Expression")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 Text(rule.expression)
                     .font(.footnote)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(UIColor.tertiarySystemGroupedBackground))

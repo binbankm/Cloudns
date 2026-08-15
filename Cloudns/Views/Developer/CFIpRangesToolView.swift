@@ -49,6 +49,7 @@ struct CFIpRangesToolView: View {
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
+                .accessibilityLabel("复制 IP 范围")
             }
         }
         .refreshable {
@@ -92,12 +93,12 @@ struct CFIpRangesToolView: View {
                             ForEach(activeList, id: \.self) { cidr in
                                 HStack {
                                     Image(systemName: "network")
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.blue)
                                         .font(.caption)
 
                                     Text(cidr)
                                         .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
 
                                     Spacer()
 
@@ -107,7 +108,7 @@ struct CFIpRangesToolView: View {
                                     } label: {
                                         Image(systemName: "doc.on.doc")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                     .buttonStyle(.borderless)
                                 }

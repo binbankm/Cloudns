@@ -1179,6 +1179,12 @@
         }
       }
     },
+    "Advanced Optimizations" : {
+
+    },
+    "Advanced Routing" : {
+
+    },
     "Advanced Settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3133,6 +3139,9 @@
           }
         }
       }
+    },
+    "Core Protocols" : {
+
     },
     "Could not retrieve IP info for %@. Please check network." : {
       "extractionState" : "manual",
@@ -6031,6 +6040,9 @@
           }
         }
       }
+    },
+    "General Security" : {
+
     },
     "Generated Expression" : {
       "extractionState" : "manual",
@@ -13767,6 +13779,75 @@
           }
         }
       }
+    },
+    "关联域名" : {
+
+    },
+    "创建 AI 网关" : {
+
+    },
+    "创建 R2 存储桶" : {
+
+    },
+    "在浏览器中打开状态页" : {
+
+    },
+    "复制 IP 范围" : {
+
+    },
+    "复制%@" : {
+
+    },
+    "更多操作" : {
+
+    },
+    "添加 DNS 记录" : {
+
+    },
+    "添加 WAF 规则" : {
+
+    },
+    "添加 Worker 或 Pages" : {
+
+    },
+    "添加代码片段" : {
+
+    },
+    "添加域名" : {
+
+    },
+    "添加存储" : {
+
+    },
+    "添加定时触发器" : {
+
+    },
+    "添加环境变量" : {
+
+    },
+    "添加缓存规则" : {
+
+    },
+    "添加规则" : {
+
+    },
+    "添加负载均衡" : {
+
+    },
+    "添加转换规则" : {
+
+    },
+    "添加速率限制规则" : {
+
+    },
+    "添加邮件路由规则" : {
+
+    },
+    "添加重定向规则" : {
+
+    },
+    "清除输入" : {
+
     },
     "简体中文" : {
       "extractionState" : "manual",

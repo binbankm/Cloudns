@@ -63,6 +63,7 @@ struct TransformRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加转换规则")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -73,15 +74,14 @@ struct TransformRulesView: View {
                 await viewModel.fetchTransformRules()
             }
         }
-        .alert(isPresented: .constant(viewModel.errorMessage != nil)) {
-            Alert(
-                title: Text("Error"),
-                message: Text(viewModel.errorMessage ?? "Unknown error"),
-                dismissButton: .default(Text("OK")) {
-                    viewModel.errorMessage = nil
-                }
-            )
-        }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(viewModel.errorMessage ?? "Unknown error")
+        })
     }
 }
 
@@ -104,7 +104,7 @@ struct TransformRuleCardView: View {
             
             Text(rule.expression)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(6)
                 .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(4)
@@ -113,11 +113,11 @@ struct TransformRuleCardView: View {
             if rule.action == "rewrite", let path = rule.action_parameters?.uri?.path?.value {
                 HStack {
                     Image(systemName: "link")
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                         .font(.caption)
                     Text("Rewrite to: \(path)")
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                 }
             }
         }

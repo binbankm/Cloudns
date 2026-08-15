@@ -28,6 +28,7 @@ struct WorkerRoutesView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("关联域名")
             }
         }
         .sheet(isPresented: $showingAttachSheet) {
@@ -82,13 +83,13 @@ struct WorkerRoutesView: View {
                     if customDomains.isEmpty {
                         Text("No custom domains attached.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     } else {
                         ForEach(customDomains) { dom in
                             HStack(alignment: .center, spacing: 12) {
                                 Image(systemName: "link")
                                     .font(.body)
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
                                     .frame(width: 30, height: 30)
                                     .background(Color.orange.opacity(0.12))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -96,12 +97,12 @@ struct WorkerRoutesView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(dom.hostname)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if let zName = dom.zoneName {
                                         Text(zName)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
@@ -128,11 +129,11 @@ struct WorkerRoutesView: View {
                         ForEach(fallbackRoutes, id: \.self) { r in
                             HStack {
                                 Image(systemName: "arrow.triangle.branch")
-                                    .foregroundColor(.purple)
+                                    .foregroundStyle(.purple)
                                     .font(.caption)
                                 Text(r)
                                     .font(.footnote)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                             .padding(.vertical, 2)
                         }
@@ -180,7 +181,7 @@ struct WorkerAttachDomainSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

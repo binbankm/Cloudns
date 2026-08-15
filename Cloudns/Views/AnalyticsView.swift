@@ -227,23 +227,27 @@ struct AnalyticsView: View {
         ZStack(alignment: .bottom) {
             Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
                 MapAnnotation(coordinate: item.coordinate) {
-                    PulsingAnnotationView(item: item, isSelected: selectedCountry == item.countryCode)
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                selectedCountry = item.countryCode
-                            }
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            selectedCountry = item.countryCode
                         }
+                    } label: {
+                        PulsingAnnotationView(item: item, isSelected: selectedCountry == item.countryCode)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             
             // Interaction overlay (invisible layer to catch taps outside annotations)
-            Color.white.opacity(0.001)
-                .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        selectedCountry = nil
-                    }
+            Button {
+                withAnimation(.easeInOut) {
+                    selectedCountry = nil
                 }
-                .allowsHitTesting(selectedCountry != nil)
+            } label: {
+                Color.white.opacity(0.001)
+            }
+            .buttonStyle(.plain)
+            .allowsHitTesting(selectedCountry != nil)
             
             if let selected = selectedCountry,
                let item = mapAnnotations.first(where: { $0.countryCode == selected }) {
@@ -252,10 +256,10 @@ struct AnalyticsView: View {
                         Text("Country Code: \(item.countryCode)")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                         Text("\(item.requests) Requests")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     
                     Spacer(minLength: 0)
@@ -266,7 +270,7 @@ struct AnalyticsView: View {
                         }
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -332,15 +336,15 @@ struct SummaryCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(color)
+                    .foregroundStyle(color)
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             Text(value)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }

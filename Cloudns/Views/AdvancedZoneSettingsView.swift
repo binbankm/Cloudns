@@ -37,7 +37,7 @@ struct AdvancedZoneSettingsView: View {
             }
             
             Section(
-                header: Text("Danger Zone").foregroundColor(.red),
+                header: Text("Danger Zone").foregroundStyle(.red),
                 footer: Text("Removing this site will immediately delete all its configuration and data from Cloudflare. This action cannot be undone.")
             ) {
                 Button(action: {
@@ -49,7 +49,7 @@ struct AdvancedZoneSettingsView: View {
                             ProgressView()
                         } else {
                             Text("Remove Site from Cloudflare")
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                                 .fontWeight(.bold)
                         }
                         Spacer()
@@ -70,15 +70,14 @@ struct AdvancedZoneSettingsView: View {
         } message: {
             Text("Are you sure you want to remove \(zoneName) from Cloudflare? This action is permanent and cannot be undone.")
         }
-        .alert(isPresented: .constant(errorMessage != nil)) {
-            Alert(
-                title: Text("Error"),
-                message: Text(errorMessage ?? "Unknown error"),
-                dismissButton: .default(Text("OK")) {
-                    errorMessage = nil
-                }
-            )
-        }
+        .alert("Error", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(errorMessage ?? "Unknown error")
+        })
     }
     
     private func updatePauseStatus(paused: Bool) async {

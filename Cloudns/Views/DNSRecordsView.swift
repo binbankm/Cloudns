@@ -50,7 +50,7 @@ struct DNSRecordsView: View {
                         editMode?.wrappedValue = .inactive
                     } label: {
                         Text("Delete Selected (\(multiSelection.count))")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -211,6 +211,7 @@ struct DNSRecordsView: View {
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
+            .accessibilityLabel("更多操作")
             
             Button(action: {
                 recordToEdit = nil
@@ -218,6 +219,7 @@ struct DNSRecordsView: View {
             }) {
                 Image(systemName: "plus")
             }
+            .accessibilityLabel("添加 DNS 记录")
         }
     }
     
@@ -270,14 +272,14 @@ struct DNSRecordRowView: View {
                     .frame(width: 44)
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.15))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                     .cornerRadius(6)
                 
                 // Record Name
                 Text(record.name)
                     .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 
@@ -287,31 +289,31 @@ struct DNSRecordRowView: View {
                 if record.proxiable == true {
                     Image(systemName: "cloud.fill")
                         .font(.body)
-                        .foregroundColor(record.proxied == true ? .orange : Color.gray.opacity(0.4))
+                        .foregroundStyle(record.proxied == true ? .orange : Color.gray.opacity(0.4))
                 } else {
                     Text("DNS Only")
                         .font(.caption2.weight(.medium))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             
             HStack(alignment: .top) {
                 Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
                     .font(.body.monospacedDigit())
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
                 
                 Spacer()
                 
                 Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
                     .font(.caption)
-                    .foregroundColor(Color(UIColor.tertiaryLabel))
+                    .foregroundStyle(Color(UIColor.tertiaryLabel))
             }
             
             if let comment = record.comment, !comment.isEmpty {
                 Text(comment)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .padding(.top, 2)
             }

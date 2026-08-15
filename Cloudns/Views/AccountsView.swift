@@ -20,12 +20,12 @@ struct AccountsView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(email)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if accountManager.activeEmail == email {
                                         Text("Current")
                                             .font(.caption)
-                                            .foregroundColor(.orange)
+                                            .foregroundStyle(.orange)
                                     }
                                 }
                                 
@@ -33,8 +33,9 @@ struct AccountsView: View {
                                 
                                 if accountManager.activeEmail == email {
                                     Image(systemName: "checkmark")
-                                        .foregroundColor(.orange)
+                                        .foregroundStyle(.orange)
                                         .font(.subheadline)
+                                        .accessibilityHidden(true)
                                 }
                             }
                         }
@@ -48,9 +49,10 @@ struct AccountsView: View {
                     }) {
                         HStack {
                             Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
+                                .accessibilityHidden(true)
                             Text("Add Another Account")
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                         }
                     }
                 }
@@ -62,7 +64,7 @@ struct AccountsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.orange)
+                    .foregroundStyle(.orange)
                 }
             }
             .sheet(isPresented: $isShowingAddAccount) {

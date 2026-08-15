@@ -78,7 +78,7 @@ struct AddLoadBalancerView: View {
                 Section(header: Text("Default Pools"), footer: Text("Select pools to be used as default. Must have at least one.")) {
                     if viewModel.pools.isEmpty {
                         Text("No origin pools available in this account.")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .font(.caption)
                     } else {
                         ForEach(viewModel.pools) { pool in
@@ -91,11 +91,11 @@ struct AddLoadBalancerView: View {
                             }) {
                                 HStack {
                                     Text(pool.name ?? pool.id)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     Spacer()
                                     if selectedPools.contains(pool.id) {
                                         Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
+                                            .foregroundStyle(.blue)
                                     }
                                 }
                             }
@@ -117,7 +117,7 @@ struct AddLoadBalancerView: View {
                 if let error = viewModel.errorMessage {
                     Section {
                         Text(error)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                             .font(.caption)
                     }
                 }

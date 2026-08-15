@@ -13,7 +13,7 @@ struct AppLockView: View {
             VStack(spacing: 20) {
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 80))
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(.tint)
                     .padding(.bottom, 20)
                 
                 Text("App Locked")
@@ -22,7 +22,7 @@ struct AppLockView: View {
                 
                 Text("Unlock Cloudns to continue managing your domains.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
@@ -31,7 +31,7 @@ struct AppLockView: View {
                 }) {
                     Text("Unlock")
                         .font(.body)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)

@@ -103,6 +103,7 @@ struct CloudflareStatusView: View {
                 if let url = URL(string: "https://www.cloudflarestatus.com") {
                     Link(destination: url) {
                         Image(systemName: "safari")
+                            .accessibilityLabel("在浏览器中打开状态页")
                     }
                 }
             }
@@ -157,13 +158,13 @@ struct CloudflareStatusView: View {
                                 
                                 Text(comp.name)
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 
                                 Spacer()
                                 
                                 Text(statusLabel(comp.status))
                                     .font(.caption)
-                                    .foregroundColor(statusColor(comp.status))
+                                    .foregroundStyle(statusColor(comp.status))
                             }
                             .padding(.vertical, 2)
                         }
@@ -178,21 +179,21 @@ struct CloudflareStatusView: View {
                                 HStack {
                                     Text(inc.name)
                                         .font(.subheadline)
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     Spacer()
                                     Text(inc.status.capitalized)
                                         .font(.caption2.weight(.medium))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
-                                        .foregroundColor(.orange)
+                                        .foregroundStyle(.orange)
                                         .cornerRadius(4)
                                 }
                                 
                                 if let updated = inc.updatedAt {
                                     Text(String(updated.prefix(19)).replacingOccurrences(of: "T", with: " "))
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                             .padding(.vertical, 3)
@@ -211,16 +212,16 @@ struct CloudflareStatusView: View {
         return HStack(spacing: 16) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .font(.system(size: 32))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(summary.status?.description ?? "All Systems Operational")
                     .font(.body)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                 
                 Text("Cloudflare Edge Network & Global Data Centers")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundStyle(.white.opacity(0.9))
             }
             Spacer()
         }

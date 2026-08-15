@@ -5,51 +5,40 @@ struct PerformanceCenterView: View {
     let zoneName: String
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                
-                // Bolt Graphic Header
+        List {
+            Section {
                 VStack(spacing: 12) {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: 60, weight: .light))
-                        .foregroundColor(.orange)
+                        .foregroundStyle(.orange)
                         .padding(.top, 10)
+                        .accessibilityHidden(true)
                     
                     Text("Performance & Speed")
                         .font(.title2)
                     
                     Text("Supercharge \(zoneName) with CDN caching and web optimization technologies.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
-                .padding(.bottom, 10)
-                
-                // Menu List
-                VStack(spacing: 0) {
-                    
-                    NavigationLink(destination: CachingView(zoneId: zoneId)) {
-                        FeatureRowContent(title: "Caching Options", icon: "memorychip", color: .purple)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Divider().padding(.leading, 64)
-                    
-                    NavigationLink(destination: SpeedSettingsView(zoneId: zoneId)) {
-                        FeatureRowContent(title: "Speed Optimization", icon: "hare.fill", color: .orange)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                }
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-                
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
             }
-            .padding()
+            .listRowBackground(Color.clear)
+            
+            Section {
+                NavigationLink(destination: CachingView(zoneId: zoneId)) {
+                    FeatureRowContent(title: "Caching Options", icon: "memorychip", color: .purple)
+                }
+                
+                NavigationLink(destination: SpeedSettingsView(zoneId: zoneId)) {
+                    FeatureRowContent(title: "Speed Optimization", icon: "hare.fill", color: .orange)
+                }
+            }
         }
-        .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+        .listStyle(.insetGrouped)
         .navigationTitle("Performance")
         .navigationBarTitleDisplayMode(.inline)
     }

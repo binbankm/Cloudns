@@ -90,7 +90,7 @@ struct EdgeCertificateCardView: View {
                 ZStack {
                     iconColor.opacity(0.15)
                     Image(systemName: iconName)
-                        .foregroundColor(iconColor)
+                        .foregroundStyle(iconColor)
                         .font(.body)
                 }
                 .frame(width: 28, height: 28)
@@ -107,7 +107,7 @@ struct EdgeCertificateCardView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(certificate.status == "active" ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
-                    .foregroundColor(certificate.status == "active" ? .green : .gray)
+                    .foregroundStyle(certificate.status == "active" ? .green : .gray)
                     .cornerRadius(6)
             }
             
@@ -117,7 +117,7 @@ struct EdgeCertificateCardView: View {
                 HStack(alignment: .top) {
                     Text("Hosts")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .frame(width: 80, alignment: .leading)
                     
                     VStack(alignment: .leading, spacing: 4) {
@@ -131,7 +131,7 @@ struct EdgeCertificateCardView: View {
                 HStack {
                     Text("Issuer")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .frame(width: 80, alignment: .leading)
                     Text(certificate.issuer)
                         .font(.subheadline)
@@ -140,7 +140,7 @@ struct EdgeCertificateCardView: View {
                 HStack {
                     Text("Signature")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .frame(width: 80, alignment: .leading)
                     Text(certificate.signature)
                         .font(.subheadline.monospacedDigit())
@@ -149,7 +149,7 @@ struct EdgeCertificateCardView: View {
                 HStack {
                     Text(certificate.id)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                     
@@ -157,7 +157,7 @@ struct EdgeCertificateCardView: View {
                     
                     Text(formatDate(certificate.expiresOn))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
         }

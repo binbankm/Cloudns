@@ -62,6 +62,7 @@ struct CacheRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("添加缓存规则")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -72,15 +73,14 @@ struct CacheRulesView: View {
                 await viewModel.fetchCacheRules()
             }
         }
-        .alert(isPresented: .constant(viewModel.errorMessage != nil)) {
-            Alert(
-                title: Text("Error"),
-                message: Text(viewModel.errorMessage ?? "Unknown error"),
-                dismissButton: .default(Text("OK")) {
-                    viewModel.errorMessage = nil
-                }
-            )
-        }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        ), actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(viewModel.errorMessage ?? "Unknown error")
+        })
     }
 }
 
@@ -103,7 +103,7 @@ struct CacheRuleCardView: View {
             
             Text(rule.expression)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(6)
                 .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(4)
@@ -112,11 +112,11 @@ struct CacheRuleCardView: View {
             if let cache = rule.action_parameters?.cache {
                 HStack {
                     Image(systemName: cache ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundColor(cache ? .green : .red)
+                        .foregroundStyle(cache ? .green : .red)
                         .font(.caption)
                     Text(cache ? "Eligible for cache" : "Bypass cache")
                         .font(.caption)
-                        .foregroundColor(cache ? .green : .red)
+                        .foregroundStyle(cache ? .green : .red)
                 }
             }
         }

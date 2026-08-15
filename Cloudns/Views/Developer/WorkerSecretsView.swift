@@ -26,6 +26,7 @@ struct WorkerSecretsView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("添加环境变量")
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
@@ -94,7 +95,7 @@ struct WorkerSecretsView: View {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: "key.fill")
                                     .font(.body)
-                                    .foregroundColor(.orange)
+                                    .foregroundStyle(.orange)
                                     .frame(width: 30, height: 30)
                                     .background(Color.orange.opacity(0.12))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -102,12 +103,12 @@ struct WorkerSecretsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(secret.name)
                                         .font(.body.monospacedDigit())
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                     
                                     if let mod = secret.modifiedOn {
                                         Text("Modified: \(String(mod.prefix(10)))")
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 
@@ -115,7 +116,7 @@ struct WorkerSecretsView: View {
                                 
                                 Text("ENCRYPTED")
                                     .font(.caption2.weight(.medium))
-                                    .foregroundColor(.green)
+                                    .foregroundStyle(.green)
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 2)
                                     .background(Color.green.opacity(0.12))
@@ -177,7 +178,7 @@ struct WorkerAddSecretSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }

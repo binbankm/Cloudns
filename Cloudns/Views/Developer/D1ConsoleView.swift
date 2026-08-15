@@ -21,29 +21,29 @@ struct D1ConsoleView: View {
                 Section(header: Text("Database Overview")) {
                     HStack {
                         Text("Database Name")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(database.name)
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundStyle(.primary)
                     }
                     
                     HStack {
                         Text("UUID")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text(database.uuid)
                             .font(.caption2.monospacedDigit())
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     
                     if database.fileSize != nil {
                         HStack {
                             Text("Storage Size")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(database.formattedSize)
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -62,7 +62,7 @@ struct D1ConsoleView: View {
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 5)
                                         .background(Color(UIColor.secondarySystemFill))
-                                        .foregroundColor(.purple)
+                                        .foregroundStyle(.purple)
                                         .cornerRadius(6)
                                 }
                             }
@@ -89,7 +89,7 @@ struct D1ConsoleView: View {
                             }
                             Text("Execute SQL")
                                 .font(.body)
-                                .foregroundColor(.purple)
+                                .foregroundStyle(.purple)
                             Spacer()
                         }
                     }
@@ -103,12 +103,12 @@ struct D1ConsoleView: View {
                         Spacer()
                         Text(String(format: "%.1f ms", result.durationMs))
                             .font(.caption2.weight(.medium))
-                            .foregroundColor(.green)
+                            .foregroundStyle(.green)
                     }) {
                         if result.rows.isEmpty {
                             Text("Query executed successfully. 0 rows returned.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         } else {
                             ForEach(0..<result.rows.count, id: \.self) { idx in
                                 let row = result.rows[idx]
@@ -117,12 +117,12 @@ struct D1ConsoleView: View {
                                         HStack(alignment: .top) {
                                             Text(col)
                                                 .font(.caption2.monospacedDigit())
-                                                .foregroundColor(.secondary)
+                                                .foregroundStyle(.secondary)
                                                 .frame(width: 80, alignment: .leading)
                                             
                                             Text(row[col] ?? "null")
                                                 .font(.caption.monospacedDigit())
-                                                .foregroundColor(.primary)
+                                                .foregroundStyle(.primary)
                                             
                                             Spacer()
                                         }
@@ -136,7 +136,7 @@ struct D1ConsoleView: View {
                     Section {
                         Text(error)
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                 }
             }
