@@ -137,7 +137,7 @@ public struct ToastBannerView: View {
     public var body: some View {
         HStack(spacing: 12) {
             Image(systemName: item.type.iconName)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.title3)
                 .foregroundColor(item.type.iconColor)
                 .symbolRenderingMode(.multicolor)
             

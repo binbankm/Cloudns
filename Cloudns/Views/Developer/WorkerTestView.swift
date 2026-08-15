@@ -41,7 +41,7 @@ struct WorkerTestView: View {
                                 .foregroundColor(.orange)
                             
                             TextField("https://...", text: $viewModel.targetUrl)
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.body.monospacedDigit())
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .keyboardType(.URL)
@@ -77,7 +77,7 @@ struct WorkerTestView: View {
                 if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
                     Section {
                         TextEditor(text: $viewModel.requestBody)
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.caption.monospacedDigit())
                             .frame(minHeight: 90)
                     } header: {
                         Text("Request Body (JSON)")
@@ -101,7 +101,7 @@ struct WorkerTestView: View {
                                 Image(systemName: "paperplane.fill")
                             }
                             Text("Send Test Request")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.orange)
                             Spacer()
                         }
@@ -121,7 +121,7 @@ struct WorkerTestView: View {
                                     .fill((200...299).contains(status) ? Color.green : Color.orange)
                                     .frame(width: 8, height: 8)
                                 Text("\(status) \(viewModel.responseStatusText ?? "")")
-                                    .font(.body.bold())
+                                    .font(.body)
                                     .foregroundColor((200...299).contains(status) ? .green : .orange)
                             }
                         }
@@ -132,7 +132,7 @@ struct WorkerTestView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(String(format: "%.1f ms", dur))
-                                    .font(.caption.bold())
+                                    .font(.caption)
                                     .foregroundColor(.green)
                             }
                         }
@@ -144,7 +144,7 @@ struct WorkerTestView: View {
                         Section {
                             ScrollView(.horizontal, showsIndicators: true) {
                                 Text(body)
-                                    .font(.system(size: 12, design: .monospaced))
+                                    .font(.caption.monospacedDigit())
                                     .padding(10)
                                     .textSelection(.enabled)
                             }
@@ -186,7 +186,7 @@ struct WorkerTestView: View {
                                 .foregroundColor(.orange.opacity(0.8))
                             
                             Text("Ready to Probe Worker")
-                                .font(.subheadline.bold())
+                                .font(.subheadline)
                                 .foregroundColor(.primary)
                             
                             Text("Send live HTTP requests directly from your device to test edge routing, response headers, and latency in real time.")
@@ -217,7 +217,7 @@ struct WorkerTestView: View {
             }
         } label: {
             Text(path)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .font(.caption2.monospacedDigit())
                 .foregroundColor(.orange)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)

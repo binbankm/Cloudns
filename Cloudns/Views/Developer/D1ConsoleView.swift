@@ -24,7 +24,7 @@ struct D1ConsoleView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(database.name)
-                            .font(.body.bold())
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                     
@@ -33,7 +33,7 @@ struct D1ConsoleView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(database.uuid)
-                            .font(.caption2.monospaced())
+                            .font(.caption2.monospacedDigit())
                             .foregroundColor(.secondary)
                     }
                     
@@ -71,7 +71,7 @@ struct D1ConsoleView: View {
                     }
                     
                     TextEditor(text: $viewModel.sqlInput)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.body.monospacedDigit())
                         .frame(minHeight: 80)
                         .focused($isEditorFocused)
                     
@@ -88,7 +88,7 @@ struct D1ConsoleView: View {
                                 Image(systemName: "play.fill")
                             }
                             Text("Execute SQL")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.purple)
                             Spacer()
                         }
@@ -102,7 +102,7 @@ struct D1ConsoleView: View {
                         Text("Query Results (\(result.rows.count) rows)")
                         Spacer()
                         Text(String(format: "%.1f ms", result.durationMs))
-                            .font(.caption2.bold())
+                            .font(.caption2.weight(.medium))
                             .foregroundColor(.green)
                     }) {
                         if result.rows.isEmpty {
@@ -116,12 +116,12 @@ struct D1ConsoleView: View {
                                     ForEach(result.columns, id: \.self) { col in
                                         HStack(alignment: .top) {
                                             Text(col)
-                                                .font(.caption2.monospaced())
+                                                .font(.caption2.monospacedDigit())
                                                 .foregroundColor(.secondary)
                                                 .frame(width: 80, alignment: .leading)
                                             
                                             Text(row[col] ?? "null")
-                                                .font(.caption.monospaced())
+                                                .font(.caption.monospacedDigit())
                                                 .foregroundColor(.primary)
                                             
                                             Spacer()

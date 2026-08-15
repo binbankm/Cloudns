@@ -212,7 +212,7 @@ private struct ZoneHeaderCard: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(zone.name)
-                            .font(.title2.bold())
+                            .font(.title2)
                             .foregroundColor(.white)
 
                         // Status + Paused + Dev Mode badges
@@ -222,7 +222,7 @@ private struct ZoneHeaderCard: View {
                             } icon: {
                                 Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                             }
-                            .font(.caption.weight(.semibold))
+                            .font(.caption)
                             .foregroundColor(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -231,7 +231,7 @@ private struct ZoneHeaderCard: View {
 
                             if zone.paused {
                                 Text("Paused")
-                                    .font(.caption.bold())
+                                    .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
@@ -241,7 +241,7 @@ private struct ZoneHeaderCard: View {
 
                             if (zone.developmentMode ?? 0) > 0 {
                                 Text("Dev Mode")
-                                    .font(.caption.bold())
+                                    .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
@@ -256,7 +256,7 @@ private struct ZoneHeaderCard: View {
                     HStack(spacing: 6) {
                         if let planName = zone.plan?.displayName {
                             Text(planName.uppercased())
-                                .font(.caption2.bold())
+                                .font(.caption2.weight(.medium))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -265,7 +265,7 @@ private struct ZoneHeaderCard: View {
                         }
 
                         Text((zone.type ?? "full").uppercased())
-                            .font(.caption2.bold())
+                            .font(.caption2.weight(.medium))
                             .foregroundColor(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -283,11 +283,11 @@ private struct ZoneHeaderCard: View {
                             .padding(.top, 1)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Nameservers")
-                                .font(.caption.bold())
+                                .font(.caption)
                                 .foregroundColor(.white.opacity(0.75))
                             ForEach(zone.nameServers ?? [], id: \.self) { ns in
                                 Text(ns)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.white.opacity(0.90))
                             }
                         }
@@ -336,7 +336,7 @@ private struct QuickControlsSection: View {
             // Under Attack Mode
             HStack(spacing: 12) {
                 Image(systemName: "exclamationmark.shield.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body)
                     .foregroundColor(isUnderAttack ? .white : .red)
                     .frame(width: 32, height: 32)
                     .background(isUnderAttack ? Color.red : Color.red.opacity(0.12))
@@ -367,7 +367,7 @@ private struct QuickControlsSection: View {
             // Development Mode
             HStack(spacing: 12) {
                 Image(systemName: "wrench.and.screwdriver.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body)
                     .foregroundColor(isDevMode ? .white : .orange)
                     .frame(width: 32, height: 32)
                     .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
@@ -398,7 +398,7 @@ private struct QuickControlsSection: View {
             // Pause Cloudflare
             HStack(spacing: 12) {
                 Image(systemName: "pause.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body)
                     .foregroundColor(isPaused ? .white : .secondary)
                     .frame(width: 32, height: 32)
                     .background(isPaused ? Color.secondary : Color.secondary.opacity(0.12))
@@ -512,7 +512,7 @@ struct ZoneNavRow<Destination: View>: View {
         NavigationLink(destination: destination) {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.body)
                     .foregroundColor(color)
                     .frame(width: 32, height: 32)
                     .background(color.opacity(0.12))
@@ -541,7 +541,7 @@ struct MenuGroup<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(title)
-                .font(.headline)
+                .font(.body)
                 .foregroundColor(.primary)
 
             VStack(spacing: 0) {
@@ -566,7 +566,7 @@ struct FeatureRowContent: View {
                 color.opacity(0.15)
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body)
             }
             .frame(width: 32, height: 32)
             .cornerRadius(8)
@@ -578,7 +578,7 @@ struct FeatureRowContent: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.body)
                 .foregroundColor(Color(UIColor.tertiaryLabel))
         }
         .padding(.vertical, 12)

@@ -98,7 +98,7 @@ struct WorkerTriggersView: View {
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(schedule.cron)
-                                    .font(.body.monospaced().weight(.semibold))
+                                    .font(.body)
                                     .foregroundColor(.primary)
                                 
                                 Text(humanReadableCron(schedule.cron))
@@ -165,7 +165,7 @@ private struct AddCronTriggerSheet: View {
             Form {
                 Section(header: Text("Cron Expression")) {
                     TextField("*/5 * * * *", text: $cronExpression)
-                        .font(.body.monospaced())
+                        .font(.body.monospacedDigit())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
@@ -180,7 +180,7 @@ private struct AddCronTriggerSheet: View {
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Text(expr)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.secondary)
                                 if cronExpression == expr {
                                     Image(systemName: "checkmark")

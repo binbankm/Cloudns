@@ -74,7 +74,7 @@ struct TurnstileWidgetRowView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
@@ -88,7 +88,7 @@ struct TurnstileWidgetRowView: View {
                     
                     if let mode = widget.mode {
                         Text(mode.capitalized)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.caption2.weight(.medium))
                             .foregroundColor(.blue)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -98,7 +98,7 @@ struct TurnstileWidgetRowView: View {
                 }
                 
                 Text(widget.sitekey)
-                    .font(.caption.monospaced())
+                    .font(.caption.monospacedDigit())
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }

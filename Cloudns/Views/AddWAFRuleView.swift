@@ -101,7 +101,7 @@ struct AddWAFRuleView: View {
                 
                 Section(header: Text("Generated Expression")) {
                     Text(generatedExpression)
-                        .font(.system(.footnote, design: .monospaced))
+                        .font(.footnote)
                         .foregroundColor(.secondary)
                 }
             }

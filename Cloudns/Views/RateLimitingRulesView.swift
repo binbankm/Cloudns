@@ -36,6 +36,8 @@ struct RateLimitingRulesView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "speedometer",
@@ -44,6 +46,8 @@ struct RateLimitingRulesView: View {
                         actionTitle: "Add Rule",
                         action: { showingAddSheet = true }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(viewModel.rules) { rule in

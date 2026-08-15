@@ -88,7 +88,7 @@ struct WorkerTailView: View {
                     .fill(viewModel.isStreaming ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
-                    .font(.caption.weight(.medium))
+                    .font(.caption)
                     .foregroundColor(viewModel.isStreaming ? .green : .secondary)
             }
             
@@ -111,7 +111,7 @@ struct WorkerTailView: View {
                 ProgressView()
                     .scaleEffect(1.2)
                 Text("Listening for live worker events…")
-                    .font(.headline)
+                    .font(.body)
                 Text("Send an HTTP request or wait for a cron trigger to see logs appear in real time.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -122,7 +122,7 @@ struct WorkerTailView: View {
                     .font(.system(size: 44))
                     .foregroundColor(.secondary)
                 Text("Log stream paused")
-                    .font(.headline)
+                    .font(.body)
                 Button("Resume Stream") {
                     Task { await viewModel.startStream() }
                 }
@@ -169,7 +169,7 @@ private struct TailEventRow: View {
                 
                 // Outcome
                 Text(item.outcome ?? "unknown")
-                    .font(.caption.weight(.semibold))
+                    .font(.caption)
                     .foregroundColor(isOk ? .green : .red)
                 
                 Spacer()
@@ -287,7 +287,7 @@ private struct TailEventDetailSheet: View {
                         ForEach(logs) { log in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(log.level?.uppercased() ?? "LOG")
-                                    .font(.caption2.bold())
+                                    .font(.caption2.weight(.medium))
                                     .foregroundColor(.blue)
                                 let msg = log.message?.map(\.displayText).joined(separator: " ") ?? ""
                                 Text(msg)
@@ -303,7 +303,7 @@ private struct TailEventDetailSheet: View {
                         ForEach(exceptions) { ex in
                             VStack(alignment: .leading, spacing: 4) {
                                 if let name = ex.name {
-                                    Text(name).font(.caption.bold()).foregroundColor(.red)
+                                    Text(name).font(.caption).foregroundColor(.red)
                                 }
                                 if let msg = ex.message {
                                     Text(msg).font(.footnote.monospaced()).foregroundColor(.red)

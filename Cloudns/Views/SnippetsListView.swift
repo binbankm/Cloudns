@@ -97,7 +97,7 @@ struct SnippetsListView: View {
                         } label: {
                             HStack(spacing: 14) {
                                 Image(systemName: "curlybraces")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.body)
                                     .foregroundColor(.orange)
                                     .frame(width: 32, height: 32)
                                     .background(Color.orange.opacity(0.12))
@@ -105,7 +105,7 @@ struct SnippetsListView: View {
                                 
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(snip.snippet_name)
-                                        .font(.body.monospaced())
+                                        .font(.body.monospacedDigit())
                                         .foregroundColor(.primary)
                                     
                                     if let mod = snip.modifiedOn {
@@ -183,7 +183,7 @@ struct SnippetEditorSheetView: View {
                 
                 Section(header: Text("JavaScript Code (ES Module)")) {
                     TextEditor(text: $code)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.footnote)
                         .frame(minHeight: 180)
                 }
                 

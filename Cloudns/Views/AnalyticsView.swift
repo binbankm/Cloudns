@@ -35,12 +35,16 @@ struct AnalyticsView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                     EmptyStateView(
                         icon: "chart.xyaxis.line",
                         title: "No Analytics Data",
                         message: "Traffic metrics for the selected time range are currently unavailable."
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     // Summary Cards
                     HStack(spacing: 12) {
@@ -58,14 +62,14 @@ struct AnalyticsView: View {
                     // Charts
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Requests")
-                            .font(.headline)
+                            .font(.body)
                         
                         requestsChart
                         
                         Divider()
                         
                         Text("Bandwidth")
-                            .font(.headline)
+                            .font(.body)
                         
                         bandwidthChart
                     }
@@ -77,7 +81,7 @@ struct AnalyticsView: View {
                     if !viewModel.mapDataPoints.isEmpty {
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Traffic by Country")
-                                .font(.headline)
+                                .font(.body)
                                 .padding(.horizontal)
                             
                             trafficMapView

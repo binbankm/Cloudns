@@ -82,7 +82,7 @@ struct AuditLogRowView: View {
                 
                 if let res = log.action?.result {
                     Text(res ? "Success" : "Failed")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.medium))
                         .foregroundColor(res ? .green : .red)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -100,7 +100,7 @@ struct AuditLogRowView: View {
                 
                 if let ip = log.actor?.ip {
                     Text(ip)
-                        .font(.caption.monospaced())
+                        .font(.caption.monospacedDigit())
                         .foregroundColor(.secondary)
                 }
             }

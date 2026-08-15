@@ -72,7 +72,7 @@ struct WorkersAIView: View {
                                 } label: {
                                     HStack(alignment: .center, spacing: 14) {
                                         Image(systemName: "sparkles")
-                                            .font(.system(size: 14, weight: .semibold))
+                                            .font(.body)
                                             .foregroundColor(.purple)
                                             .frame(width: 32, height: 32)
                                             .background(Color.purple.opacity(0.12))
@@ -80,7 +80,7 @@ struct WorkersAIView: View {
                                         
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(model.shortName)
-                                                .font(.body.weight(.medium))
+                                                .font(.body)
                                                 .foregroundColor(.primary)
                                             
                                             if let desc = model.description, !desc.isEmpty {
@@ -91,7 +91,7 @@ struct WorkersAIView: View {
                                             }
                                             
                                             Text(model.id)
-                                                .font(.caption2.monospaced())
+                                                .font(.caption2.monospacedDigit())
                                                 .foregroundColor(Color(UIColor.tertiaryLabel))
                                                 .lineLimit(1)
                                         }
@@ -128,7 +128,7 @@ struct WorkersAIPlaygroundSheetView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(model.shortName)
-                            .font(.body.weight(.medium))
+                            .font(.body)
                     }
                     
                     HStack {
@@ -169,7 +169,7 @@ struct WorkersAIPlaygroundSheetView: View {
                                 Image(systemName: "play.fill")
                             }
                             Text("Run Model Inference")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.purple)
                             Spacer()
                         }
@@ -190,7 +190,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         }
                     }) {
                         Text(viewModel.inferenceOutput)
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.body.monospacedDigit())
                             .textSelection(.enabled)
                     }
                 }

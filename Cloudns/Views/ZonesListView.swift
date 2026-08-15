@@ -127,7 +127,8 @@ struct ZonesListView: View {
                             Spacer()
                         }
                         .listRowBackground(Color.clear)
-                        .onAppear {
+                .listRowInsets(EdgeInsets())
+                .onAppear {
                             Task {
                                 await viewModel.fetchZones(isRefresh: false)
                             }
@@ -165,7 +166,7 @@ struct AddZoneView: View {
 
                             VStack(spacing: 6) {
                                 Text("\(zone.name) Added")
-                                    .font(.title2.bold())
+                                    .font(.title2)
                                 Text("Update your nameservers at your domain registrar to activate Cloudflare protection.")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
@@ -186,7 +187,7 @@ struct AddZoneView: View {
                                     .foregroundColor(.blue)
                                     .frame(width: 28)
                                 Text(ns)
-                                    .font(.system(.body, design: .monospaced))
+                                    .font(.body)
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Button {
@@ -205,7 +206,7 @@ struct AddZoneView: View {
                             ToastManager.shared.showCopied("All nameservers copied")
                         } label: {
                             Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
-                                .font(.subheadline.bold())
+                                .font(.subheadline)
                                 .frame(maxWidth: .infinity)
                         }
                         .foregroundColor(.blue)
@@ -336,7 +337,7 @@ struct ZoneRowView: View {
                     .fill(Color.blue.opacity(0.12))
                     .frame(width: 38, height: 38)
                 Text(initialChar)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(.body, design: .rounded))
                     .foregroundColor(.blue)
             }
             
@@ -351,7 +352,7 @@ struct ZoneRowView: View {
                     HStack(spacing: 6) {
                         if zone.paused {
                             Text("Paused")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.caption2.weight(.medium))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.red.opacity(0.15))
@@ -361,7 +362,7 @@ struct ZoneRowView: View {
                         
                         if (zone.developmentMode ?? 0) > 0 {
                             Text("Dev Mode")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.caption2.weight(.medium))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.orange.opacity(0.15))
@@ -378,9 +379,9 @@ struct ZoneRowView: View {
             if zone.status == "active" {
                 HStack(spacing: 3) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 10))
+                        .font(.caption2)
                     Text("Active")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -389,7 +390,7 @@ struct ZoneRowView: View {
                 .cornerRadius(10)
             } else {
                 Text(zone.status.capitalized)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.gray.opacity(0.15))

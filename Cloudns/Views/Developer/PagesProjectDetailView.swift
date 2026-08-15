@@ -121,7 +121,7 @@ struct PagesProjectDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(project.name)
-                            .font(.body.weight(.semibold))
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                     
@@ -132,7 +132,7 @@ struct PagesProjectDetailView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(sub)
-                                    .font(.caption.monospaced())
+                                    .font(.caption)
                                     .foregroundColor(.blue)
                                 Image(systemName: "arrow.up.right")
                                     .font(.caption)
@@ -147,7 +147,7 @@ struct PagesProjectDetailView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(branch)
-                                .font(.body.monospaced())
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
                     }
@@ -158,7 +158,7 @@ struct PagesProjectDetailView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(repo)
-                                .font(.body.monospaced())
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
                     }
@@ -181,7 +181,7 @@ struct PagesProjectDetailView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
+                                .font(.caption)
                                 .foregroundColor(Color(UIColor.tertiaryLabel))
                         }
                     }
@@ -198,7 +198,7 @@ struct PagesProjectDetailView: View {
                                 .foregroundColor(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
+                                .font(.caption)
                                 .foregroundColor(Color(UIColor.tertiaryLabel))
                         }
                     }
@@ -222,7 +222,7 @@ struct PagesProjectDetailView: View {
                                                 .fill((dep.latestStage?.status == "success") ? Color.green : Color.orange)
                                                 .frame(width: 8, height: 8)
                                             Text((dep.environment ?? "Production").capitalized)
-                                                .font(.body.weight(.semibold))
+                                                .font(.body)
                                                 .foregroundColor(.primary)
                                         }
                                         
@@ -230,7 +230,7 @@ struct PagesProjectDetailView: View {
                                         
                                         if let trigger = dep.deploymentTrigger?.metadata?.commitHash {
                                             Text(String(trigger.prefix(7)))
-                                                .font(.caption2.monospaced())
+                                                .font(.caption2.monospacedDigit())
                                                 .padding(.horizontal, 6)
                                                 .padding(.vertical, 2)
                                                 .background(Color(UIColor.secondarySystemFill))

@@ -131,7 +131,7 @@ struct DashboardView: View {
                                 .frame(width: 26, height: 26)
                                 .overlay(
                                     Text(accountManager.activeEmail.prefix(1).uppercased())
-                                        .font(.caption2.bold())
+                                        .font(.caption2.weight(.medium))
                                         .foregroundColor(.white)
                                 )
                         }
@@ -155,11 +155,11 @@ struct DashboardView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(viewModel.timeGreeting)
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     
                     Text(accountManager.activeEmail.isEmpty ? "Cloudflare Command" : accountManager.activeEmail)
-                        .font(.title3.bold())
+                        .font(.title3)
                         .foregroundColor(.primary)
                         .lineLimit(1)
                 }
@@ -174,7 +174,7 @@ struct DashboardView: View {
                         .shadow(color: Color.green.opacity(0.8), radius: 3)
                     
                     Text("Edge: Optimal")
-                        .font(.caption2.bold())
+                        .font(.caption2.weight(.medium))
                         .foregroundColor(.green)
                 }
                 .padding(.horizontal, 8)
@@ -250,7 +250,7 @@ struct DashboardView: View {
     private var quickCommandDeckView: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Quick Diagnostics & Tools")
-                .font(.subheadline.bold())
+                .font(.subheadline)
                 .foregroundColor(.secondary)
                 .padding(.horizontal, 4)
             
@@ -296,14 +296,14 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Active Zones")
-                    .font(.subheadline.bold())
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 NavigationLink(destination: ZonesListView()) {
                     Text("See All (\(viewModel.zones.count))")
-                        .font(.caption.weight(.semibold))
+                        .font(.caption)
                         .foregroundColor(.blue)
                 }
             }
@@ -336,7 +336,7 @@ struct DashboardView: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(zone.name)
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                     
                                     if let plan = zone.plan?.name {
@@ -349,7 +349,7 @@ struct DashboardView: View {
                                 Spacer()
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.caption.weight(.semibold))
+                                    .font(.caption)
                                     .foregroundColor(Color(UIColor.tertiaryLabel))
                             }
                             .padding(14)
@@ -373,7 +373,7 @@ struct DashboardView: View {
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Cloudflare Operational Status")
-                        .font(.subheadline.bold())
+                        .font(.subheadline)
                         .foregroundColor(.primary)
                     Text("CDN, DNS, WAF and Global Edge Centers")
                         .font(.caption2)
@@ -383,7 +383,7 @@ struct DashboardView: View {
                 Spacer()
                 
                 Text("View")
-                    .font(.caption.bold())
+                    .font(.caption)
                     .foregroundColor(.blue)
             }
             .padding(14)
@@ -408,7 +408,7 @@ struct DashboardMetricCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.subheadline)
                     .foregroundColor(iconColor)
                     .frame(width: 28, height: 28)
                     .background(iconColor.opacity(0.12))
@@ -417,7 +417,7 @@ struct DashboardMetricCard: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.caption2.weight(.medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -426,17 +426,17 @@ struct DashboardMetricCard: View {
             }
             
             Text(value)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.system(size: 26, weight: .medium, design: .rounded))
                 .foregroundColor(.primary)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.caption.weight(.semibold))
+                    .font(.caption)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 Text(subtitle)
-                    .font(.system(size: 11))
+                    .font(.caption2)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
@@ -459,7 +459,7 @@ struct QuickDeckButton: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.body)
                 .foregroundColor(color)
                 .frame(width: 44, height: 44)
                 .background(color.opacity(0.12))

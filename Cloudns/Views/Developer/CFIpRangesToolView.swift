@@ -96,7 +96,7 @@ struct CFIpRangesToolView: View {
                                     .font(.caption)
                                 
                                 Text(cidr)
-                                    .font(.system(size: 14, design: .monospaced))
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 Spacer()

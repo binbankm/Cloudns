@@ -57,7 +57,7 @@ struct OnboardingView: View {
                     }
                 }) {
                     Text(currentPage == 3 ? "Get Started" : "Next")
-                        .font(.headline)
+                        .font(.body)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()

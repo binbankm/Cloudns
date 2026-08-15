@@ -75,6 +75,8 @@ struct WorkerRoutesView: View {
                 message: LocalizedStringKey(err),
                 retryAction: { Task { await fetchDomains() } }
             )
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         } else {
             List {
                 // Section: Custom Domains
@@ -87,7 +89,7 @@ struct WorkerRoutesView: View {
                         ForEach(customDomains) { dom in
                             HStack(alignment: .center, spacing: 12) {
                                 Image(systemName: "link")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.body)
                                     .foregroundColor(.orange)
                                     .frame(width: 30, height: 30)
                                     .background(Color.orange.opacity(0.12))
@@ -95,7 +97,7 @@ struct WorkerRoutesView: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(dom.hostname)
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                     
                                     if let zName = dom.zoneName {
@@ -131,7 +133,7 @@ struct WorkerRoutesView: View {
                                     .foregroundColor(.purple)
                                     .font(.caption)
                                 Text(r)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .font(.footnote)
                                     .foregroundColor(.primary)
                             }
                             .padding(.vertical, 2)

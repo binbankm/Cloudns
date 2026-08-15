@@ -32,12 +32,16 @@ struct EdgeCertificatesView: View {
                         }
                     }
                 )
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
                 } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "lock.shield",
                         title: "No Edge Certificates",
                         message: "No Edge Certificates found."
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(displayCertificates) { cert in
@@ -91,13 +95,13 @@ struct EdgeCertificateCardView: View {
                     iconColor.opacity(0.15)
                     Image(systemName: iconName)
                         .foregroundColor(iconColor)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.body)
                 }
                 .frame(width: 28, height: 28)
                 .cornerRadius(6)
                 
                 Text(certificate.type.capitalized)
-                    .font(.headline)
+                    .font(.body)
                 
                 Spacer()
                 
@@ -143,7 +147,7 @@ struct EdgeCertificateCardView: View {
                         .foregroundColor(.secondary)
                         .frame(width: 80, alignment: .leading)
                     Text(certificate.signature)
-                        .font(.system(.subheadline, design: .monospaced))
+                        .font(.subheadline.monospacedDigit())
                 }
                     
                 HStack {

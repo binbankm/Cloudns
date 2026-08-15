@@ -38,7 +38,7 @@ struct CFTraceToolView: View {
                                 Image(systemName: "antenna.radiowaves.left.and.right")
                             }
                             Text("Trace PoP & Network")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.orange)
                             Spacer()
                         }
@@ -54,7 +54,7 @@ struct CFTraceToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(colo)
-                                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                .font(.body.monospacedDigit())
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(Color.orange.opacity(0.15))
@@ -68,7 +68,7 @@ struct CFTraceToolView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(ip)
-                                    .font(.body.monospaced())
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                             }
                         }
@@ -90,7 +90,7 @@ struct CFTraceToolView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(warp.uppercased())
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.caption2.weight(.medium))
                                     .foregroundColor(warp == "on" || warp == "plus" ? .green : .secondary)
                             }
                         }
@@ -114,13 +114,13 @@ struct CFTraceToolView: View {
                         ForEach(viewModel.traceFields) { item in
                             HStack {
                                 Text(item.key)
-                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                    .font(.body)
                                     .foregroundColor(.secondary)
                                 
                                 Spacer()
                                 
                                 Text(item.value)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                             }
                             .padding(.vertical, 2)

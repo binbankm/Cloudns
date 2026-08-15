@@ -54,7 +54,7 @@ struct WorkerDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(worker.id)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                     
@@ -65,7 +65,7 @@ struct WorkerDetailView: View {
                                     .foregroundColor(.primary)
                                 if sub.enabled, let id = sub.id {
                                     Text("https://\(id)")
-                                        .font(.caption2.monospaced())
+                                        .font(.caption2.monospacedDigit())
                                         .foregroundColor(.secondary)
                                 }
                             }
@@ -96,7 +96,7 @@ struct WorkerDetailView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(formatBytes(viewModel.scriptContent.utf8.count))
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                     }
@@ -117,7 +117,7 @@ struct WorkerDetailView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(compat)
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                     }
@@ -128,7 +128,7 @@ struct WorkerDetailView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(String(modified.prefix(19)).replacingOccurrences(of: "T", with: " "))
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                     }
@@ -164,9 +164,9 @@ struct WorkerDetailView: View {
                                             } label: {
                                                 HStack(spacing: 4) {
                                                     Image(systemName: mod.isMain ? "star.fill" : "doc.text")
-                                                        .font(.system(size: 10))
+                                                        .font(.caption2)
                                                     Text(mod.name)
-                                                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                                        .font(.caption.monospacedDigit())
                                                 }
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 5)
@@ -185,7 +185,7 @@ struct WorkerDetailView: View {
                             let previewText = String(codeToShow.prefix(800)) + (codeToShow.count > 800 ? "\n..." : "")
                             
                             Text(previewText)
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.caption.monospacedDigit())
                                 .foregroundColor(.primary)
                                 .padding(10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -201,7 +201,7 @@ struct WorkerDetailView: View {
                                         "View & Edit Code (\(formatBytes(codeToShow.utf8.count)))",
                                         systemImage: "curlybraces"
                                     )
-                                    .font(.caption.weight(.semibold))
+                                    .font(.caption)
                                     .foregroundColor(.orange)
                                     Spacer()
                                 }
@@ -309,12 +309,12 @@ struct WorkerDetailView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(binding.name)
-                                        .font(.body.monospaced())
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                     
                                     if let extra = binding.namespaceId ?? binding.bucketName ?? binding.databaseId {
                                         Text(extra)
-                                            .font(.caption2.monospaced())
+                                            .font(.caption2.monospacedDigit())
                                             .foregroundColor(.secondary)
                                     }
                                 }
@@ -322,7 +322,7 @@ struct WorkerDetailView: View {
                                 Spacer()
                                 
                                 Text(binding.type.uppercased())
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.medium))
                                     .foregroundColor(.orange)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -394,9 +394,9 @@ struct WorkerSourceCodeViewerSheet: View {
                                 } label: {
                                     HStack(spacing: 5) {
                                         Image(systemName: mod.isMain ? "star.fill" : "doc.text")
-                                            .font(.system(size: 11))
+                                            .font(.caption2)
                                         Text(mod.name)
-                                            .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                            .font(.body)
                                     }
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
@@ -471,7 +471,7 @@ struct WorkerSourceCodeViewerSheet: View {
                                     Text("Deploy")
                                 }
                             }
-                            .font(.subheadline.weight(.semibold))
+                            .font(.subheadline)
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)

@@ -27,7 +27,7 @@ struct LoginView: View {
                 
                 VStack(spacing: 8) {
                     Text(onLoginSuccess == nil ? "Welcome Back" : "Add Account")
-                        .font(.title.weight(.bold))
+                        .font(.title)
                         .foregroundColor(.primary)
                     
                     Text(onLoginSuccess == nil ? "Manage your domains with ease." : "Enter your Cloudflare credentials.")
@@ -138,7 +138,7 @@ struct LoginView: View {
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
                         Text("Log In")
-                            .font(.headline)
+                            .font(.body)
                     }
                 }
                 .foregroundColor(isButtonDisabled ? .gray : .white)

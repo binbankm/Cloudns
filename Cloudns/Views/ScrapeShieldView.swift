@@ -15,7 +15,7 @@ struct ScrapeShieldView: View {
                         .padding(.top, 10)
                     
                     Text("Scrape Shield")
-                        .font(.title2.bold())
+                        .font(.title2)
                     
                     Text("Protect your content from scrapers, hotlinkers, and email harvesters.")
                         .font(.subheadline)
@@ -59,7 +59,7 @@ struct ScrapeShieldView: View {
                 Section(footer: 
                     VStack(alignment: .leading, spacing: 8) {
                         Label("About Scrape Shield", systemImage: "info.circle")
-                            .font(.subheadline.bold())
+                            .font(.subheadline)
                             .foregroundColor(.purple)
                         
                         Text("These protections help safeguard your content without impacting real visitors. Email obfuscation uses JavaScript to rewrite addresses, while hotlink protection blocks image requests from external domains.")
@@ -143,7 +143,7 @@ struct ScrapeShieldRow: View {
                 iconColor.opacity(0.15)
                 Image(systemName: icon)
                     .foregroundColor(iconColor)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body)
             }
             .frame(width: 36, height: 36)
             .cornerRadius(8)

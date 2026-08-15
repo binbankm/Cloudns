@@ -25,7 +25,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.alwaysUseHTTPS) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Always Use HTTPS")
-                            .font(.headline)
+                            .font(.body)
                         Text("Redirect all HTTP requests to HTTPS.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -41,7 +41,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.automaticHTTPSRewrites) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Automatic HTTPS Rewrites")
-                            .font(.headline)
+                            .font(.body)
                         Text("Automatically rewrite HTTP resources to HTTPS to avoid mixed content warnings.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -71,7 +71,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.tls13) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("TLS 1.3")
-                            .font(.headline)
+                            .font(.body)
                         Text("Enable the latest version of the TLS protocol for improved security and performance.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -87,7 +87,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.opportunisticEncryption) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Opportunistic Encryption")
-                            .font(.headline)
+                            .font(.body)
                         Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -103,7 +103,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.opportunisticOnion) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Opportunistic Onion")
-                            .font(.headline)
+                            .font(.body)
                         Text("Route Tor users through the Cloudflare Onion service to improve privacy.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -121,7 +121,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: $viewModel.hstsEnabled) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Enable HSTS")
-                            .font(.headline)
+                            .font(.body)
                             .foregroundColor(viewModel.hstsEnabled ? .red : .primary)
                         Text("Strict Transport Security (HSTS)")
                             .font(.caption)

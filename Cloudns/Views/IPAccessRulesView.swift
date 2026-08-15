@@ -36,6 +36,8 @@ struct IPAccessRulesView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "network.badge.shield.half.filled",
@@ -44,6 +46,8 @@ struct IPAccessRulesView: View {
                         actionTitle: "Add IP Rule",
                         action: { showingAddRule = true }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(viewModel.rules) { rule in
@@ -96,12 +100,12 @@ struct IPAccessRuleRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(rule.configuration.value)
-                    .font(.system(.headline, design: .monospaced))
+                    .font(.body.monospacedDigit())
                 
                 Spacer()
                 
                 Text(rule.mode.uppercased())
-                    .font(.caption.bold())
+                    .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForMode(rule.mode).opacity(0.1))

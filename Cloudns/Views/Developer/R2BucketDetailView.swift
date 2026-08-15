@@ -43,7 +43,7 @@ struct R2BucketDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(bucket.name)
-                            .font(.body.monospaced())
+                            .font(.body.monospacedDigit())
                             .foregroundColor(.primary)
                     }
                     
@@ -112,7 +112,7 @@ struct R2ObjectRowView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: fileIcon(for: object.key))
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))

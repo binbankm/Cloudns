@@ -41,6 +41,8 @@ struct LoadBalancerView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
                     EmptyStateView(
                         icon: "arrow.triangle.branch",
@@ -49,18 +51,24 @@ struct LoadBalancerView: View {
                         actionTitle: "Add Load Balancer",
                         action: { showingAddSheet = true }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if selectedTab == 1 && viewModel.pools.isEmpty {
                     EmptyStateView(
                         icon: "server.rack",
                         title: "No Origin Pools",
                         message: "Group multiple origin servers together with health monitoring."
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if selectedTab == 2 && viewModel.monitors.isEmpty {
                     EmptyStateView(
                         icon: "waveform.path.ecg",
                         title: "No Health Monitors",
                         message: "Send automated HTTP/HTTPS health checks to your origin servers."
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         if selectedTab == 0 {
@@ -68,7 +76,7 @@ struct LoadBalancerView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
                                         Text(lb.name ?? lb.id)
-                                            .font(.headline)
+                                            .font(.body)
                                         Spacer()
                                         if lb.enabled == true {
                                             Text("Active")
@@ -103,7 +111,7 @@ struct LoadBalancerView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
                                         Text(pool.name ?? pool.id)
-                                            .font(.headline)
+                                            .font(.body)
                                         Spacer()
                                         Text("\(pool.origins?.count ?? 0) Origins")
                                             .font(.caption)
@@ -121,7 +129,7 @@ struct LoadBalancerView: View {
                             ForEach(viewModel.monitors) { monitor in
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text(monitor.description ?? monitor.id)
-                                        .font(.headline)
+                                        .font(.body)
                                     HStack {
                                         Text(monitor.method ?? "GET")
                                         Text(monitor.path ?? "/")

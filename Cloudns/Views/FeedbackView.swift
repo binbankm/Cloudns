@@ -46,7 +46,7 @@ struct FeedbackView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                     Text("v\(appVersion) (\(buildNumber))")
-                        .font(.subheadline.monospaced())
+                        .font(.subheadline.monospacedDigit())
                         .foregroundColor(.primary)
                 }
                 

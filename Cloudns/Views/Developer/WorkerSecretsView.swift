@@ -95,7 +95,7 @@ struct WorkerSecretsView: View {
                     ForEach(viewModel.filteredSecrets) { secret in
                         HStack(alignment: .center, spacing: 14) {
                             Image(systemName: "key.fill")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.body)
                                 .foregroundColor(.orange)
                                 .frame(width: 30, height: 30)
                                 .background(Color.orange.opacity(0.12))
@@ -103,7 +103,7 @@ struct WorkerSecretsView: View {
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(secret.name)
-                                    .font(.body.monospaced())
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 if let mod = secret.modifiedOn {
@@ -116,7 +116,7 @@ struct WorkerSecretsView: View {
                             Spacer()
                             
                             Text("ENCRYPTED")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.caption2.weight(.medium))
                                 .foregroundColor(.green)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 2)

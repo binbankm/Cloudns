@@ -34,7 +34,7 @@ struct AccountsView: View {
                                 if accountManager.activeEmail == email {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.orange)
-                                        .font(.system(size: 14, weight: .bold))
+                                        .font(.subheadline)
                                 }
                             }
                         }

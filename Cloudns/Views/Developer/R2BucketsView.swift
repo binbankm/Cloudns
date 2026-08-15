@@ -189,7 +189,7 @@ struct R2BucketRowView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "externaldrive.fill")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
@@ -218,7 +218,7 @@ struct R2BucketRowView: View {
             Spacer()
             
             Text("S3 Compatible")
-                .font(.system(size: 10, weight: .semibold))
+                .font(.caption2.weight(.medium))
                 .foregroundColor(.secondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)

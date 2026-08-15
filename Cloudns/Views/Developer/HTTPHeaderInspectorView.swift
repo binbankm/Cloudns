@@ -47,7 +47,7 @@ struct HTTPHeaderInspectorView: View {
                                 Image(systemName: "arrow.up.right.circle.fill")
                             }
                             Text("Inspect HTTP Headers")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.blue)
                             Spacer()
                         }
@@ -63,7 +63,7 @@ struct HTTPHeaderInspectorView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text("\(result.statusCode) \(result.statusText)")
-                                .font(.body.bold())
+                                .font(.body)
                                 .foregroundColor((200...299).contains(result.statusCode) ? .green : .orange)
                         }
                         
@@ -72,7 +72,7 @@ struct HTTPHeaderInspectorView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(String(format: "%.1f ms", result.durationMs))
-                                .font(.caption.bold())
+                                .font(.caption)
                                 .foregroundColor(.green)
                         }
                         
@@ -82,7 +82,7 @@ struct HTTPHeaderInspectorView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(cache.uppercased())
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.caption2.weight(.medium))
                                     .foregroundColor(cache.uppercased() == "HIT" ? .green : .orange)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -97,7 +97,7 @@ struct HTTPHeaderInspectorView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(ray)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.primary)
                             }
                         }
@@ -119,11 +119,11 @@ struct HTTPHeaderInspectorView: View {
                         ForEach(result.headers) { h in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(h.key)
-                                    .font(.caption.monospaced().bold())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 Text(h.value)
-                                    .font(.caption2.monospaced())
+                                    .font(.caption2.monospacedDigit())
                                     .foregroundColor(.secondary)
                             }
                             .padding(.vertical, 2)

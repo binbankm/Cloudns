@@ -30,6 +30,8 @@ struct DNSSECView: View {
                         Task { await viewModel.fetchDNSSEC() }
                     }
                 )
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
             } else if let dnssec = viewModel.dnssec {
                 List {
                     // Header Status Section
@@ -43,9 +45,9 @@ struct DNSSECView: View {
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("DNSSEC Status")
-                                    .font(.headline)
+                                    .font(.body)
                                 Text(dnssec.status.capitalized)
-                                    .font(.subheadline.bold())
+                                    .font(.subheadline)
                                     .foregroundColor(statusColor(for: dnssec.status))
                             }
                         }
@@ -56,7 +58,7 @@ struct DNSSECView: View {
                             set: { _ in Task { await viewModel.toggleDNSSEC() } }
                         )) {
                             Text(dnssec.status == "active" ? "Enabled" : "Enable DNSSEC")
-                                .font(.body.bold())
+                                .font(.body)
                         }
                         .disabled(viewModel.isLoading)
                     }
@@ -111,7 +113,7 @@ struct DetailRow: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(validValue)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.body.monospacedDigit())
                         .foregroundColor(.primary)
                 }
                 .padding(.vertical, 4)

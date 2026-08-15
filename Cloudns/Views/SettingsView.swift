@@ -25,14 +25,14 @@ struct SettingsView: View {
                                     .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
-                                    .font(.title2.bold())
+                                    .font(.title2)
                                     .foregroundColor(.white)
                             }
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 6) {
                                     Text("Active Account")
-                                        .font(.caption2.bold())
+                                        .font(.caption2.weight(.medium))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
@@ -41,7 +41,7 @@ struct SettingsView: View {
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
-                                    .font(.body.weight(.semibold))
+                                    .font(.body)
                                     .foregroundColor(.primary)
                                     .lineLimit(1)
                                 
@@ -59,7 +59,7 @@ struct SettingsView: View {
                     NavigationLink(destination: CloudflareStatusView()) {
                         HStack(spacing: 14) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.body)
                                 .foregroundColor(.green)
                                 .frame(width: 32, height: 32)
                                 .background(Color.green.opacity(0.12))
@@ -86,7 +86,7 @@ struct SettingsView: View {
                     NavigationLink(destination: AuditLogsView(accountId: "")) {
                         HStack(spacing: 14) {
                             Image(systemName: "list.bullet.rectangle.portrait.fill")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.body)
                                 .foregroundColor(.blue)
                                 .frame(width: 32, height: 32)
                                 .background(Color.blue.opacity(0.12))
@@ -284,7 +284,7 @@ struct SettingsRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(.white)
                 .frame(width: 28, height: 28)
                 .background(color)

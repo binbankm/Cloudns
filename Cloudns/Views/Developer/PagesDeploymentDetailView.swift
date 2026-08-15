@@ -35,7 +35,7 @@ struct PagesDeploymentDetailView: View {
                             .fill(isSuccess ? Color.green : Color.orange)
                             .frame(width: 8, height: 8)
                         Text(deployment.latestStage?.status?.capitalized ?? "Unknown")
-                            .font(.body.weight(.semibold))
+                            .font(.body)
                             .foregroundColor(isSuccess ? .green : .orange)
                     }
                 }
@@ -56,7 +56,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(branch)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                 }
@@ -67,7 +67,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(String(hash.prefix(7)))
-                            .font(.body.monospaced())
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                 }
@@ -90,7 +90,7 @@ struct PagesDeploymentDetailView: View {
                             Text("Preview URL")
                             Spacer()
                             Text(urlStr)
-                                .font(.caption.monospaced())
+                                .font(.caption)
                                 .lineLimit(1)
                                 .foregroundColor(.blue)
                             Image(systemName: "arrow.up.right")
@@ -168,7 +168,7 @@ struct PagesDeploymentDetailView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             ForEach(viewModel.logs) { log in
                                 Text(log.line)
-                                    .font(.caption2.monospaced())
+                                    .font(.caption2.monospacedDigit())
                                     .foregroundColor(logColor(log.line))
                             }
                         }

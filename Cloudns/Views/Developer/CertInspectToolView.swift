@@ -38,7 +38,7 @@ struct CertInspectToolView: View {
                                 Image(systemName: "checkmark.seal.fill")
                             }
                             Text("Inspect SSL / TLS Certificate")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.green)
                             Spacer()
                         }
@@ -54,7 +54,7 @@ struct CertInspectToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(cert.commonName)
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                         
@@ -75,7 +75,7 @@ struct CertInspectToolView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text("\(days) Days")
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(.subheadline)
                                     .foregroundColor(days > 30 ? .green : .orange)
                             }
                         }
@@ -86,7 +86,7 @@ struct CertInspectToolView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(proto)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.green.opacity(0.12))
@@ -101,7 +101,7 @@ struct CertInspectToolView: View {
                             Spacer()
                             if cert.isCloudflareEdge {
                                 Text("Cloudflare Edge Network")
-                                    .font(.caption.weight(.semibold))
+                                    .font(.caption)
                                     .foregroundColor(.orange)
                             } else {
                                 Text("External TLS Server")
@@ -120,7 +120,7 @@ struct CertInspectToolView: View {
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                     Text(san)
-                                        .font(.system(size: 13, design: .monospaced))
+                                        .font(.body.monospacedDigit())
                                         .foregroundColor(.primary)
                                 }
                             }

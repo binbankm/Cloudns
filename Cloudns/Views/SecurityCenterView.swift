@@ -16,7 +16,7 @@ struct SecurityCenterView: View {
                         .padding(.top, 10)
                     
                     Text("Security Center")
-                        .font(.title2.bold())
+                        .font(.title2)
                     
                     Text("Comprehensive threat defense and encryption management for \(zoneName).")
                         .font(.subheadline)

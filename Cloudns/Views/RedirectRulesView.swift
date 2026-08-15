@@ -72,6 +72,8 @@ struct RedirectRulesView: View {
                 message: LocalizedStringKey(err),
                 retryAction: { Task { await fetchRules() } }
             )
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         } else if rules.isEmpty {
             EmptyStateView(
                 icon: "arrow.turn.up.right",
@@ -80,6 +82,8 @@ struct RedirectRulesView: View {
                 actionTitle: "Create Redirect Rule",
                 action: { showingAddSheet = true }
             )
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         } else {
             List {
                 Section(header: Text("Configured Redirects (\(rules.count))")) {
@@ -87,14 +91,14 @@ struct RedirectRulesView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(rule.description ?? "Redirect Rule")
-                                    .font(.body.weight(.semibold))
+                                    .font(.body)
                                     .foregroundColor(.primary)
                                 
                                 Spacer()
                                 
                                 if let status = rule.statusCode {
                                     Text("\(status)")
-                                        .font(.caption.bold())
+                                        .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
@@ -105,7 +109,7 @@ struct RedirectRulesView: View {
                             
                             if let expr = rule.expression {
                                 Text(expr)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.secondary)
                                     .lineLimit(2)
                             }
@@ -116,7 +120,7 @@ struct RedirectRulesView: View {
                                         .font(.caption2)
                                         .foregroundColor(.blue)
                                     Text(target)
-                                        .font(.caption.monospaced())
+                                        .font(.caption.monospacedDigit())
                                         .foregroundColor(.blue)
                                         .lineLimit(1)
                                 }
@@ -174,14 +178,14 @@ struct AddRedirectRuleSheetView: View {
                 
                 Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")) {
                     TextField("Expression", text: $expression)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.footnote)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
                 
                 Section(header: Text("Redirect Target & Code")) {
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.footnote)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .keyboardType(.URL)

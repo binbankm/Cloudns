@@ -93,7 +93,7 @@ struct AIGatewayView: View {
                     ForEach(viewModel.filteredGateways) { gw in
                         HStack(alignment: .center, spacing: 14) {
                             Image(systemName: "brain.head.profile")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.body)
                                 .foregroundColor(.pink)
                                 .frame(width: 32, height: 32)
                                 .background(Color.pink.opacity(0.12))
@@ -101,7 +101,7 @@ struct AIGatewayView: View {
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(gw.id)
-                                    .font(.body.monospaced())
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 HStack(spacing: 8) {

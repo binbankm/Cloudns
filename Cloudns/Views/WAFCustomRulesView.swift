@@ -36,6 +36,8 @@ struct WAFCustomRulesView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "shield.checkerboard",
@@ -44,6 +46,8 @@ struct WAFCustomRulesView: View {
                         actionTitle: "Add WAF Rule",
                         action: { showingAddSheet = true }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(viewModel.rules) { rule in
@@ -106,7 +110,7 @@ struct WAFRuleCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
-                    .font(.headline)
+                    .font(.body)
                     .lineLimit(2)
                 
                 Spacer()
@@ -120,7 +124,7 @@ struct WAFRuleCardView: View {
             
             HStack {
                 Text(actionDisplayName(rule.action))
-                    .font(.caption.bold())
+                    .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForAction(rule.action).opacity(0.1))
@@ -142,7 +146,7 @@ struct WAFRuleCardView: View {
                     .foregroundColor(.secondary)
                 
                 Text(rule.expression)
-                    .font(.system(.footnote, design: .monospaced))
+                    .font(.footnote)
                     .foregroundColor(.primary)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)

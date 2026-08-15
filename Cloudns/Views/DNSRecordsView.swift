@@ -132,7 +132,8 @@ struct DNSRecordsView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                        .onAppear {
+                .listRowInsets(EdgeInsets())
+                .onAppear {
                             Task {
                                 await viewModel.fetchRecords()
                             }
@@ -152,7 +153,7 @@ struct DNSRecordsView: View {
             let groupedRecords = Dictionary(grouping: displayRecords, by: { $0.type })
             let sortedTypes = groupedRecords.keys.sorted()
             ForEach(sortedTypes, id: \.self) { type in
-                Section(header: Text(type).font(.subheadline.bold())) {
+                Section(header: Text(type).font(.subheadline)) {
                     ForEach(groupedRecords[type] ?? []) { record in
                         recordRow(record: record)
                     }
@@ -162,7 +163,7 @@ struct DNSRecordsView: View {
             let groupedRecords = Dictionary(grouping: displayRecords, by: { $0.proxied == true ? "Proxied (Cloudflare)" : "DNS Only" })
             let sortedKeys = groupedRecords.keys.sorted(by: { $0 > $1 })
             ForEach(sortedKeys, id: \.self) { status in
-                Section(header: Text(status).font(.subheadline.bold())) {
+                Section(header: Text(status).font(.subheadline)) {
                     ForEach(groupedRecords[status] ?? []) { record in
                         recordRow(record: record)
                     }
@@ -266,7 +267,7 @@ struct DNSRecordRowView: View {
             HStack(alignment: .center, spacing: 12) {
                 // Record Type Badge
                 Text(record.type)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.caption.monospacedDigit())
                     .frame(width: 44)
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.15))
@@ -286,18 +287,18 @@ struct DNSRecordRowView: View {
                 // Proxy Status Icon (Orange/Gray Cloud)
                 if record.proxiable == true {
                     Image(systemName: "cloud.fill")
-                        .font(.system(size: 14))
+                        .font(.body)
                         .foregroundColor(record.proxied == true ? .orange : Color.gray.opacity(0.4))
                 } else {
                     Text("DNS Only")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.medium))
                         .foregroundColor(.secondary)
                 }
             }
             
             HStack(alignment: .top) {
                 Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.body.monospacedDigit())
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                 
@@ -310,7 +311,7 @@ struct DNSRecordRowView: View {
             
             if let comment = record.comment, !comment.isEmpty {
                 Text(comment)
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                     .padding(.top, 2)

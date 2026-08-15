@@ -29,14 +29,14 @@ struct SecuritySettingsView: View {
                                 .foregroundColor(viewModel.securityLevel == "under_attack" ? .white : .red)
                                 .font(.title2)
                             Text("I'm Under Attack Mode")
-                                .font(.headline)
+                                .font(.body)
                                 .foregroundColor(viewModel.securityLevel == "under_attack" ? .white : .red)
                             
                             Spacer()
                             
                             if viewModel.securityLevel == "under_attack" {
                                 Text("ACTIVE")
-                                    .font(.caption.bold())
+                                    .font(.caption)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
                                     .background(Color.white)

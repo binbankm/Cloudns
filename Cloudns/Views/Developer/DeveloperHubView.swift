@@ -278,7 +278,7 @@ struct DeveloperHubView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Developer Suite")
-                            .font(.title2.bold())
+                            .font(.title2)
                             .foregroundColor(.white)
                         
                         Text(viewModel.selectedAccount?.name ?? "Active Account")
@@ -314,7 +314,7 @@ struct DeveloperHubView: View {
     private func metricItem(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
-                .font(.headline.bold())
+                .font(.body)
                 .foregroundColor(.white)
             Text(title)
                 .font(.caption2)
@@ -338,7 +338,7 @@ struct DeveloperHubRow: View {
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(iconColor)
                 .frame(width: 32, height: 32)
                 .background(iconColor.opacity(0.12))
@@ -363,7 +363,7 @@ struct DeveloperHubRow: View {
                             .fill(isHealthy ? Color.green : Color.orange)
                             .frame(width: 6, height: 6)
                         Text(badge)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.caption)
                             .foregroundColor(isHealthy ? .green : .orange)
                     }
                     .padding(.horizontal, 8)
@@ -372,7 +372,7 @@ struct DeveloperHubRow: View {
                     .cornerRadius(8)
                 } else {
                     Text(badge)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

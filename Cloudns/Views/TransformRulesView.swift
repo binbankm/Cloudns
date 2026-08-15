@@ -31,6 +31,8 @@ struct TransformRulesView: View {
                         actionTitle: "Add Transform Rule",
                         action: { showingAddSheet = true }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(viewModel.rules) { rule in
@@ -95,7 +97,7 @@ struct TransformRuleCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(.headline)
+                    .font(.body)
                 Spacer()
                 Toggle("", isOn: Binding(
                     get: { rule.enabled },

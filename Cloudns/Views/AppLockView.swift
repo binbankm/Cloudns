@@ -30,7 +30,7 @@ struct AppLockView: View {
                     authManager.authenticate()
                 }) {
                     Text("Unlock")
-                        .font(.headline)
+                        .font(.body)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()

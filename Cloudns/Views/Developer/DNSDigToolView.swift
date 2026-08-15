@@ -53,7 +53,7 @@ struct DNSDigToolView: View {
                                 Image(systemName: "magnifyingglass")
                             }
                             Text("Dig Query (1.1.1.1)")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                             Spacer()
                         }
                     }
@@ -66,7 +66,7 @@ struct DNSDigToolView: View {
                         Text("Resolved Answers (\(result.answers.count))")
                         Spacer()
                         Text(String(format: "%.1f ms", result.latencyMs))
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.caption2.weight(.medium))
                             .foregroundColor(.green)
                     }) {
                         if result.answers.isEmpty {
@@ -101,7 +101,7 @@ struct DNSAnswerRowView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Text(item.typeName)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.caption.monospacedDigit())
                     .frame(width: 48)
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.12))
@@ -120,7 +120,7 @@ struct DNSAnswerRowView: View {
             }
             
             Text(item.data)
-                .font(.system(size: 13, design: .monospaced))
+                .font(.body.monospacedDigit())
                 .foregroundColor(.secondary)
                 .lineLimit(3)
         }

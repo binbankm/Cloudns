@@ -16,7 +16,7 @@ struct PerformanceCenterView: View {
                         .padding(.top, 10)
                     
                     Text("Performance & Speed")
-                        .font(.title2.bold())
+                        .font(.title2)
                     
                     Text("Supercharge \(zoneName) with CDN caching and web optimization technologies.")
                         .font(.subheadline)

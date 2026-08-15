@@ -21,7 +21,7 @@ struct NetworkCenterView: View {
                             .padding(.top, 10)
                         
                         Text("Network & Routing")
-                            .font(.title2.bold())
+                            .font(.title2)
                         
                         Text("Manage network protocols and connectivity for \(zoneName).")
                             .font(.subheadline)

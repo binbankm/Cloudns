@@ -47,7 +47,7 @@ struct TunnelDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(tunnel.name)
-                            .font(.body.bold())
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                     
@@ -70,7 +70,7 @@ struct TunnelDetailView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(tunnel.id)
-                            .font(.caption2.monospaced())
+                            .font(.caption2.monospacedDigit())
                             .foregroundColor(.secondary)
                     }
                 }
@@ -101,7 +101,7 @@ struct TunnelDetailView: View {
                                             .font(.caption2)
                                             .foregroundColor(.green)
                                         Text(svc)
-                                            .font(.caption.monospaced())
+                                            .font(.caption.monospacedDigit())
                                             .foregroundColor(.secondary)
                                     }
                                 }
@@ -119,7 +119,7 @@ struct TunnelDetailView: View {
                                 HStack {
                                     if let colo = conn.coloName {
                                         Text(colo.uppercased())
-                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .font(.caption.monospacedDigit())
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
                                             .background(Color.blue.opacity(0.12))
@@ -129,7 +129,7 @@ struct TunnelDetailView: View {
                                     
                                     if let ip = conn.originIp {
                                         Text(ip)
-                                            .font(.caption.monospaced())
+                                            .font(.caption.monospacedDigit())
                                             .foregroundColor(.primary)
                                     }
                                     

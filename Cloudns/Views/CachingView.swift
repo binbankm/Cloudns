@@ -47,7 +47,7 @@ struct CachingView: View {
                             Image(systemName: "link")
                                 .foregroundColor(.blue)
                             Text("Purge by URL")
-                                .font(.headline)
+                                .font(.body)
                         }
                         
                         Text("Clear cached files by their exact URLs. This allows you to selectively refresh specific resources.")
@@ -91,7 +91,7 @@ struct CachingView: View {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.red)
                             Text("Purge Everything")
-                                .font(.headline)
+                                .font(.body)
                                 .foregroundColor(.red)
                         }
                         

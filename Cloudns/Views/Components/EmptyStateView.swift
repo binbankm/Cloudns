@@ -63,7 +63,7 @@ public struct EmptyStateView: View {
                 VStack(spacing: 12) {
                     Button(action: action) {
                         Text(actionTitle)
-                            .font(.headline)
+                            .font(.body)
                             .frame(minWidth: 140)
                     }
                     .buttonStyle(.borderedProminent)

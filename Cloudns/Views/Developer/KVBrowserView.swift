@@ -127,7 +127,7 @@ struct KVBrowserView: View {
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: "key.horizontal.fill")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.body)
                                     .foregroundColor(.purple)
                                     .frame(width: 32, height: 32)
                                     .background(Color.purple.opacity(0.12))
@@ -139,7 +139,7 @@ struct KVBrowserView: View {
                                         .foregroundColor(.primary)
                                     
                                     Text(ns.id)
-                                        .font(.caption.monospaced())
+                                        .font(.caption.monospacedDigit())
                                         .foregroundColor(.secondary)
                                         .lineLimit(1)
                                 }
@@ -176,7 +176,7 @@ struct KVBrowserView: View {
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: "cylinder.split.1x2.fill")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.body)
                                     .foregroundColor(.purple)
                                     .frame(width: 32, height: 32)
                                     .background(Color.purple.opacity(0.12))
@@ -190,7 +190,7 @@ struct KVBrowserView: View {
                                         
                                         if let version = db.version {
                                             Text(version.uppercased())
-                                                .font(.system(size: 10, weight: .bold))
+                                                .font(.caption2.weight(.medium))
                                                 .foregroundColor(.purple)
                                                 .padding(.horizontal, 5)
                                                 .padding(.vertical, 1)
@@ -201,7 +201,7 @@ struct KVBrowserView: View {
                                     
                                     HStack(spacing: 8) {
                                         Text(db.uuid)
-                                            .font(.caption2.monospaced())
+                                            .font(.caption2.monospacedDigit())
                                             .foregroundColor(.secondary)
                                             .lineLimit(1)
                                         
@@ -474,7 +474,7 @@ struct KVNamespaceKeysView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(key.name)
-                                    .font(.body.monospaced())
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 if let exp = key.expiration {
@@ -539,7 +539,7 @@ struct KVAddKeySheetView: View {
                 
                 Section(header: Text("Value")) {
                     TextEditor(text: $keyValue)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.body.monospacedDigit())
                         .frame(minHeight: 100)
                 }
                 
@@ -599,7 +599,7 @@ struct KVValueSheetView: View {
                             .padding()
                     } else {
                         Text(valueText)
-                            .font(.system(.body, design: .monospaced))
+                            .font(.body.monospacedDigit())
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color(UIColor.secondarySystemGroupedBackground))

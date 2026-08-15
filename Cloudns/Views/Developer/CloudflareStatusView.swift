@@ -162,7 +162,7 @@ struct CloudflareStatusView: View {
                                 Spacer()
                                 
                                 Text(statusLabel(comp.status))
-                                    .font(.caption.weight(.medium))
+                                    .font(.caption)
                                     .foregroundColor(statusColor(comp.status))
                             }
                             .padding(.vertical, 2)
@@ -177,11 +177,11 @@ struct CloudflareStatusView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(inc.name)
-                                        .font(.subheadline.weight(.semibold))
+                                        .font(.subheadline)
                                         .foregroundColor(.primary)
                                     Spacer()
                                     Text(inc.status.capitalized)
-                                        .font(.caption2.bold())
+                                        .font(.caption2.weight(.medium))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
@@ -210,12 +210,12 @@ struct CloudflareStatusView: View {
         
         return HStack(spacing: 16) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                .font(.system(size: 32, weight: .semibold))
+                .font(.system(size: 32))
                 .foregroundColor(.white)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(summary.status?.description ?? "All Systems Operational")
-                    .font(.headline.weight(.bold))
+                    .font(.body)
                     .foregroundColor(.white)
                 
                 Text("Cloudflare Edge Network & Global Data Centers")

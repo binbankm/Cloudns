@@ -78,7 +78,7 @@ struct PagesDomainsView: View {
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(domain.name)
-                                    .font(.body.monospaced().weight(.semibold))
+                                    .font(.body)
                                     .foregroundColor(.primary)
                                 
                                 HStack(spacing: 8) {
@@ -132,7 +132,7 @@ private struct AddPagesDomainSheet: View {
             Form {
                 Section(header: Text("Domain Name"), footer: Text("Enter a fully qualified domain name (e.g. docs.example.com or example.com).")) {
                     TextField("sub.example.com", text: $domainName)
-                        .font(.body.monospaced())
+                        .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }

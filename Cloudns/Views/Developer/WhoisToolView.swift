@@ -223,7 +223,7 @@ struct WhoisToolView: View {
                         .foregroundColor(.teal)
                     
                     TextField("example.com", text: $viewModel.domainInput)
-                        .font(.body.monospaced())
+                        .font(.body.monospacedDigit())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.search)
@@ -264,7 +264,7 @@ struct WhoisToolView: View {
                                 Task { await viewModel.performLookup() }
                             } label: {
                                 Text(preset)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 4)
                                     .background(Color(UIColor.tertiarySystemFill))
@@ -282,7 +282,7 @@ struct WhoisToolView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 6) {
                         Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
-                            .font(.headline)
+                            .font(.body)
                             .foregroundColor(.orange)
                         Text(error)
                             .font(.subheadline)
@@ -297,7 +297,7 @@ struct WhoisToolView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(info.domain)
-                            .font(.body.monospaced().weight(.semibold))
+                            .font(.body)
                             .foregroundColor(.primary)
                     }
                     
@@ -307,7 +307,7 @@ struct WhoisToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(reg)
-                                .font(.body.weight(.medium))
+                                .font(.body)
                                 .foregroundColor(.primary)
                                 .multilineTextAlignment(.trailing)
                         }
@@ -319,7 +319,7 @@ struct WhoisToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(formatDate(created))
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                     }
@@ -330,7 +330,7 @@ struct WhoisToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(formatDate(updated))
-                                .font(.body.monospaced())
+                                .font(.body.monospacedDigit())
                                 .foregroundColor(.primary)
                         }
                     }
@@ -342,7 +342,7 @@ struct WhoisToolView: View {
                             Spacer()
                             VStack(alignment: .trailing, spacing: 2) {
                                 Text(formatDate(expires))
-                                    .font(.body.monospaced())
+                                    .font(.body.monospacedDigit())
                                     .foregroundColor(.primary)
                                 
                                 let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
@@ -363,7 +363,7 @@ struct WhoisToolView: View {
                                     .fill(Color.teal)
                                     .frame(width: 6, height: 6)
                                 Text(status)
-                                    .font(.caption.monospaced())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundColor(.primary)
                             }
                             .padding(.vertical, 2)
@@ -380,7 +380,7 @@ struct WhoisToolView: View {
                                     .font(.caption)
                                     .foregroundColor(.teal)
                                 Text(ns.lowercased())
-                                    .font(.subheadline.monospaced())
+                                    .font(.subheadline.monospacedDigit())
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Button {

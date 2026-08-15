@@ -26,7 +26,7 @@ struct SpeedSettingsView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Auto Minify")
-                                    .font(.headline)
+                                    .font(.body)
                                 Text("Reduce the file size of source code on your website.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)

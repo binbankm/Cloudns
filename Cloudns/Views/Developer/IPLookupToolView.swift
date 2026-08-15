@@ -47,7 +47,7 @@ struct IPLookupToolView: View {
                                 Image(systemName: "network.badge.shield.half.filled")
                             }
                             Text("Query IP / ASN Info")
-                                .font(.body.weight(.semibold))
+                                .font(.body)
                                 .foregroundColor(.blue)
                             Spacer()
                         }
@@ -63,7 +63,7 @@ struct IPLookupToolView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text(res.ip)
-                                .font(.body.monospaced().bold())
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
                         
@@ -105,7 +105,7 @@ struct IPLookupToolView: View {
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text(asn)
-                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .font(.caption.monospacedDigit())
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.blue.opacity(0.12))

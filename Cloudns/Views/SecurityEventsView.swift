@@ -35,12 +35,16 @@ struct SecurityEventsView: View {
                             }
                         }
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
                     EmptyStateView(
                         icon: "checkmark.shield",
                         title: "No Security Events",
                         message: "Your site hasn't blocked any threats recently. Everything is secure!"
                     )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     List {
                         ForEach(viewModel.events) { event in
@@ -71,7 +75,7 @@ struct SecurityEventCardView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(actionDisplayName(event.action))
-                    .font(.caption.bold())
+                    .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(colorForAction(event.action).opacity(0.1))
@@ -94,7 +98,7 @@ struct SecurityEventCardView: View {
                     HStack(spacing: 4) {
                         Text(countryFlag(countryCode: event.clientCountryName))
                         Text(event.clientIP)
-                            .font(.system(.subheadline, design: .monospaced))
+                            .font(.subheadline.monospacedDigit())
                     }
                 }
                 
@@ -126,7 +130,7 @@ struct SecurityEventCardView: View {
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 Text(event.host)
-                    .font(.system(.footnote, design: .monospaced))
+                    .font(.footnote.monospacedDigit())
                     .foregroundColor(.blue)
             }
         }

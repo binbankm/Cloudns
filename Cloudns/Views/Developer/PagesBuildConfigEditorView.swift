@@ -33,7 +33,7 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("npm run build / hugo / next build", text: $buildCommand)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
@@ -44,7 +44,7 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("dist / public / .next", text: $destinationDir)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
@@ -55,7 +55,7 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("/", text: $rootDir)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
@@ -68,7 +68,7 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("main / master", text: $productionBranch)
-                            .font(.body.monospaced())
+                            .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }

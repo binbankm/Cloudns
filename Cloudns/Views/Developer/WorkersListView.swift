@@ -169,7 +169,7 @@ struct WorkersListView: View {
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: "doc.richtext.fill")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.body)
                                     .foregroundColor(.blue)
                                     .frame(width: 32, height: 32)
                                     .background(Color.blue.opacity(0.12))
@@ -177,12 +177,12 @@ struct WorkersListView: View {
                                 
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(page.name)
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                     
                                     if let sub = page.subdomain {
                                         Text(sub)
-                                            .font(.caption.monospaced())
+                                            .font(.caption.monospacedDigit())
                                             .foregroundColor(.secondary)
                                     }
                                 }
@@ -229,7 +229,7 @@ struct WorkerRowView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "bolt.fill")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body)
                 .foregroundColor(.orange)
                 .frame(width: 32, height: 32)
                 .background(Color.orange.opacity(0.12))
@@ -237,7 +237,7 @@ struct WorkerRowView: View {
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)
-                    .font(.body.weight(.medium))
+                    .font(.body)
                     .foregroundColor(.primary)
                 
                 if let mod = worker.modifiedOn {
@@ -251,7 +251,7 @@ struct WorkerRowView: View {
             
             if let routes = worker.routes, !routes.isEmpty {
                 Text("\(routes.count) Route(s)")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
         }
@@ -339,7 +339,7 @@ struct WorkerCreateSheetView: View {
                 
                 Section(header: Text("Starter JavaScript Code")) {
                     TextEditor(text: $scriptCode)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.body)
                         .frame(minHeight: 180)
                 }
                 
