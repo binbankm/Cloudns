@@ -184,6 +184,7 @@ struct PagesProjectDetailView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                .accessibilityHidden(true)
                         }
                     }
                     
@@ -195,12 +196,14 @@ struct PagesProjectDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.orange)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Build Configuration")
                                 .foregroundStyle(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                .accessibilityHidden(true)
                         }
                     }
                 }
@@ -242,6 +245,7 @@ struct PagesProjectDetailView: View {
                                         Image(systemName: "chevron.right")
                                             .font(.caption2)
                                             .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                            .accessibilityHidden(true)
                                     }
                                     
                                     if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {

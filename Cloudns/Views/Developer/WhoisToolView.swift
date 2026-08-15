@@ -174,11 +174,7 @@ public actor RDAPService {
     }
     
     private func isoDate(_ str: String) -> Date? {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let d = formatter.date(from: str) { return d }
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter.date(from: str)
+        DateFormatters.parseISO8601(str)
     }
 }
 
@@ -412,12 +408,9 @@ struct WhoisToolView: View {
                 await viewModel.performLookup()
             }
         }
-        .toastContainer()
     }
     
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        return formatter.string(from: date)
+        DateFormatters.yearMonthDayHourMinute.string(from: date)
     }
 }

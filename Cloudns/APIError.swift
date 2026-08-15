@@ -21,7 +21,39 @@ enum APIError: Error, LocalizedError {
         case .decodingError(let error):
             return "Failed to decode response: \(error.localizedDescription)"
         case .cloudflareError(let message):
-            return "Cloudflare Error: \(message)"
+            return APIError.formatCloudflareError(message)
         }
     }
+    
+    static func formatCloudflareError(_ rawMessage: String) -> String {
+        guard let data = rawMessage.data(using: .utf8) else {
+            return rawMessage
+        }
+        
+        struct CFErrorResponse: Codable {
+            struct ErrorItem: Codable {
+                let code: Int?
+                let message: String?
+            }
+            let errors: [ErrorItem]?
+            let messages: [String]?
+        }
+        
+        if let decoded = try? JSONDecoder().decode(CFErrorResponse.self, from: data),
+           let errors = decoded.errors, !errors.isEmpty {
+            let messages = errors.compactMap { err -> String? in
+                guard let msg = err.message, !msg.isEmpty else { return nil }
+                if let code = err.code {
+                    return "\(msg) (Code \(code))"
+                }
+                return msg
+            }
+            if !messages.isEmpty {
+                return messages.joined(separator: "\n")
+            }
+        }
+        
+        return rawMessage
+    }
 }
+

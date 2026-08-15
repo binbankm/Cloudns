@@ -55,7 +55,6 @@ struct WorkerTriggersView: View {
             } message: { cron in
                 Text("Are you sure you want to delete trigger '\(cron.cron)'?")
             }
-            .toastContainer()
     }
     
     @ViewBuilder

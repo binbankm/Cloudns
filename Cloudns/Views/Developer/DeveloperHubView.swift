@@ -291,6 +291,7 @@ struct DeveloperHubView: View {
                     Image(systemName: "cpu.fill")
                         .font(.system(size: 28))
                         .foregroundStyle(.white.opacity(0.85))
+                        .accessibilityHidden(true)
                 }
                 
                 Divider()
@@ -343,6 +344,7 @@ struct DeveloperHubRow: View {
                 .frame(width: 32, height: 32)
                 .background(iconColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(LocalizedStringKey(title))

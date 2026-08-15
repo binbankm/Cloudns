@@ -140,7 +140,7 @@ class WorkersViewModel: ObservableObject {
 @MainActor
 class WorkerDetailViewModel: ObservableObject {
     let accountId: String
-    let worker: WorkerScript
+    @Published var worker: WorkerScript
     private let apiClient = CloudflareAPIClient.shared
     
     @Published var scriptResult: WorkerScriptContentResult?
@@ -174,8 +174,9 @@ class WorkerDetailViewModel: ObservableObject {
             async let fetchBindings = (try? await apiClient.getWorkerBindings(accountId: accountId, scriptName: worker.id)) ?? []
             async let fetchSub = (try? await apiClient.getWorkerSubdomain(accountId: accountId, scriptName: worker.id))
             async let fetchSched = (try? await apiClient.getWorkerSchedules(accountId: accountId, scriptName: worker.id)) ?? []
+            async let fetchWorkers = (try? await apiClient.getWorkers(accountId: accountId)) ?? []
             
-            let (result, b, sub, sched) = await (try fetchCode, fetchBindings, fetchSub, fetchSched)
+            let (result, b, sub, sched, workersList) = await (try fetchCode, fetchBindings, fetchSub, fetchSched, fetchWorkers)
             self.scriptResult = result
             self.scriptContent = result.rawCode
             self.modules = result.modules
@@ -183,6 +184,11 @@ class WorkerDetailViewModel: ObservableObject {
             self.bindings = b
             self.subdomain = sub
             self.schedules = sched
+            
+            if let latestWorker = workersList.first(where: { $0.id == self.worker.id }) {
+                self.worker = latestWorker
+            }
+            
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
@@ -558,6 +564,11 @@ class R2BucketDetailViewModel: ObservableObject {
 
     func deleteObject(key: String) async throws {
         try await apiClient.deleteR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key)
+        await fetchObjects()
+    }
+
+    func uploadObject(key: String, data: Data, contentType: String = "application/octet-stream") async throws {
+        try await apiClient.putR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key, data: data, contentType: contentType)
         await fetchObjects()
     }
 }

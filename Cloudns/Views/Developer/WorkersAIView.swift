@@ -158,7 +158,8 @@ struct WorkersAIPlaygroundSheetView: View {
                     
                     Button {
                         Task {
-                            await viewModel.runInference(model: model.id)
+                            let targetModel = (model.name?.isEmpty == false) ? model.name! : model.id
+                            await viewModel.runInference(model: targetModel)
                         }
                     } label: {
                         HStack {

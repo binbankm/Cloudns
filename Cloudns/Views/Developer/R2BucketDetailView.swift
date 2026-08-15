@@ -1,9 +1,12 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct R2BucketDetailView: View {
     let accountId: String
     let bucket: R2Bucket
     @StateObject private var viewModel: R2BucketDetailViewModel
+    @State private var showingUploadSheet = false
+    @State private var selectedObject: R2Object? = nil
     
     init(accountId: String, bucket: R2Bucket) {
         self.accountId = accountId
@@ -18,6 +21,22 @@ struct R2BucketDetailView: View {
             .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Objects in Bucket")
             .refreshable {
                 await viewModel.fetchObjects()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingUploadSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("上传对象")
+                }
+            }
+            .sheet(isPresented: $showingUploadSheet) {
+                R2UploadObjectSheetView(viewModel: viewModel)
+            }
+            .sheet(item: $selectedObject) { obj in
+                R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
             }
             .task {
                 if !viewModel.hasFetchedData {
@@ -50,8 +69,8 @@ struct R2BucketDetailView: View {
                     icon: "externaldrive.badge.icloud",
                     title: "No Objects in Bucket",
                     message: "This R2 bucket is currently empty. Upload objects to get started.",
-                    actionTitle: nil,
-                    action: nil
+                    actionTitle: "Upload Object",
+                    action: { showingUploadSheet = true }
                 )
             } else if viewModel.filteredObjects.isEmpty {
                 EmptyStateView.search(query: viewModel.searchText) {
@@ -94,25 +113,263 @@ struct R2BucketDetailView: View {
                     // Section: Objects List
                     Section(header: Text("Objects (\(viewModel.objects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in
-                            R2ObjectRowView(object: obj)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        Task {
-                                            do {
-                                                try await viewModel.deleteObject(key: obj.key)
-                                                ToastManager.shared.showSuccess("Object Deleted", message: obj.key)
-                                            } catch {
-                                                ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                            }
+                            Button {
+                                selectedObject = obj
+                            } label: {
+                                R2ObjectRowView(object: obj)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        do {
+                                            try await viewModel.deleteObject(key: obj.key)
+                                            ToastManager.shared.showSuccess("Object Deleted", message: obj.key)
+                                        } catch {
+                                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                                         }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
+                            }
                         }
                     }
                 }
                 .listStyle(.insetGrouped)
+            }
+        }
+    }
+}
+
+// MARK: - Upload Object Sheet
+struct R2UploadObjectSheetView: View {
+    @ObservedObject var viewModel: R2BucketDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var objectKey = ""
+    @State private var uploadMode = 0 // 0: Text, 1: File
+    @State private var textContent = ""
+    @State private var selectedFileData: Data? = nil
+    @State private var selectedFileName: String? = nil
+    @State private var showingFileImporter = false
+    @State private var isUploading = false
+    @State private var errorMessage: String?
+    
+    private var isValid: Bool {
+        let cleanKey = objectKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanKey.isEmpty { return false }
+        if uploadMode == 0 {
+            return !textContent.isEmpty
+        } else {
+            return selectedFileData != nil
+        }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Object Key"), footer: Text("Enter the storage path/name (e.g. data.json or images/avatar.png).")) {
+                    TextField("example.txt", text: $objectKey)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                
+                Section(header: Text("Upload Source")) {
+                    Picker("Source", selection: $uploadMode) {
+                        Text("Text / JSON Content").tag(0)
+                        Text("Local File").tag(1)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                
+                if uploadMode == 0 {
+                    Section(header: Text("Content")) {
+                        TextEditor(text: $textContent)
+                            .frame(minHeight: 140)
+                            .font(.body.monospaced())
+                    }
+                } else {
+                    Section(header: Text("Select File")) {
+                        if let name = selectedFileName, let data = selectedFileData {
+                            HStack {
+                                Image(systemName: "doc.fill")
+                                    .foregroundStyle(.blue)
+                                VStack(alignment: .leading) {
+                                    Text(name).font(.body)
+                                    Text(formatBytes(data.count)).font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button("Change") {
+                                    showingFileImporter = true
+                                }
+                                .font(.caption)
+                            }
+                        } else {
+                            Button {
+                                showingFileImporter = true
+                            } label: {
+                                Label("Choose File from Device", systemImage: "arrow.up.doc")
+                            }
+                        }
+                    }
+                }
+                
+                if let err = errorMessage {
+                    Section {
+                        Text(err)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Upload Object")
+            .navigationBarTitleDisplayMode(.inline)
+            .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.item]) { result in
+                switch result {
+                case .success(let url):
+                    if url.startAccessingSecurityScopedResource() {
+                        defer { url.stopAccessingSecurityScopedResource() }
+                        if let data = try? Data(contentsOf: url) {
+                            selectedFileData = data
+                            selectedFileName = url.lastPathComponent
+                            if objectKey.isEmpty {
+                                objectKey = url.lastPathComponent
+                            }
+                        }
+                    }
+                case .failure(let err):
+                    errorMessage = err.localizedDescription
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Upload") {
+                        Task {
+                            isUploading = true
+                            errorMessage = nil
+                            do {
+                                let key = objectKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                                let uploadData: Data
+                                if uploadMode == 0 {
+                                    uploadData = textContent.data(using: .utf8) ?? Data()
+                                } else {
+                                    uploadData = selectedFileData ?? Data()
+                                }
+                                try await viewModel.uploadObject(key: key, data: uploadData)
+                                ToastManager.shared.showSuccess("Object Uploaded", message: key)
+                                dismiss()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                            }
+                            isUploading = false
+                        }
+                    }
+                    .disabled(!isValid || isUploading)
+                }
+            }
+            .toastContainer()
+        }
+    }
+    
+    private func formatBytes(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
+}
+
+// MARK: - Object Detail Sheet
+struct R2ObjectDetailSheetView: View {
+    @ObservedObject var viewModel: R2BucketDetailViewModel
+    let object: R2Object
+    @Environment(\.dismiss) private var dismiss
+    @State private var showingDeleteAlert = false
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section(header: Text("Object Information")) {
+                    HStack {
+                        Text("Key")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(object.key)
+                            .font(.body.monospaced())
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    HStack {
+                        Text("Size")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(object.formattedSize)
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    if let etag = object.etag {
+                        HStack {
+                            Text("ETag")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(etag)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    if let uploaded = object.uploaded {
+                        HStack {
+                            Text("Uploaded")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(String(uploaded.prefix(19)).replacingOccurrences(of: "T", with: " "))
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                }
+                
+                Section {
+                    Button {
+                        UIPasteboard.general.string = object.key
+                        ToastManager.shared.showCopied("Object key copied")
+                    } label: {
+                        Label("Copy Key", systemImage: "doc.on.doc")
+                    }
+                    
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        Label("Delete Object", systemImage: "trash")
+                    }
+                }
+            }
+            .navigationTitle("Object Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .alert("Delete Object", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    Task {
+                        do {
+                            try await viewModel.deleteObject(key: object.key)
+                            ToastManager.shared.showSuccess("Object Deleted", message: object.key)
+                            dismiss()
+                        } catch {
+                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        }
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to delete '\(object.key)'? This action cannot be undone.")
             }
         }
     }

@@ -153,14 +153,6 @@ struct SecurityEventCardView: View {
     }
     
     private func formatDate(_ isoString: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        if let date = formatter.date(from: isoString) {
-            let displayFormatter = DateFormatter()
-            displayFormatter.dateStyle = .short
-            displayFormatter.timeStyle = .short
-            return displayFormatter.string(from: date)
-        }
-        return isoString
+        DateFormatters.formatISO8601ToDisplay(isoString, style: DateFormatters.mediumDateTime)
     }
 }

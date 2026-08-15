@@ -79,7 +79,6 @@ struct WorkerTailView: View {
         .sheet(item: $selectedEvent) { event in
             TailEventDetailSheet(event: event)
         }
-        .toastContainer()
     }
     
     private var filterBar: some View {
@@ -144,10 +143,7 @@ private struct TailEventRow: View {
     var isOk: Bool { item.outcome == "ok" }
     var timestampStr: String {
         guard let ts = item.eventTimestamp else { return "" }
-        let date = Date(timeIntervalSince1970: TimeInterval(ts) / 1000)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter.string(from: date)
+        return DateFormatters.formatTimestampMs(Double(ts))
     }
     
     var body: some View {

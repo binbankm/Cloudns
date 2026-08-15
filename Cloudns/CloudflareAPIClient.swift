@@ -385,10 +385,9 @@ class CloudflareAPIClient {
         let query: String
         
         if days == 1 {
-            let formatter = ISO8601DateFormatter()
             // Use -23 hours to stay strictly under the 1d limit (avoiding the 1d1s error)
             let pastDate = Calendar.current.date(byAdding: .hour, value: -23, to: Date())!
-            let dateString = formatter.string(from: pastDate)
+            let dateString = DateFormatters.iso8601.string(from: pastDate)
             
             query = """
             query {
@@ -416,15 +415,12 @@ class CloudflareAPIClient {
             }
             """
         } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
             let pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
-            let dateString = formatter.string(from: pastDate)
+            let dateString = DateFormatters.yearMonthDay.string(from: pastDate)
             
             // Map query must be restricted to under 24h due to API limits on Free plans
-            let isoFormatter = ISO8601DateFormatter()
             let mapPastDate = Calendar.current.date(byAdding: .hour, value: -23, to: Date())!
-            let mapDateString = isoFormatter.string(from: mapPastDate)
+            let mapDateString = DateFormatters.iso8601.string(from: mapPastDate)
             
             query = """
             query {
@@ -1365,8 +1361,7 @@ class CloudflareAPIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let date = Calendar.current.date(byAdding: .hour, value: -23, to: Date()) ?? Date()
-        let formatter = ISO8601DateFormatter()
-        let dateString = formatter.string(from: date)
+        let dateString = DateFormatters.iso8601.string(from: date)
         
         let query = """
         query {
@@ -2034,8 +2029,8 @@ class CloudflareAPIClient {
         return String(rest[..<end])
     }
 
-    func createWorkerScript(accountId: String, name: String, code: String, isModule: Bool = true, compatibilityDate: String = "2026-01-01") async throws {
-        let endpoint = "accounts/\(accountId)/workers/scripts/\(name)?bindings_inherit=strict"
+    func createWorkerScript(accountId: String, name: String, code: String, isModule: Bool? = nil, compatibilityDate: String = "2024-04-03") async throws {
+        let endpoint = "accounts/\(accountId)/workers/scripts/\(name)?bindings_inherit=true"
         let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
         guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
             throw APIError.unauthorized
@@ -2044,7 +2039,21 @@ class CloudflareAPIClient {
             throw APIError.invalidURL
         }
         
-        let boundary = "Boundary-\(UUID().uuidString)"
+        // Auto-detect module mode: if code uses Service Worker syntax (addEventListener / respondWith) and lacks export default
+        let resolvedIsModule: Bool
+        if let explicit = isModule {
+            resolvedIsModule = explicit
+        } else {
+            if code.contains("export default") || code.contains("export {") || code.contains("export const") || code.contains("export function") {
+                resolvedIsModule = true
+            } else if code.contains("addEventListener") || code.contains("respondWith") {
+                resolvedIsModule = false
+            } else {
+                resolvedIsModule = true
+            }
+        }
+        
+        let boundary = "----Boundary\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
@@ -2053,20 +2062,34 @@ class CloudflareAPIClient {
         
         let mainModule = "index.js"
         var bodyData = Data()
+        
+        // 1. Metadata part
         bodyData.append("--\(boundary)\r\n".data(using: .utf8)!)
         bodyData.append("Content-Disposition: form-data; name=\"metadata\"\r\n".data(using: .utf8)!)
         bodyData.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
         
-        let metadataJson = isModule
-            ? "{\"main_module\":\"\(mainModule)\",\"compatibility_date\":\"\(compatibilityDate)\"}\r\n"
-            : "{\"body_part\":\"\(mainModule)\",\"compatibility_date\":\"\(compatibilityDate)\"}\r\n"
-        bodyData.append(metadataJson.data(using: .utf8)!)
+        var metadataDict: [String: Any] = [
+            "compatibility_date": compatibilityDate
+        ]
+        if resolvedIsModule {
+            metadataDict["main_module"] = mainModule
+        } else {
+            metadataDict["body_part"] = mainModule
+        }
         
+        let metadataJsonData = try JSONSerialization.data(withJSONObject: metadataDict)
+        bodyData.append(metadataJsonData)
+        bodyData.append("\r\n".data(using: .utf8)!)
+        
+        // 2. Script code part
         bodyData.append("--\(boundary)\r\n".data(using: .utf8)!)
         bodyData.append("Content-Disposition: form-data; name=\"\(mainModule)\"; filename=\"\(mainModule)\"\r\n".data(using: .utf8)!)
-        bodyData.append("Content-Type: \(isModule ? "application/javascript+module" : "application/javascript")\r\n\r\n".data(using: .utf8)!)
+        bodyData.append("Content-Type: \(resolvedIsModule ? "application/javascript+module" : "application/javascript")\r\n\r\n".data(using: .utf8)!)
         bodyData.append(code.data(using: .utf8)!)
-        bodyData.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        bodyData.append("\r\n".data(using: .utf8)!)
+        
+        // 3. End boundary
+        bodyData.append("--\(boundary)--\r\n".data(using: .utf8)!)
         
         request.httpBody = bodyData
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -2639,18 +2662,79 @@ class CloudflareAPIClient {
     }
 
     func runAIInference(accountId: String, model: String, prompt: String) async throws -> String {
-        let endpoint = "accounts/\(accountId)/ai/run/\(model)"
-        let body: [String: Any] = ["prompt": prompt]
-        let data = try await performPostRequest(endpoint: endpoint, body: body)
+        let cleanModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        let endpoint = "accounts/\(accountId)/ai/run/\(cleanModel)"
         
-        struct InferenceResponse: Codable {
-            let result: [String: String]?
+        // 1. Try standard 'prompt' payload first
+        do {
+            let data = try await performPostRequest(endpoint: endpoint, body: ["prompt": prompt])
+            return parseAIInferenceResponse(data: data)
+        } catch {
+            // 2. If rejected by models requiring 'text' (e.g. embeddings, classification, translation)
+            if let textData = try? await performPostRequest(endpoint: endpoint, body: ["text": prompt]) {
+                return parseAIInferenceResponse(data: textData)
+            }
+            // 3. Try array text format
+            if let textArrData = try? await performPostRequest(endpoint: endpoint, body: ["text": [prompt]]) {
+                return parseAIInferenceResponse(data: textArrData)
+            }
+            // 4. Try chat 'messages' format
+            if let messagesData = try? await performPostRequest(endpoint: endpoint, body: ["messages": [["role": "user", "content": prompt]]]) {
+                return parseAIInferenceResponse(data: messagesData)
+            }
+            throw error
         }
-        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let result = json["result"] as? [String: Any],
-           let response = result["response"] as? String {
-            return response
+    }
+    
+    private func parseAIInferenceResponse(data: Data) -> String {
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            // 1. Direct text fields at root or inside 'result'
+            let container = (json["result"] as? [String: Any]) ?? json
+            
+            if let response = container["response"] as? String, !response.isEmpty {
+                return response.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            if let text = container["text"] as? String, !text.isEmpty {
+                return text.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            if let desc = container["description"] as? String, !desc.isEmpty {
+                return desc.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            if let translated = container["translated_text"] as? String, !translated.isEmpty {
+                return translated.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            
+            // 2. OpenAI-style 'choices' array (e.g. gpt-oss-120b, llama-3, mistral)
+            let choicesList = (container["choices"] as? [[String: Any]]) ?? (json["choices"] as? [[String: Any]])
+            if let choices = choicesList, let firstChoice = choices.first {
+                if let text = firstChoice["text"] as? String, !text.isEmpty {
+                    return text.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                if let message = firstChoice["message"] as? [String: Any],
+                   let content = message["content"] as? String, !content.isEmpty {
+                    return content.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                if let delta = firstChoice["delta"] as? [String: Any],
+                   let content = delta["content"] as? String, !content.isEmpty {
+                    return content.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+            }
+            
+            // 3. Array of result objects (e.g. classification, embeddings)
+            if let resultArr = json["result"] as? [Any] {
+                if let prettyData = try? JSONSerialization.data(withJSONObject: resultArr, options: .prettyPrinted),
+                   let prettyStr = String(data: prettyData, encoding: .utf8) {
+                    return prettyStr
+                }
+            }
+            
+            // 4. Fallback to pretty json of container
+            if let prettyData = try? JSONSerialization.data(withJSONObject: container, options: .prettyPrinted),
+               let prettyStr = String(data: prettyData, encoding: .utf8) {
+                return prettyStr
+            }
         }
+        
         return String(data: data, encoding: .utf8) ?? "Done"
     }
 
@@ -2706,6 +2790,31 @@ class CloudflareAPIClient {
         }
         let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)"
         _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String = "application/octet-stream") async throws {
+        guard let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            throw APIError.cloudflareError("Invalid object key")
+        }
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)"
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            throw APIError.invalidURL
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        request.httpBody = data
+        let (resData, response) = try await URLSession.shared.data(for: request)
+        guard let httpRes = response as? HTTPURLResponse, (200...299).contains(httpRes.statusCode) else {
+            let err = String(data: resData, encoding: .utf8) ?? ""
+            throw APIError.cloudflareError(err)
+        }
     }
 
     func createD1Database(accountId: String, name: String, primaryLocationHint: String? = nil) async throws -> D1Database {

@@ -12,6 +12,15 @@ class ZonesViewModel: ObservableObject {
     @Published var totalCount: Int = 0
     private var currentPage: Int = 1
     
+    func filteredZones(query: String) -> [Zone] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return zones
+        } else {
+            return zones.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+        }
+    }
+    
     func fetchZones(isRefresh: Bool = true) async {
         if isRefresh {
             currentPage = 1

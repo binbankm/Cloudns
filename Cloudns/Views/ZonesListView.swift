@@ -8,12 +8,8 @@ struct ZonesListView: View {
     @State private var showingDeleteAlert = false
     @State private var showAddZoneSheet = false
     
-    var filteredZones: [Zone] {
-        if searchText.isEmpty {
-            return viewModel.zones
-        } else {
-            return viewModel.zones.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
+    private var displayedZones: [Zone] {
+        viewModel.filteredZones(query: searchText)
     }
     
     var body: some View {
@@ -94,14 +90,14 @@ struct ZonesListView: View {
                         showAddZoneSheet = true
                     }
                 )
-            } else if filteredZones.isEmpty {
+            } else if displayedZones.isEmpty {
                 EmptyStateView.search(query: searchText) {
                     searchText = ""
                 }
             } else {
                 List {
                     Section {
-                        ForEach(filteredZones) { zone in
+                        ForEach(displayedZones) { zone in
                             NavigationLink(destination: ZoneDetailView(zone: zone)) {
                                 ZoneRowView(zone: zone)
                             }

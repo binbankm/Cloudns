@@ -170,18 +170,6 @@ struct EdgeCertificateCardView: View {
     
     private func formatDate(_ dateString: String) -> String {
         if dateString == "N/A" { return dateString }
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        var date = formatter.date(from: dateString)
-        if date == nil {
-            formatter.formatOptions = [.withInternetDateTime]
-            date = formatter.date(from: dateString)
-        }
-        guard let validDate = date else { return dateString }
-        
-        let displayFormatter = DateFormatter()
-        displayFormatter.dateStyle = .medium
-        displayFormatter.timeStyle = .none
-        return displayFormatter.string(from: validDate)
+        return DateFormatters.formatISO8601ToDisplay(dateString, style: DateFormatters.dateOnly)
     }
 }

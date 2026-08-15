@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage("appLanguage") private var appLanguage = "system"
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @Environment(\.openURL) private var openURL
     
     @State private var showingLogoutAlert = false
     @State private var showingClearCacheAlert = false
@@ -64,6 +65,7 @@ struct SettingsView: View {
                                 .frame(width: 32, height: 32)
                                 .background(Color.green.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
@@ -91,6 +93,7 @@ struct SettingsView: View {
                                 .frame(width: 32, height: 32)
                                 .background(Color.blue.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
@@ -205,7 +208,7 @@ struct SettingsView: View {
                     
                     Button(action: {
                         if let url = URL(string: "https://github.com/binbankm/Cloudns") {
-                            UIApplication.shared.open(url)
+                            openURL(url)
                         }
                     }) {
                         SettingsRowView(
@@ -218,7 +221,7 @@ struct SettingsView: View {
                     
                     Button(action: {
                         if let url = URL(string: "https://www.cloudflare.com/privacypolicy/") {
-                            UIApplication.shared.open(url)
+                            openURL(url)
                         }
                     }) {
                         SettingsRowView(
@@ -289,6 +292,7 @@ struct SettingsRowView: View {
                 .frame(width: 28, height: 28)
                 .background(color)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
+                .accessibilityHidden(true)
             
             Text(title)
                 .font(.body)

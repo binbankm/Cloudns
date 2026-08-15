@@ -5,7 +5,6 @@ struct WorkerDetailView: View {
     let accountId: String
     let worker: WorkerScript
     @StateObject private var viewModel: WorkerDetailViewModel
-    @State private var showingCodeFullscreen = false
     
     init(accountId: String, worker: WorkerScript) {
         self.accountId = accountId
@@ -17,15 +16,6 @@ struct WorkerDetailView: View {
         contentView
             .navigationTitle(worker.id)
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingCodeFullscreen) {
-                WorkerSourceCodeViewerSheet(
-                    accountId: accountId,
-                    scriptName: worker.id,
-                    modules: viewModel.modules,
-                    initialSelectedModuleName: viewModel.selectedModule?.name,
-                    parentViewModel: viewModel
-                )
-            }
             .refreshable {
                 await viewModel.fetchDetails()
             }
@@ -34,7 +24,6 @@ struct WorkerDetailView: View {
                     await viewModel.fetchDetails()
                 }
             }
-            .toastContainer()
     }
     
     @ViewBuilder
@@ -53,7 +42,7 @@ struct WorkerDetailView: View {
                         Text("Script Name")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(worker.id)
+                        Text(viewModel.worker.id)
                             .font(.body)
                             .foregroundStyle(.primary)
                     }
@@ -101,7 +90,7 @@ struct WorkerDetailView: View {
                         }
                     }
                     
-                    if let usage = worker.usageModel {
+                    if let usage = viewModel.worker.usageModel {
                         HStack {
                             Text("Usage Model")
                                 .foregroundStyle(.secondary)
@@ -111,7 +100,7 @@ struct WorkerDetailView: View {
                         }
                     }
                     
-                    if let compat = worker.compatibilityDate {
+                    if let compat = viewModel.worker.compatibilityDate {
                         HStack {
                             Text("Compatibility Date")
                                 .foregroundStyle(.secondary)
@@ -122,98 +111,44 @@ struct WorkerDetailView: View {
                         }
                     }
                     
-                    if let modified = worker.modifiedOn {
+                    if let modified = viewModel.worker.modifiedOn {
                         HStack {
                             Text("Last Modified")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(String(modified.prefix(19)).replacingOccurrences(of: "T", with: " "))
+                            Text(DateFormatters.formatISO8601ToDisplay(modified))
                                 .font(.body.monospacedDigit())
                                 .foregroundStyle(.primary)
                         }
                     }
                 }
                 
-                // Section: Script Source Code Preview
-                Section(header: HStack {
-                    Text("Source Code")
-                    Spacer()
-                    if let currentMod = viewModel.selectedModule ?? viewModel.modules.first {
-                        Button {
-                            UIPasteboard.general.string = currentMod.code
-                            ToastManager.shared.showCopied("\(currentMod.name) copied")
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                        }
-                    }
-                }) {
-                    if viewModel.modules.isEmpty && viewModel.scriptContent.isEmpty {
-                        Text(viewModel.errorMessage ?? "No script source code available.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        VStack(alignment: .leading, spacing: 10) {
-                            // Module tabs if multi-module
-                            if viewModel.modules.count > 1 {
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 8) {
-                                        ForEach(viewModel.modules) { mod in
-                                            Button {
-                                                viewModel.selectModule(mod)
-                                            } label: {
-                                                HStack(spacing: 4) {
-                                                    Image(systemName: mod.isMain ? "star.fill" : "doc.text")
-                                                        .font(.caption2)
-                                                    Text(mod.name)
-                                                        .font(.caption.monospacedDigit())
-                                                }
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 5)
-                                                .background(viewModel.selectedModule?.name == mod.name ? Color.orange : Color(UIColor.tertiarySystemFill))
-                                                .foregroundStyle(viewModel.selectedModule?.name == mod.name ? .white : .primary)
-                                                .clipShape(Capsule())
-                                            }
-                                            .buttonStyle(.plain)
-                                        }
-                                    }
-                                    .padding(.vertical, 2)
-                                }
-                            }
-                            
-                            let codeToShow = viewModel.selectedModule?.code ?? viewModel.scriptContent
-                            let previewText = String(codeToShow.prefix(800)) + (codeToShow.count > 800 ? "\n..." : "")
-                            
-                            Text(previewText)
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(.primary)
-                                .padding(10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(UIColor.secondarySystemGroupedBackground))
-                                .cornerRadius(8)
-                            
-                            Button {
-                                showingCodeFullscreen = true
-                            } label: {
-                                HStack {
-                                    Spacer()
-                                    Label(
-                                        "View & Edit Code (\(formatBytes(codeToShow.utf8.count)))",
-                                        systemImage: "curlybraces"
-                                    )
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
-                                    Spacer()
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                
                 // Section: Management Links
                 Section(header: Text("Management")) {
+                    NavigationLink {
+                        WorkerSourceCodeView(
+                            parentViewModel: viewModel,
+                            scriptName: worker.id,
+                            modules: viewModel.modules,
+                            singleScriptContent: viewModel.scriptContent
+                        )
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "curlybraces")
+                                .font(.body)
+                                .foregroundStyle(.purple)
+                                .frame(width: 24)
+                            Text("Source Code")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if !viewModel.scriptContent.isEmpty {
+                                Text(formatBytes(viewModel.scriptContent.utf8.count))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    
                     NavigationLink {
                         WorkerRoutesView(accountId: accountId, scriptName: worker.id, fallbackRoutes: worker.routes ?? [])
                     } label: {
@@ -265,24 +200,24 @@ struct WorkerDetailView: View {
                             }
                         }
                     }
-                }
-                
-                // Section: Debugging
-                Section(header: Text("Debugging")) {
+                    
                     NavigationLink {
                         WorkerTailView(accountId: accountId, scriptName: worker.id)
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "terminal.fill")
+                            Image(systemName: "waveform.path.ecg")
                                 .font(.body)
                                 .foregroundStyle(.green)
                                 .frame(width: 24)
-                            Text("Live Tail Logs")
+                            Text("Real-Time Logs")
                                 .foregroundStyle(.primary)
                             Spacer()
                         }
                     }
-                    
+                }
+                
+                // Section: Debugging
+                Section(header: Text("Debugging")) {
                     NavigationLink {
                         WorkerTestView(scriptName: worker.id, initialRoute: worker.routes?.first)
                     } label: {
@@ -334,6 +269,7 @@ struct WorkerDetailView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
     }
     
     private func formatBytes(_ bytes: Int) -> String {
@@ -347,59 +283,55 @@ struct WorkerDetailView: View {
     }
 }
 
-// MARK: - Orange-Cloud Style Code Viewer & Editor Sheet
-
-struct WorkerSourceCodeViewerSheet: View {
-    let accountId: String
+// MARK: - Dedicated Worker Source Code View (Standalone Page)
+struct WorkerSourceCodeView: View {
+    @ObservedObject var parentViewModel: WorkerDetailViewModel
     let scriptName: String
     let modules: [WorkerModuleItem]
-    @ObservedObject var parentViewModel: WorkerDetailViewModel
+    let singleScriptContent: String
     
-    @State private var selectedModuleName: String
-    @State private var isEditingMode = false
+    @State private var selectedModuleName: String = "index.js"
     @State private var editableCode: String = ""
-    @State private var wrapLines = true
-    @State private var isDeploying = false
-    @State private var showingDeployAlert = false
-    @Environment(\.dismiss) private var dismiss
+    @State private var isEditingMode: Bool = false
+    @State private var isDeploying: Bool = false
+    @State private var showingDeployAlert: Bool = false
+    @State private var wrapLines: Bool = true
     
-    init(accountId: String, scriptName: String, modules: [WorkerModuleItem], initialSelectedModuleName: String? = nil, parentViewModel: WorkerDetailViewModel) {
-        self.accountId = accountId
+    init(parentViewModel: WorkerDetailViewModel, scriptName: String, modules: [WorkerModuleItem], singleScriptContent: String) {
+        self.parentViewModel = parentViewModel
         self.scriptName = scriptName
         self.modules = modules
-        self.parentViewModel = parentViewModel
-        let initial = initialSelectedModuleName ?? modules.first(where: { $0.isMain })?.name ?? modules.first?.name ?? "index.js"
-        _selectedModuleName = State(initialValue: initial)
-    }
-    
-    private var currentModule: WorkerModuleItem? {
-        modules.first(where: { $0.name == selectedModuleName }) ?? modules.first
+        self.singleScriptContent = singleScriptContent
+        
+        let initialName = modules.first(where: { $0.isMain })?.name ?? modules.first?.name ?? "index.js"
+        _selectedModuleName = State(initialValue: initialName)
     }
     
     private var currentCode: String {
-        currentModule?.code ?? parentViewModel.scriptContent
+        if !modules.isEmpty {
+            return modules.first(where: { $0.name == selectedModuleName })?.code ?? singleScriptContent
+        }
+        return singleScriptContent
     }
     
     @ViewBuilder
     private var modeSwitcherBar: some View {
-        HStack {
+        HStack(spacing: 8) {
             HStack(spacing: 0) {
                 Button {
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     UISelectionFeedbackGenerator().selectionChanged()
                     withAnimation(.easeInOut(duration: 0.2)) {
                         isEditingMode = false
                     }
                 } label: {
                     let isActive = !isEditingMode
-                    Text("View Code")
+                    Text("Read Only")
                         .font(.system(size: 13, weight: isActive ? .semibold : .regular))
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                         .background(isActive ? Color(UIColor.systemBackground) : Color.clear)
                         .cornerRadius(6)
-                        .shadow(color: isActive ? Color.black.opacity(0.08) : Color.clear, radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
                 
@@ -409,21 +341,21 @@ struct WorkerSourceCodeViewerSheet: View {
                         isEditingMode = true
                     }
                 } label: {
-                    Text("Edit & Deploy")
-                        .font(.system(size: 13, weight: isEditingMode ? .semibold : .regular))
-                        .foregroundStyle(isEditingMode ? Color.primary : Color.secondary)
+                    let isActive = isEditingMode
+                    Text("Edit")
+                        .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
-                        .background(isEditingMode ? Color(UIColor.systemBackground) : Color.clear)
+                        .background(isActive ? Color(UIColor.systemBackground) : Color.clear)
                         .cornerRadius(6)
-                        .shadow(color: isEditingMode ? Color.black.opacity(0.08) : Color.clear, radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
             }
             .padding(3)
             .background(Color(UIColor.tertiarySystemFill))
             .cornerRadius(8)
-            .frame(maxWidth: 220)
+            .frame(maxWidth: 160)
             
             Spacer()
             
@@ -439,9 +371,9 @@ struct WorkerSourceCodeViewerSheet: View {
                             Text("Deploy")
                         }
                     }
-                    .font(.subheadline)
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.white)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 14)
                     .padding(.vertical, 6)
                     .background(Color.blue)
                     .cornerRadius(8)
@@ -455,114 +387,110 @@ struct WorkerSourceCodeViewerSheet: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Top Tab Bar: Modules (if multi-module)
-                if modules.count > 1 {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(modules) { mod in
-                                Button {
-                                    selectedModuleName = mod.name
-                                    editableCode = mod.code
-                                } label: {
-                                    HStack(spacing: 5) {
-                                        Image(systemName: mod.isMain ? "star.fill" : "doc.text")
-                                            .font(.caption2)
-                                        Text(mod.name)
-                                            .font(.body)
-                                    }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(selectedModuleName == mod.name ? Color.orange : Color(UIColor.secondarySystemGroupedBackground))
-                                    .foregroundStyle(selectedModuleName == mod.name ? .white : .primary)
-                                    .cornerRadius(8)
+        VStack(spacing: 0) {
+            // Top Tab Bar: Modules (if multi-module)
+            if modules.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(modules) { mod in
+                            Button {
+                                selectedModuleName = mod.name
+                                editableCode = mod.code
+                            } label: {
+                                HStack(spacing: 5) {
+                                    Image(systemName: mod.isMain ? "star.fill" : "doc.text")
+                                        .font(.caption2)
+                                    Text(mod.name)
+                                        .font(.body)
                                 }
-                                .buttonStyle(.plain)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(selectedModuleName == mod.name ? Color.orange : Color(UIColor.secondarySystemGroupedBackground))
+                                .foregroundStyle(selectedModuleName == mod.name ? .white : .primary)
+                                .cornerRadius(8)
                             }
+                            .buttonStyle(.plain)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
                     }
-                    .background(Color(UIColor.systemGroupedBackground))
-                    Divider()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                 }
-                
-                // Mode switcher bar (View / Edit)
-                modeSwitcherBar
-                
+                .background(Color(UIColor.systemGroupedBackground))
                 Divider()
-                
-                // Native High-Performance Code View / Editor with zero lag
-                CodeEditorView(
-                    text: $editableCode,
-                    isEditable: isEditingMode,
-                    wrapLines: wrapLines
-                )
-                .id("\(selectedModuleName)-\(wrapLines)")
-                .background(Color(UIColor.secondarySystemGroupedBackground))
             }
-            .navigationTitle(selectedModuleName)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
+            
+            // Mode switcher bar (View / Edit)
+            modeSwitcherBar
+            
+            Divider()
+            
+            // Native High-Performance Code View / Editor
+            CodeEditorView(
+                text: $editableCode,
+                isEditable: isEditingMode,
+                wrapLines: wrapLines
+            )
+            .id("\(selectedModuleName)-\(wrapLines)")
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+        }
+        .navigationTitle(selectedModuleName)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button {
+                    UISelectionFeedbackGenerator().selectionChanged()
+                    wrapLines.toggle()
+                } label: {
+                    Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
+                        .font(.subheadline)
+                        .foregroundStyle(wrapLines ? Color.accentColor : Color.secondary)
                 }
                 
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        UISelectionFeedbackGenerator().selectionChanged()
-                        wrapLines.toggle()
-                    } label: {
-                        Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
-                            .font(.subheadline)
-                            .foregroundStyle(wrapLines ? Color.accentColor : Color.secondary)
-                    }
-                    
-                    ShareLink(
-                        item: editableCode,
-                        subject: Text(selectedModuleName),
-                        message: Text("Worker script exported from Cloudns")
-                    ) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.subheadline)
-                    }
-                    
-                    Button {
-                        UIPasteboard.general.string = editableCode
-                        ToastManager.shared.showCopied("Source code copied")
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.subheadline)
-                    }
+                ShareLink(
+                    item: editableCode,
+                    subject: Text(selectedModuleName),
+                    message: Text("Worker script exported from Cloudns")
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.subheadline)
+                }
+                
+                Button {
+                    UIPasteboard.general.string = editableCode
+                    ToastManager.shared.showCopied("Source code copied")
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.subheadline)
                 }
             }
-            .onAppear {
-                editableCode = currentCode
-            }
-            .onChange(of: selectedModuleName) { _ in
-                editableCode = currentCode
-            }
-            .alert("Deploy Updated Script?", isPresented: $showingDeployAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Deploy", role: .destructive) {
-                    Task {
-                        isDeploying = true
-                        do {
-                            try await parentViewModel.deployScript(code: editableCode, isModule: true)
-                            ToastManager.shared.showSuccess("Script Deployed", message: "Worker updated successfully")
-                            isEditingMode = false
-                        } catch {
-                            ToastManager.shared.showError("Deploy Failed", message: error.localizedDescription)
-                        }
-                        isDeploying = false
+        }
+        .onAppear {
+            editableCode = currentCode
+        }
+        .onChange(of: selectedModuleName) { _ in
+            editableCode = currentCode
+        }
+        .alert("Deploy Updated Script?", isPresented: $showingDeployAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Deploy", role: .destructive) {
+                Task {
+                    isDeploying = true
+                    do {
+                        let hasEsm = editableCode.contains("export default") || editableCode.contains("export {") || editableCode.contains("export const") || editableCode.contains("export function")
+                        let isServiceWorker = editableCode.contains("addEventListener") || editableCode.contains("respondWith")
+                        let resolvedIsModule = hasEsm || !isServiceWorker
+                        
+                        try await parentViewModel.deployScript(code: editableCode, isModule: resolvedIsModule)
+                        ToastManager.shared.showSuccess("Script Deployed", message: "Worker updated successfully")
+                        isEditingMode = false
+                    } catch {
+                        ToastManager.shared.showError("Deploy Failed", message: error.localizedDescription)
                     }
+                    isDeploying = false
                 }
-            } message: {
-                Text("This will immediately deploy the modified code to '\(scriptName)' while safely preserving all resource bindings and secrets.")
             }
-            .toastContainer()
+        } message: {
+            Text("This will immediately deploy the modified code to '\(scriptName)' while safely preserving all resource bindings and secrets.")
         }
     }
 }
-

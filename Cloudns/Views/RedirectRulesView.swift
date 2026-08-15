@@ -2,10 +2,7 @@ import SwiftUI
 
 struct RedirectRulesView: View {
     let zoneId: String
-    @State private var rules: [RedirectRuleItem] = []
-    @State private var isLoading = false
-    @State private var hasFetchedData = false
-    @State private var errorMessage: String?
+    @StateObject private var viewModel = RedirectRulesViewModel()
     @State private var showingAddSheet = false
     @State private var ruleToDelete: RedirectRuleItem? = nil
     @State private var showingDeleteAlert = false
@@ -29,101 +26,101 @@ struct RedirectRulesView: View {
             }
         }
         .sheet(isPresented: $showingAddSheet) {
-            AddRedirectRuleSheetView(zoneId: zoneId) {
-                Task { await fetchRules() }
-            }
+            AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
         }
         .alert("Delete Redirect Rule", isPresented: $showingDeleteAlert, presenting: ruleToDelete) { rule in
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
-                    do {
-                        try await CloudflareAPIClient.shared.deleteRedirectRule(zoneId: zoneId, ruleId: rule.id)
-                        ToastManager.shared.showSuccess("Rule Deleted", message: rule.description ?? "Redirect Rule")
-                        await fetchRules()
-                    } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                    }
+                    await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
                 }
             }
         } message: { rule in
             Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
         }
         .refreshable {
-            await fetchRules()
+            await viewModel.fetchRules(zoneId: zoneId)
         }
         .task {
-            if !hasFetchedData {
-                await fetchRules()
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchRules(zoneId: zoneId)
             }
         }
     }
     
     @ViewBuilder
     private var contentView: some View {
-        if isLoading && !hasFetchedData {
+        if viewModel.isLoading && !viewModel.hasFetchedData {
             List {
-                ForEach(0..<4, id: \.self) { _ in
+                ForEach(0..<6, id: \.self) { _ in
                     SkeletonRowView()
                 }
             }
             .listStyle(.insetGrouped)
-        } else if let err = errorMessage, !hasFetchedData {
+        } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
             EmptyStateView.error(
-                message: LocalizedStringKey(err),
-                retryAction: { Task { await fetchRules() } }
+                message: LocalizedStringKey(errorMessage),
+                retryAction: {
+                    Task {
+                        await viewModel.fetchRules(zoneId: zoneId)
+                    }
+                }
             )
-        } else if rules.isEmpty {
+        } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
             EmptyStateView(
-                icon: "arrow.turn.up.right",
+                icon: "arrow.triangle.swap",
                 title: "No Redirect Rules",
-                message: "Configure URL redirection rules to permanently (301) or temporarily (302) redirect incoming visitors.",
-                actionTitle: "Create Redirect Rule",
-                action: { showingAddSheet = true }
+                message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge."
             )
         } else {
             List {
-                Section(header: Text("Configured Redirects (\(rules.count))")) {
-                    ForEach(rules) { rule in
-                        VStack(alignment: .leading, spacing: 6) {
+                Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
+                    ForEach(viewModel.rules) { rule in
+                        VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text(rule.description ?? "Redirect Rule")
-                                    .font(.body)
+                                Text(rule.description ?? "Untitled Rule")
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 
                                 Spacer()
                                 
+                                let isEnabled = rule.enabled ?? true
+                                Text(isEnabled ? "Active" : "Disabled")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
+                                    .foregroundStyle(isEnabled ? .green : .secondary)
+                                    .cornerRadius(4)
+                            }
+                            
+                            HStack(spacing: 6) {
                                 if let status = rule.statusCode {
                                     Text("\(status)")
-                                        .font(.caption)
+                                        .font(.caption.monospacedDigit().weight(.bold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
                                         .cornerRadius(4)
                                 }
-                            }
-                            
-                            if let expr = rule.expression {
-                                Text(expr)
-                                    .font(.caption.monospacedDigit())
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                            
-                            if let target = rule.targetUrl {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "arrow.right")
-                                        .font(.caption2)
-                                        .foregroundStyle(.blue)
-                                    Text(target)
-                                        .font(.caption.monospacedDigit())
-                                        .foregroundStyle(.blue)
+                                
+                                if let url = rule.targetUrl {
+                                    Text("➔ \(url)")
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                 }
                             }
+                            
+                            if let exp = rule.expression {
+                                Text(exp)
+                                    .font(.caption2.monospaced())
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, 4)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -140,29 +137,18 @@ struct RedirectRulesView: View {
             .listStyle(.insetGrouped)
         }
     }
-    
-    private func fetchRules() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.rules = try await CloudflareAPIClient.shared.getRedirectRules(zoneId: zoneId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
-        isLoading = false
-    }
 }
 
 struct AddRedirectRuleSheetView: View {
     let zoneId: String
-    let onCreated: () -> Void
+    @ObservedObject var viewModel: RedirectRulesViewModel
     @Environment(\.dismiss) private var dismiss
     
     @State private var ruleDescription = ""
     @State private var expression = "http.request.uri.path eq \"/old-path\""
     @State private var targetUrl = "https://example.com/new-path"
     @State private var statusCode = 301
+    @State private var preserveQueryString = false
     @State private var isCreating = false
     @State private var errorMessage: String?
     
@@ -193,6 +179,8 @@ struct AddRedirectRuleSheetView: View {
                         Text("307 - Temporary Redirect").tag(307)
                         Text("308 - Permanent Redirect").tag(308)
                     }
+                    
+                    Toggle("Preserve Query String", isOn: $preserveQueryString)
                 }
                 
                 if let err = errorMessage {
@@ -214,19 +202,15 @@ struct AddRedirectRuleSheetView: View {
                         Task {
                             isCreating = true
                             errorMessage = nil
-                            do {
-                                try await CloudflareAPIClient.shared.createRedirectRule(
-                                    zoneId: zoneId,
-                                    description: ruleDescription.trimmingCharacters(in: .whitespaces),
-                                    expression: expression.trimmingCharacters(in: .whitespaces),
-                                    targetUrl: targetUrl.trimmingCharacters(in: .whitespaces),
-                                    statusCode: statusCode
-                                )
-                                ToastManager.shared.showSuccess("Redirect Rule", message: "Rule created successfully")
-                                onCreated()
+                            let success = await viewModel.createRule(
+                                zoneId: zoneId,
+                                description: ruleDescription,
+                                expression: expression,
+                                targetUrl: targetUrl,
+                                statusCode: statusCode
+                            )
+                            if success {
                                 dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
                             }
                             isCreating = false
                         }

@@ -130,18 +130,61 @@ struct R2CreateBucketSheetView: View {
         ("apac", "Asia-Pacific")
     ]
     
+    private var normalizedBucketName: String {
+        bucketName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+    
+    private var isValidBucketName: Bool {
+        let name = normalizedBucketName
+        guard name.count >= 3 && name.count <= 63 else { return false }
+        let pattern = "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$"
+        return name.range(of: pattern, options: .regularExpression) != nil
+    }
+    
+    private var validationHint: String? {
+        let name = normalizedBucketName
+        if name.isEmpty {
+            return nil
+        }
+        if name.count < 3 {
+            return "Bucket name must be at least 3 characters long."
+        }
+        if name.count > 63 {
+            return "Bucket name cannot exceed 63 characters."
+        }
+        let pattern = "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+        if name.range(of: pattern, options: .regularExpression) == nil {
+            return "Only lowercase letters, numbers, and hyphens (-) allowed. Cannot start or end with a hyphen."
+        }
+        return nil
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Bucket Information")) {
-                    TextField("Bucket Name", text: $bucketName)
+                Section(header: Text("Bucket Information"), footer: Text("3-63 characters, lowercase letters, numbers, and hyphens only.")) {
+                    TextField("my-bucket-name", text: $bucketName)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .onChange(of: bucketName) { newValue in
+                            let lower = newValue.lowercased().filter { $0.isLetter || $0.isNumber || $0 == "-" }
+                            if lower != newValue {
+                                bucketName = lower
+                            }
+                        }
                     
                     Picker("Location Hint", selection: $selectedLocation) {
                         ForEach(locations, id: \.0) { loc in
                             Text(loc.1).tag(loc.0)
                         }
+                    }
+                }
+                
+                if let hint = validationHint {
+                    Section {
+                        Label(hint, systemImage: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
                     }
                 }
                 
@@ -166,7 +209,7 @@ struct R2CreateBucketSheetView: View {
                             errorMessage = nil
                             do {
                                 let locHint = selectedLocation == "auto" ? nil : selectedLocation
-                                try await viewModel.createBucket(name: bucketName.trimmingCharacters(in: .whitespaces), locationHint: locHint)
+                                try await viewModel.createBucket(name: normalizedBucketName, locationHint: locHint)
                                 ToastManager.shared.showSuccess("R2 Storage", message: "Bucket created successfully")
                                 dismiss()
                             } catch {
@@ -175,7 +218,7 @@ struct R2CreateBucketSheetView: View {
                             isCreating = false
                         }
                     }
-                    .disabled(bucketName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .disabled(!isValidBucketName || isCreating)
                 }
             }
             .toastContainer()

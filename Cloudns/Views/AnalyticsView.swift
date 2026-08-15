@@ -104,14 +104,7 @@ struct AnalyticsView: View {
     }
     
     private func dateFromString(_ dateString: String) -> Date {
-        if dateString.contains("T") {
-            let formatter = ISO8601DateFormatter()
-            return formatter.date(from: dateString) ?? Date()
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            return formatter.date(from: dateString) ?? Date()
-        }
+        DateFormatters.parseChartDate(dateString)
     }
     
     @ViewBuilder

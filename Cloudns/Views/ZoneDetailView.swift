@@ -517,6 +517,7 @@ struct ZoneNavRow<Destination: View>: View {
                     .frame(width: 32, height: 32)
                     .background(color.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -567,6 +568,7 @@ struct FeatureRowContent: View {
                 Image(systemName: icon)
                     .foregroundStyle(color)
                     .font(.body)
+                    .accessibilityHidden(true)
             }
             .frame(width: 32, height: 32)
             .cornerRadius(8)
@@ -580,6 +582,7 @@ struct FeatureRowContent: View {
             Image(systemName: "chevron.right")
                 .font(.body)
                 .foregroundStyle(Color(UIColor.tertiaryLabel))
+                .accessibilityHidden(true)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)

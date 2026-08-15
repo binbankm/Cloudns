@@ -2,10 +2,7 @@ import SwiftUI
 
 struct SnippetsListView: View {
     let zoneId: String
-    @State private var snippets: [SnippetItem] = []
-    @State private var isLoading = false
-    @State private var hasFetchedData = false
-    @State private var errorMessage: String?
+    @StateObject private var viewModel = SnippetsViewModel()
     @State private var showingEditorSheet = false
     @State private var editingSnippet: SnippetItem? = nil
     @State private var snippetToDelete: SnippetItem? = nil
@@ -31,35 +28,26 @@ struct SnippetsListView: View {
             }
         }
         .sheet(isPresented: $showingEditorSheet) {
-            SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet) {
-                Task { await fetchSnippets() }
-            }
+            SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
         }
         .alert("Delete Snippet", isPresented: $showingDeleteAlert, presenting: snippetToDelete) { snip in
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
-                    do {
-                        try await CloudflareAPIClient.shared.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
-                        ToastManager.shared.showSuccess("Snippet Deleted", message: snip.snippet_name)
-                        await fetchSnippets()
-                    } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                    }
+                    await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
                 }
             }
         } message: { snip in
             Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
         }
         .refreshable {
-            await fetchSnippets()
+            await viewModel.fetchSnippets(zoneId: zoneId)
         }
         .task {
-            if !hasFetchedData {
-                await fetchSnippets()
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchSnippets(zoneId: zoneId)
             }
         }
-        .toastContainer()
     }
     
     @ViewBuilder
@@ -67,44 +55,46 @@ struct SnippetsListView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
 
-            if isLoading && !hasFetchedData {
+            if viewModel.isLoading && !viewModel.hasFetchedData {
                 List {
-                    ForEach(0..<4, id: \.self) { _ in
+                    ForEach(0..<6, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
                 .listStyle(.insetGrouped)
-            } else if let err = errorMessage, !hasFetchedData {
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
                 EmptyStateView.error(
-                    message: LocalizedStringKey(err),
-                    retryAction: { Task { await fetchSnippets() } }
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task {
+                            await viewModel.fetchSnippets(zoneId: zoneId)
+                        }
+                    }
                 )
-            } else if snippets.isEmpty {
+            } else if viewModel.snippets.isEmpty && viewModel.hasFetchedData {
                 EmptyStateView(
                     icon: "curlybraces",
-                    title: "No Snippets Found",
-                    message: "Cloudflare Snippets allow executing lightweight JavaScript logic on HTTP requests without full Workers.",
-                    actionTitle: "Create Snippet",
-                    action: {
-                        editingSnippet = nil
-                        showingEditorSheet = true
-                    }
+                    title: "No Edge Snippets",
+                    message: "Deploy lightweight JavaScript logic to the Cloudflare edge directly for this zone."
                 )
             } else {
                 List {
-                    Section(header: Text("Snippets (\(snippets.count))"), footer: Text("Snippets run micro JavaScript functions on HTTP requests with sub-millisecond execution time.")) {
-                        ForEach(snippets) { snip in
+                    Section(header: Text("Active Snippets (\(viewModel.snippets.count))")) {
+                        ForEach(viewModel.snippets) { snip in
                             Button {
                                 editingSnippet = snip
                                 showingEditorSheet = true
                             } label: {
                                 HStack(spacing: 14) {
-                                    Image(systemName: "curlybraces")
-                                        .font(.body)
-                                        .foregroundStyle(.orange)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color.orange.opacity(0.12))
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    ZStack {
+                                        Color.orange.opacity(0.12)
+                                        Image(systemName: "curlybraces")
+                                            .foregroundStyle(.orange)
+                                            .font(.body)
+                                            .accessibilityHidden(true)
+                                    }
+                                    .frame(width: 36, height: 36)
+                                    .cornerRadius(8)
 
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(snip.snippet_name)
@@ -123,6 +113,7 @@ struct SnippetsListView: View {
                                     Image(systemName: "chevron.right")
                                         .font(.caption)
                                         .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                        .accessibilityHidden(true)
                                 }
                                 .padding(.vertical, 3)
                             }
@@ -143,24 +134,12 @@ struct SnippetsListView: View {
             }
         }
     }
-    
-    private func fetchSnippets() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.snippets = try await CloudflareAPIClient.shared.getSnippets(zoneId: zoneId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
-        isLoading = false
-    }
 }
 
 struct SnippetEditorSheetView: View {
     let zoneId: String
     let existingSnippet: SnippetItem?
-    var onSaved: () -> Void
+    @ObservedObject var viewModel: SnippetsViewModel
     @Environment(\.dismiss) private var dismiss
     
     @State private var snippetName = ""
@@ -210,17 +189,13 @@ struct SnippetEditorSheetView: View {
                         Task {
                             isSaving = true
                             errorMessage = nil
-                            do {
-                                try await CloudflareAPIClient.shared.putSnippet(
-                                    zoneId: zoneId,
-                                    name: snippetName.trimmingCharacters(in: .whitespaces),
-                                    code: code
-                                )
-                                ToastManager.shared.showSuccess("Snippet", message: "Snippet saved successfully")
-                                onSaved()
+                            let success = await viewModel.saveSnippet(
+                                zoneId: zoneId,
+                                name: snippetName,
+                                code: code
+                            )
+                            if success {
                                 dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
                             }
                             isSaving = false
                         }
@@ -231,7 +206,7 @@ struct SnippetEditorSheetView: View {
             .task {
                 if let ex = existingSnippet {
                     snippetName = ex.snippet_name
-                    if let fetched = try? await CloudflareAPIClient.shared.getSnippetContent(zoneId: zoneId, name: ex.snippet_name), !fetched.isEmpty {
+                    if let fetched = await viewModel.loadSnippetContent(zoneId: zoneId, name: ex.snippet_name), !fetched.isEmpty {
                         code = fetched
                     }
                 }

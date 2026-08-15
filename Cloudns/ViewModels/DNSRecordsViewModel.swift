@@ -94,6 +94,24 @@ class DNSRecordsViewModel: ObservableObject {
     
 
     
+    func deleteRecords(withIds ids: Set<String>) {
+        guard !ids.isEmpty else { return }
+        let impact = UINotificationFeedbackGenerator()
+        impact.notificationOccurred(.warning)
+        
+        records.removeAll { ids.contains($0.id) }
+        totalCount = max(0, totalCount - ids.count)
+        
+        Task {
+            do {
+                try await CloudflareAPIClient.shared.batchDNSRecords(zoneId: zoneId, deletes: Array(ids))
+            } catch {
+                self.errorMessage = "Failed to batch delete records: \(error.localizedDescription)"
+                await self.fetchRecords(isRefresh: true)
+            }
+        }
+    }
+    
     func deleteRecord(at offsets: IndexSet) {
         let recordsToDelete = offsets.map { records[$0] }
         

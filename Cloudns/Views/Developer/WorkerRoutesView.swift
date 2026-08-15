@@ -163,18 +163,118 @@ struct WorkerAttachDomainSheetView: View {
     let onAttached: () -> Void
     @Environment(\.dismiss) private var dismiss
     
-    @State private var hostname = ""
+    @State private var availableZones: [Zone] = []
+    @State private var selectedZoneId: String = ""
+    @State private var subdomainPrefix = "api"
+    @State private var isCustomMode = false
+    @State private var manualHostname = ""
+    
+    @State private var isLoadingZones = false
     @State private var isAttaching = false
     @State private var errorMessage: String?
+    
+    private var selectedZone: Zone? {
+        availableZones.first(where: { $0.id == selectedZoneId })
+    }
+    
+    private var computedHostname: String {
+        if isCustomMode {
+            return manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        }
+        guard let zone = selectedZone else { return "" }
+        let prefix = subdomainPrefix.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if prefix.isEmpty || prefix == "@" {
+            return zone.name
+        } else {
+            return "\(prefix).\(zone.name)"
+        }
+    }
+    
+    private var computedZoneId: String {
+        if isCustomMode {
+            return ""
+        }
+        return selectedZoneId
+    }
+    
+    private var isValidInput: Bool {
+        if isCustomMode {
+            return !manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return !selectedZoneId.isEmpty && !computedHostname.isEmpty
+    }
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Custom Domain Hostname"), footer: Text("Enter a domain or subdomain owned by your account (e.g. api.example.com).")) {
-                    TextField("api.example.com", text: $hostname)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.URL)
+                if !availableZones.isEmpty {
+                    Section(header: Text("Configuration Mode")) {
+                        Picker("Mode", selection: $isCustomMode) {
+                            Text("Select from My Domains").tag(false)
+                            Text("Manual Entry").tag(true)
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                }
+                
+                if !isCustomMode {
+                    Section(header: Text("Managed Domain (Zone)")) {
+                        if isLoadingZones {
+                            HStack {
+                                ProgressView()
+                                    .padding(.trailing, 4)
+                                Text("Loading domains...")
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else if availableZones.isEmpty {
+                            Text("No managed domains found.")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Picker("Domain", selection: $selectedZoneId) {
+                                ForEach(availableZones) { zone in
+                                    Text(zone.name).tag(zone.id)
+                                }
+                            }
+                        }
+                    }
+                    
+                    if !availableZones.isEmpty {
+                        Section(
+                            header: Text("Subdomain Prefix"),
+                            footer: Text("Enter a subdomain prefix (e.g. 'api' for api.\(selectedZone?.name ?? "example.com")) or leave blank / enter '@' for apex domain.")
+                        ) {
+                            HStack {
+                                TextField("api", text: $subdomainPrefix)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                                
+                                if let zone = selectedZone {
+                                    Text(".\(zone.name)")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        
+                        Section(header: Text("Target Custom Domain")) {
+                            HStack {
+                                Image(systemName: "link")
+                                    .foregroundStyle(.orange)
+                                Text(computedHostname)
+                                    .font(.body.monospaced())
+                                    .foregroundStyle(.primary)
+                            }
+                        }
+                    }
+                } else {
+                    Section(
+                        header: Text("Custom Domain Hostname"),
+                        footer: Text("Enter a domain or subdomain owned by your account (e.g. api.example.com).")
+                    ) {
+                        TextField("api.example.com", text: $manualHostname)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .keyboardType(.URL)
+                    }
                 }
                 
                 if let err = errorMessage {
@@ -197,14 +297,13 @@ struct WorkerAttachDomainSheetView: View {
                             isAttaching = true
                             errorMessage = nil
                             do {
-                                // For zoneId, pass empty or auto
                                 try await CloudflareAPIClient.shared.attachWorkerDomain(
                                     accountId: accountId,
-                                    hostname: hostname.trimmingCharacters(in: .whitespaces),
-                                    zoneId: "",
+                                    hostname: computedHostname,
+                                    zoneId: computedZoneId,
                                     service: scriptName
                                 )
-                                ToastManager.shared.showSuccess("Custom Domain", message: "Domain attached successfully")
+                                ToastManager.shared.showSuccess("Custom Domain", message: "Attached \(computedHostname)")
                                 onAttached()
                                 dismiss()
                             } catch {
@@ -213,8 +312,20 @@ struct WorkerAttachDomainSheetView: View {
                             isAttaching = false
                         }
                     }
-                    .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || isAttaching)
+                    .disabled(!isValidInput || isAttaching)
                 }
+            }
+            .task {
+                isLoadingZones = true
+                if let (zones, _) = try? await CloudflareAPIClient.shared.getZones(), !zones.isEmpty {
+                    self.availableZones = zones
+                    if self.selectedZoneId.isEmpty, let first = zones.first {
+                        self.selectedZoneId = first.id
+                    }
+                } else {
+                    self.isCustomMode = true
+                }
+                isLoadingZones = false
             }
             .toastContainer()
         }

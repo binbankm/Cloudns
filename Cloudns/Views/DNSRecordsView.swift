@@ -42,10 +42,7 @@ struct DNSRecordsView: View {
             ToolbarItem(placement: .bottomBar) {
                 if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
                     Button(role: .destructive) {
-                        let indicesToDelete = viewModel.records.enumerated().compactMap { (index, record) in
-                            multiSelection.contains(record.id) ? index : nil
-                        }
-                        viewModel.deleteRecord(at: IndexSet(indicesToDelete))
+                        viewModel.deleteRecords(withIds: multiSelection)
                         multiSelection.removeAll()
                         editMode?.wrappedValue = .inactive
                     } label: {
