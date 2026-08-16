@@ -10,58 +10,40 @@ struct AuditLogsView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Audit Logs")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Actions or Users")
-            .refreshable {
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section {
+                        ForEach(AuditLog.placeholders) { log in
+                            AuditLogRowView(log: log)
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
+                .listStyle(.insetGrouped)
+                .navigationTitle("Audit Logs")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("Audit Logs")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search Actions or Users")
+                    .refreshable {
+                        await viewModel.fetchLogs()
+                    }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchLogs()
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchLogs()
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchLogs() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.logs.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "list.clipboard.fill",
-                        title: "No Audit Logs",
-                        message: "No recent account audit logs or modification records found.",
-                        actionTitle: nil,
-                        action: nil
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredLogs.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredLogs.isEmpty {
                 Section {
                     ForEach(viewModel.filteredLogs) { log in
                         AuditLogRowView(log: log)
@@ -70,6 +52,31 @@ struct AuditLogsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchLogs() } }
+                        )
+                    )
+                } else if viewModel.logs.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "list.clipboard.fill",
+                            title: "No Audit Logs",
+                            message: "No recent account audit logs or modification records found."
+                        )
+                    )
+                } else if viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
+        }
     }
 }
 
@@ -92,7 +99,7 @@ struct AuditLogRowView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background((res ? Color.green : Color.red).opacity(0.12))
-                        .cornerRadius(4)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
             }
             

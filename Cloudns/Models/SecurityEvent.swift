@@ -36,4 +36,32 @@ struct SecurityEvent: Codable, Identifiable {
         case host = "clientRequestHTTPHost"
         case ruleId
     }
+    
+    init(
+        action: String = "block",
+        clientIP: String = "192.0.2.1",
+        clientCountryName: String = "US",
+        clientAsn: String? = "13335",
+        datetime: String = "2024-01-01T00:00:00Z",
+        source: String = "firewallrules",
+        edgeResponseStatus: Int? = 403,
+        host: String = "example.com",
+        ruleId: String = "rule_placeholder"
+    ) {
+        self.action = action
+        self.clientIP = clientIP
+        self.clientCountryName = clientCountryName
+        self.clientAsn = clientAsn
+        self.datetime = datetime
+        self.source = source
+        self.edgeResponseStatus = edgeResponseStatus
+        self.host = host
+        self.ruleId = ruleId
+    }
+    
+    static let placeholders: [SecurityEvent] = [
+        SecurityEvent(action: "block", clientIP: "198.51.100.4", clientCountryName: "US", ruleId: "1"),
+        SecurityEvent(action: "managed_challenge", clientIP: "203.0.113.19", clientCountryName: "DE", ruleId: "2"),
+        SecurityEvent(action: "js_challenge", clientIP: "192.0.2.88", clientCountryName: "JP", ruleId: "3")
+    ]
 }

@@ -50,6 +50,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipv6 },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateIPv6(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -66,6 +67,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.websockets },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateWebsockets(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -82,6 +84,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http2 },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateHTTP2(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -98,6 +101,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http3 },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateHTTP3(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -123,6 +127,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipGeolocation },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -140,8 +145,7 @@ struct NetworkCenterView: View {
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-        .disabled(!viewModel.hasFetchedData || viewModel.isLoading)
+        .skeletonLoading(!viewModel.hasFetchedData)
         .navigationTitle("Network")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -149,5 +153,6 @@ struct NetworkCenterView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
+        .toastContainer()
     }
 }

@@ -70,7 +70,7 @@ struct AddEmailRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .cornerRadius(10)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             )

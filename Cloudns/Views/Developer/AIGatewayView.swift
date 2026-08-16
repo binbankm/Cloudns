@@ -13,125 +13,76 @@ struct AIGatewayView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("AI Gateway")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Gateways")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingCreateSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("创建 AI 网关")
-                }
-            }
-            .sheet(isPresented: $showingCreateSheet) {
-                AIGatewayCreateSheetView(viewModel: viewModel)
-            }
-            .alert("Delete AI Gateway", isPresented: $showingDeleteAlert, presenting: gatewayToDelete) { gw in
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task {
-                        do {
-                            try await viewModel.deleteGateway(id: gw.id)
-                            ToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
-                        } catch {
-                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section {
+                        ForEach(AIGateway.placeholders) { gw in
+                            gatewayRow(gw)
                         }
                     }
+                    .skeletonLoading(true)
                 }
-            } message: { gw in
-                Text("Are you sure you want to delete AI Gateway '\(gw.name ?? gw.id)'? Real-time logs and cached request data will be deleted.")
+                .listStyle(.insetGrouped)
+                .navigationTitle("AI Gateway")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("AI Gateway")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search Gateways")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showingCreateSheet = true
+                            } label: {
+                                Image(systemName: "plus")
+                            }
+                            .accessibilityLabel("Create AI Gateway")
+                        }
+                    }
+                    .sheet(isPresented: $showingCreateSheet) {
+                        AIGatewayCreateSheetView(viewModel: viewModel)
+                    }
+                    .alert("Delete AI Gateway", isPresented: $showingDeleteAlert, presenting: gatewayToDelete) { gw in
+                        Button("Cancel", role: .cancel) {}
+                        Button("Delete", role: .destructive) {
+                            Task {
+                                do {
+                                    try await viewModel.deleteGateway(id: gw.id)
+                                    ToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
+                                } catch {
+                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                }
+                            }
+                        }
+                    } message: { gw in
+                        Text("Are you sure you want to delete AI Gateway '\(gw.name ?? gw.id)'? Real-time logs and cached request data will be deleted.")
+                    }
+                    .refreshable {
+                        await viewModel.fetchGateways()
+                    }
             }
-            .refreshable {
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchGateways()
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchGateways()
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchGateways() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.gateways.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "brain.head.profile",
-                        title: "No AI Gateways",
-                        message: "Create an AI Gateway to observe, cache, and manage your AI API traffic.",
-                        actionTitle: "Create Gateway",
-                        action: { showingCreateSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredGateways.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
                     ForEach(viewModel.filteredGateways) { gw in
                         NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
-                            HStack(alignment: .center, spacing: 14) {
-                                Image(systemName: "brain.head.profile")
-                                    .font(.body)
-                                    .foregroundStyle(.pink)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.pink.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(gw.id)
-                                        .font(.body.monospacedDigit())
-                                        .foregroundStyle(.primary)
-
-                                    HStack(spacing: 8) {
-                                        if gw.collectLogs == true {
-                                            Label("Logs Active", systemImage: "checkmark.circle.fill")
-                                                .font(.caption2)
-                                                .foregroundStyle(.green)
-                                        }
-
-                                        if let created = gw.createdOn {
-                                            Text("Created: \(String(created.prefix(10)))")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                }
-
-                                Spacer()
-                            }
-                            .padding(.vertical, 3)
+                            gatewayRow(gw)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
+                                HapticManager.impact(.medium)
                                 gatewayToDelete = gw
                                 showingDeleteAlert = true
                             } label: {
@@ -143,6 +94,71 @@ struct AIGatewayView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchGateways() }
+                            }
+                        )
+                    )
+                } else if viewModel.gateways.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "brain.head.profile",
+                            title: "No AI Gateways",
+                            message: "Create an AI Gateway to observe, cache, and manage your AI API traffic.",
+                            actionTitle: "Create Gateway",
+                            action: { showingCreateSheet = true }
+                        )
+                    )
+                } else if viewModel.filteredGateways.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private func gatewayRow(_ gw: AIGateway) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "brain.head.profile")
+                .font(.body)
+                .foregroundStyle(.pink)
+                .frame(width: 32, height: 32)
+                .background(Color.pink.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(gw.id)
+                    .font(.body.monospacedDigit())
+                    .foregroundStyle(.primary)
+
+                HStack(spacing: 8) {
+                    if gw.collectLogs == true {
+                        Label("Logs Active", systemImage: "checkmark.circle.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                    }
+
+                    if let created = gw.createdOn {
+                        Text("Created: \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 3)
     }
 }
 

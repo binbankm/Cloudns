@@ -11,71 +11,51 @@ struct TunnelsListView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Cloudflare Tunnels")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Tunnels")
-            .refreshable {
+        Group {
+            if !viewModel.hasFetchedData {
+                // Skeleton phase — no .searchable, prevents overlap
+                List {
+                    Section {
+                        ForEach(CFTunnel.placeholders) { tunnel in
+                            TunnelRowView(tunnel: tunnel)
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
+                .listStyle(.insetGrouped)
+                .navigationTitle("Cloudflare Tunnels")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                // Data-ready phase — .searchable safely attached
+                contentView
+                    .navigationTitle("Cloudflare Tunnels")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search Tunnels")
+                    .refreshable { await viewModel.fetchTunnels() }
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showingCreateTunnelSheet = true
+                            } label: { Image(systemName: "plus") }
+                            .accessibilityLabel("Create Tunnel")
+                        }
+                    }
+                    .sheet(isPresented: $showingCreateTunnelSheet) {
+                        CreateTunnelSheetView(viewModel: viewModel)
+                    }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchTunnels()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingCreateTunnelSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("创建隧道")
-                }
-            }
-            .sheet(isPresented: $showingCreateTunnelSheet) {
-                CreateTunnelSheetView(viewModel: viewModel)
-            }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchTunnels()
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchTunnels() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.tunnels.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "network.badge.shield.half.filled",
-                        title: "No Tunnels Configured",
-                        message: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
-                        actionTitle: "Create Tunnel",
-                        action: { showingCreateTunnelSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredTunnels.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredTunnels.isEmpty {
                 Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in
                         NavigationLink {
@@ -88,6 +68,37 @@ struct TunnelsListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchTunnels() }
+                            }
+                        )
+                    )
+                } else if viewModel.tunnels.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "network.badge.shield.half.filled",
+                            title: "No Tunnels Configured",
+                            message: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
+                            actionTitle: "Create Tunnel",
+                            action: { showingCreateTunnelSheet = true }
+                        )
+                    )
+                } else if viewModel.filteredTunnels.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -106,6 +117,7 @@ struct TunnelRowView: View {
                 .frame(width: 32, height: 32)
                 .background((isHealthy ? Color.green : Color.red).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
@@ -119,7 +131,7 @@ struct TunnelRowView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background((isHealthy ? Color.green : Color.red).opacity(0.12))
-                        .cornerRadius(4)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
                 
                 Text(tunnel.id)
@@ -136,10 +148,11 @@ struct TunnelRowView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 4)
         .contextMenu {
             Button {
                 UIPasteboard.general.string = tunnel.id
+                HapticManager.impact(.light)
                 ToastManager.shared.showCopied("Tunnel ID copied")
             } label: {
                 Label("Copy Tunnel UUID", systemImage: "doc.on.doc")

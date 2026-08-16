@@ -15,44 +15,33 @@ struct EmailRoutingView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchData()
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
-                Section(header: Text("Status")) {
-                    HStack {
-                        Text("Email Routing")
-                        Spacer()
-                        if let settings = viewModel.settings {
-                            if settings.isEnabled {
-                                Text("Enabled")
-                                    .foregroundStyle(.green)
-                            } else {
-                                Text("Disabled")
-                                    .foregroundStyle(.secondary)
-                            }
+            Section(header: Text("Status")) {
+                HStack {
+                    Text("Email Routing")
+                    Spacer()
+                    if let settings = viewModel.settings {
+                        if settings.isEnabled {
+                            Text("Enabled")
+                                .foregroundStyle(.green)
                         } else {
-                            Text("Unknown")
+                            Text("Disabled")
                                 .foregroundStyle(.secondary)
                         }
+                    } else {
+                        Text("Unknown")
+                            .foregroundStyle(.secondary)
                     }
                 }
-                
+            }
+            
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Routing Rules")) {
+                    ForEach(EmailRoutingRule.placeholders) { rule in
+                        ruleRow(rule)
+                    }
+                }
+                .skeletonLoading(true)
+            } else {
                 Section(
                     header: HStack {
                         Text("Routing Rules")
@@ -63,6 +52,7 @@ struct EmailRoutingView: View {
                             Image(systemName: "plus")
                                 .font(.caption.bold())
                         }
+                        .accessibilityLabel("Add Email Rule")
                     }
                 ) {
                     if viewModel.rules.isEmpty {
@@ -71,57 +61,17 @@ struct EmailRoutingView: View {
                             .padding(.vertical, 4)
                     } else {
                         ForEach(viewModel.rules) { rule in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    if let match = rule.matchAddress {
-                                        Text(match)
-                                            .font(.body)
-                                    } else if rule.isCatchAll {
-                                        Text("Catch-all")
-                                            .font(.body)
-                                    } else {
-                                        Text(rule.name ?? "Rule")
-                                            .font(.body)
-                                    }
-                                    Spacer()
-                                    if rule.isEnabled {
-                                        Text("Active")
-                                            .font(.caption2)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.green.opacity(0.2))
-                                            .foregroundStyle(.green)
-                                            .clipShape(Capsule())
-                                    } else {
-                                        Text("Disabled")
-                                            .font(.caption2)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.gray.opacity(0.2))
-                                            .foregroundStyle(.secondary)
-                                            .clipShape(Capsule())
+                            ruleRow(rule)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task {
+                                            await viewModel.deleteRule(ruleId: rule.id)
+                                        }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                
-                                HStack {
-                                    Image(systemName: "arrow.turn.down.right")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                    Text(rule.actionSummary)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deleteRule(ruleId: rule.id)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
                         }
                     }
                 }
@@ -139,6 +89,7 @@ struct EmailRoutingView: View {
                                 if dest.isVerified {
                                     Image(systemName: "checkmark.seal.fill")
                                         .foregroundStyle(.green)
+                                        .accessibilityHidden(true)
                                 } else {
                                     Text("Unverified")
                                         .font(.caption)
@@ -150,22 +101,78 @@ struct EmailRoutingView: View {
                 }
             }
         }
-        .listStyle(InsetGroupedListStyle())
+        .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchData() } }
+                        )
+                    )
+                }
+            }
+        }
         .navigationTitle("Email Routing")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddSheet) {
             AddEmailRuleView(viewModel: viewModel, zoneName: zoneName)
         }
         .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchData()
+            }
+        }
+        .refreshable {
             await viewModel.fetchData()
         }
-        .alert("Error", isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        ), actions: {
-            Button("OK", role: .cancel) { }
-        }, message: {
-            Text(viewModel.errorMessage ?? "Unknown error")
-        })
+    }
+    
+    @ViewBuilder
+    private func ruleRow(_ rule: EmailRoutingRule) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                if let match = rule.matchAddress {
+                    Text(match)
+                        .font(.body)
+                } else if rule.isCatchAll {
+                    Text("Catch-all")
+                        .font(.body)
+                } else {
+                    Text(rule.name ?? "Rule")
+                        .font(.body)
+                }
+                Spacer()
+                if rule.isEnabled {
+                    Text("Active")
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.2))
+                        .foregroundStyle(.green)
+                        .clipShape(Capsule())
+                } else {
+                    Text("Disabled")
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.gray.opacity(0.2))
+                        .foregroundStyle(.secondary)
+                        .clipShape(Capsule())
+                }
+            }
+            
+            HStack {
+                Image(systemName: "arrow.turn.down.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                Text(rule.actionSummary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }

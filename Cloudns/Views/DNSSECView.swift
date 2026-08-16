@@ -15,65 +15,23 @@ struct DNSSECView: View {
     var body: some View {
         List {
             if viewModel.isLoading && viewModel.dnssec == nil {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchDNSSEC() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
+                dnssecSections(DNSSEC.placeholder)
+                    .skeletonLoading(true)
             } else if let dnssec = viewModel.dnssec {
-                // Header Status Section
-                Section(footer: 
-                    Text("Protect your domain from DNS spoofing and cache poisoning by enabling DNSSEC and adding the DS record to your domain registrar.")
-                ) {
-                    HStack {
-                        Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 28))
-                            .foregroundStyle(statusColor(for: dnssec.status))
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("DNSSEC Status")
-                                .font(.body)
-                            Text(dnssec.status.capitalized)
-                                .font(.subheadline)
-                                .foregroundStyle(statusColor(for: dnssec.status))
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    
-                    Toggle(isOn: Binding(
-                        get: { dnssec.status == "active" || dnssec.status == "pending" },
-                        set: { _ in Task { await viewModel.toggleDNSSEC() } }
-                    )) {
-                        Text(dnssec.status == "active" ? "Enabled" : "Enable DNSSEC")
-                            .font(.body)
-                    }
-                }
-                
-                // DS Records Section (if active/pending)
-                if dnssec.status == "active" || dnssec.status == "pending" {
-                    Section(header: Text("DS Record (Registrar Configuration)")) {
-                        DetailRow(title: "DS Record", value: dnssec.ds)
-                        DetailRow(title: "Digest", value: dnssec.digest)
-                        DetailRow(title: "Digest Type", value: dnssec.digest_type)
-                        DetailRow(title: "Algorithm", value: dnssec.algorithm)
-                        DetailRow(title: "Key Tag", value: dnssec.key_tag.map(String.init))
-                        DetailRow(title: "Flags", value: dnssec.flags.map(String.init))
-                        DetailRow(title: "Public Key", value: dnssec.public_key, isLast: true)
-                    }
-                }
+                dnssecSections(dnssec)
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchDNSSEC() } }
+                    )
+                )
+            }
+        }
         .refreshable {
             await viewModel.fetchDNSSEC()
         }
@@ -81,6 +39,54 @@ struct DNSSECView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.fetchDNSSEC()
+        }
+    }
+    
+    @ViewBuilder
+    private func dnssecSections(_ dnssec: DNSSEC) -> some View {
+        // Header Status Section
+        Section(footer: 
+            Text("Protect your domain from DNS spoofing and cache poisoning by enabling DNSSEC and adding the DS record to your domain registrar.")
+        ) {
+            HStack {
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(statusColor(for: dnssec.status))
+                    .accessibilityHidden(true)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("DNSSEC Status")
+                        .font(.body)
+                    Text(dnssec.status.capitalized)
+                        .font(.subheadline)
+                        .foregroundStyle(statusColor(for: dnssec.status))
+                }
+            }
+            .padding(.vertical, 4)
+            
+            Toggle(isOn: Binding(
+                get: { dnssec.status == "active" || dnssec.status == "pending" },
+                set: { _ in
+                    HapticManager.impact(.light)
+                    Task { await viewModel.toggleDNSSEC() }
+                }
+            )) {
+                Text(dnssec.status == "active" ? "Enabled" : "Enable DNSSEC")
+                    .font(.body)
+            }
+        }
+        
+        // DS Records Section (if active/pending)
+        if dnssec.status == "active" || dnssec.status == "pending" {
+            Section(header: Text("DS Record (Registrar Configuration)")) {
+                DetailRow(title: "DS Record", value: dnssec.ds)
+                DetailRow(title: "Digest", value: dnssec.digest)
+                DetailRow(title: "Digest Type", value: dnssec.digest_type)
+                DetailRow(title: "Algorithm", value: dnssec.algorithm)
+                DetailRow(title: "Key Tag", value: dnssec.key_tag.map(String.init))
+                DetailRow(title: "Flags", value: dnssec.flags.map(String.init))
+                DetailRow(title: "Public Key", value: dnssec.public_key, isLast: true)
+            }
         }
     }
     
@@ -116,6 +122,7 @@ struct DetailRow: View {
                 
                 Button(action: {
                     UIPasteboard.general.string = validValue
+                    HapticManager.notification(.success)
                     let localizedTitle = NSLocalizedString(title, comment: "")
                     let copyFormat = NSLocalizedString("%@ copied", comment: "")
                     ToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
@@ -123,7 +130,7 @@ struct DetailRow: View {
                     Image(systemName: "doc.on.doc")
                         .foregroundStyle(.blue)
                 }
-                .accessibilityLabel("复制\(title)")
+                .accessibilityLabel("Copy \(title)")
             }
         }
     }

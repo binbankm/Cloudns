@@ -7,7 +7,7 @@ struct WorkersListView: View {
     @State private var showingCreatePagesSheet = false
     @State private var workerToDelete: WorkerScript? = nil
     @State private var showingDeleteWorkerAlert = false
-    @State private var projectToDelete: PagesProject? = nil
+    @State private var pagesProjectToDelete: PagesProject? = nil
     @State private var showingDeletePagesAlert = false
     
     init(accountId: String) {
@@ -15,75 +15,107 @@ struct WorkersListView: View {
         _viewModel = StateObject(wrappedValue: WorkersViewModel(accountId: accountId))
     }
     
-    var body: some View {
+    // Skeleton-only picker+list — no .searchable, prevents overlap
+    @ViewBuilder
+    private var skeletonContent: some View {
         VStack(spacing: 0) {
             Picker("Type", selection: $viewModel.selectedSegment) {
-                Text("Workers (\(viewModel.workers.count))").tag(0)
-                Text("Pages (\(viewModel.pages.count))").tag(1)
+                Text("Workers").tag(0)
+                Text("Pages").tag(1)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(UIColor.systemGroupedBackground))
-            
-            contentView
+            .background(Color(.systemGroupedBackground))
+            List {
+                Section {
+                    if viewModel.selectedSegment == 0 {
+                        ForEach(WorkerScript.placeholders) { worker in WorkerRowView(worker: worker) }
+                    } else {
+                        ForEach(PagesProject.placeholders) { page in pagesRow(page) }
+                    }
+                }
+                .skeletonLoading(true)
+            }
+            .listStyle(.insetGrouped)
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Workers & Pages")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    if viewModel.selectedSegment == 0 {
-                        showingCreateWorkerSheet = true
-                    } else {
-                        showingCreatePagesSheet = true
+    }
+
+    var body: some View {
+        Group {
+            if !viewModel.hasFetchedData {
+                skeletonContent
+            } else {
+                VStack(spacing: 0) {
+                    Picker("Type", selection: $viewModel.selectedSegment) {
+                        Text("Workers (\(viewModel.workers.count))").tag(0)
+                        Text("Pages (\(viewModel.pages.count))").tag(1)
                     }
-                } label: {
-                    Image(systemName: "plus")
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGroupedBackground))
+                    contentView
                 }
-                .accessibilityLabel("Create Worker or Project")
-            }
-        }
-        .sheet(isPresented: $showingCreateWorkerSheet) {
-            WorkerCreateSheetView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingCreatePagesSheet) {
-            PagesCreateProjectSheetView(viewModel: viewModel)
-        }
-        .alert("Delete Worker", isPresented: $showingDeleteWorkerAlert, presenting: workerToDelete) { worker in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    do {
-                        try await viewModel.deleteWorker(name: worker.id)
-                        ToastManager.shared.showSuccess("Worker Deleted", message: worker.id)
-                    } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                    }
-                }
-            }
-        } message: { worker in
-            Text("Are you sure you want to delete Worker '\(worker.id)'? All deployed routes and scripts will be permanently removed.")
-        }
-        .alert("Delete Pages Project", isPresented: $showingDeletePagesAlert, presenting: projectToDelete) { proj in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    do {
-                        try await viewModel.deletePagesProject(name: proj.name)
-                        ToastManager.shared.showSuccess("Pages Project Deleted", message: proj.name)
-                    } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                .background(Color(.systemGroupedBackground))
+                .navigationTitle("Workers & Pages")
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $viewModel.searchText, prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            if viewModel.selectedSegment == 0 {
+                                showingCreateWorkerSheet = true
+                            } else {
+                                showingCreatePagesSheet = true
+                            }
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .accessibilityLabel("Create Worker or Project")
                     }
                 }
+                .sheet(isPresented: $showingCreateWorkerSheet) {
+                    WorkerCreateSheetView(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showingCreatePagesSheet) {
+                    PagesCreateProjectSheetView(viewModel: viewModel)
+                }
+                .alert("Delete Worker", isPresented: $showingDeleteWorkerAlert, presenting: workerToDelete) { worker in
+                    Button("Cancel", role: .cancel) {}
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            do {
+                                try await viewModel.deleteWorker(name: worker.id)
+                                ToastManager.shared.showSuccess("Worker Deleted", message: "\(worker.id) removed.")
+                            } catch {
+                                ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
+                            }
+                        }
+                    }
+                } message: { worker in
+                    Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
+                }
+                .alert("Delete Pages Project", isPresented: $showingDeletePagesAlert, presenting: pagesProjectToDelete) { proj in
+                    Button("Cancel", role: .cancel) {}
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            do {
+                                try await viewModel.deletePagesProject(name: proj.name)
+                                ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(proj.name) removed.")
+                            } catch {
+                                ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
+                            }
+                        }
+                    }
+                } message: { proj in
+                    Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
+                }
+                .refreshable { await viewModel.fetchData() }
             }
-        } message: { proj in
-            Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
-        }
-        .refreshable {
-            await viewModel.fetchData()
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -95,42 +127,8 @@ struct WorkersListView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchData() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.selectedSegment == 0 {
-                if viewModel.workers.isEmpty {
-                    Section {
-                        EmptyStateView(
-                            icon: "bolt.badge.clock",
-                            title: "No Workers Found",
-                            message: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
-                            actionTitle: "Create Worker",
-                            action: { showingCreateWorkerSheet = true }
-                        )
-                    }
-                    .listRowBackground(Color.clear)
-                } else if viewModel.filteredWorkers.isEmpty {
-                    Section {
-                        EmptyStateView.search(query: viewModel.searchText) {
-                            viewModel.searchText = ""
-                        }
-                    }
-                    .listRowBackground(Color.clear)
-                } else {
+            if viewModel.selectedSegment == 0 {
+                if !viewModel.filteredWorkers.isEmpty {
                     Section {
                         ForEach(viewModel.filteredWorkers) { worker in
                             NavigationLink {
@@ -140,8 +138,7 @@ struct WorkersListView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
+                                    HapticManager.impact(.medium)
                                     workerToDelete = worker
                                     showingDeleteWorkerAlert = true
                                 } label: {
@@ -152,73 +149,18 @@ struct WorkersListView: View {
                     }
                 }
             } else {
-                if viewModel.pages.isEmpty {
-                    Section {
-                        EmptyStateView(
-                            icon: "doc.richtext",
-                            title: "No Pages Projects Found",
-                            message: "You haven't connected or deployed any Cloudflare Pages projects yet.",
-                            actionTitle: "Create Pages Project",
-                            action: { showingCreatePagesSheet = true }
-                        )
-                    }
-                    .listRowBackground(Color.clear)
-                } else if viewModel.filteredPages.isEmpty {
-                    Section {
-                        EmptyStateView.search(query: viewModel.searchText) {
-                            viewModel.searchText = ""
-                        }
-                    }
-                    .listRowBackground(Color.clear)
-                } else {
+                if !viewModel.filteredPages.isEmpty {
                     Section {
                         ForEach(viewModel.filteredPages) { page in
                             NavigationLink {
                                 PagesProjectDetailView(accountId: accountId, project: page)
                             } label: {
-                                HStack(alignment: .center, spacing: 14) {
-                                    Image(systemName: "doc.richtext.fill")
-                                        .font(.body)
-                                        .foregroundStyle(.blue)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color.blue.opacity(0.12))
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(page.name)
-                                            .font(.body)
-                                            .foregroundStyle(.primary)
-                                        
-                                        if let sub = page.subdomain {
-                                            Text(sub)
-                                                .font(.caption.monospacedDigit())
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    if let branch = page.productionBranch {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "arrow.triangle.branch")
-                                                .font(.caption2)
-                                            Text(branch)
-                                                .font(.caption2)
-                                        }
-                                        .foregroundStyle(.secondary)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 3)
-                                        .background(Color(UIColor.tertiarySystemGroupedBackground))
-                                        .cornerRadius(6)
-                                    }
-                                }
-                                .padding(.vertical, 2)
+                                pagesRow(page)
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    projectToDelete = page
+                                    HapticManager.impact(.medium)
+                                    pagesProjectToDelete = page
                                     showingDeletePagesAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
@@ -230,8 +172,102 @@ struct WorkersListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty && viewModel.pages.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchData() } }
+                        )
+                    )
+                } else if viewModel.selectedSegment == 0 {
+                    if viewModel.workers.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "bolt.badge.clock",
+                                title: "No Workers Found",
+                                message: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
+                                actionTitle: "Create Worker",
+                                action: { showingCreateWorkerSheet = true }
+                            )
+                        )
+                    } else if viewModel.filteredWorkers.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                } else {
+                    if viewModel.pages.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "doc.richtext",
+                                title: "No Pages Projects Found",
+                                message: "You haven't connected or deployed any Cloudflare Pages projects yet.",
+                                actionTitle: "Create Pages Project",
+                                action: { showingCreatePagesSheet = true }
+                            )
+                        )
+                    } else if viewModel.filteredPages.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func pagesRow(_ page: PagesProject) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "doc.richtext.fill")
+                .font(.body)
+                .foregroundStyle(.blue)
+                .frame(width: 32, height: 32)
+                .background(Color.blue.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(page.name)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                
+                if let sub = page.subdomain {
+                    Text(sub)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            if let branch = page.productionBranch {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.triangle.branch")
+                        .font(.caption2)
+                        .accessibilityHidden(true)
+                    Text(branch)
+                        .font(.caption)
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color(.tertiarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
+
+// MARK: - Subviews
 
 struct WorkerRowView: View {
     let worker: WorkerScript
@@ -244,28 +280,43 @@ struct WorkerRowView: View {
                 .frame(width: 32, height: 32)
                 .background(Color.orange.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)
-                    .font(.body)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let mod = worker.modifiedOn {
-                    Text("Modified: \(String(mod.prefix(10)))")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    if let mod = worker.modifiedOn {
+                        Text("Modified: \(DateFormatters.formatISO8601ToDisplay(mod, style: DateFormatters.dateOnly))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let routes = worker.routes, !routes.isEmpty {
+                        Text("·")
+                            .foregroundStyle(.secondary)
+                        Text("\(routes.count) Route\(routes.count == 1 ? "" : "s")")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             
             Spacer()
             
-            if let routes = worker.routes, !routes.isEmpty {
-                Text("\(routes.count) Route(s)")
-                    .font(.caption)
+            if let usage = worker.usageModel {
+                Text(usage.capitalized)
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color(.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 }
 
@@ -273,95 +324,40 @@ struct WorkerCreateSheetView: View {
     @ObservedObject var viewModel: WorkersViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @State private var workerName = ""
-    @State private var selectedTemplateIndex = 0
-    @State private var scriptCode = """
+    @State private var scriptName: String = ""
+    @State private var code: String = """
     export default {
       async fetch(request, env, ctx) {
-        return new Response("Hello from Cloudflare Workers!");
-      }
+        return new Response("Hello Cloudflare Worker!");
+      },
     };
     """
     @State private var isCreating = false
     @State private var errorMessage: String?
     
-    let templates: [(String, String)] = [
-        ("Hello World", """
-        export default {
-          async fetch(request, env, ctx) {
-            return new Response("Hello from Cloudflare Workers!");
-          }
-        };
-        """),
-        ("JSON REST API", """
-        export default {
-          async fetch(request, env, ctx) {
-            const data = {
-              status: "ok",
-              timestamp: new Date().toISOString(),
-              ip: request.headers.get("cf-connecting-ip") || "127.0.0.1"
-            };
-            return new Response(JSON.stringify(data, null, 2), {
-              headers: { "content-type": "application/json" }
-            });
-          }
-        };
-        """),
-        ("Reverse Proxy", """
-        export default {
-          async fetch(request, env, ctx) {
-            const targetUrl = new URL(request.url);
-            targetUrl.hostname = "example.com";
-            
-            const newRequest = new Request(targetUrl.toString(), request);
-            return fetch(newRequest);
-          }
-        };
-        """),
-        ("URL Redirect", """
-        export default {
-          async fetch(request, env, ctx) {
-            return Response.redirect("https://cloudflare.com", 301);
-          }
-        };
-        """)
-    ]
-    
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Worker Name"), footer: Text("Name can contain lowercase letters, numbers, and dashes.")) {
-                    TextField("my-worker", text: $workerName)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                Section(header: Text("Worker Information")) {
+                    TextField("Worker Name (e.g. api-service)", text: $scriptName)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
                 
-                Section(header: Text("Choose Template")) {
-                    Picker("Template", selection: $selectedTemplateIndex) {
-                        ForEach(0..<templates.count, id: \.self) { idx in
-                            Text(templates[idx].0).tag(idx)
-                        }
-                    }
-                    .onChange(of: selectedTemplateIndex) { newIdx in
-                        scriptCode = templates[newIdx].1
-                    }
-                }
-                
-                Section(header: Text("Starter JavaScript Code")) {
-                    TextEditor(text: $scriptCode)
-                        .font(.body)
+                Section(header: Text("Initial Code (ES Module)")) {
+                    CodeEditorView(text: $code)
                         .frame(minHeight: 180)
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(err)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.red)
                     }
                 }
             }
-            .navigationTitle("New Worker")
+            .navigationTitle("Create Worker")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -373,11 +369,7 @@ struct WorkerCreateSheetView: View {
                             isCreating = true
                             errorMessage = nil
                             do {
-                                try await viewModel.createWorker(
-                                    name: workerName.trimmingCharacters(in: .whitespaces),
-                                    code: scriptCode
-                                )
-                                ToastManager.shared.showSuccess("Worker Deployed", message: workerName)
+                                try await viewModel.createWorker(name: scriptName.trimmingCharacters(in: .whitespacesAndNewlines), code: code)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -385,7 +377,7 @@ struct WorkerCreateSheetView: View {
                             isCreating = false
                         }
                     }
-                    .disabled(workerName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .disabled(scriptName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
             .toastContainer()
@@ -397,33 +389,33 @@ struct PagesCreateProjectSheetView: View {
     @ObservedObject var viewModel: WorkersViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @State private var projectName = ""
-    @State private var productionBranch = "main"
+    @State private var projectName: String = ""
+    @State private var prodBranch: String = "main"
     @State private var isCreating = false
     @State private var errorMessage: String?
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Project Information"), footer: Text("Pages projects deploy Jamstack frontend websites on Cloudflare edge.")) {
+                Section(header: Text("Project Information"), footer: Text("Projects created via API receive a direct-upload *.pages.dev deployment endpoint.")) {
                     TextField("Project Name", text: $projectName)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                     
-                    TextField("Production Branch", text: $productionBranch)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                    TextField("Production Branch", text: $prodBranch)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(err)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.red)
                     }
                 }
             }
-            .navigationTitle("New Pages Project")
+            .navigationTitle("Create Pages Project")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -436,10 +428,9 @@ struct PagesCreateProjectSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createPagesProject(
-                                    name: projectName.trimmingCharacters(in: .whitespaces),
-                                    branch: productionBranch.trimmingCharacters(in: .whitespaces)
+                                    name: projectName.trimmingCharacters(in: .whitespacesAndNewlines),
+                                    branch: prodBranch.trimmingCharacters(in: .whitespacesAndNewlines)
                                 )
-                                ToastManager.shared.showSuccess("Pages Project", message: "Project created successfully")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -447,7 +438,7 @@ struct PagesCreateProjectSheetView: View {
                             isCreating = false
                         }
                     }
-                    .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .disabled(projectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
             .toastContainer()

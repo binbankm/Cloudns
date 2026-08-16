@@ -6,7 +6,7 @@ struct DeveloperHubView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+                Color(.systemGroupedBackground).ignoresSafeArea()
                 
                 contentView
             }
@@ -24,13 +24,15 @@ struct DeveloperHubView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
+            // Header Account Card
+            Section {
+                accountHeaderCard
+                    .skeletonLoading(viewModel.isLoading && !viewModel.hasFetchedData)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    accountHeaderCard
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-                
                 ForEach(0..<4, id: \.self) { _ in
                     Section {
                         SkeletonRowView()
@@ -50,12 +52,6 @@ struct DeveloperHubView: View {
                 }
                 .listRowBackground(Color.clear)
             } else {
-                // Header Account Card
-                Section {
-                    accountHeaderCard
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
                 
                 // Section: Compute
                 Section(header: Text("Compute & Applications")) {
@@ -345,9 +341,9 @@ struct DeveloperHubView: View {
 struct DeveloperHubRow: View {
     let icon: String
     let iconColor: Color
-    let title: String
-    let subtitle: String
-    var badgeText: String? = nil
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    var badgeText: LocalizedStringKey? = nil
     var isStatusBadge: Bool = false
     var isHealthy: Bool = true
     
@@ -362,11 +358,11 @@ struct DeveloperHubRow: View {
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(title))
+                Text(title)
                     .font(.body)
                     .foregroundStyle(.primary)
                 
-                Text(LocalizedStringKey(subtitle))
+                Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -386,7 +382,7 @@ struct DeveloperHubRow: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background((isHealthy ? Color.green : Color.orange).opacity(0.12))
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
                     Text(badge)
                         .font(.caption)
@@ -394,7 +390,7 @@ struct DeveloperHubRow: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.gray.opacity(0.12))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }

@@ -14,46 +14,28 @@ struct EdgeCertificatesView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.certificates.isEmpty {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+            Section(
+                header: Text("Universal SSL"),
+                footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
+            ) {
+                Toggle("Enable Universal SSL", isOn: Binding(
+                    get: { viewModel.isUniversalSSLEnabled },
+                    set: { newValue in
+                        HapticManager.impact(.light)
+                        Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
+                    }
+                ))
+            }
+            
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Active Certificates")) {
+                    ForEach(displayCertificates) { cert in
+                        EdgeCertificateCardView(certificate: cert)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchCertificates(zoneId: zoneId)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "lock.shield",
-                        title: "No Edge Certificates",
-                        message: "No Edge Certificates found."
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
-                Section(
-                    header: Text("Universal SSL"),
-                    footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
-                ) {
-                    Toggle("Enable Universal SSL", isOn: Binding(
-                        get: { viewModel.isUniversalSSLEnabled },
-                        set: { newValue in
-                            Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
-                        }
-                    ))
-                }
-                
+                .skeletonLoading(true)
+            } else if !viewModel.certificates.isEmpty {
                 Section(header: Text("Active Certificates (\(displayCertificates.count))")) {
                     ForEach(displayCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
@@ -61,6 +43,7 @@ struct EdgeCertificatesView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 if cert.type.lowercased() != "universal" {
                                     Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
                                         Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -72,6 +55,28 @@ struct EdgeCertificatesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchCertificates(zoneId: zoneId) }
+                            }
+                        )
+                    )
+                } else if viewModel.certificates.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "lock.shield",
+                            title: "No Edge Certificates",
+                            message: "No Edge Certificates found."
+                        )
+                    )
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchCertificates(zoneId: zoneId)
         }
@@ -79,7 +84,7 @@ struct EdgeCertificatesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toastContainer()
         .task {
-            if viewModel.certificates.isEmpty {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchCertificates(zoneId: zoneId)
             }
         }
@@ -115,9 +120,10 @@ struct EdgeCertificateCardView: View {
                     Image(systemName: iconName)
                         .foregroundStyle(iconColor)
                         .font(.body)
+                        .accessibilityHidden(true)
                 }
                 .frame(width: 28, height: 28)
-                .cornerRadius(6)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Text(certificate.type.capitalized)
                     .font(.body)
@@ -131,7 +137,7 @@ struct EdgeCertificateCardView: View {
                     .padding(.vertical, 4)
                     .background(certificate.status == "active" ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
                     .foregroundStyle(certificate.status == "active" ? .green : .gray)
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             
             Divider()
@@ -185,8 +191,8 @@ struct EdgeCertificateCardView: View {
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
         .padding(.vertical, 4)
     }

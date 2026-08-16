@@ -51,6 +51,27 @@ struct EmailRoutingRule: Codable, Identifiable {
     }
     
     var isCatchAll: Bool { matchers.contains { $0.type == "all" } }
+    
+    static let placeholders: [EmailRoutingRule] = [
+        EmailRoutingRule(
+            id: "rule_1",
+            tag: "1",
+            name: "Contact Routing",
+            enabled: true,
+            priority: 0,
+            matchers: [EmailRoutingMatcher(type: "literal", field: "to", value: "contact@example.com")],
+            actions: [EmailRoutingAction(type: "forward", value: ["team@gmail.com"])]
+        ),
+        EmailRoutingRule(
+            id: "rule_2",
+            tag: "2",
+            name: "Support Desk",
+            enabled: true,
+            priority: 1,
+            matchers: [EmailRoutingMatcher(type: "literal", field: "to", value: "support@example.com")],
+            actions: [EmailRoutingAction(type: "forward", value: ["helpdesk@gmail.com"])]
+        )
+    ]
 }
 
 struct EmailRoutingRuleInput: Codable {

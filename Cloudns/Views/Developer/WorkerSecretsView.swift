@@ -16,192 +16,224 @@ struct WorkerSecretsView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Variables & Secrets")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Variables & Secrets")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add Variable or Secret")
-                }
-            }
-            .sheet(isPresented: $showingAddSheet) {
-                WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
-            }
-            .sheet(item: $variableToEdit) { v in
-                WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
-            }
-            .alert("Delete Item", isPresented: $showingDeleteAlert, presenting: itemToDelete) { item in
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task {
-                        do {
-                            if item.isSecret {
-                                try await viewModel.deleteSecret(name: item.name)
-                            } else {
-                                try await viewModel.deletePlainVariable(name: item.name)
-                            }
-                            ToastManager.shared.showSuccess("Deleted", message: item.name)
-                        } catch {
-                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section {
+                        ForEach(WorkerBinding.placeholders) { variable in
+                            variableRow(variable)
                         }
                     }
+                    .skeletonLoading(true)
                 }
-            } message: { item in
-                Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
+                .listStyle(.insetGrouped)
+                .navigationTitle("Variables & Secrets")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("Variables & Secrets")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search Variables & Secrets")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showingAddSheet = true
+                            } label: {
+                                Image(systemName: "plus")
+                            }
+                            .accessibilityLabel("Add Variable or Secret")
+                        }
+                    }
+                    .sheet(isPresented: $showingAddSheet) {
+                        WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
+                    }
+                    .sheet(item: $variableToEdit) { v in
+                        WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
+                    }
+                    .alert("Delete Item", isPresented: $showingDeleteAlert, presenting: itemToDelete) { item in
+                        Button("Cancel", role: .cancel) {}
+                        Button("Delete", role: .destructive) {
+                            Task {
+                                do {
+                                    if item.isSecret {
+                                        try await viewModel.deleteSecret(name: item.name)
+                                    } else {
+                                        try await viewModel.deletePlainVariable(name: item.name)
+                                    }
+                                    ToastManager.shared.showSuccess("Deleted", message: item.name)
+                                } catch {
+                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                }
+                            }
+                        }
+                    } message: { item in
+                        Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
+                    }
+                    .refreshable {
+                        await viewModel.fetchSecrets()
+                    }
             }
-            .refreshable {
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchSecrets()
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchSecrets()
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
+            // Segment Picker
+            Section {
+                Picker("Type", selection: $viewModel.selectedTab) {
+                    Text("Variables (\(viewModel.plainVariables.count))").tag("variables")
+                    Text("Secrets (\(viewModel.secrets.count))").tag("secrets")
                 }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchSecrets() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
-                // Segment Picker
-                Section {
-                    Picker("Type", selection: $viewModel.selectedTab) {
-                        Text("Variables (\(viewModel.plainVariables.count))").tag("variables")
-                        Text("Secrets (\(viewModel.secrets.count))").tag("secrets")
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                
-                if viewModel.selectedTab == "variables" {
+                .pickerStyle(.segmented)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            
+            if viewModel.selectedTab == "variables" {
+                if !viewModel.filteredVariables.isEmpty {
                     variablesSection
-                } else {
+                }
+            } else {
+                if !viewModel.filteredSecrets.isEmpty {
                     secretsSection
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchSecrets() }
+                            }
+                        )
+                    )
+                } else if viewModel.selectedTab == "variables" {
+                    if viewModel.plainVariables.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "slider.horizontal.3",
+                                title: "No Plaintext Variables",
+                                message: "Plaintext environment variables are readable in code and configuration.",
+                                actionTitle: "Add Variable",
+                                action: { showingAddSheet = true }
+                            )
+                        )
+                    } else if viewModel.filteredVariables.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                } else {
+                    if viewModel.secrets.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "key.fill",
+                                title: "No Encrypted Secrets",
+                                message: "Secrets are encrypted upon saving and cannot be retrieved or read back by the API.",
+                                actionTitle: "Add Secret",
+                                action: { showingAddSheet = true }
+                            )
+                        )
+                    } else if viewModel.filteredSecrets.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                }
+            }
+        }
     }
     
     // MARK: - Plaintext Variables Section
     
     @ViewBuilder
     private var variablesSection: some View {
-        if viewModel.plainVariables.isEmpty {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.system(size: 36))
-                        .foregroundStyle(.blue.opacity(0.8))
-                        .padding(.top, 12)
-                    Text("No Plaintext Variables")
-                        .font(.headline)
-                    Text("Plaintext environment variables are readable in code and configuration.")
-                        .font(.caption)
+        Section(
+            header: Text("Plaintext Variables (\(viewModel.filteredVariables.count))"),
+            footer: Text("Environment variables are plaintext strings accessible via global env bindings in your script.")
+        ) {
+            ForEach(viewModel.filteredVariables) { variable in
+                variableRow(variable)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func variableRow(_ variable: WorkerBinding) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "slider.horizontal.3")
+                .font(.body)
+                .foregroundStyle(.blue)
+                .frame(width: 30, height: 30)
+                .background(Color.blue.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(variable.name)
+                    .font(.body.monospacedDigit().weight(.medium))
+                    .foregroundStyle(.primary)
+                
+                if let val = variable.text {
+                    Text(val)
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                    Button("Add Variable") {
-                        showingAddSheet = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.bottom, 12)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        } else if viewModel.filteredVariables.isEmpty {
-            Section {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                        .lineLimit(2)
                 }
             }
-        } else {
-            Section(
-                header: Text("Plaintext Variables (\(viewModel.filteredVariables.count))"),
-                footer: Text("Environment variables are plaintext strings accessible via global env bindings in your script.")
-            ) {
-                ForEach(viewModel.filteredVariables) { variable in
-                    HStack(alignment: .center, spacing: 14) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                            .frame(width: 30, height: 30)
-                            .background(Color.blue.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(variable.name)
-                                .font(.body.monospacedDigit().weight(.medium))
-                                .foregroundStyle(.primary)
-                            
-                            if let val = variable.text {
-                                Text(val)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        Button {
-                            variableToEdit = variable
-                        } label: {
-                            Image(systemName: "pencil")
-                                .font(.subheadline)
-                                .foregroundStyle(.blue)
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                    .padding(.vertical, 3)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            let impact = UIImpactFeedbackGenerator(style: .medium)
-                            impact.impactOccurred()
-                            itemToDelete = (variable.name, false)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    .contextMenu {
-                        if let val = variable.text {
-                            Button {
-                                UIPasteboard.general.string = val
-                                ToastManager.shared.showCopied("Variable value copied")
-                            } label: {
-                                Label("Copy Value", systemImage: "doc.on.doc")
-                            }
-                        }
-                        Button {
-                            variableToEdit = variable
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                    }
+            
+            Spacer()
+            
+            Button {
+                variableToEdit = variable
+            } label: {
+                Image(systemName: "pencil")
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel("Edit variable \(variable.name)")
+        }
+        .padding(.vertical, 3)
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                HapticManager.impact(.medium)
+                itemToDelete = (variable.name, false)
+                showingDeleteAlert = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .contextMenu {
+            if let val = variable.text {
+                Button {
+                    UIPasteboard.general.string = val
+                    HapticManager.notification(.success)
+                    ToastManager.shared.showCopied("Variable value copied")
+                } label: {
+                    Label("Copy Value", systemImage: "doc.on.doc")
                 }
+            }
+            Button {
+                variableToEdit = variable
+            } label: {
+                Label("Edit", systemImage: "pencil")
             }
         }
     }
@@ -210,90 +242,66 @@ struct WorkerSecretsView: View {
     
     @ViewBuilder
     private var secretsSection: some View {
-        if viewModel.secrets.isEmpty {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: "key.fill")
-                        .font(.system(size: 36))
-                        .foregroundStyle(.orange.opacity(0.8))
-                        .padding(.top, 12)
-                    Text("No Encrypted Secrets")
-                        .font(.headline)
-                    Text("Secrets are encrypted upon saving and cannot be retrieved or read back by the API.")
-                        .font(.caption)
+        Section(
+            header: Text("Encrypted Secrets (\(viewModel.filteredSecrets.count))"),
+            footer: Text("Secret values are strictly write-only and encrypted. To change a value, simply save a new value under the same secret name.")
+        ) {
+            ForEach(viewModel.filteredSecrets) { secret in
+                secretRow(secret)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func secretRow(_ secret: WorkerSecret) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "key.fill")
+                .font(.body)
+                .foregroundStyle(.orange)
+                .frame(width: 30, height: 30)
+                .background(Color.orange.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(secret.name)
+                    .font(.body.monospacedDigit().weight(.medium))
+                    .foregroundStyle(.primary)
+                
+                if let mod = secret.modifiedOn {
+                    Text("Modified: \(DateFormatters.formatISO8601ToDisplay(mod, style: DateFormatters.dateOnly))")
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                    Button("Add Secret") {
-                        showingAddSheet = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                    .padding(.bottom, 12)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        } else if viewModel.filteredSecrets.isEmpty {
-            Section {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
                 }
             }
-        } else {
-            Section(
-                header: Text("Encrypted Secrets (\(viewModel.filteredSecrets.count))"),
-                footer: Text("Secret values are strictly write-only and encrypted. To change a value, simply save a new value under the same secret name.")
-            ) {
-                ForEach(viewModel.filteredSecrets) { secret in
-                    HStack(alignment: .center, spacing: 14) {
-                        Image(systemName: "key.fill")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                            .frame(width: 30, height: 30)
-                            .background(Color.orange.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(secret.name)
-                                .font(.body.monospacedDigit().weight(.medium))
-                                .foregroundStyle(.primary)
-                            
-                            if let mod = secret.modifiedOn {
-                                Text("Modified: \(String(mod.prefix(10)))")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        Text("ENCRYPTED")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.green)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.12))
-                            .cornerRadius(4)
-                    }
-                    .padding(.vertical, 3)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            let impact = UIImpactFeedbackGenerator(style: .medium)
-                            impact.impactOccurred()
-                            itemToDelete = (secret.name, true)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    .contextMenu {
-                        Button {
-                            UIPasteboard.general.string = secret.name
-                            ToastManager.shared.showCopied("Secret name copied")
-                        } label: {
-                            Label("Copy Name", systemImage: "doc.on.doc")
-                        }
-                    }
-                }
+            
+            Spacer()
+            
+            Text("ENCRYPTED")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Color.green.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
+        .padding(.vertical, 3)
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                HapticManager.impact(.medium)
+                itemToDelete = (secret.name, true)
+                showingDeleteAlert = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .contextMenu {
+            Button {
+                UIPasteboard.general.string = secret.name
+                HapticManager.notification(.success)
+                ToastManager.shared.showCopied("Secret name copied")
+            } label: {
+                Label("Copy Name", systemImage: "doc.on.doc")
             }
         }
     }
@@ -382,7 +390,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                     try await viewModel.savePlainVariable(name: name, value: itemValue)
                     viewModel.selectedTab = "variables"
                 }
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                HapticManager.impact(.medium)
                 ToastManager.shared.showSuccess("Saved", message: name)
                 dismiss()
             } catch {
@@ -457,7 +465,7 @@ struct WorkerEditVariableSheetView: View {
         Task {
             do {
                 try await viewModel.savePlainVariable(name: variable.name, value: variableValue)
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                HapticManager.impact(.medium)
                 ToastManager.shared.showSuccess("Updated", message: variable.name)
                 dismiss()
             } catch {
@@ -467,4 +475,3 @@ struct WorkerEditVariableSheetView: View {
         }
     }
 }
-

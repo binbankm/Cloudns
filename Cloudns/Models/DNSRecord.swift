@@ -46,6 +46,10 @@ struct DNSRecord: Codable, Identifiable {
             )
         }
     }
+    
+    static var placeholders: [DNSRecord] {
+        dummyData
+    }
 }
 
 struct DNSRecordData: Codable {

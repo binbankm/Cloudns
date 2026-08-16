@@ -358,6 +358,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isUnderAttack)
                         .labelsHidden()
                         .onChange(of: isUnderAttack) { val in
+                            HapticManager.impact(.light)
                             Task { await setUnderAttack(val) }
                         }
                 }
@@ -372,6 +373,7 @@ private struct QuickControlsSection: View {
                     .frame(width: 32, height: 32)
                     .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Development Mode")
@@ -389,6 +391,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isDevMode)
                         .labelsHidden()
                         .onChange(of: isDevMode) { val in
+                            HapticManager.impact(.light)
                             Task { await setDevMode(val) }
                         }
                 }
@@ -403,6 +406,7 @@ private struct QuickControlsSection: View {
                     .frame(width: 32, height: 32)
                     .background(isPaused ? Color.secondary : Color.secondary.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Pause Cloudflare")
@@ -420,6 +424,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isPaused)
                         .labelsHidden()
                         .onChange(of: isPaused) { val in
+                            HapticManager.impact(.light)
                             Task { await setPaused(val) }
                         }
                 }
@@ -476,7 +481,7 @@ private struct QuickControlsSection: View {
                 zoneId: zoneId, settingId: "development_mode",
                 value: .string(on ? "on" : "off")
             )
-            NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             ToastManager.shared.showSuccess("Development Mode", message: on ? "Enabled (Cache bypassed for 3h)" : "Disabled")
         } catch {
             isDevMode = !on
@@ -489,7 +494,7 @@ private struct QuickControlsSection: View {
         updatingPause = true
         do {
             try await CloudflareAPIClient.shared.updateZoneStatus(zoneId: zoneId, paused: on)
-            NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             ToastManager.shared.showSuccess("Zone Status", message: on ? "Domain paused on Cloudflare" : "Domain active on Cloudflare")
         } catch {
             isPaused = !on
@@ -549,7 +554,7 @@ struct MenuGroup<Content: View>: View {
                 content
             }
             .background(Color(UIColor.secondarySystemGroupedBackground))
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
         }
         .padding(.top, 8)
@@ -571,7 +576,7 @@ struct FeatureRowContent: View {
                     .accessibilityHidden(true)
             }
             .frame(width: 32, height: 32)
-            .cornerRadius(8)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Text(title)
                 .font(.body)

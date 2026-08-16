@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ZonesListView: View {
     @StateObject private var viewModel = ZonesViewModel()
-    @AppStorage("isLoggedIn") private var isLoggedIn = true
+    @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = true
     @State private var searchText = ""
     @State private var zoneToDelete: Zone?
     @State private var showingDeleteAlert = false
@@ -14,28 +14,40 @@ struct ZonesListView: View {
     
     var body: some View {
         NavigationStack {
-            listViewContent
-                .navigationTitle("My Domains")
-                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            viewModel.addZoneError = nil
-                            showAddZoneSheet = true
-                        }) {
-                            Image(systemName: "plus")
+            if !viewModel.hasFetchedData {
+                // Skeleton phase: plain list with NO searchable attached
+                // This is the industry-standard way to prevent search bar / skeleton overlap
+                skeletonContent
+                    .navigationTitle("My Domains")
+                    .navigationBarTitleDisplayMode(.inline)
+            } else {
+                listViewContent
+                    .navigationTitle("My Domains")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(
+                        text: $searchText,
+                        prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                viewModel.addZoneError = nil
+                                showAddZoneSheet = true
+                            }) {
+                                Image(systemName: "plus")
+                            }
+                            .accessibilityLabel("Add Domain")
                         }
-                        .accessibilityLabel("添加域名")
                     }
-                }
-                .sheet(isPresented: $showAddZoneSheet) {
-                    AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
-                }
+                    .sheet(isPresented: $showAddZoneSheet) {
+                        AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
+                    }
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoneDeleted"))) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoneUpdated"))) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
         .task {
@@ -58,49 +70,24 @@ struct ZonesListView: View {
         })
     }
     
+    // Skeleton-only list — no .searchable modifier, so no overlap is possible
+    @ViewBuilder
+    private var skeletonContent: some View {
+        List {
+            Section {
+                ForEach(Zone.placeholders) { placeholderZone in
+                    ZoneRowView(zone: placeholderZone)
+                }
+            }
+            .skeletonLoading(true)
+        }
+        .listStyle(.insetGrouped)
+    }
+
     @ViewBuilder
     private var listViewContent: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchZones(isRefresh: true)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.zones.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "globe",
-                        title: "No Domains Found",
-                        message: "You haven't added any domains to this account yet.",
-                        actionTitle: "Add Domain",
-                        action: {
-                            viewModel.addZoneError = nil
-                            showAddZoneSheet = true
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if displayedZones.isEmpty {
-                Section {
-                    EmptyStateView.search(query: searchText) {
-                        searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !displayedZones.isEmpty {
                 Section {
                     ForEach(displayedZones) { zone in
                         NavigationLink(destination: ZoneDetailView(zone: zone)) {
@@ -108,8 +95,7 @@ struct ZonesListView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
+                                HapticManager.impact(.medium)
                                 zoneToDelete = zone
                                 showingDeleteAlert = true
                             } label: {
@@ -139,6 +125,40 @@ struct ZonesListView: View {
         .refreshable {
             await viewModel.fetchZones(isRefresh: true)
         }
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchZones(isRefresh: true) }
+                            }
+                        )
+                    )
+                } else if viewModel.zones.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "globe",
+                            title: "No Domains Found",
+                            message: "You haven't added any domains to this account yet.",
+                            actionTitle: "Add Domain",
+                            action: {
+                                viewModel.addZoneError = nil
+                                showAddZoneSheet = true
+                            }
+                        )
+                    )
+                } else if displayedZones.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -161,6 +181,7 @@ struct AddZoneView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 52))
                                 .foregroundStyle(.green)
+                                .accessibilityHidden(true)
 
                             VStack(spacing: 6) {
                                 Text("\(zone.name) Added")
@@ -184,6 +205,7 @@ struct AddZoneView: View {
                                 Image(systemName: "server.rack")
                                     .foregroundStyle(.blue)
                                     .frame(width: 28)
+                                    .accessibilityHidden(true)
                                 Text(ns)
                                     .font(.body)
                                     .foregroundStyle(.primary)
@@ -196,6 +218,7 @@ struct AddZoneView: View {
                                         .foregroundStyle(.blue)
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel("Copy nameserver \(ns)")
                             }
                         }
 
@@ -310,7 +333,7 @@ struct AddZoneView: View {
                             }
                             .padding(24)
                             .background(.ultraThinMaterial)
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                     }
                 }
@@ -339,6 +362,7 @@ struct ZoneRowView: View {
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(.blue)
             }
+            .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(zone.name)
@@ -356,7 +380,7 @@ struct ZoneRowView: View {
                                 .padding(.vertical, 2)
                                 .background(Color.red.opacity(0.15))
                                 .foregroundStyle(.red)
-                                .cornerRadius(4)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
                         }
                         
                         if (zone.developmentMode ?? 0) > 0 {
@@ -366,7 +390,7 @@ struct ZoneRowView: View {
                                 .padding(.vertical, 2)
                                 .background(Color.orange.opacity(0.15))
                                 .foregroundStyle(.orange)
-                                .cornerRadius(4)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
                         }
                     }
                 }
@@ -379,6 +403,7 @@ struct ZoneRowView: View {
                 HStack(spacing: 3) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption2)
+                        .accessibilityHidden(true)
                     Text("Active")
                         .font(.caption)
                 }
@@ -386,7 +411,7 @@ struct ZoneRowView: View {
                 .padding(.vertical, 4)
                 .background(Color.green.opacity(0.15))
                 .foregroundStyle(.green)
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 Text(zone.status.capitalized)
                     .font(.caption)
@@ -394,10 +419,10 @@ struct ZoneRowView: View {
                     .padding(.vertical, 4)
                     .background(Color.gray.opacity(0.15))
                     .foregroundStyle(.secondary)
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
     }
 }
 

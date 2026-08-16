@@ -22,39 +22,64 @@ struct TurnstileDetailView: View {
     var body: some View {
         List {
             // Section 1: Keys & Overview
-                Section(header: Text("Widget Credentials")) {
-                    HStack {
-                        Text("Widget Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(widget.name)
-                            .font(.body.weight(.medium))
-                    }
+            Section(header: Text("Widget Credentials")) {
+                HStack {
+                    Text("Widget Name")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(widget.name)
+                        .font(.body.weight(.medium))
+                }
+                
+                HStack {
+                    Text("Mode")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text((widget.mode ?? "Managed").capitalized)
+                        .font(.subheadline)
+                        .foregroundStyle(.blue)
+                }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Sitekey (Public)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     
                     HStack {
-                        Text("Mode")
-                            .foregroundStyle(.secondary)
+                        Text(widget.sitekey)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
                         Spacer()
-                        Text((widget.mode ?? "Managed").capitalized)
-                            .font(.subheadline)
-                            .foregroundStyle(.blue)
+                        Button {
+                            UIPasteboard.general.string = widget.sitekey
+                            HapticManager.notification(.success)
+                            ToastManager.shared.showCopied("Sitekey copied")
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                        }
                     }
-                    
+                }
+                .padding(.vertical, 2)
+                
+                if let secret = currentSecret, !secret.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Sitekey (Public)")
+                        Text("Secret Key (Private)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
                         HStack {
-                            Text(widget.sitekey)
+                            Text(secret)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             Spacer()
                             Button {
-                                UIPasteboard.general.string = widget.sitekey
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                ToastManager.shared.showCopied("Sitekey copied")
+                                UIPasteboard.general.string = secret
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Secret Key copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
@@ -63,115 +88,102 @@ struct TurnstileDetailView: View {
                         }
                     }
                     .padding(.vertical, 2)
-                    
-                    if let secret = currentSecret, !secret.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Secret Key (Private)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            
-                            HStack {
-                                Text(secret)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.primary)
-                                    .lineLimit(1)
-                                Spacer()
-                                Button {
-                                    UIPasteboard.general.string = secret
-                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                    ToastManager.shared.showCopied("Secret Key copied")
-                                } label: {
-                                    Image(systemName: "doc.on.doc")
-                                        .font(.caption)
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 2)
-                    }
-                    
-                    if let domains = widget.domains, !domains.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Allowed Domains")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Text(domains.joined(separator: ", "))
-                                .font(.footnote)
-                                .foregroundStyle(.primary)
-                        }
-                        .padding(.vertical, 2)
-                    }
                 }
                 
-                // Section: Management Actions
-                if viewModel != nil {
-                    Section(header: Text("Management")) {
-                        Button {
-                            showingEditSheet = true
-                        } label: {
-                            Label("Edit Widget Settings", systemImage: "pencil")
-                        }
-                        
-                        Button(role: .destructive) {
-                            showingRotateAlert = true
-                        } label: {
-                            HStack {
-                                Label("Rotate Secret Key", systemImage: "arrow.triangle.2.circlepath")
-                                Spacer()
-                                if isRotatingSecret {
-                                    ProgressView()
-                                }
+                if let domains = widget.domains, !domains.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Allowed Domains")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(domains.joined(separator: ", "))
+                            .font(.footnote)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+            
+            // Section: Management Actions
+            if viewModel != nil {
+                Section(header: Text("Management")) {
+                    Button {
+                        HapticManager.impact(.light)
+                        showingEditSheet = true
+                    } label: {
+                        Label("Edit Widget Settings", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive) {
+                        HapticManager.impact(.medium)
+                        showingRotateAlert = true
+                    } label: {
+                        HStack {
+                            Label("Rotate Secret Key", systemImage: "arrow.triangle.2.circlepath")
+                            Spacer()
+                            if isRotatingSecret {
+                                ProgressView()
                             }
                         }
-                        .disabled(isRotatingSecret)
                     }
+                    .disabled(isRotatingSecret)
+                }
+            }
+            
+            // Section 2: Code Integration Guide
+            Section(header: Text("Integration Code Generator")) {
+                Picker("Layer", selection: $selectedTab) {
+                    Text("Client-side").tag("frontend")
+                    Text("Server Verification").tag("backend")
+                }
+                .pickerStyle(.segmented)
+                .padding(.vertical, 2)
+                .onChange(of: selectedTab) { _ in
+                    HapticManager.impact(.light)
                 }
                 
-                // Section 2: Code Integration Guide
-                Section(header: Text("Integration Code Generator")) {
-                    Picker("Layer", selection: $selectedTab) {
-                        Text("Client-side").tag("frontend")
-                        Text("Server Verification").tag("backend")
+                if selectedTab == "frontend" {
+                    Picker("Framework", selection: $frontendFramework) {
+                        Text("HTML / JS").tag("html")
+                        Text("React / Next.js").tag("react")
                     }
                     .pickerStyle(.segmented)
                     .padding(.vertical, 2)
-                    
-                    if selectedTab == "frontend" {
-                        Picker("Framework", selection: $frontendFramework) {
-                            Text("HTML / JS").tag("html")
-                            Text("React / Next.js").tag("react")
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.vertical, 2)
-                    } else {
-                        Picker("Language", selection: $backendLang) {
-                            Text("Node.js").tag("node")
-                            Text("Python").tag("python")
-                            Text("Go").tag("go")
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.vertical, 2)
+                    .onChange(of: frontendFramework) { _ in
+                        HapticManager.impact(.light)
                     }
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            Text(snippetCode)
-                                .font(.caption2.monospaced())
-                                .foregroundStyle(.primary)
-                                .padding(.vertical, 4)
-                        }
-                        
-                        Button {
-                            UIPasteboard.general.string = snippetCode
-                            ToastManager.shared.showCopied("Code copied")
-                        } label: {
-                            Label("Copy Code Snippet", systemImage: "doc.on.doc")
-                                .font(.caption.weight(.semibold))
-                        }
+                } else {
+                    Picker("Language", selection: $backendLang) {
+                        Text("Node.js").tag("node")
+                        Text("Python").tag("python")
+                        Text("Go").tag("go")
                     }
-                    .padding(.vertical, 4)
+                    .pickerStyle(.segmented)
+                    .padding(.vertical, 2)
+                    .onChange(of: backendLang) { _ in
+                        HapticManager.impact(.light)
+                    }
                 }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        Text(snippetCode)
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(.primary)
+                            .padding(.vertical, 4)
+                    }
+                    
+                    Button {
+                        UIPasteboard.general.string = snippetCode
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Code copied")
+                    } label: {
+                        Label("Copy Code Snippet", systemImage: "doc.on.doc")
+                            .font(.caption.weight(.semibold))
+                    }
+                }
+                .padding(.vertical, 4)
             }
+        }
         .listStyle(.insetGrouped)
         .navigationTitle(widget.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -203,7 +215,7 @@ struct TurnstileDetailView: View {
             do {
                 let newSecret = try await vm.rotateSecret(sitekey: widget.sitekey, invalidateImmediately: invalidateImmediately)
                 self.currentSecret = newSecret
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                HapticManager.impact(.medium)
                 ToastManager.shared.showSuccess("Secret Rotated", message: "New secret key generated")
             } catch {
                 ToastManager.shared.showError("Rotation Failed", message: error.localizedDescription)
@@ -376,7 +388,7 @@ struct EditTurnstileWidgetSheetView: View {
                 try await viewModel.updateWidget(sitekey: widget.sitekey, name: name, domains: domains.isEmpty ? ["*"] : domains, mode: selectedMode)
                 let updated = TurnstileWidget(sitekey: widget.sitekey, name: name, mode: selectedMode, domains: domains.isEmpty ? ["*"] : domains, secret: widget.secret, createdOn: widget.createdOn, modifiedOn: widget.modifiedOn)
                 onUpdated(updated)
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                HapticManager.impact(.medium)
                 ToastManager.shared.showSuccess("Widget Updated", message: name)
                 dismiss()
             } catch {

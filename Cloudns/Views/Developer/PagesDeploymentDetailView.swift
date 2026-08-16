@@ -35,7 +35,7 @@ struct PagesDeploymentDetailView: View {
                             .fill(isSuccess ? Color.green : Color.orange)
                             .frame(width: 8, height: 8)
                         Text(deployment.latestStage?.status?.capitalized ?? "Unknown")
-                            .font(.body)
+                            .font(.body.weight(.medium))
                             .foregroundStyle(isSuccess ? .green : .orange)
                     }
                 }
@@ -67,7 +67,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text(String(hash.prefix(7)))
-                            .font(.body)
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.primary)
                     }
                 }
@@ -104,6 +104,7 @@ struct PagesDeploymentDetailView: View {
             // Section 2: Actions
             Section(header: Text("Actions")) {
                 Button {
+                    HapticManager.impact(.medium)
                     showingRollbackAlert = true
                 } label: {
                     HStack {
@@ -116,6 +117,7 @@ struct PagesDeploymentDetailView: View {
                 .disabled(isActionRunning)
                 
                 Button {
+                    HapticManager.impact(.medium)
                     Task {
                         isActionRunning = true
                         do {
@@ -138,6 +140,7 @@ struct PagesDeploymentDetailView: View {
                 .disabled(isActionRunning)
                 
                 Button(role: .destructive) {
+                    HapticManager.impact(.medium)
                     showingDeleteAlert = true
                 } label: {
                     HStack {
@@ -173,12 +176,13 @@ struct PagesDeploymentDetailView: View {
                             }
                         }
                         .padding(8)
-                        .background(Color(UIColor.black))
-                        .cornerRadius(8)
+                        .background(Color.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Deployment Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

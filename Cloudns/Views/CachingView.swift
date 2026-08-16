@@ -10,19 +10,6 @@ struct CachingView: View {
 
     var body: some View {
         List {
-            if let errorMessage = viewModel.errorMessage {
-                Section {
-                    HStack(spacing: 10) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
-                            .accessibilityHidden(true)
-                        Text(errorMessage)
-                            .foregroundStyle(.primary)
-                            .font(.subheadline)
-                    }
-                }
-            }
-            
             // Custom Granular Purge
             Section(
                 header: Text("Custom Cache Purge"),
@@ -40,14 +27,15 @@ struct CachingView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     TextField(purgePlaceholder, text: $purgeInputText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                     
                     Button(action: {
                         let clean = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !clean.isEmpty else { return }
                         let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                         
+                        HapticManager.impact(.medium)
                         Task {
                             if purgeType == "url" {
                                 await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
@@ -74,7 +62,7 @@ struct CachingView: View {
                         }
                         .padding(.vertical, 10)
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
                 }
@@ -89,7 +77,7 @@ struct CachingView: View {
                             .foregroundStyle(.red)
                             .accessibilityHidden(true)
                         Text("Purge Everything")
-                            .font(.body)
+                            .font(.body.weight(.medium))
                             .foregroundStyle(.red)
                     }
                     
@@ -114,13 +102,13 @@ struct CachingView: View {
                         .padding()
                         .background(Color.red)
                         .foregroundStyle(.white)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
                 }
                 .padding(.vertical, 4)
             }
-            .listRowBackground(Color.clear)
+            .listRowBackground(Color(.secondarySystemGroupedBackground))
             
             // Cache Level
             Section(header: Text("Cache Level")) {
@@ -136,6 +124,7 @@ struct CachingView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: viewModel.cacheLevel) { newValue in
+                        HapticManager.impact(.light)
                         Task {
                             await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue)
                         }
@@ -161,6 +150,7 @@ struct CachingView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: viewModel.browserCacheTTL) { newValue in
+                        HapticManager.impact(.light)
                         Task {
                             await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue)
                         }
@@ -172,12 +162,15 @@ struct CachingView: View {
             Section(header: Text("Always Online™")) {
                 Toggle(isOn: $viewModel.alwaysOnline) {
                     VStack(alignment: .leading, spacing: 4) {
+                        Text("Always Online")
+                            .font(.body)
                         Text("If your server goes down, Cloudflare will serve your website's static pages from our cache.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 .onChange(of: viewModel.alwaysOnline) { newValue in
+                    HapticManager.impact(.light)
                     Task {
                         await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
                     }
@@ -188,12 +181,15 @@ struct CachingView: View {
             Section(header: Text("Development Mode")) {
                 Toggle(isOn: $viewModel.developmentMode) {
                     VStack(alignment: .leading, spacing: 4) {
+                        Text("Development Mode")
+                            .font(.body)
                         Text("Temporarily bypass our cache. Allows you to see changes to your origin server in realtime.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 .onChange(of: viewModel.developmentMode) { newValue in
+                    HapticManager.impact(.light)
                     Task {
                         await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
                     }
@@ -201,11 +197,20 @@ struct CachingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .skeletonLoading(!viewModel.hasFetchedData)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
+                    )
+                )
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-        .disabled(!viewModel.hasFetchedData)
         .navigationTitle("Caching")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -216,6 +221,7 @@ struct CachingView: View {
         .alert("Purge Everything?", isPresented: $showingPurgeAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Purge", role: .destructive) {
+                HapticManager.notification(.warning)
                 Task {
                     await viewModel.purgeCacheEverything(zoneId: zoneId)
                 }
@@ -223,6 +229,7 @@ struct CachingView: View {
         } message: {
             Text("Are you sure you want to purge all cached resources? This may temporarily degrade your website's performance and increase load on your origin server.")
         }
+        .toastContainer()
     }
     
     private var purgeTypeDescription: String {

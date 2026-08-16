@@ -33,6 +33,23 @@ struct CFComponentItem: Codable, Identifiable {
     let status: String // operational, degraded_performance, partial_outage, major_outage
     let description: String?
     let position: Int?
+    
+    init(id: String, name: String, status: String = "operational", description: String? = nil, position: Int? = 1) {
+        self.id = id
+        self.name = name
+        self.status = status
+        self.description = description
+        self.position = position
+    }
+    
+    static let placeholders: [CFComponentItem] = [
+        CFComponentItem(id: "1", name: "Authoritative DNS"),
+        CFComponentItem(id: "2", name: "Cloudflare Dashboard"),
+        CFComponentItem(id: "3", name: "Cloudflare Workers"),
+        CFComponentItem(id: "4", name: "Cloudflare Pages"),
+        CFComponentItem(id: "5", name: "R2 Object Storage"),
+        CFComponentItem(id: "6", name: "D1 SQL Database")
+    ]
 }
 
 struct CFIncidentItem: Codable, Identifiable {
@@ -91,56 +108,77 @@ struct CloudflareStatusView: View {
     @StateObject private var viewModel = CloudflareStatusViewModel()
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            contentView
-        }
-        .navigationTitle("System Status")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if let url = URL(string: "https://www.cloudflarestatus.com") {
-                    Link(destination: url) {
-                        Image(systemName: "safari")
-                            .accessibilityLabel("在浏览器中打开状态页")
+        contentView
+            .navigationTitle("System Status")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if let url = URL(string: "https://www.cloudflarestatus.com") {
+                        Link(destination: url) {
+                            Image(systemName: "safari")
+                                .accessibilityLabel("Open Statuspage in Browser")
+                        }
                     }
                 }
             }
-        }
-        .refreshable {
-            await viewModel.fetchStatus()
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .refreshable {
                 await viewModel.fetchStatus()
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchStatus()
+                }
+            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData {
                 Section {
-                    SkeletonCardView()
+                    HStack(spacing: 16) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 32))
+                            .foregroundStyle(.white)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("All Systems Operational")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(.white)
+                            Text("Cloudflare Edge Network & Global Data Centers")
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.9))
+                        }
+                        Spacer()
+                    }
+                    .padding(18)
+                    .background(Color.green.gradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
-                .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
                 
-                ForEach(0..<6, id: \.self) { _ in
-                    Section {
-                        SkeletonRowView()
+                Section(header: Text("Services & Infrastructure")) {
+                    ForEach(CFComponentItem.placeholders) { comp in
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            
+                            Text(comp.name)
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                            
+                            Spacer()
+                            
+                            Text("Operational")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
+                        .padding(.vertical, 2)
                     }
                 }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(err),
-                        retryAction: { Task { await viewModel.fetchStatus() } }
-                    )
-                }
-                .listRowBackground(Color.clear)
+                .skeletonLoading(true)
             } else if let summary = viewModel.summary {
                 // Section: Overall Status Banner Card
                 Section {
@@ -189,7 +227,7 @@ struct CloudflareStatusView: View {
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
                                         .foregroundStyle(.orange)
-                                        .cornerRadius(4)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
                                 
                                 if let updated = inc.updatedAt {
@@ -205,6 +243,16 @@ struct CloudflareStatusView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(err),
+                        retryAction: { Task { await viewModel.fetchStatus() } }
+                    )
+                )
+            }
+        }
     }
     
     private func overallBanner(summary: CFStatusSummary) -> some View {
@@ -215,10 +263,11 @@ struct CloudflareStatusView: View {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .font(.system(size: 32))
                 .foregroundStyle(.white)
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(summary.status?.description ?? "All Systems Operational")
-                    .font(.body)
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
                 
                 Text("Cloudflare Edge Network & Global Data Centers")
@@ -229,7 +278,7 @@ struct CloudflareStatusView: View {
         }
         .padding(18)
         .background(bgColor.gradient)
-        .cornerRadius(14)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .shadow(color: bgColor.opacity(0.3), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
         .padding(.top, 8)

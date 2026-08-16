@@ -12,6 +12,7 @@ struct TransformRulesView: View {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: TransformRulesViewModel(zoneId: zoneId))
     }
+    
     var body: some View {
         List {
             Section {
@@ -25,27 +26,18 @@ struct TransformRulesView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
-            if viewModel.isLoading && !viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(WAFRule.placeholders) { rule in
+                        TransformRuleCardView(rule: rule, onToggle: {})
                     }
                 }
-            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "arrow.triangle.2.circlepath",
-                        title: "No \(phaseTitle(for: viewModel.selectedPhase)) Rules",
-                        message: "Configure URL rewrites and request/response header transformations at the edge.",
-                        actionTitle: "Add Rule",
-                        action: { showingAddSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.rules.isEmpty {
                 Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         TransformRuleCardView(rule: rule) {
+                            HapticManager.impact(.light)
                             Task {
                                 await viewModel.toggleRule(rule: rule)
                                 ToastManager.shared.showSuccess("Rule Status Updated", message: rule.description ?? "Rule")
@@ -53,8 +45,7 @@ struct TransformRulesView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
+                                HapticManager.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
                             } label: {
@@ -66,6 +57,30 @@ struct TransformRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchTransformRules() }
+                            }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "arrow.triangle.2.circlepath",
+                            title: "No \(phaseTitle(for: viewModel.selectedPhase)) Rules",
+                            message: "Configure URL rewrites and request/response header transformations at the edge.",
+                            actionTitle: "Add Rule",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchTransformRules()
         }
@@ -78,7 +93,7 @@ struct TransformRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加转换规则")
+                .accessibilityLabel("Add Transform Rule")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -99,14 +114,6 @@ struct TransformRulesView: View {
                 await viewModel.fetchTransformRules()
             }
         }
-        .alert("Error", isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        ), actions: {
-            Button("OK", role: .cancel) { }
-        }, message: {
-            Text(viewModel.errorMessage ?? "Unknown error")
-        })
     }
     
     private func phaseTitle(for phase: String) -> String {
@@ -140,8 +147,8 @@ struct TransformRuleCardView: View {
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(6)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(4)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
                 .lineLimit(2)
             
             if let uri = rule.action_parameters?.uri {
@@ -150,6 +157,7 @@ struct TransformRuleCardView: View {
                         Image(systemName: "link")
                             .foregroundStyle(.blue)
                             .font(.caption2)
+                            .accessibilityHidden(true)
                         Text("Rewrite Path -> \(path)")
                             .font(.caption)
                             .foregroundStyle(.blue)
@@ -160,6 +168,7 @@ struct TransformRuleCardView: View {
                         Image(systemName: "questionmark.circle")
                             .foregroundStyle(.indigo)
                             .font(.caption2)
+                            .accessibilityHidden(true)
                         Text("Rewrite Query -> \(query)")
                             .font(.caption)
                             .foregroundStyle(.indigo)
@@ -174,6 +183,7 @@ struct TransformRuleCardView: View {
                             Image(systemName: item.operation == "remove" ? "minus.circle.fill" : "plus.circle.fill")
                                 .foregroundStyle(item.operation == "remove" ? .red : .green)
                                 .font(.caption2)
+                                .accessibilityHidden(true)
                             Text("\(item.operation.capitalized) '\(headerKey)': \(item.value ?? "(removed)")")
                                 .font(.caption)
                                 .foregroundStyle(item.operation == "remove" ? .red : .primary)

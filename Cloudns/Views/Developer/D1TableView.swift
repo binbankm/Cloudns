@@ -202,7 +202,7 @@ struct D1TableView: View {
     
     var body: some View {
         ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+            Color(.systemGroupedBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Table stats bar
@@ -217,7 +217,7 @@ struct D1TableView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .background(Color(.secondarySystemGroupedBackground))
                 
                 Divider()
                 
@@ -366,7 +366,7 @@ struct D1TableView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("插入数据行")
+                .accessibilityLabel("Insert Row")
             }
         }
         .sheet(item: Binding(

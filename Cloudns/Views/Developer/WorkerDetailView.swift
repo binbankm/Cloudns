@@ -30,11 +30,21 @@ struct WorkerDetailView: View {
     private var contentView: some View {
         List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<4, id: \.self) { _ in
-                        SkeletonRowView()
+                Section(header: Text("Script Overview")) {
+                    HStack {
+                        Text("Script Name")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("my-worker")
+                    }
+                    HStack {
+                        Text("Total Size")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("12.4 KB")
                     }
                 }
+                .skeletonLoading(true)
             } else {
                 // Section: Metadata
                 Section(header: Text("Script Overview")) {
@@ -138,6 +148,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.purple)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Source Code")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -157,6 +168,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.blue)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Domains & Routes")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -176,6 +188,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.blue)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Variables & Secrets")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -190,6 +203,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.purple)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Cron Triggers")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -209,6 +223,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.green)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Real-Time Logs")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -226,6 +241,7 @@ struct WorkerDetailView: View {
                                 .font(.body)
                                 .foregroundStyle(.blue)
                                 .frame(width: 24)
+                                .accessibilityHidden(true)
                             Text("Test Dispatch")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -262,7 +278,7 @@ struct WorkerDetailView: View {
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.orange.opacity(0.12))
-                                    .cornerRadius(4)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
                         }
                     }
@@ -319,7 +335,7 @@ struct WorkerSourceCodeView: View {
         HStack(spacing: 8) {
             HStack(spacing: 0) {
                 Button {
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticManager.selection()
                     withAnimation(.easeInOut(duration: 0.2)) {
                         isEditingMode = false
                     }
@@ -330,13 +346,13 @@ struct WorkerSourceCodeView: View {
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
-                        .background(isActive ? Color(UIColor.systemBackground) : Color.clear)
-                        .cornerRadius(6)
+                        .background(isActive ? Color(.systemBackground) : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
                 
                 Button {
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticManager.selection()
                     withAnimation(.easeInOut(duration: 0.2)) {
                         isEditingMode = true
                     }
@@ -347,20 +363,21 @@ struct WorkerSourceCodeView: View {
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
-                        .background(isActive ? Color(UIColor.systemBackground) : Color.clear)
-                        .cornerRadius(6)
+                        .background(isActive ? Color(.systemBackground) : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
             }
             .padding(3)
-            .background(Color(UIColor.tertiarySystemFill))
-            .cornerRadius(8)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(maxWidth: 160)
             
             Spacer()
             
             if isEditingMode {
                 Button {
+                    HapticManager.impact(.medium)
                     showingDeployAlert = true
                 } label: {
                     HStack(spacing: 4) {
@@ -376,14 +393,14 @@ struct WorkerSourceCodeView: View {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
                     .background(Color.blue)
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(isDeploying || editableCode.isEmpty)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .background(Color(.secondarySystemGroupedBackground))
     }
     
     var body: some View {
@@ -394,20 +411,22 @@ struct WorkerSourceCodeView: View {
                     HStack(spacing: 8) {
                         ForEach(modules) { mod in
                             Button {
+                                HapticManager.impact(.light)
                                 selectedModuleName = mod.name
                                 editableCode = mod.code
                             } label: {
                                 HStack(spacing: 5) {
                                     Image(systemName: mod.isMain ? "star.fill" : "doc.text")
                                         .font(.caption2)
+                                        .accessibilityHidden(true)
                                     Text(mod.name)
                                         .font(.body)
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(selectedModuleName == mod.name ? Color.orange : Color(UIColor.secondarySystemGroupedBackground))
+                                .background(selectedModuleName == mod.name ? Color.orange : Color(.secondarySystemGroupedBackground))
                                 .foregroundStyle(selectedModuleName == mod.name ? .white : .primary)
-                                .cornerRadius(8)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
                         }
@@ -415,7 +434,7 @@ struct WorkerSourceCodeView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                 }
-                .background(Color(UIColor.systemGroupedBackground))
+                .background(Color(.systemGroupedBackground))
                 Divider()
             }
             
@@ -431,20 +450,21 @@ struct WorkerSourceCodeView: View {
                 wrapLines: wrapLines
             )
             .id("\(selectedModuleName)-\(wrapLines)")
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(Color(.secondarySystemGroupedBackground))
         }
         .navigationTitle(selectedModuleName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button {
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticManager.selection()
                     wrapLines.toggle()
                 } label: {
                     Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
                         .font(.subheadline)
                         .foregroundStyle(wrapLines ? Color.accentColor : Color.secondary)
                 }
+                .accessibilityLabel("Toggle Line Wrap")
                 
                 ShareLink(
                     item: editableCode,
@@ -457,11 +477,13 @@ struct WorkerSourceCodeView: View {
                 
                 Button {
                     UIPasteboard.general.string = editableCode
+                    HapticManager.notification(.success)
                     ToastManager.shared.showCopied("Source code copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.subheadline)
                 }
+                .accessibilityLabel("Copy Code")
             }
         }
         .onAppear {
@@ -481,6 +503,7 @@ struct WorkerSourceCodeView: View {
                         let resolvedIsModule = hasEsm || !isServiceWorker
                         
                         try await parentViewModel.deployScript(code: editableCode, isModule: resolvedIsModule)
+                        HapticManager.notification(.success)
                         ToastManager.shared.showSuccess("Script Deployed", message: "Worker updated successfully")
                         isEditingMode = false
                     } catch {

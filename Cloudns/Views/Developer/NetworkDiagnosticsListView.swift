@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct NetworkDiagnosticsListView: View {
-    @State private var searchText = ""
-    
     private struct DiagnosticToolItem: Identifiable {
         let id = UUID()
         let title: String
@@ -74,65 +72,45 @@ struct NetworkDiagnosticsListView: View {
         ]
     }
     
-    private var filteredTools: [DiagnosticToolItem] {
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return allTools
-        }
-        return allTools.filter {
-            $0.title.localizedCaseInsensitiveContains(searchText) ||
-            $0.subtitle.localizedCaseInsensitiveContains(searchText) ||
-            $0.badge.localizedCaseInsensitiveContains(searchText)
-        }
-    }
-    
     var body: some View {
         List {
-            if filteredTools.isEmpty {
-                Section {
-                    EmptyStateView.search(query: searchText) {
-                        searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
-                Section(header: Text("Network & Security Diagnostics (\(filteredTools.count))"), footer: Text("All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network.")) {
-                    ForEach(filteredTools) { tool in
-                        NavigationLink {
-                            tool.destination
-                        } label: {
-                            HStack(alignment: .center, spacing: 14) {
-                                Image(systemName: tool.icon)
-                                    .font(.body)
-                                    .foregroundStyle(tool.iconColor)
-                                    .frame(width: 32, height: 32)
-                                    .background(tool.iconColor.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack {
-                                        Text(tool.title)
-                                            .font(.body)
-                                            .foregroundStyle(.primary)
-                                        
-                                        Spacer()
-                                        
-                                        Text(tool.badge)
-                                            .font(.caption2)
-                                            .foregroundStyle(tool.iconColor)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(tool.iconColor.opacity(0.12))
-                                            .cornerRadius(4)
-                                    }
+            Section(header: Text("Network & Security Diagnostics (\(allTools.count))"), footer: Text("All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network.")) {
+                ForEach(allTools) { tool in
+                    NavigationLink {
+                        tool.destination
+                    } label: {
+                        HStack(alignment: .center, spacing: 14) {
+                            Image(systemName: tool.icon)
+                                .font(.body)
+                                .foregroundStyle(tool.iconColor)
+                                .frame(width: 32, height: 32)
+                                .background(tool.iconColor.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack {
+                                    Text(LocalizedStringKey(tool.title))
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
                                     
-                                    Text(tool.subtitle)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
+                                    Spacer()
+                                    
+                                    Text(LocalizedStringKey(tool.badge))
+                                        .font(.caption2)
+                                        .foregroundStyle(tool.iconColor)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(tool.iconColor.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
+                                
+                                Text(LocalizedStringKey(tool.subtitle))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
                             }
-                            .padding(.vertical, 3)
                         }
+                        .padding(.vertical, 3)
                     }
                 }
             }
@@ -140,6 +118,5 @@ struct NetworkDiagnosticsListView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Network Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Diagnostic Tools")
     }
 }

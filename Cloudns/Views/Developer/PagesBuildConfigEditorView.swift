@@ -103,6 +103,7 @@ struct PagesBuildConfigEditorView: View {
                                     rootDir: rootDir.isEmpty ? nil : rootDir,
                                     productionBranch: productionBranch.isEmpty ? nil : productionBranch
                                 )
+                                HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Build Config Saved", message: project.name)
                                 await parentViewModel.fetchProjectDetails()
                                 dismiss()

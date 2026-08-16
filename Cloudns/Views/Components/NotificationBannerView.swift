@@ -42,17 +42,13 @@ public enum ToastType: Equatable {
     func playHaptic() {
         switch self {
         case .success, .copied:
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
+            HapticManager.notification(.success)
         case .error:
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.error)
+            HapticManager.notification(.error)
         case .warning:
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.warning)
+            HapticManager.notification(.warning)
         case .info:
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.impactOccurred()
+            HapticManager.impact(.light)
         }
     }
 }

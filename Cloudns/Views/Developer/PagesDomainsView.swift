@@ -15,13 +15,13 @@ struct PagesDomainsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingAddDomainSheet = true
-                } label: {
-                    Image(systemName: "plus")
+                    Button {
+                        showingAddDomainSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Custom Domain")
                 }
-                .accessibilityLabel("添加域名")
-            }
             }
             .refreshable {
                 await viewModel.fetchProjectDetails()
@@ -51,72 +51,80 @@ struct PagesDomainsView: View {
     private var contentView: some View {
         List {
             if viewModel.isLoading && viewModel.domains.isEmpty {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                Section(header: Text("Connected Domains")) {
+                    ForEach(PagesDomain.placeholders) { domain in
+                        domainRow(domain)
                     }
                 }
-            } else if viewModel.domains.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "globe",
-                        title: "No Custom Domains",
-                        message: "Connect your own apex domain or subdomain to serve this Pages project.",
-                        actionTitle: "Add Domain",
-                        action: {
-                            showingAddDomainSheet = true
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
-                        HStack(spacing: 12) {
-                            Image(systemName: "globe")
-                                .font(.title3)
-                                .foregroundStyle(.blue)
-                                .frame(width: 28)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(domain.name)
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-
-                                HStack(spacing: 8) {
-                                    HStack(spacing: 4) {
-                                        Circle()
-                                            .fill((domain.status == "active") ? Color.green : Color.orange)
-                                            .frame(width: 6, height: 6)
-                                        Text(domain.status?.capitalized ?? "Active")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-
-                                    if let ssl = domain.sslStatus {
-                                        Text("• SSL: \(ssl.capitalized)")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
+                        domainRow(domain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    domainToDelete = domain
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
-
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                domainToDelete = domain
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if !viewModel.isLoading && viewModel.domains.isEmpty {
+                StateOverlayView(
+                    state: .empty(
+                        icon: "globe",
+                        title: "No Custom Domains",
+                        message: "Connect your own apex domain or subdomain to serve this Pages project.",
+                        actionTitle: "Add Domain",
+                        action: { showingAddDomainSheet = true }
+                    )
+                )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func domainRow(_ domain: PagesDomain) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "globe")
+                .font(.title3)
+                .foregroundStyle(.blue)
+                .frame(width: 28)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(domain.name)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill((domain.status == "active") ? Color.green : Color.orange)
+                            .frame(width: 6, height: 6)
+                        Text(domain.status?.capitalized ?? "Active")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let ssl = domain.sslStatus {
+                        Text("• SSL: \(ssl.capitalized)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
     }
 }
 
@@ -162,6 +170,7 @@ private struct AddPagesDomainSheet: View {
                             do {
                                 let trimmed = domainName.trimmingCharacters(in: .whitespacesAndNewlines)
                                 try await viewModel.addDomain(name: trimmed)
+                                HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Domain Added", message: trimmed)
                                 dismiss()
                             } catch {

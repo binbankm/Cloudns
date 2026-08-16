@@ -31,6 +31,7 @@ struct SpeedSettingsView: View {
                 Toggle("JavaScript", isOn: Binding(
                     get: { viewModel.minifyJS },
                     set: { val in
+                        HapticManager.impact(.light)
                         viewModel.minifyJS = val
                         Task { await viewModel.updateMinify(zoneId: zoneId, css: viewModel.minifyCSS, html: viewModel.minifyHTML, js: val) }
                     }
@@ -39,6 +40,7 @@ struct SpeedSettingsView: View {
                 Toggle("CSS", isOn: Binding(
                     get: { viewModel.minifyCSS },
                     set: { val in
+                        HapticManager.impact(.light)
                         viewModel.minifyCSS = val
                         Task { await viewModel.updateMinify(zoneId: zoneId, css: val, html: viewModel.minifyHTML, js: viewModel.minifyJS) }
                     }
@@ -47,6 +49,7 @@ struct SpeedSettingsView: View {
                 Toggle("HTML", isOn: Binding(
                     get: { viewModel.minifyHTML },
                     set: { val in
+                        HapticManager.impact(.light)
                         viewModel.minifyHTML = val
                         Task { await viewModel.updateMinify(zoneId: zoneId, css: viewModel.minifyCSS, html: val, js: viewModel.minifyJS) }
                     }
@@ -59,6 +62,7 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.brotli },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateBrotli(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -75,6 +79,7 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.rocketLoader },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -97,6 +102,7 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.earlyHints },
                     set: { val in
+                        HapticManager.impact(.light)
                         Task { await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -114,8 +120,7 @@ struct SpeedSettingsView: View {
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-        .disabled(!viewModel.hasFetchedData || viewModel.isLoading)
+        .skeletonLoading(!viewModel.hasFetchedData)
         .navigationTitle("Speed Optimization")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -123,5 +128,6 @@ struct SpeedSettingsView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
+        .toastContainer()
     }
 }

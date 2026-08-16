@@ -9,7 +9,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+                Color(.systemGroupedBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -97,9 +97,10 @@ struct DashboardView: View {
             }
         }
         .padding(16)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 2)
+        .skeletonLoading(!viewModel.hasFetchedData)
     }
     
     // MARK: - 2. 2x2 Metrics Matrix
@@ -111,8 +112,8 @@ struct DashboardView: View {
                     icon: "network",
                     iconColor: .blue,
                     title: "Managed Domains",
-                    value: "\(viewModel.zones.count)",
-                    subtitle: "\(viewModel.activeZonesCount) Active Online",
+                    value: viewModel.hasFetchedData ? "\(viewModel.zones.count)" : "8",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.activeZonesCount) Active Online" : "8 Active Online",
                     badge: "Zones"
                 )
             }
@@ -124,8 +125,8 @@ struct DashboardView: View {
                     icon: "bolt.fill",
                     iconColor: .orange,
                     title: "Edge Compute",
-                    value: "\(viewModel.workers.count + viewModel.pages.count)",
-                    subtitle: "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages",
+                    value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "12",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "8 Workers · 4 Pages",
                     badge: "Serverless"
                 )
             }
@@ -137,8 +138,8 @@ struct DashboardView: View {
                     icon: "cylinder.split.1x2.fill",
                     iconColor: .purple,
                     title: "Storage Engine",
-                    value: "\(viewModel.totalStorageCount)",
-                    subtitle: "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1",
+                    value: viewModel.hasFetchedData ? "\(viewModel.totalStorageCount)" : "6",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "2 KV · 3 R2 · 1 D1",
                     badge: "Databases"
                 )
             }
@@ -150,13 +151,14 @@ struct DashboardView: View {
                     icon: "shield.righthalf.filled",
                     iconColor: .green,
                     title: "Zero Trust Tunnels",
-                    value: "\(viewModel.tunnels.count)",
-                    subtitle: "\(viewModel.healthyTunnelsCount) Healthy Connectors",
+                    value: viewModel.hasFetchedData ? "\(viewModel.tunnels.count)" : "2",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy Connectors" : "2 Healthy Connectors",
                     badge: "Cloudflared"
                 )
             }
             .buttonStyle(PlainButtonStyle())
         }
+        .skeletonLoading(!viewModel.hasFetchedData)
     }
     
     // MARK: - 3. Quick Command Deck
@@ -215,20 +217,52 @@ struct DashboardView: View {
                 Spacer()
                 
                 NavigationLink(destination: ZonesListView()) {
-                    Text("See All (\(viewModel.zones.count))")
+                    Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
                         .font(.caption)
                         .foregroundStyle(.blue)
                 }
             }
             .padding(.horizontal, 4)
             
-            if viewModel.zones.isEmpty {
+            if !viewModel.hasFetchedData {
+                VStack(spacing: 8) {
+                    ForEach(0..<3, id: \.self) { idx in
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("placeholder-domain-\(idx + 1).com")
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                
+                                Text("Pro Plan")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(Color(.tertiaryLabel))
+                                .accessibilityHidden(true)
+                        }
+                        .padding(14)
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .skeletonLoading(true)
+            } else if viewModel.zones.isEmpty {
                 HStack {
                     Spacer()
                     VStack(spacing: 6) {
                         Image(systemName: "globe")
                             .font(.title2)
                             .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
                         Text("No domain zones loaded")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -236,8 +270,8 @@ struct DashboardView: View {
                     .padding(.vertical, 20)
                     Spacer()
                 }
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(14)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 VStack(spacing: 8) {
                     ForEach(viewModel.zones.prefix(3)) { zone in
@@ -263,12 +297,12 @@ struct DashboardView: View {
                                 
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                    .foregroundStyle(Color(.tertiaryLabel))
                                     .accessibilityHidden(true)
                             }
                             .padding(14)
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -284,6 +318,7 @@ struct DashboardView: View {
                 Image(systemName: "checkmark.shield.fill")
                     .font(.title3)
                     .foregroundStyle(.green)
+                    .accessibilityHidden(true)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Cloudflare Operational Status")
@@ -301,8 +336,8 @@ struct DashboardView: View {
                     .foregroundStyle(.blue)
             }
             .padding(14)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .cornerRadius(14)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -327,6 +362,7 @@ struct DashboardMetricCard: View {
                     .frame(width: 28, height: 28)
                     .background(iconColor.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityHidden(true)
                 
                 Spacer()
                 
@@ -335,8 +371,8 @@ struct DashboardMetricCard: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(UIColor.tertiarySystemGroupedBackground))
-                    .cornerRadius(4)
+                    .background(Color(.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
             
             Text(value)
@@ -359,8 +395,8 @@ struct DashboardMetricCard: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, minHeight: 125, alignment: .topLeading)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 2)
     }
 }
@@ -378,6 +414,7 @@ struct QuickDeckButton: View {
                 .frame(width: 44, height: 44)
                 .background(color.opacity(0.12))
                 .clipShape(Circle())
+                .accessibilityHidden(true)
             
             Text(title)
                 .font(.caption2.weight(.medium))
@@ -386,7 +423,7 @@ struct QuickDeckButton: View {
         }
         .frame(width: 78)
         .padding(.vertical, 8)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

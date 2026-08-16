@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
-    @AppStorage("themePreference") private var themePreference = "system"
-    @AppStorage("appLanguage") private var appLanguage = "system"
-    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
-    @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
+    @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
+    @AppStorage(AppStorageKey.hapticsEnabled) private var hapticsEnabled = true
+    @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
     @Environment(\.openURL) private var openURL
     
     @State private var showingLogoutAlert = false
@@ -26,9 +26,10 @@ struct SettingsView: View {
                                     .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
-                                    .font(.title2)
+                                    .font(.title2.weight(.bold))
                                     .foregroundStyle(.white)
                             }
+                            .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 6) {
@@ -38,7 +39,7 @@ struct SettingsView: View {
                                         .padding(.vertical, 2)
                                         .background(Color.orange.opacity(0.12))
                                         .foregroundStyle(.orange)
-                                        .cornerRadius(4)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
@@ -120,10 +121,7 @@ struct SettingsView: View {
                         )
                     }
                     .onChange(of: isAppLockEnabled) { _ in
-                        if hapticsEnabled {
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
-                        }
+                        HapticManager.impact(.light)
                     }
                 } header: {
                     Text("Security")
@@ -146,10 +144,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: themePreference) { _ in
-                        if hapticsEnabled {
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
-                        }
+                        HapticManager.impact(.light)
                     }
                     
                     Picker(selection: $appLanguage) {
@@ -165,10 +160,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: appLanguage) { _ in
-                        if hapticsEnabled {
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
-                        }
+                        HapticManager.impact(.light)
                     }
                     
                     Toggle(isOn: $hapticsEnabled) {
@@ -178,8 +170,14 @@ struct SettingsView: View {
                             title: "Haptic Feedback"
                         )
                     }
+                    .onChange(of: hapticsEnabled) { enabled in
+                        if enabled {
+                            HapticManager.impact(.medium)
+                        }
+                    }
                     
                     Button {
+                        HapticManager.impact(.medium)
                         showingClearCacheAlert = true
                     } label: {
                         HStack {
@@ -245,6 +243,7 @@ struct SettingsView: View {
                 // MARK: - Log Out Section
                 Section {
                     Button(role: .destructive, action: {
+                        HapticManager.impact(.medium)
                         showingLogoutAlert = true
                     }) {
                         HStack {
@@ -256,6 +255,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("Settings")
             .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
                 Button("Cancel", role: .cancel) {}
@@ -268,13 +268,13 @@ struct SettingsView: View {
             }
             .alert("Log Out", isPresented: $showingLogoutAlert) {
                 Button("Log Out", role: .destructive) {
-                    let loginVM = LoginViewModel()
-                    loginVM.logout()
+                    AccountManager.shared.logoutAll()
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("Are you sure you want to log out of your Cloudflare account?")
             }
+            .toastContainer()
         }
     }
 }

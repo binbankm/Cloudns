@@ -81,85 +81,49 @@ struct QueuesView: View {
         _viewModel = StateObject(wrappedValue: QueuesViewModel(accountId: accountId))
     }
     
-    var body: some View {
+    // Skeleton-only list — no .searchable, prevents overlap
+    @ViewBuilder
+    private var skeletonContent: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
+            Section(header: Text("Message Queues")) {
+                ForEach(CFQueue.placeholders) { queue in
+                    queueRow(queue)
                 }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(message: LocalizedStringKey(err)) {
-                        Task { await viewModel.fetchQueues() }
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.queues.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "tray.2.fill",
-                        title: "No Queues",
-                        message: "Create a Cloudflare Queue to send and receive messages with guaranteed delivery.",
-                        actionTitle: "Create Queue",
-                        action: { showingCreateSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredQueues.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            }
+            .skeletonLoading(true)
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Queues")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button { } label: { Image(systemName: "plus") }
+                    .disabled(true)
+                    .accessibilityLabel("Create Queue")
+            }
+        }
+    }
+
+    // Data-ready list — gets .searchable safely
+    @ViewBuilder
+    private var dataContent: some View {
+        List {
+            if !viewModel.filteredQueues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
                     ForEach(viewModel.filteredQueues) { queue in
                         NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "tray.2.fill")
-                                    .foregroundStyle(.pink)
-                                    .font(.title3)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.pink.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(queue.queueName)
-                                        .font(.body.weight(.medium))
-                                    
-                                    if let created = queue.createdOn {
-                                        Text("Created: \(String(created.prefix(10)))")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                if queue.settings?.deliveryPaused == true {
-                                    Text("Paused")
-                                        .font(.caption2.weight(.semibold))
-                                        .foregroundStyle(.orange)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.orange.opacity(0.12))
-                                        .cornerRadius(4)
-                                }
-                            }
-                            .padding(.vertical, 2)
+                            queueRow(queue)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HapticManager.impact(.medium)
                                 queueToDelete = queue
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            
                             Button {
+                                HapticManager.impact(.light)
                                 queueToPurge = queue
                                 showingPurgeAlert = true
                             } label: {
@@ -172,9 +136,36 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(err),
+                        retryAction: { Task { await viewModel.fetchQueues() } }
+                    )
+                )
+            } else if viewModel.queues.isEmpty {
+                StateOverlayView(
+                    state: .empty(
+                        icon: "tray.2.fill",
+                        title: "No Queues",
+                        message: "Create a Cloudflare Queue to send and receive messages with guaranteed delivery.",
+                        actionTitle: "Create Queue",
+                        action: { showingCreateSheet = true }
+                    )
+                )
+            } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
+                StateOverlayView(
+                    state: .search(
+                        query: viewModel.searchText,
+                        clearAction: { viewModel.searchText = "" }
+                    )
+                )
+            }
+        }
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Queues")
+        .searchable(text: $viewModel.searchText, prompt: "Search Queues")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -182,6 +173,7 @@ struct QueuesView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Create Queue")
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
@@ -206,12 +198,59 @@ struct QueuesView: View {
         .refreshable {
             await viewModel.fetchQueues()
         }
+        .toastContainer()
+    }
+
+    var body: some View {
+        Group {
+            if !viewModel.hasFetchedData {
+                skeletonContent
+            } else {
+                dataContent
+            }
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchQueues()
             }
         }
-        .toastContainer()
+    }
+    
+    @ViewBuilder
+    private func queueRow(_ queue: CFQueue) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "tray.2.fill")
+                .foregroundStyle(.pink)
+                .font(.title3)
+                .frame(width: 32, height: 32)
+                .background(Color.pink.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(queue.queueName)
+                    .font(.body.weight(.medium))
+                
+                if let created = queue.createdOn {
+                    Text("Created: \(String(created.prefix(10)))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            if queue.settings?.deliveryPaused == true {
+                Text("Paused")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.orange.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -269,6 +308,7 @@ struct QueueDetailView: View {
                         HStack {
                             Image(systemName: "arrow.up.right.circle.fill")
                                 .foregroundStyle(.blue)
+                                .accessibilityHidden(true)
                             Text(p.script ?? p.service ?? "Worker")
                                 .font(.body)
                             Spacer()
@@ -289,6 +329,7 @@ struct QueueDetailView: View {
                             HStack {
                                 Image(systemName: "arrow.down.left.circle.fill")
                                     .foregroundStyle(.green)
+                                    .accessibilityHidden(true)
                                 Text(c.scriptName ?? c.service ?? "Worker")
                                     .font(.body.weight(.medium))
                                 Spacer()
@@ -305,12 +346,14 @@ struct QueueDetailView: View {
             
             Section(header: Text("Danger Zone")) {
                 Button(role: .destructive) {
+                    HapticManager.impact(.medium)
                     Task { await viewModel.purgeQueue(queueId: queue.id) }
                 } label: {
                     Label("Purge All Messages", systemImage: "xmark.bin")
                 }
                 
                 Button(role: .destructive) {
+                    HapticManager.impact(.medium)
                     Task { await viewModel.deleteQueue(queueId: queue.id) }
                 } label: {
                     Label("Delete Queue", systemImage: "trash")

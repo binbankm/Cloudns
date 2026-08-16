@@ -13,174 +13,173 @@ struct D1ConsoleView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            List {
-                // Section: DB Summary
-                Section(header: Text("Database Overview")) {
+        List {
+            // Section: DB Summary
+            Section(header: Text("Database Overview")) {
+                HStack {
+                    Text("Database Name")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(database.name)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                }
+                
+                HStack {
+                    Text("UUID")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(database.uuid)
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                
+                if database.fileSize != nil {
                     HStack {
-                        Text("Database Name")
+                        Text("Storage Size")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(database.name)
-                            .font(.body)
+                        Text(database.formattedSize)
                             .foregroundStyle(.primary)
                     }
-                    
+                }
+            }
+            
+            // Section: Database Tables
+            Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
+                if viewModel.isLoadingTables && viewModel.tables.isEmpty {
                     HStack {
-                        Text("UUID")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(database.uuid)
-                            .font(.caption2.monospacedDigit())
+                        ProgressView()
+                            .padding(.trailing, 6)
+                        Text("Discovering tables...")
                             .foregroundStyle(.secondary)
                     }
-                    
-                    if database.fileSize != nil {
-                        HStack {
-                            Text("Storage Size")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(database.formattedSize)
-                                .foregroundStyle(.primary)
+                } else if viewModel.tables.isEmpty {
+                    Text("No tables found. Create a table using SQL below.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(viewModel.tables, id: \.self) { tableName in
+                        NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Color.purple.opacity(0.12)
+                                    Image(systemName: "tablecells")
+                                        .foregroundStyle(.purple)
+                                        .font(.body)
+                                        .accessibilityHidden(true)
+                                }
+                                .frame(width: 32, height: 32)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                
+                                Text(tableName)
+                                    .font(.body.weight(.medium))
+                                
+                                Spacer()
+                            }
+                            .padding(.vertical, 2)
                         }
                     }
                 }
-                
-                // Section: Database Tables
-                Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
-                    if viewModel.isLoadingTables && viewModel.tables.isEmpty {
-                        HStack {
-                            ProgressView()
-                                .padding(.trailing, 6)
-                            Text("Discovering tables...")
-                                .foregroundStyle(.secondary)
+            }
+            
+            // Section: SQL Query Editor
+            Section(header: Text("SQL Query Console")) {
+                // Presets
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.sqlPresets, id: \.name) { preset in
+                            Button {
+                                HapticManager.impact(.light)
+                                viewModel.sqlInput = preset.sql
+                            } label: {
+                                Text(preset.name)
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Color(.secondarySystemFill))
+                                    .foregroundStyle(.purple)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
                         }
-                    } else if viewModel.tables.isEmpty {
-                        Text("No tables found. Create a table using SQL below.")
+                    }
+                    .padding(.vertical, 2)
+                }
+                
+                TextEditor(text: $viewModel.sqlInput)
+                    .font(.body.monospacedDigit())
+                    .frame(minHeight: 80)
+                    .focused($isEditorFocused)
+                
+                Button {
+                    isEditorFocused = false
+                    HapticManager.impact(.medium)
+                    Task { await viewModel.runQuery() }
+                } label: {
+                    HStack {
+                        Spacer()
+                        if viewModel.isExecuting {
+                            ProgressView()
+                                .padding(.trailing, 4)
+                        } else {
+                            Image(systemName: "play.fill")
+                        }
+                        Text("Execute SQL")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.purple)
+                        Spacer()
+                    }
+                }
+                .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
+            }
+            
+            // Section: Results
+            if let result = viewModel.queryResult {
+                Section(header: HStack {
+                    Text("Query Results (\(result.rows.count) rows)")
+                    Spacer()
+                    Text(String(format: "%.1f ms", result.durationMs))
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.green)
+                }) {
+                    if result.rows.isEmpty {
+                        Text("Query executed successfully. 0 rows returned.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(viewModel.tables, id: \.self) { tableName in
-                            NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
-                                HStack(spacing: 12) {
-                                    ZStack {
-                                        Color.purple.opacity(0.12)
-                                        Image(systemName: "tablecells")
-                                            .foregroundStyle(.purple)
-                                            .font(.body)
-                                    }
-                                    .frame(width: 32, height: 32)
-                                    .cornerRadius(6)
-                                    
-                                    Text(tableName)
-                                        .font(.body.weight(.medium))
-                                    
-                                    Spacer()
-                                }
-                                .padding(.vertical, 2)
-                            }
-                        }
-                    }
-                }
-                
-                // Section: SQL Query Editor
-                Section(header: Text("SQL Query Console")) {
-                    // Presets
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(viewModel.sqlPresets, id: \.name) { preset in
-                                Button {
-                                    viewModel.sqlInput = preset.sql
-                                } label: {
-                                    Text(preset.name)
-                                        .font(.caption2.weight(.medium))
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
-                                        .background(Color(UIColor.secondarySystemFill))
-                                        .foregroundStyle(.purple)
-                                        .cornerRadius(6)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 2)
-                    }
-                    
-                    TextEditor(text: $viewModel.sqlInput)
-                        .font(.body.monospacedDigit())
-                        .frame(minHeight: 80)
-                        .focused($isEditorFocused)
-                    
-                    Button {
-                        isEditorFocused = false
-                        Task { await viewModel.runQuery() }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            if viewModel.isExecuting {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            } else {
-                                Image(systemName: "play.fill")
-                            }
-                            Text("Execute SQL")
-                                .font(.body)
-                                .foregroundStyle(.purple)
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
-                }
-                
-                // Section: Results
-                if let result = viewModel.queryResult {
-                    Section(header: HStack {
-                        Text("Query Results (\(result.rows.count) rows)")
-                        Spacer()
-                        Text(String(format: "%.1f ms", result.durationMs))
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.green)
-                    }) {
-                        if result.rows.isEmpty {
-                            Text("Query executed successfully. 0 rows returned.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            ForEach(0..<result.rows.count, id: \.self) { idx in
-                                let row = result.rows[idx]
-                                VStack(alignment: .leading, spacing: 4) {
-                                    ForEach(result.columns, id: \.self) { col in
-                                        HStack(alignment: .top) {
-                                            Text(col)
-                                                .font(.caption2.monospacedDigit())
-                                                .foregroundStyle(.secondary)
-                                                .frame(width: 80, alignment: .leading)
-                                            
-                                            Text(row[col] ?? "null")
-                                                .font(.caption.monospacedDigit())
-                                                .foregroundStyle(.primary)
-                                            
-                                            Spacer()
-                                        }
+                        ForEach(0..<result.rows.count, id: \.self) { idx in
+                            let row = result.rows[idx]
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(result.columns, id: \.self) { col in
+                                    HStack(alignment: .top) {
+                                        Text(col)
+                                            .font(.caption2.monospacedDigit())
+                                            .foregroundStyle(.secondary)
+                                            .frame(width: 80, alignment: .leading)
+                                        
+                                        Text(row[col] ?? "null")
+                                            .font(.caption.monospacedDigit())
+                                            .foregroundStyle(.primary)
+                                        
+                                        Spacer()
                                     }
                                 }
-                                .padding(.vertical, 4)
                             }
+                            .padding(.vertical, 4)
                         }
                     }
-                } else if let error = viewModel.errorMessage {
-                    Section {
-                        Text(error)
-                            .font(.subheadline)
-                            .foregroundStyle(.red)
-                    }
+                }
+            } else if let error = viewModel.errorMessage {
+                Section {
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
                 }
             }
-            .listStyle(.insetGrouped)
-            .refreshable {
-                await viewModel.fetchTables()
-            }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchTables()
         }
         .navigationTitle(database.name)
         .navigationBarTitleDisplayMode(.inline)

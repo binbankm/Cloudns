@@ -71,113 +71,95 @@ struct HyperdriveView: View {
     }
     
     var body: some View {
-        List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section(header: Text("Database Accelerators")) {
+                        ForEach(HyperdriveConfig.placeholders) { config in
+                            configRow(config)
+                        }
                     }
+                    .skeletonLoading(true)
                 }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(message: LocalizedStringKey(err)) {
-                        Task { await viewModel.fetchConfigs() }
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.configs.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "bolt.horizontal.fill",
-                        title: "No Hyperdrive Configs",
-                        message: "Hyperdrive accelerates database queries from Workers to existing regional databases.",
-                        actionTitle: "Create Config",
-                        action: { showingCreateSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredConfigs.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
+                .listStyle(.insetGrouped)
+                .navigationTitle("Hyperdrive")
+                .navigationBarTitleDisplayMode(.inline)
             } else {
-                Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
-                    ForEach(viewModel.filteredConfigs) { config in
-                        NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "bolt.horizontal.fill")
-                                    .foregroundStyle(.green)
-                                    .font(.title3)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.green.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(config.name)
-                                        .font(.body.weight(.medium))
-                                    
-                                    if let host = config.origin?.host {
-                                        Text(host)
-                                            .font(.caption2.monospaced())
-                                            .foregroundStyle(.secondary)
+                List {
+                    if !viewModel.filteredConfigs.isEmpty {
+                        Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
+                            ForEach(viewModel.filteredConfigs) { config in
+                                NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
+                                    configRow(config)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        configToDelete = config
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                
-                                Spacer()
-                                
-                                if let scheme = config.origin?.scheme {
-                                    Text(scheme.uppercased())
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.green)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.green.opacity(0.12))
-                                        .clipShape(Capsule())
-                                }
-                            }
-                            .padding(.vertical, 2)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                configToDelete = config
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle("Hyperdrive")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Hyperdrive")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingCreateSheet = true
-                } label: {
-                    Image(systemName: "plus")
+                .listStyle(.insetGrouped)
+                .overlay {
+                    if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
+                        StateOverlayView(
+                            state: .error(
+                                message: LocalizedStringKey(err),
+                                retryAction: { Task { await viewModel.fetchConfigs() } }
+                            )
+                        )
+                    } else if viewModel.configs.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "bolt.horizontal.fill",
+                                title: "No Hyperdrive Configs",
+                                message: "Hyperdrive accelerates database queries from Workers to existing regional databases.",
+                                actionTitle: "Create Config",
+                                action: { showingCreateSheet = true }
+                            )
+                        )
+                    } else if viewModel.filteredConfigs.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                }
+                .navigationTitle("Hyperdrive")
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $viewModel.searchText, prompt: "Search Hyperdrive")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showingCreateSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingCreateSheet) {
+                    CreateHyperdriveSheet(viewModel: viewModel)
+                }
+                .alert("Delete Hyperdrive", isPresented: $showingDeleteAlert, presenting: configToDelete) { cfg in
+                    Button("Cancel", role: .cancel) {}
+                    Button("Delete", role: .destructive) {
+                        Task { await viewModel.deleteConfig(id: cfg.id) }
+                    }
+                } message: { cfg in
+                    Text("Are you sure you want to delete '\(cfg.name)'? Worker bindings connected to this accelerator will stop functioning.")
+                }
+                .refreshable {
+                    await viewModel.fetchConfigs()
                 }
             }
-        }
-        .sheet(isPresented: $showingCreateSheet) {
-            CreateHyperdriveSheet(viewModel: viewModel)
-        }
-        .alert("Delete Hyperdrive", isPresented: $showingDeleteAlert, presenting: configToDelete) { cfg in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task { await viewModel.deleteConfig(id: cfg.id) }
-            }
-        } message: { cfg in
-            Text("Are you sure you want to delete '\(cfg.name)'? Worker bindings connected to this accelerator will stop functioning.")
-        }
-        .refreshable {
-            await viewModel.fetchConfigs()
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -185,6 +167,43 @@ struct HyperdriveView: View {
             }
         }
         .toastContainer()
+    }
+    
+    @ViewBuilder
+    private func configRow(_ config: HyperdriveConfig) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "bolt.horizontal.fill")
+                .foregroundStyle(.green)
+                .font(.title3)
+                .frame(width: 32, height: 32)
+                .background(Color.green.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(config.name)
+                    .font(.body.weight(.medium))
+                
+                if let host = config.origin?.host {
+                    Text(host)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            if let scheme = config.origin?.scheme {
+                Text(scheme.uppercased())
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.green.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

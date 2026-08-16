@@ -71,110 +71,70 @@ struct BulkRedirectListsView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Bulk Redirects")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Lists")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingCreateSheet = true
-                    } label: {
-                        Image(systemName: "plus")
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section(header: Text("Redirect Lists")) {
+                        ForEach(RedirectList.placeholders) { item in
+                            listRow(item)
+                        }
                     }
+                    .skeletonLoading(true)
                 }
+                .listStyle(.insetGrouped)
+                .navigationTitle("Bulk Redirects")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("Bulk Redirects")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search Lists")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showingCreateSheet = true
+                            } label: {
+                                Image(systemName: "plus")
+                            }
+                            .accessibilityLabel("Create List")
+                        }
+                    }
+                    .sheet(isPresented: $showingCreateSheet) {
+                        CreateBulkRedirectListSheet(viewModel: viewModel)
+                    }
+                    .alert("Delete List", isPresented: $showingDeleteAlert, presenting: listToDelete) { item in
+                        Button("Cancel", role: .cancel) {}
+                        Button("Delete", role: .destructive) {
+                            Task { await viewModel.deleteList(id: item.id) }
+                        }
+                    } message: { item in
+                        Text("Are you sure you want to delete redirect list '\(item.name)'?")
+                    }
+                    .refreshable {
+                        await viewModel.fetchLists()
+                    }
             }
-            .sheet(isPresented: $showingCreateSheet) {
-                CreateBulkRedirectListSheet(viewModel: viewModel)
-            }
-            .alert("Delete List", isPresented: $showingDeleteAlert, presenting: listToDelete) { item in
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task { await viewModel.deleteList(id: item.id) }
-                }
-            } message: { item in
-                Text("Are you sure you want to delete redirect list '\(item.name)'?")
-            }
-            .refreshable {
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchLists()
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchLists()
-                }
-            }
-            .toastContainer()
+        }
+        .toastContainer()
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(message: LocalizedStringKey(err)) {
-                        Task { await viewModel.fetchLists() }
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.lists.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "arrow.triangle.swap",
-                        title: "No Bulk Redirect Lists",
-                        message: "Bulk Redirects allow you to define thousands of URL redirects at the account level.",
-                        actionTitle: "Create List",
-                        action: { showingCreateSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredLists.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredLists.isEmpty {
                 Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
                     ForEach(viewModel.filteredLists) { item in
                         NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "arrow.triangle.swap")
-                                    .foregroundStyle(.indigo)
-                                    .font(.title3)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.indigo.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(item.name)
-                                        .font(.body.weight(.medium))
-                                    
-                                    if let desc = item.description, !desc.isEmpty {
-                                        Text(desc)
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                if let count = item.count {
-                                    Text("\(count) items")
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 2)
+                            listRow(item)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HapticManager.impact(.medium)
                                 listToDelete = item
                                 showingDeleteAlert = true
                             } label: {
@@ -186,6 +146,66 @@ struct BulkRedirectListsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(err),
+                            retryAction: { Task { await viewModel.fetchLists() } }
+                        )
+                    )
+                } else if viewModel.lists.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "arrow.triangle.swap",
+                            title: "No Bulk Redirect Lists",
+                            message: "Bulk Redirects allow you to define thousands of URL redirects at the account level.",
+                            actionTitle: "Create List",
+                            action: { showingCreateSheet = true }
+                        )
+                    )
+                } else if viewModel.filteredLists.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private func listRow(_ item: RedirectList) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "arrow.triangle.swap")
+                .foregroundStyle(.indigo)
+                .font(.title3)
+                .frame(width: 32, height: 32)
+                .background(Color.indigo.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.name)
+                    .font(.body.weight(.medium))
+                
+                if let desc = item.description, !desc.isEmpty {
+                    Text(desc)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            if let count = item.count {
+                Text("\(count) items")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -240,6 +260,7 @@ struct RedirectListDetailView: View {
                                 Image(systemName: "arrow.turn.down.right")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
+                                    .accessibilityHidden(true)
                                 Text(item.redirect.targetUrl)
                                     .font(.caption.monospaced())
                                     .foregroundStyle(.blue)
@@ -248,6 +269,7 @@ struct RedirectListDetailView: View {
                         .padding(.vertical, 2)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HapticManager.impact(.medium)
                                 Task { await deleteItem(id: item.id) }
                             } label: {
                                 Label("Delete", systemImage: "trash")
@@ -267,6 +289,7 @@ struct RedirectListDetailView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add Redirect Item")
             }
         }
         .sheet(isPresented: $showingAddSheet) {

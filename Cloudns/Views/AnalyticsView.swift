@@ -21,84 +21,102 @@ struct AnalyticsView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
                 .onChange(of: timeRange) { newValue in
+                    HapticManager.impact(.light)
                     Task {
                         await viewModel.fetchAnalytics(zoneTag: zoneId, days: newValue)
                     }
                 }
                 
-                if let errorMessage = viewModel.errorMessage, viewModel.dataPoints.isEmpty {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange)
-                            }
-                        }
-                    )
-                } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
-                    EmptyStateView(
-                        icon: "chart.xyaxis.line",
-                        title: "No Analytics Data",
-                        message: "Traffic metrics for the selected time range are currently unavailable."
-                    )
+                if !viewModel.hasFetchedData {
+                    summaryAndChartsContent
+                        .skeletonLoading(true)
+                } else if viewModel.dataPoints.isEmpty {
+                    // Empty state handled in overlay
+                    Color.clear.frame(height: 200)
                 } else {
-                    // Summary Cards
-                    HStack(spacing: 12) {
-                        SummaryCard(title: "Total Requests", value: "\(viewModel.totalRequests)", icon: "globe", color: .blue)
-                        SummaryCard(title: "Bandwidth", value: viewModel.formatBytes(viewModel.totalBandwidthBytes), icon: "arrow.up.arrow.down", color: .purple)
-                    }
-                    .padding(.horizontal)
-                    
-                    HStack(spacing: 12) {
-                        SummaryCard(title: "Cached Requests", value: "\(viewModel.totalCachedRequests)", icon: "bolt.fill", color: .orange)
-                        SummaryCard(title: "Hit Ratio", value: String(format: "%.1f%%", viewModel.cachedRatio * 100), icon: "chart.pie.fill", color: .green)
-                    }
-                    .padding(.horizontal)
-                    
-                    // Charts
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Requests")
-                            .font(.body)
-                        
-                        requestsChart
-                        
-                        Divider()
-                        
-                        Text("Bandwidth")
-                            .font(.body)
-                        
-                        bandwidthChart
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .padding(.horizontal)
-                    
-                    if !viewModel.mapDataPoints.isEmpty {
-                        VStack(alignment: .leading, spacing: 20) {
-                            Text("Traffic by Country")
-                                .font(.body)
-                                .padding(.horizontal)
-                            
-                            trafficMapView
-                                .frame(height: 300)
-                                .cornerRadius(16)
-                                .padding(.horizontal)
-                        }
-                    }
+                    summaryAndChartsContent
                 }
             }
             .padding(.vertical)
-            .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-            .shimmering(active: !viewModel.hasFetchedData)
-            .disabled(!viewModel.hasFetchedData)
         }
-        .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.dataPoints.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
+                            }
+                        )
+                    )
+                } else if viewModel.dataPoints.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "chart.xyaxis.line",
+                            title: "No Analytics Data",
+                            message: "Traffic metrics for the selected time range are currently unavailable."
+                        )
+                    )
+                }
+            }
+        }
         .navigationTitle("Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             if viewModel.dataPoints.isEmpty {
                 await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var summaryAndChartsContent: some View {
+        VStack(spacing: 20) {
+            // Summary Cards
+            HStack(spacing: 12) {
+                SummaryCard(title: "Total Requests", value: "\(viewModel.totalRequests)", icon: "globe", color: .blue)
+                SummaryCard(title: "Bandwidth", value: viewModel.formatBytes(viewModel.totalBandwidthBytes), icon: "arrow.up.arrow.down", color: .purple)
+            }
+            .padding(.horizontal)
+            
+            HStack(spacing: 12) {
+                SummaryCard(title: "Cached Requests", value: "\(viewModel.totalCachedRequests)", icon: "bolt.fill", color: .orange)
+                SummaryCard(title: "Hit Ratio", value: String(format: "%.1f%%", viewModel.cachedRatio * 100), icon: "chart.pie.fill", color: .green)
+            }
+            .padding(.horizontal)
+            
+            // Charts
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Requests")
+                    .font(.body.weight(.medium))
+                
+                requestsChart
+                
+                Divider()
+                
+                Text("Bandwidth")
+                    .font(.body.weight(.medium))
+                
+                bandwidthChart
+            }
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal)
+            
+            if !viewModel.mapDataPoints.isEmpty {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("Traffic by Country")
+                        .font(.body.weight(.medium))
+                        .padding(.horizontal)
+                    
+                    trafficMapView
+                        .frame(height: 300)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal)
+                }
             }
         }
     }
@@ -221,6 +239,7 @@ struct AnalyticsView: View {
             Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
                 MapAnnotation(coordinate: item.coordinate) {
                     Button {
+                        HapticManager.impact(.light)
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             selectedCountry = item.countryCode
                         }
@@ -268,8 +287,8 @@ struct AnalyticsView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Color(UIColor.systemBackground).opacity(0.95))
-                .cornerRadius(12)
+                .background(Color(.systemBackground).opacity(0.95))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
                 .padding(.horizontal, 40)
                 .padding(.bottom, 16)
@@ -330,6 +349,7 @@ struct SummaryCard: View {
             HStack {
                 Image(systemName: icon)
                     .foregroundStyle(color)
+                    .accessibilityHidden(true)
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -343,8 +363,8 @@ struct SummaryCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.02), radius: 4, x: 0, y: 2)
     }
 }

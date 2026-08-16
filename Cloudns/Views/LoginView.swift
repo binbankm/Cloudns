@@ -24,6 +24,7 @@ struct LoginView: View {
                     .frame(width: 60, height: 60)
                     .foregroundStyle(.orange)
                     .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
+                    .accessibilityHidden(true)
                 
                 VStack(spacing: 8) {
                     Text(onLoginSuccess == nil ? "Welcome Back" : "Add Account")
@@ -52,8 +53,8 @@ struct LoginView: View {
                             .accessibilityHidden(true)
                         TextField("Enter your email", text: $viewModel.email)
                             .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .focused($focusedField, equals: .email)
                             .submitLabel(.next)
                             .disabled(viewModel.isLoading)
@@ -62,8 +63,8 @@ struct LoginView: View {
                             }
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(12)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(focusedField == .email ? Color.orange : Color.gray.opacity(0.2), lineWidth: 1)
@@ -82,8 +83,8 @@ struct LoginView: View {
                             .foregroundStyle(.gray)
                             .accessibilityHidden(true)
                         SecureField("Enter your Global API Key", text: $viewModel.apiKey)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .focused($focusedField, equals: .apiKey)
                             .submitLabel(.done)
                             .disabled(viewModel.isLoading)
@@ -95,8 +96,8 @@ struct LoginView: View {
                             }
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(12)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(focusedField == .apiKey ? Color.orange : Color.gray.opacity(0.2), lineWidth: 1)
@@ -113,10 +114,8 @@ struct LoginView: View {
                     .multilineTextAlignment(.center)
                     .padding(.top, 16)
                     .padding(.horizontal, 24)
-                    .accessibilityLabel(errorMessage)
                     .onAppear {
-                        let generator = UINotificationFeedbackGenerator()
-                        generator.notificationOccurred(.error)
+                        HapticManager.notification(.error)
                     }
             }
             
@@ -126,8 +125,7 @@ struct LoginView: View {
             
             Button(action: {
                 focusedField = nil // Dismiss keyboard
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
+                HapticManager.impact(.medium)
                 Task {
                     await viewModel.login(onSuccess: onLoginSuccess)
                 }
@@ -135,24 +133,23 @@ struct LoginView: View {
                 Group {
                     if viewModel.isLoading {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .tint(.white)
                     } else {
                         Text("Log In")
-                            .font(.body)
+                            .font(.body.weight(.semibold))
                     }
                 }
-                .foregroundStyle(isButtonDisabled ? .gray : .white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(isButtonDisabled ? Color.gray.opacity(0.2) : Color.orange)
-                .cornerRadius(12)
-                .shadow(color: isButtonDisabled ? .clear : .orange.opacity(0.4), radius: 8, x: 0, y: 4)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.top, 32)
             .padding(.horizontal, 24)
             .disabled(isButtonDisabled)
             
-            Spacer().frame(height: 40) // Fixed gap instead of taking all remaining space
+            Spacer().frame(height: 40)
             
             // Footer
             VStack(spacing: 16) {
@@ -195,13 +192,11 @@ struct LoginView: View {
             Spacer()
         }
         .background(
-            Button {
-                focusedField = nil
-            } label: {
-                Color(UIColor.systemBackground)
-                    .edgesIgnoringSafeArea(.all)
-            }
-            .buttonStyle(.plain)
+            Color(.systemBackground)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    focusedField = nil
+                }
         )
     }
 }

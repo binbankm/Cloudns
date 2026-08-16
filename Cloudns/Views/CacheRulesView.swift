@@ -13,33 +13,25 @@ struct CacheRulesView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(WAFRule.placeholders) { rule in
+                        CacheRuleCardView(rule: rule, onToggle: {})
                     }
                 }
-            } else if viewModel.rules.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "bolt.badge.clock",
-                        title: "No Cache Rules",
-                        message: "You haven't created any custom cache rules yet.",
-                        actionTitle: "Add Cache Rule",
-                        action: { showingAddSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
+                            HapticManager.impact(.light)
                             Task {
                                 await viewModel.toggleRule(rule: rule)
                             }
                         }
                     }
                     .onDelete(perform: { indexSet in
+                        HapticManager.impact(.medium)
                         for index in indexSet {
                             let rule = viewModel.rules[index]
                             viewModel.deleteRule(at: IndexSet(integer: index))
@@ -50,6 +42,30 @@ struct CacheRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchCacheRules() }
+                            }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "bolt.badge.clock",
+                            title: "No Cache Rules",
+                            message: "You haven't created any custom cache rules yet.",
+                            actionTitle: "Add Cache Rule",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchCacheRules()
         }
@@ -62,7 +78,7 @@ struct CacheRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加缓存规则")
+                .accessibilityLabel("Add Cache Rule")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -73,14 +89,6 @@ struct CacheRulesView: View {
                 await viewModel.fetchCacheRules()
             }
         }
-        .alert("Error", isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        ), actions: {
-            Button("OK", role: .cancel) { }
-        }, message: {
-            Text(viewModel.errorMessage ?? "Unknown error")
-        })
     }
 }
 
@@ -102,11 +110,11 @@ struct CacheRuleCardView: View {
             }
             
             Text(rule.expression)
-                .font(.caption)
+                .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(6)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(4)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
                 .lineLimit(2)
             
             if let cache = rule.action_parameters?.cache {
@@ -114,6 +122,7 @@ struct CacheRuleCardView: View {
                     Image(systemName: cache ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .foregroundStyle(cache ? .green : .red)
                         .font(.caption)
+                        .accessibilityHidden(true)
                     Text(cache ? "Eligible for cache" : "Bypass cache")
                         .font(.caption)
                         .foregroundStyle(cache ? .green : .red)

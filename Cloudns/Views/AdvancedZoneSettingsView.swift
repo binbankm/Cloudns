@@ -16,8 +16,6 @@ struct AdvancedZoneSettingsView: View {
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
     
-    // Environment for dismissing to root
-    @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -30,6 +28,11 @@ struct AdvancedZoneSettingsView: View {
                     Text("Pause Cloudflare")
                 }
                 .onChange(of: isPaused) { newValue in
+                    if newValue {
+                        HapticManager.notification(.warning)
+                    } else {
+                        HapticManager.impact(.light)
+                    }
                     Task {
                         await updatePauseStatus(paused: newValue)
                     }
@@ -41,6 +44,7 @@ struct AdvancedZoneSettingsView: View {
                 footer: Text("Removing this site will immediately delete all its configuration and data from Cloudflare. This action cannot be undone.")
             ) {
                 Button(action: {
+                    HapticManager.impact(.medium)
                     showDeleteConfirmation = true
                 }) {
                     HStack {
@@ -78,15 +82,16 @@ struct AdvancedZoneSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
+        .toastContainer()
     }
     
     private func updatePauseStatus(paused: Bool) async {
         do {
             try await CloudflareAPIClient.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
-            NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
+            ToastManager.shared.showSuccess(paused ? "Site Paused" : "Site Resumed")
         } catch {
             self.errorMessage = error.localizedDescription
-            // Revert state
             self.isPaused = !paused
         }
     }
@@ -96,8 +101,7 @@ struct AdvancedZoneSettingsView: View {
         do {
             try await CloudflareAPIClient.shared.deleteZone(zoneId: zoneId)
             isDeleting = false
-            // After deleting, we need to return to the root Dashboard view.
-            NotificationCenter.default.post(name: NSNotification.Name("ZoneDeleted"), object: nil)
+            NotificationCenter.default.post(name: .zoneDeleted, object: nil)
             dismiss()
         } catch {
             isDeleting = false

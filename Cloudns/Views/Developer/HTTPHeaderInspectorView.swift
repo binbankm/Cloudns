@@ -11,6 +11,7 @@ struct HTTPHeaderInspectorView: View {
                 HStack {
                     Image(systemName: "link")
                         .foregroundStyle(.blue)
+                        .accessibilityHidden(true)
                     
                     TextField("https://example.com", text: $viewModel.httpUrlInput)
                         .textInputAutocapitalization(.never)
@@ -28,11 +29,13 @@ struct HTTPHeaderInspectorView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
                         }
+                        .accessibilityLabel("Clear input")
                     }
                 }
                 
                 Button {
                     isFieldFocused = false
+                    HapticManager.impact(.light)
                     Task { await viewModel.inspectHTTP() }
                 } label: {
                     HStack {
@@ -51,85 +54,11 @@ struct HTTPHeaderInspectorView: View {
                 .disabled(viewModel.httpUrlInput.isEmpty || viewModel.isHttpLoading)
             }
             
-            // Section: Status & Timing
-            if let result = viewModel.httpResult {
-                Section(header: Text("Response Overview")) {
-                    HStack {
-                        Text("Status Code")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("\(result.statusCode)")
-                            .font(.subheadline.monospacedDigit().weight(.semibold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(result.statusCode < 400 ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
-                            .foregroundStyle(result.statusCode < 400 ? .green : .red)
-                            .cornerRadius(6)
-                    }
-                    
-                    HStack {
-                        Text("Response Latency")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(String(format: "%.1f ms", result.durationMs))
-                            .font(.subheadline.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    if let ray = result.cfRay {
-                        HStack {
-                            Text("CF-Ray ID")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(ray)
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.orange)
-                        }
-                    }
-                    
-                    if let cache = result.cfCacheStatus {
-                        HStack {
-                            Text("CF-Cache-Status")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(cache)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.blue.opacity(0.12))
-                                .foregroundStyle(.blue)
-                                .cornerRadius(4)
-                        }
-                    }
-                }
-                
-                // Section: Response Headers
-                Section(header: HStack {
-                    Text("Response Headers (\(result.headers.count))")
-                    Spacer()
-                    Button {
-                        let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
-                        UIPasteboard.general.string = text
-                        ToastManager.shared.showCopied("Headers copied")
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.caption)
-                    }
-                }) {
-                    ForEach(result.headers, id: \.key) { header in
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(header.key)
-                                .font(.caption.monospaced().weight(.semibold))
-                                .foregroundStyle(.primary)
-                            
-                            Text(header.value)
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.secondary)
-                                .lineLimit(3)
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
+            if viewModel.isHttpLoading {
+                httpResultSections(HTTPInspectionResult.placeholder)
+                    .skeletonLoading(true)
+            } else if let result = viewModel.httpResult {
+                httpResultSections(result)
             } else if let error = viewModel.httpError {
                 Section {
                     Text(error)
@@ -141,5 +70,88 @@ struct HTTPHeaderInspectorView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("HTTP Header Inspector")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    @ViewBuilder
+    private func httpResultSections(_ result: HTTPInspectionResult) -> some View {
+        Section(header: Text("Response Overview")) {
+            HStack {
+                Text("Status Code")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(result.statusCode)")
+                    .font(.subheadline.monospacedDigit().weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(result.statusCode < 400 ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+                    .foregroundStyle(result.statusCode < 400 ? .green : .red)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            
+            HStack {
+                Text("Response Latency")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(String(format: "%.1f ms", result.durationMs))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let ray = result.cfRay {
+                HStack {
+                    Text("CF-Ray ID")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(ray)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.orange)
+                }
+            }
+            
+            if let cache = result.cfCacheStatus {
+                HStack {
+                    Text("CF-Cache-Status")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(cache)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.12))
+                        .foregroundStyle(.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+            }
+        }
+        
+        // Section: Response Headers
+        Section(header: HStack {
+            Text("Response Headers (\(result.headers.count))")
+            Spacer()
+            Button {
+                let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
+                UIPasteboard.general.string = text
+                HapticManager.notification(.success)
+                ToastManager.shared.showCopied("Headers copied")
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .font(.caption)
+            }
+            .accessibilityLabel("Copy all headers")
+        }) {
+            ForEach(result.headers) { header in
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(header.key)
+                        .font(.caption.monospaced().weight(.semibold))
+                        .foregroundStyle(.primary)
+                    
+                    Text(header.value)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+                .padding(.vertical, 2)
+            }
+        }
     }
 }

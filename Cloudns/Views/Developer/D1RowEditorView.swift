@@ -49,8 +49,8 @@ struct D1RowEditorView: View {
                                     .font(.caption2.monospaced())
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color(UIColor.secondarySystemFill))
-                                    .cornerRadius(4)
+                                    .background(Color(.secondarySystemFill))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
                             
                             TextField(col.defaultValue ?? "NULL", text: Binding(
@@ -86,6 +86,7 @@ struct D1RowEditorView: View {
                             errorMessage = nil
                             let success = await onSave(fieldValues)
                             if success {
+                                HapticManager.impact(.medium)
                                 dismiss()
                             }
                             isSaving = false

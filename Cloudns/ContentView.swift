@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage("isLoggedIn") private var isLoggedIn = false
-    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
-    @AppStorage("themePreference") private var themePreference = "system"
-    @AppStorage("appLanguage") private var appLanguage = "system"
+    @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
+    @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
+    @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
+    @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var selectedTab = 0
     @StateObject private var authManager = AppAuthManager.shared
     @Environment(\.scenePhase) private var scenePhase
@@ -33,7 +33,7 @@ struct ContentView: View {
                     TabView(selection: $selectedTab) {
                         DashboardView()
                             .tabItem {
-                                Label("Dashboard", systemImage: "square.grid.2x2.fill")
+                                Label("Dashboard", systemImage: "square.grid.2x2")
                             }
                             .tag(0)
                         
@@ -45,13 +45,13 @@ struct ContentView: View {
                         
                         DeveloperHubView()
                             .tabItem {
-                                Label("Developer", systemImage: "cpu.fill")
+                                Label("Developer", systemImage: "cpu")
                             }
                             .tag(2)
                         
                         SettingsView()
                             .tabItem {
-                                Label("Settings", systemImage: "gearshape.fill")
+                                Label("Settings", systemImage: "gearshape")
                             }
                             .tag(3)
                     }

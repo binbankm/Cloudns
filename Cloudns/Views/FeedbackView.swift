@@ -40,7 +40,10 @@ struct FeedbackView: View {
                     .frame(minHeight: 120)
             }
             
-            Section(header: Text("Environment Diagnostics"), footer: Text("Diagnostics info helps developers identify and resolve technical issues faster.")) {
+            Section(
+                header: Text("Environment Diagnostics"),
+                footer: Text("Diagnostics info helps developers identify and resolve technical issues faster.")
+            ) {
                 HStack {
                     Text("App Version")
                         .foregroundStyle(.secondary)
@@ -69,6 +72,7 @@ struct FeedbackView: View {
                 
                 Button {
                     UIPasteboard.general.string = diagnosticSummary
+                    HapticManager.notification(.success)
                     ToastManager.shared.showCopied("Diagnostics copied")
                 } label: {
                     HStack {
@@ -82,6 +86,7 @@ struct FeedbackView: View {
             
             Section {
                 Button {
+                    HapticManager.impact(.light)
                     if let url = URL(string: "https://github.com/binbankm/Cloudns/issues/new") {
                         UIApplication.shared.open(url)
                     }
@@ -99,5 +104,6 @@ struct FeedbackView: View {
         }
         .navigationTitle("Feedback & Support")
         .navigationBarTitleDisplayMode(.inline)
+        .toastContainer()
     }
 }

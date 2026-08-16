@@ -14,113 +14,82 @@ struct WorkerRoutesView: View {
     @State private var showingDeleteAlert = false
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            contentView
-        }
-        .navigationTitle("Domains & Routes")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingAttachSheet = true
-                } label: {
-                    Image(systemName: "plus")
+        contentView
+            .navigationTitle("Domains & Routes")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAttachSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Attach Custom Domain")
                 }
-                .accessibilityLabel("关联域名")
             }
-        }
-        .sheet(isPresented: $showingAttachSheet) {
-            WorkerAttachDomainSheetView(accountId: accountId, scriptName: scriptName) {
-                Task { await fetchDomains() }
+            .sheet(isPresented: $showingAttachSheet) {
+                WorkerAttachDomainSheetView(accountId: accountId, scriptName: scriptName) {
+                    Task { await fetchDomains() }
+                }
             }
-        }
-        .alert("Detach Domain", isPresented: $showingDeleteAlert, presenting: domainToDelete) { dom in
-            Button("Cancel", role: .cancel) {}
-            Button("Detach", role: .destructive) {
-                Task {
-                    do {
-                        try await CloudflareAPIClient.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
-                        ToastManager.shared.showSuccess("Domain Detached", message: dom.hostname)
-                        await fetchDomains()
-                    } catch {
-                        ToastManager.shared.showError("Detach Failed", message: error.localizedDescription)
+            .alert("Detach Domain", isPresented: $showingDeleteAlert, presenting: domainToDelete) { dom in
+                Button("Cancel", role: .cancel) {}
+                Button("Detach", role: .destructive) {
+                    Task {
+                        do {
+                            try await CloudflareAPIClient.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
+                            ToastManager.shared.showSuccess("Domain Detached", message: dom.hostname)
+                            await fetchDomains()
+                        } catch {
+                            ToastManager.shared.showError("Detach Failed", message: error.localizedDescription)
+                        }
                     }
                 }
+            } message: { dom in
+                Text("Are you sure you want to detach custom domain '\(dom.hostname)' from Worker '\(scriptName)'?")
             }
-        } message: { dom in
-            Text("Are you sure you want to detach custom domain '\(dom.hostname)' from Worker '\(scriptName)'?")
-        }
-        .refreshable {
-            await fetchDomains()
-        }
-        .task {
-            if !hasFetchedData {
+            .refreshable {
                 await fetchDomains()
             }
-        }
+            .task {
+                if !hasFetchedData {
+                    await fetchDomains()
+                }
+            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if isLoading && !hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+            if !hasFetchedData {
+                Section(header: Text("Custom Domains")) {
+                    ForEach(WorkerCustomDomain.placeholders) { dom in
+                        domainRow(dom)
                     }
                 }
-            } else if let err = errorMessage, !hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(err),
-                        retryAction: { Task { await fetchDomains() } }
-                    )
-                }
-                .listRowBackground(Color.clear)
+                .skeletonLoading(true)
             } else {
                 // Section: Custom Domains
-                Section(header: Text("Custom Domains (\(customDomains.count))"), footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")) {
+                Section(
+                    header: Text("Custom Domains (\(customDomains.count))"),
+                    footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
+                ) {
                     if customDomains.isEmpty {
                         Text("No custom domains attached.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(customDomains) { dom in
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "link")
-                                    .font(.body)
-                                    .foregroundStyle(.orange)
-                                    .frame(width: 30, height: 30)
-                                    .background(Color.orange.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(dom.hostname)
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
-                                    
-                                    if let zName = dom.zoneName {
-                                        Text(zName)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                            domainRow(dom)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        domainToDelete = dom
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label("Detach", systemImage: "trash")
                                     }
                                 }
-                                
-                                Spacer()
-                            }
-                            .padding(.vertical, 3)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    domainToDelete = dom
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Detach", systemImage: "trash")
-                                }
-                            }
                         }
                     }
                 }
@@ -133,6 +102,7 @@ struct WorkerRoutesView: View {
                                 Image(systemName: "arrow.triangle.branch")
                                     .foregroundStyle(.purple)
                                     .font(.caption)
+                                    .accessibilityHidden(true)
                                 Text(r)
                                     .font(.footnote)
                                     .foregroundStyle(.primary)
@@ -144,6 +114,46 @@ struct WorkerRoutesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if hasFetchedData {
+                if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(err),
+                            retryAction: { Task { await fetchDomains() } }
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func domainRow(_ dom: WorkerCustomDomain) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "link")
+                .font(.body)
+                .foregroundStyle(.orange)
+                .frame(width: 30, height: 30)
+                .background(Color.orange.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(dom.hostname)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                
+                if let zName = dom.zoneName {
+                    Text(zName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 3)
     }
     
     private func fetchDomains() async {
@@ -154,6 +164,7 @@ struct WorkerRoutesView: View {
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
+            self.hasFetchedData = true
         }
         isLoading = false
     }
@@ -225,7 +236,7 @@ struct WorkerAttachDomainSheetView: View {
                             HStack {
                                 ProgressView()
                                     .padding(.trailing, 4)
-                                Text("Loading domains...")
+                            Text("Loading domains...")
                                     .foregroundStyle(.secondary)
                             }
                         } else if availableZones.isEmpty {
@@ -261,6 +272,7 @@ struct WorkerAttachDomainSheetView: View {
                             HStack {
                                 Image(systemName: "link")
                                     .foregroundStyle(.orange)
+                                    .accessibilityHidden(true)
                                 Text(computedHostname)
                                     .font(.body.monospaced())
                                     .foregroundStyle(.primary)
@@ -305,6 +317,7 @@ struct WorkerAttachDomainSheetView: View {
                                     zoneId: computedZoneId,
                                     service: scriptName
                                 )
+                                HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Custom Domain", message: "Attached \(computedHostname)")
                                 onAttached()
                                 dismiss()

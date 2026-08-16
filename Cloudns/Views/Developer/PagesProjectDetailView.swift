@@ -45,6 +45,7 @@ struct PagesProjectDetailView: View {
                         Divider()
                         
                         Button(role: .destructive) {
+                            HapticManager.impact(.medium)
                             showingDeleteAlert = true
                         } label: {
                             Label("Delete Project", systemImage: "trash")
@@ -52,7 +53,7 @@ struct PagesProjectDetailView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
-                    .accessibilityLabel("更多操作")
+                    .accessibilityLabel("More Actions")
                 }
             }
             .alert("Delete Pages Project", isPresented: $showingDeleteAlert) {
@@ -108,121 +109,124 @@ struct PagesProjectDetailView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<4, id: \.self) { _ in
-                        SkeletonRowView()
+            // Section: Project Info
+            Section(header: Text("Project Overview")) {
+                HStack {
+                    Text("Project Name")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(project.name)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                }
+                
+                if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
+                    Link(destination: url) {
+                        HStack {
+                            Text("Production URL")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(sub)
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                        }
                     }
                 }
-            } else {
-                // Section: Project Info
-                Section(header: Text("Project Overview")) {
+                
+                if let branch = project.productionBranch {
                     HStack {
-                        Text("Project Name")
+                        Text("Production Branch")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(project.name)
+                        Text(branch)
                             .font(.body)
                             .foregroundStyle(.primary)
                     }
-                    
-                    if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
-                        Link(destination: url) {
-                            HStack {
-                                Text("Production URL")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(sub)
-                                    .font(.caption)
-                                    .foregroundStyle(.blue)
-                                Image(systemName: "arrow.up.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.blue)
-                            }
-                        }
+                }
+                
+                if let repo = project.source?.config?.repoName {
+                    HStack {
+                        Text("Repository")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(repo)
+                            .font(.body)
+                            .foregroundStyle(.primary)
                     }
-                    
-                    if let branch = project.productionBranch {
-                        HStack {
-                            Text("Production Branch")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(branch)
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                    
-                    if let repo = project.source?.config?.repoName {
-                        HStack {
-                            Text("Repository")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(repo)
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                        }
+                }
+            }
+            
+            // Section: Features Navigation
+            Section(header: Text("Management")) {
+                Button {
+                    showingDomainsSheet = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "globe")
+                            .font(.body)
+                            .foregroundStyle(.blue)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Custom Domains")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        Text("\(viewModel.domains.count)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
                     }
                 }
                 
-                // Section: Features Navigation
-                Section(header: Text("Management")) {
-                    Button {
-                        showingDomainsSheet = true
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "globe")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 24)
-                            Text("Custom Domains")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Text("\(viewModel.domains.count)")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                .accessibilityHidden(true)
-                        }
-                    }
-                    
-                    NavigationLink {
-                        PagesBindingsView(project: project)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "slider.horizontal.3")
-                                .font(.body)
-                                .foregroundStyle(.purple)
-                                .frame(width: 24)
-                            Text("Bindings & Variables")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                        }
-                    }
-                    
-                    Button {
-                        showingBuildConfigSheet = true
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "gearshape")
-                                .font(.body)
-                                .foregroundStyle(.orange)
-                                .frame(width: 24)
-                                .accessibilityHidden(true)
-                            Text("Build Configuration")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                .accessibilityHidden(true)
-                        }
+                NavigationLink {
+                    PagesBindingsView(project: project)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.body)
+                            .foregroundStyle(.purple)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Bindings & Variables")
+                            .foregroundStyle(.primary)
+                        Spacer()
                     }
                 }
                 
-                // Section: Deployments History
+                Button {
+                    showingBuildConfigSheet = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "gearshape")
+                            .font(.body)
+                            .foregroundStyle(.orange)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Build Configuration")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
+                    }
+                }
+            }
+            
+            // Section: Deployments History
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Deployments History")) {
+                    ForEach(PagesDeployment.placeholders) { dep in
+                        deploymentRow(dep)
+                    }
+                }
+                .skeletonLoading(true)
+            } else {
                 Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
                     if viewModel.deployments.isEmpty {
                         Text("No recent deployments found.")
@@ -231,56 +235,63 @@ struct PagesProjectDetailView: View {
                     } else {
                         ForEach(viewModel.deployments) { dep in
                             Button {
+                                HapticManager.impact(.light)
                                 selectedDeployment = dep
                             } label: {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        HStack(spacing: 6) {
-                                            Circle()
-                                                .fill((dep.latestStage?.status == "success") ? Color.green : Color.orange)
-                                                .frame(width: 8, height: 8)
-                                            Text((dep.environment ?? "Production").capitalized)
-                                                .font(.body)
-                                                .foregroundStyle(.primary)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        if let trigger = dep.deploymentTrigger?.metadata?.commitHash {
-                                            Text(String(trigger.prefix(7)))
-                                                .font(.caption2.monospacedDigit())
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color(UIColor.secondarySystemFill))
-                                                .cornerRadius(4)
-                                                .foregroundStyle(.primary)
-                                        }
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption2)
-                                            .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                            .accessibilityHidden(true)
-                                    }
-                                    
-                                    if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
-                                        Text(msg)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(1)
-                                    }
-                                    
-                                    if let created = dep.createdOn {
-                                        Text(created.prefix(19).replacingOccurrences(of: "T", with: " "))
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.vertical, 4)
+                                deploymentRow(dep)
                             }
                         }
                     }
                 }
             }
         }
+        .listStyle(.insetGrouped)
+    }
+    
+    @ViewBuilder
+    private func deploymentRow(_ dep: PagesDeployment) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill((dep.latestStage?.status == "success") ? Color.green : Color.orange)
+                        .frame(width: 8, height: 8)
+                    Text((dep.environment ?? "Production").capitalized)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                }
+                
+                Spacer()
+                
+                if let trigger = dep.deploymentTrigger?.metadata?.commitHash {
+                    Text(String(trigger.prefix(7)))
+                        .font(.caption2.monospacedDigit())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color(.secondarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .foregroundStyle(.primary)
+                }
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
+            
+            if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
+                Text(msg)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            
+            if let created = dep.createdOn {
+                Text(created.prefix(19).replacingOccurrences(of: "T", with: " "))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }

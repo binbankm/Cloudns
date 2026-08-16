@@ -25,172 +25,76 @@ struct LoadBalancerView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
             
-            if viewModel.isLoading && !viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    if selectedTab == 0 {
+                        ForEach(LoadBalancer.placeholders) { lb in
+                            lbRow(lb)
+                        }
+                    } else if selectedTab == 1 {
+                        ForEach(LBPool.placeholders) { pool in
+                            poolRow(pool)
+                        }
+                    } else {
+                        ForEach(LBMonitor.placeholders) { mon in
+                            monRow(mon)
+                        }
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchData()
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "arrow.triangle.branch",
-                        title: "No Load Balancers",
-                        message: "Distribute incoming traffic across server pools for high availability.",
-                        actionTitle: "Add Load Balancer",
-                        action: { showingAddSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if selectedTab == 1 && viewModel.pools.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "server.rack",
-                        title: "No Origin Pools",
-                        message: "Group multiple origin servers together with health monitoring."
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if selectedTab == 2 && viewModel.monitors.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "waveform.path.ecg",
-                        title: "No Health Monitors",
-                        message: "Send automated HTTP/HTTPS health checks to your origin servers."
-                    )
-                }
-                .listRowBackground(Color.clear)
+                .skeletonLoading(true)
             } else {
                 if selectedTab == 0 {
-                    Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
-                        ForEach(viewModel.loadBalancers) { lb in
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Text(lb.name ?? lb.id)
-                                        .font(.body)
-                                    Spacer()
-                                    if lb.enabled == true {
-                                        Text("Active")
-                                            .font(.caption)
-                                            .foregroundStyle(.green)
-                                    } else {
-                                        Text("Inactive")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                    if !viewModel.loadBalancers.isEmpty {
+                        Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
+                            ForEach(viewModel.loadBalancers) { lb in
+                                lbRow(lb)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            HapticManager.impact(.medium)
+                                            Task {
+                                                await viewModel.deleteLoadBalancer(id: lb.id)
+                                                ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
+                                            }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
                                     }
-                                }
-                                if let fallback = lb.fallbackPool {
-                                    Text("Fallback: \(fallback)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deleteLoadBalancer(id: lb.id)
-                                        ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
                             }
                         }
                     }
                 } else if selectedTab == 1 {
-                    Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
-                        ForEach(viewModel.pools) { pool in
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Text(pool.name ?? pool.id)
-                                        .font(.body)
-                                    Spacer()
-                                    Text("\(pool.origins?.count ?? 0) Origins")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                if let desc = pool.description, !desc.isEmpty {
-                                    Text(desc)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                if let origins = pool.origins, !origins.isEmpty {
-                                    HStack(spacing: 6) {
-                                        ForEach(origins.prefix(3), id: \.idResolved) { o in
-                                            Text(o.name ?? o.address ?? "")
-                                                .font(.caption2.monospaced())
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color(UIColor.secondarySystemFill))
-                                                .cornerRadius(4)
+                    if !viewModel.pools.isEmpty {
+                        Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
+                            ForEach(viewModel.pools) { pool in
+                                poolRow(pool)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            HapticManager.impact(.medium)
+                                            Task {
+                                                await viewModel.deletePool(poolId: pool.id)
+                                            }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
                                         }
                                     }
-                                }
-                            }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deletePool(poolId: pool.id)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
                             }
                         }
                     }
                 } else if selectedTab == 2 {
-                    Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
-                        ForEach(viewModel.monitors) { monitor in
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Text(monitor.description ?? monitor.id)
-                                        .font(.body)
-                                    Spacer()
-                                    Text(monitor.type?.uppercased() ?? "HTTP")
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .cornerRadius(4)
-                                }
-                                HStack {
-                                    Text(monitor.method ?? "GET")
-                                        .font(.caption)
-                                    Text(monitor.path ?? "/")
-                                        .font(.caption.monospaced())
-                                    Spacer()
-                                    if let codes = monitor.expectedCodes {
-                                        Text("Expect: \(codes)")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
+                    if !viewModel.monitors.isEmpty {
+                        Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
+                            ForEach(viewModel.monitors) { monitor in
+                                monRow(monitor)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            HapticManager.impact(.medium)
+                                            Task {
+                                                await viewModel.deleteMonitor(monitorId: monitor.id)
+                                            }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
                                     }
-                                }
-                                .foregroundStyle(.secondary)
-                            }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deleteMonitor(monitorId: monitor.id)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
                             }
                         }
                     }
@@ -198,6 +102,48 @@ struct LoadBalancerView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchData() } }
+                        )
+                    )
+                } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "arrow.triangle.branch",
+                            title: "No Load Balancers",
+                            message: "Distribute incoming traffic across server pools for high availability.",
+                            actionTitle: "Add Load Balancer",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                } else if selectedTab == 1 && viewModel.pools.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "server.rack",
+                            title: "No Origin Pools",
+                            message: "Group multiple origin servers together with health monitoring.",
+                            actionTitle: "Add Pool",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                } else if selectedTab == 2 && viewModel.monitors.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "waveform.path.ecg",
+                            title: "No Health Monitors",
+                            message: "Send automated HTTP/HTTPS health checks to your origin servers.",
+                            actionTitle: "Add Monitor",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                }
+            }
+        }
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -215,7 +161,7 @@ struct LoadBalancerView: View {
                 }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加负载均衡项目")
+                .accessibilityLabel("Add Load Balancing Resource")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -228,6 +174,96 @@ struct LoadBalancerView: View {
             }
         }
         .toastContainer()
+    }
+    
+    @ViewBuilder
+    private func lbRow(_ lb: LoadBalancer) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(lb.name ?? lb.id)
+                    .font(.body)
+                Spacer()
+                if lb.enabled == true {
+                    Text("Active")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                } else {
+                    Text("Inactive")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if let fallback = lb.fallbackPool {
+                Text("Fallback: \(fallback)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    @ViewBuilder
+    private func poolRow(_ pool: LBPool) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(pool.name ?? pool.id)
+                    .font(.body)
+                Spacer()
+                Text("\(pool.origins?.count ?? 0) Origins")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let desc = pool.description, !desc.isEmpty {
+                Text(desc)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let origins = pool.origins, !origins.isEmpty {
+                HStack(spacing: 6) {
+                    ForEach(origins.prefix(3), id: \.idResolved) { o in
+                        Text(o.name ?? o.address ?? "")
+                            .font(.caption2.monospaced())
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color(.secondarySystemFill))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    @ViewBuilder
+    private func monRow(_ monitor: LBMonitor) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(monitor.description ?? monitor.id)
+                    .font(.body)
+                Spacer()
+                Text(monitor.type?.uppercased() ?? "HTTP")
+                    .font(.caption2)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.blue.opacity(0.12))
+                    .foregroundStyle(.blue)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            HStack {
+                Text(monitor.method ?? "GET")
+                    .font(.caption)
+                Text(monitor.path ?? "/")
+                    .font(.caption.monospaced())
+                Spacer()
+                if let codes = monitor.expectedCodes {
+                    Text("Expect: \(codes)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
     }
 }
 

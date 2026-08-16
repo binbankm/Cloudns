@@ -55,6 +55,15 @@ public extension View {
             self
         }
     }
+    
+    /// Applies standard HIG placeholder redaction with smooth shimmer fallback for loading state
+    @ViewBuilder
+    func skeletonLoading(_ isLoading: Bool) -> some View {
+        self
+            .redacted(reason: isLoading ? .placeholder : [])
+            .shimmering(active: isLoading)
+            .allowsHitTesting(!isLoading)
+    }
 }
 
 // MARK: - Reusable Skeleton Elements
@@ -73,7 +82,7 @@ public struct SkeletonBar: View {
     
     public var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(Color(UIColor.tertiarySystemFill))
+            .fill(Color(.tertiarySystemFill))
             .frame(height: height)
             .ifLet(width) { view, w in
                 view.frame(width: w)
@@ -110,7 +119,7 @@ public struct SkeletonRowView: View {
         HStack(spacing: 14) {
             if hasIcon {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(UIColor.tertiarySystemFill))
+                    .fill(Color(.tertiarySystemFill))
                     .frame(width: 36, height: 36)
             }
             
@@ -171,7 +180,7 @@ public struct SkeletonCardView: View {
                 SkeletonBar(width: 80, height: 12, cornerRadius: 4)
                 Spacer()
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color(UIColor.tertiarySystemFill))
+                    .fill(Color(.tertiarySystemFill))
                     .frame(width: 24, height: 24)
             }
             
@@ -182,8 +191,8 @@ public struct SkeletonCardView: View {
         .padding(16)
         .frame(maxWidth: .infinity)
         .frame(height: height)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shimmering()
     }
 }
@@ -198,7 +207,7 @@ public struct SkeletonDetailView: View {
                 // Header Card Skeleton
                 VStack(spacing: 12) {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(UIColor.tertiarySystemFill))
+                        .fill(Color(.tertiarySystemFill))
                         .frame(width: 60, height: 60)
                     
                     SkeletonBar(width: 180, height: 20, cornerRadius: 6)
@@ -212,8 +221,8 @@ public struct SkeletonDetailView: View {
                 }
                 .padding(20)
                 .frame(maxWidth: .infinity)
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
                 
                 // 2-column Grid Cards
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -229,15 +238,14 @@ public struct SkeletonDetailView: View {
                         SkeletonRowView(hasIcon: true, hasSubtitle: true, hasTrailing: true)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
+                            .background(Color(.secondarySystemGroupedBackground))
                     }
                 }
-                .cornerRadius(12)
-                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(16)
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(.systemGroupedBackground))
     }
 }
 
@@ -247,5 +255,5 @@ public struct SkeletonDetailView: View {
         SkeletonCardView()
     }
     .padding()
-    .background(Color(UIColor.systemGroupedBackground))
+    .background(Color(.systemGroupedBackground))
 }

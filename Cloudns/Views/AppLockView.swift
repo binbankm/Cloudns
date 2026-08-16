@@ -8,17 +8,17 @@ struct AppLockView: View {
             // Blur effect over the background
             Rectangle()
                 .fill(.ultraThinMaterial)
-                .edgesIgnoringSafeArea(.all)
+                .ignoresSafeArea()
             
             VStack(spacing: 20) {
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 80))
                     .foregroundStyle(.tint)
                     .padding(.bottom, 20)
+                    .accessibilityHidden(true)
                 
                 Text("App Locked")
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(.title.weight(.bold))
                 
                 Text("Unlock Cloudns to continue managing your domains.")
                     .font(.subheadline)
@@ -27,15 +27,16 @@ struct AppLockView: View {
                     .padding(.horizontal)
                 
                 Button(action: {
+                    HapticManager.impact(.medium)
                     authManager.authenticate()
                 }) {
                     Text("Unlock")
-                        .font(.body)
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
-                        .cornerRadius(12)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal, 40)
                         .padding(.top, 20)
                 }

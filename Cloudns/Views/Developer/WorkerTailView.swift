@@ -20,7 +20,7 @@ struct WorkerTailView: View {
             filterBar
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .background(Color(.secondarySystemGroupedBackground))
             
             Divider()
             
@@ -32,12 +32,13 @@ struct WorkerTailView: View {
                     List {
                         ForEach(viewModel.filteredEvents) { item in
                             Button {
+                                HapticManager.impact(.light)
                                 selectedEvent = item
                             } label: {
                                 TailEventRow(item: item)
                             }
                             .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
-                            .listRowBackground(Color(UIColor.systemBackground))
+                            .listRowBackground(Color(.systemBackground))
                         }
                     }
                     .listStyle(.plain)
@@ -46,18 +47,21 @@ struct WorkerTailView: View {
         }
         .navigationTitle("Live Tail Logs")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search logs & URLs")
+        .searchable(text: $viewModel.searchText, prompt: "Search logs & URLs")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 12) {
                     Button {
+                        HapticManager.impact(.light)
                         viewModel.clearLogs()
                     } label: {
                         Image(systemName: "trash")
                     }
+                    .accessibilityLabel("Clear logs")
                     .disabled(viewModel.events.isEmpty)
                     
                     Button {
+                        HapticManager.impact(.light)
                         if viewModel.isStreaming {
                             viewModel.stopStream()
                         } else {
@@ -67,6 +71,7 @@ struct WorkerTailView: View {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
                             .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
+                    .accessibilityLabel(viewModel.isStreaming ? "Pause stream" : "Resume stream")
                 }
             }
         }
@@ -88,7 +93,7 @@ struct WorkerTailView: View {
                     .fill(viewModel.isStreaming ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
-                    .font(.caption)
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.isStreaming ? .green : .secondary)
             }
             
@@ -101,6 +106,9 @@ struct WorkerTailView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .frame(maxWidth: 220)
+            .onChange(of: viewModel.selectedFilter) { _ in
+                HapticManager.impact(.light)
+            }
         }
     }
     
@@ -111,7 +119,7 @@ struct WorkerTailView: View {
                 ProgressView()
                     .scaleEffect(1.2)
                 Text("Listening for live worker events…")
-                    .font(.body)
+                    .font(.body.weight(.medium))
                 Text("Send an HTTP request or wait for a cron trigger to see logs appear in real time.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -121,9 +129,11 @@ struct WorkerTailView: View {
                 Image(systemName: "pause.circle")
                     .font(.system(size: 44))
                     .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
                 Text("Log stream paused")
-                    .font(.body)
+                    .font(.body.weight(.medium))
                 Button("Resume Stream") {
+                    HapticManager.impact(.light)
                     Task { await viewModel.startStream() }
                 }
                 .buttonStyle(.borderedProminent)
@@ -131,7 +141,7 @@ struct WorkerTailView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(.systemGroupedBackground))
     }
 }
 
@@ -157,7 +167,7 @@ private struct TailEventRow: View {
                         .padding(.vertical, 2)
                         .background(methodColor(method).opacity(0.15))
                         .foregroundStyle(methodColor(method))
-                        .cornerRadius(4)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 } else if let cron = item.event?.cron {
                     Label(cron, systemImage: "clock")
                         .font(.caption.monospaced())
@@ -207,8 +217,8 @@ private struct TailEventRow: View {
                     }
                 }
                 .padding(8)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(6)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             
             // Exceptions preview
@@ -218,6 +228,7 @@ private struct TailEventRow: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.red)
+                            .accessibilityHidden(true)
                         Text(ex.message ?? ex.name ?? "Exception occurred")
                             .font(.caption.monospaced())
                             .foregroundStyle(.red)
@@ -226,7 +237,7 @@ private struct TailEventRow: View {
                     .padding(6)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.red.opacity(0.1))
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
             }
         }

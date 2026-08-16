@@ -17,6 +17,9 @@ struct PagesBindingsView: View {
                     Text("Preview").tag("preview")
                 }
                 .pickerStyle(.segmented)
+                .onChange(of: selectedEnv) { _ in
+                    HapticManager.impact(.light)
+                }
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -36,6 +39,7 @@ struct PagesBindingsView: View {
                                     .frame(width: 26, height: 26)
                                     .background((item.isSecret ? Color.orange : Color.blue).opacity(0.12))
                                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .accessibilityHidden(true)
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(key)
@@ -62,13 +66,14 @@ struct PagesBindingsView: View {
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 2)
                                     .background((item.isSecret ? Color.orange : Color.blue).opacity(0.12))
-                                    .cornerRadius(4)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
                             .padding(.vertical, 2)
                             .contextMenu {
                                 if let val = item.value {
                                     Button {
                                         UIPasteboard.general.string = val
+                                        HapticManager.notification(.success)
                                         ToastManager.shared.showCopied("Value copied")
                                     } label: {
                                         Label("Copy Value", systemImage: "doc.on.doc")
@@ -76,6 +81,7 @@ struct PagesBindingsView: View {
                                 }
                                 Button {
                                     UIPasteboard.general.string = key
+                                    HapticManager.notification(.success)
                                     ToastManager.shared.showCopied("Key copied")
                                 } label: {
                                     Label("Copy Key Name", systemImage: "doc.on.doc")

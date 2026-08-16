@@ -25,6 +25,22 @@ public struct WorkerScript: Codable, Identifiable, Equatable {
         case routes
         case cronTriggers = "cron_triggers"
     }
+    
+    public init(id: String, modifiedOn: String? = "2024-01-01T00:00:00Z", usageModel: String? = "bundled", routes: [String]? = ["example.com/*"]) {
+        self.id_field = id
+        self.id_name = id
+        self.etag = "placeholder"
+        self.modifiedOn = modifiedOn
+        self.createdOn = "2024-01-01T00:00:00Z"
+        self.usageModel = usageModel
+        self.compatibilityDate = "2024-01-01"
+        self.routes = routes
+        self.cronTriggers = []
+    }
+    
+    public static let placeholders: [WorkerScript] = (0..<6).map { idx in
+        WorkerScript(id: "worker-service-\(idx + 1)")
+    }
 }
 
 public struct WorkerModuleItem: Identifiable, Hashable, Codable {
@@ -65,12 +81,25 @@ public struct WorkerBinding: Codable, Identifiable, Equatable {
     public let databaseId: String?
     public let text: String?
     
+    public init(name: String, type: String = "plain_text", namespaceId: String? = nil, bucketName: String? = nil, databaseId: String? = nil, text: String? = nil) {
+        self.name = name
+        self.type = type
+        self.namespaceId = namespaceId
+        self.bucketName = bucketName
+        self.databaseId = databaseId
+        self.text = text
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name, type
         case namespaceId = "namespace_id"
         case bucketName = "bucket_name"
         case databaseId = "database_id"
         case text
+    }
+    
+    public static let placeholders: [WorkerBinding] = (0..<6).map { idx in
+        WorkerBinding(name: "ENV_VARIABLE_\(idx + 1)", type: "plain_text", text: "placeholder_value_\(idx + 1)")
     }
 }
 
@@ -80,9 +109,19 @@ public struct WorkerSecret: Codable, Identifiable, Equatable {
     public let type: String
     public let modifiedOn: String?
     
+    public init(name: String, type: String = "secret_text", modifiedOn: String? = "2024-01-01T00:00:00Z") {
+        self.name = name
+        self.type = type
+        self.modifiedOn = modifiedOn
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name, type
         case modifiedOn = "modified_on"
+    }
+    
+    public static let placeholders: [WorkerSecret] = (0..<6).map { idx in
+        WorkerSecret(name: "SECRET_KEY_\(idx + 1)", type: "secret_text", modifiedOn: "2024-01-01T00:00:00Z")
     }
 }
 
@@ -104,6 +143,19 @@ public struct WorkerCustomDomain: Codable, Identifiable, Equatable {
         case zoneName = "zone_name"
         case zoneId = "zone_id"
     }
+    
+    public init(id: String, hostname: String, zoneName: String? = nil, zoneId: String? = nil, service: String? = nil) {
+        self.id = id
+        self.hostname = hostname
+        self.zoneName = zoneName
+        self.zoneId = zoneId
+        self.service = service
+    }
+    
+    public static let placeholders: [WorkerCustomDomain] = [
+        WorkerCustomDomain(id: "dom_1", hostname: "api.example.com", zoneName: "example.com"),
+        WorkerCustomDomain(id: "dom_2", hostname: "auth.example.com", zoneName: "example.com")
+    ]
 }
 
 public struct WorkerSubdomain: Codable, Equatable {
@@ -122,6 +174,17 @@ public struct WorkerSchedule: Codable, Identifiable, Equatable {
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
+    
+    public init(cron: String, createdOn: String? = nil, modifiedOn: String? = nil) {
+        self.cron = cron
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+    }
+    
+    public static let placeholders: [WorkerSchedule] = [
+        WorkerSchedule(cron: "*/5 * * * *", createdOn: "2024-01-01T00:00:00Z"),
+        WorkerSchedule(cron: "0 0 * * *", createdOn: "2024-01-01T00:00:00Z")
+    ]
 }
 
 public struct WorkerSchedulesResult: Codable {
@@ -271,6 +334,22 @@ public struct PagesProject: Codable, Identifiable, Equatable {
         case source
         case deploymentConfigs = "deployment_configs"
     }
+    
+    public init(id: String, name: String, subdomain: String? = "pages.dev", domains: [String]? = nil, productionBranch: String? = "main") {
+        self.id = id
+        self.name = name
+        self.subdomain = subdomain
+        self.domains = domains
+        self.productionBranch = productionBranch
+        self.createdOn = "2024-01-01T00:00:00Z"
+        self.buildConfig = nil
+        self.source = nil
+        self.deploymentConfigs = nil
+    }
+    
+    public static let placeholders: [PagesProject] = (0..<6).map { idx in
+        PagesProject(id: "project-\(idx + 1)", name: "pages-web-app-\(idx + 1)", subdomain: "pages-web-app-\(idx + 1).pages.dev")
+    }
 }
 
 public struct PagesProjectSource: Codable, Equatable {
@@ -380,6 +459,25 @@ public struct PagesDomain: Codable, Identifiable, Equatable {
         case verificationStatus = "verification_status"
         case createdOn = "created_on"
     }
+    
+    public init(
+        name: String,
+        status: String? = "active",
+        sslStatus: String? = "active",
+        verificationStatus: String? = "active",
+        createdOn: String? = "2024-01-01T00:00:00Z"
+    ) {
+        self.name = name
+        self.status = status
+        self.sslStatus = sslStatus
+        self.verificationStatus = verificationStatus
+        self.createdOn = createdOn
+    }
+    
+    public static let placeholders: [PagesDomain] = [
+        PagesDomain(name: "docs.example.com"),
+        PagesDomain(name: "app.example.com")
+    ]
 }
 
 public struct PagesDeployment: Codable, Identifiable, Equatable {
@@ -398,6 +496,29 @@ public struct PagesDeployment: Codable, Identifiable, Equatable {
         case latestStage = "latest_stage"
         case deploymentTrigger = "deployment_trigger"
     }
+    
+    public init(
+        id: String,
+        url: String? = nil,
+        environment: String? = "production",
+        createdOn: String? = "2024-01-01T00:00:00Z",
+        modifiedOn: String? = nil,
+        latestStage: PagesStage? = PagesStage(name: "deploy", status: "success", startedOn: nil, endedOn: nil),
+        deploymentTrigger: PagesTrigger? = nil
+    ) {
+        self.id = id
+        self.url = url
+        self.environment = environment
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+        self.latestStage = latestStage
+        self.deploymentTrigger = deploymentTrigger
+    }
+    
+    public static let placeholders: [PagesDeployment] = [
+        PagesDeployment(id: "dep_1", environment: "production"),
+        PagesDeployment(id: "dep_2", environment: "preview")
+    ]
 }
 
 public struct PagesDeploymentLog: Codable, Identifiable, Equatable {
@@ -416,6 +537,13 @@ public struct PagesStage: Codable, Equatable {
     public let status: String?
     public let startedOn: String?
     public let endedOn: String?
+    
+    public init(name: String? = nil, status: String? = nil, startedOn: String? = nil, endedOn: String? = nil) {
+        self.name = name
+        self.status = status
+        self.startedOn = startedOn
+        self.endedOn = endedOn
+    }
     
     enum CodingKeys: String, CodingKey {
         case name, status
@@ -454,6 +582,16 @@ public struct R2Bucket: Codable, Identifiable, Equatable {
         case creationDate = "creation_date"
         case location
     }
+    
+    public init(name: String, creationDate: String? = "2024-01-01T00:00:00Z", location: String? = "WNAM") {
+        self.name = name
+        self.creationDate = creationDate
+        self.location = location
+    }
+    
+    public static let placeholders: [R2Bucket] = (0..<5).map { idx in
+        R2Bucket(name: "assets-storage-bucket-\(idx + 1)")
+    }
 }
 
 public struct R2Object: Codable, Identifiable, Equatable {
@@ -480,6 +618,28 @@ public struct R2Object: Codable, Identifiable, Equatable {
         let gb = mb / 1024.0
         return String(format: "%.2f GB", gb)
     }
+    
+    public init(
+        key: String,
+        size: Int = 1048576,
+        etag: String? = "d41d8cd98f00b204e9800998ecf8427e",
+        version: String? = "v1",
+        uploaded: String? = "2024-01-01T00:00:00Z",
+        storageClass: String? = "Standard"
+    ) {
+        self.key = key
+        self.size = size
+        self.etag = etag
+        self.version = version
+        self.uploaded = uploaded
+        self.storageClass = storageClass
+    }
+    
+    public static let placeholders: [R2Object] = [
+        R2Object(key: "assets/logo.png", size: 45000),
+        R2Object(key: "backups/db-2024.sql.gz", size: 104857600),
+        R2Object(key: "configs/app.json", size: 2400)
+    ]
 }
 
 // MARK: - KV Storage Models
@@ -493,6 +653,16 @@ public struct KVNamespace: Codable, Identifiable, Equatable {
         case id, title
         case supportsUrlEncoding = "supports_url_encoding"
     }
+    
+    public init(id: String, title: String, supportsUrlEncoding: Bool? = true) {
+        self.id = id
+        self.title = title
+        self.supportsUrlEncoding = supportsUrlEncoding
+    }
+    
+    public static let placeholders: [KVNamespace] = (0..<4).map { idx in
+        KVNamespace(id: "kv-ns-uuid-\(idx + 1)-abcd", title: "SESSION_CACHE_\(idx + 1)")
+    }
 }
 
 public struct KVKey: Codable, Identifiable, Equatable {
@@ -500,6 +670,16 @@ public struct KVKey: Codable, Identifiable, Equatable {
     public let name: String
     public let expiration: Int?
     public let metadata: String?
+    
+    public init(name: String, expiration: Int? = nil, metadata: String? = nil) {
+        self.name = name
+        self.expiration = expiration
+        self.metadata = metadata
+    }
+    
+    public static let placeholders: [KVKey] = (0..<6).map { idx in
+        KVKey(name: "user:session:token_\(idx + 1)")
+    }
 }
 
 // MARK: - D1 Database Models
@@ -518,6 +698,19 @@ public struct D1Database: Codable, Identifiable, Equatable {
         case numTables = "num_tables"
         case fileSize = "file_size"
         case createdAt = "created_at"
+    }
+    
+    public init(uuid: String, name: String, numTables: Int? = 4, fileSize: Int? = 1048576, createdAt: String? = "2024-01-01T00:00:00Z") {
+        self.uuid = uuid
+        self.name = name
+        self.version = "beta"
+        self.numTables = numTables
+        self.fileSize = fileSize
+        self.createdAt = createdAt
+    }
+    
+    public static let placeholders: [D1Database] = (0..<4).map { idx in
+        D1Database(uuid: "d1-uuid-\(idx + 1)-db", name: "production-users-db-\(idx + 1)")
     }
     
     public var formattedSize: String {
@@ -560,6 +753,18 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable {
         case domain, status, enabled
         case zoneId = "zone_id"
     }
+    
+    public init(domain: String, status: String? = "active", zoneId: String? = "zone_123", enabled: Bool? = true) {
+        self.domain = domain
+        self.status = status
+        self.zoneId = zoneId
+        self.enabled = enabled
+    }
+    
+    public static let placeholders: [R2CustomDomain] = [
+        R2CustomDomain(domain: "cdn.example.com"),
+        R2CustomDomain(domain: "static.example.com")
+    ]
 }
 
 public struct R2CORSRule: Codable, Identifiable, Equatable {
@@ -585,6 +790,10 @@ public struct R2CORSRule: Codable, Identifiable, Equatable {
         self.exposeHeaders = exposeHeaders
         self.maxAgeSeconds = maxAgeSeconds
     }
+    
+    public static let placeholders: [R2CORSRule] = [
+        R2CORSRule(allowedOrigins: ["*"], allowedMethods: ["GET", "HEAD"], allowedHeaders: ["*"], maxAgeSeconds: 3600)
+    ]
 }
 
 // MARK: - Worker Zone Route Model
@@ -632,6 +841,21 @@ public struct CFTunnel: Codable, Identifiable, Equatable {
     public var isHealthy: Bool {
         status?.lowercased() == "healthy" || status?.lowercased() == "active"
     }
+    
+    public init(id: String, name: String, status: String? = "healthy", createdAt: String? = "2024-01-01T00:00:00Z", connections: [TunnelConnection]? = nil) {
+        self.id = id
+        self.name = name
+        self.status = status
+        self.createdAt = createdAt
+        self.deletedAt = nil
+        self.tunnelType = "cfd_tunnel"
+        self.remoteConfig = true
+        self.connections = connections
+    }
+    
+    public static let placeholders: [CFTunnel] = (0..<5).map { idx in
+        CFTunnel(id: "tunnel-uuid-\(idx + 1)-abcd", name: "edge-gateway-\(idx + 1)", status: "healthy")
+    }
 }
 
 public struct TunnelConnection: Codable, Identifiable, Equatable {
@@ -669,6 +893,18 @@ public struct DNSAnswerItem: Identifiable, Equatable {
     public let typeName: String
     public let ttl: Int
     public let data: String
+    
+    public init(name: String, typeName: String, ttl: Int, data: String) {
+        self.name = name
+        self.typeName = typeName
+        self.ttl = ttl
+        self.data = data
+    }
+    
+    public static let placeholders: [DNSAnswerItem] = [
+        DNSAnswerItem(name: "example.com", typeName: "A", ttl: 300, data: "93.184.216.34"),
+        DNSAnswerItem(name: "example.com", typeName: "AAAA", ttl: 300, data: "2606:2800:220:1:248:1893:25c8:1946")
+    ]
 }
 
 public struct DNSLookupResult: Equatable {
@@ -689,6 +925,15 @@ public struct HTTPHeaderItem: Identifiable, Equatable {
         self.key = key
         self.value = value
     }
+    
+    public static let tracePlaceholders: [HTTPHeaderItem] = [
+        HTTPHeaderItem(key: "colo", value: "SFO"),
+        HTTPHeaderItem(key: "ip", value: "198.51.100.42"),
+        HTTPHeaderItem(key: "loc", value: "US"),
+        HTTPHeaderItem(key: "warp", value: "plus"),
+        HTTPHeaderItem(key: "gateway", value: "off"),
+        HTTPHeaderItem(key: "kex", value: "X25519")
+    ]
 }
 
 public struct HTTPInspectionResult: Equatable {
@@ -700,6 +945,33 @@ public struct HTTPInspectionResult: Equatable {
     public let cfCacheStatus: String?
     public let server: String?
     public let durationMs: Double
+    
+    public init(url: String, statusCode: Int, statusText: String, headers: [HTTPHeaderItem], cfRay: String? = nil, cfCacheStatus: String? = nil, server: String? = nil, durationMs: Double) {
+        self.url = url
+        self.statusCode = statusCode
+        self.statusText = statusText
+        self.headers = headers
+        self.cfRay = cfRay
+        self.cfCacheStatus = cfCacheStatus
+        self.server = server
+        self.durationMs = durationMs
+    }
+    
+    public static let placeholder = HTTPInspectionResult(
+        url: "https://example.com",
+        statusCode: 200,
+        statusText: "OK",
+        headers: [
+            HTTPHeaderItem(key: "content-type", value: "text/html; charset=UTF-8"),
+            HTTPHeaderItem(key: "server", value: "cloudflare"),
+            HTTPHeaderItem(key: "cf-cache-status", value: "HIT"),
+            HTTPHeaderItem(key: "cf-ray", value: "89a12bc34de56789-SJC")
+        ],
+        cfRay: "89a12bc34de56789-SJC",
+        cfCacheStatus: "HIT",
+        server: "cloudflare",
+        durationMs: 42.5
+    )
 }
 
 public struct SSLChainResult: Equatable {
@@ -713,6 +985,31 @@ public struct SSLChainResult: Equatable {
     public let sans: [String]
     public let protocolVersion: String?
     public let errorDescription: String?
+    
+    public init(hostname: String, isValid: Bool, issuer: String, subject: String, validFrom: Date? = nil, validTo: Date? = nil, daysRemaining: Int = 90, sans: [String] = [], protocolVersion: String? = nil, errorDescription: String? = nil) {
+        self.hostname = hostname
+        self.isValid = isValid
+        self.issuer = issuer
+        self.subject = subject
+        self.validFrom = validFrom
+        self.validTo = validTo
+        self.daysRemaining = daysRemaining
+        self.sans = sans
+        self.protocolVersion = protocolVersion
+        self.errorDescription = errorDescription
+    }
+    
+    public static let placeholder = SSLChainResult(
+        hostname: "example.com",
+        isValid: true,
+        issuer: "GTS CA 1P5 (Google Trust Services)",
+        subject: "CN=example.com",
+        validFrom: Date(timeIntervalSince1970: 1700000000),
+        validTo: Date(timeIntervalSince1970: 1800000000),
+        daysRemaining: 84,
+        sans: ["example.com", "*.example.com"],
+        protocolVersion: "TLSv1.3"
+    )
 }
 
 public struct IPLookupResult: Equatable {
@@ -727,6 +1024,34 @@ public struct IPLookupResult: Equatable {
     public let timezone: String?
     public let latitude: Double?
     public let longitude: Double?
+    
+    public init(query: String, ip: String, asn: String? = nil, org: String? = nil, country: String? = nil, countryCode: String? = nil, city: String? = nil, region: String? = nil, timezone: String? = nil, latitude: Double? = nil, longitude: Double? = nil) {
+        self.query = query
+        self.ip = ip
+        self.asn = asn
+        self.org = org
+        self.country = country
+        self.countryCode = countryCode
+        self.city = city
+        self.region = region
+        self.timezone = timezone
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+    
+    public static let placeholder = IPLookupResult(
+        query: "1.1.1.1",
+        ip: "1.1.1.1",
+        asn: "AS13335",
+        org: "Cloudflare, Inc.",
+        country: "United States",
+        countryCode: "US",
+        city: "San Francisco",
+        region: "California",
+        timezone: "America/Los_Angeles",
+        latitude: 37.7749,
+        longitude: -122.4194
+    )
 }
 
 public struct D1TableColumn: Identifiable, Equatable {
@@ -747,6 +1072,20 @@ public struct AuditLog: Codable, Identifiable, Equatable {
     public let action: AuditAction?
     public let when: String?
     public let resource: AuditResource?
+    
+    public init(id: String, actor: AuditActor?, action: AuditAction?, when: String?, resource: AuditResource? = nil) {
+        self.id = id
+        self.actor = actor
+        self.action = action
+        self.when = when
+        self.resource = resource
+    }
+    
+    public static let placeholders: [AuditLog] = [
+        AuditLog(id: "audit_1", actor: AuditActor(id: "1", email: "admin@example.com", type: "user", ip: "192.0.2.1"), action: AuditAction(type: "zone.dns_record.create", result: true), when: "2024-01-01T12:00:00Z"),
+        AuditLog(id: "audit_2", actor: AuditActor(id: "2", email: "dev@example.com", type: "user", ip: "198.51.100.2"), action: AuditAction(type: "worker.script.update", result: true), when: "2024-01-01T11:45:00Z"),
+        AuditLog(id: "audit_3", actor: AuditActor(id: "3", email: "system@api", type: "api_key", ip: "203.0.113.1"), action: AuditAction(type: "waf.rule.delete", result: true), when: "2024-01-01T10:30:00Z")
+    ]
 }
 
 public struct AuditActor: Codable, Equatable {
@@ -782,6 +1121,28 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable {
         case sitekey, name, mode, domains, secret
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
+    }
+    
+    public init(
+        sitekey: String,
+        name: String,
+        mode: String? = "managed",
+        domains: [String]? = ["example.com"],
+        secret: String? = nil,
+        createdOn: String? = "2024-01-01T00:00:00Z",
+        modifiedOn: String? = "2024-01-01T00:00:00Z"
+    ) {
+        self.sitekey = sitekey
+        self.name = name
+        self.mode = mode
+        self.domains = domains
+        self.secret = secret
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+    }
+    
+    public static let placeholders: [TurnstileWidget] = (0..<4).map { idx in
+        TurnstileWidget(sitekey: "0x4AAAAAAAXyZ\(idx + 1)", name: "Login Captcha Widget \(idx + 1)")
     }
 }
 
@@ -824,6 +1185,17 @@ public struct AIGateway: Codable, Identifiable, Equatable {
         case collectLogs = "collect_logs"
         case createdOn = "created_on"
     }
+    
+    public init(id: String, name: String? = nil, collectLogs: Bool? = true, createdOn: String? = "2024-01-01T00:00:00Z") {
+        self.id = id
+        self.name = name
+        self.collectLogs = collectLogs
+        self.createdOn = createdOn
+    }
+    
+    public static let placeholders: [AIGateway] = (0..<4).map { idx in
+        AIGateway(id: "ai-gateway-\(idx + 1)")
+    }
 }
 
 // MARK: - Workers AI Models
@@ -833,6 +1205,19 @@ public struct AIModel: Codable, Identifiable, Equatable {
     public let name: String?
     public let description: String?
     public let task: AIModelTask?
+    
+    public init(id: String, name: String?, description: String?, task: AIModelTask? = nil) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.task = task
+    }
+    
+    public static let placeholders: [AIModel] = [
+        AIModel(id: "@cf/meta/llama-3-8b-instruct", name: "@cf/meta/llama-3-8b-instruct", description: "Generation 3 of Llama, trained on 8B tokens.", task: AIModelTask(id: "text-generation", name: "Text Generation", description: nil)),
+        AIModel(id: "@cf/stabilityai/stable-diffusion-xl-base-1.0", name: "@cf/stabilityai/stable-diffusion-xl-base-1.0", description: "Diffusion-based text-to-image generative model.", task: AIModelTask(id: "text-to-image", name: "Text-to-Image", description: nil)),
+        AIModel(id: "@cf/baai/bge-large-en-v1.5", name: "@cf/baai/bge-large-en-v1.5", description: "Embedding model for text similarity and search.", task: AIModelTask(id: "text-embeddings", name: "Text Embeddings", description: nil))
+    ]
     
     public var modelPath: String {
         if let name = name, !name.isEmpty, name.contains("/") {
@@ -873,6 +1258,30 @@ public struct SSLCertDetails: Identifiable, Equatable {
     public let validFrom: String?
     public let validUntil: String?
     public let sans: [String]
+    
+    public init(commonName: String, issuer: String? = nil, validityDaysRemaining: Int? = 90, protocolNegotiated: String? = "TLSv1.3", chainCount: Int = 2, isCloudflareEdge: Bool = true, validFrom: String? = nil, validUntil: String? = nil, sans: [String] = []) {
+        self.commonName = commonName
+        self.issuer = issuer
+        self.validityDaysRemaining = validityDaysRemaining
+        self.protocolNegotiated = protocolNegotiated
+        self.chainCount = chainCount
+        self.isCloudflareEdge = isCloudflareEdge
+        self.validFrom = validFrom
+        self.validUntil = validUntil
+        self.sans = sans
+    }
+    
+    public static let placeholder = SSLCertDetails(
+        commonName: "cloudflare.com",
+        issuer: "GTS CA 1P5 (Google Trust Services)",
+        validityDaysRemaining: 84,
+        protocolNegotiated: "TLSv1.3",
+        chainCount: 2,
+        isCloudflareEdge: true,
+        validFrom: "2024-01-01 00:00:00 UTC",
+        validUntil: "2024-12-31 23:59:59 UTC",
+        sans: ["cloudflare.com", "*.cloudflare.com"]
+    )
 }
 
 // MARK: - Redirect Rules & Snippets
@@ -927,6 +1336,11 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable {
         self.enabled = enabled
     }
     
+    public static let placeholders: [RedirectRuleItem] = [
+        RedirectRuleItem(id: "redir_1", description: "Redirect HTTP to HTTPS", expression: "http.request.uri.path eq \"/old-docs\"", targetUrl: "https://docs.example.com/v2", statusCode: 301),
+        RedirectRuleItem(id: "redir_2", description: "Forward Blog traffic", expression: "http.host eq \"blog.example.com\"", targetUrl: "https://example.com/blog", statusCode: 302)
+    ]
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -968,6 +1382,17 @@ public struct SnippetItem: Codable, Identifiable, Equatable {
         case modifiedOn = "modified_on"
         case createdOn = "created_on"
     }
+    
+    public init(snippet_name: String, modifiedOn: String? = nil, createdOn: String? = nil) {
+        self.snippet_name = snippet_name
+        self.modifiedOn = modifiedOn
+        self.createdOn = createdOn
+    }
+    
+    public static let placeholders: [SnippetItem] = [
+        SnippetItem(snippet_name: "add_security_headers", modifiedOn: "2024-01-01T00:00:00Z"),
+        SnippetItem(snippet_name: "normalize_uri_path", modifiedOn: "2024-01-01T00:00:00Z")
+    ]
 }
 
 // MARK: - Cloudflare Queues Models
@@ -989,6 +1414,21 @@ public struct CFQueue: Codable, Identifiable, Equatable {
         case modifiedOn = "modified_on"
         case settings, producers, consumers
     }
+    
+    public init(queueId: String?, queueName: String, createdOn: String? = nil, modifiedOn: String? = nil, settings: CFQueueSettings? = nil, producers: [CFQueueProducer]? = nil, consumers: [CFQueueConsumer]? = nil) {
+        self.queueId = queueId
+        self.queueName = queueName
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+        self.settings = settings
+        self.producers = producers
+        self.consumers = consumers
+    }
+    
+    public static let placeholders: [CFQueue] = [
+        CFQueue(queueId: "q_1", queueName: "auth-events-queue", createdOn: "2024-01-01T00:00:00Z"),
+        CFQueue(queueId: "q_2", queueName: "email-notifications-queue", createdOn: "2024-01-01T00:00:00Z")
+    ]
 }
 
 public struct CFQueueSettings: Codable, Equatable {
@@ -1089,6 +1529,18 @@ public struct DurableObjectNamespace: Codable, Identifiable, Equatable {
     enum CodingKeys: String, CodingKey {
         case id, name, script, `class`
     }
+    
+    public init(id: String, name: String, script: String? = nil, class: String? = nil) {
+        self.id = id
+        self.name = name
+        self.script = script
+        self.class = `class`
+    }
+    
+    public static let placeholders: [DurableObjectNamespace] = [
+        DurableObjectNamespace(id: "do_1", name: "UserSessionCoordinator", script: "auth-worker", class: "SessionCoordinator"),
+        DurableObjectNamespace(id: "do_2", name: "RoomPresenceManager", script: "chat-worker", class: "RoomPresence")
+    ]
 }
 
 public struct DurableObjectInstance: Codable, Identifiable, Equatable {
@@ -1116,6 +1568,20 @@ public struct HyperdriveConfig: Codable, Identifiable, Equatable {
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
+    
+    public init(id: String, name: String, origin: HyperdriveOrigin? = nil, caching: HyperdriveCaching? = nil, createdOn: String? = nil, modifiedOn: String? = nil) {
+        self.id = id
+        self.name = name
+        self.origin = origin
+        self.caching = caching
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+    }
+    
+    public static let placeholders: [HyperdriveConfig] = [
+        HyperdriveConfig(id: "hd_1", name: "prod-postgres-hyperdrive", origin: HyperdriveOrigin(host: "db.aws.example.com", port: 5432, database: "users", user: "app", scheme: "postgres")),
+        HyperdriveConfig(id: "hd_2", name: "staging-postgres-accelerator", origin: HyperdriveOrigin(host: "staging-db.example.com", port: 5432, database: "staging", user: "app", scheme: "postgres"))
+    ]
 }
 
 public struct HyperdriveOrigin: Codable, Equatable {
@@ -1196,6 +1662,22 @@ public struct AccessApp: Codable, Identifiable, Equatable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
+    
+    public init(id: String, name: String, domain: String, type: String? = "self_hosted", aud: String? = nil, createdAt: String? = nil, updatedAt: String? = nil) {
+        self.id = id
+        self.name = name
+        self.domain = domain
+        self.type = type
+        self.aud = aud
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+    
+    public static let placeholders: [AccessApp] = [
+        AccessApp(id: "app_1", name: "Internal Admin Dashboard", domain: "admin.internal.net", type: "self_hosted"),
+        AccessApp(id: "app_2", name: "Production Grafana", domain: "grafana.internal.net", type: "self_hosted"),
+        AccessApp(id: "app_3", name: "Staging SSH Gateway", domain: "ssh.staging.internal.net", type: "ssh")
+    ]
 }
 
 public struct AccessPolicy: Codable, Identifiable, Equatable {
@@ -1230,6 +1712,24 @@ public struct GatewayRule: Codable, Identifiable, Equatable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
+    
+    public init(id: String, name: String, action: String = "block", enabled: Bool = true, traffic: String? = "dns.security.category in {1}", precedence: Int? = 1) {
+        self.id = id
+        self.name = name
+        self.action = action
+        self.enabled = enabled
+        self.filters = nil
+        self.traffic = traffic
+        self.identity = nil
+        self.precedence = precedence
+        self.createdAt = nil
+        self.updatedAt = nil
+    }
+    
+    public static let placeholders: [GatewayRule] = [
+        GatewayRule(id: "gw_1", name: "Block Malware & Phishing", action: "block", enabled: true, traffic: "dns.security.category in {1 2 3}"),
+        GatewayRule(id: "gw_2", name: "Isolate Social Media", action: "isolate", enabled: true, traffic: "http.request.host in {\"facebook.com\" \"twitter.com\"}")
+    ]
 }
 
 // MARK: - Bulk Redirects Models
@@ -1248,6 +1748,21 @@ public struct RedirectList: Codable, Identifiable, Equatable {
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
+    
+    public init(id: String, name: String, description: String? = nil, kind: String = "redirect", count: Int? = 12, createdOn: String? = nil, modifiedOn: String? = nil) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.kind = kind
+        self.count = count
+        self.createdOn = createdOn
+        self.modifiedOn = modifiedOn
+    }
+    
+    public static let placeholders: [RedirectList] = [
+        RedirectList(id: "list_1", name: "marketing-campaign-redirects", description: "URL shortlinks and promo campaign redirects", count: 24),
+        RedirectList(id: "list_2", name: "legacy-v1-api-redirects", description: "Permanent redirects for deprecated REST endpoints", count: 88)
+    ]
 }
 
 public struct RedirectListItem: Codable, Identifiable, Equatable {
@@ -1314,25 +1829,48 @@ public struct AlertingAvailableType: Codable, Identifiable, Equatable {
 
 public struct AlertingWebhookDestination: Codable, Identifiable, Equatable {
     public let id: String
-    public let name: String
+    public let name: String?
     public let url: String?
     public let type: String?
 }
 
 public struct AlertingPolicy: Codable, Identifiable, Equatable {
     public let id: String
-    public let name: String
+    public let name: String?
     public let description: String?
-    public let enabled: Bool
+    public let enabled: Bool?
     public let alertType: String?
     public let created: String?
     public let modified: String?
+    
+    public var isEnabled: Bool {
+        enabled ?? true
+    }
+    
+    public var displayName: String {
+        name ?? alertType ?? id
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, name, description, enabled
         case alertType = "alert_type"
         case created, modified
     }
+    
+    public init(id: String, name: String?, description: String? = nil, enabled: Bool? = true, alertType: String? = nil, created: String? = nil, modified: String? = nil) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.enabled = enabled
+        self.alertType = alertType
+        self.created = created
+        self.modified = modified
+    }
+    
+    public static let placeholders: [AlertingPolicy] = [
+        AlertingPolicy(id: "pol_1", name: "High HTTP 5xx Error Rate Alert", description: "Notifies Ops team on Slack when origin errors exceed 5%", enabled: true, alertType: "http_alert_origin_error_rate"),
+        AlertingPolicy(id: "pol_2", name: "DDoS Mitigation Triggered", description: "Immediate paging when volumetric DDoS is detected", enabled: true, alertType: "dos_attack_l7")
+    ]
 }
 
 

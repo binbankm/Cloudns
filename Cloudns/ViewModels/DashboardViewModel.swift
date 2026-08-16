@@ -54,7 +54,7 @@ final class DashboardViewModel: ObservableObject {
             let fetchedAccounts = try await apiClient.getAccounts()
             self.accounts = fetchedAccounts
             
-            let activeEmail = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+            let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
             let currentAcc = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
             self.selectedAccount = currentAcc
             

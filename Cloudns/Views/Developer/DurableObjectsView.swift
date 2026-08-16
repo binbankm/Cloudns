@@ -46,85 +46,103 @@ struct DurableObjectsView: View {
     }
     
     var body: some View {
-        List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section(header: Text("Namespaces")) {
+                        ForEach(DurableObjectNamespace.placeholders) { ns in
+                            nsRow(ns)
+                        }
                     }
+                    .skeletonLoading(true)
                 }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(message: LocalizedStringKey(err)) {
-                        Task { await viewModel.fetchNamespaces() }
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.namespaces.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "cube.fill",
-                        title: "No Durable Objects",
-                        message: "Durable Objects namespaces are created via Wrangler migrations inside your Worker code.",
-                        actionTitle: "Refresh",
-                        action: { Task { await viewModel.fetchNamespaces() } }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredNamespaces.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
+                .listStyle(.insetGrouped)
+                .navigationTitle("Durable Objects")
+                .navigationBarTitleDisplayMode(.inline)
             } else {
-                Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
-                    ForEach(viewModel.filteredNamespaces) { ns in
-                        NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "cube.fill")
-                                    .foregroundStyle(.cyan)
-                                    .font(.title3)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.cyan.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(ns.name)
-                                        .font(.body.weight(.medium))
-                                    
-                                    if let script = ns.script {
-                                        Text("Worker: \(script)")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
+                List {
+                    if !viewModel.filteredNamespaces.isEmpty {
+                        Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
+                            ForEach(viewModel.filteredNamespaces) { ns in
+                                NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
+                                    nsRow(ns)
                                 }
-                                
-                                Spacer()
-                                
-                                Text(String(ns.id.prefix(8)))
-                                    .font(.caption2.monospaced())
-                                    .foregroundStyle(.secondary)
                             }
-                            .padding(.vertical, 2)
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
+                .overlay {
+                    if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
+                        StateOverlayView(
+                            state: .error(
+                                message: LocalizedStringKey(err),
+                                retryAction: { Task { await viewModel.fetchNamespaces() } }
+                            )
+                        )
+                    } else if viewModel.namespaces.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "cube.fill",
+                                title: "No Durable Objects",
+                                message: "Durable Objects namespaces are created via Wrangler migrations inside your Worker code.",
+                                actionTitle: "Refresh",
+                                action: { Task { await viewModel.fetchNamespaces() } }
+                            )
+                        )
+                    } else if viewModel.filteredNamespaces.isEmpty && !viewModel.searchText.isEmpty {
+                        StateOverlayView(
+                            state: .search(
+                                query: viewModel.searchText,
+                                clearAction: { viewModel.searchText = "" }
+                            )
+                        )
+                    }
+                }
+                .navigationTitle("Durable Objects")
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $viewModel.searchText, prompt: "Search Namespaces")
+                .refreshable {
+                    await viewModel.fetchNamespaces()
+                }
             }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle("Durable Objects")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Namespaces")
-        .refreshable {
-            await viewModel.fetchNamespaces()
         }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchNamespaces()
             }
         }
+    }
+    
+    @ViewBuilder
+    private func nsRow(_ ns: DurableObjectNamespace) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "cube.fill")
+                .foregroundStyle(.cyan)
+                .font(.title3)
+                .frame(width: 32, height: 32)
+                .background(Color.cyan.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(ns.name)
+                    .font(.body.weight(.medium))
+                
+                if let script = ns.script {
+                    Text("Worker: \(script)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            Text(String(ns.id.prefix(8)))
+                .font(.caption2.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -195,6 +213,7 @@ struct DurableObjectNamespaceDetailView: View {
                             Image(systemName: "circle.circle.fill")
                                 .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
                                 .font(.caption)
+                                .accessibilityHidden(true)
                             Text(obj.id)
                                 .font(.caption.monospaced())
                             Spacer()

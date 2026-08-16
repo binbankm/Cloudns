@@ -7,34 +7,14 @@ struct SecurityEventsView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.events.isEmpty {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(SecurityEvent.placeholders) { event in
+                        SecurityEventCardView(event: event)
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchEvents(zoneId: zoneId)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "checkmark.shield",
-                        title: "No Security Events",
-                        message: "Your site hasn't blocked any threats recently. Everything is secure!"
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.events.isEmpty {
                 Section {
                     ForEach(viewModel.events) { event in
                         SecurityEventCardView(event: event)
@@ -43,6 +23,28 @@ struct SecurityEventsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchEvents(zoneId: zoneId) }
+                            }
+                        )
+                    )
+                } else if viewModel.events.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "checkmark.shield",
+                            title: "No Security Events",
+                            message: "Your site hasn't blocked any threats recently. Everything is secure!"
+                        )
+                    )
+                }
+            }
+        }
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -68,7 +70,7 @@ struct SecurityEventCardView: View {
                     .padding(.vertical, 4)
                     .background(colorForAction(event.action).opacity(0.1))
                     .foregroundStyle(colorForAction(event.action))
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Spacer()
                 

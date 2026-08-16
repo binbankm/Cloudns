@@ -21,13 +21,13 @@ struct WorkerTriggersView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingAddCronSheet = true
-                } label: {
-                    Image(systemName: "plus")
+                    Button {
+                        showingAddCronSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Cron Trigger")
                 }
-                .accessibilityLabel("添加定时触发器")
-            }
             }
             .refreshable {
                 await viewModel.fetchSchedules()
@@ -60,70 +60,80 @@ struct WorkerTriggersView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Scheduled Triggers")) {
+                    ForEach(WorkerSchedule.placeholders) { schedule in
+                        scheduleRow(schedule)
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchSchedules() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.schedules.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "clock.badge.exclamationmark",
-                        title: "No Cron Triggers",
-                        message: "Run scheduled Worker tasks automatically using cron syntax (e.g. every 5 minutes, daily).",
-                        actionTitle: "Add Cron Trigger",
-                        action: {
-                            showingAddCronSheet = true
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
-                Section(header: Text("Scheduled Triggers (\(viewModel.schedules.count))"), footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")) {
+                .skeletonLoading(true)
+            } else if !viewModel.schedules.isEmpty {
+                Section(
+                    header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
+                    footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")
+                ) {
                     ForEach(viewModel.schedules) { schedule in
-                        HStack(spacing: 12) {
-                            Image(systemName: "clock.arrow.2.circlepath")
-                                .font(.title3)
-                                .foregroundStyle(.purple)
-                                .frame(width: 32)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(schedule.cron)
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-                                
-                                Text(humanReadableCron(schedule.cron))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        scheduleRow(schedule)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    cronToDelete = schedule
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                cronToDelete = schedule
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchSchedules() } }
+                        )
+                    )
+                } else if viewModel.schedules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "clock.badge.exclamationmark",
+                            title: "No Cron Triggers",
+                            message: "Run scheduled Worker tasks automatically using cron syntax (e.g. every 5 minutes, daily).",
+                            actionTitle: "Add Cron Trigger",
+                            action: { showingAddCronSheet = true }
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func scheduleRow(_ schedule: WorkerSchedule) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "clock.arrow.2.circlepath")
+                .font(.title3)
+                .foregroundStyle(.purple)
+                .frame(width: 32)
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(schedule.cron)
+                    .font(.body.monospacedDigit())
+                    .foregroundStyle(.primary)
+                
+                Text(humanReadableCron(schedule.cron))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 4)
     }
     
     private func humanReadableCron(_ cron: String) -> String {
@@ -182,6 +192,7 @@ private struct AddCronTriggerSheet: View {
                 Section(header: Text("Common Presets")) {
                     ForEach(presets) { preset in
                         Button {
+                            HapticManager.impact(.light)
                             cronExpression = preset.expr
                         } label: {
                             HStack {
@@ -221,6 +232,7 @@ private struct AddCronTriggerSheet: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.addSchedule(cron: cronExpression)
+                                HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Cron Trigger Added", message: cronExpression)
                                 dismiss()
                             } catch {

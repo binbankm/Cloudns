@@ -25,60 +25,88 @@ struct DNSRecordsView: View {
     
     var displayRecords: [DNSRecord] {
         if !viewModel.hasFetchedData {
-            return DNSRecord.dummyData
+            return DNSRecord.placeholders
         }
         return viewModel.records
     }
     
     var body: some View {
-        listViewContent
-            .navigationTitle("DNS Records")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    trailingToolbar
-                }
-            
-            ToolbarItem(placement: .bottomBar) {
-                if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
-                    Button(role: .destructive) {
-                        viewModel.deleteRecords(withIds: multiSelection)
-                        multiSelection.removeAll()
-                        editMode?.wrappedValue = .inactive
-                    } label: {
-                        Text("Delete Selected (\(multiSelection.count))")
-                            .foregroundStyle(.red)
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section {
+                        ForEach(DNSRecord.placeholders) { record in
+                            recordRow(record: record)
+                        }
                     }
+                    .skeletonLoading(true)
                 }
-            }
-        }
-        .fileExporter(isPresented: $showingExporter, document: TextDocument(url: exportedFileURL), contentType: .plainText, defaultFilename: "dns_records_\(zoneName).txt") { _ in }
-        .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.plainText, .data]) { result in
-            switch result {
-            case .success(let fileURL):
-                Task {
-                    _ = fileURL.startAccessingSecurityScopedResource()
-                    try? await viewModel.importRecords(fileURL: fileURL)
-                    fileURL.stopAccessingSecurityScopedResource()
-                }
-            case .failure(let error):
-                print("Import failed: \(error.localizedDescription)")
+                .listStyle(.insetGrouped)
+                .navigationTitle("DNS Records")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                listViewContent
+                    .navigationTitle("DNS Records")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(
+                        text: $viewModel.searchQuery,
+                        prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            trailingToolbar
+                        }
+                        
+                        ToolbarItem(placement: .bottomBar) {
+                            if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    viewModel.deleteRecords(withIds: multiSelection)
+                                    multiSelection.removeAll()
+                                    editMode?.wrappedValue = .inactive
+                                } label: {
+                                    Text("Delete Selected (\(multiSelection.count))")
+                                        .foregroundStyle(.red)
+                                }
+                            }
+                        }
+                    }
+                    .fileExporter(
+                        isPresented: $showingExporter,
+                        document: TextDocument(url: exportedFileURL),
+                        contentType: .plainText,
+                        defaultFilename: "dns_records_\(zoneName).txt"
+                    ) { _ in }
+                    .fileImporter(
+                        isPresented: $showingImporter,
+                        allowedContentTypes: [.plainText, .data]
+                    ) { result in
+                        switch result {
+                        case .success(let fileURL):
+                            Task {
+                                _ = fileURL.startAccessingSecurityScopedResource()
+                                try? await viewModel.importRecords(fileURL: fileURL)
+                                fileURL.stopAccessingSecurityScopedResource()
+                            }
+                        case .failure(let error):
+                            print("Import failed: \(error.localizedDescription)")
+                        }
+                    }
+                    .onChange(of: editMode?.wrappedValue) { _ in
+                        multiSelection.removeAll()
+                    }
+                    .sheet(isPresented: $showingForm) {
+                        DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
+                    }
+                    .sheet(item: $recordToEdit) { record in
+                        DNSRecordFormView(viewModel: viewModel, existingRecord: record)
+                    }
             }
         }
         .task {
             if viewModel.records.isEmpty {
                 await viewModel.fetchRecords()
             }
-        }
-        .onChange(of: editMode?.wrappedValue) { _ in
-            multiSelection.removeAll()
-        }
-        .sheet(isPresented: $showingForm) {
-            DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
-        }
-        .sheet(item: $recordToEdit) { record in
-            DNSRecordFormView(viewModel: viewModel, existingRecord: record)
         }
     }
     
@@ -87,44 +115,7 @@ struct DNSRecordsView: View {
     @ViewBuilder
     private var listViewContent: some View {
         List(selection: $multiSelection) {
-            if viewModel.isLoading && viewModel.records.isEmpty {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchRecords(isRefresh: true)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "server.rack",
-                        title: "No DNS Records",
-                        message: "No DNS records found for this domain.",
-                        actionTitle: "Add Record",
-                        action: { showingForm = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if displayRecords.isEmpty {
-                Section {
-                    EmptyStateView.search(
-                        query: viewModel.searchQuery,
-                        action: { viewModel.searchQuery = "" }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !displayRecords.isEmpty {
                 recordsSections
 
                 if viewModel.canLoadMore && viewModel.hasFetchedData {
@@ -144,6 +135,37 @@ struct DNSRecordsView: View {
         .listStyle(.insetGrouped)
         .refreshable {
             await viewModel.fetchRecords(isRefresh: true)
+        }
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchRecords(isRefresh: true) }
+                            }
+                        )
+                    )
+                } else if viewModel.records.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "server.rack",
+                            title: "No DNS Records",
+                            message: "No DNS records found for this domain.",
+                            actionTitle: "Add Record",
+                            action: { showingForm = true }
+                        )
+                    )
+                } else if displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchQuery,
+                            clearAction: { viewModel.searchQuery = "" }
+                        )
+                    )
+                }
+            }
         }
     }
     
@@ -212,7 +234,7 @@ struct DNSRecordsView: View {
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
-            .accessibilityLabel("更多操作")
+            .accessibilityLabel("More Options")
             
             Button(action: {
                 recordToEdit = nil
@@ -220,7 +242,7 @@ struct DNSRecordsView: View {
             }) {
                 Image(systemName: "plus")
             }
-            .accessibilityLabel("添加 DNS 记录")
+            .accessibilityLabel("Add DNS Record")
         }
     }
     
@@ -230,6 +252,7 @@ struct DNSRecordsView: View {
             .tag(record.id)
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(role: .destructive) {
+                    HapticManager.impact(.medium)
                     Task {
                         do {
                             try await viewModel.deleteRecord(recordId: record.id)
@@ -252,6 +275,7 @@ struct DNSRecordsView: View {
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
                     UIPasteboard.general.string = record.content ?? record.name
+                    HapticManager.impact(.light)
                     ToastManager.shared.showCopied("Record content copied")
                 } label: {
                     Label("Copy", systemImage: "doc.on.doc")
@@ -274,7 +298,7 @@ struct DNSRecordRowView: View {
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.15))
                     .foregroundStyle(.blue)
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 // Record Name
                 Text(record.name)
@@ -291,6 +315,7 @@ struct DNSRecordRowView: View {
                     Image(systemName: "cloud.fill")
                         .font(.body)
                         .foregroundStyle(record.proxied == true ? .orange : Color.gray.opacity(0.4))
+                        .accessibilityHidden(true)
                 } else {
                     Text("DNS Only")
                         .font(.caption2.weight(.medium))
@@ -308,7 +333,7 @@ struct DNSRecordRowView: View {
                 
                 Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
                     .font(.caption)
-                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+                    .foregroundStyle(Color(.tertiaryLabel))
             }
             
             if let comment = record.comment, !comment.isEmpty {
@@ -319,7 +344,7 @@ struct DNSRecordRowView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
     }
 }
 

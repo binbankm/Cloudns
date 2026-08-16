@@ -48,6 +48,7 @@ final class R2BucketSettingsViewModel: ObservableObject {
         isManagedDomainEnabled = enabled
         do {
             try await apiClient.setR2ManagedDomain(accountId: accountId, bucketName: bucketName, enabled: enabled)
+            HapticManager.impact(.light)
             ToastManager.shared.showSuccess("Managed Domain Updated", message: enabled ? "r2.dev access enabled" : "r2.dev access disabled")
             await fetchSettings()
         } catch {
@@ -59,6 +60,7 @@ final class R2BucketSettingsViewModel: ObservableObject {
     func deleteCustomDomain(domain: String) async {
         do {
             try await apiClient.deleteR2CustomDomain(accountId: accountId, bucketName: bucketName, domain: domain)
+            HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("Domain Removed", message: domain)
             await fetchSettings()
         } catch {
@@ -71,6 +73,7 @@ final class R2BucketSettingsViewModel: ObservableObject {
         updated.append(rule)
         do {
             try await apiClient.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
+            HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("CORS Rule Added", message: "Allowed origins: \(rule.allowedOrigins.joined(separator: ", "))")
             await fetchSettings()
             return true
@@ -90,6 +93,7 @@ final class R2BucketSettingsViewModel: ObservableObject {
             } else {
                 try await apiClient.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             }
+            HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("CORS Rule Removed", message: "")
             await fetchSettings()
         } catch {
@@ -112,12 +116,23 @@ struct R2BucketSettingsView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Public Access (r2.dev)")) {
+                    Toggle("Enable r2.dev Subdomain", isOn: .constant(false))
+                }
+                
+                Section(header: Text("Connected Custom Domains")) {
+                    ForEach(R2CustomDomain.placeholders) { domain in
+                        customDomainRow(domain)
                     }
                 }
+                
+                Section(header: Text("CORS Rules")) {
+                    ForEach(R2CORSRule.placeholders) { rule in
+                        corsRuleRow(rule)
+                    }
+                }
+                .skeletonLoading(true)
             } else {
                 // Section 1: r2.dev Managed Domain
                 Section(
@@ -155,45 +170,14 @@ struct R2BucketSettingsView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.customDomains) { domain in
-                            HStack(spacing: 12) {
-                                Image(systemName: "globe")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 28)
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(domain.domain)
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
-                                    
-                                    HStack(spacing: 8) {
-                                        HStack(spacing: 4) {
-                                            Circle()
-                                                .fill((domain.status?.lowercased() == "active") ? Color.green : Color.orange)
-                                                .frame(width: 6, height: 6)
-                                            Text(domain.status?.capitalized ?? "Active")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        
-                                        if let zone = domain.zoneId {
-                                            Text("• \(zone)")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
+                            customDomainRow(domain)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task { await viewModel.deleteCustomDomain(domain: domain.domain) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                
-                                Spacer()
-                            }
-                            .padding(.vertical, 3)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task { await viewModel.deleteCustomDomain(domain: domain.domain) }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
                         }
                     }
                 }
@@ -209,38 +193,14 @@ struct R2BucketSettingsView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(viewModel.corsRules.enumerated()), id: \.offset) { index, rule in
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Text("Origins: \(rule.allowedOrigins.joined(separator: ", "))")
-                                        .font(.body.weight(.semibold))
-                                    Spacer()
-                                    if let maxAge = rule.maxAgeSeconds {
-                                        Text("\(maxAge)s")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
+                            corsRuleRow(rule)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task { await viewModel.deleteCORSRule(at: index) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                
-                                HStack {
-                                    Text("Methods: \(rule.allowedMethods.joined(separator: ", "))")
-                                        .font(.caption.monospaced())
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                if let headers = rule.allowedHeaders, !headers.isEmpty {
-                                    Text("Headers: \(headers.joined(separator: ", "))")
-                                        .font(.caption2.monospaced())
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task { await viewModel.deleteCORSRule(at: index) }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
                         }
                     }
                 }
@@ -259,6 +219,7 @@ struct R2BucketSettingsView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add CORS Rule")
             }
         }
         .refreshable {
@@ -269,6 +230,72 @@ struct R2BucketSettingsView: View {
                 await viewModel.fetchSettings()
             }
         }
+    }
+    
+    @ViewBuilder
+    private func customDomainRow(_ domain: R2CustomDomain) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "globe")
+                .font(.title3)
+                .foregroundStyle(.blue)
+                .frame(width: 28)
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(domain.domain)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill((domain.status?.lowercased() == "active") ? Color.green : Color.orange)
+                            .frame(width: 6, height: 6)
+                        Text(domain.status?.capitalized ?? "Active")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let zone = domain.zoneId {
+                        Text("• \(zone)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 3)
+    }
+    
+    @ViewBuilder
+    private func corsRuleRow(_ rule: R2CORSRule) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Origins: \(rule.allowedOrigins.joined(separator: ", "))")
+                    .font(.body.weight(.semibold))
+                Spacer()
+                if let maxAge = rule.maxAgeSeconds {
+                    Text("\(maxAge)s")
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            HStack {
+                Text("Methods: \(rule.allowedMethods.joined(separator: ", "))")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let headers = rule.allowedHeaders, !headers.isEmpty {
+                Text("Headers: \(headers.joined(separator: ", "))")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

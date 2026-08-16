@@ -8,41 +8,20 @@ struct IPAccessRulesView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(IPAccessRule.placeholders) { rule in
+                        IPAccessRuleRow(rule: rule)
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchRules(zoneId: zoneId)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "network.badge.shield.half.filled",
-                        title: "No IP Access Rules",
-                        message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                        actionTitle: "Add IP Rule",
-                        action: { showingAddRule = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         IPAccessRuleRow(rule: rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
                                     Task {
                                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                                         ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
@@ -56,6 +35,30 @@ struct IPAccessRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchRules(zoneId: zoneId) }
+                            }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "network.badge.shield.half.filled",
+                            title: "No IP Access Rules",
+                            message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                            actionTitle: "Add IP Rule",
+                            action: { showingAddRule = true }
+                        )
+                    )
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchRules(zoneId: zoneId)
         }
@@ -68,7 +71,7 @@ struct IPAccessRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加规则")
+                .accessibilityLabel("Add IP Rule")
             }
         }
         .task {
@@ -94,12 +97,12 @@ struct IPAccessRuleRow: View {
                 Spacer()
                 
                 Text(rule.mode.uppercased())
-                    .font(.caption)
+                    .font(.caption.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(colorForMode(rule.mode).opacity(0.1))
+                    .background(colorForMode(rule.mode).opacity(0.12))
                     .foregroundStyle(colorForMode(rule.mode))
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             
             HStack {
@@ -141,7 +144,7 @@ struct AddIPAccessRuleView: View {
     @State private var notes = ""
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Target")) {
                     Picker("Target Type", selection: $target) {
@@ -152,8 +155,8 @@ struct AddIPAccessRuleView: View {
                     }
                     
                     TextField(target == "country" ? "e.g. US, CN, GB" : (target == "asn" ? "e.g. AS12345" : "e.g. 192.168.1.1"), text: $value)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 
                 Section(header: Text("Action")) {
@@ -180,6 +183,7 @@ struct AddIPAccessRuleView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
+                        HapticManager.impact(.medium)
                         Task {
                             let success = await viewModel.createRule(
                                 zoneId: zoneId,

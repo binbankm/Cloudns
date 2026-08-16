@@ -8,8 +8,8 @@ class AccountManager: ObservableObject {
     
     @Published var accounts: [String: String] = [:] // [Email: APIKey]
     
-    @AppStorage("activeAccountEmail") var activeEmail: String = ""
-    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @AppStorage(AppStorageKey.activeAccountEmail) var activeEmail: String = ""
+    @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
     
     private let serviceName = "com.cloudflare.api"
     
@@ -49,9 +49,8 @@ class AccountManager: ObservableObject {
     func switchAccount(to email: String) {
         guard accounts.keys.contains(email) else { return }
         activeEmail = email
-        
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+        HapticManager.impact(.medium)
+        NotificationCenter.default.post(name: .accountSwitched, object: nil)
     }
     
     func removeAccount(email: String) {

@@ -16,237 +16,233 @@ struct TunnelDetailView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            contentView
-        }
-        .navigationTitle(tunnel.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingAddIngressSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("添加公共主机名")
-            }
-        }
-        .sheet(isPresented: $showingAddIngressSheet) {
-            AddIngressRuleSheetView(viewModel: viewModel)
-        }
-        .alert("Delete Tunnel", isPresented: $showingDeleteAlert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    let success = await viewModel.deleteTunnel()
-                    if success { dismiss() }
+        contentView
+            .navigationTitle(tunnel.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddIngressSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Hostname Rule")
                 }
             }
-        } message: {
-            Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
-        }
-        .refreshable {
-            await viewModel.fetchConfiguration()
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .sheet(isPresented: $showingAddIngressSheet) {
+                AddIngressRuleSheetView(viewModel: viewModel)
+            }
+            .alert("Delete Tunnel", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    HapticManager.impact(.medium)
+                    Task {
+                        let success = await viewModel.deleteTunnel()
+                        if success { dismiss() }
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
+            }
+            .refreshable {
                 await viewModel.fetchConfiguration()
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchConfiguration()
+                }
+            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
+            // Section: Overview
+            Section(header: Text("Tunnel Overview")) {
+                HStack {
+                    Text("Tunnel Name")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(tunnel.name)
+                        .font(.body)
+                        .foregroundStyle(.primary)
                 }
-            } else {
-                // Section: Overview
-                Section(header: Text("Tunnel Overview")) {
-                    HStack {
-                        Text("Tunnel Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(tunnel.name)
-                            .font(.body)
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    HStack {
-                        Text("Status")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(tunnel.isHealthy ? Color.green : Color.red)
-                                .frame(width: 6, height: 6)
-                            Text((tunnel.status ?? "Inactive").capitalized)
-                                .font(.body)
-                                .foregroundStyle(tunnel.isHealthy ? .green : .red)
-                        }
-                    }
-                    
-                    HStack {
-                        Text("UUID")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(tunnel.id)
-                            .font(.caption2.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                
+                HStack {
+                    Text("Status")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(tunnel.isHealthy ? Color.green : Color.red)
+                            .frame(width: 6, height: 6)
+                        Text((tunnel.status ?? "Inactive").capitalized)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(tunnel.isHealthy ? .green : .red)
                     }
                 }
                 
-                // Section: Connector Token / Install Command
-                if let token = viewModel.token, !token.isEmpty {
-                    Section(
-                        header: Text("Connector Token"),
-                        footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
-                    ) {
-                        Button {
-                            let cmd = "cloudflared tunnel run --token \(token)"
-                            UIPasteboard.general.string = cmd
-                            ToastManager.shared.showCopied("Install command copied")
-                        } label: {
-                            HStack {
-                                Image(systemName: "terminal")
-                                    .foregroundStyle(.blue)
-                                Text("cloudflared tunnel run --token ...")
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.primary)
-                                    .lineLimit(1)
-                                Spacer()
-                                Image(systemName: "doc.on.doc")
-                                    .font(.caption)
-                                    .foregroundStyle(.blue)
-                            }
-                        }
-                    }
+                HStack {
+                    Text("UUID")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(tunnel.id)
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
                 }
-                
-                // Section: Ingress Public Routing Rules
+            }
+            
+            // Section: Connector Token / Install Command
+            if let token = viewModel.token, !token.isEmpty {
                 Section(
-                    header: HStack {
-                        Text("Public Hostnames / Ingress (\(viewModel.ingressRules.count))")
-                        Spacer()
-                        Button {
-                            showingAddIngressSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                    },
-                    footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
+                    header: Text("Connector Token"),
+                    footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
                 ) {
-                    if viewModel.ingressRules.isEmpty {
-                        Text("No public ingress hostnames configured.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
-                            VStack(alignment: .leading, spacing: 4) {
-                                if let host = rule.hostname, !host.isEmpty {
-                                    HStack {
-                                        Image(systemName: "globe")
-                                            .font(.caption)
-                                            .foregroundStyle(.blue)
-                                        Text(host)
-                                            .font(.body.weight(.medium))
-                                            .foregroundStyle(.primary)
-                                        if let p = rule.path, !p.isEmpty {
-                                            Text(p)
-                                                .font(.caption.monospaced())
-                                                .foregroundStyle(.secondary)
-                                        }
+                    Button {
+                        let cmd = "cloudflared tunnel run --token \(token)"
+                        UIPasteboard.general.string = cmd
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Install command copied")
+                    } label: {
+                        HStack {
+                            Image(systemName: "terminal")
+                                .foregroundStyle(.blue)
+                                .accessibilityHidden(true)
+                            Text("cloudflared tunnel run --token ...")
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            Spacer()
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                }
+            }
+            
+            // Section: Ingress Public Routing Rules
+            Section(
+                header: HStack {
+                    Text("Public Hostnames / Ingress (\(viewModel.ingressRules.count))")
+                    Spacer()
+                    Button {
+                        showingAddIngressSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                },
+                footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
+            ) {
+                if viewModel.ingressRules.isEmpty {
+                    Text("No public ingress hostnames configured.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
+                        VStack(alignment: .leading, spacing: 4) {
+                            if let host = rule.hostname, !host.isEmpty {
+                                HStack {
+                                    Image(systemName: "globe")
+                                        .font(.caption)
+                                        .foregroundStyle(.blue)
+                                        .accessibilityHidden(true)
+                                    Text(host)
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                    if let p = rule.path, !p.isEmpty {
+                                        Text(p)
+                                            .font(.caption.monospaced())
+                                            .foregroundStyle(.secondary)
                                     }
-                                } else {
-                                    Text("Catch-all Fallback")
-                                        .font(.subheadline.weight(.medium))
+                                }
+                            } else {
+                                Text("Catch-all Fallback")
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            if let svc = rule.service {
+                                HStack {
+                                    Image(systemName: "arrow.right.circle.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(.green)
+                                        .accessibilityHidden(true)
+                                    Text(svc)
+                                        .font(.caption.monospacedDigit())
                                         .foregroundStyle(.secondary)
                                 }
-                                
-                                if let svc = rule.service {
-                                    HStack {
-                                        Image(systemName: "arrow.right.circle.fill")
-                                            .font(.caption2)
-                                            .foregroundStyle(.green)
-                                        Text(svc)
-                                            .font(.caption.monospacedDigit())
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
                             }
-                            .padding(.vertical, 3)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                if rule.hostname != nil {
-                                    Button(role: .destructive) {
-                                        Task { await viewModel.deleteIngressRule(at: index) }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
+                        }
+                        .padding(.vertical, 3)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            if rule.hostname != nil {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    Task { await viewModel.deleteIngressRule(at: index) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
                     }
                 }
-                
-                // Section: Connectors
-                if let conns = tunnel.connections, !conns.isEmpty {
-                    Section(header: Text("Active Connectors (\(conns.count))")) {
-                        ForEach(conns) { conn in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    if let colo = conn.coloName {
-                                        Text(colo.uppercased())
-                                            .font(.caption.monospacedDigit())
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.12))
-                                            .foregroundStyle(.blue)
-                                            .cornerRadius(4)
-                                    }
-                                    
-                                    if let ip = conn.originIp {
-                                        Text(ip)
-                                            .font(.caption.monospacedDigit())
-                                            .foregroundStyle(.primary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    if let arch = conn.arch {
-                                        Text(arch)
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
+            }
+            
+            // Section: Connectors
+            if let conns = tunnel.connections, !conns.isEmpty {
+                Section(header: Text("Active Connectors (\(conns.count))")) {
+                    ForEach(conns) { conn in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                if let colo = conn.coloName {
+                                    Text(colo.uppercased())
+                                        .font(.caption.monospacedDigit())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.blue.opacity(0.12))
+                                        .foregroundStyle(.blue)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
                                 
-                                if let ver = conn.version {
-                                    Text("cloudflared v\(ver)")
+                                if let ip = conn.originIp {
+                                    Text(ip)
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundStyle(.primary)
+                                }
+                                
+                                Spacer()
+                                
+                                if let arch = conn.arch {
+                                    Text(arch)
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            .padding(.vertical, 3)
+                            
+                            if let ver = conn.version {
+                                Text("cloudflared v\(ver)")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .padding(.vertical, 3)
                     }
                 }
-                
-                // Section: Danger Zone
-                Section {
-                    Button(role: .destructive) {
-                        showingDeleteAlert = true
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Text("Delete Tunnel")
-                                .font(.body.weight(.medium))
-                            Spacer()
-                        }
+            }
+            
+            // Section: Danger Zone
+            Section {
+                Button(role: .destructive) {
+                    HapticManager.impact(.medium)
+                    showingDeleteAlert = true
+                } label: {
+                    HStack {
+                        Spacer()
+                        Text("Delete Tunnel")
+                            .font(.body.weight(.medium))
+                        Spacer()
                     }
                 }
             }
@@ -296,7 +292,10 @@ struct AddIngressRuleSheetView: View {
                             let cleanPath = path.trimmingCharacters(in: .whitespaces)
                             let cleanSvc = serviceURL.trimmingCharacters(in: .whitespaces)
                             let success = await viewModel.addIngressRule(hostname: cleanHost, path: cleanPath.isEmpty ? nil : cleanPath, service: cleanSvc)
-                            if success { dismiss() }
+                            if success {
+                                HapticManager.impact(.medium)
+                                dismiss()
+                            }
                             isSaving = false
                         }
                     }

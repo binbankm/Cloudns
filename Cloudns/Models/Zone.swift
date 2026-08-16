@@ -1,48 +1,25 @@
 import Foundation
 
-struct CloudflareResponse<T: Codable>: Codable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: T?
-    let resultInfo: ResultInfo?
+public struct ZonePlan: Codable, Equatable {
+    public let id: String?
+    public let name: String?
+    public let price: Double?
+    public let currency: String?
+    public let frequency: String?
+    public let isSubscribed: Bool?
+    public let canSubscribe: Bool?
+    public let legacyId: String?
     
-    enum CodingKeys: String, CodingKey {
-        case success, errors, result
-        case resultInfo = "result_info"
+    public init(id: String? = nil, name: String? = nil, price: Double? = nil, currency: String? = nil, frequency: String? = nil, isSubscribed: Bool? = nil, canSubscribe: Bool? = nil, legacyId: String? = nil) {
+        self.id = id
+        self.name = name
+        self.price = price
+        self.currency = currency
+        self.frequency = frequency
+        self.isSubscribed = isSubscribed
+        self.canSubscribe = canSubscribe
+        self.legacyId = legacyId
     }
-}
-
-struct ResultInfo: Codable {
-    let page: Int
-    let perPage: Int
-    let totalPages: Int
-    let count: Int
-    let totalCount: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case page
-        case perPage = "per_page"
-        case totalPages = "total_pages"
-        case count
-        case totalCount = "total_count"
-    }
-}
-
-struct CloudflareError: Codable {
-    let code: Int
-    let message: String
-}
-
-
-struct ZonePlan: Codable, Equatable {
-    let id: String?
-    let name: String?
-    let price: Double?
-    let currency: String?
-    let frequency: String?
-    let isSubscribed: Bool?
-    let canSubscribe: Bool?
-    let legacyId: String?
     
     enum CodingKeys: String, CodingKey {
         case id, name, price, currency, frequency
@@ -51,7 +28,7 @@ struct ZonePlan: Codable, Equatable {
         case legacyId = "legacy_id"
     }
     
-    var displayName: String {
+    public var displayName: String {
         if let name = name, !name.isEmpty {
             let lower = name.lowercased()
             if lower.contains("free") { return "Free" }
@@ -67,27 +44,66 @@ struct ZonePlan: Codable, Equatable {
     }
 }
 
-struct ZoneAccount: Codable, Equatable {
-    let id: String
-    let name: String?
+public struct ZoneAccount: Codable, Equatable {
+    public let id: String
+    public let name: String?
+    
+    public init(id: String, name: String? = nil) {
+        self.id = id
+        self.name = name
+    }
 }
 
-struct Zone: Codable, Identifiable, Equatable {
-    let account: ZoneAccount?
-    let id: String
-    let name: String
-    let status: String
-    let paused: Bool
-    let type: String?
-    let plan: ZonePlan?
-    let developmentMode: Int?
-    let nameServers: [String]?
-    let originalNameServers: [String]?
-    let originalRegistrar: String?
-    let originalDnshost: String?
-    let modifiedOn: String
-    let createdOn: String
-    let activatedOn: String?
+public struct Zone: Codable, Identifiable, Equatable {
+    public let account: ZoneAccount?
+    public let id: String
+    public let name: String
+    public let status: String
+    public let paused: Bool
+    public let type: String?
+    public let plan: ZonePlan?
+    public let developmentMode: Int?
+    public let nameServers: [String]?
+    public let originalNameServers: [String]?
+    public let originalRegistrar: String?
+    public let originalDnshost: String?
+    public let modifiedOn: String
+    public let createdOn: String
+    public let activatedOn: String?
+    
+    public init(
+        account: ZoneAccount? = nil,
+        id: String,
+        name: String,
+        status: String = "active",
+        paused: Bool = false,
+        type: String? = "full",
+        plan: ZonePlan? = ZonePlan(name: "Free"),
+        developmentMode: Int? = nil,
+        nameServers: [String]? = nil,
+        originalNameServers: [String]? = nil,
+        originalRegistrar: String? = nil,
+        originalDnshost: String? = nil,
+        modifiedOn: String = "2024-01-01T00:00:00Z",
+        createdOn: String = "2024-01-01T00:00:00Z",
+        activatedOn: String? = nil
+    ) {
+        self.account = account
+        self.id = id
+        self.name = name
+        self.status = status
+        self.paused = paused
+        self.type = type
+        self.plan = plan
+        self.developmentMode = developmentMode
+        self.nameServers = nameServers
+        self.originalNameServers = originalNameServers
+        self.originalRegistrar = originalRegistrar
+        self.originalDnshost = originalDnshost
+        self.modifiedOn = modifiedOn
+        self.createdOn = createdOn
+        self.activatedOn = activatedOn
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, name, status, paused, type, plan
@@ -100,5 +116,16 @@ struct Zone: Codable, Identifiable, Equatable {
         case createdOn = "created_on"
         case activatedOn = "activated_on"
         case account
+    }
+    
+    /// HIG 骨架屏专用占位数据
+    public static let placeholders: [Zone] = (0..<6).map { idx in
+        Zone(
+            id: "placeholder-zone-\(idx)",
+            name: "placeholder-domain-\(idx + 1).com",
+            status: "active",
+            paused: false,
+            plan: ZonePlan(name: "Pro Plan")
+        )
     }
 }

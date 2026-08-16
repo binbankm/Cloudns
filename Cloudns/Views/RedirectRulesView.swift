@@ -8,139 +8,143 @@ struct RedirectRulesView: View {
     @State private var showingDeleteAlert = false
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            contentView
-        }
-        .navigationTitle("Redirect Rules")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showingAddSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("添加重定向规则")
-            }
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
-        }
-        .alert("Delete Redirect Rule", isPresented: $showingDeleteAlert, presenting: ruleToDelete) { rule in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+        contentView
+            .navigationTitle("Redirect Rules")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Redirect Rule")
                 }
             }
-        } message: { rule in
-            Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
-        }
-        .refreshable {
-            await viewModel.fetchRules(zoneId: zoneId)
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .sheet(isPresented: $showingAddSheet) {
+                AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
+            }
+            .alert("Delete Redirect Rule", isPresented: $showingDeleteAlert, presenting: ruleToDelete) { rule in
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    Task {
+                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+                    }
+                }
+            } message: { rule in
+                Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
+            }
+            .refreshable {
                 await viewModel.fetchRules(zoneId: zoneId)
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchRules(zoneId: zoneId)
+                }
+            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(RedirectRuleItem.placeholders) { rule in
+                        redirectRuleRow(rule)
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchRules(zoneId: zoneId)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "arrow.triangle.swap",
-                        title: "No Redirect Rules",
-                        message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge."
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.rules.isEmpty {
                 Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text(rule.description ?? "Untitled Rule")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                
-                                Spacer()
-                                
-                                let isEnabled = rule.enabled ?? true
-                                Text(isEnabled ? "Active" : "Disabled")
-                                    .font(.caption2.weight(.medium))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
-                                    .foregroundStyle(isEnabled ? .green : .secondary)
-                                    .cornerRadius(4)
-                            }
-                            
-                            HStack(spacing: 6) {
-                                if let status = rule.statusCode {
-                                    Text("\(status)")
-                                        .font(.caption.monospacedDigit().weight(.bold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .cornerRadius(4)
-                                }
-                                
-                                if let url = rule.targetUrl {
-                                    Text("➔ \(url)")
-                                        .font(.caption.monospaced())
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
+                        redirectRuleRow(rule)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    ruleToDelete = rule
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
-                            
-                            if let expr = rule.expression {
-                                Text(expr)
-                                    .font(.caption2.monospaced())
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                ruleToDelete = rule
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchRules(zoneId: zoneId) }
+                            }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "arrow.triangle.swap",
+                            title: "No Redirect Rules",
+                            message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
+                            actionTitle: "Add Rule",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(rule.description ?? "Untitled Rule")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+                
+                let isEnabled = rule.enabled ?? true
+                Text(isEnabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
+                    .foregroundStyle(isEnabled ? .green : .secondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            
+            HStack(spacing: 6) {
+                if let status = rule.statusCode {
+                    Text("\(status)")
+                        .font(.caption.monospacedDigit().weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.12))
+                        .foregroundStyle(.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                
+                if let url = rule.targetUrl {
+                    Text("➔ \(url)")
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            
+            if let expr = rule.expression {
+                Text(expr)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

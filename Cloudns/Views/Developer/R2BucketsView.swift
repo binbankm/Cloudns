@@ -13,86 +13,58 @@ struct R2BucketsView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("R2 Object Storage")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search R2 Buckets")
-            .refreshable {
-                await viewModel.fetchBuckets()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingCreateSheet = true
-                    } label: {
-                        Image(systemName: "plus")
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section {
+                        ForEach(R2Bucket.placeholders) { bucket in R2BucketRowView(bucket: bucket) }
                     }
-                    .accessibilityLabel("创建 R2 存储桶")
+                    .skeletonLoading(true)
                 }
-            }
-            .sheet(isPresented: $showingCreateSheet) {
-                R2CreateBucketSheetView(viewModel: viewModel)
-            }
-            .alert("Delete Bucket", isPresented: $showingDeleteAlert, presenting: bucketToDelete) { bucket in
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task {
-                        do {
-                            try await viewModel.deleteBucket(bucketName: bucket.name)
-                            ToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
-                        } catch {
-                            ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                .listStyle(.insetGrouped)
+                .navigationTitle("R2 Object Storage")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("R2 Object Storage")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search R2 Buckets")
+                    .refreshable { await viewModel.fetchBuckets() }
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
+                            .accessibilityLabel("Create R2 Bucket")
                         }
                     }
-                }
-            } message: { bucket in
-                Text("Are you sure you want to delete bucket '\(bucket.name)'? This action cannot be undone.")
+                    .sheet(isPresented: $showingCreateSheet) { R2CreateBucketSheetView(viewModel: viewModel) }
+                    .alert("Delete Bucket", isPresented: $showingDeleteAlert, presenting: bucketToDelete) { bucket in
+                        Button("Cancel", role: .cancel) {}
+                        Button("Delete", role: .destructive) {
+                            Task {
+                                do {
+                                    try await viewModel.deleteBucket(bucketName: bucket.name)
+                                    ToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
+                                } catch {
+                                    ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                                }
+                            }
+                        }
+                    } message: { bucket in
+                        Text("Are you sure you want to delete bucket '\(bucket.name)'? This action cannot be undone.")
+                    }
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchBuckets()
-                }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchBuckets()
             }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchBuckets() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.buckets.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "externaldrive.badge.icloud",
-                        title: "No R2 Buckets",
-                        message: "You haven't created any R2 storage buckets in this account yet.",
-                        actionTitle: "Create Bucket",
-                        action: { showingCreateSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredBuckets.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
                         NavigationLink {
@@ -102,8 +74,7 @@ struct R2BucketsView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
+                                HapticManager.impact(.medium)
                                 bucketToDelete = bucket
                                 showingDeleteAlert = true
                             } label: {
@@ -115,6 +86,33 @@ struct R2BucketsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchBuckets() } }
+                    )
+                )
+            } else if viewModel.buckets.isEmpty {
+                StateOverlayView(
+                    state: .empty(
+                        icon: "externaldrive.badge.icloud",
+                        title: "No R2 Buckets",
+                        message: "You haven't created any R2 storage buckets in this account yet.",
+                        actionTitle: "Create Bucket",
+                        action: { showingCreateSheet = true }
+                    )
+                )
+            } else if viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty {
+                StateOverlayView(
+                    state: .search(
+                        query: viewModel.searchText,
+                        clearAction: { viewModel.searchText = "" }
+                    )
+                )
+            }
+        }
     }
 }
 
@@ -243,6 +241,7 @@ struct R2BucketRowView: View {
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(bucket.name)
@@ -257,7 +256,7 @@ struct R2BucketRowView: View {
                     }
                     
                     if let date = bucket.creationDate {
-                        Text(String(date.prefix(10)))
+                        Text(DateFormatters.formatISO8601ToDisplay(date, style: DateFormatters.dateOnly))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -271,13 +270,14 @@ struct R2BucketRowView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(Color(UIColor.secondarySystemFill))
-                .cornerRadius(4)
+                .background(Color(.secondarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 4)
         .contextMenu {
             Button {
                 UIPasteboard.general.string = bucket.name
+                HapticManager.impact(.light)
                 ToastManager.shared.showCopied("Bucket name copied")
             } label: {
                 Label("Copy Bucket Name", systemImage: "doc.on.doc")

@@ -31,6 +31,16 @@ public struct WhoisInfo: Identifiable, Sendable {
         self.expires = expires
         self.nameservers = nameservers
     }
+    
+    public static let placeholder = WhoisInfo(
+        domain: "example.com",
+        statuses: ["clientTransferProhibited", "active"],
+        registrar: "Cloudflare, Inc.",
+        created: Date(timeIntervalSince1970: 800000000),
+        updated: Date(timeIntervalSince1970: 1700000000),
+        expires: Date(timeIntervalSince1970: 1800000000),
+        nameservers: ["ns1.cloudflare.com", "ns2.cloudflare.com"]
+    )
 }
 
 // MARK: - RDAP Service
@@ -264,7 +274,7 @@ struct WhoisToolView: View {
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 4)
                                     .background(Color(UIColor.tertiarySystemFill))
-                                    .cornerRadius(6)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
                             }
                             .buttonStyle(.plain)
                         }
@@ -287,125 +297,140 @@ struct WhoisToolView: View {
                     .padding(.vertical, 4)
                 }
             } else if let info = viewModel.info {
-                Section(header: Text("Registration Information")) {
-                    HStack {
-                        Text("Domain Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(info.domain)
-                            .font(.body)
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    if let reg = info.registrar {
-                        HStack {
-                            Text("Registrar")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(reg)
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                                .multilineTextAlignment(.trailing)
-                        }
-                    }
-                    
-                    if let created = info.created {
-                        HStack {
-                            Text("Created Date")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(formatDate(created))
-                                .font(.body.monospacedDigit())
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                    
-                    if let updated = info.updated {
-                        HStack {
-                            Text("Updated Date")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(formatDate(updated))
-                                .font(.body.monospacedDigit())
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                    
-                    if let expires = info.expires {
-                        HStack {
-                            Text("Expiration Date")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 2) {
-                                Text(formatDate(expires))
-                                    .font(.body.monospacedDigit())
-                                    .foregroundStyle(.primary)
-                                
-                                let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
-                                Text(days > 0 ? "\(days) days remaining" : "Expired")
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(days > 30 ? .green : .red)
-                            }
-                        }
-                    }
-                }
-                
-                // Section: Domain Statuses
-                if !info.statuses.isEmpty {
-                    Section(header: Text("Domain Statuses (\(info.statuses.count))")) {
-                        ForEach(info.statuses, id: \.self) { status in
-                            HStack(spacing: 8) {
-                                Circle()
-                                    .fill(Color.teal)
-                                    .frame(width: 6, height: 6)
-                                Text(status)
-                                    .font(.caption.monospacedDigit())
-                                    .foregroundStyle(.primary)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-                
-                // Section: Nameservers
-                if !info.nameservers.isEmpty {
-                    Section(header: Text("Authoritative Nameservers (\(info.nameservers.count))")) {
-                        ForEach(info.nameservers, id: \.self) { ns in
-                            HStack {
-                                Image(systemName: "server.rack")
-                                    .font(.caption)
-                                    .foregroundStyle(.teal)
-                                Text(ns.lowercased())
-                                    .font(.subheadline.monospacedDigit())
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Button {
-                                    UIPasteboard.general.string = ns.lowercased()
-                                    ToastManager.shared.showCopied("\(ns.lowercased()) copied")
-                                } label: {
-                                    Image(systemName: "doc.on.doc")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
+                whoisDetailsView(info: info)
             } else if viewModel.isLoading {
-                Section {
-                    ForEach(0..<3, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
+                whoisDetailsView(info: WhoisInfo.placeholder)
+                    .skeletonLoading(true)
             }
         }
         .navigationTitle("WHOIS")
         .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if let err = viewModel.errorMessage, viewModel.info == nil && !viewModel.isLoading {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(err),
+                        retryAction: { Task { await viewModel.performLookup() } }
+                    )
+                )
+            }
+        }
         .task {
             if viewModel.info == nil {
                 await viewModel.performLookup()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func whoisDetailsView(info: WhoisInfo) -> some View {
+        Section(header: Text("Registration Information")) {
+            HStack {
+                Text("Domain Name")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(info.domain)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+            }
+            
+            if let reg = info.registrar {
+                HStack {
+                    Text("Registrar")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(reg)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+            
+            if let created = info.created {
+                HStack {
+                    Text("Created Date")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(formatDate(created))
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.primary)
+                }
+            }
+            
+            if let updated = info.updated {
+                HStack {
+                    Text("Updated Date")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(formatDate(updated))
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.primary)
+                }
+            }
+            
+            if let expires = info.expires {
+                HStack {
+                    Text("Expiration Date")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(formatDate(expires))
+                            .font(.body.monospacedDigit())
+                            .foregroundStyle(.primary)
+                        
+                        let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
+                        Text(days > 0 ? "\(days) days remaining" : "Expired")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(days > 30 ? .green : .red)
+                    }
+                }
+            }
+        }
+        
+        // Section: Domain Statuses
+        if !info.statuses.isEmpty {
+            Section(header: Text("Domain Statuses (\(info.statuses.count))")) {
+                ForEach(info.statuses, id: \.self) { status in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(Color.teal)
+                            .frame(width: 6, height: 6)
+                        Text(status)
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        
+        // Section: Nameservers
+        if !info.nameservers.isEmpty {
+            Section(header: Text("Authoritative Nameservers (\(info.nameservers.count))")) {
+                ForEach(info.nameservers, id: \.self) { ns in
+                    HStack {
+                        Image(systemName: "server.rack")
+                            .font(.caption)
+                            .foregroundStyle(.teal)
+                            .accessibilityHidden(true)
+                        Text(ns.lowercased())
+                            .font(.subheadline.monospacedDigit())
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        Button {
+                            UIPasteboard.general.string = ns.lowercased()
+                            HapticManager.notification(.success)
+                            ToastManager.shared.showCopied("\(ns.lowercased()) copied")
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Copy \(ns.lowercased())")
+                    }
+                    .padding(.vertical, 2)
+                }
             }
         }
     }

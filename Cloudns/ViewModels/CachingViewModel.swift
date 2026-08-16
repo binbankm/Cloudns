@@ -152,7 +152,7 @@ class CachingViewModel: ObservableObject {
     func updateDevelopmentMode(zoneId: String, isOn: Bool) async {
         await updateSetting(zoneId: zoneId, settingId: "development_mode", value: .string(isOn ? "on" : "off")) {
             self.developmentMode = isOn
-            NotificationCenter.default.post(name: NSNotification.Name("ZoneUpdated"), object: nil)
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
         }
     }
     

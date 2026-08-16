@@ -22,20 +22,22 @@ final class AlertingViewModel: ObservableObject {
     func fetchData() async {
         isLoading = true
         errorMessage = nil
-        do {
-            async let fetchTypes = apiClient.listAvailableAlertTypes(accountId: accountId)
-            async let fetchPol = apiClient.listAlertingPolicies(accountId: accountId)
-            async let fetchHooks = apiClient.listAlertingWebhooks(accountId: accountId)
-            
-            let (types, pols, hooks) = try await (fetchTypes, fetchPol, fetchHooks)
-            self.availableTypes = types
-            self.policies = pols
-            self.webhooks = hooks
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
+        
+        async let fetchTypes: [AlertingAvailableType] = {
+            (try? await self.apiClient.listAvailableAlertTypes(accountId: self.accountId)) ?? []
+        }()
+        async let fetchPol: [AlertingPolicy] = {
+            (try? await self.apiClient.listAlertingPolicies(accountId: self.accountId)) ?? []
+        }()
+        async let fetchHooks: [AlertingWebhookDestination] = {
+            (try? await self.apiClient.listAlertingWebhooks(accountId: self.accountId)) ?? []
+        }()
+        
+        let (types, pols, hooks) = await (fetchTypes, fetchPol, fetchHooks)
+        self.availableTypes = types
+        self.policies = pols
+        self.webhooks = hooks
+        self.hasFetchedData = true
         isLoading = false
     }
     
@@ -61,70 +63,43 @@ struct AlertingView: View {
     }
     
     var body: some View {
-        List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section(header: Text("Configured Policies")) {
+                        ForEach(AlertingPolicy.placeholders) { p in
+                            policyRow(p)
+                        }
                     }
+                    .skeletonLoading(true)
                 }
-            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(message: LocalizedStringKey(err)) {
-                        Task { await viewModel.fetchData() }
-                    }
-                }
-                .listRowBackground(Color.clear)
+                .listStyle(.insetGrouped)
+                .navigationTitle("Notification Alerts")
+                .navigationBarTitleDisplayMode(.inline)
             } else {
-                Picker("Category", selection: $selectedTab) {
-                    Text("Active Policies").tag("policies")
-                    Text("Available Alerts").tag("available")
-                    Text("Webhooks").tag("webhooks")
-                }
-                .pickerStyle(.segmented)
-                .listRowBackground(Color.clear)
-                .padding(.vertical, 4)
+                List {
+                    Picker("Category", selection: $selectedTab) {
+                        Text("Active Policies").tag("policies")
+                        Text("Available Alerts").tag("available")
+                        Text("Webhooks").tag("webhooks")
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .padding(.vertical, 4)
                     
                     if selectedTab == "policies" {
-                        if viewModel.policies.isEmpty {
-                            Section {
-                                Text("No notification policies configured.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else {
+                        if !viewModel.policies.isEmpty {
                             Section(header: Text("Configured Policies (\(viewModel.policies.count))")) {
                                 ForEach(viewModel.policies) { p in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Text(p.name)
-                                                .font(.body.weight(.medium))
-                                            Spacer()
-                                            Text(p.enabled ? "Active" : "Disabled")
-                                                .font(.caption2.weight(.bold))
-                                                .foregroundStyle(p.enabled ? .green : .secondary)
+                                    policyRow(p)
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                            Button(role: .destructive) {
+                                                HapticManager.impact(.medium)
+                                                Task { await viewModel.deletePolicy(id: p.id) }
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
-                                        
-                                        if let desc = p.description, !desc.isEmpty {
-                                            Text(desc)
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        
-                                        if let type = p.alertType {
-                                            Text(type)
-                                                .font(.caption2.monospaced())
-                                                .foregroundStyle(.blue)
-                                        }
-                                    }
-                                    .padding(.vertical, 2)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            Task { await viewModel.deletePolicy(id: p.id) }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -144,18 +119,15 @@ struct AlertingView: View {
                             }
                         }
                     } else {
-                        Section(header: Text("Destinations & Webhooks (\(viewModel.webhooks.count))")) {
-                            if viewModel.webhooks.isEmpty {
-                                Text("No webhook destinations configured in this account.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            } else {
+                        if !viewModel.webhooks.isEmpty {
+                            Section(header: Text("Destinations & Webhooks (\(viewModel.webhooks.count))")) {
                                 ForEach(viewModel.webhooks) { h in
                                     HStack {
                                         Image(systemName: "bell.badge.fill")
                                             .foregroundStyle(.orange)
+                                            .accessibilityHidden(true)
                                         VStack(alignment: .leading, spacing: 2) {
-                                            Text(h.name)
+                                            Text(h.name ?? h.id)
                                                 .font(.body)
                                             if let url = h.url {
                                                 Text(url)
@@ -169,13 +141,33 @@ struct AlertingView: View {
                             }
                         }
                     }
+                }
+                .listStyle(.insetGrouped)
+                .overlay {
+                    if selectedTab == "policies" && viewModel.policies.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "bell.badge.slash",
+                                title: "No Policies",
+                                message: "No notification policies configured in this account."
+                            )
+                        )
+                    } else if selectedTab == "webhooks" && viewModel.webhooks.isEmpty {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "bell.badge",
+                                title: "No Webhooks",
+                                message: "No webhook destinations configured in this account."
+                            )
+                        )
+                    }
+                }
+                .navigationTitle("Notification Alerts")
+                .navigationBarTitleDisplayMode(.inline)
+                .refreshable {
+                    await viewModel.fetchData()
+                }
             }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle("Notification Alerts")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable {
-            await viewModel.fetchData()
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -183,5 +175,32 @@ struct AlertingView: View {
             }
         }
         .toastContainer()
+    }
+    
+    @ViewBuilder
+    private func policyRow(_ p: AlertingPolicy) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(p.displayName)
+                    .font(.body.weight(.medium))
+                Spacer()
+                Text(p.isEnabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(p.isEnabled ? .green : .secondary)
+            }
+            
+            if let desc = p.description, !desc.isEmpty {
+                Text(desc)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let type = p.alertType {
+                Text(type)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.blue)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }

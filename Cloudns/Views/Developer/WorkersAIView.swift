@@ -11,101 +11,52 @@ struct WorkersAIView: View {
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Workers AI")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search AI Models")
-            .sheet(item: $selectedModelForPlayground) { model in
-                WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
+        Group {
+            if !viewModel.hasFetchedData {
+                List {
+                    Section(header: Text("Models")) {
+                        ForEach(AIModel.placeholders) { model in
+                            modelRow(model)
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
+                .listStyle(.insetGrouped)
+                .navigationTitle("Workers AI")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                contentView
+                    .navigationTitle("Workers AI")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $viewModel.searchText, prompt: "Search AI Models")
+                    .sheet(item: $selectedModelForPlayground) { model in
+                        WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
+                    }
+                    .refreshable {
+                        await viewModel.fetchModels()
+                    }
             }
-            .refreshable {
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchModels()
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchModels()
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchModels() }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.models.isEmpty {
-                Section {
-                    EmptyStateView(
-                        icon: "brain",
-                        title: "No Models Found",
-                        message: "Unable to retrieve Workers AI model catalog.",
-                        actionTitle: "Retry",
-                        action: { Task { await viewModel.fetchModels() } }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.filteredModels.isEmpty {
-                Section {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
-                    }
-                }
-                .listRowBackground(Color.clear)
-            } else {
+            if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {
                         Section(header: Text(taskName)) {
                             ForEach(list) { model in
                                 Button {
+                                    HapticManager.impact(.light)
                                     selectedModelForPlayground = model
                                 } label: {
-                                    HStack(alignment: .center, spacing: 14) {
-                                        Image(systemName: "sparkles")
-                                            .font(.body)
-                                            .foregroundStyle(.purple)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.purple.opacity(0.12))
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(model.shortName)
-                                                .font(.body)
-                                                .foregroundStyle(.primary)
-                                            
-                                            if let desc = model.description, !desc.isEmpty {
-                                                Text(desc)
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                                    .lineLimit(2)
-                                            }
-                                            
-                                            Text(model.id)
-                                                .font(.caption2.monospacedDigit())
-                                                .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                                .lineLimit(1)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                            .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                    }
-                                    .padding(.vertical, 2)
+                                    modelRow(model)
                                 }
                             }
                         }
@@ -114,6 +65,74 @@ struct WorkersAIView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.models.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchModels() } }
+                        )
+                    )
+                } else if viewModel.models.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "brain",
+                            title: "No Models Found",
+                            message: "Unable to retrieve Workers AI model catalog.",
+                            actionTitle: "Retry",
+                            action: { Task { await viewModel.fetchModels() } }
+                        )
+                    )
+                } else if viewModel.filteredModels.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func modelRow(_ model: AIModel) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "sparkles")
+                .font(.body)
+                .foregroundStyle(.purple)
+                .frame(width: 32, height: 32)
+                .background(Color.purple.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(model.shortName)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                
+                if let desc = model.description, !desc.isEmpty {
+                    Text(desc)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+                
+                Text(model.id)
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(Color(.tertiaryLabel))
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color(.tertiaryLabel))
+                .accessibilityHidden(true)
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -194,7 +213,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.vertical, 1)
                         .background(Color.purple.opacity(0.12))
                         .foregroundStyle(.purple)
-                        .cornerRadius(4)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
                 
                 Text(model.modelPath)
@@ -299,7 +318,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
                 }
@@ -410,7 +429,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(UIColor.tertiarySystemGroupedBackground))
-                .cornerRadius(18)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
                 .focused($isInputFocused)
                 .disabled(viewModel.isSendingMessage)
             

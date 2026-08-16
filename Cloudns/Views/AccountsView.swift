@@ -11,6 +11,7 @@ struct AccountsView: View {
                 Section(header: Text("Logged In Accounts")) {
                     ForEach(Array(accountManager.accounts.keys), id: \.self) { email in
                         Button(action: {
+                            HapticManager.impact(.light)
                             withAnimation {
                                 accountManager.switchAccount(to: email)
                                 ToastManager.shared.showSuccess("Switched Account", message: email)
@@ -24,7 +25,7 @@ struct AccountsView: View {
                                     
                                     if accountManager.activeEmail == email {
                                         Text("Current")
-                                            .font(.caption)
+                                            .font(.caption.weight(.medium))
                                             .foregroundStyle(.orange)
                                     }
                                 }
@@ -34,7 +35,7 @@ struct AccountsView: View {
                                 if accountManager.activeEmail == email {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(.orange)
-                                        .font(.subheadline)
+                                        .font(.subheadline.weight(.semibold))
                                         .accessibilityHidden(true)
                                 }
                             }
@@ -45,6 +46,7 @@ struct AccountsView: View {
                 
                 Section {
                     Button(action: {
+                        HapticManager.impact(.light)
                         isShowingAddAccount = true
                     }) {
                         HStack {
@@ -57,6 +59,7 @@ struct AccountsView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("Accounts")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -79,6 +82,7 @@ struct AccountsView: View {
     
     private func deleteAccount(at offsets: IndexSet) {
         let keys = Array(accountManager.accounts.keys)
+        HapticManager.impact(.medium)
         withAnimation {
             for index in offsets {
                 let email = keys[index]

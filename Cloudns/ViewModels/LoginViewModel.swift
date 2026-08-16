@@ -28,8 +28,8 @@ class LoginViewModel: ObservableObject {
         isLoading = true
         
         // Save temporarily to validate
-        let previousActive = UserDefaults.standard.string(forKey: "activeAccountEmail")
-        UserDefaults.standard.set(trimmedEmail, forKey: "activeAccountEmail")
+        let previousActive = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
+        UserDefaults.standard.set(trimmedEmail, forKey: AppStorageKey.activeAccountEmail)
         KeychainHelper.standard.saveString(trimmedKey, service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
         
         do {
@@ -43,9 +43,9 @@ class LoginViewModel: ObservableObject {
             // If failed, remove from keychain and rollback active email
             KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
             if let prev = previousActive {
-                UserDefaults.standard.set(prev, forKey: "activeAccountEmail")
+                UserDefaults.standard.set(prev, forKey: AppStorageKey.activeAccountEmail)
             } else {
-                UserDefaults.standard.removeObject(forKey: "activeAccountEmail")
+                UserDefaults.standard.removeObject(forKey: AppStorageKey.activeAccountEmail)
             }
             self.errorMessage = error.localizedDescription
         }

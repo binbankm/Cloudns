@@ -11,6 +11,7 @@ struct DNSDigToolView: View {
                 HStack {
                     Image(systemName: "globe")
                         .foregroundStyle(.blue)
+                        .accessibilityHidden(true)
                     
                     TextField("e.g. example.com", text: $viewModel.domainInput)
                         .textInputAutocapitalization(.never)
@@ -27,8 +28,8 @@ struct DNSDigToolView: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
-                                .accessibilityLabel("清除输入")
                         }
+                        .accessibilityLabel("Clear input")
                     }
                 }
                 
@@ -40,6 +41,7 @@ struct DNSDigToolView: View {
                 
                 Button {
                     isFieldFocused = false
+                    HapticManager.impact(.light)
                     Task { await viewModel.queryDNS() }
                 } label: {
                     HStack {
@@ -60,7 +62,14 @@ struct DNSDigToolView: View {
             }
             
             // Section: Results
-            if let result = viewModel.dnsResult {
+            if viewModel.isDnsLoading {
+                Section(header: Text("Resolving Answers...")) {
+                    ForEach(DNSAnswerItem.placeholders) { item in
+                        DNSAnswerRowView(item: item)
+                    }
+                }
+                .skeletonLoading(true)
+            } else if let result = viewModel.dnsResult {
                 Section(header: HStack {
                     Text("Resolved Answers (\(result.answers.count))")
                     Spacer()
@@ -104,7 +113,7 @@ struct DNSAnswerRowView: View {
                     .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.12))
                     .foregroundStyle(.blue)
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Text(item.name)
                     .font(.body)
@@ -126,6 +135,7 @@ struct DNSAnswerRowView: View {
         .contextMenu {
             Button {
                 UIPasteboard.general.string = item.data
+                HapticManager.notification(.success)
                 ToastManager.shared.showCopied("Record data copied")
             } label: {
                 Label("Copy Record Data", systemImage: "doc.on.doc")

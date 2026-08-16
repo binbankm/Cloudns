@@ -29,6 +29,30 @@ struct WAFRule: Codable, Identifiable {
     let enabled: Bool
     let ratelimit: RateLimitConfig?
     let action_parameters: ActionParameters?
+    
+    init(
+        id: String,
+        action: String = "block",
+        expression: String = "(http.request.uri.path contains \"/wp-admin\")",
+        description: String? = "Block Admin Endpoint Access",
+        enabled: Bool = true,
+        ratelimit: RateLimitConfig? = nil,
+        action_parameters: ActionParameters? = nil
+    ) {
+        self.id = id
+        self.action = action
+        self.expression = expression
+        self.description = description
+        self.enabled = enabled
+        self.ratelimit = ratelimit
+        self.action_parameters = action_parameters
+    }
+    
+    static let placeholders: [WAFRule] = [
+        WAFRule(id: "rule_1", action: "block", expression: "(http.request.uri.path contains \"/admin\")", description: "Block unauthorized admin login attempts"),
+        WAFRule(id: "rule_2", action: "managed_challenge", expression: "(ip.geoip.country eq \"T1\")", description: "Challenge Tor Exit Nodes"),
+        WAFRule(id: "rule_3", action: "js_challenge", expression: "(cf.threat_score gt 30)", description: "JS Challenge High Threat Score")
+    ]
 }
 
 struct RateLimitConfig: Codable {

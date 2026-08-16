@@ -8,19 +8,6 @@ struct SecuritySettingsView: View {
     
     var body: some View {
         List {
-            if let errorMessage = viewModel.errorMessage {
-                Section {
-                    HStack(spacing: 10) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
-                            .accessibilityHidden(true)
-                        Text(errorMessage)
-                            .foregroundStyle(.primary)
-                            .font(.subheadline)
-                    }
-                }
-            }
-            
             // Danger Zone: Under Attack Mode
             Section(header: Text("Danger Zone")) {
                 VStack(alignment: .leading, spacing: 12) {
@@ -30,19 +17,19 @@ struct SecuritySettingsView: View {
                             .font(.title2)
                             .accessibilityHidden(true)
                         Text("I'm Under Attack Mode")
-                            .font(.body)
+                            .font(.body.weight(.medium))
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .white : .red)
                         
                         Spacer()
                         
                         if viewModel.securityLevel == "under_attack" {
                             Text("ACTIVE")
-                                .font(.caption)
+                                .font(.caption.weight(.bold))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
                                 .background(Color.white)
                                 .foregroundStyle(.red)
-                                .cornerRadius(6)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
                     }
                     
@@ -52,6 +39,7 @@ struct SecuritySettingsView: View {
                     
                     Button(action: {
                         if viewModel.securityLevel == "under_attack" {
+                            HapticManager.impact(.medium)
                             Task {
                                 await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
                             }
@@ -68,13 +56,13 @@ struct SecuritySettingsView: View {
                         .padding()
                         .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
                         .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .disabled(!viewModel.hasFetchedData)
                 }
                 .padding(.vertical, 8)
             }
-            .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : Color.clear)
+            .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : Color(.secondarySystemGroupedBackground))
             
             // General Security Settings
             Section(header: Text("General Security")) {
@@ -95,6 +83,7 @@ struct SecuritySettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: viewModel.securityLevel) { newValue in
+                        HapticManager.impact(.light)
                         Task {
                             await viewModel.updateSecurityLevel(zoneId: zoneId, level: newValue)
                         }
@@ -123,6 +112,7 @@ struct SecuritySettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: viewModel.challengeTTL) { newValue in
+                        HapticManager.impact(.light)
                         Task {
                             await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: newValue)
                         }
@@ -140,6 +130,7 @@ struct SecuritySettingsView: View {
                     }
                 }
                 .onChange(of: viewModel.browserCheck) { newValue in
+                    HapticManager.impact(.light)
                     Task {
                         await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: newValue)
                     }
@@ -162,6 +153,7 @@ struct SecuritySettingsView: View {
                     }
                 }
                 .onChange(of: viewModel.botFightMode) { newValue in
+                    HapticManager.impact(.light)
                     Task {
                         await viewModel.updateBotFightMode(zoneId: zoneId, isOn: newValue)
                     }
@@ -169,11 +161,20 @@ struct SecuritySettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .skeletonLoading(!viewModel.hasFetchedData)
+        .overlay {
+            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+                StateOverlayView(
+                    state: .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
+                    )
+                )
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-        .disabled(!viewModel.hasFetchedData)
         .navigationTitle("Security")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -185,14 +186,13 @@ struct SecuritySettingsView: View {
             Button("Cancel", role: .cancel) { }
             Button("Enable", role: .destructive) {
                 Task {
+                    HapticManager.notification(.warning)
                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "under_attack")
-                    
-                    let impact = UINotificationFeedbackGenerator()
-                    impact.notificationOccurred(.warning)
                 }
             }
         } message: {
             Text("Are you sure you want to enable I'm Under Attack Mode? All visitors will be challenged. This may negatively impact legitimate traffic.")
         }
+        .toastContainer()
     }
 }

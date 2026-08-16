@@ -6,7 +6,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all)
+            Color(.systemBackground).ignoresSafeArea()
             
             VStack {
                 TabView(selection: $currentPage) {
@@ -47,22 +47,24 @@ struct OnboardingView: View {
                 
                 Button(action: {
                     if currentPage < 3 {
+                        HapticManager.impact(.light)
                         withAnimation {
                             currentPage += 1
                         }
                     } else {
+                        HapticManager.impact(.medium)
                         withAnimation {
                             hasSeenOnboarding = true
                         }
                     }
                 }) {
                     Text(currentPage == 3 ? "Get Started" : "Next")
-                        .font(.body)
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
-                        .cornerRadius(12)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal, 24)
                 }
                 .padding(.bottom, 40)
@@ -83,7 +85,7 @@ struct OnboardingPage: View {
             
             ZStack {
                 Circle()
-                    .fill(color.opacity(0.1))
+                    .fill(color.opacity(0.12))
                     .frame(width: 160, height: 160)
                 
                 Image(systemName: icon)
@@ -93,8 +95,7 @@ struct OnboardingPage: View {
             }
             
             Text(title)
-                .font(.title)
-                .fontWeight(.bold)
+                .font(.title.weight(.bold))
                 .padding(.top, 16)
             
             Text(description)

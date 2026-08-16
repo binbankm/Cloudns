@@ -8,39 +8,18 @@ struct WAFCustomRulesView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData {
                 Section {
-                    ForEach(0..<8, id: \.self) { _ in
-                        SkeletonRowView()
+                    ForEach(WAFRule.placeholders) { rule in
+                        WAFRuleCardView(rule: rule, onToggle: {})
                     }
                 }
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchWAFRules(zoneId: zoneId)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView(
-                        icon: "shield.checkerboard",
-                        title: "No WAF Rules",
-                        message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
-                        actionTitle: "Add WAF Rule",
-                        action: { showingAddSheet = true }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
+                .skeletonLoading(true)
+            } else if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
+                            HapticManager.impact(.light)
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
                                 ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
@@ -52,6 +31,30 @@ struct WAFCustomRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchWAFRules(zoneId: zoneId) }
+                            }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "shield.checkerboard",
+                            title: "No WAF Rules",
+                            message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
+                            actionTitle: "Add WAF Rule",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchWAFRules(zoneId: zoneId)
         }
@@ -64,7 +67,7 @@ struct WAFCustomRulesView: View {
                 }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加 WAF 规则")
+                .accessibilityLabel("Add WAF Rule")
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -75,12 +78,10 @@ struct WAFCustomRulesView: View {
                 await viewModel.fetchWAFRules(zoneId: zoneId)
             }
         }
-        .refreshable {
-            await viewModel.fetchWAFRules(zoneId: zoneId)
-        }
     }
     
     private func deleteRules(at offsets: IndexSet) {
+        HapticManager.impact(.medium)
         for index in offsets {
             let rule = viewModel.rules[index]
             Task {
@@ -118,7 +119,7 @@ struct WAFRuleCardView: View {
                     .padding(.vertical, 4)
                     .background(colorForAction(rule.action).opacity(0.1))
                     .foregroundStyle(colorForAction(rule.action))
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Spacer()
                 
@@ -135,14 +136,13 @@ struct WAFRuleCardView: View {
                     .foregroundStyle(.secondary)
                 
                 Text(rule.expression)
-                    .font(.footnote)
+                    .font(.footnote.monospaced())
                     .foregroundStyle(.primary)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(UIColor.tertiarySystemGroupedBackground))
-                    .cornerRadius(6)
-                    // Allows user to long press and copy the expression
-                    .textSelection(.enabled) 
+                    .background(Color(.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .textSelection(.enabled)
             }
         }
         .padding(.vertical, 8)

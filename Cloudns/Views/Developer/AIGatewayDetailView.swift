@@ -20,105 +20,109 @@ struct AIGatewayDetailView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            List {
-                // Section 1: Overview
-                Section(header: Text("Gateway Overview")) {
+        List {
+            // Section 1: Overview
+            Section(header: Text("Gateway Overview")) {
+                HStack {
+                    Text("Gateway Slug")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(gateway.id)
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.primary)
+                }
+                
+                HStack {
+                    Text("Logging")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
+                }
+                
+                if let created = gateway.createdOn {
                     HStack {
-                        Text("Gateway Slug")
+                        Text("Created")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(gateway.id)
-                            .font(.body.monospacedDigit())
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    HStack {
-                        Text("Logging")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
+                        Text(String(created.prefix(10)))
                             .font(.subheadline)
-                            .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
+                            .foregroundStyle(.secondary)
                     }
-                    
-                    if let created = gateway.createdOn {
-                        HStack {
-                            Text("Created")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(String(created.prefix(10)))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                
-                // Section 2: Universal AI Endpoint Generator
-                Section(
-                    header: Text("Universal AI Endpoint"),
-                    footer: Text("Route requests through this endpoint to get caching, rate limiting, and analytics.")
-                ) {
-                    Picker("Provider", selection: $selectedProvider) {
-                        ForEach(providers, id: \.id) { p in
-                            Label(p.name, systemImage: p.icon).tag(p.id)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(universalEndpoint)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.blue)
-                            .lineLimit(2)
-                            .padding(.vertical, 4)
-                        
-                        Button {
-                            UIPasteboard.general.string = universalEndpoint
-                            ToastManager.shared.showCopied("Endpoint URL copied")
-                        } label: {
-                            HStack {
-                                Image(systemName: "doc.on.doc")
-                                Text("Copy Base URL")
-                            }
-                            .font(.subheadline.weight(.semibold))
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-                
-                // Section 3: Integration Code Examples
-                Section(header: Text("Quick Integration Snippets")) {
-                    Picker("Language", selection: $selectedCodeLanguage) {
-                        Text("cURL").tag("curl")
-                        Text("Python").tag("python")
-                        Text("Node.js").tag("node")
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.vertical, 2)
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            Text(codeSnippet)
-                                .font(.caption2.monospaced())
-                                .foregroundStyle(.primary)
-                                .padding(.vertical, 4)
-                        }
-                        
-                        Button {
-                            UIPasteboard.general.string = codeSnippet
-                            ToastManager.shared.showCopied("Code snippet copied")
-                        } label: {
-                            Label("Copy Code", systemImage: "doc.on.doc")
-                                .font(.caption.weight(.semibold))
-                        }
-                    }
-                    .padding(.vertical, 4)
                 }
             }
-            .listStyle(.insetGrouped)
+            
+            // Section 2: Universal AI Endpoint Generator
+            Section(
+                header: Text("Universal AI Endpoint"),
+                footer: Text("Route requests through this endpoint to get caching, rate limiting, and analytics.")
+            ) {
+                Picker("Provider", selection: $selectedProvider) {
+                    ForEach(providers, id: \.id) { p in
+                        Label(p.name, systemImage: p.icon).tag(p.id)
+                    }
+                }
+                .onChange(of: selectedProvider) { _ in
+                    HapticManager.impact(.light)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(universalEndpoint)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.blue)
+                        .lineLimit(2)
+                        .padding(.vertical, 4)
+                    
+                    Button {
+                        UIPasteboard.general.string = universalEndpoint
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Endpoint URL copied")
+                    } label: {
+                        HStack {
+                            Image(systemName: "doc.on.doc")
+                            Text("Copy Base URL")
+                        }
+                        .font(.subheadline.weight(.semibold))
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            
+            // Section 3: Integration Code Examples
+            Section(header: Text("Quick Integration Snippets")) {
+                Picker("Language", selection: $selectedCodeLanguage) {
+                    Text("cURL").tag("curl")
+                    Text("Python").tag("python")
+                    Text("Node.js").tag("node")
+                }
+                .pickerStyle(.segmented)
+                .padding(.vertical, 2)
+                .onChange(of: selectedCodeLanguage) { _ in
+                    HapticManager.impact(.light)
+                }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        Text(codeSnippet)
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(.primary)
+                            .padding(.vertical, 4)
+                    }
+                    
+                    Button {
+                        UIPasteboard.general.string = codeSnippet
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Code snippet copied")
+                    } label: {
+                        Label("Copy Code", systemImage: "doc.on.doc")
+                            .font(.caption.weight(.semibold))
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle(gateway.id)
         .navigationBarTitleDisplayMode(.inline)
         .toastContainer()
