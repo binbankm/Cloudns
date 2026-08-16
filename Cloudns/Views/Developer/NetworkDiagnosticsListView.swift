@@ -102,7 +102,7 @@ struct NetworkDiagnosticsListView: View {
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
                                 Image(systemName: tool.icon)
-                                    .font(.title3)
+                                    .font(.body)
                                     .foregroundStyle(tool.iconColor)
                                     .frame(width: 32, height: 32)
                                     .background(tool.iconColor.opacity(0.12))
@@ -111,13 +111,13 @@ struct NetworkDiagnosticsListView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     HStack {
                                         Text(tool.title)
-                                            .font(.body.weight(.medium))
+                                            .font(.body)
                                             .foregroundStyle(.primary)
                                         
                                         Spacer()
                                         
                                         Text(tool.badge)
-                                            .font(.caption2.weight(.semibold))
+                                            .font(.caption2)
                                             .foregroundStyle(tool.iconColor)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)

@@ -266,7 +266,7 @@ struct D1TableView: View {
                                             }
                                         }
                                         Text(col.type)
-                                            .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                            .font(.caption2.monospaced().weight(.semibold))
                                             .foregroundStyle(.secondary)
                                     }
                                     .frame(width: 140, alignment: .leading)

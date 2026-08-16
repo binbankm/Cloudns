@@ -140,7 +140,7 @@ struct SnippetsListView: View {
 
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(snip.snippet_name)
-                                            .font(.body.weight(.medium))
+                                            .font(.body)
                                             .foregroundStyle(.primary)
 
                                         if let modified = snip.modifiedOn {
@@ -153,7 +153,7 @@ struct SnippetsListView: View {
                                     Spacer()
 
                                     Image(systemName: "chevron.right")
-                                        .font(.caption2.weight(.semibold))
+                                        .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                                 .padding(.vertical, 3)
@@ -183,14 +183,14 @@ struct SnippetsListView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text(rule.description ?? "Snippet Trigger Rule")
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                         .foregroundStyle(.primary)
 
                                     Spacer()
 
                                     let isEnabled = rule.enabled
                                     Text(isEnabled ? "Active" : "Disabled")
-                                        .font(.caption2.weight(.medium))
+                                        .font(.caption2)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
@@ -204,7 +204,7 @@ struct SnippetsListView: View {
                                             .font(.caption2)
                                             .foregroundStyle(.orange)
                                         Text("Snippet: \(snipName)")
-                                            .font(.caption.weight(.semibold))
+                                            .font(.caption)
                                             .foregroundStyle(.orange)
                                     }
                                 }

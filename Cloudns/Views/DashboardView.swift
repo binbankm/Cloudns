@@ -340,7 +340,7 @@ struct DashboardMetricCard: View {
             }
             
             Text(value)
-                .font(.system(size: 26, weight: .medium, design: .rounded))
+                .font(.system(.title2, design: .rounded, weight: .medium))
                 .foregroundStyle(.primary)
             
             VStack(alignment: .leading, spacing: 3) {

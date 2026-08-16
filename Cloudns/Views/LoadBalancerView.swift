@@ -116,7 +116,7 @@ struct LoadBalancerView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text(pool.name ?? pool.id)
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                     Spacer()
                                     Text("\(pool.origins?.count ?? 0) Origins")
                                         .font(.caption)
@@ -158,10 +158,10 @@ struct LoadBalancerView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text(monitor.description ?? monitor.id)
-                                        .font(.body.weight(.medium))
+                                        .font(.body)
                                     Spacer()
                                     Text(monitor.type?.uppercased() ?? "HTTP")
-                                        .font(.caption2.weight(.bold))
+                                        .font(.caption2)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
@@ -170,7 +170,7 @@ struct LoadBalancerView: View {
                                 }
                                 HStack {
                                     Text(monitor.method ?? "GET")
-                                        .font(.caption.weight(.semibold))
+                                        .font(.caption)
                                     Text(monitor.path ?? "/")
                                         .font(.caption.monospaced())
                                     Spacer()

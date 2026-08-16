@@ -326,7 +326,7 @@ struct WorkerSourceCodeView: View {
                 } label: {
                     let isActive = !isEditingMode
                     Text("Read Only")
-                        .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                        .font(.footnote.weight(isActive ? .semibold : .regular))
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
@@ -343,7 +343,7 @@ struct WorkerSourceCodeView: View {
                 } label: {
                     let isActive = isEditingMode
                     Text("Edit")
-                        .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                        .font(.footnote.weight(isActive ? .semibold : .regular))
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)

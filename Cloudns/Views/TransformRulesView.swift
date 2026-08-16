@@ -127,7 +127,7 @@ struct TransformRuleCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(.body.weight(.medium))
+                    .font(.body)
                 Spacer()
                 Toggle("", isOn: Binding(
                     get: { rule.enabled },
@@ -151,7 +151,7 @@ struct TransformRuleCardView: View {
                             .foregroundStyle(.blue)
                             .font(.caption2)
                         Text("Rewrite Path -> \(path)")
-                            .font(.caption.weight(.semibold))
+                            .font(.caption)
                             .foregroundStyle(.blue)
                     }
                 }
@@ -161,7 +161,7 @@ struct TransformRuleCardView: View {
                             .foregroundStyle(.indigo)
                             .font(.caption2)
                         Text("Rewrite Query -> \(query)")
-                            .font(.caption.weight(.semibold))
+                            .font(.caption)
                             .foregroundStyle(.indigo)
                     }
                 }
@@ -175,7 +175,7 @@ struct TransformRuleCardView: View {
                                 .foregroundStyle(item.operation == "remove" ? .red : .green)
                                 .font(.caption2)
                             Text("\(item.operation.capitalized) '\(headerKey)': \(item.value ?? "(removed)")")
-                                .font(.caption.weight(.semibold))
+                                .font(.caption)
                                 .foregroundStyle(item.operation == "remove" ? .red : .primary)
                         }
                     }
