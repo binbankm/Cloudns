@@ -9,6 +9,9 @@ struct ActionParameters: Codable {
     // Transform Rules
     var uri: URIRewrite?
     var headers: [String: HeaderTransform]?
+    
+    // Snippet Rules
+    var snippet_name: String?
 }
 
 struct CacheEdgeTTL: Codable {

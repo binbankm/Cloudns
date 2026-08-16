@@ -84,3 +84,34 @@ struct LBMonitor: Codable, Identifiable {
         case expectedCodes = "expected_codes"
     }
 }
+
+struct LBPoolUpdate: Codable {
+    var name: String
+    var description: String?
+    var enabled: Bool
+    var minimumOrigins: Int?
+    var monitor: String?
+    var origins: [LBOrigin]
+    
+    enum CodingKeys: String, CodingKey {
+        case name, description, enabled, monitor, origins
+        case minimumOrigins = "minimum_origins"
+    }
+}
+
+struct LBMonitorUpdate: Codable {
+    var type: String
+    var description: String?
+    var method: String?
+    var path: String?
+    var port: Int?
+    var retries: Int?
+    var timeout: Int?
+    var interval: Int?
+    var expectedCodes: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case type, description, method, path, port, retries, timeout, interval
+        case expectedCodes = "expected_codes"
+    }
+}

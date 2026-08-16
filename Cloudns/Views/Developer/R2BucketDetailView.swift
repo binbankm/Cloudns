@@ -24,12 +24,19 @@ struct R2BucketDetailView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingUploadSheet = true
-                    } label: {
-                        Image(systemName: "plus")
+                    HStack(spacing: 12) {
+                        NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
+                            Image(systemName: "gearshape")
+                        }
+                        .accessibilityLabel("存储桶设置")
+                        
+                        Button {
+                            showingUploadSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .accessibilityLabel("上传对象")
                     }
-                    .accessibilityLabel("上传对象")
                 }
             }
             .sheet(isPresented: $showingUploadSheet) {
@@ -47,98 +54,94 @@ struct R2BucketDetailView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchObjects() }
-                    }
-                )
-            } else if viewModel.objects.isEmpty {
-                EmptyStateView(
-                    icon: "externaldrive.badge.icloud",
-                    title: "No Objects in Bucket",
-                    message: "This R2 bucket is currently empty. Upload objects to get started.",
-                    actionTitle: "Upload Object",
-                    action: { showingUploadSheet = true }
-                )
-            } else if viewModel.filteredObjects.isEmpty {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchObjects() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.objects.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "externaldrive.badge.icloud",
+                        title: "No Objects in Bucket",
+                        message: "This R2 bucket is currently empty. Upload objects to get started.",
+                        actionTitle: "Upload Object",
+                        action: { showingUploadSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.filteredObjects.isEmpty {
+                Section {
+                    EmptyStateView.search(query: viewModel.searchText) {
+                        viewModel.searchText = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
-                    // Section: Bucket Info
-                    Section(header: Text("Bucket Information")) {
-                        HStack {
-                            Text("Bucket Name")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(bucket.name)
+                // Section: Bucket Info
+                Section(header: Text("Bucket Information")) {
+                    HStack {
+                        Text("Created")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        if let created = bucket.creationDate {
+                            Text(String(created.prefix(10)))
                                 .font(.body.monospacedDigit())
-                                .foregroundStyle(.primary)
-                        }
-                        
-                        if let loc = bucket.location {
-                            HStack {
-                                Text("Location")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(loc.uppercased())
-                                    .foregroundStyle(.primary)
-                            }
-                        }
-                        
-                        if let date = bucket.creationDate {
-                            HStack {
-                                Text("Created On")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(String(date.prefix(10)))
-                                    .foregroundStyle(.primary)
-                            }
                         }
                     }
                     
-                    // Section: Objects List
-                    Section(header: Text("Objects (\(viewModel.objects.count))")) {
-                        ForEach(viewModel.filteredObjects) { obj in
-                            Button {
-                                selectedObject = obj
-                            } label: {
-                                R2ObjectRowView(object: obj)
-                            }
-                            .buttonStyle(.plain)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        do {
-                                            try await viewModel.deleteObject(key: obj.key)
-                                            ToastManager.shared.showSuccess("Object Deleted", message: obj.key)
-                                        } catch {
-                                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                        }
+                    if let loc = bucket.location {
+                        HStack {
+                            Text("Location")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(loc.uppercased())
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
+                // Section: Objects
+                Section(header: Text("Objects (\(viewModel.objects.count))")) {
+                    ForEach(viewModel.filteredObjects) { obj in
+                        Button {
+                            selectedObject = obj
+                        } label: {
+                            R2ObjectRowView(object: obj)
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                Task {
+                                    do {
+                                        try await viewModel.deleteObject(key: obj.key)
+                                        ToastManager.shared.showSuccess("Object Deleted", message: obj.key)
+                                    } catch {
+                                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                                     }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
                                 }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

@@ -5,6 +5,7 @@ import Combine
 @MainActor
 class EdgeCertificatesViewModel: ObservableObject {
     @Published var certificates: [EdgeCertificateModel] = []
+    @Published var isUniversalSSLEnabled: Bool = true
     @Published var isLoading: Bool = false
     @Published var hasFetchedData: Bool = false
     @Published var errorMessage: String? = nil
@@ -16,13 +17,16 @@ class EdgeCertificatesViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let packs = try await apiClient.fetchCertificatePacks(zoneId: zoneId)
+            async let fetchPacks = apiClient.fetchCertificatePacks(zoneId: zoneId)
+            async let fetchUni = apiClient.getUniversalSSLSettings(zoneId: zoneId)
+            let (packs, uniEnabled) = try await (fetchPacks, fetchUni)
+            self.isUniversalSSLEnabled = uniEnabled
             
             var customCerts: [CustomCertificate] = []
             do {
                 customCerts = try await apiClient.fetchCustomCertificates(zoneId: zoneId)
             } catch {
-                print("Notice: Custom certificates fetch failed (possibly due to plan restrictions): \(error.localizedDescription)")
+                print("Notice: Custom certificates fetch failed: \(error.localizedDescription)")
             }
             
             var unifiedCerts: [EdgeCertificateModel] = []
@@ -65,7 +69,7 @@ class EdgeCertificatesViewModel: ObservableObject {
                 ))
             }
             
-            self.certificates = unifiedCerts.sorted(by: { $0.type > $1.type }) // Group by type
+            self.certificates = unifiedCerts.sorted(by: { $0.type > $1.type })
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
@@ -73,5 +77,31 @@ class EdgeCertificatesViewModel: ObservableObject {
         }
         
         isLoading = false
+    }
+    
+    func toggleUniversalSSL(zoneId: String, enabled: Bool) async {
+        isUniversalSSLEnabled = enabled
+        do {
+            try await apiClient.updateUniversalSSLSettings(zoneId: zoneId, enabled: enabled)
+            ToastManager.shared.showSuccess("Universal SSL", message: enabled ? "Enabled" : "Disabled")
+            await fetchCertificates(zoneId: zoneId)
+        } catch {
+            isUniversalSSLEnabled = !enabled
+            ToastManager.shared.showError("Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func deleteCertificate(zoneId: String, cert: EdgeCertificateModel) async {
+        do {
+            if cert.type.lowercased() == "custom" {
+                try await apiClient.deleteCustomCertificate(zoneId: zoneId, certificateId: cert.id)
+            } else {
+                try await apiClient.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
+            }
+            ToastManager.shared.showSuccess("Certificate Removed", message: "")
+            await fetchCertificates(zoneId: zoneId)
+        } catch {
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+        }
     }
 }

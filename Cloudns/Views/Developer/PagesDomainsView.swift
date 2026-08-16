@@ -49,76 +49,74 @@ struct PagesDomainsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && viewModel.domains.isEmpty {
-                List {
-                    ForEach(0..<3, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if viewModel.domains.isEmpty {
-                EmptyStateView(
-                    icon: "globe",
-                    title: "No Custom Domains",
-                    message: "Connect your own apex domain or subdomain to serve this Pages project.",
-                    actionTitle: "Add Domain",
-                    action: {
-                        showingAddDomainSheet = true
-                    }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "globe",
+                        title: "No Custom Domains",
+                        message: "Connect your own apex domain or subdomain to serve this Pages project.",
+                        actionTitle: "Add Domain",
+                        action: {
+                            showingAddDomainSheet = true
+                        }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
-                    Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
-                        ForEach(viewModel.domains) { domain in
-                            HStack(spacing: 12) {
-                                Image(systemName: "globe")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 28)
+                Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
+                    ForEach(viewModel.domains) { domain in
+                        HStack(spacing: 12) {
+                            Image(systemName: "globe")
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                                .frame(width: 28)
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(domain.name)
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(domain.name)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
 
-                                    HStack(spacing: 8) {
-                                        HStack(spacing: 4) {
-                                            Circle()
-                                                .fill((domain.status == "active") ? Color.green : Color.orange)
-                                                .frame(width: 6, height: 6)
-                                            Text(domain.status?.capitalized ?? "Active")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
+                                HStack(spacing: 8) {
+                                    HStack(spacing: 4) {
+                                        Circle()
+                                            .fill((domain.status == "active") ? Color.green : Color.orange)
+                                            .frame(width: 6, height: 6)
+                                        Text(domain.status?.capitalized ?? "Active")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
 
-                                        if let ssl = domain.sslStatus {
-                                            Text("• SSL: \(ssl.capitalized)")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
+                                    if let ssl = domain.sslStatus {
+                                        Text("• SSL: \(ssl.capitalized)")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
-
-                                Spacer()
                             }
-                            .padding(.vertical, 4)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    domainToDelete = domain
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+
+                            Spacer()
+                        }
+                        .padding(.vertical, 4)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                domainToDelete = domain
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

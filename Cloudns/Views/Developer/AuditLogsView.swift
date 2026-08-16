@@ -26,44 +26,50 @@ struct AuditLogsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchLogs() }
-                    }
-                )
-            } else if viewModel.logs.isEmpty {
-                EmptyStateView(
-                    icon: "list.clipboard.fill",
-                    title: "No Audit Logs",
-                    message: "No recent account audit logs or modification records found.",
-                    actionTitle: nil,
-                    action: nil
-                )
-            } else if viewModel.filteredLogs.isEmpty {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchLogs() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.logs.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "list.clipboard.fill",
+                        title: "No Audit Logs",
+                        message: "No recent account audit logs or modification records found.",
+                        actionTitle: nil,
+                        action: nil
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.filteredLogs.isEmpty {
+                Section {
+                    EmptyStateView.search(query: viewModel.searchText) {
+                        viewModel.searchText = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.filteredLogs) { log in
                         AuditLogRowView(log: log)
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

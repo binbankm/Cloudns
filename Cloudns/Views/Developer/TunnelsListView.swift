@@ -3,6 +3,7 @@ import SwiftUI
 struct TunnelsListView: View {
     let accountId: String
     @StateObject private var viewModel: TunnelsViewModel
+    @State private var showingCreateTunnelSheet = false
     
     init(accountId: String) {
         self.accountId = accountId
@@ -17,6 +18,19 @@ struct TunnelsListView: View {
             .refreshable {
                 await viewModel.fetchTunnels()
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingCreateTunnelSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("创建隧道")
+                }
+            }
+            .sheet(isPresented: $showingCreateTunnelSheet) {
+                CreateTunnelSheetView(viewModel: viewModel)
+            }
             .task {
                 if !viewModel.hasFetchedData {
                     await viewModel.fetchTunnels()
@@ -26,39 +40,43 @@ struct TunnelsListView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(0..<4, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchTunnels() }
-                    }
-                )
-            } else if viewModel.tunnels.isEmpty {
-                EmptyStateView(
-                    icon: "network.badge.shield.half.filled",
-                    title: "No Tunnels Configured",
-                    message: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
-                    actionTitle: nil,
-                    action: nil
-                )
-            } else if viewModel.filteredTunnels.isEmpty {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchTunnels() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.tunnels.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "network.badge.shield.half.filled",
+                        title: "No Tunnels Configured",
+                        message: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
+                        actionTitle: "Create Tunnel",
+                        action: { showingCreateTunnelSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.filteredTunnels.isEmpty {
+                Section {
+                    EmptyStateView.search(query: viewModel.searchText) {
+                        viewModel.searchText = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in
                         NavigationLink {
                             TunnelDetailView(accountId: accountId, tunnel: tunnel)
@@ -67,9 +85,9 @@ struct TunnelsListView: View {
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 
@@ -126,6 +144,48 @@ struct TunnelRowView: View {
             } label: {
                 Label("Copy Tunnel UUID", systemImage: "doc.on.doc")
             }
+        }
+    }
+}
+
+struct CreateTunnelSheetView: View {
+    @ObservedObject var viewModel: TunnelsViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var tunnelName = ""
+    @State private var isCreating = false
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(
+                    header: Text("Tunnel Information"),
+                    footer: Text("Creates a remotely managed Cloudflare Zero Trust tunnel. Once created, install cloudflared using the generated connector token.")
+                ) {
+                    TextField("Tunnel Name (e.g. homelab-gateway)", text: $tunnelName)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+            }
+            .navigationTitle("Create Tunnel")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Create") {
+                        Task {
+                            isCreating = true
+                            let success = await viewModel.createTunnel(name: tunnelName.trimmingCharacters(in: .whitespaces))
+                            if success { dismiss() }
+                            isCreating = false
+                        }
+                    }
+                    .disabled(tunnelName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                }
+            }
+            .toastContainer()
         }
     }
 }

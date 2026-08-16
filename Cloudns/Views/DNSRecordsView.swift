@@ -34,6 +34,7 @@ struct DNSRecordsView: View {
         listViewContent
             .navigationTitle("DNS Records")
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $viewModel.searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     trailingToolbar
@@ -52,7 +53,6 @@ struct DNSRecordsView: View {
                 }
             }
         }
-        .searchable(text: $viewModel.searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records")
         .fileExporter(isPresented: $showingExporter, document: TextDocument(url: exportedFileURL), contentType: .plainText, defaultFilename: "dns_records_\(zoneName).txt") { _ in }
         .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.plainText, .data]) { result in
             switch result {
@@ -86,60 +86,64 @@ struct DNSRecordsView: View {
     
     @ViewBuilder
     private var listViewContent: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List(selection: $multiSelection) {
             if viewModel.isLoading && viewModel.records.isEmpty {
-                List {
-                    ForEach(0..<6, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchRecords(isRefresh: true)
-                        }
-                    }
-                )
-            } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "server.rack",
-                    title: "No DNS Records",
-                    message: "No DNS records found for this domain.",
-                    actionTitle: "Add Record",
-                    action: { showingForm = true }
-                )
-            } else if displayRecords.isEmpty {
-                EmptyStateView.search(
-                    query: viewModel.searchQuery,
-                    action: { viewModel.searchQuery = "" }
-                )
-            } else {
-                List(selection: $multiSelection) {
-                    recordsSections
-
-                    if viewModel.canLoadMore && viewModel.hasFetchedData {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets())
-                            .onAppear {
-                                Task {
-                                    await viewModel.fetchRecords()
-                                }
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchRecords(isRefresh: true)
                             }
-                    }
+                        }
+                    )
                 }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.fetchRecords(isRefresh: true)
+                .listRowBackground(Color.clear)
+            } else if viewModel.records.isEmpty && viewModel.hasFetchedData {
+                Section {
+                    EmptyStateView(
+                        icon: "server.rack",
+                        title: "No DNS Records",
+                        message: "No DNS records found for this domain.",
+                        actionTitle: "Add Record",
+                        action: { showingForm = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if displayRecords.isEmpty {
+                Section {
+                    EmptyStateView.search(
+                        query: viewModel.searchQuery,
+                        action: { viewModel.searchQuery = "" }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else {
+                recordsSections
+
+                if viewModel.canLoadMore && viewModel.hasFetchedData {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                        .onAppear {
+                            Task {
+                                await viewModel.fetchRecords()
+                            }
+                        }
                 }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchRecords(isRefresh: true)
         }
     }
     

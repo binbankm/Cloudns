@@ -58,16 +58,22 @@ class EmailRoutingViewModel: ObservableObject {
         }
     }
     
+    func deleteRule(ruleId: String) async {
+        do {
+            try await apiClient.deleteEmailRoutingRule(zoneId: zoneId, ruleId: ruleId)
+            rules.removeAll { $0.id == ruleId }
+            let impact = UINotificationFeedbackGenerator()
+            impact.notificationOccurred(.success)
+        } catch {
+            self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
+        }
+    }
+    
     func deleteRule(at offsets: IndexSet) {
         for index in offsets {
             let rule = rules[index]
             Task {
-                do {
-                    try await apiClient.deleteEmailRoutingRule(zoneId: zoneId, ruleId: rule.id)
-                    rules.removeAll { $0.id == rule.id }
-                } catch {
-                    self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
-                }
+                await deleteRule(ruleId: rule.id)
             }
         }
     }

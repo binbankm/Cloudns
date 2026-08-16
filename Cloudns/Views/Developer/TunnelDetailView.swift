@@ -4,6 +4,10 @@ struct TunnelDetailView: View {
     let accountId: String
     let tunnel: CFTunnel
     @StateObject private var viewModel: TunnelDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var showingAddIngressSheet = false
+    @State private var showingDeleteAlert = false
     
     init(accountId: String, tunnel: CFTunnel) {
         self.accountId = accountId
@@ -19,6 +23,30 @@ struct TunnelDetailView: View {
         }
         .navigationTitle(tunnel.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingAddIngressSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("添加公共主机名")
+            }
+        }
+        .sheet(isPresented: $showingAddIngressSheet) {
+            AddIngressRuleSheetView(viewModel: viewModel)
+        }
+        .alert("Delete Tunnel", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    let success = await viewModel.deleteTunnel()
+                    if success { dismiss() }
+                }
+            }
+        } message: {
+            Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
+        }
         .refreshable {
             await viewModel.fetchConfiguration()
         }
@@ -31,15 +59,14 @@ struct TunnelDetailView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if viewModel.isLoading && !viewModel.hasFetchedData {
-            List {
-                ForEach(0..<4, id: \.self) { _ in
-                    SkeletonRowView()
+        List {
+            if viewModel.isLoading && !viewModel.hasFetchedData {
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
                 }
-            }
-            .listStyle(.insetGrouped)
-        } else {
-            List {
+            } else {
                 // Section: Overview
                 Section(header: Text("Tunnel Overview")) {
                     HStack {
@@ -75,14 +102,52 @@ struct TunnelDetailView: View {
                     }
                 }
                 
+                // Section: Connector Token / Install Command
+                if let token = viewModel.token, !token.isEmpty {
+                    Section(
+                        header: Text("Connector Token"),
+                        footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
+                    ) {
+                        Button {
+                            let cmd = "cloudflared tunnel run --token \(token)"
+                            UIPasteboard.general.string = cmd
+                            ToastManager.shared.showCopied("Install command copied")
+                        } label: {
+                            HStack {
+                                Image(systemName: "terminal")
+                                    .foregroundStyle(.blue)
+                                Text("cloudflared tunnel run --token ...")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
+                                Spacer()
+                                Image(systemName: "doc.on.doc")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                }
+                
                 // Section: Ingress Public Routing Rules
-                Section(header: Text("Ingress Routing Rules (\(viewModel.ingressRules.count))")) {
+                Section(
+                    header: HStack {
+                        Text("Public Hostnames / Ingress (\(viewModel.ingressRules.count))")
+                        Spacer()
+                        Button {
+                            showingAddIngressSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    },
+                    footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
+                ) {
                     if viewModel.ingressRules.isEmpty {
-                        Text("No public ingress hostnames configured for this tunnel.")
+                        Text("No public ingress hostnames configured.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(viewModel.ingressRules) { rule in
+                        ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
                             VStack(alignment: .leading, spacing: 4) {
                                 if let host = rule.hostname, !host.isEmpty {
                                     HStack {
@@ -90,9 +155,18 @@ struct TunnelDetailView: View {
                                             .font(.caption)
                                             .foregroundStyle(.blue)
                                         Text(host)
-                                            .font(.body)
+                                            .font(.body.weight(.medium))
                                             .foregroundStyle(.primary)
+                                        if let p = rule.path, !p.isEmpty {
+                                            Text(p)
+                                                .font(.caption.monospaced())
+                                                .foregroundStyle(.secondary)
+                                        }
                                     }
+                                } else {
+                                    Text("Catch-all Fallback")
+                                        .font(.subheadline.weight(.medium))
+                                        .foregroundStyle(.secondary)
                                 }
                                 
                                 if let svc = rule.service {
@@ -107,6 +181,15 @@ struct TunnelDetailView: View {
                                 }
                             }
                             .padding(.vertical, 3)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                if rule.hostname != nil {
+                                    Button(role: .destructive) {
+                                        Task { await viewModel.deleteIngressRule(at: index) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -152,8 +235,75 @@ struct TunnelDetailView: View {
                         }
                     }
                 }
+                
+                // Section: Danger Zone
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("Delete Tunnel")
+                                .font(.body.weight(.medium))
+                            Spacer()
+                        }
+                    }
+                }
             }
-            .listStyle(.insetGrouped)
+        }
+        .listStyle(.insetGrouped)
+    }
+}
+
+struct AddIngressRuleSheetView: View {
+    @ObservedObject var viewModel: TunnelDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var hostname = ""
+    @State private var path = ""
+    @State private var serviceURL = "http://localhost:8080"
+    @State private var isSaving = false
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Public Hostname"), footer: Text("Public domain or subdomain to route traffic from (e.g. app.my-domain.com).")) {
+                    TextField("app.domain.com", text: $hostname)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    TextField("Path Prefix (Optional, e.g. /api)", text: $path)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                
+                Section(header: Text("Target Service"), footer: Text("Address of your local service (e.g. http://localhost:8080, tcp://localhost:22, or http_status:404).")) {
+                    TextField("http://localhost:8080", text: $serviceURL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+            }
+            .navigationTitle("Add Hostname Rule")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let cleanHost = hostname.trimmingCharacters(in: .whitespaces)
+                            let cleanPath = path.trimmingCharacters(in: .whitespaces)
+                            let cleanSvc = serviceURL.trimmingCharacters(in: .whitespaces)
+                            let success = await viewModel.addIngressRule(hostname: cleanHost, path: cleanPath.isEmpty ? nil : cleanPath, service: cleanSvc)
+                            if success { dismiss() }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || serviceURL.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                }
+            }
+            .toastContainer()
         }
     }
 }

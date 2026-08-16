@@ -48,6 +48,43 @@ struct D1ConsoleView: View {
                     }
                 }
                 
+                // Section: Database Tables
+                Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
+                    if viewModel.isLoadingTables && viewModel.tables.isEmpty {
+                        HStack {
+                            ProgressView()
+                                .padding(.trailing, 6)
+                            Text("Discovering tables...")
+                                .foregroundStyle(.secondary)
+                        }
+                    } else if viewModel.tables.isEmpty {
+                        Text("No tables found. Create a table using SQL below.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(viewModel.tables, id: \.self) { tableName in
+                            NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Color.purple.opacity(0.12)
+                                        Image(systemName: "tablecells")
+                                            .foregroundStyle(.purple)
+                                            .font(.body)
+                                    }
+                                    .frame(width: 32, height: 32)
+                                    .cornerRadius(6)
+                                    
+                                    Text(tableName)
+                                        .font(.body.weight(.medium))
+                                    
+                                    Spacer()
+                                }
+                                .padding(.vertical, 2)
+                            }
+                        }
+                    }
+                }
+                
                 // Section: SQL Query Editor
                 Section(header: Text("SQL Query Console")) {
                     // Presets
@@ -141,8 +178,14 @@ struct D1ConsoleView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .refreshable {
+                await viewModel.fetchTables()
+            }
         }
         .navigationTitle(database.name)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.fetchTables()
+        }
     }
 }

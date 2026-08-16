@@ -40,7 +40,8 @@ final class RedirectRulesViewModel: ObservableObject {
         description: String,
         expression: String,
         targetUrl: String,
-        statusCode: Int
+        statusCode: Int,
+        preserveQueryString: Bool = false
     ) async -> Bool {
         do {
             try await apiClient.createRedirectRule(
@@ -48,7 +49,8 @@ final class RedirectRulesViewModel: ObservableObject {
                 description: description.trimmingCharacters(in: .whitespaces),
                 expression: expression.trimmingCharacters(in: .whitespaces),
                 targetUrl: targetUrl.trimmingCharacters(in: .whitespaces),
-                statusCode: statusCode
+                statusCode: statusCode,
+                preserveQueryString: preserveQueryString
             )
             ToastManager.shared.showSuccess("Redirect Rule Added", message: description)
             await fetchRules(zoneId: zoneId)

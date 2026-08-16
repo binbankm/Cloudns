@@ -57,6 +57,9 @@
         }
       }
     },
+    "@%@" : {
+
+    },
     "@yourdomain.com" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -121,6 +124,22 @@
         }
       }
     },
+    "#" : {
+
+    },
+    "#%lld" : {
+
+    },
+    "%@ '%@': %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ '%2$@': %3$@"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -155,6 +174,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 已复制"
+          }
+        }
+      }
+    },
+    "%@ Rules (%lld)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ Rules (%2$lld)"
           }
         }
       }
@@ -251,6 +280,9 @@
         }
       }
     },
+    "%lld Columns" : {
+
+    },
     "%lld Connectors" : {
       "localizations" : {
         "zh-Hans" : {
@@ -268,6 +300,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 天"
+          }
+        }
+      }
+    },
+    "%lld days (%llds)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld days (%2$llds)"
           }
         }
       }
@@ -293,6 +335,9 @@
           }
         }
       }
+    },
+    "%lld items" : {
+
     },
     "%lld KV · %lld R2 · %lld D1" : {
       "extractionState" : "manual",
@@ -347,6 +392,12 @@
         }
       }
     },
+    "%lld seconds" : {
+
+    },
+    "%lld Total Rows" : {
+
+    },
     "%lld URL(s) purged from cache." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -390,6 +441,9 @@
         }
       }
     },
+    "• %@" : {
+
+    },
     "• SSL: %@" : {
       "localizations" : {
         "zh-Hans" : {
@@ -399,6 +453,9 @@
           }
         }
       }
+    },
+    "•••••••• (Encrypted Secret)" : {
+
     },
     "+ %lld more log lines" : {
       "localizations" : {
@@ -637,6 +694,9 @@
         }
       }
     },
+    "301 Permanent Redirect" : {
+
+    },
     "302 - Found (Temporary)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -647,6 +707,9 @@
           }
         }
       }
+    },
+    "302 Temporary Redirect" : {
+
     },
     "307 - Temporary Redirect" : {
       "extractionState" : "manual",
@@ -659,6 +722,9 @@
         }
       }
     },
+    "307 Temporary Redirect" : {
+
+    },
     "308 - Permanent Redirect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -669,6 +735,9 @@
           }
         }
       }
+    },
+    "308 Permanent Redirect" : {
+
     },
     "A unique slug used in the Gateway universal endpoint URL." : {
       "extractionState" : "manual",
@@ -753,6 +822,9 @@
         }
       }
     },
+    "Accelerator Overview" : {
+
+    },
     "Access & Bots" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -763,6 +835,12 @@
           }
         }
       }
+    },
+    "Access Applications" : {
+
+    },
+    "Access Policies (%lld)" : {
+
     },
     "Account" : {
       "extractionState" : "manual",
@@ -818,6 +896,9 @@
           }
         }
       }
+    },
+    "Account Rules & Routing" : {
+
     },
     "Accounts" : {
       "extractionState" : "manual",
@@ -895,6 +976,9 @@
         }
       }
     },
+    "Active Certificates (%lld)" : {
+
+    },
     "Active Connectors (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -906,7 +990,14 @@
         }
       }
     },
+    "Active Instances (%lld)" : {
+
+    },
+    "Active Policies" : {
+
+    },
     "Active Snippets (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -1041,6 +1132,9 @@
         }
       }
     },
+    "Add Hostname Rule" : {
+
+    },
     "Add IP Rule" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1129,6 +1223,18 @@
         }
       }
     },
+    "Add Trigger Rule" : {
+
+    },
+    "Add Turnstile Widget" : {
+
+    },
+    "Add Variable" : {
+
+    },
+    "Add Variable or Secret" : {
+
+    },
     "Add WAF Rule" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1139,6 +1245,9 @@
           }
         }
       }
+    },
+    "Add Widget" : {
+
     },
     "Adding domain..." : {
       "extractionState" : "manual",
@@ -1178,6 +1287,9 @@
           }
         }
       }
+    },
+    "Address of your local service (e.g. http://localhost:8080, tcp://localhost:22, or http_status:404)." : {
+
     },
     "Adjust your website's security level to determine who will receive a challenge page." : {
       "extractionState" : "manual",
@@ -1254,6 +1366,9 @@
         }
       }
     },
+    "AI" : {
+
+    },
     "AI & Machine Learning" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1264,6 +1379,9 @@
           }
         }
       }
+    },
+    "AI Bindings (%lld)" : {
+
     },
     "AI Gateway" : {
       "extractionState" : "manual",
@@ -1329,6 +1447,9 @@
           }
         }
       }
+    },
+    "All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network." : {
+
     },
     "All Headers (%lld)" : {
       "extractionState" : "manual",
@@ -1418,6 +1539,18 @@
         }
       }
     },
+    "Allowed Domains" : {
+
+    },
+    "Allowed Headers" : {
+
+    },
+    "Allowed HTTP Methods" : {
+
+    },
+    "Allowed Origins" : {
+
+    },
     "Allows browsers to access HTTP URIs over an encrypted TLS channel." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1428,6 +1561,9 @@
           }
         }
       }
+    },
+    "Allows public read access to objects in this bucket using a Cloudflare-managed r2.dev subdomain." : {
+
     },
     "Always Online™" : {
       "extractionState" : "manual",
@@ -1539,6 +1675,9 @@
         }
       }
     },
+    "app.domain.com" : {
+
+    },
     "Appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1556,6 +1695,9 @@
         }
       }
     },
+    "Application Details" : {
+
+    },
     "Are you sure you want to clear cached network responses and temporary storage?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1567,6 +1709,9 @@
         }
       }
     },
+    "Are you sure you want to delete '%@'?" : {
+
+    },
     "Are you sure you want to delete '%@'? This action cannot be undone." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1574,6 +1719,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "确定要删除 '%@' 吗？此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete '%@'? Traffic to %@ will no longer be protected by Zero Trust." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete '%1$@'? Traffic to %2$@ will no longer be protected by Zero Trust."
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete '%@'? Worker bindings connected to this accelerator will stop functioning." : {
+
+    },
+    "Are you sure you want to delete %@ '%@'?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete %1$@ '%2$@'?"
           }
         }
       }
@@ -1588,6 +1756,9 @@
           }
         }
       }
+    },
+    "Are you sure you want to delete AI Gateway '%@'? Real-time logs and cached request data will be deleted." : {
+
     },
     "Are you sure you want to delete bucket '%@'? This action cannot be undone." : {
       "extractionState" : "manual",
@@ -1633,6 +1804,9 @@
         }
       }
     },
+    "Are you sure you want to delete redirect list '%@'?" : {
+
+    },
     "Are you sure you want to delete redirect rule '%@'?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1643,6 +1817,9 @@
           }
         }
       }
+    },
+    "Are you sure you want to delete row with rowid %@?" : {
+
     },
     "Are you sure you want to delete secret '%@'? Secret values cannot be read back once deleted." : {
       "extractionState" : "manual",
@@ -1682,6 +1859,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "确定要删除触发器“%@”吗？"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete widget '%@' (%@)? Any websites using this sitekey will fail human verification." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete widget '%1$@' (%2$@)? Any websites using this sitekey will fail human verification."
           }
         }
       }
@@ -1746,6 +1933,12 @@
         }
       }
     },
+    "Are you sure you want to permanently delete '%@'? Producers and consumers will fail to deliver." : {
+
+    },
+    "Are you sure you want to permanently delete tunnel '%@'? Any active connections will be terminated." : {
+
+    },
     "Are you sure you want to purge all cached resources? This may temporarily degrade your website's performance and increase load on your origin server." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1756,6 +1949,9 @@
           }
         }
       }
+    },
+    "Are you sure you want to purge all unconsumed messages in '%@'? This action cannot be undone." : {
+
     },
     "Are you sure you want to remove %@ from Cloudflare? This action cannot be undone and will permanently delete all DNS records and settings." : {
       "extractionState" : "manual",
@@ -1789,6 +1985,9 @@
         }
       }
     },
+    "Are you sure you want to remove trigger rule '%@'?" : {
+
+    },
     "Argo Smart Routing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1820,6 +2019,9 @@
           }
         }
       }
+    },
+    "Ask %@..." : {
+
     },
     "ASN" : {
       "extractionState" : "manual",
@@ -1853,6 +2055,9 @@
           }
         }
       }
+    },
+    "Audience Tag (AUD)" : {
+
     },
     "Audit Logs" : {
       "extractionState" : "manual",
@@ -1953,6 +2158,9 @@
         }
       }
     },
+    "Available Alerts" : {
+
+    },
     "Bandwidth" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1986,6 +2194,15 @@
         }
       }
     },
+    "Batch: %lld" : {
+
+    },
+    "Bind" : {
+
+    },
+    "Bindings & Variables" : {
+
+    },
     "Block" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2007,6 +2224,9 @@
           }
         }
       }
+    },
+    "Bound Script" : {
+
     },
     "Bound Zone Routes (%lld)" : {
       "extractionState" : "manual",
@@ -2139,6 +2359,9 @@
         }
       }
     },
+    "Bucket Settings" : {
+
+    },
     "Build Command" : {
       "localizations" : {
         "zh-Hans" : {
@@ -2210,6 +2433,12 @@
           }
         }
       }
+    },
+    "Bulk Redirects" : {
+
+    },
+    "Bulk Redirects allow you to define thousands of URL redirects at the account level." : {
+
     },
     "Bypass by Default" : {
       "extractionState" : "manual",
@@ -2354,6 +2583,9 @@
         }
       }
     },
+    "Cache Status" : {
+
+    },
     "Cached Requests" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2414,6 +2646,12 @@
           }
         }
       }
+    },
+    "Catch-all Fallback" : {
+
+    },
+    "Category" : {
+
     },
     "CDN, DNS, WAF and Global Edge Centers" : {
       "extractionState" : "manual",
@@ -2481,6 +2719,9 @@
         }
       }
     },
+    "Challenge Mode" : {
+
+    },
     "Challenge Passage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2501,6 +2742,9 @@
           }
         }
       }
+    },
+    "Check Timing" : {
+
     },
     "Choose File from Device" : {
       "extractionState" : "manual",
@@ -2610,6 +2854,9 @@
           }
         }
       }
+    },
+    "Client-side" : {
+
     },
     "Close" : {
       "extractionState" : "manual",
@@ -2748,6 +2995,9 @@
         }
       }
     },
+    "Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically." : {
+
+    },
     "Cloudflare Snippets allow executing lightweight JavaScript logic on HTTP requests without full Workers." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2792,6 +3042,9 @@
         }
       }
     },
+    "Cloudflare wirefilter expression defining matching incoming traffic." : {
+
+    },
     "Cloudflare wirefilter expression defining which incoming requests trigger redirection." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2813,6 +3066,9 @@
           }
         }
       }
+    },
+    "cloudflared tunnel run --token ..." : {
+
     },
     "cloudflared v%@" : {
       "extractionState" : "manual",
@@ -2841,6 +3097,12 @@
           }
         }
       }
+    },
+    "Comma-separated headers (e.g. Content-Type, Authorization, *)" : {
+
+    },
+    "Comma-separated origins (e.g. https://example.com, *)" : {
+
     },
     "Comment (Optional)" : {
       "extractionState" : "manual",
@@ -2905,6 +3167,12 @@
         }
       }
     },
+    "Compatibility Flags" : {
+
+    },
+    "Compatibility Settings" : {
+
+    },
     "Comprehensive threat defense and encryption management for %@." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2927,6 +3195,12 @@
         }
       }
     },
+    "Config ID" : {
+
+    },
+    "Config Name" : {
+
+    },
     "Configuration" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2947,6 +3221,9 @@
           }
         }
       }
+    },
+    "Configuration Name" : {
+
     },
     "Configure build commands and directories executed during automated deployment." : {
       "localizations" : {
@@ -2990,6 +3267,9 @@
         }
       }
     },
+    "Configure URL rewrites and request/response header transformations at the edge." : {
+
+    },
     "Configured Gateways (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3000,6 +3280,9 @@
           }
         }
       }
+    },
+    "Configured Policies (%lld)" : {
+
     },
     "Configured Redirects (%lld)" : {
       "extractionState" : "manual",
@@ -3042,6 +3325,9 @@
         }
       }
     },
+    "Connected Custom Domains (%lld)" : {
+
+    },
     "Connected Domains (%lld)" : {
       "localizations" : {
         "zh-Hans" : {
@@ -3063,6 +3349,9 @@
         }
       }
     },
+    "Connector Token" : {
+
+    },
     "Console Logs (%lld)" : {
       "localizations" : {
         "zh-Hans" : {
@@ -3072,6 +3361,9 @@
           }
         }
       }
+    },
+    "Consumers (%lld)" : {
+
     },
     "Content" : {
       "extractionState" : "manual",
@@ -3093,6 +3385,9 @@
           }
         }
       }
+    },
+    "Content-Type or *" : {
+
     },
     "Copied to clipboard" : {
       "extractionState" : "manual",
@@ -3149,6 +3444,9 @@
         }
       }
     },
+    "Copy Base URL" : {
+
+    },
     "Copy Bucket Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3159,6 +3457,12 @@
           }
         }
       }
+    },
+    "Copy Code" : {
+
+    },
+    "Copy Code Snippet" : {
+
     },
     "Copy Diagnostic Info" : {
       "extractionState" : "manual",
@@ -3192,6 +3496,9 @@
           }
         }
       }
+    },
+    "Copy Key Name" : {
+
     },
     "Copy Name" : {
       "extractionState" : "manual",
@@ -3281,6 +3588,9 @@
         }
       }
     },
+    "Copy Value" : {
+
+    },
     "Core Protocols" : {
       "localizations" : {
         "zh-Hans" : {
@@ -3290,6 +3600,9 @@
           }
         }
       }
+    },
+    "CORS Rules (%lld)" : {
+
     },
     "Could not retrieve IP info for %@. Please check network." : {
       "extractionState" : "manual",
@@ -3346,6 +3659,9 @@
         }
       }
     },
+    "Create a Cloudflare Queue to send and receive messages with guaranteed delivery." : {
+
+    },
     "Create an AI Gateway to observe, cache, and manage your AI API traffic." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3367,6 +3683,9 @@
           }
         }
       }
+    },
+    "Create Config" : {
+
     },
     "Create custom routing rules to forward incoming emails to external addresses." : {
       "extractionState" : "manual",
@@ -3401,6 +3720,9 @@
         }
       }
     },
+    "Create List" : {
+
+    },
     "Create Load Balancer" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3423,6 +3745,9 @@
         }
       }
     },
+    "Create Pages Project" : {
+
+    },
     "Create Project" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3433,6 +3758,9 @@
           }
         }
       }
+    },
+    "Create Queue" : {
+
     },
     "Create R2 Bucket" : {
       "extractionState" : "manual",
@@ -3467,6 +3795,9 @@
         }
       }
     },
+    "Create Tunnel" : {
+
+    },
     "Create Worker" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3477,6 +3808,12 @@
           }
         }
       }
+    },
+    "Create Worker or Project" : {
+
+    },
+    "Created" : {
+
     },
     "Created Date" : {
       "extractionState" : "manual",
@@ -3510,6 +3847,9 @@
           }
         }
       }
+    },
+    "Creates a remotely managed Cloudflare Zero Trust tunnel. Once created, install cloudflared using the generated connector token." : {
+
     },
     "Cron Expression" : {
       "localizations" : {
@@ -3563,6 +3903,9 @@
         }
       }
     },
+    "Cross-Origin Resource Sharing rules for browser requests." : {
+
+    },
     "CSS" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3573,6 +3916,9 @@
           }
         }
       }
+    },
+    "cURL" : {
+
     },
     "Current" : {
       "extractionState" : "manual",
@@ -3623,6 +3969,9 @@
           }
         }
       }
+    },
+    "Custom Cache Purge" : {
+
     },
     "Custom Certificates" : {
       "extractionState" : "manual",
@@ -3678,6 +4027,9 @@
         }
       }
     },
+    "Custom domains configured for public bucket access." : {
+
+    },
     "Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3732,6 +4084,9 @@
           }
         }
       }
+    },
+    "D1" : {
+
     },
     "D1 Database Deleted" : {
       "extractionState" : "manual",
@@ -3854,6 +4209,9 @@
         }
       }
     },
+    "Database Accelerators (%lld)" : {
+
+    },
     "Database created successfully" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3898,6 +4256,9 @@
         }
       }
     },
+    "Database Tables (%lld)" : {
+
+    },
     "Date" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3918,6 +4279,9 @@
           }
         }
       }
+    },
+    "Decision: %@" : {
+
     },
     "Deep certificate chain & SANs analysis" : {
       "extractionState" : "manual",
@@ -3973,6 +4337,9 @@
           }
         }
       }
+    },
+    "Delete Application" : {
+
     },
     "Delete Bucket" : {
       "extractionState" : "manual",
@@ -4047,6 +4414,12 @@
         }
       }
     },
+    "Delete Hyperdrive" : {
+
+    },
+    "Delete Item" : {
+
+    },
     "Delete KV Namespace" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4057,6 +4430,9 @@
           }
         }
       }
+    },
+    "Delete List" : {
+
     },
     "Delete Object" : {
       "extractionState" : "manual",
@@ -4091,6 +4467,9 @@
         }
       }
     },
+    "Delete Queue" : {
+
+    },
     "Delete Redirect Rule" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4101,6 +4480,9 @@
           }
         }
       }
+    },
+    "Delete Row" : {
+
     },
     "Delete Rule" : {
       "extractionState" : "manual",
@@ -4146,6 +4528,18 @@
         }
       }
     },
+    "Delete Transform Rule" : {
+
+    },
+    "Delete Trigger Rule" : {
+
+    },
+    "Delete Tunnel" : {
+
+    },
+    "Delete Turnstile Widget" : {
+
+    },
     "Delete Worker" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4156,6 +4550,9 @@
           }
         }
       }
+    },
+    "Delivery Delay" : {
+
     },
     "Deploy" : {
       "extractionState" : "manual",
@@ -4252,6 +4649,9 @@
         }
       }
     },
+    "Description (Optional)" : {
+
+    },
     "Destination" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4273,6 +4673,9 @@
           }
         }
       }
+    },
+    "Destinations & Webhooks (%lld)" : {
+
     },
     "Detach" : {
       "extractionState" : "manual",
@@ -4405,6 +4808,9 @@
         }
       }
     },
+    "Diagnostics & Tools" : {
+
+    },
     "Diagnostics copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4492,6 +4898,9 @@
           }
         }
       }
+    },
+    "Discovering tables..." : {
+
     },
     "dist / public / .next" : {
       "localizations" : {
@@ -4842,6 +5251,9 @@
         }
       }
     },
+    "Domains (e.g. example.com, app.example.com)" : {
+
+    },
     "Domains & Custom Routes" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4903,6 +5315,9 @@
         }
       }
     },
+    "DS Record (Registrar Configuration)" : {
+
+    },
     "DS Record Details" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4913,6 +5328,12 @@
           }
         }
       }
+    },
+    "Durable Objects" : {
+
+    },
+    "Durable Objects namespaces are created via Wrangler migrations inside your Worker code." : {
+
     },
     "e.g. /api/v2" : {
       "extractionState" : "manual",
@@ -5011,6 +5432,9 @@
           }
         }
       }
+    },
+    "e.g. Route /api requests to snippet" : {
+
     },
     "e.g. US, CN, GB" : {
       "extractionState" : "manual",
@@ -5188,6 +5612,9 @@
         }
       }
     },
+    "Edit Column Values" : {
+
+    },
     "Edit Record" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5198,6 +5625,18 @@
           }
         }
       }
+    },
+    "Edit Row" : {
+
+    },
+    "Edit Variable" : {
+
+    },
+    "Edit Widget" : {
+
+    },
+    "Edit Widget Settings" : {
+
     },
     "Effortlessly manage your Cloudflare zones, DNS records, and settings from anywhere." : {
       "extractionState" : "manual",
@@ -5310,6 +5749,9 @@
         }
       }
     },
+    "Empty Table" : {
+
+    },
     "Enable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5354,6 +5796,9 @@
         }
       }
     },
+    "Enable r2.dev Subdomain" : {
+
+    },
     "Enable the latest version of the TLS protocol for improved security and performance." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5385,6 +5830,9 @@
           }
         }
       }
+    },
+    "Enable Universal SSL" : {
+
     },
     "Enabled" : {
       "extractionState" : "manual",
@@ -5430,6 +5878,9 @@
         }
       }
     },
+    "Encrypted Secret" : {
+
+    },
     "Encrypted Secrets (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5462,6 +5913,9 @@
           }
         }
       }
+    },
+    "Engine" : {
+
     },
     "English" : {
       "extractionState" : "manual",
@@ -5504,6 +5958,9 @@
           }
         }
       }
+    },
+    "Enter hostnames allowed to display this Turnstile widget, separated by comma or newlines." : {
+
     },
     "Enter prompt or input text..." : {
       "extractionState" : "manual",
@@ -5626,6 +6083,12 @@
           }
         }
       }
+    },
+    "Environment Variables" : {
+
+    },
+    "Environment variables are plaintext strings accessible via global env bindings in your script." : {
+
     },
     "Error" : {
       "extractionState" : "manual",
@@ -5830,6 +6293,9 @@
         }
       }
     },
+    "Execution Rules (%lld)" : {
+
+    },
     "Execution Time" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5840,6 +6306,12 @@
           }
         }
       }
+    },
+    "Expect: %@" : {
+
+    },
+    "Expected Status Code (e.g. 200 or 2xx)" : {
+
     },
     "Expiration Date" : {
       "extractionState" : "manual",
@@ -5905,6 +6377,9 @@
           }
         }
       }
+    },
+    "Exported Class" : {
+
     },
     "Expression" : {
       "extractionState" : "manual",
@@ -6197,6 +6672,9 @@
         }
       }
     },
+    "Framework" : {
+
+    },
     "Full" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6252,6 +6730,18 @@
         }
       }
     },
+    "Gateway Overview" : {
+
+    },
+    "Gateway Rules" : {
+
+    },
+    "Gateway rules enforce security and DNS filtering policies on zero-trust traffic." : {
+
+    },
+    "Gateway Slug" : {
+
+    },
     "Gateway URL copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6262,6 +6752,9 @@
           }
         }
       }
+    },
+    "General Information" : {
+
     },
     "General Security" : {
       "localizations" : {
@@ -6351,6 +6844,9 @@
         }
       }
     },
+    "Go" : {
+
+    },
     "Good Afternoon" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6406,6 +6902,12 @@
         }
       }
     },
+    "Header Name (e.g. X-Frame-Options)" : {
+
+    },
+    "Header Value (e.g. DENY)" : {
+
+    },
     "Headers copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6416,6 +6918,12 @@
           }
         }
       }
+    },
+    "Headers: %@" : {
+
+    },
+    "Health Check Request" : {
+
     },
     "Help browsers start loading assets sooner by responding with 103 Early Hints before the full response is ready." : {
       "extractionState" : "manual",
@@ -6484,6 +6992,12 @@
         }
       }
     },
+    "Host" : {
+
+    },
+    "Host (e.g. db.example.com)" : {
+
+    },
     "Hostname (e.g., lb.example.com)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6494,6 +7008,9 @@
           }
         }
       }
+    },
+    "Hostnames allowed to use this widget." : {
+
     },
     "Hosts" : {
       "extractionState" : "manual",
@@ -6578,6 +7095,9 @@
         }
       }
     },
+    "HTML / JS" : {
+
+    },
     "HTTP & Cache Inspector" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6588,6 +7108,9 @@
           }
         }
       }
+    },
+    "HTTP Header Action" : {
+
     },
     "HTTP Header Inspector" : {
       "localizations" : {
@@ -6609,6 +7132,9 @@
           }
         }
       }
+    },
+    "http://localhost:8080" : {
+
     },
     "HTTP/2" : {
       "extractionState" : "manual",
@@ -6663,6 +7189,9 @@
         }
       }
     },
+    "https://example.com or *" : {
+
+    },
     "https://example.com/style.css" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6673,6 +7202,18 @@
           }
         }
       }
+    },
+    "https://new.example.com/target" : {
+
+    },
+    "https://old.example.com/page" : {
+
+    },
+    "Hyperdrive" : {
+
+    },
+    "Hyperdrive accelerates database queries from Workers to existing regional databases." : {
+
     },
     "I'm Under Attack Mode" : {
       "extractionState" : "manual",
@@ -6784,6 +7325,9 @@
         }
       }
     },
+    "Inferencing on Cloudflare edge..." : {
+
+    },
     "Ingress Routing Rules (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6794,6 +7338,15 @@
           }
         }
       }
+    },
+    "Initial Origin Server" : {
+
+    },
+    "Insert" : {
+
+    },
+    "Insert Row" : {
+
     },
     "Inspect CF-Ray & CF-Cache-Status" : {
       "extractionState" : "manual",
@@ -6827,6 +7380,18 @@
           }
         }
       }
+    },
+    "Instances are spun up on-demand at the edge nearest to incoming coordination requests." : {
+
+    },
+    "Integration Code Generator" : {
+
+    },
+    "Internal Identifier" : {
+
+    },
+    "Interval: %llds" : {
+
     },
     "iodef" : {
       "extractionState" : "manual",
@@ -6927,6 +7492,9 @@
         }
       }
     },
+    "IP or Hostname (e.g. 192.0.2.1)" : {
+
+    },
     "IP Range" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6971,6 +7539,9 @@
         }
       }
     },
+    "IPv4 Ranges (%lld)" : {
+
+    },
     "IPv6 (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7003,6 +7574,9 @@
           }
         }
       }
+    },
+    "IPv6 Ranges (%lld)" : {
+
     },
     "ISP / Organization" : {
       "extractionState" : "manual",
@@ -7179,6 +7753,15 @@
         }
       }
     },
+    "KEY_NAME" : {
+
+    },
+    "Keys (%lld)" : {
+
+    },
+    "KV" : {
+
+    },
     "KV & D1 Databases" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7299,6 +7882,9 @@
         }
       }
     },
+    "Layer" : {
+
+    },
     "Legacy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7360,6 +7946,15 @@
         }
       }
     },
+    "List ID" : {
+
+    },
+    "List Metadata" : {
+
+    },
+    "List Name" : {
+
+    },
     "Listening for live worker events…" : {
       "localizations" : {
         "zh-Hans" : {
@@ -7412,6 +8007,9 @@
           }
         }
       }
+    },
+    "Load Balancers (%lld)" : {
+
     },
     "Load Balancing" : {
       "extractionState" : "manual",
@@ -7666,6 +8264,9 @@
         }
       }
     },
+    "Logging" : {
+
+    },
     "Logs" : {
       "localizations" : {
         "zh-Hans" : {
@@ -7865,6 +8466,9 @@
         }
       }
     },
+    "marketing-redirects" : {
+
+    },
     "Matching Expression" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7875,6 +8479,9 @@
           }
         }
       }
+    },
+    "Max Age" : {
+
     },
     "Max-Age (Seconds)" : {
       "extractionState" : "manual",
@@ -7898,6 +8505,9 @@
         }
       }
     },
+    "Message Queues (%lld)" : {
+
+    },
     "Method" : {
       "localizations" : {
         "zh-Hans" : {
@@ -7907,6 +8517,9 @@
           }
         }
       }
+    },
+    "Methods: %@" : {
+
     },
     "Minification, Brotli, HTTP/2" : {
       "extractionState" : "manual",
@@ -7995,6 +8608,12 @@
         }
       }
     },
+    "Modifies HTTP request headers sent to the origin." : {
+
+    },
+    "Modifies HTTP response headers returned to the client." : {
+
+    },
     "Modify request & response headers" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8027,6 +8646,9 @@
         }
       }
     },
+    "Monitor Type" : {
+
+    },
     "Monitors" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8037,6 +8659,9 @@
           }
         }
       }
+    },
+    "Monitors (%lld)" : {
+
     },
     "Monthly on 1st" : {
       "extractionState" : "manual",
@@ -8097,6 +8722,12 @@
           }
         }
       }
+    },
+    "my-database-accelerator" : {
+
+    },
+    "my-queue" : {
+
     },
     "my-worker" : {
       "extractionState" : "manual",
@@ -8197,6 +8828,15 @@
         }
       }
     },
+    "Namespace ID" : {
+
+    },
+    "Namespace Metadata" : {
+
+    },
+    "Namespace Name" : {
+
+    },
     "Namespace Title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8217,6 +8857,9 @@
           }
         }
       }
+    },
+    "Namespaces (%lld)" : {
+
     },
     "Negotiated Protocol" : {
       "extractionState" : "manual",
@@ -8251,6 +8894,12 @@
         }
       }
     },
+    "Network & Security Diagnostics (%lld)" : {
+
+    },
+    "Network Diagnostics" : {
+
+    },
     "New AI Gateway" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8273,6 +8922,9 @@
         }
       }
     },
+    "New CORS Rule" : {
+
+    },
     "New D1 Database" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8283,6 +8935,12 @@
           }
         }
       }
+    },
+    "New Health Monitor" : {
+
+    },
+    "New Hyperdrive" : {
+
     },
     "New KV Namespace" : {
       "extractionState" : "manual",
@@ -8295,6 +8953,9 @@
         }
       }
     },
+    "New Origin Pool" : {
+
+    },
     "New Pages Project" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8306,6 +8967,9 @@
         }
       }
     },
+    "New Queue" : {
+
+    },
     "New Rate Limit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8316,6 +8980,12 @@
           }
         }
       }
+    },
+    "New Redirect Item" : {
+
+    },
+    "New Redirect List" : {
+
     },
     "New Redirect Rule" : {
       "extractionState" : "manual",
@@ -8339,6 +9009,9 @@
         }
       }
     },
+    "New Row Values" : {
+
+    },
     "New Snippet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8349,6 +9022,12 @@
           }
         }
       }
+    },
+    "New Snippet Script" : {
+
+    },
+    "New Transform Rule" : {
+
     },
     "New URL Rewrite" : {
       "extractionState" : "manual",
@@ -8405,6 +9084,12 @@
         }
       }
     },
+    "No %@ Rules" : {
+
+    },
+    "No Access Applications" : {
+
+    },
     "No Account Selected" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8415,6 +9100,9 @@
           }
         }
       }
+    },
+    "No active instances discovered in this namespace." : {
+
     },
     "No AI Gateways" : {
       "extractionState" : "manual",
@@ -8459,6 +9147,9 @@
         }
       }
     },
+    "No Bulk Redirect Lists" : {
+
+    },
     "No Cache Rules" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8469,6 +9160,9 @@
           }
         }
       }
+    },
+    "No CORS rules configured." : {
+
     },
     "No Cron Triggers" : {
       "localizations" : {
@@ -8522,6 +9216,9 @@
           }
         }
       }
+    },
+    "No custom domains connected." : {
+
     },
     "No Custom WAF Rules" : {
       "extractionState" : "manual",
@@ -8661,6 +9358,9 @@
         }
       }
     },
+    "No Durable Objects" : {
+
+    },
     "No Edge Certificates" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8704,6 +9404,15 @@
         }
       }
     },
+    "No Encrypted Secrets" : {
+
+    },
+    "No environment variables configured for %@." : {
+
+    },
+    "No Gateway Rules" : {
+
+    },
     "No Health Monitors" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8714,6 +9423,9 @@
           }
         }
       }
+    },
+    "No Hyperdrive Configs" : {
+
     },
     "No Internet Connection" : {
       "extractionState" : "manual",
@@ -8824,6 +9536,9 @@
         }
       }
     },
+    "No notification policies configured." : {
+
+    },
     "No Objects in Bucket" : {
       "localizations" : {
         "zh-Hans" : {
@@ -8900,6 +9615,15 @@
         }
       }
     },
+    "No Pages Projects Found" : {
+
+    },
+    "No Plaintext Variables" : {
+
+    },
+    "No policies assigned to this application." : {
+
+    },
     "No Pools configured." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8922,6 +9646,9 @@
         }
       }
     },
+    "No public ingress hostnames configured." : {
+
+    },
     "No Query String" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8932,6 +9659,9 @@
           }
         }
       }
+    },
+    "No Queues" : {
+
     },
     "No R2 Buckets" : {
       "extractionState" : "manual",
@@ -8994,6 +9724,9 @@
         }
       }
     },
+    "No redirect items in this list." : {
+
+    },
     "No Redirect Rules" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9043,6 +9776,9 @@
         }
       }
     },
+    "No rules attached. Add a rule to trigger your snippets." : {
+
+    },
     "No script source code available." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9076,6 +9812,9 @@
         }
       }
     },
+    "No snippet scripts uploaded." : {
+
+    },
     "No Snippets Found" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9086,6 +9825,9 @@
           }
         }
       }
+    },
+    "No tables found. Create a table using SQL below." : {
+
     },
     "No Transform Rules" : {
       "extractionState" : "manual",
@@ -9141,6 +9883,9 @@
         }
       }
     },
+    "No webhook destinations configured in this account." : {
+
+    },
     "No Workers Found" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9162,6 +9907,9 @@
           }
         }
       }
+    },
+    "Node.js" : {
+
     },
     "None Selected" : {
       "extractionState" : "manual",
@@ -9205,6 +9953,9 @@
           }
         }
       }
+    },
+    "Notification Alerts" : {
+
     },
     "npm run build / hugo / next build" : {
       "localizations" : {
@@ -9368,6 +10119,9 @@
         }
       }
     },
+    "Operation" : {
+
+    },
     "Operational" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9422,6 +10176,21 @@
         }
       }
     },
+    "Origin Connection" : {
+
+    },
+    "Origin Database" : {
+
+    },
+    "Origin Name (e.g. srv-01)" : {
+
+    },
+    "Origin Pools (%lld)" : {
+
+    },
+    "Origins: %@" : {
+
+    },
     "Outcome" : {
       "localizations" : {
         "zh-Hans" : {
@@ -9461,6 +10230,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "概览"
+          }
+        }
+      }
+    },
+    "Page %lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Page %1$lld of %2$lld"
           }
         }
       }
@@ -9563,6 +10342,9 @@
         }
       }
     },
+    "Password" : {
+
+    },
     "Paste the contents of your certificate file (.pem or .crt), including the BEGIN CERTIFICATE and END CERTIFICATE tags." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9584,6 +10366,12 @@
           }
         }
       }
+    },
+    "Path (e.g. /healthz)" : {
+
+    },
+    "Path Prefix (Optional, e.g. /api)" : {
+
     },
     "Pause Cloudflare" : {
       "extractionState" : "manual",
@@ -9662,6 +10450,24 @@
         }
       }
     },
+    "Phase" : {
+
+    },
+    "Plaintext environment variables are readable in code and configuration." : {
+
+    },
+    "Plaintext Variable" : {
+
+    },
+    "Plaintext Variables (%lld)" : {
+
+    },
+    "Plaintext variables can be read, viewed, and modified at any time." : {
+
+    },
+    "Plaintext variables can be viewed directly. Secret variables are encrypted and masked for security." : {
+
+    },
     "Please check your network settings and try again." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9690,6 +10496,12 @@
         }
       }
     },
+    "Pool Details" : {
+
+    },
+    "Pool Name (e.g. primary-cluster)" : {
+
+    },
     "Pools" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9700,6 +10512,9 @@
           }
         }
       }
+    },
+    "Port" : {
+
     },
     "Port (e.g., 443)" : {
       "extractionState" : "manual",
@@ -9712,6 +10527,9 @@
         }
       }
     },
+    "PostgreSQL" : {
+
+    },
     "Preferences" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9722,6 +10540,9 @@
           }
         }
       }
+    },
+    "Prefix" : {
+
     },
     "Preserve Query String" : {
       "localizations" : {
@@ -9749,6 +10570,9 @@
           }
         }
       }
+    },
+    "Preview" : {
+
     },
     "Preview URL" : {
       "localizations" : {
@@ -9841,6 +10665,12 @@
           }
         }
       }
+    },
+    "Producers (%lld)" : {
+
+    },
+    "Production" : {
+
     },
     "Production Branch" : {
       "extractionState" : "manual",
@@ -9993,6 +10823,9 @@
         }
       }
     },
+    "Protected Applications (%lld)" : {
+
+    },
     "Protocol" : {
       "localizations" : {
         "zh-Hans" : {
@@ -10002,6 +10835,9 @@
           }
         }
       }
+    },
+    "Provider" : {
+
     },
     "Proxied" : {
       "extractionState" : "manual",
@@ -10056,6 +10892,18 @@
         }
       }
     },
+    "Public Access (r2.dev)" : {
+
+    },
+    "Public domain or subdomain to route traffic from (e.g. app.my-domain.com)." : {
+
+    },
+    "Public Hostname" : {
+
+    },
+    "Public Hostnames / Ingress (%lld)" : {
+
+    },
     "Public Key" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10067,6 +10915,9 @@
         }
       }
     },
+    "Public URL" : {
+
+    },
     "Purge" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10077,6 +10928,15 @@
           }
         }
       }
+    },
+    "Purge All Messages" : {
+
+    },
+    "Purge By" : {
+
+    },
+    "Purge by %@" : {
+
     },
     "Purge by URL" : {
       "extractionState" : "manual",
@@ -10154,6 +11014,9 @@
         }
       }
     },
+    "Python" : {
+
+    },
     "Queries global IANA RDAP directory over encrypted HTTPS (no account needed)." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10175,6 +11038,9 @@
           }
         }
       }
+    },
+    "Query Caching" : {
+
     },
     "Query executed successfully. 0 rows returned." : {
       "extractionState" : "manual",
@@ -10209,6 +11075,9 @@
         }
       }
     },
+    "Query String (Optional)" : {
+
+    },
     "Query Target" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10219,6 +11088,21 @@
           }
         }
       }
+    },
+    "Queue ID" : {
+
+    },
+    "Queue Name" : {
+
+    },
+    "Queue names must contain only lowercase alphanumeric characters and hyphens." : {
+
+    },
+    "Queue Overview" : {
+
+    },
+    "Queues" : {
+
     },
     "Quick Controls" : {
       "extractionState" : "manual",
@@ -10242,6 +11126,9 @@
         }
       }
     },
+    "Quick Integration Snippets" : {
+
+    },
     "Quickly enable Under Attack Mode, manage WAF, and tweak security levels when you need it most." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10263,6 +11150,9 @@
           }
         }
       }
+    },
+    "R2 Buckets (%lld)" : {
+
     },
     "R2 Object Storage" : {
       "extractionState" : "manual",
@@ -10328,6 +11218,9 @@
           }
         }
       }
+    },
+    "React / Next.js" : {
+
     },
     "Read Only" : {
       "extractionState" : "manual",
@@ -10482,6 +11375,12 @@
         }
       }
     },
+    "Redirect Items (%lld)" : {
+
+    },
+    "Redirect Lists (%lld)" : {
+
+    },
     "Redirect Rule" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10514,6 +11413,9 @@
           }
         }
       }
+    },
+    "Redirects for domain migration" : {
+
     },
     "Reduce the file size of source code on your website." : {
       "extractionState" : "manual",
@@ -10575,6 +11477,9 @@
           }
         }
       }
+    },
+    "Remove Header" : {
+
     },
     "Remove Site" : {
       "extractionState" : "manual",
@@ -10697,6 +11602,12 @@
         }
       }
     },
+    "Request Header" : {
+
+    },
+    "Request Headers" : {
+
+    },
     "Requests" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10707,6 +11618,9 @@
           }
         }
       }
+    },
+    "Requests matching this wirefilter expression will execute the selected snippet." : {
+
     },
     "Requests Per Window" : {
       "localizations" : {
@@ -10811,6 +11725,12 @@
         }
       }
     },
+    "Response Header" : {
+
+    },
+    "Response Headers" : {
+
+    },
     "Response Latency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10865,6 +11785,12 @@
         }
       }
     },
+    "Retention Period" : {
+
+    },
+    "Retries: %lld" : {
+
+    },
     "Retry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10908,6 +11834,12 @@
         }
       }
     },
+    "Rewrite Path -> %@" : {
+
+    },
+    "Rewrite Query -> %@" : {
+
+    },
     "Rewrite to: %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10929,6 +11861,9 @@
           }
         }
       }
+    },
+    "Rewrites incoming URI path and query string before reaching origin server." : {
+
     },
     "Rocket Loader™" : {
       "extractionState" : "manual",
@@ -10992,6 +11927,21 @@
         }
       }
     },
+    "Rotate (Keep Old Key Valid)" : {
+
+    },
+    "Rotate & Invalidate Old Key" : {
+
+    },
+    "Rotate Secret Key" : {
+
+    },
+    "Rotating the secret key will generate a new secret key for backend token verification. Existing backend deployments using the old secret key might be affected." : {
+
+    },
+    "Route requests through this endpoint to get caching, rate limiting, and analytics." : {
+
+    },
     "Route Tor users through the Cloudflare Onion service to improve privacy." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11046,6 +11996,9 @@
           }
         }
       }
+    },
+    "rowid" : {
+
     },
     "Rule created successfully" : {
       "extractionState" : "manual",
@@ -11135,6 +12088,9 @@
         }
       }
     },
+    "Rule Name (e.g. Modify X-Custom-Header)" : {
+
+    },
     "Rule Name (e.g. Protect login)" : {
       "localizations" : {
         "zh-Hans" : {
@@ -11155,6 +12111,9 @@
           }
         }
       }
+    },
+    "Rule Type" : {
+
     },
     "Rules" : {
       "extractionState" : "manual",
@@ -11177,6 +12136,9 @@
           }
         }
       }
+    },
+    "Rules determine which HTTP requests execute specific snippets based on expression filters." : {
+
     },
     "Run Model Inference" : {
       "extractionState" : "manual",
@@ -11209,6 +12171,9 @@
           }
         }
       }
+    },
+    "Run this command on your server or container to attach cloudflared to this tunnel." : {
+
     },
     "S3 Compatible" : {
       "extractionState" : "manual",
@@ -11285,6 +12250,9 @@
           }
         }
       }
+    },
+    "Scheme" : {
+
     },
     "Scrape Shield" : {
       "extractionState" : "manual",
@@ -11391,6 +12359,9 @@
         }
       }
     },
+    "Search Applications" : {
+
+    },
     "Search CIDR Blocks" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11401,6 +12372,9 @@
           }
         }
       }
+    },
+    "Search Diagnostic Tools" : {
+
     },
     "Search domains" : {
       "extractionState" : "manual",
@@ -11430,6 +12404,9 @@
         }
       }
     },
+    "Search Hyperdrive" : {
+
+    },
     "Search in code" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11452,6 +12429,9 @@
         }
       }
     },
+    "Search Lists" : {
+
+    },
     "Search logs & URLs" : {
       "localizations" : {
         "zh-Hans" : {
@@ -11461,6 +12441,9 @@
           }
         }
       }
+    },
+    "Search Namespaces" : {
+
     },
     "Search Objects in Bucket" : {
       "extractionState" : "manual",
@@ -11484,6 +12467,9 @@
         }
       }
     },
+    "Search Queues" : {
+
+    },
     "Search R2 Buckets" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11506,6 +12492,9 @@
         }
       }
     },
+    "Search Rules" : {
+
+    },
     "Search Secrets" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11527,6 +12516,9 @@
           }
         }
       }
+    },
+    "Search Variables & Secrets" : {
+
     },
     "Search Widgets" : {
       "extractionState" : "manual",
@@ -11561,6 +12553,9 @@
         }
       }
     },
+    "SECRET" : {
+
+    },
     "Secret Deleted" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11582,6 +12577,12 @@
           }
         }
       }
+    },
+    "Secret Key (Private)" : {
+
+    },
+    "Secret Key Name" : {
+
     },
     "Secret name copied" : {
       "extractionState" : "manual",
@@ -11616,6 +12617,15 @@
         }
       }
     },
+    "Secret Value (Encrypted)" : {
+
+    },
+    "Secret values are strictly write-only and encrypted. To change a value, simply save a new value under the same secret name." : {
+
+    },
+    "Secrets (%lld)" : {
+
+    },
     "Secrets are encrypted and exposed as environment variables to your Worker script at runtime." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11626,6 +12636,12 @@
           }
         }
       }
+    },
+    "Secrets are encrypted upon saving and cannot be retrieved or read back by the API." : {
+
+    },
+    "Secrets cannot be viewed after saving. Use for API keys, tokens and passwords." : {
+
     },
     "Section" : {
       "extractionState" : "manual",
@@ -11721,6 +12737,9 @@
         }
       }
     },
+    "Security Rules (%lld)" : {
+
+    },
     "See All (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11773,6 +12792,9 @@
           }
         }
       }
+    },
+    "Select Snippet" : {
+
     },
     "Send an HTTP request or wait for a cron trigger to see logs appear in real time." : {
       "localizations" : {
@@ -11827,6 +12849,9 @@
           }
         }
       }
+    },
+    "Server Verification" : {
+
     },
     "Server-Side Excludes" : {
       "extractionState" : "manual",
@@ -11900,6 +12925,9 @@
         }
       }
     },
+    "Set Static Value" : {
+
+    },
     "Setting Updated" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11971,6 +12999,9 @@
           }
         }
       }
+    },
+    "Sitekey (Public)" : {
+
     },
     "Sitekey copied" : {
       "extractionState" : "manual",
@@ -12058,6 +13089,12 @@
           }
         }
       }
+    },
+    "Snippet Scripts (%lld)" : {
+
+    },
+    "Snippet: %@" : {
+
     },
     "Snippets (%lld)" : {
       "extractionState" : "manual",
@@ -12150,6 +13187,9 @@
           }
         }
       }
+    },
+    "Source URL" : {
+
     },
     "Speed" : {
       "extractionState" : "manual",
@@ -12293,6 +13333,9 @@
         }
       }
     },
+    "Static Path (e.g. /api/v2)" : {
+
+    },
     "Status" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12369,6 +13412,9 @@
         }
       }
     },
+    "Stored Data" : {
+
+    },
     "Strict Transport Security (HSTS)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12433,6 +13479,9 @@
         }
       }
     },
+    "Subpath Matching" : {
+
+    },
     "Success" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12443,6 +13492,9 @@
           }
         }
       }
+    },
+    "Suggested prompts:" : {
+
     },
     "Super Hubs" : {
       "extractionState" : "manual",
@@ -12465,6 +13517,9 @@
           }
         }
       }
+    },
+    "Supported Alert Types (%lld)" : {
+
     },
     "Switched Account" : {
       "extractionState" : "manual",
@@ -12504,6 +13559,9 @@
           }
         }
       }
+    },
+    "Table '%@' has no data rows." : {
+
     },
     "Tag" : {
       "extractionState" : "manual",
@@ -12591,6 +13649,12 @@
           }
         }
       }
+    },
+    "Target Service" : {
+
+    },
+    "Target Snippet" : {
+
     },
     "Target Type" : {
       "extractionState" : "manual",
@@ -12824,6 +13888,9 @@
         }
       }
     },
+    "Timeout: %llds" : {
+
+    },
     "Timezone" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12965,6 +14032,9 @@
           }
         }
       }
+    },
+    "Traffic arriving at these public hostnames will be routed to your local private services." : {
+
     },
     "Traffic by Country" : {
       "extractionState" : "manual",
@@ -13131,6 +14201,9 @@
         }
       }
     },
+    "Tunnel Information" : {
+
+    },
     "Tunnel Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13141,6 +14214,9 @@
           }
         }
       }
+    },
+    "Tunnel Name (e.g. homelab-gateway)" : {
+
     },
     "Tunnel Overview" : {
       "extractionState" : "manual",
@@ -13250,6 +14326,12 @@
           }
         }
       }
+    },
+    "Universal AI Endpoint" : {
+
+    },
+    "Universal SSL" : {
+
     },
     "Universal, ACM & custom certificates" : {
       "extractionState" : "manual",
@@ -13403,6 +14485,9 @@
         }
       }
     },
+    "URI Path & Query Rewrite" : {
+
+    },
     "URL" : {
       "localizations" : {
         "zh-Hans" : {
@@ -13423,6 +14508,9 @@
           }
         }
       }
+    },
+    "URL Rewrite" : {
+
     },
     "URL-based redirects and overrides" : {
       "extractionState" : "manual",
@@ -13489,6 +14577,9 @@
           }
         }
       }
+    },
+    "User" : {
+
     },
     "UUID" : {
       "extractionState" : "manual",
@@ -13600,6 +14691,24 @@
         }
       }
     },
+    "Values are sanitized and escaped before database update." : {
+
+    },
+    "VARIABLE" : {
+
+    },
+    "Variable Key" : {
+
+    },
+    "Variable Key Name" : {
+
+    },
+    "Variable Value" : {
+
+    },
+    "Variable Value (Plaintext)" : {
+
+    },
     "VARIABLE_NAME" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13610,6 +14719,12 @@
           }
         }
       }
+    },
+    "Variables (%lld)" : {
+
+    },
+    "Variables & Secrets" : {
+
     },
     "View" : {
       "extractionState" : "manual",
@@ -13709,6 +14824,9 @@
           }
         }
       }
+    },
+    "Webhooks" : {
+
     },
     "WebSockets" : {
       "extractionState" : "manual",
@@ -13859,6 +14977,18 @@
         }
       }
     },
+    "Widget Credentials" : {
+
+    },
+    "Widget Mode" : {
+
+    },
+    "Widget Name" : {
+
+    },
+    "Widget Name (e.g. My Website Login)" : {
+
+    },
     "Worker Deleted" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13935,6 +15065,9 @@
         }
       }
     },
+    "Worker: %@" : {
+
+    },
     "Workers" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13977,6 +15110,9 @@
           }
         }
       }
+    },
+    "Workers AI Edge Playground" : {
+
     },
     "workers.dev disabled" : {
       "extractionState" : "manual",
@@ -14053,6 +15189,9 @@
           }
         }
       }
+    },
+    "You haven't connected or deployed any Cloudflare Pages projects yet." : {
+
     },
     "You haven't created any cache rules yet. Create one to customize caching behavior." : {
       "extractionState" : "manual",
@@ -14261,6 +15400,9 @@
         }
       }
     },
+    "Zero Trust Access secures self-hosted and SaaS applications with identity-driven policies." : {
+
+    },
     "Zero Trust Tunnels" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14323,6 +15465,9 @@
         }
       }
     },
+    "创建隧道" : {
+
+    },
     "在浏览器中打开状态页" : {
       "localizations" : {
         "zh-Hans" : {
@@ -14332,6 +15477,9 @@
           }
         }
       }
+    },
+    "复制 %@" : {
+
     },
     "复制 IP 范围" : {
       "localizations" : {
@@ -14352,6 +15500,12 @@
           }
         }
       }
+    },
+    "存储桶设置" : {
+
+    },
+    "插入数据行" : {
+
     },
     "更多操作" : {
       "localizations" : {
@@ -14384,6 +15538,7 @@
       }
     },
     "添加 Worker 或 Pages" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -14394,6 +15549,7 @@
       }
     },
     "添加代码片段" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -14402,6 +15558,12 @@
           }
         }
       }
+    },
+    "添加代码片段或规则" : {
+
+    },
+    "添加公共主机名" : {
+
     },
     "添加域名" : {
       "localizations" : {
@@ -14434,6 +15596,7 @@
       }
     },
     "添加环境变量" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -14464,6 +15627,7 @@
       }
     },
     "添加负载均衡" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -14472,6 +15636,9 @@
           }
         }
       }
+    },
+    "添加负载均衡项目" : {
+
     },
     "添加转换规则" : {
       "localizations" : {
@@ -14494,6 +15661,7 @@
       }
     },
     "添加邮件路由规则" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

@@ -614,7 +614,7 @@ class CloudflareAPIClient {
             throw APIError.unauthorized
         }
         
-        let url = URL(string: "\(baseURL)/zones/\(zoneId)/ssl/certificate_packs")!
+        let url = URL(string: "\(baseURL)/zones/\(zoneId)/ssl/certificate_packs?status=all")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
@@ -645,6 +645,36 @@ class CloudflareAPIClient {
             }
             throw APIError.invalidResponse
         }
+    }
+
+    func deleteCertificatePack(zoneId: String, packId: String) async throws {
+        let endpoint = "zones/\(zoneId)/ssl/certificate_packs/\(packId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func getUniversalSSLSettings(zoneId: String) async throws -> Bool {
+        let endpoint = "zones/\(zoneId)/ssl/universal/settings"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: Settings?
+            struct Settings: Codable {
+                let enabled: Bool?
+            }
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result?.enabled ?? true
+    }
+
+    func updateUniversalSSLSettings(zoneId: String, enabled: Bool) async throws {
+        let endpoint = "zones/\(zoneId)/ssl/universal/settings"
+        let body: [String: Any] = ["enabled": enabled]
+        _ = try await performPatchRequest(endpoint: endpoint, body: body)
+    }
+
+    func deleteCustomCertificate(zoneId: String, certificateId: String) async throws {
+        let endpoint = "zones/\(zoneId)/custom_certificates/\(certificateId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
     }
     
     func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String) async throws {
@@ -1530,27 +1560,50 @@ class CloudflareAPIClient {
     }
     
     func deleteLoadBalancer(zoneId: String, lbId: String) async throws {
-        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
-        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
-            throw APIError.unauthorized
-        }
-        
-        guard let url = URL(string: "\(baseURL)/zones/\(zoneId)/load_balancers/\(lbId)") else {
-            throw APIError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue(email, forHTTPHeaderField: "X-Auth-Email")
-        request.addValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            let errStr = String(data: data, encoding: .utf8) ?? ""
-            throw NSError(domain: "Cloudflare", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Failed to delete load balancer: \(errStr)"])
-        }
+        let endpoint = "zones/\(zoneId)/load_balancers/\(lbId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func createLBPool(accountId: String, pool: LBPoolUpdate) async throws -> LBPool {
+        let endpoint = "accounts/\(accountId)/load_balancers/pools"
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: pool)
+        let response = try JSONDecoder().decode(SingleResponse<LBPool>.self, from: data)
+        guard let result = response.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func updateLBPool(accountId: String, poolId: String, pool: LBPoolUpdate) async throws -> LBPool {
+        let endpoint = "accounts/\(accountId)/load_balancers/pools/\(poolId)"
+        let data = try await performPatchRequestWithData(endpoint: endpoint, encodableBody: pool)
+        let response = try JSONDecoder().decode(SingleResponse<LBPool>.self, from: data)
+        guard let result = response.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func deleteLBPool(accountId: String, poolId: String) async throws {
+        let endpoint = "accounts/\(accountId)/load_balancers/pools/\(poolId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func createLBMonitor(accountId: String, monitor: LBMonitorUpdate) async throws -> LBMonitor {
+        let endpoint = "accounts/\(accountId)/load_balancers/monitors"
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: monitor)
+        let response = try JSONDecoder().decode(SingleResponse<LBMonitor>.self, from: data)
+        guard let result = response.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func updateLBMonitor(accountId: String, monitorId: String, monitor: LBMonitorUpdate) async throws -> LBMonitor {
+        let endpoint = "accounts/\(accountId)/load_balancers/monitors/\(monitorId)"
+        let data = try await performPatchRequestWithData(endpoint: endpoint, encodableBody: monitor)
+        let response = try JSONDecoder().decode(SingleResponse<LBMonitor>.self, from: data)
+        guard let result = response.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func deleteLBMonitor(accountId: String, monitorId: String) async throws {
+        let endpoint = "accounts/\(accountId)/load_balancers/monitors/\(monitorId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
     }
 
 
@@ -1709,6 +1762,56 @@ class CloudflareAPIClient {
         }
         return data
     }
+
+    private func performPostRequestWithData<T: Encodable>(endpoint: String, encodableBody: T) async throws -> Data {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            throw APIError.invalidResponse
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(encodableBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw APIError.cloudflareError(errStr)
+        }
+        return data
+    }
+
+    private func performPatchRequestWithData<T: Encodable>(endpoint: String, encodableBody: T) async throws -> Data {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            throw APIError.invalidResponse
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(encodableBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            let errStr = String(data: data, encoding: .utf8) ?? ""
+            throw APIError.cloudflareError(errStr)
+        }
+        return data
+    }
         
     // MARK: - Developer Suite Endpoints
 
@@ -1762,6 +1865,84 @@ class CloudflareAPIClient {
         return direct.result ?? []
     }
 
+    // MARK: - R2 Bucket Settings (Managed Domain, Custom Domains, CORS)
+
+    func getR2ManagedDomain(accountId: String, bucketName: String) async throws -> R2ManagedDomain {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/managed"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: R2ManagedDomain?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? R2ManagedDomain(domain: nil, enabled: false)
+    }
+
+    func setR2ManagedDomain(accountId: String, bucketName: String, enabled: Bool) async throws {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/managed"
+        let body: [String: Any] = ["enabled": enabled]
+        _ = try await performPutRequest(endpoint: endpoint, body: body)
+    }
+
+    func getR2CustomDomains(accountId: String, bucketName: String) async throws -> [R2CustomDomain] {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/custom"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: Container?
+            struct Container: Codable {
+                let domains: [R2CustomDomain]?
+            }
+        }
+        let decoded = try? JSONDecoder().decode(Response.self, from: data)
+        return decoded?.result?.domains ?? []
+    }
+
+    func deleteR2CustomDomain(accountId: String, bucketName: String, domain: String) async throws {
+        let encoded = domain.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? domain
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/custom/\(encoded)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func getR2CORS(accountId: String, bucketName: String) async throws -> [R2CORSRule] {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/cors"
+        do {
+            let data = try await performGetRequest(endpoint: endpoint)
+            struct Response: Codable {
+                let success: Bool
+                let result: Container?
+                struct Container: Codable {
+                    let rules: [R2CORSRule]?
+                }
+            }
+            let decoded = try JSONDecoder().decode(Response.self, from: data)
+            return decoded.result?.rules ?? []
+        } catch {
+            return []
+        }
+    }
+
+    func putR2CORS(accountId: String, bucketName: String, rules: [R2CORSRule]) async throws {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/cors"
+        struct Payload: Codable {
+            let rules: [R2CORSRule]
+        }
+        _ = try await performPutAnyRequest(endpoint: endpoint, jsonObject: ["rules": rules.map { r -> [String: Any] in
+            var dict: [String: Any] = [
+                "allowed": ["origins": r.allowedOrigins, "methods": r.allowedMethods]
+            ]
+            if let maxAge = r.maxAgeSeconds { dict["maxAgeSeconds"] = maxAge }
+            if let headers = r.allowedHeaders { dict["allowedHeaders"] = headers }
+            if let expose = r.exposeHeaders { dict["exposeHeaders"] = expose }
+            return dict
+        }])
+    }
+
+    func deleteR2CORS(accountId: String, bucketName: String) async throws {
+        let endpoint = "accounts/\(accountId)/r2/buckets/\(bucketName)/cors"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
     func getKVNamespaces(accountId: String) async throws -> [KVNamespace] {
         let endpoint = "accounts/\(accountId)/storage/kv/namespaces"
         let data = try await performGetRequest(endpoint: endpoint)
@@ -1807,6 +1988,8 @@ class CloudflareAPIClient {
         return decoded.result ?? []
     }
 
+    // MARK: - Cloudflare Tunnels CRUD & Ingress Configuration
+
     func getTunnels(accountId: String) async throws -> [CFTunnel] {
         let endpoint = "accounts/\(accountId)/cfd_tunnel?is_deleted=false"
         let data = try await performGetRequest(endpoint: endpoint)
@@ -1818,6 +2001,148 @@ class CloudflareAPIClient {
         
         let decoded = try JSONDecoder().decode(TunnelsResponse.self, from: data)
         return decoded.result ?? []
+    }
+
+    func createTunnel(accountId: String, name: String) async throws -> CFTunnel {
+        let endpoint = "accounts/\(accountId)/cfd_tunnel"
+        let body: [String: Any] = [
+            "name": name,
+            "config_src": "cloudflare"
+        ]
+        let data = try await performPostRequest(endpoint: endpoint, body: body)
+        struct Response: Codable {
+            let success: Bool
+            let result: CFTunnel?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let result = decoded.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func getTunnelToken(accountId: String, tunnelId: String) async throws -> String {
+        let endpoint = "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/token"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: String?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? ""
+    }
+
+    func deleteTunnel(accountId: String, tunnelId: String) async throws {
+        // Clean connections first
+        let connectionsEndpoint = "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/connections"
+        _ = try? await performDeleteRequest(endpoint: connectionsEndpoint)
+        
+        let endpoint = "accounts/\(accountId)/cfd_tunnel/\(tunnelId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func getTunnelConfigurations(accountId: String, tunnelId: String) async throws -> [TunnelIngressRule] {
+        let endpoint = "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/configurations"
+        do {
+            let data = try await performGetRequest(endpoint: endpoint)
+            struct Container: Codable {
+                let config: IngressContainer?
+                struct IngressContainer: Codable {
+                    let ingress: [TunnelIngressRule]?
+                }
+            }
+            struct Response: Codable {
+                let success: Bool
+                let result: Container?
+            }
+            let decoded = try JSONDecoder().decode(Response.self, from: data)
+            return decoded.result?.config?.ingress ?? []
+        } catch {
+            return []
+        }
+    }
+
+    func updateTunnelConfigurations(accountId: String, tunnelId: String, ingressRules: [TunnelIngressRule]) async throws {
+        let endpoint = "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/configurations"
+        let body: [String: Any] = [
+            "config": [
+                "ingress": ingressRules.map { r -> [String: Any] in
+                    var dict: [String: Any] = ["service": r.service ?? "http_status:404"]
+                    if let host = r.hostname, !host.isEmpty { dict["hostname"] = host }
+                    if let path = r.path, !path.isEmpty { dict["path"] = path }
+                    return dict
+                }
+            ]
+        ]
+        _ = try await performPutRequest(endpoint: endpoint, body: body)
+    }
+
+    // MARK: - Worker Zone Routes CRUD
+
+    func getWorkerZoneRoutes(zoneId: String) async throws -> [WorkerZoneRoute] {
+        let endpoint = "zones/\(zoneId)/workers/routes"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [WorkerZoneRoute]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func createWorkerZoneRoute(zoneId: String, pattern: String, script: String) async throws -> WorkerZoneRoute {
+        let endpoint = "zones/\(zoneId)/workers/routes"
+        let body: [String: Any] = [
+            "pattern": pattern,
+            "script": script
+        ]
+        let data = try await performPostRequest(endpoint: endpoint, body: body)
+        struct Response: Codable {
+            let success: Bool
+            let result: WorkerZoneRoute?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let result = decoded.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func updateWorkerZoneRoute(zoneId: String, routeId: String, pattern: String, script: String) async throws -> WorkerZoneRoute {
+        let endpoint = "zones/\(zoneId)/workers/routes/\(routeId)"
+        let body: [String: Any] = [
+            "pattern": pattern,
+            "script": script
+        ]
+        let data = try await performPutRequest(endpoint: endpoint, body: body)
+        struct Response: Codable {
+            let success: Bool
+            let result: WorkerZoneRoute?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let result = decoded.result else { throw APIError.invalidResponse }
+        return result
+    }
+
+    func deleteWorkerZoneRoute(zoneId: String, routeId: String) async throws {
+        let endpoint = "zones/\(zoneId)/workers/routes/\(routeId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Advanced Granular Cache Purge
+
+    func purgeCacheByHosts(zoneId: String, hosts: [String]) async throws {
+        let endpoint = "zones/\(zoneId)/purge_cache"
+        let body: [String: Any] = ["hosts": hosts]
+        _ = try await performPostRequest(endpoint: endpoint, body: body)
+    }
+
+    func purgeCacheByPrefixes(zoneId: String, prefixes: [String]) async throws {
+        let endpoint = "zones/\(zoneId)/purge_cache"
+        let body: [String: Any] = ["prefixes": prefixes]
+        _ = try await performPostRequest(endpoint: endpoint, body: body)
+    }
+
+    func purgeCacheByTags(zoneId: String, tags: [String]) async throws {
+        let endpoint = "zones/\(zoneId)/purge_cache"
+        let body: [String: Any] = ["tags": tags]
+        _ = try await performPostRequest(endpoint: endpoint, body: body)
     }
 
     // MARK: - DNS-over-HTTPS (DoH) & SSL Diagnostics
@@ -2167,6 +2492,23 @@ class CloudflareAPIClient {
         
         let decoded = try JSONDecoder().decode(BindingsResponse.self, from: data)
         return decoded.result ?? []
+    }
+
+    func patchWorkerBindings(accountId: String, scriptName: String, bindings: [WorkerBinding]) async throws {
+        let endpoint = "accounts/\(accountId)/workers/scripts/\(scriptName)/settings"
+        let mapped = bindings.map { b -> [String: Any] in
+            var dict: [String: Any] = [
+                "name": b.name,
+                "type": b.type
+            ]
+            if let t = b.text { dict["text"] = t }
+            if let ns = b.namespaceId { dict["namespace_id"] = ns }
+            if let buck = b.bucketName { dict["bucket_name"] = buck }
+            if let db = b.databaseId { dict["database_id"] = db }
+            return dict
+        }
+        let body: [String: Any] = ["bindings": mapped]
+        _ = try await performPatchRequest(endpoint: endpoint, body: body)
     }
 
     // MARK: - Pages Endpoints
@@ -2624,6 +2966,53 @@ class CloudflareAPIClient {
         return decoded.result ?? []
     }
 
+    func createTurnstileWidget(accountId: String, input: TurnstileCreateInput) async throws -> TurnstileWidget {
+        let endpoint = "accounts/\(accountId)/challenges/widgets"
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: input)
+        
+        struct Response: Codable {
+            let success: Bool
+            let result: TurnstileWidget?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let widget = decoded.result else { throw APIError.invalidResponse }
+        return widget
+    }
+
+    func updateTurnstileWidget(accountId: String, sitekey: String, input: TurnstileUpdateInput) async throws -> TurnstileWidget {
+        let endpoint = "accounts/\(accountId)/challenges/widgets/\(sitekey)"
+        let data = try await performPutRequestWithData(endpoint: endpoint, encodableBody: input)
+        
+        struct Response: Codable {
+            let success: Bool
+            let result: TurnstileWidget?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let widget = decoded.result else { throw APIError.invalidResponse }
+        return widget
+    }
+
+    func deleteTurnstileWidget(accountId: String, sitekey: String) async throws {
+        let endpoint = "accounts/\(accountId)/challenges/widgets/\(sitekey)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func rotateTurnstileSecret(accountId: String, sitekey: String, invalidateImmediately: Bool = false) async throws -> String {
+        let endpoint = "accounts/\(accountId)/challenges/widgets/\(sitekey)/rotate_secret"
+        struct RotateBody: Codable {
+            let invalidate_immediately: Bool
+        }
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: RotateBody(invalidate_immediately: invalidateImmediately))
+        
+        struct Response: Codable {
+            let success: Bool
+            let result: TurnstileWidget?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let secret = decoded.result?.secret else { throw APIError.invalidResponse }
+        return secret
+    }
+
     func getAIGateways(accountId: String) async throws -> [AIGateway] {
         let endpoint = "accounts/\(accountId)/ai-gateway/gateways"
         let data = try await performGetRequest(endpoint: endpoint)
@@ -2661,29 +3050,56 @@ class CloudflareAPIClient {
         return decoded.result ?? []
     }
 
+    func runAIChat(accountId: String, model: String, messages: [[String: String]]) async throws -> String {
+        let cleanModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        let endpoint = "accounts/\(accountId)/ai/run/\(cleanModel)"
+        
+        // 1. Try chat messages payload first
+        if let messagesData = try? await performPostRequest(endpoint: endpoint, body: ["messages": messages]) {
+            let res = parseAIInferenceResponse(data: messagesData)
+            if !res.isEmpty { return res }
+        }
+        
+        // 2. Fallback to single prompt inference if model expects single prompt
+        if let lastContent = messages.last?["content"] {
+            return try await runAIInference(accountId: accountId, model: model, prompt: lastContent)
+        }
+        
+        let data = try await performPostRequest(endpoint: endpoint, body: ["messages": messages])
+        return parseAIInferenceResponse(data: data)
+    }
+
     func runAIInference(accountId: String, model: String, prompt: String) async throws -> String {
         let cleanModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
         let endpoint = "accounts/\(accountId)/ai/run/\(cleanModel)"
         
-        // 1. Try standard 'prompt' payload first
-        do {
-            let data = try await performPostRequest(endpoint: endpoint, body: ["prompt": prompt])
-            return parseAIInferenceResponse(data: data)
-        } catch {
-            // 2. If rejected by models requiring 'text' (e.g. embeddings, classification, translation)
-            if let textData = try? await performPostRequest(endpoint: endpoint, body: ["text": prompt]) {
-                return parseAIInferenceResponse(data: textData)
-            }
-            // 3. Try array text format
-            if let textArrData = try? await performPostRequest(endpoint: endpoint, body: ["text": [prompt]]) {
-                return parseAIInferenceResponse(data: textArrData)
-            }
-            // 4. Try chat 'messages' format
-            if let messagesData = try? await performPostRequest(endpoint: endpoint, body: ["messages": [["role": "user", "content": prompt]]]) {
-                return parseAIInferenceResponse(data: messagesData)
-            }
-            throw error
+        // 1. Try chat 'messages' format first (90%+ of CF models are chat/instruct LLMs)
+        if let messagesData = try? await performPostRequest(endpoint: endpoint, body: ["messages": [["role": "user", "content": prompt]]]) {
+            let res = parseAIInferenceResponse(data: messagesData)
+            if !res.isEmpty { return res }
         }
+        
+        // 2. Try standard 'prompt' payload (for completion & text-to-image models)
+        if let promptData = try? await performPostRequest(endpoint: endpoint, body: ["prompt": prompt]) {
+            let res = parseAIInferenceResponse(data: promptData)
+            if !res.isEmpty { return res }
+        }
+        
+        // 3. Try 'text' payload (for translation, embeddings, summarization)
+        if let textData = try? await performPostRequest(endpoint: endpoint, body: ["text": prompt]) {
+            let res = parseAIInferenceResponse(data: textData)
+            if !res.isEmpty { return res }
+        }
+        
+        // 4. Try array text format
+        if let textArrData = try? await performPostRequest(endpoint: endpoint, body: ["text": [prompt]]) {
+            let res = parseAIInferenceResponse(data: textArrData)
+            if !res.isEmpty { return res }
+        }
+        
+        // 5. Final fallback to capture exact Cloudflare error message
+        let data = try await performPostRequest(endpoint: endpoint, body: ["messages": [["role": "user", "content": prompt]]])
+        return parseAIInferenceResponse(data: data)
     }
     
     private func parseAIInferenceResponse(data: Data) -> String {
@@ -2968,26 +3384,32 @@ class CloudflareAPIClient {
 
     // MARK: - Redirect Rules & Snippets Operations
 
-    func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
+    func getRedirectRulesWithRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [RedirectRuleItem]) {
         let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint"
         do {
             let data = try await performGetRequest(endpoint: endpoint)
-            struct RulesetRules: Codable {
+            struct RulesetResult: Codable {
+                let id: String?
                 let rules: [RedirectRuleItem]?
             }
             struct RulesetResponse: Codable {
-                let result: RulesetRules?
+                let result: RulesetResult?
             }
-            let decoded = try? JSONDecoder().decode(RulesetResponse.self, from: data)
-            return decoded?.result?.rules ?? []
+            let decoded = try JSONDecoder().decode(RulesetResponse.self, from: data)
+            return (decoded.result?.id, decoded.result?.rules ?? [])
         } catch {
-            // Error 10003 / 404 means no ruleset exists yet on this zone
-            return []
+            return (nil, [])
         }
     }
+    
+    func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
+        let (_, rules) = try await getRedirectRulesWithRuleset(zoneId: zoneId)
+        return rules
+    }
 
-    func createRedirectRule(zoneId: String, description: String, expression: String, targetUrl: String, statusCode: Int) async throws {
-        let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint"
+    func createRedirectRule(zoneId: String, description: String, expression: String, targetUrl: String, statusCode: Int, preserveQueryString: Bool = false) async throws {
+        let (existingRulesetId, _) = try await getRedirectRulesWithRuleset(zoneId: zoneId)
+        
         let rule: [String: Any] = [
             "description": description,
             "expression": expression,
@@ -2997,19 +3419,72 @@ class CloudflareAPIClient {
                     "status_code": statusCode,
                     "target_url": [
                         "value": targetUrl
-                    ]
+                    ],
+                    "preserve_query_string": preserveQueryString
                 ]
             ],
             "enabled": true
         ]
-        let body: [String: Any] = [
-            "rules": [rule]
-        ]
-        _ = try await performPutRequest(endpoint: endpoint, body: body)
+        
+        if let rulesetId = existingRulesetId, !rulesetId.isEmpty {
+            // Append rule to existing ruleset
+            let endpoint = "zones/\(zoneId)/rulesets/\(rulesetId)/rules"
+            _ = try await performPostRequest(endpoint: endpoint, body: rule)
+        } else {
+            // Create entrypoint ruleset
+            let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint"
+            let body: [String: Any] = ["rules": [rule]]
+            _ = try await performPutRequest(endpoint: endpoint, body: body)
+        }
     }
 
     func deleteRedirectRule(zoneId: String, ruleId: String) async throws {
-        let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint/rules/\(ruleId)"
+        let (existingRulesetId, _) = try await getRedirectRulesWithRuleset(zoneId: zoneId)
+        guard let rulesetId = existingRulesetId, !rulesetId.isEmpty else {
+            throw APIError.cloudflareError("Ruleset not found")
+        }
+        let endpoint = "zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Snippets & Snippet Ruleset
+
+    func getSnippetRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [WAFRule]) {
+        let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_snippets/entrypoint"
+        do {
+            let data = try await performGetRequest(endpoint: endpoint)
+            let decoded = try JSONDecoder().decode(SingleRulesetResponse.self, from: data)
+            return (decoded.result?.id, decoded.result?.rules ?? [])
+        } catch {
+            return (nil, [])
+        }
+    }
+
+    func bindSnippetRule(zoneId: String, snippetName: String, expression: String, description: String?) async throws {
+        let (existingRulesetId, _) = try await getSnippetRuleset(zoneId: zoneId)
+        
+        let rule: [String: Any] = [
+            "description": description ?? "Execute snippet \(snippetName)",
+            "expression": expression,
+            "action": "snippet",
+            "action_parameters": [
+                "snippet_name": snippetName
+            ],
+            "enabled": true
+        ]
+        
+        if let rulesetId = existingRulesetId, !rulesetId.isEmpty {
+            let endpoint = "zones/\(zoneId)/rulesets/\(rulesetId)/rules"
+            _ = try await performPostRequest(endpoint: endpoint, body: rule)
+        } else {
+            let endpoint = "zones/\(zoneId)/rulesets/phases/http_request_snippets/entrypoint"
+            let body: [String: Any] = ["rules": [rule]]
+            _ = try await performPutRequest(endpoint: endpoint, body: body)
+        }
+    }
+
+    func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async throws {
+        let endpoint = "zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)"
         _ = try await performDeleteRequest(endpoint: endpoint)
     }
 
@@ -3128,5 +3603,360 @@ class CloudflareAPIClient {
     func detachWorkerDomain(accountId: String, domainId: String) async throws {
         let endpoint = "accounts/\(accountId)/workers/domains/records/\(domainId)"
         _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Cloudflare Queues APIs
+
+    func listQueues(accountId: String) async throws -> [CFQueue] {
+        let endpoint = "accounts/\(accountId)/queues"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [CFQueue]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func getQueue(accountId: String, queueId: String) async throws -> CFQueue {
+        let endpoint = "accounts/\(accountId)/queues/\(queueId)"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: CFQueue?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let q = decoded.result else { throw APIError.invalidResponse }
+        return q
+    }
+
+    func createQueue(accountId: String, name: String) async throws -> CFQueue {
+        let endpoint = "accounts/\(accountId)/queues"
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: CFQueueCreate(queueName: name))
+        struct Response: Codable {
+            let success: Bool
+            let result: CFQueue?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let q = decoded.result else { throw APIError.invalidResponse }
+        return q
+    }
+
+    func updateQueue(accountId: String, queueId: String, update: CFQueueUpdate) async throws -> CFQueue {
+        let endpoint = "accounts/\(accountId)/queues/\(queueId)"
+        let data = try await performPutRequestWithData(endpoint: endpoint, encodableBody: update)
+        struct Response: Codable {
+            let success: Bool
+            let result: CFQueue?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let q = decoded.result else { throw APIError.invalidResponse }
+        return q
+    }
+
+    func purgeQueue(accountId: String, queueId: String) async throws {
+        let endpoint = "accounts/\(accountId)/queues/\(queueId)/purge"
+        _ = try await performPostRequestWithData(endpoint: endpoint, encodableBody: CFQueuePurge(deleteMessagesPermanently: true))
+    }
+
+    func deleteQueue(accountId: String, queueId: String) async throws {
+        let endpoint = "accounts/\(accountId)/queues/\(queueId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Durable Objects APIs
+
+    func listDONamespaces(accountId: String) async throws -> [DurableObjectNamespace] {
+        let endpoint = "accounts/\(accountId)/workers/durable_objects/namespaces"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [DurableObjectNamespace]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func listDOObjects(accountId: String, namespaceId: String, cursor: String? = nil, limit: Int = 100) async throws -> (items: [DurableObjectInstance], cursor: String?) {
+        var query = "?limit=\(limit)"
+        if let c = cursor, !c.isEmpty { query += "&cursor=\(c)" }
+        let endpoint = "accounts/\(accountId)/workers/durable_objects/namespaces/\(namespaceId)/objects\(query)"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [DurableObjectInstance]?
+            let resultInfo: ResultInfo?
+            enum CodingKeys: String, CodingKey {
+                case success, result
+                case resultInfo = "result_info"
+            }
+            struct ResultInfo: Codable {
+                let cursor: String?
+            }
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return (decoded.result ?? [], decoded.resultInfo?.cursor)
+    }
+
+    // MARK: - Hyperdrive APIs
+
+    func listHyperdriveConfigs(accountId: String) async throws -> [HyperdriveConfig] {
+        let endpoint = "accounts/\(accountId)/hyperdrive/configs"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [HyperdriveConfig]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func createHyperdriveConfig(accountId: String, payload: HyperdriveCreate) async throws -> HyperdriveConfig {
+        let endpoint = "accounts/\(accountId)/hyperdrive/configs"
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: payload)
+        struct Response: Codable {
+            let success: Bool
+            let result: HyperdriveConfig?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let cfg = decoded.result else { throw APIError.invalidResponse }
+        return cfg
+    }
+
+    func updateHyperdriveConfig(accountId: String, configId: String, patch: HyperdrivePatch) async throws -> HyperdriveConfig {
+        let endpoint = "accounts/\(accountId)/hyperdrive/configs/\(configId)"
+        let data = try await performPatchRequestWithData(endpoint: endpoint, encodableBody: patch)
+        struct Response: Codable {
+            let success: Bool
+            let result: HyperdriveConfig?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let cfg = decoded.result else { throw APIError.invalidResponse }
+        return cfg
+    }
+
+    func deleteHyperdriveConfig(accountId: String, configId: String) async throws {
+        let endpoint = "accounts/\(accountId)/hyperdrive/configs/\(configId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Zero Trust APIs
+
+    func listAccessApps(accountId: String) async throws -> [AccessApp] {
+        let endpoint = "accounts/\(accountId)/access/apps"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [AccessApp]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func listAccessPolicies(accountId: String, appId: String) async throws -> [AccessPolicy] {
+        let endpoint = "accounts/\(accountId)/access/apps/\(appId)/policies"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [AccessPolicy]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func deleteAccessApp(accountId: String, appId: String) async throws {
+        let endpoint = "accounts/\(accountId)/access/apps/\(appId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func listGatewayRules(accountId: String) async throws -> [GatewayRule] {
+        let endpoint = "accounts/\(accountId)/gateway/rules"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [GatewayRule]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func deleteGatewayRule(accountId: String, ruleId: String) async throws {
+        let endpoint = "accounts/\(accountId)/gateway/rules/\(ruleId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    // MARK: - Bulk Redirects APIs
+
+    func listRedirectLists(accountId: String) async throws -> [RedirectList] {
+        let endpoint = "accounts/\(accountId)/rules/lists"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [RedirectList]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return (decoded.result ?? []).filter { $0.kind == "redirect" }
+    }
+
+    func createRedirectList(accountId: String, name: String, description: String?) async throws -> RedirectList {
+        let endpoint = "accounts/\(accountId)/rules/lists"
+        struct CreateBody: Codable {
+            let name: String
+            let kind: String
+            let description: String?
+        }
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: CreateBody(name: name, kind: "redirect", description: description))
+        struct Response: Codable {
+            let success: Bool
+            let result: RedirectList?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let list = decoded.result else { throw APIError.invalidResponse }
+        return list
+    }
+
+    func deleteRedirectList(accountId: String, listId: String) async throws {
+        let endpoint = "accounts/\(accountId)/rules/lists/\(listId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func listRedirectListItems(accountId: String, listId: String) async throws -> [RedirectListItem] {
+        let endpoint = "accounts/\(accountId)/rules/lists/\(listId)/items"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [RedirectListItem]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func createRedirectListItems(accountId: String, listId: String, items: [RedirectItemDetail]) async throws -> String {
+        let endpoint = "accounts/\(accountId)/rules/lists/\(listId)/items"
+        struct ItemWrapper: Codable {
+            let redirect: RedirectItemDetail
+        }
+        let payload = items.map { ItemWrapper(redirect: $0) }
+        let data = try await performPostRequestWithData(endpoint: endpoint, encodableBody: payload)
+        struct Response: Codable {
+            let success: Bool
+            let result: BulkOperationRef?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let op = decoded.result?.operationId else { throw APIError.invalidResponse }
+        return op
+    }
+
+    func deleteRedirectListItems(accountId: String, listId: String, itemIds: [String]) async throws -> String {
+        let endpoint = "accounts/\(accountId)/rules/lists/\(listId)/items"
+        struct ItemRef: Codable {
+            let id: String
+        }
+        struct DeleteBody: Codable {
+            let items: [ItemRef]
+        }
+        let payload = DeleteBody(items: itemIds.map { ItemRef(id: $0) })
+        let data = try await performDeleteRequestWithData(endpoint: endpoint, encodableBody: payload)
+        struct Response: Codable {
+            let success: Bool
+            let result: BulkOperationRef?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let op = decoded.result?.operationId else { throw APIError.invalidResponse }
+        return op
+    }
+
+    func getBulkOperationStatus(accountId: String, operationId: String) async throws -> BulkOperation {
+        let endpoint = "accounts/\(accountId)/rules/lists/bulk_operations/\(operationId)"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: BulkOperation?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        guard let op = decoded.result else { throw APIError.invalidResponse }
+        return op
+    }
+
+    // MARK: - Alerting APIs
+
+    func listAvailableAlertTypes(accountId: String) async throws -> [AlertingAvailableType] {
+        let endpoint = "accounts/\(accountId)/alerting/v3/available_alerts"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [AlertingAvailableType]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func listAlertingWebhooks(accountId: String) async throws -> [AlertingWebhookDestination] {
+        let endpoint = "accounts/\(accountId)/alerting/v3/destinations/webhooks"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [AlertingWebhookDestination]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func listAlertingPolicies(accountId: String) async throws -> [AlertingPolicy] {
+        let endpoint = "accounts/\(accountId)/alerting/v3/policies"
+        let data = try await performGetRequest(endpoint: endpoint)
+        struct Response: Codable {
+            let success: Bool
+            let result: [AlertingPolicy]?
+        }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        return decoded.result ?? []
+    }
+
+    func deleteAlertingPolicy(accountId: String, policyId: String) async throws {
+        let endpoint = "accounts/\(accountId)/alerting/v3/policies/\(policyId)"
+        _ = try await performDeleteRequest(endpoint: endpoint)
+    }
+
+    func performPutRequestWithData<T: Encodable>(endpoint: String, encodableBody: T) async throws -> Data {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        let url = URL(string: "\(baseURL)/\(endpoint)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(encodableBody)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if let str = String(data: data, encoding: .utf8) { throw APIError.cloudflareError(str) }
+            throw APIError.invalidResponse
+        }
+        return data
+    }
+
+    func performDeleteRequestWithData<T: Encodable>(endpoint: String, encodableBody: T) async throws -> Data {
+        let email = UserDefaults.standard.string(forKey: "activeAccountEmail") ?? ""
+        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        let url = URL(string: "\(baseURL)/\(endpoint)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue(email, forHTTPHeaderField: "X-Auth-Email")
+        request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(encodableBody)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if let str = String(data: data, encoding: .utf8) { throw APIError.cloudflareError(str) }
+            throw APIError.invalidResponse
+        }
+        return data
     }
 }

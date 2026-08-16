@@ -188,6 +188,20 @@ struct PagesProjectDetailView: View {
                         }
                     }
                     
+                    NavigationLink {
+                        PagesBindingsView(project: project)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.body)
+                                .foregroundStyle(.purple)
+                                .frame(width: 24)
+                            Text("Bindings & Variables")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                        }
+                    }
+                    
                     Button {
                         showingBuildConfigSheet = true
                     } label: {

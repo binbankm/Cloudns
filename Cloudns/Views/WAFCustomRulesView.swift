@@ -7,35 +7,38 @@ struct WAFCustomRulesView: View {
     @State private var showingAddSheet = false
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && viewModel.rules.isEmpty {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchWAFRules(zoneId: zoneId)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchWAFRules(zoneId: zoneId)
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "shield.checkerboard",
-                    title: "No WAF Rules",
-                    message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
-                    actionTitle: "Add WAF Rule",
-                    action: { showingAddSheet = true }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "shield.checkerboard",
+                        title: "No WAF Rules",
+                        message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
+                        actionTitle: "Add WAF Rule",
+                        action: { showingAddSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             Task {
@@ -46,11 +49,11 @@ struct WAFCustomRulesView: View {
                     }
                     .onDelete(perform: deleteRules)
                 }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.fetchWAFRules(zoneId: zoneId)
-                }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchWAFRules(zoneId: zoneId)
         }
         .navigationTitle("WAF Custom Rules")
         .navigationBarTitleDisplayMode(.inline)

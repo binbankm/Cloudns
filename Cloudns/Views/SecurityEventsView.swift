@@ -6,40 +6,43 @@ struct SecurityEventsView: View {
     @StateObject private var viewModel = SecurityEventsViewModel()
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && viewModel.events.isEmpty {
-                List {
-                    ForEach(0..<6, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchEvents(zoneId: zoneId)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchEvents(zoneId: zoneId)
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.events.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "checkmark.shield",
-                    title: "No Security Events",
-                    message: "Your site hasn't blocked any threats recently. Everything is secure!"
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "checkmark.shield",
+                        title: "No Security Events",
+                        message: "Your site hasn't blocked any threats recently. Everything is secure!"
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.events) { event in
                         SecurityEventCardView(event: event)
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
         .task {

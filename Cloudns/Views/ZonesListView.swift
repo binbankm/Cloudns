@@ -60,80 +60,84 @@ struct ZonesListView: View {
     
     @ViewBuilder
     private var listViewContent: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<6, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchZones(isRefresh: true)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchZones(isRefresh: true)
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.zones.isEmpty {
-                EmptyStateView(
-                    icon: "globe",
-                    title: "No Domains Found",
-                    message: "You haven't added any domains to this account yet.",
-                    actionTitle: "Add Domain",
-                    action: {
-                        viewModel.addZoneError = nil
-                        showAddZoneSheet = true
-                    }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "globe",
+                        title: "No Domains Found",
+                        message: "You haven't added any domains to this account yet.",
+                        actionTitle: "Add Domain",
+                        action: {
+                            viewModel.addZoneError = nil
+                            showAddZoneSheet = true
+                        }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if displayedZones.isEmpty {
-                EmptyStateView.search(query: searchText) {
-                    searchText = ""
+                Section {
+                    EmptyStateView.search(query: searchText) {
+                        searchText = ""
+                    }
                 }
+                .listRowBackground(Color.clear)
             } else {
-                List {
-                    Section {
-                        ForEach(displayedZones) { zone in
-                            NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                                ZoneRowView(zone: zone)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    zoneToDelete = zone
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            }
+                Section {
+                    ForEach(displayedZones) { zone in
+                        NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                            ZoneRowView(zone: zone)
                         }
-
-                        if viewModel.canLoadMore && searchText.isEmpty {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                Spacer()
-                            }
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets())
-                            .onAppear {
-                                Task {
-                                    await viewModel.fetchZones(isRefresh: false)
-                                }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                let impact = UIImpactFeedbackGenerator(style: .medium)
+                                impact.impactOccurred()
+                                zoneToDelete = zone
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Remove", systemImage: "trash")
                             }
                         }
                     }
-                }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.fetchZones(isRefresh: true)
+
+                    if viewModel.canLoadMore && searchText.isEmpty {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                        .onAppear {
+                            Task {
+                                await viewModel.fetchZones(isRefresh: false)
+                            }
+                        }
+                    }
                 }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchZones(isRefresh: true)
         }
     }
 }

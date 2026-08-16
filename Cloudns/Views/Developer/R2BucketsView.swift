@@ -57,37 +57,43 @@ struct R2BucketsView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<4, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchBuckets() }
-                    }
-                )
-            } else if viewModel.buckets.isEmpty {
-                EmptyStateView(
-                    icon: "externaldrive.badge.icloud",
-                    title: "No R2 Buckets",
-                    message: "You haven't created any R2 storage buckets in this account yet.",
-                    actionTitle: "Create Bucket",
-                    action: { showingCreateSheet = true }
-                )
-            } else if viewModel.filteredBuckets.isEmpty {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchBuckets() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.buckets.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "externaldrive.badge.icloud",
+                        title: "No R2 Buckets",
+                        message: "You haven't created any R2 storage buckets in this account yet.",
+                        actionTitle: "Create Bucket",
+                        action: { showingCreateSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.filteredBuckets.isEmpty {
+                Section {
+                    EmptyStateView.search(query: viewModel.searchText) {
+                        viewModel.searchText = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
                         NavigationLink {
                             R2BucketDetailView(accountId: accountId, bucket: bucket)
@@ -106,9 +112,9 @@ struct R2BucketsView: View {
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

@@ -23,10 +23,10 @@ struct DeveloperHubView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if !viewModel.hasFetchedData {
-            List {
+        List {
+            if viewModel.isLoading && !viewModel.hasFetchedData {
                 Section {
-                    SkeletonCardView()
+                    accountHeaderCard
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
@@ -37,19 +37,19 @@ struct DeveloperHubView: View {
                         SkeletonRowView()
                     }
                 }
-            }
-            .listStyle(.insetGrouped)
-        } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-            EmptyStateView.error(
-                message: LocalizedStringKey(errorMessage),
-                retryAction: {
-                    Task {
-                        await viewModel.fetchOverview(isRefresh: true)
-                    }
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchOverview(isRefresh: true)
+                            }
+                        }
+                    )
                 }
-            )
-        } else {
-            List {
+                .listRowBackground(Color.clear)
+            } else {
                 // Header Account Card
                 Section {
                     accountHeaderCard
@@ -68,6 +68,30 @@ struct DeveloperHubView: View {
                             title: "Workers & Pages",
                             subtitle: "Serverless execution & static sites",
                             badgeText: "\(viewModel.workers.count + viewModel.pagesProjects.count)"
+                        )
+                    }
+                    
+                    NavigationLink {
+                        QueuesView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "tray.2.fill",
+                            iconColor: .purple,
+                            title: "Queues",
+                            subtitle: "Asynchronous message queue delivery",
+                            badgeText: "Queue"
+                        )
+                    }
+                    
+                    NavigationLink {
+                        DurableObjectsView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "cube.fill",
+                            iconColor: .cyan,
+                            title: "Durable Objects",
+                            subtitle: "Coordinated edge state namespaces",
+                            badgeText: "DO"
                         )
                     }
                 }
@@ -97,6 +121,18 @@ struct DeveloperHubView: View {
                             badgeText: "\(viewModel.kvNamespaces.count) KV"
                         )
                     }
+                    
+                    NavigationLink {
+                        HyperdriveView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "bolt.horizontal.fill",
+                            iconColor: .yellow,
+                            title: "Hyperdrive",
+                            subtitle: "Regional database connection acceleration",
+                            badgeText: "Fast"
+                        )
+                    }
                 }
                 
                 // Section: Zero Trust & Connectivity
@@ -112,6 +148,57 @@ struct DeveloperHubView: View {
                             badgeText: "\(viewModel.tunnels.count) Active",
                             isStatusBadge: true,
                             isHealthy: viewModel.activeTunnelCount > 0
+                        )
+                    }
+                    
+                    NavigationLink {
+                        AccessAppsView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "lock.shield.fill",
+                            iconColor: .blue,
+                            title: "Access Applications",
+                            subtitle: "Zero Trust identity & security policies",
+                            badgeText: "Access"
+                        )
+                    }
+                    
+                    NavigationLink {
+                        GatewayRulesView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "shield.lefthalf.filled",
+                            iconColor: .teal,
+                            title: "Gateway Rules",
+                            subtitle: "DNS, HTTP & Network firewall policies",
+                            badgeText: "Gateway"
+                        )
+                    }
+                }
+                
+                // Section: Account Rules & Bulk Redirects
+                Section(header: Text("Account Rules & Routing")) {
+                    NavigationLink {
+                        BulkRedirectListsView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "arrow.triangle.swap",
+                            iconColor: .indigo,
+                            title: "Bulk Redirects",
+                            subtitle: "High-volume URL redirects at account level",
+                            badgeText: "Redirects"
+                        )
+                    }
+                    
+                    NavigationLink {
+                        AlertingView(accountId: viewModel.selectedAccount?.id ?? "")
+                    } label: {
+                        DeveloperHubRow(
+                            icon: "bell.badge.fill",
+                            iconColor: .red,
+                            title: "Notification Alerts",
+                            subtitle: "Incident policies & webhook destinations",
+                            badgeText: "Alerts"
                         )
                     }
                 }
@@ -158,89 +245,17 @@ struct DeveloperHubView: View {
                     }
                 }
                 
-                // Section: Dev Diagnostics
-                Section(header: Text("Developer Tools")) {
+                // Section: Dev Diagnostics (Option A: Consolidated)
+                Section(header: Text("Diagnostics & Tools")) {
                     NavigationLink {
-                        CFTraceToolView()
+                        NetworkDiagnosticsListView()
                     } label: {
                         DeveloperHubRow(
-                            icon: "antenna.radiowaves.left.and.right.circle.fill",
-                            iconColor: .orange,
-                            title: "Cloudflare Trace",
-                            subtitle: "Edge PoP data center & client trace",
-                            badgeText: "Trace"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        CFIpRangesToolView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "network.badge.shield.half.filled",
-                            iconColor: .cyan,
-                            title: "Cloudflare IP Ranges",
-                            subtitle: "Official IPv4/IPv6 CIDRs & Nginx rules",
-                            badgeText: "CIDR"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        DNSDigToolView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "magnifyingglass.circle.fill",
+                            icon: "wrench.and.screwdriver.fill",
                             iconColor: .indigo,
-                            title: "DNS Dig (1.1.1.1)",
-                            subtitle: "Recursive DNS query & response timing",
-                            badgeText: "DoH"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        HTTPHeaderInspectorView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "arrow.up.right.circle.fill",
-                            iconColor: .blue,
-                            title: "HTTP & Cache Inspector",
-                            subtitle: "Inspect CF-Ray & CF-Cache-Status",
-                            badgeText: "HTTP"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        IPLookupToolView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "location.circle.fill",
-                            iconColor: .teal,
-                            title: "IP & ASN Lookup",
-                            subtitle: "Geolocation & network ASN diagnosis",
-                            badgeText: "IP"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        CertInspectToolView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "checkmark.seal.fill",
-                            iconColor: .green,
-                            title: "SSL Certificate Inspector",
-                            subtitle: "Deep certificate chain & SANs analysis",
-                            badgeText: "TLS"
-                        )
-                    }
-                    
-                    NavigationLink {
-                        WhoisToolView()
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "person.text.rectangle.fill",
-                            iconColor: .teal,
-                            title: "WHOIS & RDAP Lookup",
-                            subtitle: "Domain registration & nameserver records",
-                            badgeText: "RDAP"
+                            title: "Network & Security Diagnostics",
+                            subtitle: "Trace · DNS Dig · HTTP · SSL · WHOIS · IP",
+                            badgeText: "7 Tools"
                         )
                     }
                 }
@@ -260,8 +275,8 @@ struct DeveloperHubView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
     
     // MARK: - Account Header Card

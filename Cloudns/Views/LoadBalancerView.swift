@@ -13,26 +13,26 @@ struct LoadBalancerView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
+        List {
+            Section {
                 Picker("Section", selection: $selectedTab) {
                     Text("Load Balancers").tag(0)
                     Text("Pools").tag(1)
                     Text("Monitors").tag(2)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                
-                if viewModel.isLoading && !viewModel.hasFetchedData {
-                    List {
-                        ForEach(0..<4, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            
+            if viewModel.isLoading && !viewModel.hasFetchedData {
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
                     }
-                    .listStyle(.insetGrouped)
-                } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                }
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                Section {
                     EmptyStateView.error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: {
@@ -41,7 +41,10 @@ struct LoadBalancerView: View {
                             }
                         }
                     )
-                } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
+                }
+                .listRowBackground(Color.clear)
+            } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
+                Section {
                     EmptyStateView(
                         icon: "arrow.triangle.branch",
                         title: "No Load Balancers",
@@ -49,115 +52,313 @@ struct LoadBalancerView: View {
                         actionTitle: "Add Load Balancer",
                         action: { showingAddSheet = true }
                     )
-                } else if selectedTab == 1 && viewModel.pools.isEmpty {
+                }
+                .listRowBackground(Color.clear)
+            } else if selectedTab == 1 && viewModel.pools.isEmpty {
+                Section {
                     EmptyStateView(
                         icon: "server.rack",
                         title: "No Origin Pools",
                         message: "Group multiple origin servers together with health monitoring."
                     )
-                } else if selectedTab == 2 && viewModel.monitors.isEmpty {
+                }
+                .listRowBackground(Color.clear)
+            } else if selectedTab == 2 && viewModel.monitors.isEmpty {
+                Section {
                     EmptyStateView(
                         icon: "waveform.path.ecg",
                         title: "No Health Monitors",
                         message: "Send automated HTTP/HTTPS health checks to your origin servers."
                     )
-                } else {
-                    List {
-                        if selectedTab == 0 {
-                            ForEach(viewModel.loadBalancers) { lb in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        Text(lb.name ?? lb.id)
-                                            .font(.body)
-                                        Spacer()
-                                        if lb.enabled == true {
-                                            Text("Active")
-                                                .font(.caption)
-                                                .foregroundStyle(.green)
-                                        } else {
-                                            Text("Inactive")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    if let fallback = lb.fallbackPool {
-                                        Text("Fallback: \(fallback)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.vertical, 4)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        Task {
-                                            await viewModel.deleteLoadBalancer(id: lb.id)
-                                            ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
-                                        }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                            }
-                        } else if selectedTab == 1 {
-                            ForEach(viewModel.pools) { pool in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        Text(pool.name ?? pool.id)
-                                            .font(.body)
-                                        Spacer()
-                                        Text("\(pool.origins?.count ?? 0) Origins")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    if let desc = pool.description, !desc.isEmpty {
-                                        Text(desc)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        } else if selectedTab == 2 {
-                            ForEach(viewModel.monitors) { monitor in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(monitor.description ?? monitor.id)
+                }
+                .listRowBackground(Color.clear)
+            } else {
+                if selectedTab == 0 {
+                    Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
+                        ForEach(viewModel.loadBalancers) { lb in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(lb.name ?? lb.id)
                                         .font(.body)
-                                    HStack {
-                                        Text(monitor.method ?? "GET")
-                                        Text(monitor.path ?? "/")
+                                    Spacer()
+                                    if lb.enabled == true {
+                                        Text("Active")
+                                            .font(.caption)
+                                            .foregroundStyle(.green)
+                                    } else {
+                                        Text("Inactive")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
                                     }
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
                                 }
-                                .padding(.vertical, 4)
+                                if let fallback = lb.fallbackPool {
+                                    Text("Fallback: \(fallback)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteLoadBalancer(id: lb.id)
+                                        ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
-                    .listStyle(InsetGroupedListStyle())
+                } else if selectedTab == 1 {
+                    Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
+                        ForEach(viewModel.pools) { pool in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(pool.name ?? pool.id)
+                                        .font(.body.weight(.medium))
+                                    Spacer()
+                                    Text("\(pool.origins?.count ?? 0) Origins")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let desc = pool.description, !desc.isEmpty {
+                                    Text(desc)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let origins = pool.origins, !origins.isEmpty {
+                                    HStack(spacing: 6) {
+                                        ForEach(origins.prefix(3), id: \.idResolved) { o in
+                                            Text(o.name ?? o.address ?? "")
+                                                .font(.caption2.monospaced())
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Color(UIColor.secondarySystemFill))
+                                                .cornerRadius(4)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 4)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deletePool(poolId: pool.id)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
+                } else if selectedTab == 2 {
+                    Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
+                        ForEach(viewModel.monitors) { monitor in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(monitor.description ?? monitor.id)
+                                        .font(.body.weight(.medium))
+                                    Spacer()
+                                    Text(monitor.type?.uppercased() ?? "HTTP")
+                                        .font(.caption2.weight(.bold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.blue.opacity(0.12))
+                                        .foregroundStyle(.blue)
+                                        .cornerRadius(4)
+                                }
+                                HStack {
+                                    Text(monitor.method ?? "GET")
+                                        .font(.caption.weight(.semibold))
+                                    Text(monitor.path ?? "/")
+                                        .font(.caption.monospaced())
+                                    Spacer()
+                                    if let codes = monitor.expectedCodes {
+                                        Text("Expect: \(codes)")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteMonitor(monitorId: monitor.id)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
-        .task {
+        .refreshable {
             await viewModel.fetchData()
         }
-        .navigationBarItems(trailing: Button(action: {
-            showingAddSheet = true
-        }) {
-            Image(systemName: "plus")
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchData()
+            }
         }
-        .accessibilityLabel("添加负载均衡"))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showingAddSheet = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("添加负载均衡项目")
+            }
+        }
         .sheet(isPresented: $showingAddSheet) {
-            AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
+            if selectedTab == 0 {
+                AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
+            } else if selectedTab == 1 {
+                AddLBPoolSheetView(viewModel: viewModel)
+            } else {
+                AddLBMonitorSheetView(viewModel: viewModel)
+            }
         }
-        .alert("Error", isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        ), actions: {
-            Button("OK", role: .cancel) { }
-        }, message: {
-            Text(viewModel.errorMessage ?? "Unknown error")
-        })
+        .toastContainer()
+    }
+}
+
+struct AddLBPoolSheetView: View {
+    @ObservedObject var viewModel: LoadBalancerViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var poolName = ""
+    @State private var description = ""
+    @State private var originName = "origin-1"
+    @State private var originAddress = "1.2.3.4"
+    @State private var originWeight = 1.0
+    @State private var isSaving = false
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Pool Details")) {
+                    TextField("Pool Name (e.g. primary-cluster)", text: $poolName)
+                    TextField("Description (Optional)", text: $description)
+                }
+                
+                Section(header: Text("Initial Origin Server")) {
+                    TextField("Origin Name (e.g. srv-01)", text: $originName)
+                    TextField("IP or Hostname (e.g. 192.0.2.1)", text: $originAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+            }
+            .navigationTitle("New Origin Pool")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let origin = LBOrigin(id: nil, name: originName, address: originAddress, enabled: true, weight: originWeight)
+                            let update = LBPoolUpdate(
+                                name: poolName,
+                                description: description.isEmpty ? nil : description,
+                                enabled: true,
+                                minimumOrigins: 1,
+                                monitor: nil,
+                                origins: [origin]
+                            )
+                            let success = await viewModel.createPool(payload: update)
+                            if success { dismiss() }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(poolName.isEmpty || originAddress.isEmpty || isSaving)
+                }
+            }
+            .toastContainer()
+        }
+    }
+}
+
+struct AddLBMonitorSheetView: View {
+    @ObservedObject var viewModel: LoadBalancerViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var monitorType = "http"
+    @State private var path = "/healthz"
+    @State private var expectedCodes = "200"
+    @State private var interval = 60
+    @State private var timeout = 5
+    @State private var retries = 2
+    @State private var isSaving = false
+    
+    let monitorTypes = ["http", "https", "tcp", "udp_icmp", "icmp_ping"]
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Monitor Type")) {
+                    Picker("Type", selection: $monitorType) {
+                        ForEach(monitorTypes, id: \.self) { t in
+                            Text(t.uppercased()).tag(t)
+                        }
+                    }
+                }
+                
+                Section(header: Text("Health Check Request")) {
+                    TextField("Path (e.g. /healthz)", text: $path)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    TextField("Expected Status Code (e.g. 200 or 2xx)", text: $expectedCodes)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                
+                Section(header: Text("Check Timing")) {
+                    Stepper("Interval: \(interval)s", value: $interval, in: 10...300, step: 10)
+                    Stepper("Timeout: \(timeout)s", value: $timeout, in: 1...30)
+                    Stepper("Retries: \(retries)", value: $retries, in: 1...5)
+                }
+            }
+            .navigationTitle("New Health Monitor")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let update = LBMonitorUpdate(
+                                type: monitorType,
+                                description: "\(monitorType.uppercased()) on \(path)",
+                                method: "GET",
+                                path: path,
+                                port: nil,
+                                retries: retries,
+                                timeout: timeout,
+                                interval: interval,
+                                expectedCodes: expectedCodes
+                            )
+                            let success = await viewModel.createMonitor(payload: update)
+                            if success { dismiss() }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(path.isEmpty || isSaving)
+                }
+            }
+            .toastContainer()
+        }
     }
 }

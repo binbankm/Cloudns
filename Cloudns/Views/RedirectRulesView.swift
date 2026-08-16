@@ -50,30 +50,35 @@ struct RedirectRulesView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if viewModel.isLoading && !viewModel.hasFetchedData {
-            List {
-                ForEach(0..<6, id: \.self) { _ in
-                    SkeletonRowView()
-                }
-            }
-            .listStyle(.insetGrouped)
-        } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-            EmptyStateView.error(
-                message: LocalizedStringKey(errorMessage),
-                retryAction: {
-                    Task {
-                        await viewModel.fetchRules(zoneId: zoneId)
+        List {
+            if viewModel.isLoading && !viewModel.hasFetchedData {
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
                     }
                 }
-            )
-        } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-            EmptyStateView(
-                icon: "arrow.triangle.swap",
-                title: "No Redirect Rules",
-                message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge."
-            )
-        } else {
-            List {
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchRules(zoneId: zoneId)
+                            }
+                        }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
+                Section {
+                    EmptyStateView(
+                        icon: "arrow.triangle.swap",
+                        title: "No Redirect Rules",
+                        message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge."
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else {
                 Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         VStack(alignment: .leading, spacing: 8) {
@@ -113,8 +118,8 @@ struct RedirectRulesView: View {
                                 }
                             }
                             
-                            if let exp = rule.expression {
-                                Text(exp)
+                            if let expr = rule.expression {
+                                Text(expr)
                                     .font(.caption2.monospaced())
                                     .foregroundStyle(.secondary)
                                     .lineLimit(2)
@@ -134,8 +139,8 @@ struct RedirectRulesView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
 }
 
@@ -207,7 +212,8 @@ struct AddRedirectRuleSheetView: View {
                                 description: ruleDescription,
                                 expression: expression,
                                 targetUrl: targetUrl,
-                                statusCode: statusCode
+                                statusCode: statusCode,
+                                preserveQueryString: preserveQueryString
                             )
                             if success {
                                 dismiss()

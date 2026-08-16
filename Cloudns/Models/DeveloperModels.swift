@@ -299,17 +299,55 @@ public struct PagesEnvConfig: Codable, Equatable {
     public let envVars: [String: PagesEnvVarValue]?
     public let compatibilityDate: String?
     public let compatibilityFlags: [String]?
+    public let d1Databases: [String: PagesD1Binding]?
+    public let kvNamespaces: [String: PagesKVBinding]?
+    public let r2Buckets: [String: PagesR2Binding]?
+    public let aiBindings: [String: PagesAIBinding]?
+    public let queueProducers: [String: PagesQueueBinding]?
     
     enum CodingKeys: String, CodingKey {
         case envVars = "env_vars"
         case compatibilityDate = "compatibility_date"
         case compatibilityFlags = "compatibility_flags"
+        case d1Databases = "d1_databases"
+        case kvNamespaces = "kv_namespaces"
+        case r2Buckets = "r2_buckets"
+        case aiBindings = "ai_bindings"
+        case queueProducers = "queue_producers"
     }
 }
 
 public struct PagesEnvVarValue: Codable, Equatable {
-    public let value: String
+    public let value: String?
     public let type: String?
+    
+    public var isSecret: Bool { type == "secret_text" }
+}
+
+public struct PagesD1Binding: Codable, Equatable {
+    public let id: String?
+}
+
+public struct PagesKVBinding: Codable, Equatable {
+    public let namespaceId: String?
+    enum CodingKeys: String, CodingKey {
+        case namespaceId = "namespace_id"
+    }
+}
+
+public struct PagesR2Binding: Codable, Equatable {
+    public let name: String?
+}
+
+public struct PagesAIBinding: Codable, Equatable {
+    public let projectId: String?
+    enum CodingKeys: String, CodingKey {
+        case projectId = "project_id"
+    }
+}
+
+public struct PagesQueueBinding: Codable, Equatable {
+    public let name: String?
 }
 
 public struct PagesBuildConfig: Codable, Equatable {
@@ -504,6 +542,72 @@ public struct D1QueryResult: Equatable {
     public let rawJson: String?
 }
 
+// MARK: - R2 Advanced Settings Models
+
+public struct R2ManagedDomain: Codable, Equatable {
+    public let domain: String?
+    public let enabled: Bool?
+}
+
+public struct R2CustomDomain: Codable, Identifiable, Equatable {
+    public var id: String { domain }
+    public let domain: String
+    public let status: String?
+    public let zoneId: String?
+    public let enabled: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case domain, status, enabled
+        case zoneId = "zone_id"
+    }
+}
+
+public struct R2CORSRule: Codable, Identifiable, Equatable {
+    public var id: String { "\(allowedOrigins.joined(separator: ","))-\(allowedMethods.joined(separator: ","))" }
+    public var allowedOrigins: [String]
+    public var allowedMethods: [String]
+    public var allowedHeaders: [String]?
+    public var exposeHeaders: [String]?
+    public var maxAgeSeconds: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case allowedOrigins = "allowed"
+        case allowedMethods = "methods"
+        case allowedHeaders = "headers"
+        case exposeHeaders = "exposeHeaders"
+        case maxAgeSeconds = "maxAgeSeconds"
+    }
+    
+    public init(allowedOrigins: [String], allowedMethods: [String], allowedHeaders: [String]? = nil, exposeHeaders: [String]? = nil, maxAgeSeconds: Int? = 3600) {
+        self.allowedOrigins = allowedOrigins
+        self.allowedMethods = allowedMethods
+        self.allowedHeaders = allowedHeaders
+        self.exposeHeaders = exposeHeaders
+        self.maxAgeSeconds = maxAgeSeconds
+    }
+}
+
+// MARK: - Worker Zone Route Model
+
+public struct WorkerZoneRoute: Codable, Identifiable, Equatable {
+    public let id: String
+    public let pattern: String
+    public let script: String?
+    public let requestLimitFailOpen: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, pattern, script
+        case requestLimitFailOpen = "request_limit_fail_open"
+    }
+    
+    public init(id: String, pattern: String, script: String?, requestLimitFailOpen: Bool? = nil) {
+        self.id = id
+        self.pattern = pattern
+        self.script = script
+        self.requestLimitFailOpen = requestLimitFailOpen
+    }
+}
+
 // MARK: - Cloudflare Tunnel (Zero Trust) Models
 
 public struct CFTunnel: Codable, Identifiable, Equatable {
@@ -670,13 +774,40 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable {
     public let name: String
     public let mode: String?
     public let domains: [String]?
+    public let secret: String?
     public let createdOn: String?
     public let modifiedOn: String?
     
     enum CodingKeys: String, CodingKey {
-        case sitekey, name, mode, domains
+        case sitekey, name, mode, domains, secret
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
+    }
+}
+
+public struct TurnstileCreateInput: Codable {
+    public let name: String
+    public let domains: [String]
+    public let mode: String
+    public let region: String?
+    
+    public init(name: String, domains: [String], mode: String = "managed", region: String? = "world") {
+        self.name = name
+        self.domains = domains
+        self.mode = mode
+        self.region = region
+    }
+}
+
+public struct TurnstileUpdateInput: Codable {
+    public let name: String
+    public let domains: [String]
+    public let mode: String
+    
+    public init(name: String, domains: [String], mode: String) {
+        self.name = name
+        self.domains = domains
+        self.mode = mode
     }
 }
 
@@ -703,8 +834,19 @@ public struct AIModel: Codable, Identifiable, Equatable {
     public let description: String?
     public let task: AIModelTask?
     
+    public var modelPath: String {
+        if let name = name, !name.isEmpty, name.contains("/") {
+            return name
+        }
+        if id.contains("/") {
+            return id
+        }
+        return name ?? id
+    }
+    
     public var shortName: String {
-        name ?? id.split(separator: "/").last.map(String.init) ?? id
+        let raw = modelPath
+        return raw.split(separator: "/").last.map(String.init) ?? raw
     }
     
     public var taskName: String {
@@ -741,12 +883,77 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable {
     public let expression: String?
     public let targetUrl: String?
     public let statusCode: Int?
+    public let preserveQueryString: Bool?
     public let enabled: Bool?
     
     enum CodingKeys: String, CodingKey {
         case id, description, expression, enabled
+        case actionParameters = "action_parameters"
         case targetUrl = "target_url"
         case statusCode = "status_code"
+    }
+    
+    private struct ActionParams: Codable {
+        let fromValue: FromValue?
+        enum CodingKeys: String, CodingKey {
+            case fromValue = "from_value"
+        }
+    }
+    
+    private struct FromValue: Codable {
+        let statusCode: Int?
+        let targetUrl: TargetUrlObj?
+        let preserveQueryString: Bool?
+        
+        enum CodingKeys: String, CodingKey {
+            case statusCode = "status_code"
+            case targetUrl = "target_url"
+            case preserveQueryString = "preserve_query_string"
+        }
+    }
+    
+    private struct TargetUrlObj: Codable {
+        let value: String?
+        let expression: String?
+    }
+    
+    public init(id: String, description: String?, expression: String?, targetUrl: String?, statusCode: Int?, preserveQueryString: Bool? = nil, enabled: Bool? = true) {
+        self.id = id
+        self.description = description
+        self.expression = expression
+        self.targetUrl = targetUrl
+        self.statusCode = statusCode
+        self.preserveQueryString = preserveQueryString
+        self.enabled = enabled
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.description = try container.decodeIfPresent(String.self, forKey: .description)
+        self.expression = try container.decodeIfPresent(String.self, forKey: .expression)
+        self.enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled)
+        
+        if let params = try container.decodeIfPresent(ActionParams.self, forKey: .actionParameters),
+           let fromVal = params.fromValue {
+            self.statusCode = fromVal.statusCode
+            self.targetUrl = fromVal.targetUrl?.value ?? fromVal.targetUrl?.expression
+            self.preserveQueryString = fromVal.preserveQueryString
+        } else {
+            self.targetUrl = try container.decodeIfPresent(String.self, forKey: .targetUrl)
+            self.statusCode = try container.decodeIfPresent(Int.self, forKey: .statusCode)
+            self.preserveQueryString = nil
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(description, forKey: .description)
+        try container.encodeIfPresent(expression, forKey: .expression)
+        try container.encodeIfPresent(enabled, forKey: .enabled)
+        try container.encodeIfPresent(targetUrl, forKey: .targetUrl)
+        try container.encodeIfPresent(statusCode, forKey: .statusCode)
     }
 }
 
@@ -760,6 +967,371 @@ public struct SnippetItem: Codable, Identifiable, Equatable {
         case snippet_name
         case modifiedOn = "modified_on"
         case createdOn = "created_on"
+    }
+}
+
+// MARK: - Cloudflare Queues Models
+
+public struct CFQueue: Codable, Identifiable, Equatable {
+    public var id: String { queueId ?? queueName }
+    public let queueId: String?
+    public let queueName: String
+    public let createdOn: String?
+    public let modifiedOn: String?
+    public let settings: CFQueueSettings?
+    public let producers: [CFQueueProducer]?
+    public let consumers: [CFQueueConsumer]?
+    
+    enum CodingKeys: String, CodingKey {
+        case queueId = "queue_id"
+        case queueName = "queue_name"
+        case createdOn = "created_on"
+        case modifiedOn = "modified_on"
+        case settings, producers, consumers
+    }
+}
+
+public struct CFQueueSettings: Codable, Equatable {
+    public let deliveryDelay: Int?
+    public let messageRetentionPeriod: Int?
+    public let deliveryPaused: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case deliveryDelay = "delivery_delay"
+        case messageRetentionPeriod = "message_retention_period"
+        case deliveryPaused = "delivery_paused"
+    }
+}
+
+public struct CFQueueProducer: Codable, Equatable, Identifiable {
+    public var id: String { script ?? "\(service ?? "")-\(environment ?? "")" }
+    public let service: String?
+    public let environment: String?
+    public let script: String?
+}
+
+public struct CFQueueConsumer: Codable, Equatable, Identifiable {
+    public var id: String { scriptName ?? "\(service ?? "")-\(environment ?? "")" }
+    public let service: String?
+    public let environment: String?
+    public let scriptName: String?
+    public let settings: CFQueueConsumerSettings?
+    
+    enum CodingKeys: String, CodingKey {
+        case service, environment
+        case scriptName = "script_name"
+        case settings
+    }
+}
+
+public struct CFQueueConsumerSettings: Codable, Equatable {
+    public let batchSize: Int?
+    public let maxBatchTimeout: Int?
+    public let maxRetries: Int?
+    public let maxWaitTimeMs: Int?
+    public let retryDelay: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case batchSize = "batch_size"
+        case maxBatchTimeout = "max_batch_timeout"
+        case maxRetries = "max_retries"
+        case maxWaitTimeMs = "max_wait_time_ms"
+        case retryDelay = "retry_delay"
+    }
+}
+
+public struct CFQueueCreate: Codable {
+    public let queueName: String
+    enum CodingKeys: String, CodingKey {
+        case queueName = "queue_name"
+    }
+    public init(queueName: String) { self.queueName = queueName }
+}
+
+public struct CFQueueUpdate: Codable {
+    public let queueName: String?
+    public let deliveryDelay: Int?
+    public let messageRetentionPeriod: Int?
+    public let deliveryPaused: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case queueName = "queue_name"
+        case deliveryDelay = "delivery_delay"
+        case messageRetentionPeriod = "message_retention_period"
+        case deliveryPaused = "delivery_paused"
+    }
+    public init(queueName: String? = nil, deliveryDelay: Int? = nil, messageRetentionPeriod: Int? = nil, deliveryPaused: Bool? = nil) {
+        self.queueName = queueName
+        self.deliveryDelay = deliveryDelay
+        self.messageRetentionPeriod = messageRetentionPeriod
+        self.deliveryPaused = deliveryPaused
+    }
+}
+
+public struct CFQueuePurge: Codable {
+    public let deleteMessagesPermanently: Bool
+    enum CodingKeys: String, CodingKey {
+        case deleteMessagesPermanently = "delete_messages_permanently"
+    }
+    public init(deleteMessagesPermanently: Bool = true) {
+        self.deleteMessagesPermanently = deleteMessagesPermanently
+    }
+}
+
+// MARK: - Durable Objects Models
+
+public struct DurableObjectNamespace: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let script: String?
+    public let `class`: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, script, `class`
+    }
+}
+
+public struct DurableObjectInstance: Codable, Identifiable, Equatable {
+    public let id: String
+    public let hasStoredData: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case hasStoredData = "hasStoredData"
+    }
+}
+
+// MARK: - Hyperdrive Models
+
+public struct HyperdriveConfig: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let origin: HyperdriveOrigin?
+    public let caching: HyperdriveCaching?
+    public let createdOn: String?
+    public let modifiedOn: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, origin, caching
+        case createdOn = "created_on"
+        case modifiedOn = "modified_on"
+    }
+}
+
+public struct HyperdriveOrigin: Codable, Equatable {
+    public let host: String?
+    public let port: Int?
+    public let database: String?
+    public let user: String?
+    public let scheme: String?
+}
+
+public struct HyperdriveCaching: Codable, Equatable {
+    public let disabled: Bool?
+    public let maxAge: Int?
+    public let staleWhileRevalidate: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case disabled
+        case maxAge = "max_age"
+        case staleWhileRevalidate = "stale_while_revalidate"
+    }
+}
+
+public struct HyperdriveCreate: Codable {
+    public let name: String
+    public let origin: HyperdriveOriginInput
+    public let caching: HyperdriveCaching?
+    
+    public init(name: String, origin: HyperdriveOriginInput, caching: HyperdriveCaching? = nil) {
+        self.name = name
+        self.origin = origin
+        self.caching = caching
+    }
+}
+
+public struct HyperdriveOriginInput: Codable {
+    public let host: String
+    public let port: Int
+    public let database: String
+    public let user: String
+    public let password: String
+    public let scheme: String
+    
+    public init(host: String, port: Int, database: String, user: String, password: String, scheme: String = "postgres") {
+        self.host = host
+        self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
+        self.scheme = scheme
+    }
+}
+
+public struct HyperdrivePatch: Codable {
+    public let name: String?
+    public let origin: HyperdriveOriginInput?
+    public let caching: HyperdriveCaching?
+    
+    public init(name: String? = nil, origin: HyperdriveOriginInput? = nil, caching: HyperdriveCaching? = nil) {
+        self.name = name
+        self.origin = origin
+        self.caching = caching
+    }
+}
+
+// MARK: - Zero Trust Models
+
+public struct AccessApp: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let domain: String
+    public let type: String?
+    public let aud: String?
+    public let createdAt: String?
+    public let updatedAt: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, domain, type, aud
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+public struct AccessPolicy: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let decision: String
+    public let precedence: Int?
+    public let createdAt: String?
+    public let updatedAt: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, decision, precedence
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+public struct GatewayRule: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let action: String
+    public let enabled: Bool
+    public let filters: [String]?
+    public let traffic: String?
+    public let identity: String?
+    public let precedence: Int?
+    public let createdAt: String?
+    public let updatedAt: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, action, enabled, filters, traffic, identity, precedence
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Bulk Redirects Models
+
+public struct RedirectList: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let description: String?
+    public let kind: String
+    public let count: Int?
+    public let createdOn: String?
+    public let modifiedOn: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, description, kind, count
+        case createdOn = "created_on"
+        case modifiedOn = "modified_on"
+    }
+}
+
+public struct RedirectListItem: Codable, Identifiable, Equatable {
+    public let id: String
+    public let redirect: RedirectItemDetail
+    public let createdOn: String?
+    public let modifiedOn: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, redirect
+        case createdOn = "created_on"
+        case modifiedOn = "modified_on"
+    }
+}
+
+public struct RedirectItemDetail: Codable, Equatable {
+    public let sourceUrl: String
+    public let targetUrl: String
+    public let statusCode: Int?
+    public let preserveQueryString: Bool?
+    public let includeSubdomains: Bool?
+    public let subpathMatching: Bool?
+    public let preservePathSuffix: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case sourceUrl = "source_url"
+        case targetUrl = "target_url"
+        case statusCode = "status_code"
+        case preserveQueryString = "preserve_query_string"
+        case includeSubdomains = "include_subdomains"
+        case subpathMatching = "subpath_matching"
+        case preservePathSuffix = "preserve_path_suffix"
+    }
+}
+
+public struct BulkOperationRef: Codable {
+    public let operationId: String
+    enum CodingKeys: String, CodingKey {
+        case operationId = "operation_id"
+    }
+}
+
+public struct BulkOperation: Codable {
+    public let id: String
+    public let status: String
+    public let error: String?
+    public let completed: String?
+}
+
+// MARK: - Cloudflare Alerting Models
+
+public struct AlertingAvailableType: Codable, Identifiable, Equatable {
+    public var id: String { type }
+    public let type: String
+    public let displayName: String?
+    public let description: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case type
+        case displayName = "display_name"
+        case description
+    }
+}
+
+public struct AlertingWebhookDestination: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let url: String?
+    public let type: String?
+}
+
+public struct AlertingPolicy: Codable, Identifiable, Equatable {
+    public let id: String
+    public let name: String
+    public let description: String?
+    public let enabled: Bool
+    public let alertType: String?
+    public let created: String?
+    public let modified: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, description, enabled
+        case alertType = "alert_type"
+        case created, modified
     }
 }
 

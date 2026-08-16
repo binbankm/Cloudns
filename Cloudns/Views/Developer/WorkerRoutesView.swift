@@ -64,20 +64,22 @@ struct WorkerRoutesView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if isLoading && !hasFetchedData {
-            List {
-                ForEach(0..<4, id: \.self) { _ in
-                    SkeletonRowView()
+        List {
+            if isLoading && !hasFetchedData {
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
+                    }
                 }
-            }
-            .listStyle(.insetGrouped)
-        } else if let err = errorMessage, !hasFetchedData {
-            EmptyStateView.error(
-                message: LocalizedStringKey(err),
-                retryAction: { Task { await fetchDomains() } }
-            )
-        } else {
-            List {
+            } else if let err = errorMessage, !hasFetchedData {
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(err),
+                        retryAction: { Task { await fetchDomains() } }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else {
                 // Section: Custom Domains
                 Section(header: Text("Custom Domains (\(customDomains.count))"), footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")) {
                     if customDomains.isEmpty {
@@ -140,8 +142,8 @@ struct WorkerRoutesView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
     
     private func fetchDomains() async {

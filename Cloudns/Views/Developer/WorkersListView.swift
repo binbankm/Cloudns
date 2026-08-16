@@ -43,7 +43,7 @@ struct WorkersListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("添加 Worker 或 Pages")
+                .accessibilityLabel("Create Worker or Project")
             }
         }
         .sheet(isPresented: $showingCreateWorkerSheet) {
@@ -94,38 +94,44 @@ struct WorkersListView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchData() }
-                    }
-                )
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchData() }
+                        }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.selectedSegment == 0 {
                 if viewModel.workers.isEmpty {
-                    EmptyStateView(
-                        icon: "bolt.badge.clock",
-                        title: "No Workers Found",
-                        message: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
-                        actionTitle: "Create Worker",
-                        action: { showingCreateWorkerSheet = true }
-                    )
-                } else if viewModel.filteredWorkers.isEmpty {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
+                    Section {
+                        EmptyStateView(
+                            icon: "bolt.badge.clock",
+                            title: "No Workers Found",
+                            message: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
+                            actionTitle: "Create Worker",
+                            action: { showingCreateWorkerSheet = true }
+                        )
                     }
+                    .listRowBackground(Color.clear)
+                } else if viewModel.filteredWorkers.isEmpty {
+                    Section {
+                        EmptyStateView.search(query: viewModel.searchText) {
+                            viewModel.searchText = ""
+                        }
+                    }
+                    .listRowBackground(Color.clear)
                 } else {
-                    List {
+                    Section {
                         ForEach(viewModel.filteredWorkers) { worker in
                             NavigationLink {
                                 WorkerDetailView(accountId: accountId, worker: worker)
@@ -144,23 +150,28 @@ struct WorkersListView: View {
                             }
                         }
                     }
-                    .listStyle(.insetGrouped)
                 }
             } else {
                 if viewModel.pages.isEmpty {
-                    EmptyStateView(
-                        icon: "doc.text.image",
-                        title: "No Pages Projects",
-                        message: "You haven't created any Cloudflare Pages projects in this account yet.",
-                        actionTitle: "Create Project",
-                        action: { showingCreatePagesSheet = true }
-                    )
-                } else if viewModel.filteredPages.isEmpty {
-                    EmptyStateView.search(query: viewModel.searchText) {
-                        viewModel.searchText = ""
+                    Section {
+                        EmptyStateView(
+                            icon: "doc.richtext",
+                            title: "No Pages Projects Found",
+                            message: "You haven't connected or deployed any Cloudflare Pages projects yet.",
+                            actionTitle: "Create Pages Project",
+                            action: { showingCreatePagesSheet = true }
+                        )
                     }
+                    .listRowBackground(Color.clear)
+                } else if viewModel.filteredPages.isEmpty {
+                    Section {
+                        EmptyStateView.search(query: viewModel.searchText) {
+                            viewModel.searchText = ""
+                        }
+                    }
+                    .listRowBackground(Color.clear)
                 } else {
-                    List {
+                    Section {
                         ForEach(viewModel.filteredPages) { page in
                             NavigationLink {
                                 PagesProjectDetailView(accountId: accountId, project: page)
@@ -215,10 +226,10 @@ struct WorkersListView: View {
                             }
                         }
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

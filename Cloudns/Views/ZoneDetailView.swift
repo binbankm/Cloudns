@@ -151,7 +151,7 @@ struct ZoneDetailView: View {
                     subtitle: "Forward addresses to your inbox",
                     icon: "envelope.fill",
                     color: .indigo,
-                    destination: EmailRoutingView(zoneId: zone.id)
+                    destination: EmailRoutingView(zoneId: zone.id, zoneName: zone.name)
                 )
             }
 

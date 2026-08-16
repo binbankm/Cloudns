@@ -120,26 +120,28 @@ struct CloudflareStatusView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if viewModel.isLoading && !viewModel.hasFetchedData {
-            List {
+        List {
+            if viewModel.isLoading && !viewModel.hasFetchedData {
                 Section {
                     SkeletonCardView()
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
                 
-                ForEach(0..<4, id: \.self) { _ in
-                    SkeletonRowView()
+                ForEach(0..<6, id: \.self) { _ in
+                    Section {
+                        SkeletonRowView()
+                    }
                 }
-            }
-            .listStyle(.insetGrouped)
-        } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-            EmptyStateView.error(
-                message: LocalizedStringKey(err),
-                retryAction: { Task { await viewModel.fetchStatus() } }
-            )
-        } else if let summary = viewModel.summary {
-            List {
+            } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(err),
+                        retryAction: { Task { await viewModel.fetchStatus() } }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if let summary = viewModel.summary {
                 // Section: Overall Status Banner Card
                 Section {
                     overallBanner(summary: summary)
@@ -201,8 +203,8 @@ struct CloudflareStatusView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
     
     private func overallBanner(summary: CFStatusSummary) -> some View {

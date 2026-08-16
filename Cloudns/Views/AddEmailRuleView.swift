@@ -2,11 +2,17 @@ import SwiftUI
 
 struct AddEmailRuleView: View {
     @ObservedObject var viewModel: EmailRoutingViewModel
+    let zoneName: String
     @Environment(\.presentationMode) var presentationMode
     
     @State private var customAddress = ""
     @State private var destinationAddress = ""
     @State private var isSubmitting = false
+    
+    init(viewModel: EmailRoutingViewModel, zoneName: String = "") {
+        self.viewModel = viewModel
+        self.zoneName = zoneName
+    }
     
     var body: some View {
         NavigationStack {
@@ -16,7 +22,7 @@ struct AddEmailRuleView: View {
                         TextField("e.g. info", text: $customAddress)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                        Text("@yourdomain.com")
+                        Text(zoneName.isEmpty ? "@yourdomain.com" : "@\(zoneName)")
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -49,7 +55,7 @@ struct AddEmailRuleView: View {
                             await submitRule()
                         }
                     }
-                    .disabled(customAddress.isEmpty || destinationAddress.isEmpty || isSubmitting)
+                    .disabled(customAddress.trimmingCharacters(in: .whitespaces).isEmpty || destinationAddress.isEmpty || isSubmitting)
                 }
             }
             .onAppear {
@@ -75,11 +81,18 @@ struct AddEmailRuleView: View {
     private func submitRule() async {
         isSubmitting = true
         
-        let fullCustomAddress = customAddress.contains("@") ? customAddress : "\(customAddress)@example.com" // Needs actual domain name, but for API it's exact string
-        // Note: we should really append the actual zone name instead of example.com, but for UI mock it's okay for now.
+        let trimmedCustom = customAddress.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let fullCustomAddress: String
+        if trimmedCustom.contains("@") {
+            fullCustomAddress = trimmedCustom
+        } else if !zoneName.isEmpty {
+            fullCustomAddress = "\(trimmedCustom)@\(zoneName)"
+        } else {
+            fullCustomAddress = trimmedCustom
+        }
         
         await viewModel.createForwardRule(
-            name: "Forward \(customAddress)",
+            name: "Forward \(trimmedCustom)",
             customAddress: fullCustomAddress,
             destinationAddress: destinationAddress
         )

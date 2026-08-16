@@ -5,137 +5,133 @@ struct CFTraceToolView: View {
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            List {
-                // Section: Host Input
-                Section(header: Text("Trace Host")) {
+        List {
+            // Section: Host Input
+            Section(header: Text("Trace Host")) {
+                HStack {
+                    Image(systemName: "network")
+                        .foregroundStyle(.orange)
+                    
+                    TextField("www.cloudflare.com", text: $viewModel.host)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isFieldFocused)
+                        .submitLabel(.search)
+                        .onSubmit {
+                            Task { await viewModel.queryTrace() }
+                        }
+                }
+                
+                Button {
+                    isFieldFocused = false
+                    Task { await viewModel.queryTrace() }
+                } label: {
                     HStack {
-                        Image(systemName: "network")
+                        Spacer()
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .padding(.trailing, 4)
+                        } else {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                        }
+                        Text("Trace PoP & Network")
+                            .font(.body)
                             .foregroundStyle(.orange)
-                        
-                        TextField("www.cloudflare.com", text: $viewModel.host)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .focused($isFieldFocused)
-                            .submitLabel(.search)
-                            .onSubmit {
-                                Task { await viewModel.queryTrace() }
-                            }
+                        Spacer()
+                    }
+                }
+                .disabled(viewModel.host.isEmpty || viewModel.isLoading)
+            }
+            
+            // Section: PoP & Summary
+            if let colo = viewModel.coloCode {
+                Section(header: Text("Connection Summary")) {
+                    HStack {
+                        Text("Edge PoP Data Center")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        if let city = popCityName(for: colo) {
+                            Text(city)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
+                        }
+                        Text(colo)
+                            .font(.body.monospacedDigit().weight(.semibold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.orange.opacity(0.15))
+                            .foregroundStyle(.orange)
+                            .cornerRadius(6)
                     }
                     
-                    Button {
-                        isFieldFocused = false
-                        Task { await viewModel.queryTrace() }
-                    } label: {
+                    if let ip = viewModel.clientIp {
                         HStack {
-                            Spacer()
-                            if viewModel.isLoading {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            } else {
-                                Image(systemName: "antenna.radiowaves.left.and.right")
-                            }
-                            Text("Trace PoP & Network")
-                                .font(.body)
-                                .foregroundStyle(.orange)
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.host.isEmpty || viewModel.isLoading)
-                }
-                
-                // Section: PoP & Summary
-                if let colo = viewModel.coloCode {
-                    Section(header: Text("Connection Summary")) {
-                        HStack {
-                            Text("Edge PoP Data Center")
+                            Text("Client IP")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(colo)
+                            Text(ip)
                                 .font(.body.monospacedDigit())
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.orange.opacity(0.15))
-                                .foregroundStyle(.orange)
-                                .cornerRadius(6)
-                        }
-                        
-                        if let ip = viewModel.clientIp {
-                            HStack {
-                                Text("Client IP")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(ip)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundStyle(.primary)
-                            }
-                        }
-                        
-                        if let loc = viewModel.locCountry {
-                            HStack {
-                                Text("Country / Region")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(loc)
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-                            }
-                        }
-                        
-                        if let warp = viewModel.warpStatus {
-                            HStack {
-                                Text("Cloudflare WARP")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(warp.uppercased())
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(warp == "on" || warp == "plus" ? .green : .secondary)
-                            }
+                                .foregroundStyle(.primary)
                         }
                     }
-                }
-                
-                // Section: All Trace Fields
-                if !viewModel.traceFields.isEmpty {
-                    Section(header: HStack {
-                        Text("All Trace Fields (\(viewModel.traceFields.count))")
-                        Spacer()
-                        Button {
-                            let text = viewModel.traceFields.map { "\($0.key)=\($0.value)" }.joined(separator: "\n")
-                            UIPasteboard.general.string = text
-                            ToastManager.shared.showCopied("Trace copied")
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                        }
-                    }) {
-                        ForEach(viewModel.traceFields) { item in
-                            HStack {
-                                Text(item.key)
-                                    .font(.body)
-                                    .foregroundStyle(.secondary)
-                                
-                                Spacer()
-                                
-                                Text(item.value)
-                                    .font(.body.monospacedDigit())
-                                    .foregroundStyle(.primary)
-                            }
-                            .padding(.vertical, 2)
+                    
+                    if let loc = viewModel.locCountry {
+                        HStack {
+                            Text("Country / Region")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(loc)
+                                .font(.body)
+                                .foregroundStyle(.primary)
                         }
                     }
-                } else if let err = viewModel.errorMessage {
-                    Section {
-                        Text(err)
-                            .font(.subheadline)
-                            .foregroundStyle(.red)
+                    
+                    if let warp = viewModel.warpStatus {
+                        HStack {
+                            Text("Cloudflare WARP")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(warp.uppercased())
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(warp == "on" || warp == "plus" ? .green : .secondary)
+                        }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            
+            // Section: All Trace Fields
+            if !viewModel.traceFields.isEmpty {
+                Section(header: HStack {
+                    Text("All Trace Fields (\(viewModel.traceFields.count))")
+                    Spacer()
+                    Button {
+                        let text = viewModel.traceFields.map { "\($0.key)=\($0.value)" }.joined(separator: "\n")
+                        UIPasteboard.general.string = text
+                        ToastManager.shared.showCopied("Trace copied")
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.caption)
+                    }
+                }) {
+                    ForEach(viewModel.traceFields) { field in
+                        HStack {
+                            Text(field.key)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            Text(field.value)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.primary)
+                                .textSelection(.enabled)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Cloudflare Trace")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -143,5 +139,18 @@ struct CFTraceToolView: View {
                 await viewModel.queryTrace()
             }
         }
+    }
+    
+    private func popCityName(for colo: String) -> String? {
+        let cities: [String: String] = [
+            "HKG": "Hong Kong", "SIN": "Singapore", "NRT": "Tokyo Narita", "HND": "Tokyo Haneda",
+            "KIX": "Osaka", "TPE": "Taipei", "ICN": "Seoul", "SFO": "San Francisco",
+            "LAX": "Los Angeles", "SJC": "San Jose", "SEA": "Seattle", "ORD": "Chicago",
+            "DFW": "Dallas", "IAD": "Washington D.C.", "EWR": "Newark", "JFK": "New York",
+            "LHR": "London", "FRA": "Frankfurt", "CDG": "Paris", "AMS": "Amsterdam",
+            "SYD": "Sydney", "MEL": "Melbourne", "BNE": "Brisbane", "AKL": "Auckland",
+            "YYZ": "Toronto", "YVR": "Vancouver", "DXB": "Dubai", "BOM": "Mumbai", "DEL": "New Delhi"
+        ]
+        return cities[colo.uppercased()]
     }
 }

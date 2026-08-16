@@ -7,6 +7,12 @@ class TransformRulesViewModel: ObservableObject {
     let zoneId: String
     private let apiClient = CloudflareAPIClient.shared
     
+    @Published var selectedPhase: String = "http_request_transform" {
+        didSet {
+            Task { await fetchTransformRules() }
+        }
+    }
+    
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
@@ -23,7 +29,7 @@ class TransformRulesViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let rs = try await apiClient.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_transform")
+            let rs = try await apiClient.fetchRulesetByPhase(zoneId: zoneId, phase: selectedPhase)
             self.ruleset = rs
             self.rules = rs?.rules ?? []
             self.hasFetchedData = true
@@ -73,6 +79,10 @@ class TransformRulesViewModel: ObservableObject {
         }
     }
     
+    func deleteRule(ruleId: String) async {
+        await performDelete(ruleId: ruleId)
+    }
+    
     private func performDelete(ruleId: String) async {
         guard let rs = ruleset else { return }
         do {
@@ -85,9 +95,10 @@ class TransformRulesViewModel: ObservableObject {
         }
     }
     
-    func createRewriteRule(zoneId: String, expression: String, description: String, enabled: Bool, rewritePath: String) async {
+    func createRewriteRule(zoneId: String, expression: String, description: String, enabled: Bool, rewritePath: String, rewriteQuery: String? = nil) async -> Bool {
         var params = ActionParameters()
-        params.uri = URIRewrite(path: RewriteTarget(value: rewritePath, expression: nil), query: nil)
+        let queryTarget = rewriteQuery.flatMap { $0.isEmpty ? nil : RewriteTarget(value: $0, expression: nil) }
+        params.uri = URIRewrite(path: RewriteTarget(value: rewritePath, expression: nil), query: queryTarget)
         
         do {
             let updatedRuleset: Ruleset
@@ -120,8 +131,55 @@ class TransformRulesViewModel: ObservableObject {
             
             let impact = UINotificationFeedbackGenerator()
             impact.notificationOccurred(.success)
+            return true
         } catch {
             self.errorMessage = "Failed to create rewrite rule: \(error.localizedDescription)"
+            return false
+        }
+    }
+    
+    func createHeaderRule(zoneId: String, phase: String, expression: String, description: String, enabled: Bool, headerName: String, operation: String, value: String?) async -> Bool {
+        var params = ActionParameters()
+        let headerTransform = HeaderTransform(operation: operation, value: operation == "set" ? value : nil, expression: nil)
+        params.headers = [headerName: headerTransform]
+        
+        let action = (phase == "http_response_headers_transform") ? "set_cache_settings" : "rewrite"
+        
+        do {
+            let updatedRuleset: Ruleset
+            if let rs = ruleset {
+                updatedRuleset = try await apiClient.createWAFRule(
+                    zoneId: zoneId,
+                    rulesetId: rs.id,
+                    action: action,
+                    expression: expression,
+                    description: description,
+                    enabled: enabled,
+                    ratelimit: nil,
+                    actionParameters: params
+                )
+            } else {
+                updatedRuleset = try await apiClient.createRuleset(
+                    zoneId: zoneId,
+                    phase: phase,
+                    action: action,
+                    expression: expression,
+                    description: description,
+                    enabled: enabled,
+                    ratelimit: nil,
+                    actionParameters: params
+                )
+            }
+            
+            self.ruleset = updatedRuleset
+            self.rules = updatedRuleset.rules ?? []
+            
+            let impact = UINotificationFeedbackGenerator()
+            impact.notificationOccurred(.success)
+            return true
+        } catch {
+            self.errorMessage = "Failed to create header rule: \(error.localizedDescription)"
+            return false
         }
     }
 }

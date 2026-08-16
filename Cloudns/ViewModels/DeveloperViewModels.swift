@@ -727,9 +727,11 @@ class D1ConsoleViewModel: ObservableObject {
     let database: D1Database
     private let apiClient = CloudflareAPIClient.shared
     
+    @Published var tables: [String] = []
     @Published var sqlInput: String = "SELECT name, type FROM sqlite_master WHERE type='table';"
     @Published var queryResult: D1QueryResult?
     @Published var isExecuting = false
+    @Published var isLoadingTables = false
     @Published var errorMessage: String?
     
     let sqlPresets: [(name: String, sql: String)] = [
@@ -743,6 +745,18 @@ class D1ConsoleViewModel: ObservableObject {
         self.database = database
     }
     
+    func fetchTables() async {
+        isLoadingTables = true
+        do {
+            let sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;"
+            let res = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: sql)
+            self.tables = res.rows.compactMap { $0["name"] }
+        } catch {
+            print("Failed to fetch tables: \(error.localizedDescription)")
+        }
+        isLoadingTables = false
+    }
+    
     func runQuery() async {
         let trimmed = sqlInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -752,6 +766,10 @@ class D1ConsoleViewModel: ObservableObject {
         
         do {
             self.queryResult = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: trimmed)
+            // If query modified schema, re-fetch tables
+            if trimmed.localizedCaseInsensitiveContains("CREATE TABLE") || trimmed.localizedCaseInsensitiveContains("DROP TABLE") {
+                await fetchTables()
+            }
         } catch {
             self.errorMessage = error.localizedDescription
         }
@@ -793,6 +811,18 @@ class TunnelsViewModel: ObservableObject {
         
         isLoading = false
     }
+    
+    func createTunnel(name: String) async -> Bool {
+        do {
+            let created = try await apiClient.createTunnel(accountId: accountId, name: name)
+            tunnels.insert(created, at: 0)
+            ToastManager.shared.showSuccess("Tunnel Created", message: name)
+            return true
+        } catch {
+            ToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
+            return false
+        }
+    }
 }
 
 @MainActor
@@ -802,7 +832,9 @@ class TunnelDetailViewModel: ObservableObject {
     private let apiClient = CloudflareAPIClient.shared
     
     @Published var ingressRules: [TunnelIngressRule] = []
+    @Published var token: String?
     @Published var isLoading = false
+    @Published var isDeleting = false
     @Published var hasFetchedData = false
     @Published var errorMessage: String?
     
@@ -816,13 +848,70 @@ class TunnelDetailViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            self.ingressRules = try await apiClient.getTunnelConfiguration(accountId: accountId, tunnelId: tunnel.id)
+            async let fetchConfig = apiClient.getTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id)
+            async let fetchTok = apiClient.getTunnelToken(accountId: accountId, tunnelId: tunnel.id)
+            let (rules, tok) = try await (fetchConfig, fetchTok)
+            self.ingressRules = rules
+            self.token = tok
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
         }
         
         isLoading = false
+    }
+    
+    func addIngressRule(hostname: String, path: String?, service: String) async -> Bool {
+        var updated = ingressRules
+        let newRule = TunnelIngressRule(hostname: hostname.isEmpty ? nil : hostname, path: path?.isEmpty == true ? nil : path, service: service)
+        if let last = updated.last, last.hostname == nil && last.path == nil {
+            updated.insert(newRule, at: updated.count - 1)
+        } else {
+            updated.append(newRule)
+            if !updated.contains(where: { $0.hostname == nil && $0.path == nil }) {
+                updated.append(TunnelIngressRule(hostname: nil, path: nil, service: "http_status:404"))
+            }
+        }
+        
+        do {
+            try await apiClient.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
+            self.ingressRules = updated
+            ToastManager.shared.showSuccess("Ingress Rule Added", message: hostname)
+            return true
+        } catch {
+            ToastManager.shared.showError("Save Failed", message: error.localizedDescription)
+            return false
+        }
+    }
+    
+    func deleteIngressRule(at index: Int) async {
+        var updated = ingressRules
+        guard index < updated.count else { return }
+        updated.remove(at: index)
+        if updated.isEmpty || !updated.contains(where: { $0.hostname == nil && $0.path == nil }) {
+            updated.append(TunnelIngressRule(hostname: nil, path: nil, service: "http_status:404"))
+        }
+        do {
+            try await apiClient.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
+            self.ingressRules = updated
+            ToastManager.shared.showSuccess("Ingress Rule Deleted", message: "")
+        } catch {
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func deleteTunnel() async -> Bool {
+        isDeleting = true
+        do {
+            try await apiClient.deleteTunnel(accountId: accountId, tunnelId: tunnel.id)
+            ToastManager.shared.showSuccess("Tunnel Deleted", message: tunnel.name)
+            isDeleting = false
+            return true
+        } catch {
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            isDeleting = false
+            return false
+        }
     }
 }
 
@@ -837,7 +926,7 @@ class DevToolsViewModel: ObservableObject {
     @Published var isDnsLoading = false
     @Published var dnsError: String?
     
-    let recordTypes = ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SOA", "CAA", "HTTPS"]
+    let recordTypes = ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SOA", "SRV", "CAA", "HTTPS", "PTR", "DNSKEY", "DS", "TLSA"]
     
     // HTTP Inspector
     @Published var httpUrlInput = ""
@@ -888,7 +977,10 @@ class WorkerSecretsViewModel: ObservableObject {
     let scriptName: String
     private let apiClient = CloudflareAPIClient.shared
     
+    @Published var selectedTab: String = "variables" // "variables" | "secrets"
+    @Published var plainVariables: [WorkerBinding] = []
     @Published var secrets: [WorkerSecret] = []
+    @Published var allBindings: [WorkerBinding] = []
     @Published var searchText: String = ""
     @Published var isLoading = false
     @Published var hasFetchedData = false
@@ -897,6 +989,11 @@ class WorkerSecretsViewModel: ObservableObject {
     init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
+    }
+    
+    var filteredVariables: [WorkerBinding] {
+        if searchText.isEmpty { return plainVariables }
+        return plainVariables.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.text?.localizedCaseInsensitiveContains(searchText) ?? false) }
     }
     
     var filteredSecrets: [WorkerSecret] {
@@ -909,13 +1006,32 @@ class WorkerSecretsViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            self.secrets = try await apiClient.getWorkerSecrets(accountId: accountId, scriptName: scriptName)
+            async let fetchedSecrets = apiClient.getWorkerSecrets(accountId: accountId, scriptName: scriptName)
+            async let fetchedBindings = apiClient.getWorkerBindings(accountId: accountId, scriptName: scriptName)
+            
+            let (secList, bindList) = try await (fetchedSecrets, fetchedBindings)
+            self.secrets = secList
+            self.allBindings = bindList
+            self.plainVariables = bindList.filter { $0.type == "plain_text" }
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
         }
         
         isLoading = false
+    }
+    
+    func savePlainVariable(name: String, value: String) async throws {
+        var updated = allBindings.filter { $0.name != name }
+        updated.append(WorkerBinding(name: name, type: "plain_text", namespaceId: nil, bucketName: nil, databaseId: nil, text: value))
+        try await apiClient.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        await fetchSecrets()
+    }
+    
+    func deletePlainVariable(name: String) async throws {
+        let updated = allBindings.filter { $0.name != name }
+        try await apiClient.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        await fetchSecrets()
     }
     
     func saveSecret(name: String, value: String) async throws {
@@ -1107,6 +1223,32 @@ class TurnstileViewModel: ObservableObject {
         
         isLoading = false
     }
+    
+    func createWidget(name: String, domains: [String], mode: String) async throws -> TurnstileWidget {
+        let input = TurnstileCreateInput(name: name, domains: domains, mode: mode)
+        let created = try await apiClient.createTurnstileWidget(accountId: accountId, input: input)
+        self.widgets.insert(created, at: 0)
+        return created
+    }
+    
+    func updateWidget(sitekey: String, name: String, domains: [String], mode: String) async throws {
+        let input = TurnstileUpdateInput(name: name, domains: domains, mode: mode)
+        let updated = try await apiClient.updateTurnstileWidget(accountId: accountId, sitekey: sitekey, input: input)
+        if let idx = widgets.firstIndex(where: { $0.sitekey == sitekey }) {
+            widgets[idx] = updated
+        }
+    }
+    
+    func deleteWidget(sitekey: String) async throws {
+        try await apiClient.deleteTurnstileWidget(accountId: accountId, sitekey: sitekey)
+        widgets.removeAll(where: { $0.sitekey == sitekey })
+    }
+    
+    func rotateSecret(sitekey: String, invalidateImmediately: Bool) async throws -> String {
+        let newSecret = try await apiClient.rotateTurnstileSecret(accountId: accountId, sitekey: sitekey, invalidateImmediately: invalidateImmediately)
+        await fetchWidgets()
+        return newSecret
+    }
 }
 
 @MainActor
@@ -1165,10 +1307,10 @@ class WorkersAIViewModel: ObservableObject {
     @Published var hasFetchedData = false
     @Published var errorMessage: String?
     
-    // Playground
+    // Chat Playground
+    @Published var chatMessages: [AIChatMessageItem] = []
     @Published var promptInput: String = ""
-    @Published var inferenceOutput: String = ""
-    @Published var isInferenceRunning = false
+    @Published var isSendingMessage = false
     
     init(accountId: String) {
         self.accountId = accountId
@@ -1201,20 +1343,46 @@ class WorkersAIViewModel: ObservableObject {
         isLoading = false
     }
     
-    func runInference(model: String) async {
-        let prompt = promptInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !prompt.isEmpty else { return }
+    func sendMessage(model: String) async {
+        let input = promptInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !input.isEmpty, !isSendingMessage else { return }
         
-        isInferenceRunning = true
-        inferenceOutput = ""
+        let userMsg = AIChatMessageItem(role: "user", content: input)
+        chatMessages.append(userMsg)
+        promptInput = ""
+        isSendingMessage = true
+        
+        let payloadMessages = chatMessages.filter { !$0.isError }.map { ["role": $0.role, "content": $0.content] }
         
         do {
-            self.inferenceOutput = try await apiClient.runAIInference(accountId: accountId, model: model, prompt: prompt)
+            let reply = try await apiClient.runAIChat(accountId: accountId, model: model, messages: payloadMessages)
+            let assistantMsg = AIChatMessageItem(role: "assistant", content: reply)
+            chatMessages.append(assistantMsg)
         } catch {
-            self.inferenceOutput = "Error: \(error.localizedDescription)"
+            let errorMsg = AIChatMessageItem(role: "assistant", content: "Error: \(error.localizedDescription)", isError: true)
+            chatMessages.append(errorMsg)
         }
         
-        isInferenceRunning = false
+        isSendingMessage = false
+    }
+    
+    func clearChat() {
+        chatMessages.removeAll()
+        promptInput = ""
+    }
+}
+
+public struct AIChatMessageItem: Identifiable, Equatable {
+    public let id = UUID()
+    public let role: String // "user" or "assistant"
+    public let content: String
+    public let timestamp = Date()
+    public var isError: Bool = false
+    
+    public init(role: String, content: String, isError: Bool = false) {
+        self.role = role
+        self.content = content
+        self.isError = isError
     }
 }
 

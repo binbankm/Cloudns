@@ -46,6 +46,10 @@ struct EmailRoutingRule: Codable, Identifiable {
         }
     }
     
+    var forwardTo: String? {
+        actions.first(where: { $0.type == "forward" })?.value?.joined(separator: ", ")
+    }
+    
     var isCatchAll: Bool { matchers.contains { $0.type == "all" } }
 }
 

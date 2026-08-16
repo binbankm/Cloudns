@@ -13,48 +13,71 @@ struct EdgeCertificatesView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && viewModel.certificates.isEmpty {
-                List {
-                    ForEach(0..<4, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchCertificates(zoneId: zoneId)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchCertificates(zoneId: zoneId)
+                            }
                         }
-                    }
-                )
-                } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.certificates.isEmpty && viewModel.hasFetchedData {
+                Section {
                     EmptyStateView(
                         icon: "lock.shield",
                         title: "No Edge Certificates",
                         message: "No Edge Certificates found."
                     )
-                } else {
-                    List {
-                        ForEach(displayCertificates) { cert in
-                            EdgeCertificateCardView(certificate: cert)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                }
+                .listRowBackground(Color.clear)
+            } else {
+                Section(
+                    header: Text("Universal SSL"),
+                    footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
+                ) {
+                    Toggle("Enable Universal SSL", isOn: Binding(
+                        get: { viewModel.isUniversalSSLEnabled },
+                        set: { newValue in
+                            Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
                         }
-                    }
-                    .listStyle(.insetGrouped)
-                    .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
-                    .disabled(!viewModel.hasFetchedData)
-                    .refreshable {
-                        await viewModel.fetchCertificates(zoneId: zoneId)
+                    ))
+                }
+                
+                Section(header: Text("Active Certificates (\(displayCertificates.count))")) {
+                    ForEach(displayCertificates) { cert in
+                        EdgeCertificateCardView(certificate: cert)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                if cert.type.lowercased() != "universal" {
+                                    Button(role: .destructive) {
+                                        Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
                     }
                 }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchCertificates(zoneId: zoneId)
         }
         .navigationTitle("Edge Certificates")
         .navigationBarTitleDisplayMode(.inline)
+        .toastContainer()
         .task {
             if viewModel.certificates.isEmpty {
                 await viewModel.fetchCertificates(zoneId: zoneId)

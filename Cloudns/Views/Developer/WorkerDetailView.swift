@@ -172,11 +172,11 @@ struct WorkerDetailView: View {
                         WorkerSecretsView(accountId: accountId, scriptName: worker.id)
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "key.fill")
+                            Image(systemName: "slider.horizontal.3")
                                 .font(.body)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.blue)
                                 .frame(width: 24)
-                            Text("Environment Secrets")
+                            Text("Variables & Secrets")
                                 .foregroundStyle(.primary)
                             Spacer()
                         }

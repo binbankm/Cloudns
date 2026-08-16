@@ -7,35 +7,38 @@ struct RateLimitingRulesView: View {
     @State private var showingAddSheet = false
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && viewModel.rules.isEmpty {
-                List {
-                    ForEach(0..<4, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchRateLimitingRules(zoneId: zoneId)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchRateLimitingRules(zoneId: zoneId)
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "speedometer",
-                    title: "No Rate Limiting Rules",
-                    message: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
-                    actionTitle: "Add Rule",
-                    action: { showingAddSheet = true }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "speedometer",
+                        title: "No Rate Limiting Rules",
+                        message: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
+                        actionTitle: "Add Rule",
+                        action: { showingAddSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             Task {
@@ -46,11 +49,11 @@ struct RateLimitingRulesView: View {
                     }
                     .onDelete(perform: deleteRules)
                 }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.fetchRateLimitingRules(zoneId: zoneId)
-                }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchRateLimitingRules(zoneId: zoneId)
         }
         .navigationTitle("Rate Limiting")
         .navigationBarTitleDisplayMode(.inline)

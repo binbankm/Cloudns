@@ -5,8 +5,9 @@ struct CachingView: View {
     
     @StateObject private var viewModel = CachingViewModel()
     @State private var showingPurgeAlert = false
-    @State private var purgeUrlText = ""
-    
+    @State private var purgeType = "url" // "url", "host", "prefix", "tag"
+    @State private var purgeInputText = ""
+
     var body: some View {
         List {
             if let errorMessage = viewModel.errorMessage {
@@ -22,65 +23,62 @@ struct CachingView: View {
                 }
             }
             
-            if let successMessage = viewModel.purgeSuccessMessage {
-                Section {
-                    HStack(spacing: 10) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .accessibilityHidden(true)
-                        Text(successMessage)
-                            .foregroundStyle(.primary)
-                            .font(.subheadline)
-                    }
+            // Custom Granular Purge
+            Section(
+                header: Text("Custom Cache Purge"),
+                footer: Text(purgeTypeDescription)
+            ) {
+                Picker("Purge By", selection: $purgeType) {
+                    Text("URL").tag("url")
+                    Text("Host").tag("host")
+                    Text("Prefix").tag("prefix")
+                    Text("Tag").tag("tag")
                 }
-            }
-            
-            if let purgeError = viewModel.purgeErrorMessage {
-                Section {
-                    HStack(spacing: 10) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
-                            .accessibilityHidden(true)
-                        Text(purgeError)
-                            .foregroundStyle(.primary)
-                            .font(.subheadline)
-                    }
-                }
-            }
-            
-            // Purge By URL
-            Section(header: Text("Purge by URL")) {
+                .pickerStyle(.segmented)
+                .padding(.vertical, 2)
+                
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Clear cached files by their exact URLs. This allows you to selectively refresh specific resources.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    TextField(purgePlaceholder, text: $purgeInputText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                     
-                    HStack {
-                        TextField("https://example.com/style.css", text: $purgeUrlText)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.URL)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                    Button(action: {
+                        let clean = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !clean.isEmpty else { return }
+                        let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                         
-                        Button(action: {
-                            guard !purgeUrlText.isEmpty else { return }
-                            let urls = [purgeUrlText.trimmingCharacters(in: .whitespacesAndNewlines)]
-                            Task {
-                                await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: urls)
-                                purgeUrlText = ""
+                        Task {
+                            if purgeType == "url" {
+                                await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
+                            } else if purgeType == "host" {
+                                await viewModel.purgeCacheByHosts(zoneId: zoneId, hosts: items)
+                            } else if purgeType == "prefix" {
+                                await viewModel.purgeCacheByPrefixes(zoneId: zoneId, prefixes: items)
+                            } else if purgeType == "tag" {
+                                await viewModel.purgeCacheByTags(zoneId: zoneId, tags: items)
                             }
-                        }) {
-                            Text("Purge")
+                            purgeInputText = ""
+                        }
+                    }) {
+                        HStack {
+                            Spacer()
+                            if viewModel.isPurging {
+                                ProgressView()
+                                    .padding(.trailing, 4)
+                            }
+                            Text("Purge by \(purgeType.capitalized)")
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(purgeUrlText.isEmpty ? Color.gray : Color.blue)
-                                .cornerRadius(8)
+                            Spacer()
                         }
-                        .disabled(purgeUrlText.isEmpty || viewModel.isPurging)
+                        .padding(.vertical, 10)
+                        .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
+                        .cornerRadius(8)
                     }
+                    .disabled(purgeInputText.isEmpty || viewModel.isPurging)
                 }
+                .padding(.vertical, 4)
             }
             
             // Danger Zone: Purge Cache
@@ -224,6 +222,26 @@ struct CachingView: View {
             }
         } message: {
             Text("Are you sure you want to purge all cached resources? This may temporarily degrade your website's performance and increase load on your origin server.")
+        }
+    }
+    
+    private var purgeTypeDescription: String {
+        switch purgeType {
+        case "url": return "Purge exact full URLs (comma-separated)."
+        case "host": return "Purge all cached resources on specific hostnames (Enterprise)."
+        case "prefix": return "Purge all cached resources matching URL prefixes (Enterprise)."
+        case "tag": return "Purge cached resources by Cache-Tag header values (Enterprise)."
+        default: return ""
+        }
+    }
+    
+    private var purgePlaceholder: String {
+        switch purgeType {
+        case "url": return "https://example.com/asset.js, https://..."
+        case "host": return "static.example.com, assets.example.com"
+        case "prefix": return "https://example.com/static/, ..."
+        case "tag": return "product-images, static-assets"
+        default: return ""
         }
     }
 }

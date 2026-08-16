@@ -5,91 +5,88 @@ struct DNSDigToolView: View {
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
-            List {
-                // Section: Input & Type
-                Section(header: Text("Query Target")) {
-                    HStack {
-                        Image(systemName: "globe")
-                            .foregroundStyle(.blue)
-                        
-                        TextField("e.g. example.com", text: $viewModel.domainInput)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .focused($isFieldFocused)
-                            .submitLabel(.search)
-                            .onSubmit {
-                                Task { await viewModel.queryDNS() }
-                            }
-                        
-                        if !viewModel.domainInput.isEmpty {
-                            Button {
-                                viewModel.domainInput = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                                    .accessibilityLabel("清除输入")
-                            }
-                        }
-                    }
+        List {
+            // Section: Input & Type
+            Section(header: Text("Query Target")) {
+                HStack {
+                    Image(systemName: "globe")
+                        .foregroundStyle(.blue)
                     
-                    Picker("Record Type", selection: $viewModel.selectedRecordType) {
-                        ForEach(viewModel.recordTypes, id: \.self) { type in
-                            Text(type).tag(type)
+                    TextField("e.g. example.com", text: $viewModel.domainInput)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isFieldFocused)
+                        .submitLabel(.search)
+                        .onSubmit {
+                            Task { await viewModel.queryDNS() }
                         }
-                    }
                     
-                    Button {
-                        isFieldFocused = false
-                        Task { await viewModel.queryDNS() }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            if viewModel.isDnsLoading {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            } else {
-                                Image(systemName: "magnifyingglass")
-                            }
-                            Text("Dig Query (1.1.1.1)")
-                                .font(.body)
-                            Spacer()
+                    if !viewModel.domainInput.isEmpty {
+                        Button {
+                            viewModel.domainInput = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                                .accessibilityLabel("清除输入")
                         }
                     }
-                    .disabled(viewModel.domainInput.isEmpty || viewModel.isDnsLoading)
                 }
                 
-                // Section: Results
-                if let result = viewModel.dnsResult {
-                    Section(header: HStack {
-                        Text("Resolved Answers (\(result.answers.count))")
-                        Spacer()
-                        Text(String(format: "%.1f ms", result.latencyMs))
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.green)
-                    }) {
-                        if result.answers.isEmpty {
-                            Text("No DNS records returned for this query.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            ForEach(result.answers) { item in
-                                DNSAnswerRowView(item: item)
-                            }
-                        }
-                    }
-                } else if let error = viewModel.dnsError {
-                    Section {
-                        Text(error)
-                            .font(.subheadline)
-                            .foregroundStyle(.red)
+                Picker("Record Type", selection: $viewModel.selectedRecordType) {
+                    ForEach(viewModel.recordTypes, id: \.self) { type in
+                        Text(type).tag(type)
                     }
                 }
+                
+                Button {
+                    isFieldFocused = false
+                    Task { await viewModel.queryDNS() }
+                } label: {
+                    HStack {
+                        Spacer()
+                        if viewModel.isDnsLoading {
+                            ProgressView()
+                                .padding(.trailing, 4)
+                        } else {
+                            Image(systemName: "magnifyingglass")
+                        }
+                        Text("Dig DNS Query (1.1.1.1)")
+                            .font(.body)
+                            .foregroundStyle(.blue)
+                        Spacer()
+                    }
+                }
+                .disabled(viewModel.domainInput.isEmpty || viewModel.isDnsLoading)
             }
-            .listStyle(.insetGrouped)
+            
+            // Section: Results
+            if let result = viewModel.dnsResult {
+                Section(header: HStack {
+                    Text("Resolved Answers (\(result.answers.count))")
+                    Spacer()
+                    Text(String(format: "%.1f ms", result.latencyMs))
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.green)
+                }) {
+                    if result.answers.isEmpty {
+                        Text("No DNS records returned for this query.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(result.answers) { item in
+                            DNSAnswerRowView(item: item)
+                        }
+                    }
+                }
+            } else if let error = viewModel.dnsError {
+                Section {
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
+                }
+            }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("DNS Dig Query")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -94,34 +94,37 @@ struct KVBrowserView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<4, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchData() }
-                    }
-                )
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchData() }
+                        }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.selectedSegment == 0 {
                 if viewModel.namespaces.isEmpty {
-                    EmptyStateView(
-                        icon: "key.fill",
-                        title: "No KV Namespaces",
-                        message: "You haven't created any Workers KV namespaces in this account yet.",
-                        actionTitle: "Create Namespace",
-                        action: { showingCreateKVSheet = true }
-                    )
+                    Section {
+                        EmptyStateView(
+                            icon: "key.fill",
+                            title: "No KV Namespaces",
+                            message: "You haven't created any Workers KV namespaces in this account yet.",
+                            actionTitle: "Create Namespace",
+                            action: { showingCreateKVSheet = true }
+                        )
+                    }
+                    .listRowBackground(Color.clear)
                 } else {
-                    List {
+                    Section {
                         ForEach(viewModel.namespaces) { ns in
                             NavigationLink {
                                 KVNamespaceKeysView(accountId: accountId, namespace: ns)
@@ -159,19 +162,21 @@ struct KVBrowserView: View {
                             }
                         }
                     }
-                    .listStyle(.insetGrouped)
                 }
             } else {
                 if viewModel.d1Databases.isEmpty {
-                    EmptyStateView(
-                        icon: "cylinder.split.1x2.fill",
-                        title: "No D1 Databases",
-                        message: "You haven't created any Cloudflare D1 SQL databases in this account yet.",
-                        actionTitle: "Create Database",
-                        action: { showingCreateD1Sheet = true }
-                    )
+                    Section {
+                        EmptyStateView(
+                            icon: "cylinder.split.1x2.fill",
+                            title: "No D1 Databases",
+                            message: "You haven't created any Cloudflare D1 SQL databases in this account yet.",
+                            actionTitle: "Create Database",
+                            action: { showingCreateD1Sheet = true }
+                        )
+                    }
+                    .listRowBackground(Color.clear)
                 } else {
-                    List {
+                    Section {
                         ForEach(viewModel.d1Databases) { db in
                             NavigationLink {
                                 D1ConsoleView(accountId: accountId, database: db)
@@ -231,10 +236,10 @@ struct KVBrowserView: View {
                             }
                         }
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
         }
+        .listStyle(.insetGrouped)
     }
     
     private func formatBytes(_ bytes: Int) -> String {
@@ -402,7 +407,7 @@ struct KVNamespaceKeysView: View {
         contentView
             .navigationTitle(namespace.title)
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchKey, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Keys")
+            .searchable(text: $searchKey, prompt: "Search Keys")
             .refreshable {
                 await viewModel.fetchKeys()
             }
@@ -434,37 +439,43 @@ struct KVNamespaceKeysView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchKeys() }
-                    }
-                )
-            } else if viewModel.keys.isEmpty {
-                EmptyStateView(
-                    icon: "tray",
-                    title: "Empty Namespace",
-                    message: "This KV namespace currently contains no keys.",
-                    actionTitle: "Add Key",
-                    action: { showingAddSheet = true }
-                )
-            } else if filteredKeys.isEmpty {
-                EmptyStateView.search(query: searchKey) {
-                    searchKey = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchKeys() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.keys.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "tray",
+                        title: "Empty Namespace",
+                        message: "This KV namespace currently contains no keys.",
+                        actionTitle: "Add Key",
+                        action: { showingAddSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if filteredKeys.isEmpty {
+                Section {
+                    EmptyStateView.search(query: searchKey) {
+                        searchKey = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { key in
                         Button {
                             Task {
@@ -509,9 +520,9 @@ struct KVNamespaceKeysView: View {
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 

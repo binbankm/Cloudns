@@ -30,88 +30,90 @@ struct WorkersAIView: View {
     
     @ViewBuilder
     private var contentView: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(0..<6, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
+                        SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchModels() }
-                    }
-                )
-            } else if viewModel.models.isEmpty {
-                EmptyStateView(
-                    icon: "brain",
-                    title: "No Models Found",
-                    message: "Unable to retrieve Workers AI model catalog.",
-                    actionTitle: "Retry",
-                    action: { Task { await viewModel.fetchModels() } }
-                )
-            } else if viewModel.filteredModels.isEmpty {
-                EmptyStateView.search(query: viewModel.searchText) {
-                    viewModel.searchText = ""
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchModels() }
+                        }
+                    )
                 }
+                .listRowBackground(Color.clear)
+            } else if viewModel.models.isEmpty {
+                Section {
+                    EmptyStateView(
+                        icon: "brain",
+                        title: "No Models Found",
+                        message: "Unable to retrieve Workers AI model catalog.",
+                        actionTitle: "Retry",
+                        action: { Task { await viewModel.fetchModels() } }
+                    )
+                }
+                .listRowBackground(Color.clear)
+            } else if viewModel.filteredModels.isEmpty {
+                Section {
+                    EmptyStateView.search(query: viewModel.searchText) {
+                        viewModel.searchText = ""
+                    }
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
-                    ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
-                        if let list = viewModel.groupedModels[taskName], !list.isEmpty {
-                            Section(header: Text(taskName)) {
-                                ForEach(list) { model in
-                                    Button {
-                                        selectedModelForPlayground = model
-                                    } label: {
-                                        HStack(alignment: .center, spacing: 14) {
-                                            Image(systemName: "sparkles")
+                ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
+                    if let list = viewModel.groupedModels[taskName], !list.isEmpty {
+                        Section(header: Text(taskName)) {
+                            ForEach(list) { model in
+                                Button {
+                                    selectedModelForPlayground = model
+                                } label: {
+                                    HStack(alignment: .center, spacing: 14) {
+                                        Image(systemName: "sparkles")
+                                            .font(.body)
+                                            .foregroundStyle(.purple)
+                                            .frame(width: 32, height: 32)
+                                            .background(Color.purple.opacity(0.12))
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(model.shortName)
                                                 .font(.body)
-                                                .foregroundStyle(.purple)
-                                                .frame(width: 32, height: 32)
-                                                .background(Color.purple.opacity(0.12))
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                .foregroundStyle(.primary)
                                             
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(model.shortName)
-                                                    .font(.body)
-                                                    .foregroundStyle(.primary)
-                                                
-                                                if let desc = model.description, !desc.isEmpty {
-                                                    Text(desc)
-                                                        .font(.caption)
-                                                        .foregroundStyle(.secondary)
-                                                        .lineLimit(2)
-                                                }
-                                                
-                                                Text(model.id)
-                                                    .font(.caption2.monospacedDigit())
-                                                    .foregroundStyle(Color(UIColor.tertiaryLabel))
-                                                    .lineLimit(1)
+                                            if let desc = model.description, !desc.isEmpty {
+                                                Text(desc)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                                    .lineLimit(2)
                                             }
                                             
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption)
+                                            Text(model.id)
+                                                .font(.caption2.monospacedDigit())
                                                 .foregroundStyle(Color(UIColor.tertiaryLabel))
+                                                .lineLimit(1)
                                         }
-                                        .padding(.vertical, 2)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(Color(UIColor.tertiaryLabel))
                                     }
+                                    .padding(.vertical, 2)
                                 }
                             }
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 
@@ -119,92 +121,318 @@ struct WorkersAIPlaygroundSheetView: View {
     @ObservedObject var viewModel: WorkersAIViewModel
     let model: AIModel
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var isInputFocused: Bool
+    
+    private let samplePrompts = [
+        "Explain Cloudflare Workers in simple terms",
+        "Write a TypeScript fetch router example",
+        "How does edge caching work?",
+        "Compare SQL (D1) and Key-Value (KV) storage"
+    ]
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("Model Information")) {
-                    HStack {
-                        Text("Model Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(model.shortName)
-                            .font(.body)
-                    }
-                    
-                    HStack {
-                        Text("Task Type")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(model.taskName)
-                            .font(.caption)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.purple.opacity(0.12))
-                            .foregroundStyle(.purple)
-                            .cornerRadius(4)
-                    }
-                    
-                    if let desc = model.description {
-                        Text(desc)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+            VStack(spacing: 0) {
+                // Header Info Bar
+                modelHeaderBar
                 
-                Section(header: Text("Inference Playground"), footer: Text("Run serverless AI inference directly on Cloudflare edge GPUs.")) {
-                    TextField("Enter prompt or input text...", text: $viewModel.promptInput, axis: .vertical)
-                        .lineLimit(3...6)
-                    
-                    Button {
-                        Task {
-                            let targetModel = (model.name?.isEmpty == false) ? model.name! : model.id
-                            await viewModel.runInference(model: targetModel)
-                        }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            if viewModel.isInferenceRunning {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            } else {
-                                Image(systemName: "play.fill")
-                            }
-                            Text("Run Model Inference")
-                                .font(.body)
-                                .foregroundStyle(.purple)
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isInferenceRunning)
-                }
+                Divider()
                 
-                if !viewModel.inferenceOutput.isEmpty {
-                    Section(header: HStack {
-                        Text("Output Result")
-                        Spacer()
-                        Button {
-                            UIPasteboard.general.string = viewModel.inferenceOutput
-                            ToastManager.shared.showCopied("Inference output copied")
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                        }
-                    }) {
-                        Text(viewModel.inferenceOutput)
-                            .font(.body.monospacedDigit())
-                            .textSelection(.enabled)
-                    }
-                }
+                // Chat Message Stream
+                chatMessagesArea
+                
+                Divider()
+                
+                // Bottom Input Area
+                chatInputBar
             }
-            .navigationTitle("AI Playground")
+            .background(Color(UIColor.systemGroupedBackground))
+            .navigationTitle(model.shortName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Close") { dismiss() }
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if !viewModel.chatMessages.isEmpty {
+                        Button(role: .destructive) {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            viewModel.clearChat()
+                        } label: {
+                            Image(systemName: "trash")
+                                .font(.subheadline)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
             }
             .toastContainer()
         }
+    }
+    
+    // MARK: - Header Bar
+    
+    private var modelHeaderBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "sparkles")
+                .font(.body)
+                .foregroundStyle(.purple)
+                .frame(width: 28, height: 28)
+                .background(Color.purple.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(model.shortName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    
+                    Text(model.taskName)
+                        .font(.caption2.weight(.medium))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Color.purple.opacity(0.12))
+                        .foregroundStyle(.purple)
+                        .cornerRadius(4)
+                }
+                
+                Text(model.modelPath)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+    }
+    
+    // MARK: - Chat Messages Area
+    
+    private var chatMessagesArea: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 14) {
+                    if viewModel.chatMessages.isEmpty {
+                        emptyStateSuggestions
+                    } else {
+                        ForEach(viewModel.chatMessages) { message in
+                            chatBubble(for: message)
+                                .id(message.id)
+                        }
+                        
+                        if viewModel.isSendingMessage {
+                            typingIndicatorBubble
+                                .id("typing_indicator")
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+            }
+            .onChange(of: viewModel.chatMessages.count) { _ in
+                withAnimation(.easeOut(duration: 0.25)) {
+                    if let last = viewModel.chatMessages.last {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
+            }
+            .onChange(of: viewModel.isSendingMessage) { sending in
+                if sending {
+                    withAnimation {
+                        proxy.scrollTo("typing_indicator", anchor: .bottom)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Empty State Suggestions
+    
+    private var emptyStateSuggestions: some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.purple.opacity(0.8))
+                    .padding(.top, 24)
+                
+                Text("Workers AI Edge Playground")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                
+                if let desc = model.description, !desc.isEmpty {
+                    Text(desc)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Suggested prompts:")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                
+                ForEach(samplePrompts, id: \.self) { prompt in
+                    Button {
+                        viewModel.promptInput = prompt
+                        isInputFocused = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "bubble.left.and.bubble.right")
+                                .font(.caption2)
+                                .foregroundStyle(.purple)
+                            Text(prompt)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Image(systemName: "arrow.up.left")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.top, 8)
+        }
+    }
+    
+    // MARK: - Message Bubble
+    
+    @ViewBuilder
+    private func chatBubble(for message: AIChatMessageItem) -> some View {
+        if message.role == "user" {
+            HStack(alignment: .bottom, spacing: 8) {
+                Spacer(minLength: 40)
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(message.content)
+                        .font(.body)
+                        .foregroundStyle(.white)
+                        .textSelection(.enabled)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Color.purple)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+            }
+        } else {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.caption)
+                    .foregroundStyle(message.isError ? .red : .purple)
+                    .frame(width: 26, height: 26)
+                    .background((message.isError ? Color.red : Color.purple).opacity(0.12))
+                    .clipShape(Circle())
+                    .padding(.top, 4)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(message.content)
+                        .font(.body)
+                        .foregroundStyle(message.isError ? .red : .primary)
+                        .textSelection(.enabled)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    
+                    if !message.isError {
+                        HStack(spacing: 12) {
+                            Button {
+                                UIPasteboard.general.string = message.content
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                ToastManager.shared.showCopied("Response copied")
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "doc.on.doc")
+                                    Text("Copy")
+                                }
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            
+                            Spacer()
+                        }
+                        .padding(.leading, 4)
+                    }
+                }
+                
+                Spacer(minLength: 40)
+            }
+        }
+    }
+    
+    // MARK: - Typing Indicator
+    
+    private var typingIndicatorBubble: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: "sparkles")
+                .font(.caption)
+                .foregroundStyle(.purple)
+                .frame(width: 26, height: 26)
+                .background(Color.purple.opacity(0.12))
+                .clipShape(Circle())
+            
+            HStack(spacing: 6) {
+                ProgressView()
+                    .scaleEffect(0.8)
+                Text("Inferencing on Cloudflare edge...")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Bottom Input Bar
+    
+    private var chatInputBar: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            TextField("Ask \(model.shortName)...", text: $viewModel.promptInput, axis: .vertical)
+                .lineLimit(1...5)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .cornerRadius(18)
+                .focused($isInputFocused)
+                .disabled(viewModel.isSendingMessage)
+            
+            Button {
+                isInputFocused = false
+                Task {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    await viewModel.sendMessage(model: model.modelPath)
+                }
+            } label: {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(
+                        viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage
+                        ? Color.gray.opacity(0.4)
+                        : Color.purple
+                    )
+            }
+            .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
     }
 }

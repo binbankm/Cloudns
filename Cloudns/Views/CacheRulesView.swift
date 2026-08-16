@@ -12,26 +12,26 @@ struct CacheRulesView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-            
+        List {
             if viewModel.isLoading && viewModel.rules.isEmpty {
-                List {
-                    ForEach(0..<4, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if viewModel.rules.isEmpty {
-                EmptyStateView(
-                    icon: "bolt.badge.clock",
-                    title: "No Cache Rules",
-                    message: "You haven't created any custom cache rules yet.",
-                    actionTitle: "Add Cache Rule",
-                    action: { showingAddSheet = true }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "bolt.badge.clock",
+                        title: "No Cache Rules",
+                        message: "You haven't created any custom cache rules yet.",
+                        actionTitle: "Add Cache Rule",
+                        action: { showingAddSheet = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
                             Task {
@@ -47,11 +47,11 @@ struct CacheRulesView: View {
                         }
                     })
                 }
-                .listStyle(InsetGroupedListStyle())
-                .refreshable {
-                    await viewModel.fetchCacheRules()
-                }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchCacheRules()
         }
         .navigationTitle("Cache Rules")
         .navigationBarTitleDisplayMode(.inline)

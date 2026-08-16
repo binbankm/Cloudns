@@ -7,35 +7,38 @@ struct IPAccessRulesView: View {
     @State private var showingAddRule = false
     
     var body: some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
-
+        List {
             if viewModel.isLoading && viewModel.rules.isEmpty {
-                List {
-                    ForEach(0..<5, id: \.self) { _ in
+                Section {
+                    ForEach(0..<8, id: \.self) { _ in
                         SkeletonRowView()
                     }
                 }
-                .listStyle(.insetGrouped)
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                EmptyStateView.error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task {
-                            await viewModel.fetchRules(zoneId: zoneId)
+                Section {
+                    EmptyStateView.error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task {
+                                await viewModel.fetchRules(zoneId: zoneId)
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else if viewModel.rules.isEmpty && viewModel.hasFetchedData {
-                EmptyStateView(
-                    icon: "network.badge.shield.half.filled",
-                    title: "No IP Access Rules",
-                    message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                    actionTitle: "Add IP Rule",
-                    action: { showingAddRule = true }
-                )
+                Section {
+                    EmptyStateView(
+                        icon: "network.badge.shield.half.filled",
+                        title: "No IP Access Rules",
+                        message: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                        actionTitle: "Add IP Rule",
+                        action: { showingAddRule = true }
+                    )
+                }
+                .listRowBackground(Color.clear)
             } else {
-                List {
+                Section {
                     ForEach(viewModel.rules) { rule in
                         IPAccessRuleRow(rule: rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -50,11 +53,11 @@ struct IPAccessRulesView: View {
                             }
                     }
                 }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.fetchRules(zoneId: zoneId)
-                }
             }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable {
+            await viewModel.fetchRules(zoneId: zoneId)
         }
         .navigationTitle("IP Access Rules")
         .navigationBarTitleDisplayMode(.inline)

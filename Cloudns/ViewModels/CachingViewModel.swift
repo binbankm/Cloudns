@@ -79,6 +79,57 @@ class CachingViewModel: ObservableObject {
         
         isPurging = false
     }
+
+    func purgeCacheByHosts(zoneId: String, hosts: [String]) async {
+        isPurging = true
+        purgeSuccessMessage = nil
+        purgeErrorMessage = nil
+        
+        do {
+            try await apiClient.purgeCacheByHosts(zoneId: zoneId, hosts: hosts)
+            purgeSuccessMessage = "Successfully purged requested Hosts!"
+            ToastManager.shared.showSuccess("Hosts Purged", message: "\(hosts.count) host(s) purged from cache.")
+        } catch {
+            purgeErrorMessage = "Failed to purge hosts: \(error.localizedDescription)"
+            ToastManager.shared.showError("Purge Hosts Failed", message: error.localizedDescription)
+        }
+        
+        isPurging = false
+    }
+
+    func purgeCacheByPrefixes(zoneId: String, prefixes: [String]) async {
+        isPurging = true
+        purgeSuccessMessage = nil
+        purgeErrorMessage = nil
+        
+        do {
+            try await apiClient.purgeCacheByPrefixes(zoneId: zoneId, prefixes: prefixes)
+            purgeSuccessMessage = "Successfully purged requested URL prefixes!"
+            ToastManager.shared.showSuccess("Prefixes Purged", message: "\(prefixes.count) prefix(es) purged from cache.")
+        } catch {
+            purgeErrorMessage = "Failed to purge prefixes: \(error.localizedDescription)"
+            ToastManager.shared.showError("Purge Prefixes Failed", message: error.localizedDescription)
+        }
+        
+        isPurging = false
+    }
+
+    func purgeCacheByTags(zoneId: String, tags: [String]) async {
+        isPurging = true
+        purgeSuccessMessage = nil
+        purgeErrorMessage = nil
+        
+        do {
+            try await apiClient.purgeCacheByTags(zoneId: zoneId, tags: tags)
+            purgeSuccessMessage = "Successfully purged requested Cache-Tags!"
+            ToastManager.shared.showSuccess("Tags Purged", message: "\(tags.count) tag(s) purged from cache.")
+        } catch {
+            purgeErrorMessage = "Failed to purge tags: \(error.localizedDescription)"
+            ToastManager.shared.showError("Purge Tags Failed", message: error.localizedDescription)
+        }
+        
+        isPurging = false
+    }
     
     func updateCacheLevel(zoneId: String, level: String) async {
         await updateSetting(zoneId: zoneId, settingId: "cache_level", value: .string(level)) {
