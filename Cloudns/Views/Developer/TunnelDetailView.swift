@@ -32,15 +32,15 @@ struct TunnelDetailView: View {
             .sheet(isPresented: $showingAddIngressSheet) {
                 AddIngressRuleSheetView(viewModel: viewModel)
             }
-            .alert("Delete Tunnel", isPresented: $showingDeleteAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
+            .confirmationDialog("Delete Tunnel", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+                Button("Delete '\(tunnel.name)'", role: .destructive) {
                     HapticManager.impact(.medium)
                     Task {
                         let success = await viewModel.deleteTunnel()
                         if success { dismiss() }
                     }
                 }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
             }

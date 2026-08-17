@@ -1,40 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class DurableObjectsViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var namespaces: [DurableObjectNamespace] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredNamespaces: [DurableObjectNamespace] {
-        if searchText.isEmpty { return namespaces }
-        return namespaces.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.script ?? "").localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchNamespaces() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.namespaces = try await apiClient.listDONamespaces(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-}
 
 struct DurableObjectsView: View {
     let accountId: String
@@ -52,9 +17,9 @@ struct DurableObjectsView: View {
                     Section(header: Text("Namespaces")) {
                         ForEach(DurableObjectNamespace.placeholders) { ns in
                             nsRow(ns)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Durable Objects")
@@ -107,6 +72,7 @@ struct DurableObjectsView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchNamespaces()

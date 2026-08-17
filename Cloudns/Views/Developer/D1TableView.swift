@@ -12,7 +12,7 @@ public struct D1ColumnInfo: Identifiable, Equatable {
 }
 
 @MainActor
-final class D1TableViewModel: ObservableObject {
+final class D1TableViewModel: BaseLoadableViewModel {
     let accountId: String
     let databaseId: String
     let tableName: String
@@ -23,14 +23,12 @@ final class D1TableViewModel: ObservableObject {
     @Published var totalRowCount: Int = 0
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 50
-    @Published var isLoading = false
-    @Published var hasFetchedData = false
-    @Published var errorMessage: String?
     
     init(accountId: String, databaseId: String, tableName: String) {
         self.accountId = accountId
         self.databaseId = databaseId
         self.tableName = tableName
+        super.init()
     }
     
     var totalPages: Int {
@@ -38,15 +36,12 @@ final class D1TableViewModel: ObservableObject {
     }
     
     func loadTable() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
+        await executeLoadingTask {
             // 1. Fetch column metadata
-            let pragmaResult = try await apiClient.executeD1Query(
-                accountId: accountId,
-                databaseId: databaseId,
-                sql: "PRAGMA table_info(\"\(tableName)\");"
+            let pragmaResult = try await self.apiClient.executeD1Query(
+                accountId: self.accountId,
+                databaseId: self.databaseId,
+                sql: "PRAGMA table_info(\"\(self.tableName)\");"
             )
             
             var fetchedCols: [D1ColumnInfo] = []
@@ -69,23 +64,18 @@ final class D1TableViewModel: ObservableObject {
             self.columns = fetchedCols
             
             // 2. Fetch row count
-            let countResult = try await apiClient.executeD1Query(
-                accountId: accountId,
-                databaseId: databaseId,
-                sql: "SELECT count(*) as count FROM \"\(tableName)\";"
+            let countResult = try await self.apiClient.executeD1Query(
+                accountId: self.accountId,
+                databaseId: self.databaseId,
+                sql: "SELECT count(*) as count FROM \"\(self.tableName)\";"
             )
             if let firstCount = countResult.rows.first?["count"], let cnt = Int(firstCount) {
                 self.totalRowCount = cnt
             }
             
             // 3. Fetch rows for current page
-            await fetchPageRows()
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = "Failed to load table schema or data: \(error.localizedDescription)"
+            await self.fetchPageRows()
         }
-        
-        isLoading = false
     }
     
     func fetchPageRows() async {
@@ -99,7 +89,7 @@ final class D1TableViewModel: ObservableObject {
             )
             self.rows = result.rows
         } catch {
-            self.errorMessage = "Failed to fetch rows: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
         }
     }
     
@@ -137,6 +127,7 @@ final class D1TableViewModel: ObservableObject {
     }
     
     func insertRow(values: [String: String]) async -> Bool {
+        guard !values.isEmpty else { return false }
         let cols = values.keys.map { "\"\($0)\"" }.joined(separator: ", ")
         let valPlaceholders = values.values.map { v -> String in
             let escaped = v.replacingOccurrences(of: "'", with: "''")
@@ -182,12 +173,18 @@ final class D1TableViewModel: ObservableObject {
     }
 }
 
+public enum D1DisplayMode: String, CaseIterable {
+    case cards = "Cards"
+    case table = "Table"
+}
+
 struct D1TableView: View {
     let accountId: String
     let databaseId: String
     let tableName: String
     
     @StateObject private var viewModel: D1TableViewModel
+    @State private var displayMode: D1DisplayMode = .cards
     @State private var selectedRowForEdit: [String: String]? = nil
     @State private var showingInsertSheet = false
     @State private var rowToDelete: [String: String]? = nil
@@ -205,17 +202,28 @@ struct D1TableView: View {
             Color(.systemGroupedBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Table stats bar
-                HStack {
+                // Table stats & Display Mode Bar
+                HStack(spacing: 12) {
                     Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    
                     Spacer()
+                    
+                    Picker("View", selection: $displayMode) {
+                        Image(systemName: "rectangle.grid.1x2.fill").tag(D1DisplayMode.cards)
+                        Image(systemName: "tablecells.fill").tag(D1DisplayMode.table)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 90)
+                    
+                    Spacer()
+                    
                     Label("\(viewModel.totalRowCount) Total Rows", systemImage: "list.number")
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(Color(.secondarySystemGroupedBackground))
                 
@@ -229,100 +237,29 @@ struct D1TableView: View {
                     }
                     .listStyle(.insetGrouped)
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(err),
-                        retryAction: { Task { await viewModel.loadTable() } }
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(err),
+                            retryAction: { Task { await viewModel.loadTable() } }
+                        )
                     )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if viewModel.rows.isEmpty && viewModel.hasFetchedData {
-                    EmptyStateView(
-                        icon: "tablecells",
-                        title: "Empty Table",
-                        message: "Table '\(tableName)' has no data rows.",
-                        actionTitle: "Insert Row",
-                        action: { showingInsertSheet = true }
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "tablecells",
+                            title: "Empty Table",
+                            message: "Table '\(tableName)' has no data rows.",
+                            actionTitle: "Insert Row",
+                            action: { showingInsertSheet = true }
+                        )
                     )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ScrollView([.horizontal, .vertical]) {
-                        LazyVStack(alignment: .leading, spacing: 0) {
-                            // Header Row
-                            HStack(spacing: 0) {
-                                Text("#")
-                                    .font(.caption2.weight(.bold))
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 50, alignment: .leading)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 10)
-                                
-                                ForEach(viewModel.columns) { col in
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        HStack(spacing: 4) {
-                                            Text(col.name)
-                                                .font(.caption.weight(.bold))
-                                                .foregroundStyle(.primary)
-                                            if col.isPrimaryKey {
-                                                Image(systemName: "key.fill")
-                                                    .font(.caption2)
-                                                    .foregroundStyle(.orange)
-                                            }
-                                        }
-                                        Text(col.type)
-                                            .font(.caption2.monospaced().weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .frame(width: 140, alignment: .leading)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 10)
-                                }
-                            }
-                            .background(Color(UIColor.tertiarySystemGroupedBackground))
-                            
-                            Divider()
-                            
-                            // Data Rows
-                            ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
-                                Button {
-                                    selectedRowForEdit = row
-                                } label: {
-                                    HStack(spacing: 0) {
-                                        Text(row["_rowid_"] ?? "\(index + 1)")
-                                            .font(.caption2.monospacedDigit())
-                                            .foregroundStyle(.secondary)
-                                            .frame(width: 50, alignment: .leading)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 8)
-                                        
-                                        ForEach(viewModel.columns) { col in
-                                            let cellValue = row[col.name] ?? "NULL"
-                                            Text(cellValue)
-                                                .font(.caption.monospaced())
-                                                .foregroundStyle(cellValue == "NULL" ? .secondary : .primary)
-                                                .frame(width: 140, alignment: .leading)
-                                                .lineLimit(1)
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 8)
-                                        }
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                                .background(index % 2 == 0 ? Color(UIColor.systemBackground) : Color(UIColor.secondarySystemGroupedBackground).opacity(0.5))
-                                .contextMenu {
-                                    Button {
-                                        selectedRowForEdit = row
-                                    } label: {
-                                        Label("Edit Row", systemImage: "pencil")
-                                    }
-                                    
-                                    Button(role: .destructive) {
-                                        rowToDelete = row
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Label("Delete Row", systemImage: "trash")
-                                    }
-                                }
-                                
-                                Divider()
-                            }
-                        }
+                    if displayMode == .cards {
+                        cardsView
+                    } else {
+                        tableView
                     }
                 }
                 
@@ -353,9 +290,10 @@ struct D1TableView: View {
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 10)
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .background(Color(.secondarySystemGroupedBackground))
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .navigationTitle(tableName)
         .navigationBarTitleDisplayMode(.inline)
@@ -395,13 +333,13 @@ struct D1TableView: View {
                 }
             )
         }
-        .alert("Delete Row", isPresented: $showingDeleteAlert, presenting: rowToDelete) { row in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
+            Button("Delete Row #\(row["_rowid_"] ?? "")", role: .destructive) {
                 if let rowid = row["_rowid_"] {
                     Task { _ = await viewModel.deleteRow(rowid: rowid) }
                 }
             }
+            Button("Cancel", role: .cancel) {}
         } message: { row in
             Text("Are you sure you want to delete row with rowid \(row["_rowid_"] ?? "")?")
         }
@@ -413,6 +351,172 @@ struct D1TableView: View {
                 await viewModel.loadTable()
             }
         }
+    }
+    
+    // MARK: - 1. Cards View (纵向全屏卡片视图，无需左右滑动)
+    private var cardsView: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
+                    VStack(alignment: .leading, spacing: 10) {
+                        // Card Header
+                        HStack {
+                            Label("Row #\(row["_rowid_"] ?? "\(index + 1)")", systemImage: "number")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            Button {
+                                selectedRowForEdit = row
+                            } label: {
+                                Image(systemName: "pencil.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                            }
+                            .buttonStyle(.plain)
+                            
+                            Button(role: .destructive) {
+                                rowToDelete = row
+                                showingDeleteAlert = true
+                            } label: {
+                                Image(systemName: "trash.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.red.opacity(0.85))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        
+                        Divider()
+                        
+                        // Field Rows
+                        ForEach(viewModel.columns) { col in
+                            HStack(alignment: .top, spacing: 8) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 4) {
+                                        Text(col.name)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.primary)
+                                        if col.isPrimaryKey {
+                                            Image(systemName: "key.fill")
+                                                .font(.system(size: 9))
+                                                .foregroundStyle(.orange)
+                                        }
+                                    }
+                                    Text(col.type)
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(width: 100, alignment: .leading)
+                                
+                                Spacer()
+                                
+                                let cellVal = row[col.name] ?? "NULL"
+                                Text(cellVal)
+                                    .font(.callout.monospaced())
+                                    .foregroundStyle(cellVal == "NULL" ? .secondary : .primary)
+                                    .multilineTextAlignment(.trailing)
+                                    .textSelection(.enabled)
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    .padding(14)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
+                }
+            }
+            .padding(16)
+        }
+    }
+    
+    // MARK: - 2. Table Grid View (经典网格表格视图)
+    private var tableView: some View {
+        ScrollView([.horizontal, .vertical], showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header Row
+                HStack(spacing: 0) {
+                    Text("#")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 50, alignment: .leading)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
+                    
+                    ForEach(viewModel.columns) { col in
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 4) {
+                                Text(col.name)
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.primary)
+                                if col.isPrimaryKey {
+                                    Image(systemName: "key.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                            Text(col.type)
+                                .font(.caption2.monospaced().weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(width: 140, alignment: .leading)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
+                    }
+                }
+                .background(Color(.tertiarySystemGroupedBackground))
+                
+                Divider()
+                
+                // Data Rows
+                ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
+                    Button {
+                        selectedRowForEdit = row
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text(row["_rowid_"] ?? "\(index + 1)")
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                                .frame(width: 50, alignment: .leading)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 8)
+                            
+                            ForEach(viewModel.columns) { col in
+                                let cellValue = row[col.name] ?? "NULL"
+                                Text(cellValue)
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(cellValue == "NULL" ? .secondary : .primary)
+                                    .frame(width: 140, alignment: .leading)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 8)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .background(index % 2 == 0 ? Color(.systemBackground) : Color(.secondarySystemGroupedBackground).opacity(0.5))
+                    .contextMenu {
+                        Button {
+                            selectedRowForEdit = row
+                        } label: {
+                            Label("Edit Row", systemImage: "pencil")
+                        }
+                        
+                        Button(role: .destructive) {
+                            rowToDelete = row
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete Row", systemImage: "trash")
+                        }
+                    }
+                    
+                    Divider()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

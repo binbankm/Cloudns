@@ -19,9 +19,9 @@ struct AIGatewayView: View {
                     Section {
                         ForEach(AIGateway.placeholders) { gw in
                             gatewayRow(gw)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("AI Gateway")
@@ -44,9 +44,8 @@ struct AIGatewayView: View {
                     .sheet(isPresented: $showingCreateSheet) {
                         AIGatewayCreateSheetView(viewModel: viewModel)
                     }
-                    .alert("Delete AI Gateway", isPresented: $showingDeleteAlert, presenting: gatewayToDelete) { gw in
-                        Button("Cancel", role: .cancel) {}
-                        Button("Delete", role: .destructive) {
+                    .confirmationDialog("Delete AI Gateway", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: gatewayToDelete) { gw in
+                        Button("Delete '\(gw.name ?? gw.id)'", role: .destructive) {
                             Task {
                                 do {
                                     try await viewModel.deleteGateway(id: gw.id)
@@ -56,6 +55,7 @@ struct AIGatewayView: View {
                                 }
                             }
                         }
+                        Button("Cancel", role: .cancel) {}
                     } message: { gw in
                         Text("Are you sure you want to delete AI Gateway '\(gw.name ?? gw.id)'? Real-time logs and cached request data will be deleted.")
                     }
@@ -64,6 +64,7 @@ struct AIGatewayView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchGateways()

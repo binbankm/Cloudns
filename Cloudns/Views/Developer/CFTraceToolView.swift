@@ -59,6 +59,7 @@ struct CFTraceToolView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.traceFields.isEmpty)
         .navigationTitle("Cloudflare Trace")
         .navigationBarTitleDisplayMode(.inline)
         .task {

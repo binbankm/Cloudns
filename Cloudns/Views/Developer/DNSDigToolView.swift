@@ -66,9 +66,9 @@ struct DNSDigToolView: View {
                 Section(header: Text("Resolving Answers...")) {
                     ForEach(DNSAnswerItem.placeholders) { item in
                         DNSAnswerRowView(item: item)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else if let result = viewModel.dnsResult {
                 Section(header: HStack {
                     Text("Resolved Answers (\(result.answers.count))")
@@ -96,6 +96,7 @@ struct DNSDigToolView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.dnsResult == nil)
         .navigationTitle("DNS Dig Query")
         .navigationBarTitleDisplayMode(.inline)
     }

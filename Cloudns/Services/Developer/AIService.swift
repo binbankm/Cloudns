@@ -1,0 +1,63 @@
+import Foundation
+
+/// 统一的 Cloudflare AI Gateway 与 Workers AI 模型推理领域服务
+final class AIService {
+    static let shared = AIService()
+    
+    private let client = HTTPNetworkClient.shared
+    private let factory = AuthenticatedRequestFactory.shared
+    
+    private init() {}
+    
+    func getAIGateways(accountId: String) async throws -> [AIGateway] {
+        try await listAIGateways(accountId: accountId)
+    }
+    
+    func listAIGateways(accountId: String) async throws -> [AIGateway] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai-gateway/gateways")
+        let (gateways, _): ([AIGateway]?, ResultInfo?) = try await client.performRequest(request)
+        return gateways ?? []
+    }
+    
+    func createAIGateway(accountId: String, id: String) async throws {
+        let payload: [String: Any] = ["id": id, "collect_logs": true]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai-gateway/gateways", method: "POST", body: data)
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func deleteAIGateway(accountId: String, id: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai-gateway/gateways/\(id)", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func getWorkersAIModels(accountId: String) async throws -> [AIModel] {
+        try await listAIModels(accountId: accountId)
+    }
+    
+    func listAIModels(accountId: String, search: String? = nil) async throws -> [AIModel] {
+        var queryItems: [URLQueryItem] = []
+        if let s = search, !s.isEmpty {
+            queryItems.append(URLQueryItem(name: "search", value: s))
+        }
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai/models/search", queryItems: queryItems)
+        let (models, _): ([AIModel]?, ResultInfo?) = try await client.performRequest(request)
+        return models ?? []
+    }
+    
+    func runAIChat(accountId: String, model: String, messages: [[String: String]]) async throws -> String {
+        let payload: [String: Any] = ["messages": messages]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai/run/\(model)", method: "POST", body: data)
+        struct AIResponse: Codable {
+            let result: AIReplyResult?
+            struct AIReplyResult: Codable {
+                let response: String?
+            }
+        }
+        let (res, _): (AIResponse?, ResultInfo?) = try await client.performRequest(request)
+        return res?.result?.response ?? "No response received"
+    }
+}

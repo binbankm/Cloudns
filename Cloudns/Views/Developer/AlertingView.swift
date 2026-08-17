@@ -1,56 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class AlertingViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var availableTypes: [AlertingAvailableType] = []
-    @Published var policies: [AlertingPolicy] = []
-    @Published var webhooks: [AlertingWebhookDestination] = []
-    
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    func fetchData() async {
-        isLoading = true
-        errorMessage = nil
-        
-        async let fetchTypes: [AlertingAvailableType] = {
-            (try? await self.apiClient.listAvailableAlertTypes(accountId: self.accountId)) ?? []
-        }()
-        async let fetchPol: [AlertingPolicy] = {
-            (try? await self.apiClient.listAlertingPolicies(accountId: self.accountId)) ?? []
-        }()
-        async let fetchHooks: [AlertingWebhookDestination] = {
-            (try? await self.apiClient.listAlertingWebhooks(accountId: self.accountId)) ?? []
-        }()
-        
-        let (types, pols, hooks) = await (fetchTypes, fetchPol, fetchHooks)
-        self.availableTypes = types
-        self.policies = pols
-        self.webhooks = hooks
-        self.hasFetchedData = true
-        isLoading = false
-    }
-    
-    func deletePolicy(id: String) async {
-        do {
-            try await apiClient.deleteAlertingPolicy(accountId: accountId, policyId: id)
-            ToastManager.shared.showSuccess("Policy Deleted", message: "")
-            await fetchData()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct AlertingView: View {
     let accountId: String
@@ -69,9 +18,9 @@ struct AlertingView: View {
                     Section(header: Text("Configured Policies")) {
                         ForEach(AlertingPolicy.placeholders) { p in
                             policyRow(p)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Notification Alerts")
@@ -169,6 +118,7 @@ struct AlertingView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchData()

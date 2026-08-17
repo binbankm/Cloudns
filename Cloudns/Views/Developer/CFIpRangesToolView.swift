@@ -29,9 +29,9 @@ struct CFIpRangesToolView: View {
                 Section(header: Text("Official CIDRs")) {
                     ForEach(placeholderRanges, id: \.self) { cidr in
                         cidrRow(cidr)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             }
             .listStyle(.insetGrouped)
         }
@@ -101,6 +101,7 @@ struct CFIpRangesToolView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchIPRanges()

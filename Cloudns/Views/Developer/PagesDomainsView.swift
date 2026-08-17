@@ -54,9 +54,9 @@ struct PagesDomainsView: View {
                 Section(header: Text("Connected Domains")) {
                     ForEach(PagesDomain.placeholders) { domain in
                         domainRow(domain)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
@@ -75,6 +75,7 @@ struct PagesDomainsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .overlay {
             if !viewModel.isLoading && viewModel.domains.isEmpty {
                 StateOverlayView(

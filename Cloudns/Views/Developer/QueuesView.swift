@@ -1,71 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class QueuesViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var queues: [CFQueue] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredQueues: [CFQueue] {
-        if searchText.isEmpty { return queues }
-        return queues.filter { $0.queueName.localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchQueues() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.queues = try await apiClient.listQueues(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-    
-    func createQueue(name: String) async -> Bool {
-        do {
-            _ = try await apiClient.createQueue(accountId: accountId, name: name)
-            ToastManager.shared.showSuccess("Queue Created", message: name)
-            await fetchQueues()
-            return true
-        } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
-            return false
-        }
-    }
-    
-    func deleteQueue(queueId: String) async {
-        do {
-            try await apiClient.deleteQueue(accountId: accountId, queueId: queueId)
-            ToastManager.shared.showSuccess("Queue Deleted", message: "")
-            await fetchQueues()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-    
-    func purgeQueue(queueId: String) async {
-        do {
-            try await apiClient.purgeQueue(accountId: accountId, queueId: queueId)
-            ToastManager.shared.showSuccess("Queue Purged", message: "All messages deleted.")
-        } catch {
-            ToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct QueuesView: View {
     let accountId: String
@@ -88,9 +22,9 @@ struct QueuesView: View {
             Section(header: Text("Message Queues")) {
                 ForEach(CFQueue.placeholders) { queue in
                     queueRow(queue)
+                        .skeletonLoading(true)
                 }
             }
-            .skeletonLoading(true)
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Queues")
@@ -179,19 +113,19 @@ struct QueuesView: View {
         .sheet(isPresented: $showingCreateSheet) {
             CreateQueueSheet(viewModel: viewModel)
         }
-        .alert("Delete Queue", isPresented: $showingDeleteAlert, presenting: queueToDelete) { q in
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .confirmationDialog("Delete Queue", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: queueToDelete) { q in
+            Button("Delete '\(q.queueName)'", role: .destructive) {
                 Task { await viewModel.deleteQueue(queueId: q.id) }
             }
+            Button("Cancel", role: .cancel) {}
         } message: { q in
             Text("Are you sure you want to permanently delete '\(q.queueName)'? Producers and consumers will fail to deliver.")
         }
-        .alert("Purge All Messages", isPresented: $showingPurgeAlert, presenting: queueToPurge) { q in
-            Button("Cancel", role: .cancel) {}
-            Button("Purge Everything", role: .destructive) {
+        .confirmationDialog("Purge All Messages", isPresented: $showingPurgeAlert, titleVisibility: .visible, presenting: queueToPurge) { q in
+            Button("Purge All Messages in '\(q.queueName)'", role: .destructive) {
                 Task { await viewModel.purgeQueue(queueId: q.id) }
             }
+            Button("Cancel", role: .cancel) {}
         } message: { q in
             Text("Are you sure you want to purge all unconsumed messages in '\(q.queueName)'? This action cannot be undone.")
         }
@@ -209,6 +143,7 @@ struct QueuesView: View {
                 dataContent
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchQueues()

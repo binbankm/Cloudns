@@ -1,0 +1,59 @@
+import Foundation
+import SwiftUI
+import Combine
+
+@MainActor
+class D1ConsoleViewModel: BaseLoadableViewModel {
+    let accountId: String
+    let database: D1Database
+    private let apiClient = CloudflareAPIClient.shared
+    
+    @Published var tables: [String] = []
+    @Published var sqlInput: String = "SELECT name, type FROM sqlite_master WHERE type='table';"
+    @Published var queryResult: D1QueryResult?
+    @Published var isExecuting = false
+    @Published var isLoadingTables = false
+    
+    let sqlPresets: [(name: String, sql: String)] = [
+        ("Table List", "SELECT name, type FROM sqlite_master WHERE type='table';"),
+        ("All Sequences", "SELECT * FROM sqlite_sequence;"),
+        ("Table Info", "PRAGMA table_list;")
+    ]
+    
+    init(accountId: String, database: D1Database) {
+        self.accountId = accountId
+        self.database = database
+        super.init()
+    }
+    
+    func fetchTables() async {
+        isLoadingTables = true
+        do {
+            let sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;"
+            let res = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: sql)
+            self.tables = res.rows.compactMap { $0["name"] }
+        } catch {
+            print("Failed to fetch tables: \(error.localizedDescription)")
+        }
+        isLoadingTables = false
+    }
+    
+    func runQuery() async {
+        let trimmed = sqlInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        
+        isExecuting = true
+        errorMessage = nil
+        
+        do {
+            self.queryResult = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: trimmed)
+            if trimmed.localizedCaseInsensitiveContains("CREATE TABLE") || trimmed.localizedCaseInsensitiveContains("DROP TABLE") {
+                await fetchTables()
+            }
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
+        
+        isExecuting = false
+    }
+}

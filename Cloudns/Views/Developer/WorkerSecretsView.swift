@@ -22,9 +22,9 @@ struct WorkerSecretsView: View {
                     Section {
                         ForEach(WorkerBinding.placeholders) { variable in
                             variableRow(variable)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Variables & Secrets")
@@ -50,9 +50,8 @@ struct WorkerSecretsView: View {
                     .sheet(item: $variableToEdit) { v in
                         WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
                     }
-                    .alert("Delete Item", isPresented: $showingDeleteAlert, presenting: itemToDelete) { item in
-                        Button("Cancel", role: .cancel) {}
-                        Button("Delete", role: .destructive) {
+                    .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
+                        Button("Delete '\(item.name)'", role: .destructive) {
                             Task {
                                 do {
                                     if item.isSecret {
@@ -66,6 +65,7 @@ struct WorkerSecretsView: View {
                                 }
                             }
                         }
+                        Button("Cancel", role: .cancel) {}
                     } message: { item in
                         Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
                     }
@@ -74,6 +74,7 @@ struct WorkerSecretsView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSecrets()

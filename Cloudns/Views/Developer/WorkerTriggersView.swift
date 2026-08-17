@@ -64,9 +64,9 @@ struct WorkerTriggersView: View {
                 Section(header: Text("Scheduled Triggers")) {
                     ForEach(WorkerSchedule.placeholders) { schedule in
                         scheduleRow(schedule)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
@@ -88,6 +88,7 @@ struct WorkerTriggersView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {

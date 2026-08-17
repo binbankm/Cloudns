@@ -1,62 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class BulkRedirectsViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var lists: [RedirectList] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredLists: [RedirectList] {
-        if searchText.isEmpty { return lists }
-        return lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchLists() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.lists = try await apiClient.listRedirectLists(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-    
-    func createList(name: String, description: String?) async -> Bool {
-        do {
-            _ = try await apiClient.createRedirectList(accountId: accountId, name: name, description: description)
-            ToastManager.shared.showSuccess("List Created", message: name)
-            await fetchLists()
-            return true
-        } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
-            return false
-        }
-    }
-    
-    func deleteList(id: String) async {
-        do {
-            try await apiClient.deleteRedirectList(accountId: accountId, listId: id)
-            ToastManager.shared.showSuccess("List Deleted", message: "")
-            await fetchLists()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct BulkRedirectListsView: View {
     let accountId: String
@@ -77,9 +20,9 @@ struct BulkRedirectListsView: View {
                     Section(header: Text("Redirect Lists")) {
                         ForEach(RedirectList.placeholders) { item in
                             listRow(item)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Bulk Redirects")
@@ -102,11 +45,11 @@ struct BulkRedirectListsView: View {
                     .sheet(isPresented: $showingCreateSheet) {
                         CreateBulkRedirectListSheet(viewModel: viewModel)
                     }
-                    .alert("Delete List", isPresented: $showingDeleteAlert, presenting: listToDelete) { item in
-                        Button("Cancel", role: .cancel) {}
-                        Button("Delete", role: .destructive) {
+                    .confirmationDialog("Delete List", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: listToDelete) { item in
+                        Button("Delete '\(item.name)'", role: .destructive) {
                             Task { await viewModel.deleteList(id: item.id) }
                         }
+                        Button("Cancel", role: .cancel) {}
                     } message: { item in
                         Text("Are you sure you want to delete redirect list '\(item.name)'?")
                     }
@@ -120,6 +63,7 @@ struct BulkRedirectListsView: View {
                 await viewModel.fetchLists()
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .toastContainer()
     }
     

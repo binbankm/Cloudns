@@ -1,46 +1,45 @@
 import SwiftUI
 
-/// A ViewModifier that adds a shimmering animation to any view, commonly used for skeleton loading screens.
+/// A ViewModifier that adds a smooth, industry-standard shimmering light-sweep animation to any view.
 public struct ShimmerEffect: ViewModifier {
-    @State private var phase: CGFloat = 0
+    @State private var phase: CGFloat = -1.0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
+    public init() {}
 
     public func body(content: Content) -> some View {
-        content
-            .modifier(
-                AnimatedMask(phase: phase)
-            )
-            .onAppear {
-                withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                    phase = 1
-                }
-            }
-    }
-    
-    struct AnimatedMask: AnimatableModifier {
-        var phase: CGFloat
-        
-        var animatableData: CGFloat {
-            get { phase }
-            set { phase = newValue }
-        }
-        
-        func body(content: Content) -> some View {
+        if reduceMotion {
             content
-                .mask(
+                .opacity(0.8)
+        } else {
+            content
+                .overlay(
                     GeometryReader { geometry in
+                        let width = geometry.size.width
                         LinearGradient(
                             gradient: Gradient(stops: [
-                                .init(color: .black.opacity(0.3), location: phase - 0.25),
-                                .init(color: .black, location: phase),
-                                .init(color: .black.opacity(0.3), location: phase + 0.25)
+                                .init(color: .clear, location: 0.0),
+                                .init(color: Color.white.opacity(0.35), location: 0.45),
+                                .init(color: Color.white.opacity(0.6), location: 0.5),
+                                .init(color: Color.white.opacity(0.35), location: 0.55),
+                                .init(color: .clear, location: 1.0)
                             ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                            startPoint: .leading,
+                            endPoint: .trailing
                         )
-                        .frame(width: max(geometry.size.width * 3, 100))
-                        .offset(x: -geometry.size.width + (geometry.size.width * 2 * phase))
+                        .frame(width: max(width * 2.0, 150))
+                        .offset(x: -width + (width * 2.5 * phase))
+                        .blendMode(.screen)
+                        .animation(
+                            Animation.linear(duration: 1.5).repeatForever(autoreverses: false),
+                            value: phase
+                        )
                     }
+                    .mask(content)
                 )
+                .onAppear {
+                    phase = 1.0
+                }
         }
     }
 }
@@ -63,6 +62,7 @@ public extension View {
             .redacted(reason: isLoading ? .placeholder : [])
             .shimmering(active: isLoading)
             .allowsHitTesting(!isLoading)
+            .disabled(isLoading)
     }
 }
 

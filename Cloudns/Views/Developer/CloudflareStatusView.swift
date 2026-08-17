@@ -1,108 +1,4 @@
 import SwiftUI
-import Combine
-
-// MARK: - Models for Cloudflare Statuspage
-
-struct CFStatusSummary: Codable {
-    let page: CFStatusPage?
-    let status: CFOverallStatus?
-    let components: [CFComponentItem]?
-    let incidents: [CFIncidentItem]?
-}
-
-struct CFStatusPage: Codable {
-    let id: String?
-    let name: String?
-    let url: String?
-    let updatedAt: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case id, name, url
-        case updatedAt = "updated_at"
-    }
-}
-
-struct CFOverallStatus: Codable {
-    let indicator: String // none, minor, major, critical
-    let description: String
-}
-
-struct CFComponentItem: Codable, Identifiable {
-    let id: String
-    let name: String
-    let status: String // operational, degraded_performance, partial_outage, major_outage
-    let description: String?
-    let position: Int?
-    
-    init(id: String, name: String, status: String = "operational", description: String? = nil, position: Int? = 1) {
-        self.id = id
-        self.name = name
-        self.status = status
-        self.description = description
-        self.position = position
-    }
-    
-    static let placeholders: [CFComponentItem] = [
-        CFComponentItem(id: "1", name: "Authoritative DNS"),
-        CFComponentItem(id: "2", name: "Cloudflare Dashboard"),
-        CFComponentItem(id: "3", name: "Cloudflare Workers"),
-        CFComponentItem(id: "4", name: "Cloudflare Pages"),
-        CFComponentItem(id: "5", name: "R2 Object Storage"),
-        CFComponentItem(id: "6", name: "D1 SQL Database")
-    ]
-}
-
-struct CFIncidentItem: Codable, Identifiable {
-    let id: String
-    let name: String
-    let status: String // resolved, monitoring, identified, investigating
-    let impact: String // none, minor, major, critical
-    let createdAt: String?
-    let updatedAt: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case id, name, status, impact
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-    }
-}
-
-// MARK: - ViewModel
-
-@MainActor
-class CloudflareStatusViewModel: ObservableObject {
-    @Published var summary: CFStatusSummary?
-    @Published var isLoading = false
-    @Published var hasFetchedData = false
-    @Published var errorMessage: String?
-    
-    func fetchStatus() async {
-        isLoading = true
-        errorMessage = nil
-        
-        guard let url = URL(string: "https://www.cloudflarestatus.com/api/v2/summary.json") else {
-            errorMessage = "Invalid status URL"
-            isLoading = false
-            return
-        }
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                throw APIError.invalidResponse
-            }
-            let decoded = try JSONDecoder().decode(CFStatusSummary.self, from: data)
-            self.summary = decoded
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
-}
-
-// MARK: - View
 
 struct CloudflareStatusView: View {
     @StateObject private var viewModel = CloudflareStatusViewModel()
@@ -176,9 +72,9 @@ struct CloudflareStatusView: View {
                                 .foregroundStyle(.green)
                         }
                         .padding(.vertical, 2)
+                        .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else if let summary = viewModel.summary {
                 // Section: Overall Status Banner Card
                 Section {
@@ -243,6 +139,7 @@ struct CloudflareStatusView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .overlay {
             if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
                 StateOverlayView(

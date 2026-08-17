@@ -30,12 +30,17 @@ struct WorkersListView: View {
             List {
                 Section {
                     if viewModel.selectedSegment == 0 {
-                        ForEach(WorkerScript.placeholders) { worker in WorkerRowView(worker: worker) }
+                        ForEach(WorkerScript.placeholders) { worker in 
+                            WorkerRowView(worker: worker)
+                                .skeletonLoading(true)
+                        }
                     } else {
-                        ForEach(PagesProject.placeholders) { page in pagesRow(page) }
+                        ForEach(PagesProject.placeholders) { page in 
+                            pagesRow(page)
+                                .skeletonLoading(true)
+                        }
                     }
                 }
-                .skeletonLoading(true)
             }
             .listStyle(.insetGrouped)
         }
@@ -84,9 +89,8 @@ struct WorkersListView: View {
                 .sheet(isPresented: $showingCreatePagesSheet) {
                     PagesCreateProjectSheetView(viewModel: viewModel)
                 }
-                .alert("Delete Worker", isPresented: $showingDeleteWorkerAlert, presenting: workerToDelete) { worker in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
+                    Button("Delete '\(worker.id)'", role: .destructive) {
                         Task {
                             do {
                                 try await viewModel.deleteWorker(name: worker.id)
@@ -96,12 +100,12 @@ struct WorkersListView: View {
                             }
                         }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { worker in
                     Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
                 }
-                .alert("Delete Pages Project", isPresented: $showingDeletePagesAlert, presenting: pagesProjectToDelete) { proj in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
+                    Button("Delete '\(proj.name)'", role: .destructive) {
                         Task {
                             do {
                                 try await viewModel.deletePagesProject(name: proj.name)
@@ -111,12 +115,14 @@ struct WorkersListView: View {
                             }
                         }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { proj in
                     Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
                 }
                 .refreshable { await viewModel.fetchData() }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchData()
@@ -264,6 +270,8 @@ struct WorkersListView: View {
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Pages project \(page.name), branch \(page.productionBranch ?? "main")")
     }
 }
 
@@ -317,6 +325,8 @@ struct WorkerRowView: View {
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Worker \(worker.id), usage model \(worker.usageModel ?? "standard")")
     }
 }
 

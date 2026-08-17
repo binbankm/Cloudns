@@ -1,50 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class GatewayRulesViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var rules: [GatewayRule] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredRules: [GatewayRule] {
-        if searchText.isEmpty { return rules }
-        return rules.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.action).localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchRules() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.rules = try await apiClient.listGatewayRules(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-    
-    func deleteRule(id: String) async {
-        do {
-            try await apiClient.deleteGatewayRule(accountId: accountId, ruleId: id)
-            ToastManager.shared.showSuccess("Gateway Rule Deleted", message: "")
-            await fetchRules()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct GatewayRulesView: View {
     let accountId: String
@@ -64,9 +19,9 @@ struct GatewayRulesView: View {
                     Section(header: Text("Security Rules")) {
                         ForEach(GatewayRule.placeholders) { rule in
                             ruleRow(rule)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Gateway Rules")
@@ -121,11 +76,11 @@ struct GatewayRulesView: View {
                 .navigationTitle("Gateway Rules")
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $viewModel.searchText, prompt: "Search Rules")
-                .alert("Delete Rule", isPresented: $showingDeleteAlert, presenting: ruleToDelete) { rule in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+                    Button("Delete '\(rule.name)'", role: .destructive) {
                         Task { await viewModel.deleteRule(id: rule.id) }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { rule in
                     Text("Are you sure you want to delete '\(rule.name)'?")
                 }
@@ -134,6 +89,7 @@ struct GatewayRulesView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchRules()

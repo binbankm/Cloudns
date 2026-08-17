@@ -17,9 +17,11 @@ struct R2BucketsView: View {
             if !viewModel.hasFetchedData {
                 List {
                     Section {
-                        ForEach(R2Bucket.placeholders) { bucket in R2BucketRowView(bucket: bucket) }
+                        ForEach(R2Bucket.placeholders) { bucket in 
+                            R2BucketRowView(bucket: bucket)
+                                .skeletonLoading(true)
+                        }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("R2 Object Storage")
@@ -37,9 +39,8 @@ struct R2BucketsView: View {
                         }
                     }
                     .sheet(isPresented: $showingCreateSheet) { R2CreateBucketSheetView(viewModel: viewModel) }
-                    .alert("Delete Bucket", isPresented: $showingDeleteAlert, presenting: bucketToDelete) { bucket in
-                        Button("Cancel", role: .cancel) {}
-                        Button("Delete", role: .destructive) {
+                    .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in
+                        Button("Delete '\(bucket.name)'", role: .destructive) {
                             Task {
                                 do {
                                     try await viewModel.deleteBucket(bucketName: bucket.name)
@@ -49,11 +50,13 @@ struct R2BucketsView: View {
                                 }
                             }
                         }
+                        Button("Cancel", role: .cancel) {}
                     } message: { bucket in
-                        Text("Are you sure you want to delete bucket '\(bucket.name)'? This action cannot be undone.")
+                        Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchBuckets()

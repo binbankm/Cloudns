@@ -69,6 +69,7 @@ struct IPLookupToolView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.lookupResult == nil)
         .navigationTitle("IP & ASN Lookup")
         .navigationBarTitleDisplayMode(.inline)
     }

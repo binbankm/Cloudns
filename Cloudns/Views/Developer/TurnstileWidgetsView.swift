@@ -19,9 +19,9 @@ struct TurnstileWidgetsView: View {
                     Section {
                         ForEach(TurnstileWidget.placeholders) { widget in
                             TurnstileWidgetRowView(widget: widget)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Turnstile Widgets")
@@ -44,9 +44,8 @@ struct TurnstileWidgetsView: View {
                     .sheet(isPresented: $showingCreateSheet) {
                         CreateTurnstileWidgetSheetView(viewModel: viewModel)
                     }
-                    .alert("Delete Turnstile Widget", isPresented: $showingDeleteAlert, presenting: widgetToDelete) { widget in
-                        Button("Cancel", role: .cancel) {}
-                        Button("Delete", role: .destructive) {
+                    .confirmationDialog("Delete Turnstile Widget", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: widgetToDelete) { widget in
+                        Button("Delete '\(widget.name)'", role: .destructive) {
                             Task {
                                 do {
                                     try await viewModel.deleteWidget(sitekey: widget.sitekey)
@@ -56,6 +55,7 @@ struct TurnstileWidgetsView: View {
                                 }
                             }
                         }
+                        Button("Cancel", role: .cancel) {}
                     } message: { widget in
                         Text("Are you sure you want to delete widget '\(widget.name)' (\(widget.sitekey))? Any websites using this sitekey will fail human verification.")
                     }
@@ -64,6 +64,7 @@ struct TurnstileWidgetsView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchWidgets()

@@ -18,9 +18,9 @@ struct TunnelsListView: View {
                     Section {
                         ForEach(CFTunnel.placeholders) { tunnel in
                             TunnelRowView(tunnel: tunnel)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Cloudflare Tunnels")
@@ -50,6 +50,7 @@ struct TunnelsListView: View {
                 await viewModel.fetchTunnels()
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
     }
     
     @ViewBuilder

@@ -17,9 +17,9 @@ struct WorkersAIView: View {
                     Section(header: Text("Models")) {
                         ForEach(AIModel.placeholders) { model in
                             modelRow(model)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Workers AI")
@@ -37,6 +37,7 @@ struct WorkersAIView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchModels()

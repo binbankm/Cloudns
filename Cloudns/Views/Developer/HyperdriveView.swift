@@ -1,62 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class HyperdriveViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var configs: [HyperdriveConfig] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredConfigs: [HyperdriveConfig] {
-        if searchText.isEmpty { return configs }
-        return configs.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.origin?.host ?? "").localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchConfigs() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.configs = try await apiClient.listHyperdriveConfigs(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-    
-    func createConfig(payload: HyperdriveCreate) async -> Bool {
-        do {
-            _ = try await apiClient.createHyperdriveConfig(accountId: accountId, payload: payload)
-            ToastManager.shared.showSuccess("Hyperdrive Created", message: payload.name)
-            await fetchConfigs()
-            return true
-        } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
-            return false
-        }
-    }
-    
-    func deleteConfig(id: String) async {
-        do {
-            try await apiClient.deleteHyperdriveConfig(accountId: accountId, configId: id)
-            ToastManager.shared.showSuccess("Hyperdrive Deleted", message: "")
-            await fetchConfigs()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct HyperdriveView: View {
     let accountId: String
@@ -77,9 +20,9 @@ struct HyperdriveView: View {
                     Section(header: Text("Database Accelerators")) {
                         ForEach(HyperdriveConfig.placeholders) { config in
                             configRow(config)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Hyperdrive")
@@ -148,11 +91,11 @@ struct HyperdriveView: View {
                 .sheet(isPresented: $showingCreateSheet) {
                     CreateHyperdriveSheet(viewModel: viewModel)
                 }
-                .alert("Delete Hyperdrive", isPresented: $showingDeleteAlert, presenting: configToDelete) { cfg in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete Hyperdrive", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: configToDelete) { cfg in
+                    Button("Delete '\(cfg.name)'", role: .destructive) {
                         Task { await viewModel.deleteConfig(id: cfg.id) }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { cfg in
                     Text("Are you sure you want to delete '\(cfg.name)'? Worker bindings connected to this accelerator will stop functioning.")
                 }
@@ -161,6 +104,7 @@ struct HyperdriveView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchConfigs()

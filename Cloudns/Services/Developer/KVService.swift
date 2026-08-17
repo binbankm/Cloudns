@@ -1,0 +1,79 @@
+import Foundation
+
+/// 统一的 Cloudflare KV 命名空间与键值对领域服务
+final class KVService {
+    static let shared = KVService()
+    
+    private let client = HTTPNetworkClient.shared
+    private let factory = AuthenticatedRequestFactory.shared
+    
+    private init() {}
+    
+    func getKVNamespaces(accountId: String) async throws -> [KVNamespace] {
+        try await listKVNamespaces(accountId: accountId)
+    }
+    
+    func listKVNamespaces(accountId: String) async throws -> [KVNamespace] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces")
+        let (namespaces, _): ([KVNamespace]?, ResultInfo?) = try await client.performRequest(request)
+        return namespaces ?? []
+    }
+    
+    func createKVNamespace(accountId: String, title: String) async throws -> KVNamespace {
+        let payload = ["title": title]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces", method: "POST", body: data)
+        let (ns, _): (KVNamespace?, ResultInfo?) = try await client.performRequest(request)
+        guard let item = ns else { throw APIError.cloudflareError("Failed to create KV namespace") }
+        return item
+    }
+    
+    func deleteKVNamespace(accountId: String, namespaceId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)", method: "DELETE")
+        struct DeleteRes: Codable { let id: String? }
+        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func getKVKeys(accountId: String, namespaceId: String) async throws -> [KVKey] {
+        try await listKVKeys(accountId: accountId, namespaceId: namespaceId)
+    }
+    
+    func listKVKeys(accountId: String, namespaceId: String, prefix: String? = nil, limit: Int = 100) async throws -> [KVKey] {
+        var queryItems = [URLQueryItem(name: "limit", value: "\(limit)")]
+        if let p = prefix, !p.isEmpty {
+            queryItems.append(URLQueryItem(name: "prefix", value: p))
+        }
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/keys", queryItems: queryItems)
+        let (keys, _): ([KVKey]?, ResultInfo?) = try await client.performRequest(request)
+        return keys ?? []
+    }
+    
+    func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)")
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.invalidResponse
+        }
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+    
+    func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int? = nil) async throws {
+        var queryItems: [URLQueryItem]? = nil
+        if let ttl = expirationTTL { queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")] }
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)",
+            queryItems: queryItems,
+            method: "PUT",
+            body: value.data(using: .utf8),
+            contentType: "text/plain"
+        )
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+}

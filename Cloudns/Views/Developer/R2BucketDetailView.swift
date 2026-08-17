@@ -31,9 +31,9 @@ struct R2BucketDetailView: View {
                     Section(header: Text("Objects")) {
                         ForEach(R2Object.placeholders) { obj in
                             R2ObjectRowView(object: obj)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle(bucket.name)
@@ -71,6 +71,7 @@ struct R2BucketDetailView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchObjects()
@@ -392,9 +393,8 @@ struct R2ObjectDetailSheetView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .alert("Delete Object", isPresented: $showingDeleteAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
+            .confirmationDialog("Delete Object", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+                Button("Delete '\(object.key)'", role: .destructive) {
                     Task {
                         do {
                             try await viewModel.deleteObject(key: object.key)
@@ -405,6 +405,7 @@ struct R2ObjectDetailSheetView: View {
                         }
                     }
                 }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to delete '\(object.key)'? This action cannot be undone.")
             }

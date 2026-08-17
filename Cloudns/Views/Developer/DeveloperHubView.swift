@@ -27,31 +27,9 @@ struct DeveloperHubView: View {
             // Header Account Card
             Section {
                 accountHeaderCard
-                    .skeletonLoading(viewModel.isLoading && !viewModel.hasFetchedData)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                ForEach(0..<4, id: \.self) { _ in
-                    Section {
-                        SkeletonRowView()
-                        SkeletonRowView()
-                    }
-                }
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData {
-                Section {
-                    EmptyStateView.error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task {
-                                await viewModel.fetchOverview(isRefresh: true)
-                            }
-                        }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            } else {
                 
                 // Section: Compute
                 Section(header: Text("Compute & Applications")) {
@@ -271,9 +249,8 @@ struct DeveloperHubView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
         }
-        .listStyle(.insetGrouped)
-    }
     
     // MARK: - Account Header Card
     

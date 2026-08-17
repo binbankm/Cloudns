@@ -88,6 +88,7 @@ struct PagesDeploymentDetailView: View {
                     Link(destination: url) {
                         HStack {
                             Text("Preview URL")
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(urlStr)
                                 .font(.caption)
@@ -95,9 +96,10 @@ struct PagesDeploymentDetailView: View {
                                 .foregroundStyle(.blue)
                             Image(systemName: "arrow.up.right")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.secondary)
                         }
                     }
+                    .buttonStyle(.plain)
                 }
             }
             
@@ -114,6 +116,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundStyle(.primary)
                     }
                 }
+                .buttonStyle(.plain)
                 .disabled(isActionRunning)
                 
                 Button {
@@ -137,6 +140,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundStyle(.primary)
                     }
                 }
+                .buttonStyle(.plain)
                 .disabled(isActionRunning)
                 
                 Button(role: .destructive) {
@@ -150,6 +154,7 @@ struct PagesDeploymentDetailView: View {
                             .foregroundStyle(.red)
                     }
                 }
+                .buttonStyle(.plain)
                 .disabled(isActionRunning)
             }
             

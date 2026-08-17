@@ -16,9 +16,9 @@ struct AuditLogsView: View {
                     Section {
                         ForEach(AuditLog.placeholders) { log in
                             AuditLogRowView(log: log)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Audit Logs")
@@ -33,6 +33,7 @@ struct AuditLogsView: View {
                     }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchLogs()

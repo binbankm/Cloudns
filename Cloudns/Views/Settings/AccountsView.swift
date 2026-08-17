@@ -1,0 +1,94 @@
+import SwiftUI
+
+struct AccountsView: View {
+    @StateObject private var accountManager = AccountManager.shared
+    @State private var isShowingAddAccount = false
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section(header: Text("Logged In Accounts")) {
+                    ForEach(accountManager.accountEmails, id: \.self) { email in
+                        Button(action: {
+                            HapticManager.impact(.light)
+                            withAnimation {
+                                accountManager.switchAccount(to: email)
+                                ToastManager.shared.showSuccess("Switched Account", message: email)
+                            }
+                        }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(email)
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                    
+                                    if accountManager.activeEmail == email {
+                                        Text("Current")
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(.orange)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                if accountManager.activeEmail == email {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.orange)
+                                        .font(.subheadline.weight(.semibold))
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                        }
+                    }
+                    .onDelete(perform: deleteAccount)
+                }
+                
+                Section {
+                    Button(action: {
+                        HapticManager.impact(.light)
+                        isShowingAddAccount = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(.orange)
+                                .accessibilityHidden(true)
+                            Text("Add Another Account")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Accounts")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundStyle(.orange)
+                }
+            }
+            .sheet(isPresented: $isShowingAddAccount) {
+                LoginView(onLoginSuccess: {
+                    isShowingAddAccount = false
+                    ToastManager.shared.showSuccess("Account Added")
+                })
+            }
+            .toastContainer()
+        }
+    }
+    
+    private func deleteAccount(at offsets: IndexSet) {
+        let emails = accountManager.accountEmails
+        HapticManager.impact(.medium)
+        withAnimation {
+            for index in offsets {
+                let email = emails[index]
+                accountManager.removeAccount(email: email)
+                ToastManager.shared.showSuccess("Account Removed", message: email)
+            }
+        }
+    }
+}

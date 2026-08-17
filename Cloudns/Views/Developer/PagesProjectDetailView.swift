@@ -56,9 +56,8 @@ struct PagesProjectDetailView: View {
                     .accessibilityLabel("More Actions")
                 }
             }
-            .alert("Delete Pages Project", isPresented: $showingDeleteAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
+            .confirmationDialog("Delete Pages Project", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+                Button("Delete '\(project.name)'", role: .destructive) {
                     Task {
                         do {
                             try await CloudflareAPIClient.shared.deletePagesProject(accountId: accountId, projectName: project.name)
@@ -69,6 +68,7 @@ struct PagesProjectDetailView: View {
                         }
                     }
                 }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to delete Pages project '\(project.name)'? Deployments and hosted assets will be permanently removed.")
             }
@@ -131,9 +131,10 @@ struct PagesProjectDetailView: View {
                                 .foregroundStyle(.blue)
                             Image(systemName: "arrow.up.right")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.secondary)
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 if let branch = project.productionBranch {
@@ -182,6 +183,7 @@ struct PagesProjectDetailView: View {
                             .accessibilityHidden(true)
                     }
                 }
+                .buttonStyle(.plain)
                 
                 NavigationLink {
                     PagesBindingsView(project: project)
@@ -216,6 +218,7 @@ struct PagesProjectDetailView: View {
                             .accessibilityHidden(true)
                     }
                 }
+                .buttonStyle(.plain)
             }
             
             // Section: Deployments History
@@ -223,9 +226,9 @@ struct PagesProjectDetailView: View {
                 Section(header: Text("Deployments History")) {
                     ForEach(PagesDeployment.placeholders) { dep in
                         deploymentRow(dep)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else {
                 Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
                     if viewModel.deployments.isEmpty {
@@ -240,12 +243,14 @@ struct PagesProjectDetailView: View {
                             } label: {
                                 deploymentRow(dep)
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
     }
     
     @ViewBuilder

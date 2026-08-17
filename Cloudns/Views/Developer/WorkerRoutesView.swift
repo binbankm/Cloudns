@@ -65,9 +65,9 @@ struct WorkerRoutesView: View {
                 Section(header: Text("Custom Domains")) {
                     ForEach(WorkerCustomDomain.placeholders) { dom in
                         domainRow(dom)
+                            .skeletonLoading(true)
                     }
                 }
-                .skeletonLoading(true)
             } else {
                 // Section: Custom Domains
                 Section(
@@ -114,6 +114,7 @@ struct WorkerRoutesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: hasFetchedData)
         .overlay {
             if hasFetchedData {
                 if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {

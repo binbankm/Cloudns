@@ -1,50 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
-
-@MainActor
-final class AccessAppsViewModel: ObservableObject {
-    let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
-    
-    @Published var apps: [AccessApp] = []
-    @Published var searchText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var hasFetchedData: Bool = false
-    @Published var errorMessage: String? = nil
-    
-    init(accountId: String) {
-        self.accountId = accountId
-    }
-    
-    var filteredApps: [AccessApp] {
-        if searchText.isEmpty { return apps }
-        return apps.filter { $0.name.localizedCaseInsensitiveContains(searchText) || $0.domain.localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    func fetchApps() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            self.apps = try await apiClient.listAccessApps(accountId: accountId)
-            self.hasFetchedData = true
-        } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
-        }
-        isLoading = false
-    }
-    
-    func deleteApp(id: String) async {
-        do {
-            try await apiClient.deleteAccessApp(accountId: accountId, appId: id)
-            ToastManager.shared.showSuccess("Access App Deleted", message: "")
-            await fetchApps()
-        } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-        }
-    }
-}
 
 struct AccessAppsView: View {
     let accountId: String
@@ -64,9 +19,9 @@ struct AccessAppsView: View {
                     Section(header: Text("Protected Applications")) {
                         ForEach(AccessApp.placeholders) { app in
                             appRow(app)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle("Access Applications")
@@ -123,11 +78,11 @@ struct AccessAppsView: View {
                 .navigationTitle("Access Applications")
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $viewModel.searchText, prompt: "Search Applications")
-                .alert("Delete Application", isPresented: $showingDeleteAlert, presenting: appToDelete) { app in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
+                    Button("Delete '\(app.name)'", role: .destructive) {
                         Task { await viewModel.deleteApp(id: app.id) }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { app in
                     Text("Are you sure you want to delete '\(app.name)'? Traffic to \(app.domain) will no longer be protected by Zero Trust.")
                 }
@@ -136,6 +91,7 @@ struct AccessAppsView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchApps()
@@ -262,7 +218,18 @@ struct AccessAppDetailView: View {
         isLoadingPolicies = true
         errorMessage = nil
         do {
-            self.policies = try await CloudflareAPIClient.shared.listAccessPolicies(accountId: accountId, appId: app.id)
+            var targetId = self.accountId
+            if targetId.isEmpty {
+                let accounts = try? await CloudflareAPIClient.shared.getAccounts()
+                let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+                targetId = accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
+            }
+            guard !targetId.isEmpty else {
+                self.policies = []
+                self.isLoadingPolicies = false
+                return
+            }
+            self.policies = try await CloudflareAPIClient.shared.listAccessPolicies(accountId: targetId, appId: app.id)
         } catch {
             self.errorMessage = error.localizedDescription
         }

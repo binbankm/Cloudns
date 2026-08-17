@@ -59,6 +59,7 @@ struct CertInspectToolView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.certDetails == nil)
         .navigationTitle("SSL Certificate Inspector")
         .navigationBarTitleDisplayMode(.inline)
         .task {

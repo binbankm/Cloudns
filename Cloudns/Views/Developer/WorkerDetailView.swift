@@ -37,14 +37,16 @@ struct WorkerDetailView: View {
                         Spacer()
                         Text("my-worker")
                     }
+                    .skeletonLoading(true)
+                    
                     HStack {
                         Text("Total Size")
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text("12.4 KB")
                     }
+                    .skeletonLoading(true)
                 }
-                .skeletonLoading(true)
             } else {
                 // Section: Metadata
                 Section(header: Text("Script Overview")) {
@@ -286,6 +288,7 @@ struct WorkerDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
     }
     
     private func formatBytes(_ bytes: Int) -> String {

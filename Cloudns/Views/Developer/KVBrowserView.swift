@@ -34,14 +34,15 @@ struct KVBrowserView: View {
                             if viewModel.selectedSegment == 0 {
                                 ForEach(KVNamespace.placeholders) { ns in
                                     kvRow(ns)
+                                        .skeletonLoading(true)
                                 }
                             } else {
                                 ForEach(D1Database.placeholders) { db in
                                     d1Row(db)
+                                        .skeletonLoading(true)
                                 }
                             }
                         }
-                        .skeletonLoading(true)
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -84,9 +85,8 @@ struct KVBrowserView: View {
                 .sheet(isPresented: $showingCreateD1Sheet) {
                     D1CreateDatabaseSheetView(viewModel: viewModel)
                 }
-                .alert("Delete KV Namespace", isPresented: $showingDeleteKVAlert, presenting: namespaceToDelete) { ns in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
+                    Button("Delete '\(ns.title)'", role: .destructive) {
                         Task {
                             do {
                                 try await viewModel.deleteNamespace(namespaceId: ns.id)
@@ -96,12 +96,12 @@ struct KVBrowserView: View {
                             }
                         }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { ns in
                     Text("Are you sure you want to delete namespace '\(ns.title)'? All keys in this namespace will be permanently lost.")
                 }
-                .alert("Delete D1 Database", isPresented: $showingDeleteD1Alert, presenting: databaseToDelete) { db in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
+                .confirmationDialog("Delete D1 Database", isPresented: $showingDeleteD1Alert, titleVisibility: .visible, presenting: databaseToDelete) { db in
+                    Button("Delete '\(db.name)'", role: .destructive) {
                         Task {
                             do {
                                 try await viewModel.deleteDatabase(databaseId: db.uuid)
@@ -111,8 +111,9 @@ struct KVBrowserView: View {
                             }
                         }
                     }
+                    Button("Cancel", role: .cancel) {}
                 } message: { db in
-                    Text("Are you sure you want to delete D1 database '\(db.name)'? This action cannot be undone.")
+                    Text("Are you sure you want to delete database '\(db.name)'? All tables and data will be permanently dropped.")
                 }
                 .refreshable {
                     await viewModel.fetchData()
@@ -231,6 +232,8 @@ struct KVBrowserView: View {
             }
         }
         .padding(.vertical, 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("KV Namespace \(ns.title), ID \(ns.id)")
     }
     
     @ViewBuilder
@@ -318,9 +321,9 @@ struct KVNamespaceKeysView: View {
                     Section {
                         ForEach(KVKey.placeholders) { key in
                             keyRow(key)
+                                .skeletonLoading(true)
                         }
                     }
-                    .skeletonLoading(true)
                 }
                 .listStyle(.insetGrouped)
                 .navigationTitle(namespace.title)
