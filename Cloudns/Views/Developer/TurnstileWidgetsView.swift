@@ -4,7 +4,7 @@ struct TurnstileWidgetsView: View {
     let accountId: String
     @StateObject private var viewModel: TurnstileViewModel
     @State private var showingCreateSheet = false
-    @State private var widgetToDelete: TurnstileWidget? = nil
+    @State private var widgetToDelete: TurnstileWidget?
     @State private var showingDeleteAlert = false
     
     init(accountId: String) {

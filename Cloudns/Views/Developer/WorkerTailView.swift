@@ -28,7 +28,7 @@ struct WorkerTailView: View {
             if viewModel.events.isEmpty {
                 emptyState
             } else {
-                ScrollViewReader { proxy in
+                ScrollViewReader { _ in
                     List {
                         ForEach(viewModel.filteredEvents) { item in
                             Button {

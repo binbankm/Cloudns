@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TurnstileDetailView: View {
     @State var widget: TurnstileWidget
-    var viewModel: TurnstileViewModel? = nil
+    var viewModel: TurnstileViewModel?
     
     @State private var selectedTab = "frontend"
     @State private var frontendFramework = "html"
@@ -11,7 +11,7 @@ struct TurnstileDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingRotateAlert = false
     @State private var isRotatingSecret = false
-    @State private var currentSecret: String? = nil
+    @State private var currentSecret: String?
     
     init(widget: TurnstileWidget, viewModel: TurnstileViewModel? = nil) {
         _widget = State(initialValue: widget)

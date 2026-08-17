@@ -83,7 +83,7 @@ struct DNSRecordFormView: View {
                             Text(t).tag(t)
                         }
                     }
-                    .onChange(of: type) { newValue in
+                    .onChange(of: type) { _ in
                         if !isProxySupported {
                             proxied = false
                         }
@@ -216,9 +216,9 @@ struct DNSRecordFormView: View {
         isSaving = true
         errorMessage = nil
         
-        var payloadData: DNSRecordData? = nil
+        var payloadData: DNSRecordData?
         var finalContent: String? = content
-        var finalPriority: Int? = nil
+        var finalPriority: Int?
         
         if type == "SRV" {
             let p = Int(priority) ?? 10

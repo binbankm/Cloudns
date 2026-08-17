@@ -5,9 +5,9 @@ struct WorkersListView: View {
     @StateObject private var viewModel: WorkersViewModel
     @State private var showingCreateWorkerSheet = false
     @State private var showingCreatePagesSheet = false
-    @State private var workerToDelete: WorkerScript? = nil
+    @State private var workerToDelete: WorkerScript?
     @State private var showingDeleteWorkerAlert = false
-    @State private var pagesProjectToDelete: PagesProject? = nil
+    @State private var pagesProjectToDelete: PagesProject?
     @State private var showingDeletePagesAlert = false
     
     init(accountId: String) {

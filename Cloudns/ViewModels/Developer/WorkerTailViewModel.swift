@@ -37,15 +37,15 @@ class WorkerTailViewModel: BaseLoadableViewModel {
             if let logs = item.logs {
                 for log in logs {
                     if let msgs = log.message {
-                        for m in msgs {
-                            if m.displayText.localizedCaseInsensitiveContains(searchText) { return true }
+                        for m in msgs where m.displayText.localizedCaseInsensitiveContains(searchText) {
+                            return true
                         }
                     }
                 }
             }
             if let exceptions = item.exceptions {
-                for ex in exceptions {
-                    if let msg = ex.message, msg.localizedCaseInsensitiveContains(searchText) { return true }
+                for ex in exceptions where ex.message?.localizedCaseInsensitiveContains(searchText) == true {
+                    return true
                 }
             }
             return false

@@ -8,8 +8,8 @@ struct WorkerBindingsView: View {
     @StateObject private var secretsViewModel: WorkerSecretsViewModel
     @State private var selectedTab: String = "resources" // "resources" | "variables" | "secrets"
     @State private var showingAddSheet = false
-    @State private var variableToEdit: WorkerBinding? = nil
-    @State private var itemToDelete: (name: String, isSecret: Bool)? = nil
+    @State private var variableToEdit: WorkerBinding?
+    @State private var itemToDelete: (name: String, isSecret: Bool)?
     @State private var showingDeleteAlert = false
     
     init(accountId: String, scriptName: String, bindings: [WorkerBinding]) {

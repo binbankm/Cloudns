@@ -28,4 +28,3 @@ struct DNSSEC: Codable {
         flags: 257
     )
 }
-

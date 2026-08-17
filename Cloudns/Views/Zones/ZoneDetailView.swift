@@ -14,7 +14,6 @@ struct ZoneDetailView: View {
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
 
-
             // ── Analytics ────────────────────────────────────────────────
             Section(header: Text("Analytics")) {
                 ZoneNavRow(

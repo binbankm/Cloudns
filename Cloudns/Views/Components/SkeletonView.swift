@@ -70,7 +70,7 @@ public extension View {
 
 /// A placeholder capsule / rounded bar with system fill color
 public struct SkeletonBar: View {
-    var width: CGFloat? = nil
+    var width: CGFloat?
     var height: CGFloat = 14
     var cornerRadius: CGFloat = 4
     
@@ -154,7 +154,7 @@ public struct SkeletonListView: View {
     
     public var body: some View {
         List {
-            Section(header: sectionHeader != nil ? Text(sectionHeader!) : nil) {
+            Section(header: sectionHeader.map { Text($0) }) {
                 ForEach(0..<count, id: \.self) { _ in
                     SkeletonRowView()
                 }

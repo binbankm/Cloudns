@@ -90,8 +90,6 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
         isLoading = false
     }
     
-
-    
     func deleteRecords(withIds ids: Set<String>) {
         guard !ids.isEmpty else { return }
         let impact = UINotificationFeedbackGenerator()

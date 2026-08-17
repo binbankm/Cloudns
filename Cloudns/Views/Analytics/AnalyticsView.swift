@@ -356,7 +356,7 @@ public struct AnalyticsView: View {
         center: CLLocationCoordinate2D(latitude: 30, longitude: 0),
         span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
     )
-    @State private var selectedCountry: String? = nil
+    @State private var selectedCountry: String?
     
     private var trafficMapView: some View {
         ZStack(alignment: .bottom) {

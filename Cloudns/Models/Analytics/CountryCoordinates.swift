@@ -58,6 +58,6 @@ struct CountryCoordinates {
         "KE": CLLocationCoordinate2D(latitude: -0.02, longitude: 37.9),
         "MA": CLLocationCoordinate2D(latitude: 31.79, longitude: -7.09),
         "PK": CLLocationCoordinate2D(latitude: 30.37, longitude: 69.34),
-        "BD": CLLocationCoordinate2D(latitude: 23.68, longitude: 90.35),
+        "BD": CLLocationCoordinate2D(latitude: 23.68, longitude: 90.35)
     ]
 }

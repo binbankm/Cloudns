@@ -204,8 +204,8 @@ struct D1TableView: View {
     
     @StateObject private var viewModel: D1TableViewModel
     @State private var displayMode: D1DisplayMode = .cards
-    @State private var editorContext: D1RowContext? = nil
-    @State private var rowToDelete: [String: String]? = nil
+    @State private var editorContext: D1RowContext?
+    @State private var rowToDelete: [String: String]?
     @State private var showingDeleteAlert = false
     
     init(accountId: String, databaseId: String, tableName: String) {

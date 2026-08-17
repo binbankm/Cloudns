@@ -4,7 +4,7 @@ struct AIGatewayView: View {
     let accountId: String
     @StateObject private var viewModel: AIGatewaysViewModel
     @State private var showingCreateSheet = false
-    @State private var gatewayToDelete: AIGateway? = nil
+    @State private var gatewayToDelete: AIGateway?
     @State private var showingDeleteAlert = false
     
     init(accountId: String) {

@@ -38,7 +38,7 @@ public struct DurableObjectInstance: Codable, Identifiable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case id
-        case hasStoredData = "hasStoredData"
+        case hasStoredData
     }
     
     public init(id: String, hasStoredData: Bool? = nil) {

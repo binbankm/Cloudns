@@ -60,7 +60,7 @@ final class KVService {
     
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int? = nil) async throws {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
-        var queryItems: [URLQueryItem]? = nil
+        var queryItems: [URLQueryItem]?
         if let ttl = expirationTTL { queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")] }
         let request = try factory.createAuthenticatedRequest(
             path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)",

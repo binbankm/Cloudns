@@ -6,9 +6,9 @@ struct KVBrowserView: View {
     
     @State private var showingCreateKVSheet = false
     @State private var showingCreateD1Sheet = false
-    @State private var namespaceToDelete: KVNamespace? = nil
+    @State private var namespaceToDelete: KVNamespace?
     @State private var showingDeleteKVAlert = false
-    @State private var databaseToDelete: D1Database? = nil
+    @State private var databaseToDelete: D1Database?
     @State private var showingDeleteD1Alert = false
     
     init(accountId: String) {

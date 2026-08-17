@@ -5,7 +5,7 @@ struct TransformRulesView: View {
     
     @StateObject private var viewModel: TransformRulesViewModel
     @State private var showingAddSheet = false
-    @State private var ruleToDelete: WAFRule? = nil
+    @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteAlert = false
     
     init(zoneId: String) {

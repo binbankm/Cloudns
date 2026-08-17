@@ -7,11 +7,11 @@ struct DNSRecordsView: View {
     
     @StateObject private var viewModel: DNSRecordsViewModel
     @State private var showingForm = false
-    @State private var recordToEdit: DNSRecord? = nil
+    @State private var recordToEdit: DNSRecord?
     
     // Export/Import/Edit states
     @State private var showingExporter = false
-    @State private var exportedFileURL: URL? = nil
+    @State private var exportedFileURL: URL?
     @State private var showingImporter = false
     @State private var multiSelection = Set<String>()
     

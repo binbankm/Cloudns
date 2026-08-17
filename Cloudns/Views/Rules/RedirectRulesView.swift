@@ -4,7 +4,7 @@ struct RedirectRulesView: View {
     let zoneId: String
     @StateObject private var viewModel = RedirectRulesViewModel()
     @State private var showingAddSheet = false
-    @State private var ruleToDelete: RedirectRuleItem? = nil
+    @State private var ruleToDelete: RedirectRuleItem?
     @State private var showingDeleteAlert = false
     
     var body: some View {

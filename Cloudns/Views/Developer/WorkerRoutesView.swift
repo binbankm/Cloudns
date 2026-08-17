@@ -10,7 +10,7 @@ struct WorkerRoutesView: View {
     @State private var hasFetchedData = false
     @State private var errorMessage: String?
     @State private var showingAttachSheet = false
-    @State private var domainToDelete: WorkerCustomDomain? = nil
+    @State private var domainToDelete: WorkerCustomDomain?
     @State private var showingDeleteAlert = false
     
     var body: some View {

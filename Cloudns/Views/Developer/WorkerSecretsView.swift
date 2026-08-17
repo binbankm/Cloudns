@@ -5,8 +5,8 @@ struct WorkerSecretsView: View {
     let scriptName: String
     @StateObject private var viewModel: WorkerSecretsViewModel
     @State private var showingAddSheet = false
-    @State private var variableToEdit: WorkerBinding? = nil
-    @State private var itemToDelete: (name: String, isSecret: Bool)? = nil
+    @State private var variableToEdit: WorkerBinding?
+    @State private var itemToDelete: (name: String, isSecret: Bool)?
     @State private var showingDeleteAlert = false
     
     init(accountId: String, scriptName: String) {

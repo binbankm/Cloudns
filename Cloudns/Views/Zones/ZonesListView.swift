@@ -146,7 +146,7 @@ struct AddZoneView: View {
 
     @State private var domainName: String = ""
     @State private var isSubmitting: Bool = false
-    @State private var createdZone: Zone? = nil
+    @State private var createdZone: Zone?
 
     var body: some View {
         if let zone = createdZone {

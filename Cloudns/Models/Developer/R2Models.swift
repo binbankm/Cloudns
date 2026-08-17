@@ -94,10 +94,10 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case domain, status, enabled, minTLS
-        case zoneId = "zoneId"
-        case zone_id = "zone_id"
-        case zoneName = "zoneName"
-        case zone_name = "zone_name"
+        case zoneId
+        case zone_id
+        case zoneName
+        case zone_name
     }
     
     public init(domain: String, status: String? = "active", zoneId: String? = nil, zoneName: String? = nil, enabled: Bool? = true, minTLS: String? = nil) {

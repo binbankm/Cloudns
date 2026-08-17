@@ -11,8 +11,8 @@ class CachingViewModel: BaseLoadableViewModel {
     
     // For Purge Cache UI
     @Published var isPurging: Bool = false
-    @Published var purgeSuccessMessage: String? = nil
-    @Published var purgeErrorMessage: String? = nil
+    @Published var purgeSuccessMessage: String?
+    @Published var purgeErrorMessage: String?
     
     let apiClient = CloudflareAPIClient.shared
     

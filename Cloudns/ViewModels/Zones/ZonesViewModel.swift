@@ -61,7 +61,7 @@ class ZonesViewModel: BaseLoadableViewModel {
     }
     
     @Published var isAddingZone: Bool = false
-    @Published var addZoneError: String? = nil
+    @Published var addZoneError: String?
     
     func addZone(name: String) async -> Zone? {
         isAddingZone = true

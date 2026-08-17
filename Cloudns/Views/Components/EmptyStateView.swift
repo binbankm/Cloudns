@@ -5,13 +5,13 @@ public struct EmptyStateView: View {
     public let icon: String
     public let title: LocalizedStringKey
     public let message: LocalizedStringKey
-    public var iconColor: Color? = nil
+    public var iconColor: Color?
     
     // Primary & Secondary Actions
-    public var actionTitle: LocalizedStringKey? = nil
-    public var action: (() -> Void)? = nil
-    public var secondaryActionTitle: LocalizedStringKey? = nil
-    public var secondaryAction: (() -> Void)? = nil
+    public var actionTitle: LocalizedStringKey?
+    public var action: (() -> Void)?
+    public var secondaryActionTitle: LocalizedStringKey?
+    public var secondaryAction: (() -> Void)?
     
     public init(
         icon: String,

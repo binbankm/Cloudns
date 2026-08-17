@@ -7,7 +7,7 @@ class ScrapeShieldViewModel: BaseLoadableViewModel {
     @Published var emailObfuscation: String = "off"
     @Published var serverSideExcludes: String = "off"
     @Published var hotlinkProtection: String = "off"
-    @Published var successMessage: String? = nil
+    @Published var successMessage: String?
     
     let apiClient = CloudflareAPIClient.shared
     

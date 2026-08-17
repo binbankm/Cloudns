@@ -4,7 +4,7 @@ struct R2BucketsView: View {
     let accountId: String
     @StateObject private var viewModel: R2ViewModel
     @State private var showingCreateSheet = false
-    @State private var bucketToDelete: R2Bucket? = nil
+    @State private var bucketToDelete: R2Bucket?
     @State private var showingDeleteAlert = false
     
     init(accountId: String) {

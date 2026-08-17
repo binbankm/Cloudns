@@ -5,9 +5,9 @@ struct SnippetsListView: View {
     @StateObject private var viewModel = SnippetsViewModel()
     @State private var showingEditorSheet = false
     @State private var showingBindSheet = false
-    @State private var editingSnippet: SnippetItem? = nil
-    @State private var snippetToDelete: SnippetItem? = nil
-    @State private var ruleToDelete: WAFRule? = nil
+    @State private var editingSnippet: SnippetItem?
+    @State private var snippetToDelete: SnippetItem?
+    @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteSnippetAlert = false
     @State private var showingDeleteRuleAlert = false
     
@@ -362,7 +362,7 @@ struct SnippetEditorSheetView: View {
                     }
                 }
             }
-            .navigationTitle(existingSnippet == nil ? "New Snippet" : existingSnippet!.snippet_name)
+            .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

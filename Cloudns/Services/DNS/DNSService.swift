@@ -116,11 +116,11 @@ final class DNSService {
         let fileData = try Data(contentsOf: fileURL)
         let boundary = "Boundary-\(UUID().uuidString)"
         var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"zone.txt\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: text/plain\r\n\r\n".data(using: .utf8)!)
+        body.append(Data("--\(boundary)\r\n".utf8))
+        body.append(Data("Content-Disposition: form-data; name=\"file\"; filename=\"zone.txt\"\r\n".utf8))
+        body.append(Data("Content-Type: text/plain\r\n\r\n".utf8))
         body.append(fileData)
-        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        body.append(Data("\r\n--\(boundary)--\r\n".utf8))
         
         let request = try factory.createAuthenticatedRequest(
             path: "zones/\(zoneId)/dns_records/import",

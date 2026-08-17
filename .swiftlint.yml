@@ -1,0 +1,41 @@
+# SwiftLint 配置文件
+# 适用于现代 SwiftUI + Swift Concurrency + Cloudflare API 客户端架构
+
+# 扫描路径
+included:
+  - Cloudns
+
+# 排除扫描路径
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - CloudnsTests
+  - CloudnsUITests
+
+# 禁用的非必要规则（适配 SwiftUI 视图模型、API Facade、Codable 蛇形命名与多参数）
+disabled_rules:
+  - trailing_whitespace        # 忽略行尾空格
+  - todo                       # 允许 TODO / FIXME 注释
+  - nesting                    # 允许 SwiftUI 内部嵌套类型/枚举
+  - multiple_closures_with_trailing_closure # 允许 SwiftUI 常见的多个尾随闭包
+  - large_tuple                # 允许返回 3 个及以上成员的元组（如多返回值服务方法）
+  - function_parameter_count   # 允许复杂 API 方法接收多个参数
+  - file_length                # 允许大型 API Client Facade 单文件集中管理
+  - type_body_length           # 允许大型 API Client Facade 类
+  - identifier_name            # 允许 Codable 结构中使用 Cloudflare 蛇形字段名及单字母闭包参数
+  - cyclomatic_complexity      # 放宽复杂业务逻辑判断
+  - line_length                # 放宽单行长度限制以适配 SwiftUI 声明式语法与长 URL
+
+# 严格启用的安全与代码质量规则（重点拦截 Bug 和崩溃）
+opt_in_rules:
+  - force_unwrapping           # 严格检测强制解包 !（预防 Crash）
+  - fatal_error_message        # 确保 fatalError 带有明确说明
+  - redundant_nil_coalescing   # 避免 ?? nil 等冗余操作
+  - empty_count                # 推荐使用 .isEmpty 代替 .count == 0
+  - unneeded_break_in_switch   # 去除 switch case 中多余的 break
+  - contains_over_first_not_nil # 优先使用 contains 代替 first != nil
+
+function_body_length:
+  warning: 120
+  error: 250

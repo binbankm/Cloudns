@@ -3,7 +3,7 @@ import SwiftUI
 struct WorkersAIView: View {
     let accountId: String
     @StateObject private var viewModel: WorkersAIViewModel
-    @State private var selectedModelForPlayground: AIModel? = nil
+    @State private var selectedModelForPlayground: AIModel?
     
     init(accountId: String) {
         self.accountId = accountId

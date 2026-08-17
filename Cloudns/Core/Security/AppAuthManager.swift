@@ -16,7 +16,7 @@ class AppAuthManager: ObservableObject {
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             let reason = "Unlock Cloudns to manage your Cloudflare account."
             
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
                 DispatchQueue.main.async {
                     if success {
                         self.isUnlocked = true
@@ -30,7 +30,7 @@ class AppAuthManager: ObservableObject {
             // No biometrics available, fallback to passcode
             let reason = "Unlock Cloudns with your device passcode."
             if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, _ in
                     DispatchQueue.main.async {
                         if success {
                             self.isUnlocked = true

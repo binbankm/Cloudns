@@ -10,7 +10,7 @@ struct LoginView: View {
     }
     @FocusState private var focusedField: Field?
     
-    var onLoginSuccess: (() -> Void)? = nil
+    var onLoginSuccess: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 0) {

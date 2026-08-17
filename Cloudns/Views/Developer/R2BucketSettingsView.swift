@@ -207,8 +207,7 @@ struct AddCORSRuleSheetView: View {
                         Toggle(method, isOn: Binding(
                             get: { selectedMethods.contains(method) },
                             set: { isSelected in
-                                if isSelected { selectedMethods.insert(method) }
-                                else { selectedMethods.remove(method) }
+                                if isSelected { selectedMethods.insert(method) } else { selectedMethods.remove(method) }
                             }
                         ))
                     }

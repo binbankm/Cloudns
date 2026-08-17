@@ -14,7 +14,7 @@ public protocol LoadableViewModelProtocol: ObservableObject {
 open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     @Published public var isLoading: Bool = false
     @Published public var hasFetchedData: Bool = false
-    @Published public var errorMessage: String? = nil
+    @Published public var errorMessage: String?
     
     public init() {}
     

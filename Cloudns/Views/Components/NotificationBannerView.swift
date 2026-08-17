@@ -104,9 +104,9 @@ public struct ToastItem: Identifiable, Equatable {
 public final class ToastManager: ObservableObject {
     public static let shared = ToastManager()
     
-    @Published public var currentToast: ToastItem? = nil
+    @Published public var currentToast: ToastItem?
     
-    private var dismissTask: Task<Void, Never>? = nil
+    private var dismissTask: Task<Void, Never>?
     private var isPaused = false
     private var remainingDuration: Double = 0
     private var lastShowTimestamp: Date = .distantPast

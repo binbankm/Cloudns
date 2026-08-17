@@ -6,7 +6,7 @@ struct R2BucketDetailView: View {
     let bucket: R2Bucket
     @StateObject private var viewModel: R2BucketDetailViewModel
     @State private var showingUploadSheet = false
-    @State private var selectedObject: R2Object? = nil
+    @State private var selectedObject: R2Object?
     
     init(accountId: String, bucket: R2Bucket) {
         self.accountId = accountId
@@ -152,8 +152,8 @@ struct R2UploadObjectSheetView: View {
     @State private var objectKey = ""
     @State private var uploadMode = 0 // 0: Text, 1: File
     @State private var textContent = ""
-    @State private var selectedFileData: Data? = nil
-    @State private var selectedFileName: String? = nil
+    @State private var selectedFileData: Data?
+    @State private var selectedFileName: String?
     @State private var showingFileImporter = false
     @State private var isUploading = false
     @State private var errorMessage: String?

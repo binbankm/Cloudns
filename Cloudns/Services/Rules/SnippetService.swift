@@ -44,11 +44,11 @@ final class SnippetService {
     func putSnippet(zoneId: String, name: String, code: String) async throws {
         let boundary = "Boundary-\(UUID().uuidString)"
         var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"files\"; filename=\"\(name).js\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: application/javascript\r\n\r\n".data(using: .utf8)!)
-        body.append(code.data(using: .utf8)!)
-        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        body.append(Data("--\(boundary)\r\n".utf8))
+        body.append(Data("Content-Disposition: form-data; name=\"files\"; filename=\"\(name).js\"\r\n".utf8))
+        body.append(Data("Content-Type: application/javascript\r\n\r\n".utf8))
+        body.append(Data(code.utf8))
+        body.append(Data("\r\n--\(boundary)--\r\n".utf8))
         
         let request = try factory.createAuthenticatedRequest(
             path: "zones/\(zoneId)/snippets/\(name)",

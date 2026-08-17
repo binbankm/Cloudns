@@ -35,7 +35,7 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
         let ruleInput = EmailRoutingRuleInput.forward(name: name, to: customAddress, destination: destinationAddress, enabled: true)
         
         do {
-            let _ = try await apiClient.createEmailRoutingRule(zoneId: zoneId, rule: ruleInput)
+            _ = try await apiClient.createEmailRoutingRule(zoneId: zoneId, rule: ruleInput)
             let impact = UINotificationFeedbackGenerator()
             impact.notificationOccurred(.success)
             await fetchData()

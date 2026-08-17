@@ -47,9 +47,9 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     public func fetchAnalytics() async {
         await executeLoadingTask {
             // Concurrent fetching for Functions metrics, deployments list, and custom domains
-            async let fetchFunctions = self.fetchFunctionsMetrics()
-            async let fetchDeployments = self.fetchDeploymentsInfo()
-            async let fetchDomains = self.fetchDomainsInfo()
+            async let fetchFunctions: Void = self.fetchFunctionsMetrics()
+            async let fetchDeployments: Void = self.fetchDeploymentsInfo()
+            async let fetchDomains: Void = self.fetchDomainsInfo()
             
             _ = await (fetchFunctions, fetchDeployments, fetchDomains)
         }
