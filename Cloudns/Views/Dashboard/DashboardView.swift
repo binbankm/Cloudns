@@ -345,7 +345,7 @@ struct DashboardMetricCard: View {
     let title: LocalizedStringKey
     let value: String
     let subtitle: LocalizedStringKey
-    let badge: String
+    let badge: LocalizedStringKey
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

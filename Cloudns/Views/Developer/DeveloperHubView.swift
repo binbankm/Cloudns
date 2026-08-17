@@ -250,21 +250,6 @@ struct DeveloperHubView: View {
                         )
                     }
                 }
-                
-                // Section: Account Activity
-                Section(header: Text("Account Activity")) {
-                    NavigationLink {
-                        AuditLogsView(accountId: accountId)
-                    } label: {
-                        DeveloperHubRow(
-                            icon: "list.clipboard.fill",
-                            iconColor: .purple,
-                            title: "Audit Logs",
-                            subtitle: "Recent account modifications & actions"
-                        )
-                    }
-                    .disabled(!isAccountReady)
-                }
             }
             .listStyle(.insetGrouped)
             .centerConstrainedWidth(maxWidth: 840)

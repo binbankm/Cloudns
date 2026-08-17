@@ -136,7 +136,7 @@ public struct PagesAnalyticsView: View {
                 value: formatNumber(viewModel.totalRequests),
                 icon: "bolt.horizontal.fill",
                 color: .blue,
-                badge: "\(viewModel.totalSubrequests) Subrequests"
+                badge: "\(formatNumber(viewModel.totalSubrequests)) Subrequests"
             )
             
             metricCard(

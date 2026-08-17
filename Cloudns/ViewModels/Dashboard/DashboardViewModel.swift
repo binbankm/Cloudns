@@ -40,7 +40,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         kvCount + r2Count + d1Count
     }
     
-    var timeGreeting: String {
+    var timeGreeting: LocalizedStringKey {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5..<12: return "Good Morning"

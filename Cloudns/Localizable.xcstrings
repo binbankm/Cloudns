@@ -287,7 +287,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ 规则 (%lld)"
+            "value" : "%1$@ 规则 (%2$lld)"
           }
         }
       }
@@ -387,6 +387,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@.js"
+          }
+        }
+      }
+    },
+    "%1$lld KV · %2$lld R2 · %3$lld D1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld 个 KV · %2$lld 个 R2 · %3$lld 个 D1"
+          }
+        }
+      }
+    },
+    "%1$lld W · %2$lld P" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld 个 Worker · %2$lld 个 Pages"
           }
         }
       }
@@ -583,7 +605,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld 个项目"
+            "value" : "%lld 项"
           }
         }
       }
@@ -627,7 +649,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld 个源"
+            "value" : "%lld 个源站"
           }
         }
       }
@@ -671,6 +693,17 @@
         }
       }
     },
+    "%lld Rules" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 条规则"
+          }
+        }
+      }
+    },
     "%lld seconds" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -683,7 +716,15 @@
       }
     },
     "%lld Subrequests" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 次子请求"
+          }
+        }
+      }
     },
     "%lld tag(s) purged from cache." : {
       "extractionState" : "manual",
@@ -838,7 +879,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+ 还有 %lld 行日志"
+            "value" : "+ %lld 条日志"
           }
         }
       }
@@ -964,17 +1005,6 @@
         }
       }
     },
-    "3 KV · 3 R2 · 2 D1" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3 个 KV · 3 个 R2 · 2 个 D1"
-          }
-        }
-      }
-    },
     "3 Months (7776000)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -982,17 +1012,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "3个月 (7776000)"
-          }
-        }
-      }
-    },
-    "3 Total Zones" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "共 3 个域名"
           }
         }
       }
@@ -1015,17 +1034,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "4小时"
-          }
-        }
-      }
-    },
-    "4 W · 2 P" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "4 个 Worker · 2 个 Pages"
           }
         }
       }
@@ -1576,6 +1584,17 @@
         }
       }
     },
+    "Action Type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作类型"
+          }
+        }
+      }
+    },
     "Actions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1720,6 +1739,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "活跃域名"
+          }
+        }
+      }
+    },
+    "Actor Details" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作者与来源"
+          }
+        }
+      }
+    },
+    "Actor Email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作者邮箱"
+          }
+        }
+      }
+    },
+    "Actor ID" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作者 ID"
+          }
+        }
+      }
+    },
+    "Actor Type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作者类型"
           }
         }
       }
@@ -3281,6 +3344,28 @@
         }
       }
     },
+    "Audit Log Detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "审计日志详情"
+          }
+        }
+      }
+    },
+    "Audit Log ID" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "审计日志 ID"
+          }
+        }
+      }
+    },
     "Audit Logs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3971,17 +4056,6 @@
         }
       }
     },
-    "Caching Configuration" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "缓存配置"
-          }
-        }
-      }
-    },
     "Caching Options" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4171,6 +4245,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更改"
+          }
+        }
+      }
+    },
+    "Changes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "变更记录"
           }
         }
       }
@@ -4789,6 +4874,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "为 %@ 提供全面的威胁防御和加密管理。"
+          }
+        }
+      }
+    },
+    "Compute" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "计算"
           }
         }
       }
@@ -5851,7 +5947,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "创建时间: %@"
+            "value" : "创建时间：%@"
           }
         }
       }
@@ -6736,17 +6832,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "删除行"
-          }
-        }
-      }
-    },
-    "Delete Row #%@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除行 #%@"
           }
         }
       }
@@ -8188,7 +8273,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "边缘状态：正常"
+            "value" : "边缘：最佳状态"
           }
         }
       }
@@ -9179,6 +9264,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "过期时间"
+          }
+        }
+      }
+    },
+    "Expires: %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "过期时间：%@"
           }
         }
       }
@@ -10579,6 +10675,17 @@
         }
       }
     },
+    "Info" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作信息"
+          }
+        }
+      }
+    },
     "Ingress Routing Rules (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10751,6 +10858,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "集成代码生成器"
+          }
+        }
+      }
+    },
+    "Interface" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作接口"
           }
         }
       }
@@ -10962,7 +11080,7 @@
       }
     },
     "IPv4 Ranges" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -11017,7 +11135,7 @@
       }
     },
     "IPv6 Ranges" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -12412,7 +12530,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "修改时间: %@"
+            "value" : "修改时间：%@"
           }
         }
       }
@@ -13134,6 +13252,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新建 URL 重写"
+          }
+        }
+      }
+    },
+    "New Value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "变更后新值"
           }
         }
       }
@@ -14042,7 +14171,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未找到近期的账户操作或配置修改记录。"
+            "value" : "未找到近期的账户审计日志或修改记录。"
           }
         }
       }
@@ -14640,6 +14769,17 @@
         }
       }
     },
+    "Operation Summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作总览"
+          }
+        }
+      }
+    },
     "Operational" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14820,6 +14960,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "P99"
+          }
+        }
+      }
+    },
+    "Page %1$lld of %2$lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %1$lld 页，共 %2$lld 页"
           }
         }
       }
@@ -15459,6 +15610,17 @@
         }
       }
     },
+    "Previous Value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "变更前原始值"
+          }
+        }
+      }
+    },
     "Primary Location" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -15992,7 +16154,7 @@
       }
     },
     "Purge Cache" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -17107,6 +17269,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "资源绑定 (%lld)"
+          }
+        }
+      }
+    },
+    "Resource ID" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "资源 ID"
+          }
+        }
+      }
+    },
+    "Resource Type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "资源类型"
           }
         }
       }
@@ -18930,7 +19114,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "服务与基础设施健康度 (%lld)"
+            "value" : "服务与基础设施 (%lld)"
           }
         }
       }
@@ -19273,6 +19457,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "源码配置"
+          }
+        }
+      }
+    },
+    "Source IP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来源 IP"
           }
         }
       }
@@ -19886,6 +20081,17 @@
         }
       }
     },
+    "Target Resource" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目标资源"
+          }
+        }
+      }
+    },
     "Target Service" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20119,6 +20325,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "时间"
+          }
+        }
+      }
+    },
+    "Time (Local)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地时间"
+          }
+        }
+      }
+    },
+    "Time (UTC)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC 时间"
           }
         }
       }
@@ -20568,6 +20796,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TTL 仅适用于仅 DNS 模式。"
+          }
+        }
+      }
+    },
+    "Tunnel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隧道"
           }
         }
       }
@@ -21428,6 +21667,17 @@
         }
       }
     },
+    "Warning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "警告"
+          }
+        }
+      }
+    },
     "Webhooks" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -22207,12 +22457,34 @@
         }
       }
     },
+    "Zone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所属域名"
+          }
+        }
+      }
+    },
     "Zone Analytics" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "域名流量分析"
+          }
+        }
+      }
+    },
+    "Zone ID" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "域名 ID"
           }
         }
       }

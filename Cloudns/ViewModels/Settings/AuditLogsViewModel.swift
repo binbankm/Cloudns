@@ -17,10 +17,18 @@ class AuditLogsViewModel: BaseLoadableViewModel {
     
     var filteredLogs: [AuditLog] {
         if searchText.isEmpty { return logs }
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return logs.filter {
-            ($0.action?.type?.localizedCaseInsensitiveContains(searchText) ?? false) ||
-            ($0.actor?.email?.localizedCaseInsensitiveContains(searchText) ?? false) ||
-            ($0.resource?.type?.localizedCaseInsensitiveContains(searchText) ?? false)
+            $0.displayAction.localizedCaseInsensitiveContains(query) ||
+            ($0.action?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.action?.info?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.actor?.email?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.actor?.ip?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.resource?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.resource?.id?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.zone?.name?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.metadata?["zone_name"]?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.metadata?["script_name"]?.localizedCaseInsensitiveContains(query) ?? false)
         }
     }
     

@@ -38,7 +38,7 @@ public struct CloudnsBadge: View {
         HStack(spacing: isCompact ? 3 : 3.5) {
             badgeIcon
             
-            Text(badgeText)
+            Text(LocalizedStringKey(badgeText))
                 .font(isCompact ? .system(size: 10, weight: .medium) : .system(size: 11, weight: .medium))
                 .foregroundStyle(badgeColor)
         }

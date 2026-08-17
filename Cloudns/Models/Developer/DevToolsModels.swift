@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - Network Diagnostic Models (DoH / DNS Dig, HTTP & SSL)
 
@@ -182,64 +183,6 @@ public struct IPLookupResult: Equatable {
         latitude: 37.7749,
         longitude: -122.4194
     )
-}
-
-// MARK: - Audit Logs Models
-
-public struct AuditLog: Codable, Identifiable, Equatable {
-    public let id: String
-    public let actor: AuditActor?
-    public let action: AuditAction?
-    public let when: String?
-    public let resource: AuditResource?
-    
-    public init(id: String, actor: AuditActor?, action: AuditAction?, when: String?, resource: AuditResource? = nil) {
-        self.id = id
-        self.actor = actor
-        self.action = action
-        self.when = when
-        self.resource = resource
-    }
-    
-    public static let placeholders: [AuditLog] = [
-        AuditLog(id: "audit_1", actor: AuditActor(id: "1", email: "admin@example.com", type: "user", ip: "192.0.2.1"), action: AuditAction(type: "zone.dns_record.create", result: true), when: "2024-01-01T12:00:00Z"),
-        AuditLog(id: "audit_2", actor: AuditActor(id: "2", email: "dev@example.com", type: "user", ip: "198.51.100.2"), action: AuditAction(type: "worker.script.update", result: true), when: "2024-01-01T11:45:00Z"),
-        AuditLog(id: "audit_3", actor: AuditActor(id: "3", email: "system@api", type: "api_key", ip: "203.0.113.1"), action: AuditAction(type: "waf.rule.delete", result: true), when: "2024-01-01T10:30:00Z")
-    ]
-}
-
-public struct AuditActor: Codable, Equatable {
-    public let id: String?
-    public let email: String?
-    public let type: String?
-    public let ip: String?
-    
-    public init(id: String?, email: String?, type: String?, ip: String?) {
-        self.id = id
-        self.email = email
-        self.type = type
-        self.ip = ip
-    }
-}
-
-public struct AuditAction: Codable, Equatable {
-    public let type: String?
-    public let result: Bool?
-    
-    public init(type: String?, result: Bool?) {
-        self.type = type
-        self.result = result
-    }
-}
-
-public struct AuditResource: Codable, Equatable {
-    public let type: String?
-    public let id: String?
-    
-    public init(type: String?, id: String?) {
-        self.type = type
-        self.id = id
-    }
 }
 
 // MARK: - SSL Diagnostic Models
