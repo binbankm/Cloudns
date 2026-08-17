@@ -111,6 +111,9 @@ struct ScrapeShieldView: View {
         }
         .navigationTitle("Scrape Shield")
         .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            await viewModel.fetchSettings(zoneId: zoneId)
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSettings(zoneId: zoneId)

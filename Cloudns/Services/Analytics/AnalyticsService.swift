@@ -137,7 +137,7 @@ final class AnalyticsService {
                 }
               }
               summary: workersInvocationsAdaptive(
-                limit: 10000,
+                limit: 1000,
                 filter: {
                   scriptName: "\(scriptName)",
                   datetime_geq: "\(startDateString)",
@@ -231,10 +231,6 @@ final class AnalyticsService {
                 sum {
                   requests
                   errors
-                }
-                quantiles {
-                  cpuTimeP50
-                  cpuTimeP99
                 }
               }
             }

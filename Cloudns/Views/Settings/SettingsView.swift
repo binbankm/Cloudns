@@ -219,13 +219,6 @@ struct SettingsView: View {
                     .foregroundStyle(.primary)
                 } header: {
                     Text("About & Support")
-                } footer: {
-                    let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-                    let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-                    Text("Cloudns v\(version) (\(build))\nMade with ❤️ for Cloudflare users")
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
                 }
                 
                 // MARK: - Log Out Section

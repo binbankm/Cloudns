@@ -2,10 +2,17 @@ import Foundation
 import SwiftUI
 import Combine
 
+struct ZoneAnalyticsSnapshot: Codable {
+    let dataPoints: [AnalyticsDataPoint]
+    let mapDataPoints: [CountryDataPoint]
+    let loadedDays: Int
+}
+
 @MainActor
 class AnalyticsViewModel: BaseLoadableViewModel {
     @Published var dataPoints: [AnalyticsDataPoint] = []
     @Published var mapDataPoints: [CountryDataPoint] = []
+    @Published var loadedDays: Int = 30
     
     let apiClient = CloudflareAPIClient.shared
     
@@ -39,8 +46,23 @@ class AnalyticsViewModel: BaseLoadableViewModel {
         return formatter.string(fromByteCount: Int64(bytes))
     }
     
-    func fetchAnalytics(zoneTag: String, days: Int) async {
-        await executeLoadingTask {
+    private func cacheKey(zoneTag: String, days: Int) -> String {
+        "zone_analytics_\(zoneTag)_\(days)"
+    }
+    
+    func fetchAnalytics(zoneTag: String, days: Int, isRefresh: Bool = false) async {
+        let scopedKey = SWRCacheStore.accountScopedKey(cacheKey(zoneTag: zoneTag, days: days))
+        
+        // 1. [Stale] 0ms 尝试从缓存恢复
+        if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneAnalyticsSnapshot.self) {
+            self.dataPoints = cached.dataPoints
+            self.mapDataPoints = cached.mapDataPoints
+            self.loadedDays = cached.loadedDays
+            self.hasFetchedData = true
+        }
+        
+        // 2. [Revalidate] 执行网络请求
+        await executeLoadingTask(clearError: true) {
             let result = try await self.apiClient.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
             if let zones = result.viewer.zones, let zone = zones.first {
                 let groups = zone.httpRequests1dGroups ?? zone.httpRequests1hGroups ?? []
@@ -65,9 +87,16 @@ class AnalyticsViewModel: BaseLoadableViewModel {
                         sum: CountrySum(requests: count)
                     )
                 }.sorted { ($0.count ?? 0) > ($1.count ?? 0) }
-            } else {
-                self.dataPoints = []
-                self.mapDataPoints = []
+                
+                self.loadedDays = days
+                
+                // 写入缓存快照
+                let snapshot = ZoneAnalyticsSnapshot(
+                    dataPoints: self.dataPoints,
+                    mapDataPoints: self.mapDataPoints,
+                    loadedDays: days
+                )
+                await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
             }
         }
     }

@@ -14,37 +14,55 @@ public struct AnalyticsView: View {
         self.zoneName = zoneName
     }
     
+    private var isHourlyData: Bool {
+        if let first = viewModel.dataPoints.first?.dimensions {
+            if let dt = first.datetime, dt.contains("T") {
+                return true
+            }
+            if first.date != nil {
+                return false
+            }
+        }
+        return viewModel.loadedDays == 1
+    }
+    
     public var body: some View {
-        Group {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
-                if let errorMessage = viewModel.errorMessage {
-                    StateOverlayView(
-                        state: .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
-                            }
+        ScrollView {
+            VStack(spacing: 16) {
+                // 1. Unified Header & Time Range Picker Bar
+                headerBar
+                
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    VStack {
+                        Spacer(minLength: 80)
+                        ProgressView()
+                            .controlSize(.large)
+                        Spacer(minLength: 120)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 300)
+                } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+                    if let errorMessage = viewModel.errorMessage {
+                        StateOverlayView(
+                            state: .error(
+                                message: LocalizedStringKey(errorMessage),
+                                retryAction: {
+                                    Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
+                                }
+                            )
                         )
-                    )
+                        .padding(.vertical, 30)
+                    } else {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "chart.xyaxis.line",
+                                title: "No Traffic Data",
+                                message: "No HTTP requests recorded for \(zoneName) in the selected time range."
+                            )
+                        )
+                        .padding(.vertical, 30)
+                    }
                 } else {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "chart.xyaxis.line",
-                            title: "No Traffic Data",
-                            message: "No HTTP requests recorded for \(zoneName) in the selected time range."
-                        )
-                    )
-                }
-            } else {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // 1. Unified Header & Time Range Picker Bar
-                        headerBar
-                        
+                    Group {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
@@ -62,18 +80,20 @@ public struct AnalyticsView: View {
                         // 6. CDN Origin Savings Summary Card
                         insightsCard
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
-                    .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
+                    .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 28)
+            .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Zone Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
-            await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange)
+            await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true)
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -132,7 +152,7 @@ public struct AnalyticsView: View {
                 value: formatNumber(viewModel.totalCachedRequests),
                 icon: "bolt.fill",
                 color: .orange,
-                badge: String(format: "%.1f%% Cache Rate", viewModel.cachedRatio * 100)
+                badge: "\(String(format: "%.1f%%", viewModel.cachedRatio * 100)) Cache Rate"
             )
             
             metricCard(
@@ -153,31 +173,45 @@ public struct AnalyticsView: View {
         }
     }
     
-    private func metricCard(title: String, value: String, icon: String, color: Color, badge: String) -> some View {
+    private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(color)
+            HStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.12))
+                        .frame(width: 22, height: 22)
+                    Image(systemName: icon)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(color)
+                }
+                .accessibilityHidden(true)
+                
                 Text(title)
-                    .font(.caption)
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                
                 Spacer()
             }
             
+            Spacer(minLength: 2)
+            
             Text(value)
-                .font(.title2.weight(.bold).monospacedDigit())
+                .font(.system(.title2, design: .rounded).weight(.bold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .minimumScaleFactor(0.75)
+            
+            Spacer(minLength: 2)
             
             Text(badge)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
-        .padding(14)
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
@@ -224,14 +258,18 @@ public struct AnalyticsView: View {
                     .interpolationMethod(.catmullRom)
                 }
             }
+            .id("requests_chart_\(viewModel.loadedDays)")
+            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
             .frame(height: 230)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    if timeRange == 1 {
-                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    if isHourlyData {
+                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
+                            .font(.caption2)
                     } else {
-                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
+                            .font(.caption2)
                     }
                 }
             }
@@ -278,14 +316,18 @@ public struct AnalyticsView: View {
                     .cornerRadius(4)
                 }
             }
+            .id("bandwidth_chart_\(viewModel.loadedDays)")
+            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
             .frame(height: 220)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    if timeRange == 1 {
-                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    if isHourlyData {
+                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
+                            .font(.caption2)
                     } else {
-                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
+                            .font(.caption2)
                     }
                 }
             }

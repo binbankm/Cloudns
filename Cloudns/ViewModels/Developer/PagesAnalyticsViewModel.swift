@@ -11,6 +11,21 @@ public struct PagesDeploymentStat: Identifiable, Equatable {
     public let isSuccess: Bool
 }
 
+public struct PagesAnalyticsSnapshot: Codable {
+    public let dataPoints: [AggregatedWorkerDataPoint]
+    public let totalRequests: Int
+    public let totalErrors: Int
+    public let totalSubrequests: Int
+    public let avgCpuP50: Double
+    public let maxCpuP99: Double
+    public let deployments: [PagesDeployment]
+    public let productionDeploymentsCount: Int
+    public let previewDeploymentsCount: Int
+    public let deploymentSuccessRate: Double
+    public let customDomainsCount: Int
+    public let loadedDays: Int
+}
+
 @MainActor
 public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     public let accountId: String
@@ -19,6 +34,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     private let pagesService = PagesService.shared
     
     @Published public var selectedDays: Int = 1
+    @Published public var loadedDays: Int = 1
     @Published public var dataPoints: [AggregatedWorkerDataPoint] = []
     @Published public var totalRequests: Int = 0
     @Published public var totalErrors: Int = 0
@@ -44,14 +60,55 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         super.init()
     }
     
-    public func fetchAnalytics() async {
-        await executeLoadingTask {
-            // Concurrent fetching for Functions metrics, deployments list, and custom domains
+    private var cacheKey: String {
+        "pages_analytics_\(accountId)_\(projectName)_\(selectedDays)"
+    }
+    
+    public func fetchAnalytics(isRefresh: Bool = false) async {
+        let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
+        
+        // 1. [Stale] 0ms 尝试从缓存恢复历史数据
+        if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: PagesAnalyticsSnapshot.self) {
+            self.dataPoints = cached.dataPoints
+            self.totalRequests = cached.totalRequests
+            self.totalErrors = cached.totalErrors
+            self.totalSubrequests = cached.totalSubrequests
+            self.avgCpuP50 = cached.avgCpuP50
+            self.maxCpuP99 = cached.maxCpuP99
+            self.deployments = cached.deployments
+            self.productionDeploymentsCount = cached.productionDeploymentsCount
+            self.previewDeploymentsCount = cached.previewDeploymentsCount
+            self.deploymentSuccessRate = cached.deploymentSuccessRate
+            self.customDomainsCount = cached.customDomainsCount
+            self.loadedDays = cached.loadedDays
+            self.hasFetchedData = true
+        }
+        
+        // 2. [Revalidate] 并发获取 Functions 性能指标、部署记录与自定义域名
+        await executeLoadingTask(clearError: true) {
             async let fetchFunctions: Void = self.fetchFunctionsMetrics()
             async let fetchDeployments: Void = self.fetchDeploymentsInfo()
             async let fetchDomains: Void = self.fetchDomainsInfo()
             
             _ = await (fetchFunctions, fetchDeployments, fetchDomains)
+            self.loadedDays = self.selectedDays
+            
+            // 成功后持久化最新快照
+            let snapshot = PagesAnalyticsSnapshot(
+                dataPoints: self.dataPoints,
+                totalRequests: self.totalRequests,
+                totalErrors: self.totalErrors,
+                totalSubrequests: self.totalSubrequests,
+                avgCpuP50: self.avgCpuP50,
+                maxCpuP99: self.maxCpuP99,
+                deployments: self.deployments,
+                productionDeploymentsCount: self.productionDeploymentsCount,
+                previewDeploymentsCount: self.previewDeploymentsCount,
+                deploymentSuccessRate: self.deploymentSuccessRate,
+                customDomainsCount: self.customDomainsCount,
+                loadedDays: self.selectedDays
+            )
+            await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
         }
     }
     
@@ -64,12 +121,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             )
             self.processAnalytics(items)
         } catch {
-            self.dataPoints = []
-            self.totalRequests = 0
-            self.totalErrors = 0
-            self.totalSubrequests = 0
-            self.avgCpuP50 = 0
-            self.maxCpuP99 = 0
+            // 保留已有数据，不作破坏性清空
         }
     }
     
@@ -100,10 +152,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             self.previewDeploymentsCount = prevCount
             self.deploymentSuccessRate = deps.isEmpty ? 100.0 : (Double(successCount) / Double(deps.count)) * 100.0
         } catch {
-            self.deployments = []
-            self.productionDeploymentsCount = 0
-            self.previewDeploymentsCount = 0
-            self.deploymentSuccessRate = 0.0
+            // 保留已有部署数据
         }
     }
     
@@ -112,7 +161,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             let doms = try await self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.projectName)
             self.customDomainsCount = doms.count
         } catch {
-            self.customDomainsCount = 0
+            // 保留已有域名数量
         }
     }
     

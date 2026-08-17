@@ -13,37 +13,50 @@ public struct WorkerAnalyticsView: View {
         _viewModel = StateObject(wrappedValue: WorkerAnalyticsViewModel(accountId: accountId, scriptName: scriptName))
     }
     
+    private var isHourlyData: Bool {
+        if let first = viewModel.dataPoints.first {
+            return first.timestamp.contains("T") || first.timestamp.contains(":")
+        }
+        return viewModel.loadedDays == 1
+    }
+    
     public var body: some View {
-        Group {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
-                if let errorMessage = viewModel.errorMessage {
-                    StateOverlayView(
-                        state: .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchAnalytics() }
-                            }
+        ScrollView {
+            VStack(spacing: 16) {
+                // 1. Unified Header & Time Range Picker Bar
+                headerBar
+                
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    VStack {
+                        Spacer(minLength: 80)
+                        ProgressView()
+                            .controlSize(.large)
+                        Spacer(minLength: 120)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 300)
+                } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+                    if let errorMessage = viewModel.errorMessage {
+                        StateOverlayView(
+                            state: .error(
+                                message: LocalizedStringKey(errorMessage),
+                                retryAction: {
+                                    Task { await viewModel.fetchAnalytics(isRefresh: true) }
+                                }
+                            )
                         )
-                    )
+                        .padding(.vertical, 30)
+                    } else {
+                        StateOverlayView(
+                            state: .empty(
+                                icon: "chart.xyaxis.line",
+                                title: "No Invocations Data",
+                                message: "No Worker invocations recorded for \(scriptName) in the selected time range."
+                            )
+                        )
+                        .padding(.vertical, 30)
+                    }
                 } else {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "chart.xyaxis.line",
-                            title: "No Invocations Data",
-                            message: "No Worker invocations recorded for \(scriptName) in the selected time range."
-                        )
-                    )
-                }
-            } else {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // 1. Unified Header & Time Range Picker Bar
-                        headerBar
-                        
+                    Group {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
@@ -56,18 +69,20 @@ public struct WorkerAnalyticsView: View {
                         // 5. Performance Insights Card
                         insightsCard
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
-                    .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
+                    .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 28)
+            .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Worker Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
-            await viewModel.fetchAnalytics()
+            await viewModel.fetchAnalytics(isRefresh: true)
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -118,60 +133,74 @@ public struct WorkerAnalyticsView: View {
                 value: formatNumber(viewModel.totalRequests),
                 icon: "bolt.horizontal.fill",
                 color: .purple,
-                badge: "\(viewModel.totalSubrequests) Subrequests"
+                badge: "\(formatNumber(viewModel.totalSubrequests)) Subrequests"
             )
             
             metricCard(
-                title: "Exceptions",
-                value: formatNumber(viewModel.totalErrors),
+                title: "Error Rate",
+                value: String(format: "%.1f%%", viewModel.errorRatePercentage),
                 icon: "exclamationmark.triangle.fill",
-                color: viewModel.totalErrors > 0 ? .red : .green,
-                badge: String(format: "%.1f%% Error Rate", viewModel.errorRatePercentage)
+                color: viewModel.errorRatePercentage > 0 ? .red : .green,
+                badge: "\(formatNumber(viewModel.totalErrors)) Errors"
             )
             
             metricCard(
-                title: "Success Rate",
-                value: String(format: "%.1f%%", 100.0 - viewModel.errorRatePercentage),
-                icon: "checkmark.seal.fill",
-                color: .green,
-                badge: "Operational"
-            )
-            
-            metricCard(
-                title: "CPU Time (Median)",
-                value: String(format: "%.1f ms", viewModel.avgCpuP50),
+                title: "Median CPU",
+                value: String(format: "%.2f ms", viewModel.avgCpuP50),
                 icon: "timer",
                 color: .cyan,
-                badge: String(format: "P99: %.1f ms", viewModel.maxCpuP99)
+                badge: "50th Percentile"
+            )
+            
+            metricCard(
+                title: "Max CPU (P99)",
+                value: String(format: "%.2f ms", viewModel.maxCpuP99),
+                icon: "gauge.with.needle",
+                color: .orange,
+                badge: "99th Percentile"
             )
         }
     }
     
-    private func metricCard(title: String, value: String, icon: String, color: Color, badge: String) -> some View {
+    private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(color)
+            HStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.12))
+                        .frame(width: 22, height: 22)
+                    Image(systemName: icon)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(color)
+                }
+                .accessibilityHidden(true)
+                
                 Text(title)
-                    .font(.caption)
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                
                 Spacer()
             }
             
+            Spacer(minLength: 2)
+            
             Text(value)
-                .font(.title2.weight(.bold).monospacedDigit())
+                .font(.system(.title2, design: .rounded).weight(.bold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .minimumScaleFactor(0.75)
+            
+            Spacer(minLength: 2)
             
             Text(badge)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
-        .padding(14)
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
@@ -183,11 +212,11 @@ public struct WorkerAnalyticsView: View {
                 Image(systemName: "chart.xyaxis.line")
                     .font(.subheadline)
                     .foregroundStyle(.purple)
-                Text("Invocations & Errors")
+                Text("Invocations Traffic")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("Invocations over Time")
+                Text("Invocations & Errors")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -225,14 +254,18 @@ public struct WorkerAnalyticsView: View {
                     }
                 }
             }
+            .id("worker_invocations_\(viewModel.loadedDays)")
+            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
             .frame(height: 230)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    if viewModel.selectedDays == 1 {
-                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    if isHourlyData {
+                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
+                            .font(.caption2)
                     } else {
-                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
+                            .font(.caption2)
                     }
                 }
             }
@@ -292,14 +325,18 @@ public struct WorkerAnalyticsView: View {
                     .interpolationMethod(.catmullRom)
                 }
             }
+            .id("worker_cpu_\(viewModel.loadedDays)")
+            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
             .frame(height: 220)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    if viewModel.selectedDays == 1 {
-                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    if isHourlyData {
+                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
+                            .font(.caption2)
                     } else {
-                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
+                            .font(.caption2)
                     }
                 }
             }

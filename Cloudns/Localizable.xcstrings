@@ -194,6 +194,17 @@
         }
       }
     },
+    "%@ Cache Rate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 缓存率"
+          }
+        }
+      }
+    },
     "%@ copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -201,6 +212,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 已复制"
+          }
+        }
+      }
+    },
+    "%@ Data Transferred" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 传输数据量"
+          }
+        }
+      }
+    },
+    "%@ Error Rate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 错误率"
+          }
+        }
+      }
+    },
+    "%@ Errors" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 次错误"
           }
         }
       }
@@ -222,7 +266,14 @@
       }
     },
     "%@ Requests" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 次请求"
+          }
+        }
+      }
     },
     "%@ Rules (%lld)" : {
       "extractionState" : "manual",
@@ -241,6 +292,17 @@
         }
       }
     },
+    "%@ Saved by Cache" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 缓存节省"
+          }
+        }
+      }
+    },
     "%@ status updated" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -248,6 +310,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 状态已更新"
+          }
+        }
+      }
+    },
+    "%@ Subrequests" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 次子请求"
+          }
+        }
+      }
+    },
+    "%@ Total Deploys" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %@ 次部署"
           }
         }
       }
@@ -452,7 +536,14 @@
       }
     },
     "%lld Exceptions Detected" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检测到 %lld 个异常"
+          }
+        }
+      }
     },
     "%lld Healthy Connectors" : {
       "extractionState" : "manual",
@@ -477,7 +568,14 @@
       }
     },
     "%lld Invocations Failed" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 次调用失败"
+          }
+        }
+      }
     },
     "%lld items" : {
       "extractionState" : "manual",
@@ -584,6 +682,9 @@
         }
       }
     },
+    "%lld Subrequests" : {
+
+    },
     "%lld tag(s) purged from cache." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -602,6 +703,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 项工具"
+          }
+        }
+      }
+    },
+    "%lld Total Deploys" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %lld 次部署"
           }
         }
       }
@@ -963,7 +1075,14 @@
       }
     },
     "7D" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天"
+          }
+        }
+      }
     },
     "8 Active Online" : {
       "extractionState" : "manual",
@@ -1021,7 +1140,14 @@
       }
     },
     "24H" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24 小时"
+          }
+        }
+      }
     },
     "30" : {
       "extractionState" : "manual",
@@ -1046,7 +1172,14 @@
       }
     },
     "30D" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 天"
+          }
+        }
+      }
     },
     "50" : {
       "extractionState" : "manual",
@@ -1059,8 +1192,37 @@
         }
       }
     },
+    "50th Percentile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 50 百分位"
+          }
+        }
+      }
+    },
+    "99th Percentile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 99 百分位"
+          }
+        }
+      }
+    },
     "100% Operational" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100% 正常运行"
+          }
+        }
+      }
     },
     "301 - Moved Permanently" : {
       "extractionState" : "manual",
@@ -1245,7 +1407,14 @@
       }
     },
     "Accelerated & Protected by Cloudflare" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已由 Cloudflare 加速与防护"
+          }
+        }
+      }
     },
     "Accelerator Overview" : {
       "extractionState" : "manual",
@@ -1513,7 +1682,14 @@
       }
     },
     "Active Incidents (%lld)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活跃事件 (%lld)"
+          }
+        }
+      }
     },
     "Active Instances (%lld)" : {
       "extractionState" : "manual",
@@ -1963,7 +2139,14 @@
       }
     },
     "Add your first domain to start managing DNS records and Cloudflare edge services." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加您的第一个域名，开始管理 DNS 记录及 Cloudflare 边缘服务。"
+          }
+        }
+      }
     },
     "Added 1 row to %@" : {
       "extractionState" : "manual",
@@ -2445,7 +2628,14 @@
       }
     },
     "Analytics & Metrics" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析与指标"
+          }
+        }
+      }
     },
     "Analytics & Traffic" : {
       "extractionState" : "manual",
@@ -3334,7 +3524,14 @@
       }
     },
     "Branch Breakdown" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分支分布"
+          }
+        }
+      }
     },
     "Brotli" : {
       "extractionState" : "manual",
@@ -3590,7 +3787,14 @@
       }
     },
     "Bypasses Cloudflare proxy" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "绕过 Cloudflare 代理"
+          }
+        }
+      }
     },
     "Bytes" : {
       "extractionState" : "manual",
@@ -3627,6 +3831,16 @@
     },
     "Cache Hit Rate" : {
       "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缓存命中率"
+          }
+        }
+      }
+    },
+    "Cache Hit Ratio" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -4307,7 +4521,14 @@
       }
     },
     "Cloudflare storage, queues, and services bound to this Worker environment." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已绑定到此 Worker 环境的 Cloudflare 存储、队列和服务。"
+          }
+        }
+      }
     },
     "Cloudflare System Status" : {
       "extractionState" : "manual",
@@ -4409,21 +4630,11 @@
       }
     },
     "Cloudns Locked" : {
-
-    },
-    "Cloudns v%@ (%@)\nMade with ❤️ for Cloudflare users" : {
-      "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloudns v%1$@ (%2$@)\nMade with ❤️ for Cloudflare users"
-          }
-        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cloudns v%@ (%@)\n为 Cloudflare 用户倾心制作 ❤️"
+            "value" : "Cloudns 已锁定"
           }
         }
       }
@@ -5298,16 +5509,44 @@
       }
     },
     "Country: %@" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "国家/地区：%@"
+          }
+        }
+      }
     },
     "CPU P50" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU P50"
+          }
+        }
+      }
     },
     "CPU P99" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU P99"
+          }
+        }
+      }
     },
     "CPU Time" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU 时间"
+          }
+        }
+      }
     },
     "Create" : {
       "extractionState" : "manual",
@@ -6047,8 +6286,25 @@
         }
       }
     },
+    "Data Transferred" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "传输数据量"
+          }
+        }
+      }
+    },
     "Data Transferred over Time" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "随时间变化的传输数据量"
+          }
+        }
+      }
     },
     "Data Usage" : {
       "extractionState" : "manual",
@@ -6660,6 +6916,16 @@
         }
       }
     },
+    "Deploy Success Rate" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部署成功率"
+          }
+        }
+      }
+    },
     "Deploy Updated Script?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6705,7 +6971,14 @@
       }
     },
     "Deployment Pipeline" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部署流水线"
+          }
+        }
+      }
     },
     "Deployment Retried" : {
       "extractionState" : "manual",
@@ -6752,7 +7025,14 @@
       }
     },
     "Deployments Pipeline" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部署流水线"
+          }
+        }
+      }
     },
     "Description (Optional)" : {
       "extractionState" : "manual",
@@ -7730,10 +8010,24 @@
       }
     },
     "Edge Cache Ratio" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "边缘缓存率"
+          }
+        }
+      }
     },
     "Edge Caching Savings" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "边缘缓存节省"
+          }
+        }
+      }
     },
     "Edge Certificates" : {
       "extractionState" : "manual",
@@ -7758,7 +8052,14 @@
       }
     },
     "Edge Functions Status" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "边缘函数状态"
+          }
+        }
+      }
     },
     "Edge PoP Data Center" : {
       "extractionState" : "manual",
@@ -7800,6 +8101,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "边缘加速网络"
+          }
+        }
+      }
+    },
+    "Edge Served" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "边缘节点提供"
           }
         }
       }
@@ -8544,8 +8856,25 @@
         }
       }
     },
+    "Error Rate" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "错误率"
+          }
+        }
+      }
+    },
     "Errors" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "错误数"
+          }
+        }
+      }
     },
     "Essentially Off" : {
       "extractionState" : "manual",
@@ -8746,7 +9075,14 @@
       }
     },
     "Execution Health" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "执行健康度"
+          }
+        }
+      }
     },
     "Execution Rules (%lld)" : {
       "extractionState" : "manual",
@@ -9260,8 +9596,35 @@
         }
       }
     },
+    "Functions Errors" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "函数错误"
+          }
+        }
+      }
+    },
     "Functions Invocations" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "函数调用量"
+          }
+        }
+      }
+    },
+    "Functions Traffic" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "函数流量"
+          }
+        }
+      }
     },
     "Gateway" : {
       "extractionState" : "manual",
@@ -10086,7 +10449,14 @@
       }
     },
     "ID: %@" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID: %@"
+          }
+        }
+      }
     },
     "If your server goes down, Cloudflare will serve your website's static pages from our cache." : {
       "extractionState" : "manual",
@@ -10407,11 +10777,35 @@
         }
       }
     },
-    "Invocations & Errors" : {
-
+    "Invocations" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调用次数"
+          }
+        }
+      }
     },
-    "Invocations over Time" : {
-
+    "Invocations & Errors" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调用与错误"
+          }
+        }
+      }
+    },
+    "Invocations Traffic" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调用流量"
+          }
+        }
+      }
     },
     "iodef" : {
       "extractionState" : "manual",
@@ -11101,7 +11495,14 @@
       }
     },
     "Leave blank to use column defaults. Values are escaped before saving." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "留空以使用字段默认值。值在保存前会自动转义。"
+          }
+        }
+      }
     },
     "Legacy" : {
       "extractionState" : "manual",
@@ -11457,7 +11858,14 @@
       }
     },
     "Local Time" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地时间"
+          }
+        }
+      }
     },
     "Location" : {
       "extractionState" : "manual",
@@ -11824,6 +12232,16 @@
         }
       }
     },
+    "Max CPU (P99)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大 CPU (P99)"
+          }
+        }
+      }
+    },
     "Max-Age (Seconds)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11831,6 +12249,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Max-Age (秒)"
+          }
+        }
+      }
+    },
+    "Median CPU" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中位数 CPU"
           }
         }
       }
@@ -13019,7 +13447,14 @@
       }
     },
     "No DNS records found for this domain and type." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到该域名及类型的 DNS 记录。"
+          }
+        }
+      }
     },
     "No DNS records found for this domain." : {
       "extractionState" : "manual",
@@ -13055,7 +13490,14 @@
       }
     },
     "No Domains Added Yet" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未添加任何域名"
+          }
+        }
+      }
     },
     "No Domains Found" : {
       "extractionState" : "manual",
@@ -13130,7 +13572,14 @@
       }
     },
     "No editable columns detected." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未检测到可编辑字段。"
+          }
+        }
+      }
     },
     "No Email Rules" : {
       "extractionState" : "manual",
@@ -13155,7 +13604,14 @@
       }
     },
     "No encrypted secrets configured." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置加密机密。"
+          }
+        }
+      }
     },
     "No environment variables configured for %@." : {
       "extractionState" : "manual",
@@ -13169,7 +13625,14 @@
       }
     },
     "No Functions invocations or deployments recorded for %@ in the selected time range." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选时间范围内未记录到 %@ 的函数调用或部署。"
+          }
+        }
+      }
     },
     "No Gateway Rules" : {
       "extractionState" : "manual",
@@ -13194,7 +13657,14 @@
       }
     },
     "No HTTP requests recorded for %@ in the selected time range." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选时间范围内未记录到 %@ 的 HTTP 请求。"
+          }
+        }
+      }
     },
     "No Hyperdrive Configs" : {
       "extractionState" : "manual",
@@ -13219,7 +13689,14 @@
       }
     },
     "No Invocations Data" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无调用数据"
+          }
+        }
+      }
     },
     "No IP Access Rules" : {
       "extractionState" : "manual",
@@ -13266,7 +13743,14 @@
       }
     },
     "No KV, R2, D1, Queue or Service bindings configured for this Worker." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Worker 尚未配置 KV、R2、D1、队列或服务绑定。"
+          }
+        }
+      }
     },
     "No Load Balancers" : {
       "extractionState" : "manual",
@@ -13401,7 +13885,14 @@
       }
     },
     "No Pages Data" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无 Pages 数据"
+          }
+        }
+      }
     },
     "No Pages Projects" : {
       "extractionState" : "manual",
@@ -13437,7 +13928,14 @@
       }
     },
     "No plaintext variables configured." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置明文环境变量。"
+          }
+        }
+      }
     },
     "No Policies" : {
       "extractionState" : "manual",
@@ -13727,7 +14225,14 @@
       }
     },
     "No Traffic Data" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无流量数据"
+          }
+        }
+      }
     },
     "No Transform Rules" : {
       "extractionState" : "manual",
@@ -13807,7 +14312,14 @@
       }
     },
     "No Worker invocations recorded for %@ in the selected time range." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选时间范围内未记录到 %@ 的 Worker 调用。"
+          }
+        }
+      }
     },
     "No Workers Found" : {
       "extractionState" : "manual",
@@ -14184,7 +14696,14 @@
       }
     },
     "Origin Bandwidth Saved" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "节省源站带宽"
+          }
+        }
+      }
     },
     "Origin Connection" : {
       "extractionState" : "manual",
@@ -14286,10 +14805,24 @@
       }
     },
     "P50 (Median)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P50 (中位数)"
+          }
+        }
+      }
     },
     "P99" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P99"
+          }
+        }
+      }
     },
     "Page %lld of %lld" : {
       "extractionState" : "manual",
@@ -14353,10 +14886,24 @@
       }
     },
     "Pages Analytics" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages 分析"
+          }
+        }
+      }
     },
     "Pages Edge & Pipeline Summary" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages 边缘与流水线总览"
+          }
+        }
+      }
     },
     "Pages Preview" : {
       "extractionState" : "manual",
@@ -14507,7 +15054,14 @@
       }
     },
     "Path Filter (optional, e.g. /login)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路径过滤（可选，如 /login）"
+          }
+        }
+      }
     },
     "Path Prefix (Optional, e.g. /api)" : {
       "extractionState" : "manual",
@@ -14642,7 +15196,14 @@
       }
     },
     "Plaintext environment variables are readable in worker script code." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "明文环境变量可在 Worker 脚本代码中直接读取。"
+          }
+        }
+      }
     },
     "Plaintext Variable" : {
       "extractionState" : "manual",
@@ -15849,7 +16410,14 @@
       }
     },
     "Range" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间范围"
+          }
+        }
+      }
     },
     "Rate Limit Configuration" : {
       "extractionState" : "manual",
@@ -16473,7 +17041,14 @@
       }
     },
     "Requests Traffic" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求流量趋势"
+          }
+        }
+      }
     },
     "Requests, bandwidth & threats" : {
       "extractionState" : "manual",
@@ -16537,7 +17112,14 @@
       }
     },
     "Resources (%lld)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "资源 (%lld)"
+          }
+        }
+      }
     },
     "Respect Existing" : {
       "extractionState" : "manual",
@@ -17948,7 +18530,14 @@
       }
     },
     "Secrets" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "机密环境变量"
+          }
+        }
+      }
     },
     "Secrets (%lld)" : {
       "extractionState" : "manual",
@@ -17973,7 +18562,14 @@
       }
     },
     "Secrets are encrypted at rest and masked in responses." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "机密在静态存储时加密，并在响应中自动脱敏掩码。"
+          }
+        }
+      }
     },
     "Secrets are encrypted upon saving and cannot be retrieved or read back by the API." : {
       "extractionState" : "manual",
@@ -19056,7 +19652,14 @@
       }
     },
     "Subrequest Ratio" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "子请求比例"
+          }
+        }
+      }
     },
     "Success" : {
       "extractionState" : "manual",
@@ -19114,7 +19717,14 @@
       }
     },
     "Swipe up or tap to dismiss" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "向上轻扫或轻点以关闭"
+          }
+        }
+      }
     },
     "Switched Account" : {
       "extractionState" : "manual",
@@ -19635,7 +20245,14 @@
       }
     },
     "Top Traffic Origins" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主要流量来源"
+          }
+        }
+      }
     },
     "Total Requests" : {
       "extractionState" : "manual",
@@ -19671,7 +20288,14 @@
       }
     },
     "Total vs Cached" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总请求 vs 缓存请求"
+          }
+        }
+      }
     },
     "Trace" : {
       "extractionState" : "manual",
@@ -20664,7 +21288,14 @@
       }
     },
     "Variables" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "环境变量"
+          }
+        }
+      }
     },
     "Variables (%lld)" : {
       "extractionState" : "manual",
@@ -20689,7 +21320,14 @@
       }
     },
     "Verify your identity to continue managing Cloudflare." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请验证您的身份以继续管理 Cloudflare。"
+          }
+        }
+      }
     },
     "View" : {
       "extractionState" : "manual",
@@ -21055,7 +21693,14 @@
       }
     },
     "Worker Analytics" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worker 分析"
+          }
+        }
+      }
     },
     "Worker Deleted" : {
       "extractionState" : "manual",
@@ -21124,7 +21769,14 @@
       }
     },
     "Worker Performance Summary" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worker 性能总览"
+          }
+        }
+      }
     },
     "Worker script exported from Cloudns" : {
       "extractionState" : "manual",
@@ -21556,7 +22208,14 @@
       }
     },
     "Zone Analytics" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "域名流量分析"
+          }
+        }
+      }
     },
     "Zone Status" : {
       "extractionState" : "manual",

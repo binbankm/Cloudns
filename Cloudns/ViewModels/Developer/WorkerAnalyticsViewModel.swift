@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-public struct AggregatedWorkerDataPoint: Identifiable, Equatable {
+public struct AggregatedWorkerDataPoint: Codable, Identifiable, Equatable {
     public var id: String { timestamp }
     public let timestamp: String
     public let date: Date
@@ -13,6 +13,16 @@ public struct AggregatedWorkerDataPoint: Identifiable, Equatable {
     public let cpuP99: Double
 }
 
+public struct WorkerAnalyticsSnapshot: Codable {
+    public let dataPoints: [AggregatedWorkerDataPoint]
+    public let totalRequests: Int
+    public let totalErrors: Int
+    public let totalSubrequests: Int
+    public let avgCpuP50: Double
+    public let maxCpuP99: Double
+    public let loadedDays: Int
+}
+
 @MainActor
 public final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
     public let accountId: String
@@ -20,6 +30,7 @@ public final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
     private let apiClient = CloudflareAPIClient.shared
     
     @Published public var selectedDays: Int = 1
+    @Published public var loadedDays: Int = 1
     @Published public var dataPoints: [AggregatedWorkerDataPoint] = []
     @Published public var totalRequests: Int = 0
     @Published public var totalErrors: Int = 0
@@ -38,23 +49,46 @@ public final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         super.init()
     }
     
-    public func fetchAnalytics() async {
-        await executeLoadingTask {
-            do {
-                let items = try await self.apiClient.getWorkerAnalytics(
-                    accountId: self.accountId,
-                    scriptName: self.scriptName,
-                    days: self.selectedDays
-                )
-                self.processAnalytics(items)
-            } catch {
-                self.dataPoints = []
-                self.totalRequests = 0
-                self.totalErrors = 0
-                self.totalSubrequests = 0
-                self.avgCpuP50 = 0
-                self.maxCpuP99 = 0
-            }
+    private var cacheKey: String {
+        "worker_analytics_\(accountId)_\(scriptName)_\(selectedDays)"
+    }
+    
+    public func fetchAnalytics(isRefresh: Bool = false) async {
+        let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
+        
+        // 1. [Stale] 0ms 尝试从缓存恢复历史数据
+        if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: WorkerAnalyticsSnapshot.self) {
+            self.dataPoints = cached.dataPoints
+            self.totalRequests = cached.totalRequests
+            self.totalErrors = cached.totalErrors
+            self.totalSubrequests = cached.totalSubrequests
+            self.avgCpuP50 = cached.avgCpuP50
+            self.maxCpuP99 = cached.maxCpuP99
+            self.loadedDays = cached.loadedDays
+            self.hasFetchedData = true
+        }
+        
+        // 2. [Revalidate] 执行网络请求（错误发生时不破坏已有数据）
+        await executeLoadingTask(clearError: true) {
+            let items = try await self.apiClient.getWorkerAnalytics(
+                accountId: self.accountId,
+                scriptName: self.scriptName,
+                days: self.selectedDays
+            )
+            self.processAnalytics(items)
+            self.loadedDays = self.selectedDays
+            
+            // 成功后持久化最新快照
+            let snapshot = WorkerAnalyticsSnapshot(
+                dataPoints: self.dataPoints,
+                totalRequests: self.totalRequests,
+                totalErrors: self.totalErrors,
+                totalSubrequests: self.totalSubrequests,
+                avgCpuP50: self.avgCpuP50,
+                maxCpuP99: self.maxCpuP99,
+                loadedDays: self.selectedDays
+            )
+            await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
         }
     }
     

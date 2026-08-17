@@ -24,7 +24,7 @@ struct AnalyticsZone: Codable {
     let trafficByCountry1h: [CountryDataPoint]?
 }
 
-struct CountryDataPoint: Codable, Identifiable {
+struct CountryDataPoint: Codable, Identifiable, Equatable {
     var id: String { dimensions.clientCountryName ?? UUID().uuidString }
     let dimensions: CountryDimensions
     let count: Int?
@@ -35,11 +35,11 @@ struct CountryDataPoint: Codable, Identifiable {
     }
 }
 
-struct CountrySum: Codable {
+struct CountrySum: Codable, Equatable {
     let requests: Int?
 }
 
-struct CountryDimensions: Codable {
+struct CountryDimensions: Codable, Equatable {
     let clientCountryName: String?
 }
 
@@ -50,18 +50,18 @@ public struct CountryMapEntry: Codable, Equatable {
     public let bytes: Int?
 }
 
-public struct AnalyticsDataPoint: Codable, Identifiable {
+public struct AnalyticsDataPoint: Codable, Identifiable, Equatable {
     public var id: String { dimensions.datetime ?? dimensions.date ?? UUID().uuidString }
     public let dimensions: AnalyticsDimensions
     public let sum: AnalyticsSum
 }
 
-public struct AnalyticsDimensions: Codable {
+public struct AnalyticsDimensions: Codable, Equatable {
     public let date: String? // e.g., "2023-09-02"
     public let datetime: String? // e.g., "2023-09-02T15:00:00Z"
 }
 
-public struct AnalyticsSum: Codable {
+public struct AnalyticsSum: Codable, Equatable {
     public let requests: Int
     public let bytes: Int
     public let cachedRequests: Int
