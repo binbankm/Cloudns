@@ -67,8 +67,8 @@ public struct Zone: Codable, Identifiable, Equatable {
     public let originalNameServers: [String]?
     public let originalRegistrar: String?
     public let originalDnshost: String?
-    public let modifiedOn: String
-    public let createdOn: String
+    public let modifiedOn: String?
+    public let createdOn: String?
     public let activatedOn: String?
     
     public init(
@@ -84,8 +84,8 @@ public struct Zone: Codable, Identifiable, Equatable {
         originalNameServers: [String]? = nil,
         originalRegistrar: String? = nil,
         originalDnshost: String? = nil,
-        modifiedOn: String = "2024-01-01T00:00:00Z",
-        createdOn: String = "2024-01-01T00:00:00Z",
+        modifiedOn: String? = "2024-01-01T00:00:00Z",
+        createdOn: String? = "2024-01-01T00:00:00Z",
         activatedOn: String? = nil
     ) {
         self.account = account

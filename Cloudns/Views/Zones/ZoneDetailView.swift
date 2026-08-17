@@ -181,6 +181,7 @@ struct ZoneDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(zone.name)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -305,9 +306,10 @@ private struct ZoneHeaderCard: View {
             }
             .padding(16)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 3)
     }
 }
 

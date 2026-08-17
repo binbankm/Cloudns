@@ -55,10 +55,7 @@ struct IPLookupToolView: View {
                 .disabled(viewModel.ipInput.isEmpty || viewModel.isLoading)
             }
             
-            if viewModel.isLoading {
-                ipLookupSections(IPLookupResult.placeholder)
-                    .skeletonLoading(true)
-            } else if let res = viewModel.lookupResult {
+            if let res = viewModel.lookupResult {
                 ipLookupSections(res)
             } else if let error = viewModel.errorMessage {
                 Section {
@@ -69,7 +66,7 @@ struct IPLookupToolView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.lookupResult == nil)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("IP & ASN Lookup")
         .navigationBarTitleDisplayMode(.inline)
     }

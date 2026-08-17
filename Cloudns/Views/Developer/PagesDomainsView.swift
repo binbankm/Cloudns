@@ -44,20 +44,12 @@ struct PagesDomainsView: View {
             } message: { dom in
                 Text("Are you sure you want to remove domain '\(dom.name)' from this Pages project?")
             }
-            .toastContainer()
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && viewModel.domains.isEmpty {
-                Section(header: Text("Connected Domains")) {
-                    ForEach(PagesDomain.placeholders) { domain in
-                        domainRow(domain)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.domains.isEmpty {
+            if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
                         domainRow(domain)
@@ -75,9 +67,12 @@ struct PagesDomainsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.isLoading && viewModel.domains.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData && viewModel.domains.isEmpty {
                 StateOverlayView(
                     state: .empty(
                         icon: "globe",
@@ -106,14 +101,7 @@ struct PagesDomainsView: View {
                     .foregroundStyle(.primary)
 
                 HStack(spacing: 8) {
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill((domain.status == "active") ? Color.green : Color.orange)
-                            .frame(width: 6, height: 6)
-                        Text(domain.status?.capitalized ?? "Active")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.secondary)
-                    }
+                    CloudnsBadge((domain.status == "active") ? .active(domain.status?.capitalized ?? "Active") : .warning(domain.status?.capitalized ?? "Pending"), isCompact: true)
 
                     if let ssl = domain.sslStatus {
                         Text("• SSL: \(ssl.capitalized)")

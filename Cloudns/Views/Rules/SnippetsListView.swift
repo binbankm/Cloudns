@@ -78,14 +78,7 @@ struct SnippetsListView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Snippet Scripts")) {
-                    ForEach(SnippetItem.placeholders) { snip in
-                        snippetRow(snip)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.snippets.isEmpty || !viewModel.rules.isEmpty {
+            if !viewModel.snippets.isEmpty || !viewModel.rules.isEmpty {
                 // Section 1: Snippet Scripts
                 Section(header: Text("Snippet Scripts (\(viewModel.snippets.count))")) {
                     if viewModel.snippets.isEmpty {
@@ -117,9 +110,12 @@ struct SnippetsListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(

@@ -14,17 +14,17 @@ struct DNSSECView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.dnssec == nil {
-                dnssecSections(DNSSEC.placeholder)
-                    .skeletonLoading(true)
-            } else if let dnssec = viewModel.dnssec {
+            if let dnssec = viewModel.dnssec {
                 dnssecSections(dnssec)
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
+            if viewModel.isLoading && viewModel.dnssec == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
@@ -55,13 +55,12 @@ struct DNSSECView: View {
                     .foregroundStyle(statusColor(for: dnssec.status))
                     .accessibilityHidden(true)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("DNSSEC Status")
-                        .font(.body)
-                    Text(dnssec.status.capitalized)
-                        .font(.subheadline)
-                        .foregroundStyle(statusColor(for: dnssec.status))
-                }
+                Text("DNSSEC Status")
+                    .font(.body.weight(.medium))
+                
+                Spacer()
+                
+                CloudnsBadge(dnssec.status == "active" ? .active("Active") : (dnssec.status == "pending" ? .warning("Pending") : .custom(color: .secondary, text: dnssec.status.capitalized)), isCompact: true)
             }
             .padding(.vertical, 4)
             

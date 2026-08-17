@@ -31,37 +31,7 @@ struct NetworkCenterView: View {
             }
             .listRowBackground(Color.clear)
             
-            if !viewModel.hasFetchedData {
-                // Skeleton: Core Protocols
-                Section(header: Text("Core Protocols")) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                SkeletonBar(width: 140, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 220, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-                
-                // Skeleton: Advanced Routing
-                Section(header: Text("Advanced Routing")) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            SkeletonBar(width: 150, height: 16, cornerRadius: 4)
-                            SkeletonBar(width: 240, height: 12, cornerRadius: 4)
-                        }
-                        Spacer()
-                        SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                    }
-                    .padding(.vertical, 4)
-                    .skeletonLoading(true)
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage {
                     Section {
                         HStack(spacing: 10) {
@@ -172,9 +142,15 @@ struct NetworkCenterView: View {
                 }
             }
         }
-    }
-    .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        }
+        .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
@@ -185,6 +161,5 @@ struct NetworkCenterView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-        .toastContainer()
     }
 }

@@ -102,8 +102,8 @@ struct FeedbackView: View {
                 }
             }
         }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Feedback & Support")
         .navigationBarTitleDisplayMode(.inline)
-        .toastContainer()
     }
 }

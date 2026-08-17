@@ -83,6 +83,7 @@ struct PagesBuildConfigEditorView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Build Configuration")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

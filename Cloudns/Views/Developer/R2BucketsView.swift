@@ -13,59 +13,6 @@ struct R2BucketsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(R2Bucket.placeholders) { bucket in 
-                            R2BucketRowView(bucket: bucket)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("R2 Object Storage")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("R2 Object Storage")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search R2 Buckets")
-                    .refreshable { await viewModel.fetchBuckets() }
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
-                            .accessibilityLabel("Create R2 Bucket")
-                        }
-                    }
-                    .sheet(isPresented: $showingCreateSheet) { R2CreateBucketSheetView(viewModel: viewModel) }
-                    .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in
-                        Button("Delete '\(bucket.name)'", role: .destructive) {
-                            Task {
-                                do {
-                                    try await viewModel.deleteBucket(bucketName: bucket.name)
-                                    ToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
-                                } catch {
-                                    ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
-                                }
-                            }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    } message: { bucket in
-                        Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchBuckets()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredBuckets.isEmpty {
                 Section {
@@ -89,31 +36,68 @@ struct R2BucketsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("R2 Object Storage")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search R2 Buckets")
+        .refreshable { await viewModel.fetchBuckets() }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
+                .accessibilityLabel("Create R2 Bucket")
+            }
+        }
+        .sheet(isPresented: $showingCreateSheet) { R2CreateBucketSheetView(viewModel: viewModel) }
+        .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in
+            Button("Delete '\(bucket.name)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteBucket(bucketName: bucket.name)
+                        ToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
+                    } catch {
+                        ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { bucket in
+            Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
+        }
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
-                StateOverlayView(
-                    state: .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: { Task { await viewModel.fetchBuckets() } }
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: { Task { await viewModel.fetchBuckets() } }
+                        )
                     )
-                )
-            } else if viewModel.buckets.isEmpty {
-                StateOverlayView(
-                    state: .empty(
-                        icon: "externaldrive.badge.icloud",
-                        title: "No R2 Buckets",
-                        message: "You haven't created any R2 storage buckets in this account yet.",
-                        actionTitle: "Create Bucket",
-                        action: { showingCreateSheet = true }
+                } else if viewModel.buckets.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "externaldrive.badge.icloud",
+                            title: "No R2 Buckets",
+                            message: "You haven't created any R2 storage buckets in this account yet.",
+                            actionTitle: "Create Bucket",
+                            action: { showingCreateSheet = true }
+                        )
                     )
-                )
-            } else if viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty {
-                StateOverlayView(
-                    state: .search(
-                        query: viewModel.searchText,
-                        clearAction: { viewModel.searchText = "" }
+                } else if viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
                     )
-                )
+                }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchBuckets()
             }
         }
     }
@@ -228,7 +212,6 @@ struct R2CreateBucketSheetView: View {
                     .disabled(!isValidBucketName || isCreating)
                 }
             }
-            .toastContainer()
         }
     }
 }
@@ -268,13 +251,7 @@ struct R2BucketRowView: View {
             
             Spacer()
             
-            Text("S3 Compatible")
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color(.secondarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            CloudnsBadge(.custom(color: .secondary, text: "S3 Compatible"), isCompact: true)
         }
         .padding(.vertical, 4)
         .contextMenu {

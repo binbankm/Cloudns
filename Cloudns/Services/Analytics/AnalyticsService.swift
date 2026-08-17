@@ -104,4 +104,68 @@ final class AnalyticsService {
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
         try await getDashboardAnalytics(zoneTag: zoneTag, days: days)
     }
+    
+    /// 获取 Worker / Pages 专属调用量与性能指标数据 (GraphQL workersInvocationsAdaptive)
+    func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
+        let formatter = ISO8601DateFormatter()
+        let pastDate: Date
+        if days == 1 {
+            pastDate = Calendar.current.date(byAdding: .hour, value: -23, to: Date()) ?? Date()
+        } else {
+            pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
+        }
+        let dateString = formatter.string(from: pastDate)
+        
+        let query = """
+        query {
+          viewer {
+            accounts(filter: { accountTag: "\(accountId)" }) {
+              workersInvocationsAdaptive(
+                limit: 1000,
+                filter: {
+                  scriptName: "\(scriptName)",
+                  datetime_gt: "\(dateString)"
+                },
+                orderBy: [datetime_ASC]
+              ) {
+                dimensions {
+                  datetime
+                  status
+                  scriptName
+                }
+                sum {
+                  requests
+                  errors
+                  subrequests
+                }
+                quantiles {
+                  cpuTimeP50
+                  cpuTimeP99
+                  durationMsP50
+                  durationMsP99
+                }
+              }
+            }
+          }
+        }
+        """
+        
+        let payload: [String: Any] = ["query": query]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
+        let rawData = try await client.performDataRequest(request)
+        
+        do {
+            let decoded = try JSONDecoder().decode(GraphQLResponse<WorkerAnalyticsViewerData>.self, from: rawData)
+            if let errors = decoded.errors, !errors.isEmpty, decoded.data == nil {
+                throw APIError.cloudflareError(errors.first?.message ?? "GraphQL Query Failed")
+            }
+            let list = decoded.data?.viewer.accounts?.first?.workersInvocationsAdaptive ?? []
+            return list
+        } catch let apiError as APIError {
+            throw apiError
+        } catch {
+            throw APIError.decodingError(error)
+        }
+    }
 }

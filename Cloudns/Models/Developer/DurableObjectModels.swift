@@ -4,15 +4,22 @@ import Foundation
 
 public struct DurableObjectNamespace: Codable, Identifiable, Equatable {
     public let id: String
-    public let name: String
+    public let name: String?
     public let script: String?
     public let `class`: String?
+    
+    public var displayName: String {
+        if let n = name, !n.isEmpty { return n }
+        if let c = self.class, !c.isEmpty { return c }
+        if let s = script, !s.isEmpty { return s }
+        return id
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, name, script, `class`
     }
     
-    public init(id: String, name: String, script: String? = nil, class: String? = nil) {
+    public init(id: String, name: String? = nil, script: String? = nil, class: String? = nil) {
         self.id = id
         self.name = name
         self.script = script

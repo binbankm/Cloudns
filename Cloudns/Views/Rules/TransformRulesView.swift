@@ -26,14 +26,7 @@ struct TransformRulesView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(WAFRule.placeholders) { rule in
-                        TransformRuleCardView(rule: rule, onToggle: {})
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         TransformRuleCardView(rule: rule) {
@@ -57,9 +50,12 @@ struct TransformRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(

@@ -15,32 +15,7 @@ struct QueuesView: View {
         _viewModel = StateObject(wrappedValue: QueuesViewModel(accountId: accountId))
     }
     
-    // Skeleton-only list — no .searchable, prevents overlap
-    @ViewBuilder
-    private var skeletonContent: some View {
-        List {
-            Section(header: Text("Message Queues")) {
-                ForEach(CFQueue.placeholders) { queue in
-                    queueRow(queue)
-                        .skeletonLoading(true)
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle("Queues")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button { } label: { Image(systemName: "plus") }
-                    .disabled(true)
-                    .accessibilityLabel("Create Queue")
-            }
-        }
-    }
-
-    // Data-ready list — gets .searchable safely
-    @ViewBuilder
-    private var dataContent: some View {
+    var body: some View {
         List {
             if !viewModel.filteredQueues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
@@ -70,36 +45,10 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
-                StateOverlayView(
-                    state: .error(
-                        message: LocalizedStringKey(err),
-                        retryAction: { Task { await viewModel.fetchQueues() } }
-                    )
-                )
-            } else if viewModel.queues.isEmpty {
-                StateOverlayView(
-                    state: .empty(
-                        icon: "tray.2.fill",
-                        title: "No Queues",
-                        message: "Create a Cloudflare Queue to send and receive messages with guaranteed delivery.",
-                        actionTitle: "Create Queue",
-                        action: { showingCreateSheet = true }
-                    )
-                )
-            } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
-                StateOverlayView(
-                    state: .search(
-                        query: viewModel.searchText,
-                        clearAction: { viewModel.searchText = "" }
-                    )
-                )
-            }
-        }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, prompt: "Search Queues")
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Queues")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -132,18 +81,38 @@ struct QueuesView: View {
         .refreshable {
             await viewModel.fetchQueues()
         }
-        .toastContainer()
-    }
-
-    var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                skeletonContent
-            } else {
-                dataContent
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(err),
+                            retryAction: { Task { await viewModel.fetchQueues() } }
+                        )
+                    )
+                } else if viewModel.queues.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "tray.2.fill",
+                            title: "No Queues",
+                            message: "Create a Cloudflare Queue to send and receive messages with guaranteed delivery.",
+                            actionTitle: "Create Queue",
+                            action: { showingCreateSheet = true }
+                        )
+                    )
+                } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
+                        )
+                    )
+                }
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchQueues()
@@ -165,6 +134,7 @@ struct QueuesView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(queue.queueName)
                     .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
                 
                 if let created = queue.createdOn {
                     Text("Created: \(String(created.prefix(10)))")

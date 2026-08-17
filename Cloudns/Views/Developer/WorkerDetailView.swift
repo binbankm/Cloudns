@@ -29,27 +29,8 @@ struct WorkerDetailView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.isLoading && !viewModel.hasFetchedData {
-                Section(header: Text("Script Overview")) {
-                    HStack {
-                        Text("Script Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("my-worker")
-                    }
-                    .skeletonLoading(true)
-                    
-                    HStack {
-                        Text("Total Size")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("12.4 KB")
-                    }
-                    .skeletonLoading(true)
-                }
-            } else {
-                // Section: Metadata
-                Section(header: Text("Script Overview")) {
+            // Section: Metadata
+            Section(header: Text("Script Overview")) {
                     HStack {
                         Text("Script Name")
                             .foregroundStyle(.secondary)
@@ -183,17 +164,22 @@ struct WorkerDetailView: View {
                     }
                     
                     NavigationLink {
-                        WorkerSecretsView(accountId: accountId, scriptName: worker.id)
+                        WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: "slider.horizontal.3")
                                 .font(.body)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.purple)
                                 .frame(width: 24)
                                 .accessibilityHidden(true)
-                            Text("Variables & Secrets")
+                            Text("Bindings & Variables")
                                 .foregroundStyle(.primary)
                             Spacer()
+                            if !viewModel.bindings.isEmpty {
+                                Text("\(viewModel.bindings.count)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     
@@ -231,6 +217,21 @@ struct WorkerDetailView: View {
                             Spacer()
                         }
                     }
+                    
+                    NavigationLink {
+                        WorkerAnalyticsView(accountId: accountId, scriptName: worker.id)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "chart.xyaxis.line")
+                                .font(.body)
+                                .foregroundStyle(.purple)
+                                .frame(width: 24)
+                                .accessibilityHidden(true)
+                            Text("Analytics & Metrics")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                        }
+                    }
                 }
                 
                 // Section: Debugging
@@ -250,45 +251,9 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
-                // Section: Resource Bindings
-                Section(header: Text("Resource Bindings (\(viewModel.bindings.count))")) {
-                    if viewModel.bindings.isEmpty {
-                        Text("No KV, R2, D1 or secret bindings configured.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.bindings) { binding in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(binding.name)
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
-                                    
-                                    if let extra = binding.namespaceId ?? binding.bucketName ?? binding.databaseId {
-                                        Text(extra)
-                                            .font(.caption2.monospacedDigit())
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Text(binding.type.uppercased())
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(.orange)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.orange.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                            }
-                        }
-                    }
-                }
             }
-        }
-        .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+            .listStyle(.insetGrouped)
+            .centerConstrainedWidth(maxWidth: 840)
     }
     
     private func formatBytes(_ bytes: Int) -> String {
@@ -327,10 +292,14 @@ struct WorkerSourceCodeView: View {
     }
     
     private var currentCode: String {
-        if !modules.isEmpty {
-            return modules.first(where: { $0.name == selectedModuleName })?.code ?? singleScriptContent
+        // Prefer live data from parentViewModel over the init-time snapshot
+        let liveModules = parentViewModel.modules.isEmpty ? modules : parentViewModel.modules
+        let liveContent = parentViewModel.scriptContent.isEmpty ? singleScriptContent : parentViewModel.scriptContent
+        
+        if !liveModules.isEmpty {
+            return liveModules.first(where: { $0.name == selectedModuleName })?.code ?? liveContent
         }
-        return singleScriptContent
+        return liveContent
     }
     
     @ViewBuilder
@@ -490,6 +459,32 @@ struct WorkerSourceCodeView: View {
             }
         }
         .onAppear {
+            // Use live ViewModel data if available (async fetch may have completed)
+            let liveModules = parentViewModel.modules.isEmpty ? modules : parentViewModel.modules
+            let liveContent = parentViewModel.scriptContent.isEmpty ? singleScriptContent : parentViewModel.scriptContent
+            
+            // Sync selected module name to the actual available data
+            if !liveModules.isEmpty && !liveModules.contains(where: { $0.name == selectedModuleName }) {
+                selectedModuleName = liveModules.first(where: { $0.isMain })?.name ?? liveModules.first?.name ?? selectedModuleName
+            }
+            editableCode = currentCode
+            
+            // If still empty, it means ViewModel hasn't loaded yet — trigger fetch
+            if liveContent.isEmpty && !parentViewModel.hasFetchedData {
+                Task { await parentViewModel.fetchDetails() }
+            }
+        }
+        .onChange(of: parentViewModel.scriptContent) { newContent in
+            guard !newContent.isEmpty else { return }
+            // ViewModel finished loading — refresh displayed code
+            editableCode = currentCode
+        }
+        .onChange(of: parentViewModel.modules) { newModules in
+            guard !newModules.isEmpty else { return }
+            // Sync module name if needed
+            if !newModules.contains(where: { $0.name == selectedModuleName }) {
+                selectedModuleName = newModules.first(where: { $0.isMain })?.name ?? newModules.first?.name ?? selectedModuleName
+            }
             editableCode = currentCode
         }
         .onChange(of: selectedModuleName) { _ in

@@ -45,10 +45,7 @@ struct CertInspectToolView: View {
                 .disabled(viewModel.domainInput.isEmpty || viewModel.isLoading)
             }
             
-            if viewModel.isLoading {
-                certDetailsSections(SSLCertDetails.placeholder)
-                    .skeletonLoading(true)
-            } else if let cert = viewModel.certDetails {
+            if let cert = viewModel.certDetails {
                 certDetailsSections(cert)
             } else if let error = viewModel.errorMessage {
                 Section {
@@ -59,7 +56,7 @@ struct CertInspectToolView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.certDetails == nil)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("SSL Certificate Inspector")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -108,13 +105,7 @@ struct CertInspectToolView: View {
                     Text("Negotiated Protocol")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(proto)
-                        .font(.caption.monospacedDigit())
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.12))
-                        .foregroundStyle(.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    CloudnsBadge(.custom(color: .green, text: proto), isCompact: true)
                 }
             }
             
@@ -123,13 +114,9 @@ struct CertInspectToolView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 if cert.isCloudflareEdge {
-                    Text("Cloudflare Edge Network")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                    CloudnsBadge(.proxied("Cloudflare Edge"), isCompact: true)
                 } else {
-                    Text("External TLS Server")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    CloudnsBadge(.dnsOnly("External TLS Server"), isCompact: true)
                 }
             }
             

@@ -13,67 +13,6 @@ struct AIGatewayView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(AIGateway.placeholders) { gw in
-                            gatewayRow(gw)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("AI Gateway")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("AI Gateway")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Gateways")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingCreateSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Create AI Gateway")
-                        }
-                    }
-                    .sheet(isPresented: $showingCreateSheet) {
-                        AIGatewayCreateSheetView(viewModel: viewModel)
-                    }
-                    .confirmationDialog("Delete AI Gateway", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: gatewayToDelete) { gw in
-                        Button("Delete '\(gw.name ?? gw.id)'", role: .destructive) {
-                            Task {
-                                do {
-                                    try await viewModel.deleteGateway(id: gw.id)
-                                    ToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
-                                } catch {
-                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                }
-                            }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    } message: { gw in
-                        Text("Are you sure you want to delete AI Gateway '\(gw.name ?? gw.id)'? Real-time logs and cached request data will be deleted.")
-                    }
-                    .refreshable {
-                        await viewModel.fetchGateways()
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchGateways()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
@@ -95,8 +34,47 @@ struct AIGatewayView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("AI Gateway")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Gateways")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingCreateSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Create AI Gateway")
+            }
+        }
+        .sheet(isPresented: $showingCreateSheet) {
+            AIGatewayCreateSheetView(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete AI Gateway", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: gatewayToDelete) { gw in
+            Button("Delete '\(gw.name ?? gw.id)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteGateway(id: gw.id)
+                        ToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
+                    } catch {
+                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { gw in
+            Text("Are you sure you want to delete AI Gateway '\(gw.name ?? gw.id)'? Real-time logs and cached request data will be deleted.")
+        }
+        .refreshable {
+            await viewModel.fetchGateways()
+        }
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
@@ -123,6 +101,12 @@ struct AIGatewayView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchGateways()
+            }
         }
     }
     
@@ -144,9 +128,7 @@ struct AIGatewayView: View {
 
                 HStack(spacing: 8) {
                     if gw.collectLogs == true {
-                        Label("Logs Active", systemImage: "checkmark.circle.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.green)
+                        CloudnsBadge(.active("Logs Active"), isCompact: true)
                     }
 
                     if let created = gw.createdOn {
@@ -212,7 +194,6 @@ struct AIGatewayCreateSheetView: View {
                     .disabled(gatewayId.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
-            .toastContainer()
         }
     }
 }

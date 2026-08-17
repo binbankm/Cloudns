@@ -80,21 +80,38 @@ public struct WorkerBinding: Codable, Identifiable, Equatable {
     public let bucketName: String?
     public let databaseId: String?
     public let text: String?
+    public let queueName: String?
+    public let service: String?
+    public let environment: String?
     
-    public init(name: String, type: String = "plain_text", namespaceId: String? = nil, bucketName: String? = nil, databaseId: String? = nil, text: String? = nil) {
+    public init(
+        name: String,
+        type: String = "plain_text",
+        namespaceId: String? = nil,
+        bucketName: String? = nil,
+        databaseId: String? = nil,
+        text: String? = nil,
+        queueName: String? = nil,
+        service: String? = nil,
+        environment: String? = nil
+    ) {
         self.name = name
         self.type = type
         self.namespaceId = namespaceId
         self.bucketName = bucketName
         self.databaseId = databaseId
         self.text = text
+        self.queueName = queueName
+        self.service = service
+        self.environment = environment
     }
     
     enum CodingKeys: String, CodingKey {
-        case name, type
+        case name, type, service, environment
         case namespaceId = "namespace_id"
         case bucketName = "bucket_name"
         case databaseId = "database_id"
+        case queueName = "queue_name"
         case text
     }
     
@@ -252,7 +269,7 @@ public struct TailException: Codable, Identifiable, Sendable {
     }
 }
 
-public indirect enum JSONValue: Codable, Sendable {
+public indirect enum JSONValue: Codable, Sendable, Equatable {
     case string(String)
     case number(Double)
     case bool(Bool)

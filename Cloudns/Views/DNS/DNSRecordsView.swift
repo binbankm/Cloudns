@@ -24,97 +24,10 @@ struct DNSRecordsView: View {
     }
     
     var displayRecords: [DNSRecord] {
-        if !viewModel.hasFetchedData {
-            return DNSRecord.placeholders
-        }
-        return viewModel.records
+        viewModel.records
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(DNSRecord.placeholders) { record in
-                            recordRow(record: record)
-                        }
-                    }
-                    .skeletonLoading(true)
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("DNS Records")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                listViewContent
-                    .navigationTitle("DNS Records")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(
-                        text: $viewModel.searchQuery,
-                        prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
-                    )
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            trailingToolbar
-                        }
-                        
-                        ToolbarItem(placement: .bottomBar) {
-                            if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    viewModel.deleteRecords(withIds: multiSelection)
-                                    multiSelection.removeAll()
-                                    editMode?.wrappedValue = .inactive
-                                } label: {
-                                    Text("Delete Selected (\(multiSelection.count))")
-                                        .foregroundStyle(.red)
-                                }
-                            }
-                        }
-                    }
-                    .fileExporter(
-                        isPresented: $showingExporter,
-                        document: TextDocument(url: exportedFileURL),
-                        contentType: .plainText,
-                        defaultFilename: "dns_records_\(zoneName).txt"
-                    ) { _ in }
-                    .fileImporter(
-                        isPresented: $showingImporter,
-                        allowedContentTypes: [.plainText, .data]
-                    ) { result in
-                        switch result {
-                        case .success(let fileURL):
-                            Task {
-                                _ = fileURL.startAccessingSecurityScopedResource()
-                                try? await viewModel.importRecords(fileURL: fileURL)
-                                fileURL.stopAccessingSecurityScopedResource()
-                            }
-                        case .failure(let error):
-                            print("Import failed: \(error.localizedDescription)")
-                        }
-                    }
-                    .onChange(of: editMode?.wrappedValue) { _ in
-                        multiSelection.removeAll()
-                    }
-                    .sheet(isPresented: $showingForm) {
-                        DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
-                    }
-                    .sheet(item: $recordToEdit) { record in
-                        DNSRecordFormView(viewModel: viewModel, existingRecord: record)
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchRecords()
-            }
-        }
-    }
-    
-    // MARK: - Subviews to optimize Swift compiler type checking
-    
-    @ViewBuilder
-    private var listViewContent: some View {
         List(selection: $multiSelection) {
             if !displayRecords.isEmpty {
                 recordsSections
@@ -134,11 +47,71 @@ struct DNSRecordsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("DNS Records")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(
+            text: $viewModel.searchQuery,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
+        )
         .refreshable {
             await viewModel.fetchRecords(isRefresh: true)
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                trailingToolbar
+            }
+            
+            ToolbarItem(placement: .bottomBar) {
+                if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
+                    Button(role: .destructive) {
+                        HapticManager.impact(.medium)
+                        viewModel.deleteRecords(withIds: multiSelection)
+                        multiSelection.removeAll()
+                        editMode?.wrappedValue = .inactive
+                    } label: {
+                        Text("Delete Selected (\(multiSelection.count))")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+        }
+        .fileExporter(
+            isPresented: $showingExporter,
+            document: TextDocument(url: exportedFileURL),
+            contentType: .plainText,
+            defaultFilename: "dns_records_\(zoneName).txt"
+        ) { _ in }
+        .fileImporter(
+            isPresented: $showingImporter,
+            allowedContentTypes: [.plainText, .data]
+        ) { result in
+            switch result {
+            case .success(let fileURL):
+                Task {
+                    _ = fileURL.startAccessingSecurityScopedResource()
+                    try? await viewModel.importRecords(fileURL: fileURL)
+                    fileURL.stopAccessingSecurityScopedResource()
+                }
+            case .failure(let error):
+                print("Import failed: \(error.localizedDescription)")
+            }
+        }
+        .onChange(of: editMode?.wrappedValue) { _ in
+            multiSelection.removeAll()
+        }
+        .sheet(isPresented: $showingForm) {
+            DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
+        }
+        .sheet(item: $recordToEdit) { record in
+            DNSRecordFormView(viewModel: viewModel, existingRecord: record)
+        }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -166,6 +139,11 @@ struct DNSRecordsView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchRecords()
             }
         }
     }
@@ -289,38 +267,46 @@ struct DNSRecordsView: View {
 struct DNSRecordRowView: View {
     let record: DNSRecord
     
+    private var recordTypeColor: Color {
+        switch record.type.uppercased() {
+        case "A", "AAAA": return .blue
+        case "CNAME": return .green
+        case "TXT": return .purple
+        case "MX": return .orange
+        case "NS", "CAA", "SRV": return .teal
+        default: return .indigo
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: 10) {
                 // Record Type Badge
                 Text(record.type)
-                    .font(.caption.monospacedDigit())
-                    .frame(width: 44)
+                    .font(.caption.monospacedDigit().weight(.bold))
+                    .frame(width: 48)
                     .padding(.vertical, 3)
-                    .background(Color.blue.opacity(0.15))
-                    .foregroundStyle(.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .background(recordTypeColor.opacity(0.14))
+                    .foregroundStyle(recordTypeColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
                 // Record Name
                 Text(record.name)
-                    .font(.body)
-                    .fontWeight(.medium)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 
                 Spacer()
                 
-                // Proxy Status Icon (Orange/Gray Cloud)
+                // Proxy Status Badge
                 if record.proxiable == true {
-                    Image(systemName: "cloud.fill")
-                        .font(.body)
-                        .foregroundStyle(record.proxied == true ? .orange : Color.gray.opacity(0.4))
-                        .accessibilityHidden(true)
+                    CloudnsBadge(
+                        record.proxied == true ? .proxied("Proxied") : .dnsOnly("DNS Only"),
+                        isCompact: true
+                    )
                 } else {
-                    Text("DNS Only")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
+                    CloudnsBadge(.dnsOnly("DNS Only"), isCompact: true)
                 }
             }
             

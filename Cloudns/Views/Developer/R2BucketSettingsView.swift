@@ -15,24 +15,7 @@ struct R2BucketSettingsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Public Access (r2.dev)")) {
-                    Toggle("Enable r2.dev Subdomain", isOn: .constant(false))
-                }
-                
-                Section(header: Text("Connected Custom Domains")) {
-                    ForEach(R2CustomDomain.placeholders) { domain in
-                        customDomainRow(domain)
-                    }
-                }
-                
-                Section(header: Text("CORS Rules")) {
-                    ForEach(R2CORSRule.placeholders) { rule in
-                        corsRuleRow(rule)
-                    }
-                }
-                .skeletonLoading(true)
-            } else {
+            if viewModel.hasFetchedData {
                 // Section 1: r2.dev Managed Domain
                 Section(
                     header: Text("Public Access (r2.dev)"),
@@ -106,6 +89,7 @@ struct R2BucketSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Bucket Settings")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddCORSSheet) {
@@ -119,6 +103,12 @@ struct R2BucketSettingsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add CORS Rule")
+            }
+        }
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .refreshable {
@@ -146,14 +136,7 @@ struct R2BucketSettingsView: View {
                     .foregroundStyle(.primary)
                 
                 HStack(spacing: 8) {
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill((domain.status?.lowercased() == "active") ? Color.green : Color.orange)
-                            .frame(width: 6, height: 6)
-                        Text(domain.status?.capitalized ?? "Active")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.secondary)
-                    }
+                    CloudnsBadge((domain.status?.lowercased() == "active") ? .active(domain.status?.capitalized ?? "Active") : .warning(domain.status?.capitalized ?? "Pending"), isCompact: true)
                     
                     if let zone = domain.zoneId {
                         Text("• \(zone)")
@@ -268,7 +251,6 @@ struct AddCORSRuleSheetView: View {
                     .disabled(selectedMethods.isEmpty || originText.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
-            .toastContainer()
         }
     }
 }

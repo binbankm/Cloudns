@@ -13,67 +13,6 @@ struct TurnstileWidgetsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(TurnstileWidget.placeholders) { widget in
-                            TurnstileWidgetRowView(widget: widget)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Turnstile Widgets")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("Turnstile Widgets")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Widgets")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingCreateSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Create Turnstile Widget")
-                        }
-                    }
-                    .sheet(isPresented: $showingCreateSheet) {
-                        CreateTurnstileWidgetSheetView(viewModel: viewModel)
-                    }
-                    .confirmationDialog("Delete Turnstile Widget", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: widgetToDelete) { widget in
-                        Button("Delete '\(widget.name)'", role: .destructive) {
-                            Task {
-                                do {
-                                    try await viewModel.deleteWidget(sitekey: widget.sitekey)
-                                    ToastManager.shared.showSuccess("Widget Deleted", message: widget.name)
-                                } catch {
-                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                }
-                            }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    } message: { widget in
-                        Text("Are you sure you want to delete widget '\(widget.name)' (\(widget.sitekey))? Any websites using this sitekey will fail human verification.")
-                    }
-                    .refreshable {
-                        await viewModel.fetchWidgets()
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchWidgets()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredWidgets.isEmpty {
                 Section {
@@ -95,8 +34,47 @@ struct TurnstileWidgetsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Turnstile Widgets")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Widgets")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingCreateSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Create Turnstile Widget")
+            }
+        }
+        .sheet(isPresented: $showingCreateSheet) {
+            CreateTurnstileWidgetSheetView(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Turnstile Widget", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: widgetToDelete) { widget in
+            Button("Delete '\(widget.name)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteWidget(sitekey: widget.sitekey)
+                        ToastManager.shared.showSuccess("Widget Deleted", message: widget.name)
+                    } catch {
+                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { widget in
+            Text("Are you sure you want to delete widget '\(widget.name)' (\(widget.sitekey))? Any websites using this sitekey will fail human verification.")
+        }
+        .refreshable {
+            await viewModel.fetchWidgets()
+        }
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
@@ -123,6 +101,12 @@ struct TurnstileWidgetsView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchWidgets()
+            }
         }
     }
 }
@@ -143,17 +127,11 @@ struct TurnstileWidgetRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(widget.name)
-                        .font(.body)
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
                     if let mode = widget.mode {
-                        Text(mode.capitalized)
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.blue)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.blue.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        CloudnsBadge(.custom(color: .blue, text: mode.capitalized), isCompact: true)
                     }
                 }
                 

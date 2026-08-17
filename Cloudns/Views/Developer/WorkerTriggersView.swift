@@ -60,14 +60,7 @@ struct WorkerTriggersView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Scheduled Triggers")) {
-                    ForEach(WorkerSchedule.placeholders) { schedule in
-                        scheduleRow(schedule)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.schedules.isEmpty {
+            if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
                     footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")
@@ -88,9 +81,12 @@ struct WorkerTriggersView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -245,7 +241,6 @@ private struct AddCronTriggerSheet: View {
                     .disabled(cronExpression.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
-            .toastContainer()
         }
     }
 }

@@ -27,9 +27,13 @@ public struct KVKey: Codable, Identifiable, Equatable {
     public var id: String { name }
     public let name: String
     public let expiration: Int?
-    public let metadata: String?
+    public let metadata: JSONValue?
     
-    public init(name: String, expiration: Int? = nil, metadata: String? = nil) {
+    public var metadataString: String? {
+        metadata?.displayText
+    }
+    
+    public init(name: String, expiration: Int? = nil, metadata: JSONValue? = nil) {
         self.name = name
         self.expiration = expiration
         self.metadata = metadata

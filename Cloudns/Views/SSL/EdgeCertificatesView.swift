@@ -5,13 +5,6 @@ struct EdgeCertificatesView: View {
     
     @StateObject private var viewModel = EdgeCertificatesViewModel()
     
-    var displayCertificates: [EdgeCertificateModel] {
-        if !viewModel.hasFetchedData {
-            return EdgeCertificateModel.dummyData
-        }
-        return viewModel.certificates
-    }
-    
     var body: some View {
         List {
             Section(
@@ -27,17 +20,9 @@ struct EdgeCertificatesView: View {
                 ))
             }
             
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Active Certificates")) {
-                    ForEach(displayCertificates) { cert in
-                        EdgeCertificateCardView(certificate: cert)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.certificates.isEmpty {
-                Section(header: Text("Active Certificates (\(displayCertificates.count))")) {
-                    ForEach(displayCertificates) { cert in
+            if !viewModel.certificates.isEmpty {
+                Section(header: Text("Active Certificates (\(viewModel.certificates.count))")) {
+                    ForEach(viewModel.certificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -55,9 +40,12 @@ struct EdgeCertificatesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -83,7 +71,6 @@ struct EdgeCertificatesView: View {
         }
         .navigationTitle("Edge Certificates")
         .navigationBarTitleDisplayMode(.inline)
-        .toastContainer()
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchCertificates(zoneId: zoneId)
@@ -127,18 +114,11 @@ struct EdgeCertificateCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Text(certificate.type.capitalized)
-                    .font(.body)
+                    .font(.body.weight(.medium))
                 
                 Spacer()
                 
-                Text(certificate.status)
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(certificate.status == "active" ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
-                    .foregroundStyle(certificate.status == "active" ? .green : .gray)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                CloudnsBadge(certificate.status.lowercased() == "active" ? .active("Active") : .custom(color: .secondary, text: certificate.status.capitalized), isCompact: true)
             }
             
             Divider()

@@ -88,21 +88,9 @@ struct NetworkDiagnosticsListView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    Text(LocalizedStringKey(tool.title))
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
-                                    
-                                    Spacer()
-                                    
-                                    Text(LocalizedStringKey(tool.badge))
-                                        .font(.caption2)
-                                        .foregroundStyle(tool.iconColor)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(tool.iconColor.opacity(0.12))
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                                }
+                                Text(LocalizedStringKey(tool.title))
+                                    .font(.body.weight(.medium))
+                                    .foregroundStyle(.primary)
                                 
                                 Text(LocalizedStringKey(tool.subtitle))
                                     .font(.caption)
@@ -116,6 +104,7 @@ struct NetworkDiagnosticsListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Network Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
     }

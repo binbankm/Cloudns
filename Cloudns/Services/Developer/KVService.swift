@@ -49,7 +49,8 @@ final class KVService {
     }
     
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)")
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)")
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
             throw APIError.invalidResponse
@@ -58,10 +59,11 @@ final class KVService {
     }
     
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int? = nil) async throws {
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
         var queryItems: [URLQueryItem]? = nil
         if let ttl = expirationTTL { queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")] }
         let request = try factory.createAuthenticatedRequest(
-            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)",
+            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)",
             queryItems: queryItems,
             method: "PUT",
             body: value.data(using: .utf8),
@@ -72,7 +74,8 @@ final class KVService {
     }
     
     func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(key)", method: "DELETE")
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }

@@ -8,42 +8,7 @@ struct SecuritySettingsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                // Skeleton: Danger Zone Placeholder
-                Section(header: Text("Danger Zone")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            SkeletonBar(width: 32, height: 32, cornerRadius: 8)
-                            SkeletonBar(width: 160, height: 18, cornerRadius: 4)
-                            Spacer()
-                        }
-                        SkeletonBar(height: 12, cornerRadius: 4)
-                        SkeletonBar(height: 12, cornerRadius: 4)
-                        SkeletonBar(width: 200, height: 12, cornerRadius: 4)
-                        
-                        SkeletonBar(height: 48, cornerRadius: 10)
-                            .padding(.top, 4)
-                    }
-                    .padding(.vertical, 8)
-                    .skeletonLoading(true)
-                }
-                
-                // Skeleton: General Security Placeholder
-                Section(header: Text("General Security")) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 6) {
-                                SkeletonBar(width: 140, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 220, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 6)
-                        .skeletonLoading(true)
-                    }
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 // Danger Zone: Under Attack Mode
                 Section(header: Text("Danger Zone")) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -59,13 +24,7 @@ struct SecuritySettingsView: View {
                             Spacer()
                             
                             if viewModel.securityLevel == "under_attack" {
-                                Text("ACTIVE")
-                                    .font(.caption.weight(.bold))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.white)
-                                    .foregroundStyle(.red)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                CloudnsBadge(.error("ACTIVE"), isCompact: true)
                             }
                         }
                         
@@ -204,12 +163,14 @@ struct SecuritySettingsView: View {
                 }
             }
         }
-    }
-    .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.securityLevel)
+        }
+        .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
@@ -239,6 +200,5 @@ struct SecuritySettingsView: View {
         } message: {
             Text("Are you sure you want to enable I'm Under Attack Mode? All visitors will be challenged. This may negatively impact legitimate traffic.")
         }
-        .toastContainer()
     }
 }

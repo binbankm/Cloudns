@@ -61,62 +61,56 @@ struct WorkerRoutesView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !hasFetchedData {
-                Section(header: Text("Custom Domains")) {
-                    ForEach(WorkerCustomDomain.placeholders) { dom in
+            // Section: Custom Domains
+            Section(
+                header: Text("Custom Domains (\(customDomains.count))"),
+                footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
+            ) {
+                if customDomains.isEmpty {
+                    Text("No custom domains attached.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(customDomains) { dom in
                         domainRow(dom)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else {
-                // Section: Custom Domains
-                Section(
-                    header: Text("Custom Domains (\(customDomains.count))"),
-                    footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
-                ) {
-                    if customDomains.isEmpty {
-                        Text("No custom domains attached.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(customDomains) { dom in
-                            domainRow(dom)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
-                                        domainToDelete = dom
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Label("Detach", systemImage: "trash")
-                                    }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    domainToDelete = dom
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Detach", systemImage: "trash")
                                 }
-                        }
+                            }
                     }
                 }
-                
-                // Section: Standard Zone Routes
-                if !fallbackRoutes.isEmpty {
-                    Section(header: Text("Bound Zone Routes (\(fallbackRoutes.count))")) {
-                        ForEach(fallbackRoutes, id: \.self) { r in
-                            HStack {
-                                Image(systemName: "arrow.triangle.branch")
-                                    .foregroundStyle(.purple)
-                                    .font(.caption)
-                                    .accessibilityHidden(true)
-                                Text(r)
-                                    .font(.footnote)
-                                    .foregroundStyle(.primary)
-                            }
-                            .padding(.vertical, 2)
+            }
+            
+            // Section: Standard Zone Routes
+            if !fallbackRoutes.isEmpty {
+                Section(header: Text("Bound Zone Routes (\(fallbackRoutes.count))")) {
+                    ForEach(fallbackRoutes, id: \.self) { r in
+                        HStack {
+                            Image(systemName: "arrow.triangle.branch")
+                                .foregroundStyle(.purple)
+                                .font(.caption)
+                                .accessibilityHidden(true)
+                            Text(r)
+                                .font(.footnote)
+                                .foregroundStyle(.primary)
                         }
+                        .padding(.vertical, 2)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if hasFetchedData {
+            if !hasFetchedData && isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if hasFetchedData {
                 if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -206,14 +200,19 @@ struct WorkerAttachDomainSheetView: View {
     
     private var computedZoneId: String {
         if isCustomMode {
-            return ""
+            let host = manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if let matched = availableZones.first(where: { host == $0.name.lowercased() || host.hasSuffix("." + $0.name.lowercased()) }) {
+                return matched.id
+            }
+            return selectedZoneId
         }
         return selectedZoneId
     }
     
     private var isValidInput: Bool {
         if isCustomMode {
-            return !manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let host = manualHostname.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !host.isEmpty && !computedZoneId.isEmpty
         }
         return !selectedZoneId.isEmpty && !computedHostname.isEmpty
     }
@@ -343,7 +342,6 @@ struct WorkerAttachDomainSheetView: View {
                 }
                 isLoadingZones = false
             }
-            .toastContainer()
         }
     }
 }

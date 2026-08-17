@@ -10,36 +10,7 @@ struct CachingView: View {
 
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                // Skeleton: Purge Section
-                Section(header: Text("Purge Cache")) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        SkeletonBar(width: 140, height: 16, cornerRadius: 4)
-                        SkeletonBar(height: 12, cornerRadius: 4)
-                        SkeletonBar(width: 220, height: 12, cornerRadius: 4)
-                        SkeletonBar(height: 44, cornerRadius: 10)
-                            .padding(.top, 4)
-                    }
-                    .padding(.vertical, 6)
-                    .skeletonLoading(true)
-                }
-                
-                // Skeleton: Caching Controls
-                Section(header: Text("Caching Configuration")) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                SkeletonBar(width: 130, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 220, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 60, height: 28, cornerRadius: 8)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 // Custom Granular Purge
                 Section(
                     header: Text("Custom Cache Purge"),
@@ -234,11 +205,14 @@ struct CachingView: View {
                 }
             }
         }
-    }
-    .listStyle(.insetGrouped)
-    .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        }
+        .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
@@ -268,7 +242,6 @@ struct CachingView: View {
         } message: {
             Text("Are you sure you want to purge all cached resources? This may temporarily degrade your website's performance and increase load on your origin server.")
         }
-        .toastContainer()
     }
     
     private var purgeTypeDescription: String {

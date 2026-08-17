@@ -125,7 +125,6 @@ struct AIGatewayDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(gateway.id)
         .navigationBarTitleDisplayMode(.inline)
-        .toastContainer()
     }
     
     private var codeSnippet: String {

@@ -89,6 +89,12 @@ final class R2Service {
     
     func getR2CustomDomains(accountId: String, bucketName: String) async throws -> [R2CustomDomain] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/custom")
+        struct R2CustomDomainsRes: Codable {
+            let domains: [R2CustomDomain]?
+        }
+        if let (wrapped, _): (R2CustomDomainsRes?, ResultInfo?) = try? await client.performRequest(request), let domains = wrapped?.domains {
+            return domains
+        }
         let (doms, _): ([R2CustomDomain]?, ResultInfo?) = try await client.performRequest(request)
         return doms ?? []
     }

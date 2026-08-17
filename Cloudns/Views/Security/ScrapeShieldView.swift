@@ -28,39 +28,7 @@ struct ScrapeShieldView: View {
                 .listRowBackground(Color.clear)
             }
             
-            if !viewModel.hasFetchedData {
-                Section {
-                    ScrapeShieldRow(
-                        title: "Email Address Obfuscation",
-                        subtitle: "Hides your email addresses from scrapers. Visitors can still see them.",
-                        icon: "envelope.badge.shield.half.filled.fill",
-                        iconColor: .blue,
-                        isOn: .constant(false),
-                        isLoading: true
-                    )
-                    .skeletonLoading(true)
-                    
-                    ScrapeShieldRow(
-                        title: "Server-Side Excludes",
-                        subtitle: "Hides specific page content from suspicious visitors.",
-                        icon: "server.rack",
-                        iconColor: .orange,
-                        isOn: .constant(false),
-                        isLoading: true
-                    )
-                    .skeletonLoading(true)
-                    
-                    ScrapeShieldRow(
-                        title: "Hotlink Protection",
-                        subtitle: "Prevents other sites from embedding your images, saving your bandwidth.",
-                        icon: "photo.fill",
-                        iconColor: .red,
-                        isOn: .constant(false),
-                        isLoading: true
-                    )
-                    .skeletonLoading(true)
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 Section(footer: 
                     VStack(alignment: .leading, spacing: 8) {
                         Label("About Scrape Shield", systemImage: "info.circle")
@@ -90,7 +58,7 @@ struct ScrapeShieldView: View {
                         isLoading: viewModel.isLoading && !viewModel.hasFetchedData
                     )
                     
-                    // Server Side Excludes
+                    // Server-Side Excludes
                     ScrapeShieldRow(
                         title: "Server-Side Excludes",
                         subtitle: "Hides specific page content from suspicious visitors.",
@@ -101,7 +69,7 @@ struct ScrapeShieldView: View {
                             set: { val in
                                 HapticManager.impact(.light)
                                 viewModel.serverSideExcludesEnabled = val
-                                Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_exclude", value: val ? "on" : "off") }
+                                Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_excludes", value: val ? "on" : "off") }
                             }
                         ),
                         isLoading: viewModel.isLoading && !viewModel.hasFetchedData
@@ -127,9 +95,12 @@ struct ScrapeShieldView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
@@ -145,7 +116,6 @@ struct ScrapeShieldView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-        .toastContainer()
     }
 }
 

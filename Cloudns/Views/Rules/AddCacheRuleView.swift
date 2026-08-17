@@ -71,6 +71,7 @@ struct AddCacheRuleView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Cache Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

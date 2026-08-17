@@ -17,108 +17,74 @@ struct KVBrowserView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                VStack(spacing: 0) {
-                    Picker("Storage", selection: $viewModel.selectedSegment) {
-                        Text("KV Namespaces").tag(0)
-                        Text("D1 Databases").tag(1)
+        VStack(spacing: 0) {
+            Picker("Storage", selection: $viewModel.selectedSegment) {
+                Text("KV Namespaces (\(viewModel.namespaces.count))").tag(0)
+                Text("D1 Databases (\(viewModel.d1Databases.count))").tag(1)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
+            
+            contentView
+                .centerConstrainedWidth(maxWidth: 840)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("KV & D1 Storage")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    if viewModel.selectedSegment == 0 {
+                        showingCreateKVSheet = true
+                    } else {
+                        showingCreateD1Sheet = true
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGroupedBackground))
-                    
-                    List {
-                        Section {
-                            if viewModel.selectedSegment == 0 {
-                                ForEach(KVNamespace.placeholders) { ns in
-                                    kvRow(ns)
-                                        .skeletonLoading(true)
-                                }
-                            } else {
-                                ForEach(D1Database.placeholders) { db in
-                                    d1Row(db)
-                                        .skeletonLoading(true)
-                                }
-                            }
-                        }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Create Storage")
+            }
+        }
+        .sheet(isPresented: $showingCreateKVSheet) {
+            KVCreateNamespaceSheetView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingCreateD1Sheet) {
+            D1CreateDatabaseSheetView(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
+            Button("Delete '\(ns.title)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteNamespace(namespaceId: ns.id)
+                        ToastManager.shared.showSuccess("KV Namespace Deleted", message: ns.title)
+                    } catch {
+                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
-                    .listStyle(.insetGrouped)
-                }
-                .background(Color(.systemGroupedBackground))
-                .navigationTitle("KV & D1 Storage")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                VStack(spacing: 0) {
-                    Picker("Storage", selection: $viewModel.selectedSegment) {
-                        Text("KV Namespaces (\(viewModel.namespaces.count))").tag(0)
-                        Text("D1 Databases (\(viewModel.d1Databases.count))").tag(1)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGroupedBackground))
-                    
-                    contentView
-                }
-                .background(Color(.systemGroupedBackground))
-                .navigationTitle("KV & D1 Storage")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            if viewModel.selectedSegment == 0 {
-                                showingCreateKVSheet = true
-                            } else {
-                                showingCreateD1Sheet = true
-                            }
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .accessibilityLabel("Create Storage")
-                    }
-                }
-                .sheet(isPresented: $showingCreateKVSheet) {
-                    KVCreateNamespaceSheetView(viewModel: viewModel)
-                }
-                .sheet(isPresented: $showingCreateD1Sheet) {
-                    D1CreateDatabaseSheetView(viewModel: viewModel)
-                }
-                .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
-                    Button("Delete '\(ns.title)'", role: .destructive) {
-                        Task {
-                            do {
-                                try await viewModel.deleteNamespace(namespaceId: ns.id)
-                                ToastManager.shared.showSuccess("KV Namespace Deleted", message: ns.title)
-                            } catch {
-                                ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                            }
-                        }
-                    }
-                    Button("Cancel", role: .cancel) {}
-                } message: { ns in
-                    Text("Are you sure you want to delete namespace '\(ns.title)'? All keys in this namespace will be permanently lost.")
-                }
-                .confirmationDialog("Delete D1 Database", isPresented: $showingDeleteD1Alert, titleVisibility: .visible, presenting: databaseToDelete) { db in
-                    Button("Delete '\(db.name)'", role: .destructive) {
-                        Task {
-                            do {
-                                try await viewModel.deleteDatabase(databaseId: db.uuid)
-                                ToastManager.shared.showSuccess("D1 Database Deleted", message: db.name)
-                            } catch {
-                                ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                            }
-                        }
-                    }
-                    Button("Cancel", role: .cancel) {}
-                } message: { db in
-                    Text("Are you sure you want to delete database '\(db.name)'? All tables and data will be permanently dropped.")
-                }
-                .refreshable {
-                    await viewModel.fetchData()
                 }
             }
+            Button("Cancel", role: .cancel) {}
+        } message: { ns in
+            Text("Are you sure you want to delete namespace '\(ns.title)'? All keys in this namespace will be permanently lost.")
+        }
+        .confirmationDialog("Delete D1 Database", isPresented: $showingDeleteD1Alert, titleVisibility: .visible, presenting: databaseToDelete) { db in
+            Button("Delete '\(db.name)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteDatabase(databaseId: db.uuid)
+                        ToastManager.shared.showSuccess("D1 Database Deleted", message: db.name)
+                    } catch {
+                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { db in
+            Text("Are you sure you want to delete database '\(db.name)'? All tables and data will be permanently dropped.")
+        }
+        .refreshable {
+            await viewModel.fetchData()
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -176,7 +142,10 @@ struct KVBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -250,17 +219,11 @@ struct KVBrowserView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(db.name)
-                        .font(.body)
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
                     if let version = db.version {
-                        Text(version.uppercased())
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.purple)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(Color.purple.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        CloudnsBadge(.custom(color: .purple, text: version.uppercased()), isCompact: true)
                     }
                 }
                 
@@ -315,58 +278,6 @@ struct KVNamespaceKeysView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(KVKey.placeholders) { key in
-                            keyRow(key)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle(namespace.title)
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle(namespace.title)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $searchKey, prompt: "Search Keys")
-                    .refreshable {
-                        await viewModel.fetchKeys()
-                    }
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Add Key")
-                        }
-                    }
-                    .sheet(isPresented: $showingValueSheet) {
-                        KVValueSheetView(
-                            keyName: viewModel.selectedKey ?? "",
-                            valueText: viewModel.selectedKeyValue ?? "No value",
-                            isLoading: viewModel.isValueLoading
-                        )
-                    }
-                    .sheet(isPresented: $showingAddSheet) {
-                        KVAddKeySheetView(viewModel: viewModel)
-                    }
-            }
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchKeys()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
@@ -379,6 +290,7 @@ struct KVNamespaceKeysView: View {
                         } label: {
                             keyRow(key)
                         }
+                        .buttonStyle(.plain)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
@@ -399,8 +311,39 @@ struct KVNamespaceKeysView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle(namespace.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchKey, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Keys")
+        .refreshable {
+            await viewModel.fetchKeys()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Key")
+            }
+        }
+        .sheet(isPresented: $showingValueSheet) {
+            KVValueSheetView(
+                keyName: viewModel.selectedKey ?? "",
+                valueText: viewModel.selectedKeyValue ?? "No value",
+                isLoading: viewModel.isValueLoading
+            )
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            KVAddKeySheetView(viewModel: viewModel)
+        }
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.keys.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.keys.isEmpty {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
@@ -425,6 +368,12 @@ struct KVNamespaceKeysView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchKeys()
+            }
         }
     }
     

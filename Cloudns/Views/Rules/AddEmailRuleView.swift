@@ -40,6 +40,7 @@ struct AddEmailRuleView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Routing Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

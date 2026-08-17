@@ -24,9 +24,7 @@ struct AccountsView: View {
                                         .foregroundStyle(.primary)
                                     
                                     if accountManager.activeEmail == email {
-                                        Text("Current")
-                                            .font(.caption.weight(.medium))
-                                            .foregroundStyle(.orange)
+                                        CloudnsBadge(.custom(color: .orange, text: "Current"), isCompact: true)
                                     }
                                 }
                                 
@@ -60,6 +58,7 @@ struct AccountsView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Accounts")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

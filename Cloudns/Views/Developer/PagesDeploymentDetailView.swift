@@ -30,14 +30,7 @@ struct PagesDeploymentDetailView: View {
                     Text("Status")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(isSuccess ? Color.green : Color.orange)
-                            .frame(width: 8, height: 8)
-                        Text(deployment.latestStage?.status?.capitalized ?? "Unknown")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(isSuccess ? .green : .orange)
-                    }
+                    CloudnsBadge(isSuccess ? .active(deployment.latestStage?.status?.capitalized ?? "Success") : .warning(deployment.latestStage?.status?.capitalized ?? "Pending"), isCompact: true)
                 }
                 
                 if let env = deployment.environment {
@@ -188,6 +181,7 @@ struct PagesDeploymentDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Deployment Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -234,7 +228,6 @@ struct PagesDeploymentDetailView: View {
         } message: {
             Text("Are you sure you want to delete this deployment? This action cannot be undone.")
         }
-        .toastContainer()
     }
     
     private func logColor(_ line: String) -> Color {

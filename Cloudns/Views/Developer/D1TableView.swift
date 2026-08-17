@@ -89,7 +89,17 @@ final class D1TableViewModel: BaseLoadableViewModel {
             )
             self.rows = result.rows
         } catch {
-            self.errorMessage = error.localizedDescription
+            // Fallback for WITHOUT ROWID tables
+            let fallbackSql = "SELECT * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
+            if let fallbackResult = try? await apiClient.executeD1Query(
+                accountId: accountId,
+                databaseId: databaseId,
+                sql: fallbackSql
+            ) {
+                self.rows = fallbackResult.rows
+            } else {
+                self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
+            }
         }
     }
     
@@ -121,20 +131,27 @@ final class D1TableViewModel: BaseLoadableViewModel {
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Delete Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }
     
     func insertRow(values: [String: String]) async -> Bool {
-        guard !values.isEmpty else { return false }
-        let cols = values.keys.map { "\"\($0)\"" }.joined(separator: ", ")
-        let valPlaceholders = values.values.map { v -> String in
-            let escaped = v.replacingOccurrences(of: "'", with: "''")
-            return "'\(escaped)'"
-        }.joined(separator: ", ")
+        // Filter out blank values to let SQLite handle AUTOINCREMENT and DEFAULT values properly
+        let activePairs = values.filter { !$0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         
-        let sql = "INSERT INTO \"\(tableName)\" (\(cols)) VALUES (\(valPlaceholders));"
+        let sql: String
+        if activePairs.isEmpty {
+            sql = "INSERT INTO \"\(tableName)\" DEFAULT VALUES;"
+        } else {
+            let cols = activePairs.map { "\"\($0.key)\"" }.joined(separator: ", ")
+            let valPlaceholders = activePairs.map { pair -> String in
+                let escaped = pair.value.replacingOccurrences(of: "'", with: "''")
+                return "'\(escaped)'"
+            }.joined(separator: ", ")
+            sql = "INSERT INTO \"\(tableName)\" (\(cols)) VALUES (\(valPlaceholders));"
+        }
+        
         do {
             _ = try await apiClient.executeD1Query(
                 accountId: accountId,
@@ -145,7 +162,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Insert Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Insert Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }
@@ -155,6 +172,8 @@ final class D1TableViewModel: BaseLoadableViewModel {
             let escaped = v.replacingOccurrences(of: "'", with: "''")
             return "\"\(k)\" = '\(escaped)'"
         }.joined(separator: ", ")
+        
+        guard !setClauses.isEmpty else { return true }
         
         let sql = "UPDATE \"\(tableName)\" SET \(setClauses) WHERE rowid = \(rowid);"
         do {
@@ -167,7 +186,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Update Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }
@@ -185,8 +204,7 @@ struct D1TableView: View {
     
     @StateObject private var viewModel: D1TableViewModel
     @State private var displayMode: D1DisplayMode = .cards
-    @State private var selectedRowForEdit: [String: String]? = nil
-    @State private var showingInsertSheet = false
+    @State private var editorContext: D1RowContext? = nil
     @State private var rowToDelete: [String: String]? = nil
     @State private var showingDeleteAlert = false
     
@@ -251,7 +269,7 @@ struct D1TableView: View {
                             title: "Empty Table",
                             message: "Table '\(tableName)' has no data rows.",
                             actionTitle: "Insert Row",
-                            action: { showingInsertSheet = true }
+                            action: { editorContext = .insert }
                         )
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -300,48 +318,28 @@ struct D1TableView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    showingInsertSheet = true
+                    editorContext = .insert
                 } label: {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Insert Row")
             }
         }
-        .sheet(item: Binding(
-            get: { selectedRowForEdit.map { RowIdentifiable(row: $0) } },
-            set: { selectedRowForEdit = $0?.row }
-        )) { item in
+        .sheet(item: $editorContext) { context in
             D1RowEditorView(
-                tableName: tableName,
-                columns: viewModel.columns,
-                existingRow: item.row,
-                onSave: { updated in
-                    if let rowid = item.row["_rowid_"] {
-                        return await viewModel.updateRow(rowid: rowid, values: updated)
-                    }
-                    return false
-                }
-            )
-        }
-        .sheet(isPresented: $showingInsertSheet) {
-            D1RowEditorView(
-                tableName: tableName,
-                columns: viewModel.columns,
-                existingRow: nil,
-                onSave: { newValues in
-                    await viewModel.insertRow(values: newValues)
-                }
+                viewModel: viewModel,
+                existingRow: context.row
             )
         }
         .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
-            Button("Delete Row #\(row["_rowid_"] ?? "")", role: .destructive) {
+            Button("Delete Row", role: .destructive) {
                 if let rowid = row["_rowid_"] {
                     Task { _ = await viewModel.deleteRow(rowid: rowid) }
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: { row in
-            Text("Are you sure you want to delete row with rowid \(row["_rowid_"] ?? "")?")
+            Text(verbatim: "Are you sure you want to delete row with rowid \(row["_rowid_"] ?? "")?")
         }
         .refreshable {
             await viewModel.loadTable()
@@ -368,7 +366,7 @@ struct D1TableView: View {
                             Spacer()
                             
                             Button {
-                                selectedRowForEdit = row
+                                editorContext = .edit(row: row)
                             } label: {
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.title3)
@@ -472,7 +470,7 @@ struct D1TableView: View {
                 // Data Rows
                 ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
                     Button {
-                        selectedRowForEdit = row
+                        editorContext = .edit(row: row)
                     } label: {
                         HStack(spacing: 0) {
                             Text(row["_rowid_"] ?? "\(index + 1)")
@@ -498,7 +496,7 @@ struct D1TableView: View {
                     .background(index % 2 == 0 ? Color(.systemBackground) : Color(.secondarySystemGroupedBackground).opacity(0.5))
                     .contextMenu {
                         Button {
-                            selectedRowForEdit = row
+                            editorContext = .edit(row: row)
                         } label: {
                             Label("Edit Row", systemImage: "pencil")
                         }
@@ -518,9 +516,4 @@ struct D1TableView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
-}
-
-private struct RowIdentifiable: Identifiable {
-    var id: String { row["_rowid_"] ?? UUID().uuidString }
-    let row: [String: String]
 }

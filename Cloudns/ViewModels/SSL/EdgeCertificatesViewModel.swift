@@ -59,10 +59,10 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
                     id: cert.id,
                     type: "custom",
                     hosts: cert.hosts,
-                    issuer: cert.issuer,
-                    status: cert.status,
-                    expiresOn: cert.expires_on,
-                    signature: cert.signature
+                    issuer: cert.issuer ?? "Custom CA",
+                    status: cert.status ?? "active",
+                    expiresOn: cert.expires_on ?? "N/A",
+                    signature: cert.signature ?? "Custom"
                 ))
             }
             

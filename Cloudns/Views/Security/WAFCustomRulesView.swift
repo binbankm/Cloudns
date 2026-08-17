@@ -8,14 +8,7 @@ struct WAFCustomRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(WAFRule.placeholders) { rule in
-                        WAFRuleCardView(rule: rule, onToggle: {})
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
@@ -31,9 +24,12 @@ struct WAFCustomRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -114,19 +110,11 @@ struct WAFRuleCardView: View {
             }
             
             HStack {
-                Text(actionDisplayName(rule.action))
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(colorForAction(rule.action).opacity(0.1))
-                    .foregroundStyle(colorForAction(rule.action))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                CloudnsBadge(.custom(color: colorForAction(rule.action), text: actionDisplayName(rule.action)), isCompact: true)
                 
                 Spacer()
                 
-                Text(rule.enabled ? "Active" : "Disabled")
-                    .font(.caption)
-                    .foregroundStyle(rule.enabled ? .green : .secondary)
+                CloudnsBadge(rule.enabled ? .active("Active") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
             Divider()

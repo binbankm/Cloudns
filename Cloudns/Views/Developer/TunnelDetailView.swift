@@ -72,14 +72,7 @@ struct TunnelDetailView: View {
                     Text("Status")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(tunnel.isHealthy ? Color.green : Color.red)
-                            .frame(width: 6, height: 6)
-                        Text((tunnel.status ?? "Inactive").capitalized)
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(tunnel.isHealthy ? .green : .red)
-                    }
+                    CloudnsBadge(tunnel.isHealthy ? .active((tunnel.status ?? "Active").capitalized) : .error((tunnel.status ?? "Inactive").capitalized), isCompact: true)
                 }
                 
                 HStack {
@@ -248,6 +241,7 @@ struct TunnelDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
     }
 }
 
@@ -302,7 +296,6 @@ struct AddIngressRuleSheetView: View {
                     .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || serviceURL.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
-            .toastContainer()
         }
     }
 }

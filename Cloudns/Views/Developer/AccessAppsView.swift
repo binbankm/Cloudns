@@ -13,91 +13,79 @@ struct AccessAppsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section(header: Text("Protected Applications")) {
-                        ForEach(AccessApp.placeholders) { app in
+        List {
+            if !viewModel.filteredApps.isEmpty {
+                Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
+                    ForEach(viewModel.filteredApps) { app in
+                        NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
                             appRow(app)
-                                .skeletonLoading(true)
                         }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Access Applications")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                List {
-                    if !viewModel.filteredApps.isEmpty {
-                        Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
-                            ForEach(viewModel.filteredApps) { app in
-                                NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
-                                    appRow(app)
-                                }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
-                                        appToDelete = app
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                appToDelete = app
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
-                .overlay {
-                    if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
-                        StateOverlayView(
-                            state: .error(
-                                message: LocalizedStringKey(err),
-                                retryAction: { Task { await viewModel.fetchApps() } }
-                            )
+            }
+        }
+        .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Access Applications")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Applications")
+        .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
+            Button("Delete '\(app.name)'", role: .destructive) {
+                Task { await viewModel.deleteApp(id: app.id) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { app in
+            Text("Are you sure you want to delete '\(app.name)'? Traffic to \(app.domain) will no longer be protected by Zero Trust.")
+        }
+        .refreshable {
+            await viewModel.fetchApps()
+        }
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(err),
+                            retryAction: { Task { await viewModel.fetchApps() } }
                         )
-                    } else if viewModel.apps.isEmpty {
-                        StateOverlayView(
-                            state: .empty(
-                                icon: "lock.shield.fill",
-                                title: "No Access Applications",
-                                message: "Zero Trust Access secures self-hosted and SaaS applications with identity-driven policies.",
-                                actionTitle: "Refresh",
-                                action: { Task { await viewModel.fetchApps() } }
-                            )
+                    )
+                } else if viewModel.apps.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "lock.shield.fill",
+                            title: "No Access Applications",
+                            message: "Zero Trust Access secures self-hosted and SaaS applications with identity-driven policies.",
+                            actionTitle: "Refresh",
+                            action: { Task { await viewModel.fetchApps() } }
                         )
-                    } else if viewModel.filteredApps.isEmpty && !viewModel.searchText.isEmpty {
-                        StateOverlayView(
-                            state: .search(
-                                query: viewModel.searchText,
-                                clearAction: { viewModel.searchText = "" }
-                            )
+                    )
+                } else if viewModel.filteredApps.isEmpty && !viewModel.searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: viewModel.searchText,
+                            clearAction: { viewModel.searchText = "" }
                         )
-                    }
-                }
-                .navigationTitle("Access Applications")
-                .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: $viewModel.searchText, prompt: "Search Applications")
-                .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
-                    Button("Delete '\(app.name)'", role: .destructive) {
-                        Task { await viewModel.deleteApp(id: app.id) }
-                    }
-                    Button("Cancel", role: .cancel) {}
-                } message: { app in
-                    Text("Are you sure you want to delete '\(app.name)'? Traffic to \(app.domain) will no longer be protected by Zero Trust.")
-                }
-                .refreshable {
-                    await viewModel.fetchApps()
+                    )
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchApps()
             }
         }
-        .toastContainer()
     }
     
     @ViewBuilder
@@ -114,6 +102,7 @@ struct AccessAppsView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(app.name)
                     .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
                 
                 Text(app.domain)
                     .font(.caption2)
@@ -121,16 +110,6 @@ struct AccessAppsView: View {
             }
             
             Spacer()
-            
-            if let type = app.type {
-                Text(type.uppercased())
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(.purple)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.purple.opacity(0.12))
-                    .clipShape(Capsule())
-            }
         }
         .padding(.vertical, 2)
     }

@@ -54,10 +54,7 @@ struct HTTPHeaderInspectorView: View {
                 .disabled(viewModel.httpUrlInput.isEmpty || viewModel.isHttpLoading)
             }
             
-            if viewModel.isHttpLoading {
-                httpResultSections(HTTPInspectionResult.placeholder)
-                    .skeletonLoading(true)
-            } else if let result = viewModel.httpResult {
+            if let result = viewModel.httpResult {
                 httpResultSections(result)
             } else if let error = viewModel.httpError {
                 Section {
@@ -68,7 +65,7 @@ struct HTTPHeaderInspectorView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.httpResult == nil)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("HTTP Header Inspector")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -80,22 +77,14 @@ struct HTTPHeaderInspectorView: View {
                 Text("Status Code")
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(result.statusCode)")
-                    .font(.subheadline.monospacedDigit().weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(result.statusCode < 400 ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
-                    .foregroundStyle(result.statusCode < 400 ? .green : .red)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                CloudnsBadge(result.statusCode < 400 ? .active("\(result.statusCode)") : .error("\(result.statusCode)"), isCompact: true)
             }
             
             HStack {
                 Text("Response Latency")
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(String(format: "%.1f ms", result.durationMs))
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                CloudnsBadge(.custom(color: .secondary, text: String(format: "%.1f ms", result.durationMs)), isCompact: true)
             }
             
             if let ray = result.cfRay {
@@ -114,13 +103,7 @@ struct HTTPHeaderInspectorView: View {
                     Text("CF-Cache-Status")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(cache)
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.12))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    CloudnsBadge(.custom(color: .blue, text: cache), isCompact: true)
                 }
             }
         }

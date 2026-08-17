@@ -73,6 +73,7 @@ struct AddRateLimitingRuleView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Rate Limit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

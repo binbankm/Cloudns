@@ -78,6 +78,7 @@ struct AddTransformRuleView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Transform Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -45,10 +45,7 @@ struct CFTraceToolView: View {
                 .disabled(viewModel.host.isEmpty || viewModel.isLoading)
             }
             
-            if viewModel.isLoading {
-                traceSections(fields: HTTPHeaderItem.tracePlaceholders, colo: "SFO", ip: "198.51.100.42", loc: "US", warp: "plus")
-                    .skeletonLoading(true)
-            } else if !viewModel.traceFields.isEmpty {
+            if !viewModel.traceFields.isEmpty {
                 traceSections(fields: viewModel.traceFields, colo: viewModel.coloCode, ip: viewModel.clientIp, loc: viewModel.locCountry, warp: viewModel.warpStatus)
             } else if let error = viewModel.errorMessage {
                 Section {
@@ -59,7 +56,7 @@ struct CFTraceToolView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.traceFields.isEmpty)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Cloudflare Trace")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -82,13 +79,7 @@ struct CFTraceToolView: View {
                             .font(.subheadline)
                             .foregroundStyle(.primary)
                     }
-                    Text(colo)
-                        .font(.body.monospacedDigit().weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.15))
-                        .foregroundStyle(.orange)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    CloudnsBadge(.proxied(colo), isCompact: true)
                 }
                 
                 if let ip = ip {
@@ -118,9 +109,7 @@ struct CFTraceToolView: View {
                         Text("Cloudflare WARP")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(warp.uppercased())
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(warp == "on" || warp == "plus" ? .green : .secondary)
+                        CloudnsBadge(warp == "on" || warp == "plus" ? .active("WARP \(warp.uppercased())") : .custom(color: .secondary, text: warp.uppercased()), isCompact: true)
                     }
                 }
             }

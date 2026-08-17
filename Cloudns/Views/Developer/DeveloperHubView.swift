@@ -3,6 +3,16 @@ import SwiftUI
 struct DeveloperHubView: View {
     @StateObject private var viewModel = DeveloperHubViewModel()
     
+    /// Safe accountId – always resolved from a validated Account object.
+    /// Never passes an empty string to child views.
+    private var accountId: String {
+        viewModel.selectedAccount?.id ?? ""
+    }
+    
+    private var isAccountReady: Bool {
+        !(viewModel.selectedAccount?.id ?? "").isEmpty
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -34,189 +44,187 @@ struct DeveloperHubView: View {
                 // Section: Compute
                 Section(header: Text("Compute & Applications")) {
                     NavigationLink {
-                        WorkersListView(accountId: viewModel.selectedAccount?.id ?? "")
+                        WorkersListView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "bolt.fill",
                             iconColor: .orange,
                             title: "Workers & Pages",
-                            subtitle: "Serverless execution & static sites",
-                            badgeText: "\(viewModel.workers.count + viewModel.pagesProjects.count)"
+                            subtitle: "Serverless execution & static sites"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        QueuesView(accountId: viewModel.selectedAccount?.id ?? "")
+                        QueuesView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "tray.2.fill",
                             iconColor: .purple,
                             title: "Queues",
-                            subtitle: "Asynchronous message queue delivery",
-                            badgeText: "Queue"
+                            subtitle: "Asynchronous message queue delivery"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        DurableObjectsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        DurableObjectsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "cube.fill",
                             iconColor: .cyan,
                             title: "Durable Objects",
-                            subtitle: "Coordinated edge state namespaces",
-                            badgeText: "DO"
+                            subtitle: "Coordinated edge state namespaces"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: Storage
                 Section(header: Text("Storage & Databases")) {
                     NavigationLink {
-                        R2BucketsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        R2BucketsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "externaldrive.fill",
                             iconColor: .blue,
                             title: "R2 Object Storage",
-                            subtitle: "Zero egress fee S3-compatible storage",
-                            badgeText: "\(viewModel.r2Buckets.count) Buckets"
+                            subtitle: "Zero egress fee S3-compatible storage"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        KVBrowserView(accountId: viewModel.selectedAccount?.id ?? "")
+                        KVBrowserView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "key.fill",
                             iconColor: .purple,
                             title: "KV & D1 Databases",
-                            subtitle: "Global low-latency key-value & SQL",
-                            badgeText: "\(viewModel.kvNamespaces.count) KV"
+                            subtitle: "Global low-latency key-value & SQL"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        HyperdriveView(accountId: viewModel.selectedAccount?.id ?? "")
+                        HyperdriveView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "bolt.horizontal.fill",
                             iconColor: .yellow,
                             title: "Hyperdrive",
-                            subtitle: "Regional database connection acceleration",
-                            badgeText: "Fast"
+                            subtitle: "Regional database connection acceleration"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: Zero Trust & Connectivity
                 Section(header: Text("Zero Trust & Connectivity")) {
                     NavigationLink {
-                        TunnelsListView(accountId: viewModel.selectedAccount?.id ?? "")
+                        TunnelsListView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "network",
                             iconColor: .green,
                             title: "Cloudflare Tunnels",
-                            subtitle: "Secure internal server ingress",
-                            badgeText: "\(viewModel.tunnels.count) Active",
-                            isStatusBadge: true,
-                            isHealthy: viewModel.activeTunnelCount > 0
+                            subtitle: "Secure internal server ingress"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        AccessAppsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        AccessAppsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "lock.shield.fill",
                             iconColor: .blue,
                             title: "Access Applications",
-                            subtitle: "Zero Trust identity & security policies",
-                            badgeText: "Access"
+                            subtitle: "Zero Trust identity & security policies"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        GatewayRulesView(accountId: viewModel.selectedAccount?.id ?? "")
+                        GatewayRulesView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "shield.lefthalf.filled",
                             iconColor: .teal,
                             title: "Gateway Rules",
-                            subtitle: "DNS, HTTP & Network firewall policies",
-                            badgeText: "Gateway"
+                            subtitle: "DNS, HTTP & Network firewall policies"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: Account Rules & Bulk Redirects
                 Section(header: Text("Account Rules & Routing")) {
                     NavigationLink {
-                        BulkRedirectListsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        BulkRedirectListsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "arrow.triangle.swap",
                             iconColor: .indigo,
                             title: "Bulk Redirects",
-                            subtitle: "High-volume URL redirects at account level",
-                            badgeText: "Redirects"
+                            subtitle: "High-volume URL redirects at account level"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        AlertingView(accountId: viewModel.selectedAccount?.id ?? "")
+                        AlertingView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "bell.badge.fill",
                             iconColor: .red,
                             title: "Notification Alerts",
-                            subtitle: "Incident policies & webhook destinations",
-                            badgeText: "Alerts"
+                            subtitle: "Incident policies & webhook destinations"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: AI Platform
                 Section(header: Text("AI & Machine Learning")) {
                     NavigationLink {
-                        WorkersAIView(accountId: viewModel.selectedAccount?.id ?? "")
+                        WorkersAIView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "sparkles",
                             iconColor: .purple,
                             title: "Workers AI",
-                            subtitle: "Serverless LLM & vision model inference",
-                            badgeText: "AI"
+                            subtitle: "Serverless LLM & vision model inference"
                         )
                     }
+                    .disabled(!isAccountReady)
                     
                     NavigationLink {
-                        AIGatewayView(accountId: viewModel.selectedAccount?.id ?? "")
+                        AIGatewayView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "brain.head.profile",
                             iconColor: .pink,
                             title: "AI Gateway",
-                            subtitle: "Observability, rate limiting & caching",
-                            badgeText: "Gateway"
+                            subtitle: "Observability, rate limiting & caching"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: Security & Verification
                 Section(header: Text("Security & Verification")) {
                     NavigationLink {
-                        TurnstileWidgetsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        TurnstileWidgetsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "checkmark.shield.fill",
                             iconColor: .blue,
                             title: "Turnstile Captcha",
-                            subtitle: "Smart bot detection without puzzles",
-                            badgeText: "Turnstile"
+                            subtitle: "Smart bot detection without puzzles"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
                 
                 // Section: Dev Diagnostics (Option A: Consolidated)
@@ -228,8 +236,7 @@ struct DeveloperHubView: View {
                             icon: "wrench.and.screwdriver.fill",
                             iconColor: .indigo,
                             title: "Network & Security Diagnostics",
-                            subtitle: "Trace · DNS Dig · HTTP · SSL · WHOIS · IP",
-                            badgeText: "7 Tools"
+                            subtitle: "Trace · DNS Dig · HTTP · SSL · WHOIS · IP"
                         )
                     }
                 }
@@ -237,19 +244,20 @@ struct DeveloperHubView: View {
                 // Section: Account Activity
                 Section(header: Text("Account Activity")) {
                     NavigationLink {
-                        AuditLogsView(accountId: viewModel.selectedAccount?.id ?? "")
+                        AuditLogsView(accountId: accountId)
                     } label: {
                         DeveloperHubRow(
                             icon: "list.clipboard.fill",
                             iconColor: .purple,
                             title: "Audit Logs",
-                            subtitle: "Recent account modifications & actions",
-                            badgeText: "Logs"
+                            subtitle: "Recent account modifications & actions"
                         )
                     }
+                    .disabled(!isAccountReady)
                 }
             }
             .listStyle(.insetGrouped)
+            .centerConstrainedWidth(maxWidth: 840)
         }
     
     // MARK: - Account Header Card
@@ -266,7 +274,7 @@ struct DeveloperHubView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Developer Suite")
-                            .font(.title2)
+                            .font(.title2.weight(.bold))
                             .foregroundStyle(.white)
                         
                         Text(viewModel.selectedAccount?.name ?? "Active Account")
@@ -295,21 +303,20 @@ struct DeveloperHubView: View {
             }
             .padding(16)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 4)
     }
     
-    private func metricItem(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(value)
-                .font(.body)
-                .foregroundStyle(.white)
+    private func metricItem(title: LocalizedStringKey, value: String) -> some View {
+        VStack(spacing: 2) {
+            CloudnsRollingNumber(value: value, font: .headline, weight: .bold, color: .white)
             Text(title)
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.75))
+                .foregroundStyle(.white.opacity(0.8))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -320,9 +327,6 @@ struct DeveloperHubRow: View {
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    var badgeText: LocalizedStringKey? = nil
-    var isStatusBadge: Bool = false
-    var isHealthy: Bool = true
     
     var body: some View {
         HStack(spacing: 14) {
@@ -331,7 +335,7 @@ struct DeveloperHubRow: View {
                 .foregroundStyle(iconColor)
                 .frame(width: 32, height: 32)
                 .background(iconColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -343,34 +347,8 @@ struct DeveloperHubRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
-            Spacer()
-            
-            if let badge = badgeText {
-                if isStatusBadge {
-                    HStack(spacing: 3) {
-                        Circle()
-                            .fill(isHealthy ? Color.green : Color.orange)
-                            .frame(width: 6, height: 6)
-                        Text(badge)
-                            .font(.caption)
-                            .foregroundStyle(isHealthy ? .green : .orange)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background((isHealthy ? Color.green : Color.orange).opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    Text(badge)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.gray.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-            }
         }
         .padding(.vertical, 3)
+        .accessibilityElement(children: .combine)
     }
 }

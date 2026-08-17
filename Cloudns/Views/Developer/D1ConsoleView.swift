@@ -138,9 +138,7 @@ struct D1ConsoleView: View {
                 Section(header: HStack {
                     Text("Query Results (\(result.rows.count) rows)")
                     Spacer()
-                    Text(String(format: "%.1f ms", result.durationMs))
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.green)
+                    CloudnsBadge(.active(String(format: "%.1f ms", result.durationMs)), isCompact: true)
                 }) {
                     if result.rows.isEmpty {
                         Text("Query executed successfully. 0 rows returned.")
@@ -178,6 +176,7 @@ struct D1ConsoleView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchTables()
         }

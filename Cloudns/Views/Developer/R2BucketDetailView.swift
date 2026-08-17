@@ -15,72 +15,6 @@ struct R2BucketDetailView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section(header: Text("Bucket Information")) {
-                        HStack {
-                            Text("Created")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text("2024-01-01")
-                                .font(.body.monospacedDigit())
-                        }
-                    }
-                    
-                    Section(header: Text("Objects")) {
-                        ForEach(R2Object.placeholders) { obj in
-                            R2ObjectRowView(object: obj)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle(bucket.name)
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle(bucket.name)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Objects in Bucket")
-                    .refreshable {
-                        await viewModel.fetchObjects()
-                    }
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            HStack(spacing: 12) {
-                                NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
-                                    Image(systemName: "gearshape")
-                                }
-                                .accessibilityLabel("Bucket Settings")
-                                
-                                Button {
-                                    showingUploadSheet = true
-                                } label: {
-                                    Image(systemName: "plus")
-                                }
-                                .accessibilityLabel("Upload Object")
-                            }
-                        }
-                    }
-                    .sheet(isPresented: $showingUploadSheet) {
-                        R2UploadObjectSheetView(viewModel: viewModel)
-                    }
-                    .sheet(item: $selectedObject) { obj in
-                        R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchObjects()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.objects.isEmpty {
                 // Section: Bucket Info
@@ -138,8 +72,41 @@ struct R2BucketDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle(bucket.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Objects in Bucket")
+        .refreshable {
+            await viewModel.fetchObjects()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HStack(spacing: 12) {
+                    NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("Bucket Settings")
+                    
+                    Button {
+                        showingUploadSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Upload Object")
+                }
+            }
+        }
+        .sheet(isPresented: $showingUploadSheet) {
+            R2UploadObjectSheetView(viewModel: viewModel)
+        }
+        .sheet(item: $selectedObject) { obj in
+            R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
+        }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -167,6 +134,11 @@ struct R2BucketDetailView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchObjects()
             }
         }
     }
@@ -306,7 +278,6 @@ struct R2UploadObjectSheetView: View {
                     .disabled(!isValid || isUploading)
                 }
             }
-            .toastContainer()
         }
     }
     

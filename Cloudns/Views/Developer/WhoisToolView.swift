@@ -83,16 +83,16 @@ struct WhoisToolView: View {
                 }
             } else if let info = viewModel.info {
                 whoisDetailsView(info: info)
-            } else if viewModel.isLoading {
-                whoisDetailsView(info: WhoisInfo.placeholder)
-                    .skeletonLoading(true)
             }
         }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("WHOIS")
         .navigationBarTitleDisplayMode(.inline)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.info == nil)
         .overlay {
-            if let err = viewModel.errorMessage, viewModel.info == nil && !viewModel.isLoading {
+            if viewModel.isLoading && viewModel.info == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let err = viewModel.errorMessage, viewModel.info == nil && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(err),

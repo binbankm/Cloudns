@@ -15,114 +15,75 @@ struct WorkersListView: View {
         _viewModel = StateObject(wrappedValue: WorkersViewModel(accountId: accountId))
     }
     
-    // Skeleton-only picker+list — no .searchable, prevents overlap
-    @ViewBuilder
-    private var skeletonContent: some View {
+    var body: some View {
         VStack(spacing: 0) {
             Picker("Type", selection: $viewModel.selectedSegment) {
-                Text("Workers").tag(0)
-                Text("Pages").tag(1)
+                Text(viewModel.hasFetchedData ? "Workers (\(viewModel.workers.count))" : "Workers").tag(0)
+                Text(viewModel.hasFetchedData ? "Pages (\(viewModel.pages.count))" : "Pages").tag(1)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
-            List {
-                Section {
-                    if viewModel.selectedSegment == 0 {
-                        ForEach(WorkerScript.placeholders) { worker in 
-                            WorkerRowView(worker: worker)
-                                .skeletonLoading(true)
-                        }
-                    } else {
-                        ForEach(PagesProject.placeholders) { page in 
-                            pagesRow(page)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
+            
+            contentView
+                .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Workers & Pages")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                skeletonContent
-            } else {
-                VStack(spacing: 0) {
-                    Picker("Type", selection: $viewModel.selectedSegment) {
-                        Text("Workers (\(viewModel.workers.count))").tag(0)
-                        Text("Pages (\(viewModel.pages.count))").tag(1)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    if viewModel.selectedSegment == 0 {
+                        showingCreateWorkerSheet = true
+                    } else {
+                        showingCreatePagesSheet = true
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGroupedBackground))
-                    contentView
+                } label: {
+                    Image(systemName: "plus")
                 }
-                .background(Color(.systemGroupedBackground))
-                .navigationTitle("Workers & Pages")
-                .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: $viewModel.searchText, prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            if viewModel.selectedSegment == 0 {
-                                showingCreateWorkerSheet = true
-                            } else {
-                                showingCreatePagesSheet = true
-                            }
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .accessibilityLabel("Create Worker or Project")
-                    }
-                }
-                .sheet(isPresented: $showingCreateWorkerSheet) {
-                    WorkerCreateSheetView(viewModel: viewModel)
-                }
-                .sheet(isPresented: $showingCreatePagesSheet) {
-                    PagesCreateProjectSheetView(viewModel: viewModel)
-                }
-                .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
-                    Button("Delete '\(worker.id)'", role: .destructive) {
-                        Task {
-                            do {
-                                try await viewModel.deleteWorker(name: worker.id)
-                                ToastManager.shared.showSuccess("Worker Deleted", message: "\(worker.id) removed.")
-                            } catch {
-                                ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
-                            }
-                        }
-                    }
-                    Button("Cancel", role: .cancel) {}
-                } message: { worker in
-                    Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
-                }
-                .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
-                    Button("Delete '\(proj.name)'", role: .destructive) {
-                        Task {
-                            do {
-                                try await viewModel.deletePagesProject(name: proj.name)
-                                ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(proj.name) removed.")
-                            } catch {
-                                ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
-                            }
-                        }
-                    }
-                    Button("Cancel", role: .cancel) {}
-                } message: { proj in
-                    Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
-                }
-                .refreshable { await viewModel.fetchData() }
+                .accessibilityLabel("Create Worker or Project")
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .sheet(isPresented: $showingCreateWorkerSheet) {
+            WorkerCreateSheetView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingCreatePagesSheet) {
+            PagesCreateProjectSheetView(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
+            Button("Delete '\(worker.id)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteWorker(name: worker.id)
+                        ToastManager.shared.showSuccess("Worker Deleted", message: "\(worker.id) removed.")
+                    } catch {
+                        ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { worker in
+            Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
+        }
+        .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
+            Button("Delete '\(proj.name)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deletePagesProject(name: proj.name)
+                        ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(proj.name) removed.")
+                    } catch {
+                        ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { proj in
+            Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
+        }
+        .refreshable { await viewModel.fetchData() }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchData()
@@ -179,7 +140,10 @@ struct WorkersListView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty && viewModel.pages.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -256,17 +220,7 @@ struct WorkersListView: View {
             Spacer()
             
             if let branch = page.productionBranch {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.triangle.branch")
-                        .font(.caption2)
-                        .accessibilityHidden(true)
-                    Text(branch)
-                        .font(.caption)
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                CloudnsBadge(.custom(color: .blue, text: branch, icon: "arrow.triangle.branch"), isCompact: true)
             }
         }
         .padding(.vertical, 4)
@@ -282,13 +236,15 @@ struct WorkerRowView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "bolt.fill")
-                .font(.body)
-                .foregroundStyle(.orange)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .accessibilityHidden(true)
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.12))
+                    .frame(width: 34, height: 34)
+                Image(systemName: "bolt.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.orange)
+            }
+            .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)
@@ -315,13 +271,7 @@ struct WorkerRowView: View {
             Spacer()
             
             if let usage = worker.usageModel {
-                Text(usage.capitalized)
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                CloudnsBadge(.custom(color: .secondary, text: usage.capitalized), isCompact: true)
             }
         }
         .padding(.vertical, 4)

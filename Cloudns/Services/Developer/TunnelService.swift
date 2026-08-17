@@ -10,7 +10,7 @@ final class TunnelService {
     private init() {}
     
     func getTunnels(accountId: String) async throws -> [CFTunnel] {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels")
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel")
         let (tunnels, _): ([CFTunnel]?, ResultInfo?) = try await client.performRequest(request)
         return tunnels ?? []
     }
@@ -18,20 +18,20 @@ final class TunnelService {
     func createTunnel(accountId: String, name: String) async throws -> CFTunnel {
         let payload: [String: Any] = ["name": name, "config_src": "cloudflare"]
         let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels", method: "POST", body: data)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel", method: "POST", body: data)
         let (tunnel, _): (CFTunnel?, ResultInfo?) = try await client.performRequest(request)
         guard let t = tunnel else { throw APIError.cloudflareError("Failed to create tunnel") }
         return t
     }
     
     func deleteTunnel(accountId: String, tunnelId: String) async throws {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels/\(tunnelId)", method: "DELETE")
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }
         let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
     func getTunnelConfigurations(accountId: String, tunnelId: String) async throws -> [TunnelIngressRule] {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels/\(tunnelId)/configurations")
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/configurations")
         struct TunnelConfigPayload: Codable {
             let config: TunnelConfigWrapper?
         }
@@ -51,13 +51,13 @@ final class TunnelService {
         }
         let body = ConfigBody(config: ConfigBody.InnerConfig(ingress: ingressRules))
         let data = try JSONEncoder().encode(body)
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels/\(tunnelId)/configurations", method: "PUT", body: data)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/configurations", method: "PUT", body: data)
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
     func getTunnelToken(accountId: String, tunnelId: String) async throws -> String? {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/tunnels/\(tunnelId)/token")
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/token")
         struct TokenResponse: Codable {
             let token: String?
         }

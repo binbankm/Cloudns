@@ -547,6 +547,10 @@ class CloudflareAPIClient {
         try await workerService.deleteWorkerTailSession(accountId: accountId, scriptName: scriptName, tailId: tailId)
     }
     
+    func getWorkerAnalytics(accountId: String, scriptName: String, days: Int = 1) async throws -> [WorkerAnalyticsItem] {
+        try await analyticsService.getWorkerAnalytics(accountId: accountId, scriptName: scriptName, days: days)
+    }
+    
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult {
         guard let url = URL(string: urlString) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
@@ -554,11 +558,12 @@ class CloudflareAPIClient {
         for (k, v) in headers { request.setValue(v, forHTTPHeaderField: k) }
         if let b = body, !b.isEmpty { request.httpBody = b.data(using: .utf8) }
         let startTime = CFAbsoluteTimeGetCurrent()
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
         let duration = (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0
         guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
         var headerItems: [HTTPHeaderItem] = []
         for (k, v) in httpResponse.allHeaderFields { headerItems.append(HTTPHeaderItem(key: "\(k)", value: "\(v)")) }
+        let bodyString = String(data: data, encoding: .utf8)
         return HTTPInspectionResult(
             url: urlString,
             statusCode: httpResponse.statusCode,
@@ -567,7 +572,8 @@ class CloudflareAPIClient {
             cfRay: httpResponse.value(forHTTPHeaderField: "cf-ray"),
             cfCacheStatus: httpResponse.value(forHTTPHeaderField: "cf-cache-status"),
             server: httpResponse.value(forHTTPHeaderField: "server"),
-            durationMs: duration
+            durationMs: duration,
+            responseBody: bodyString
         )
     }
     

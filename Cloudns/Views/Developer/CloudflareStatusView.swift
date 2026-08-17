@@ -30,52 +30,7 @@ struct CloudflareStatusView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    HStack(spacing: 16) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundStyle(.white)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("All Systems Operational")
-                                .font(.body.weight(.semibold))
-                                .foregroundStyle(.white)
-                            Text("Cloudflare Edge Network & Global Data Centers")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.9))
-                        }
-                        Spacer()
-                    }
-                    .padding(18)
-                    .background(Color.green.gradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                
-                Section(header: Text("Services & Infrastructure")) {
-                    ForEach(CFComponentItem.placeholders) { comp in
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 8, height: 8)
-                            
-                            Text(comp.name)
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                            
-                            Spacer()
-                            
-                            Text("Operational")
-                                .font(.caption)
-                                .foregroundStyle(.green)
-                        }
-                        .padding(.vertical, 2)
-                        .skeletonLoading(true)
-                    }
-                }
-            } else if let summary = viewModel.summary {
+            if let summary = viewModel.summary {
                 // Section: Overall Status Banner Card
                 Section {
                     overallBanner(summary: summary)
@@ -107,23 +62,16 @@ struct CloudflareStatusView: View {
                     }
                 }
                 
-                // Section: Active / Recent Incidents
+                // Section: Unresolved Incidents
                 if let incidents = summary.incidents, !incidents.isEmpty {
-                    Section(header: Text("Recent Incidents (\(incidents.count))")) {
-                        ForEach(incidents.prefix(5)) { inc in
+                    Section(header: Text("Active Incidents (\(incidents.count))")) {
+                        ForEach(incidents) { inc in
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(inc.name)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.primary)
+                                        .font(.body.weight(.medium))
                                     Spacer()
-                                    Text(inc.status.capitalized)
-                                        .font(.caption2.weight(.medium))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.orange.opacity(0.12))
-                                        .foregroundStyle(.orange)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    CloudnsBadge(.warning(inc.status.capitalized), isCompact: true)
                                 }
                                 
                                 if let updated = inc.updatedAt {
@@ -139,9 +87,12 @@ struct CloudflareStatusView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(err),
@@ -175,7 +126,7 @@ struct CloudflareStatusView: View {
         }
         .padding(18)
         .background(bgColor.gradient)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: bgColor.opacity(0.3), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
         .padding(.top, 8)

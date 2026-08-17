@@ -35,9 +35,7 @@ struct TurnstileDetailView: View {
                     Text("Mode")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text((widget.mode ?? "Managed").capitalized)
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
+                    CloudnsBadge(.custom(color: .blue, text: (widget.mode ?? "Managed").capitalized), isCompact: true)
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
@@ -185,6 +183,7 @@ struct TurnstileDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(widget.name)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingEditSheet) {
@@ -205,7 +204,6 @@ struct TurnstileDetailView: View {
         } message: {
             Text("Rotating the secret key will generate a new secret key for backend token verification. Existing backend deployments using the old secret key might be affected.")
         }
-        .toastContainer()
     }
     
     private func rotateSecret(invalidateImmediately: Bool) {

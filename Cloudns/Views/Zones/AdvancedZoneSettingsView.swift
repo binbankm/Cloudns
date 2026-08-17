@@ -82,7 +82,6 @@ struct AdvancedZoneSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
-        .toastContainer()
     }
     
     private func updatePauseStatus(paused: Bool) async {

@@ -105,6 +105,7 @@ struct AddWAFRuleView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New WAF Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -25,88 +25,69 @@ struct LoadBalancerView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
             
-            if !viewModel.hasFetchedData {
-                Section {
-                    if selectedTab == 0 {
-                        ForEach(LoadBalancer.placeholders) { lb in
+            if selectedTab == 0 {
+                if !viewModel.loadBalancers.isEmpty {
+                    Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
+                        ForEach(viewModel.loadBalancers) { lb in
                             lbRow(lb)
-                                .skeletonLoading(true)
-                        }
-                    } else if selectedTab == 1 {
-                        ForEach(LBPool.placeholders) { pool in
-                            poolRow(pool)
-                                .skeletonLoading(true)
-                        }
-                    } else {
-                        ForEach(LBMonitor.placeholders) { mon in
-                            monRow(mon)
-                                .skeletonLoading(true)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task {
+                                            await viewModel.deleteLoadBalancer(id: lb.id)
+                                            ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
+                                        }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
                         }
                     }
                 }
-            } else {
-                if selectedTab == 0 {
-                    if !viewModel.loadBalancers.isEmpty {
-                        Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
-                            ForEach(viewModel.loadBalancers) { lb in
-                                lbRow(lb)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            HapticManager.impact(.medium)
-                                            Task {
-                                                await viewModel.deleteLoadBalancer(id: lb.id)
-                                                ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+            } else if selectedTab == 1 {
+                if !viewModel.pools.isEmpty {
+                    Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
+                        ForEach(viewModel.pools) { pool in
+                            poolRow(pool)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task {
+                                            await viewModel.deletePool(poolId: pool.id)
                                         }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                            }
+                                }
                         }
                     }
-                } else if selectedTab == 1 {
-                    if !viewModel.pools.isEmpty {
-                        Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
-                            ForEach(viewModel.pools) { pool in
-                                poolRow(pool)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            HapticManager.impact(.medium)
-                                            Task {
-                                                await viewModel.deletePool(poolId: pool.id)
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                }
+            } else if selectedTab == 2 {
+                if !viewModel.monitors.isEmpty {
+                    Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
+                        ForEach(viewModel.monitors) { monitor in
+                            monRow(monitor)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task {
+                                            await viewModel.deleteMonitor(monitorId: monitor.id)
                                         }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                            }
-                        }
-                    }
-                } else if selectedTab == 2 {
-                    if !viewModel.monitors.isEmpty {
-                        Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
-                            ForEach(viewModel.monitors) { monitor in
-                                monRow(monitor)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            HapticManager.impact(.medium)
-                                            Task {
-                                                await viewModel.deleteMonitor(monitorId: monitor.id)
-                                            }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
-                            }
+                                }
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -147,6 +128,8 @@ struct LoadBalancerView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -176,7 +159,6 @@ struct LoadBalancerView: View {
                 AddLBMonitorSheetView(viewModel: viewModel)
             }
         }
-        .toastContainer()
     }
     
     @ViewBuilder
@@ -185,16 +167,9 @@ struct LoadBalancerView: View {
             HStack {
                 Text(lb.name ?? lb.id)
                     .font(.body)
+                    .foregroundStyle(.primary)
                 Spacer()
-                if lb.enabled == true {
-                    Text("Active")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                } else {
-                    Text("Inactive")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                CloudnsBadge(lb.enabled == true ? .active("Active") : .custom(color: .secondary, text: "Inactive"), isCompact: true)
             }
             if let fallback = lb.fallbackPool {
                 Text("Fallback: \(fallback)")
@@ -211,6 +186,7 @@ struct LoadBalancerView: View {
             HStack {
                 Text(pool.name ?? pool.id)
                     .font(.body)
+                    .foregroundStyle(.primary)
                 Spacer()
                 Text("\(pool.origins?.count ?? 0) Origins")
                     .font(.caption)
@@ -243,6 +219,7 @@ struct LoadBalancerView: View {
             HStack {
                 Text(monitor.description ?? monitor.id)
                     .font(.body)
+                    .foregroundStyle(.primary)
                 Spacer()
                 Text(monitor.type?.uppercased() ?? "HTTP")
                     .font(.caption2)

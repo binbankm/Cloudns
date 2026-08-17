@@ -8,14 +8,7 @@ struct RateLimitingRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(WAFRule.placeholders) { rule in
-                        WAFRuleCardView(rule: rule, onToggle: {})
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
@@ -31,9 +24,12 @@ struct RateLimitingRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(

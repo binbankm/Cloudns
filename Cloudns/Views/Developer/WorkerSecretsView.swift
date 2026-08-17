@@ -16,80 +16,12 @@ struct WorkerSecretsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(WorkerBinding.placeholders) { variable in
-                            variableRow(variable)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Variables & Secrets")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("Variables & Secrets")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Variables & Secrets")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Add Variable or Secret")
-                        }
-                    }
-                    .sheet(isPresented: $showingAddSheet) {
-                        WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
-                    }
-                    .sheet(item: $variableToEdit) { v in
-                        WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
-                    }
-                    .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
-                        Button("Delete '\(item.name)'", role: .destructive) {
-                            Task {
-                                do {
-                                    if item.isSecret {
-                                        try await viewModel.deleteSecret(name: item.name)
-                                    } else {
-                                        try await viewModel.deletePlainVariable(name: item.name)
-                                    }
-                                    ToastManager.shared.showSuccess("Deleted", message: item.name)
-                                } catch {
-                                    ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                                }
-                            }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    } message: { item in
-                        Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
-                    }
-                    .refreshable {
-                        await viewModel.fetchSecrets()
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchSecrets()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             // Segment Picker
             Section {
                 Picker("Type", selection: $viewModel.selectedTab) {
-                    Text("Variables (\(viewModel.plainVariables.count))").tag("variables")
-                    Text("Secrets (\(viewModel.secrets.count))").tag("secrets")
+                    Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
+                    Text(viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets").tag("secrets")
                 }
                 .pickerStyle(.segmented)
             }
@@ -107,8 +39,53 @@ struct WorkerSecretsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Variables & Secrets")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Variables & Secrets")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Variable or Secret")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
+        }
+        .sheet(item: $variableToEdit) { v in
+            WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
+        }
+        .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
+            Button("Delete '\(item.name)'", role: .destructive) {
+                Task {
+                    do {
+                        if item.isSecret {
+                            try await viewModel.deleteSecret(name: item.name)
+                        } else {
+                            try await viewModel.deletePlainVariable(name: item.name)
+                        }
+                        ToastManager.shared.showSuccess("Deleted", message: item.name)
+                    } catch {
+                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { item in
+            Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
+        }
+        .refreshable {
+            await viewModel.fetchSecrets()
+        }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -157,6 +134,11 @@ struct WorkerSecretsView: View {
                         )
                     }
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchSecrets()
             }
         }
     }

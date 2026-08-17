@@ -51,13 +51,12 @@ final class AIService {
         let payload: [String: Any] = ["messages": messages]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai/run/\(model)", method: "POST", body: data)
-        struct AIResponse: Codable {
-            let result: AIReplyResult?
-            struct AIReplyResult: Codable {
-                let response: String?
-            }
+        struct AIRunResult: Codable {
+            let response: String?
+            let result: String?
+            let output: String?
         }
-        let (res, _): (AIResponse?, ResultInfo?) = try await client.performRequest(request)
-        return res?.result?.response ?? "No response received"
+        let (res, _): (AIRunResult?, ResultInfo?) = try await client.performRequest(request)
+        return res?.response ?? res?.result ?? res?.output ?? "No response received"
     }
 }

@@ -6,53 +6,7 @@ struct SSLSettingsView: View {
     
     var body: some View {
         Form {
-            if !viewModel.hasFetchedData {
-                // Skeleton Section 1: Encryption Mode
-                Section(header: Text("SSL/TLS Encryption Mode")) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            SkeletonBar(width: 130, height: 16, cornerRadius: 4)
-                            SkeletonBar(width: 220, height: 12, cornerRadius: 4)
-                        }
-                        Spacer()
-                        SkeletonBar(width: 80, height: 28, cornerRadius: 8)
-                    }
-                    .padding(.vertical, 4)
-                    .skeletonLoading(true)
-                }
-                
-                // Skeleton Section 2: Edge Certificates
-                Section(header: Text("Edge Certificates")) {
-                    ForEach(0..<2, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                SkeletonBar(width: 150, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 240, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-                
-                // Skeleton Section 3: Advanced SSL
-                Section(header: Text("Advanced SSL/TLS Settings")) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                SkeletonBar(width: 160, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 210, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 Section(header: Text("SSL/TLS Encryption Mode"), footer: Text("Choose the encryption mode for your website. Full or Strict is recommended if your origin server has an SSL certificate.")) {
                     Picker("Encryption Mode", selection: $viewModel.sslMode) {
                         Text("Off (Not Secure)").tag("off")
@@ -242,8 +196,14 @@ struct SSLSettingsView: View {
                 }
             }
         }
-    }
-    .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        }
+        .centerConstrainedWidth(maxWidth: 840)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -262,6 +222,5 @@ struct SSLSettingsView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-        .toastContainer()
     }
 }

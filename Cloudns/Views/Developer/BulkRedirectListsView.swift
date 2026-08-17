@@ -14,61 +14,6 @@ struct BulkRedirectListsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section(header: Text("Redirect Lists")) {
-                        ForEach(RedirectList.placeholders) { item in
-                            listRow(item)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Bulk Redirects")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("Bulk Redirects")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Lists")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingCreateSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Create List")
-                        }
-                    }
-                    .sheet(isPresented: $showingCreateSheet) {
-                        CreateBulkRedirectListSheet(viewModel: viewModel)
-                    }
-                    .confirmationDialog("Delete List", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: listToDelete) { item in
-                        Button("Delete '\(item.name)'", role: .destructive) {
-                            Task { await viewModel.deleteList(id: item.id) }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    } message: { item in
-                        Text("Are you sure you want to delete redirect list '\(item.name)'?")
-                    }
-                    .refreshable {
-                        await viewModel.fetchLists()
-                    }
-            }
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchLists()
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .toastContainer()
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredLists.isEmpty {
                 Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
@@ -90,8 +35,40 @@ struct BulkRedirectListsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Bulk Redirects")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Lists")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingCreateSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Create List")
+            }
+        }
+        .sheet(isPresented: $showingCreateSheet) {
+            CreateBulkRedirectListSheet(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete List", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: listToDelete) { item in
+            Button("Delete '\(item.name)'", role: .destructive) {
+                Task { await viewModel.deleteList(id: item.id) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { item in
+            Text("Are you sure you want to delete redirect list '\(item.name)'?")
+        }
+        .refreshable {
+            await viewModel.fetchLists()
+        }
         .overlay {
-            if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
@@ -116,6 +93,12 @@ struct BulkRedirectListsView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchLists()
+            }
         }
     }
     
@@ -133,6 +116,7 @@ struct BulkRedirectListsView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.name)
                     .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
                 
                 if let desc = item.description, !desc.isEmpty {
                     Text(desc)
@@ -244,7 +228,6 @@ struct RedirectListDetailView: View {
         .task {
             await fetchItems()
         }
-        .toastContainer()
     }
     
     private func fetchItems() async {

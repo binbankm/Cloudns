@@ -7,36 +7,7 @@ struct SpeedSettingsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                // Skeleton: Auto Minify
-                Section(header: Text("Auto Minify")) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        HStack {
-                            SkeletonBar(width: 100, height: 16, cornerRadius: 4)
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-                
-                // Skeleton: Advanced Optimizations
-                Section(header: Text("Advanced Optimizations")) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                SkeletonBar(width: 130, height: 16, cornerRadius: 4)
-                                SkeletonBar(width: 230, height: 12, cornerRadius: 4)
-                            }
-                            Spacer()
-                            SkeletonBar(width: 50, height: 30, cornerRadius: 15)
-                        }
-                        .padding(.vertical, 4)
-                        .skeletonLoading(true)
-                    }
-                }
-            } else {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage {
                     Section {
                         HStack(spacing: 10) {
@@ -154,10 +125,16 @@ struct SpeedSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
         .navigationTitle("Speed Optimization")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -165,6 +142,5 @@ struct SpeedSettingsView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-        .toastContainer()
     }
 }

@@ -51,3 +51,43 @@ struct AnalyticsSum: Codable {
     let cachedRequests: Int
     let cachedBytes: Int
 }
+
+// MARK: - Workers & Pages GraphQL Analytics Models
+
+public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable {
+    public var id: String { "\(dimensions.datetime ?? "")_\(dimensions.status ?? "")" }
+    public let dimensions: WorkerAnalyticsDimensions
+    public let sum: WorkerAnalyticsSum?
+    public let quantiles: WorkerAnalyticsQuantiles?
+    
+    public struct WorkerAnalyticsDimensions: Codable, Equatable {
+        public let datetime: String?
+        public let status: String?
+        public let scriptName: String?
+    }
+    
+    public struct WorkerAnalyticsSum: Codable, Equatable {
+        public let requests: Int?
+        public let errors: Int?
+        public let subrequests: Int?
+    }
+    
+    public struct WorkerAnalyticsQuantiles: Codable, Equatable {
+        public let cpuTimeP50: Double?
+        public let cpuTimeP99: Double?
+        public let durationMsP50: Double?
+        public let durationMsP99: Double?
+    }
+}
+
+public struct WorkerAnalyticsAccountItem: Codable {
+    public let workersInvocationsAdaptive: [WorkerAnalyticsItem]?
+}
+
+public struct WorkerAnalyticsViewer: Codable {
+    public let accounts: [WorkerAnalyticsAccountItem]?
+}
+
+public struct WorkerAnalyticsViewerData: Codable {
+    public let viewer: WorkerAnalyticsViewer
+}

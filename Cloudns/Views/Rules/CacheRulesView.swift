@@ -13,14 +13,7 @@ struct CacheRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(WAFRule.placeholders) { rule in
-                        CacheRuleCardView(rule: rule, onToggle: {})
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
@@ -42,9 +35,12 @@ struct CacheRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -119,15 +115,7 @@ struct CacheRuleCardView: View {
                 .lineLimit(2)
             
             if let cache = rule.action_parameters?.cache {
-                HStack {
-                    Image(systemName: cache ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundStyle(cache ? .green : .red)
-                        .font(.caption)
-                        .accessibilityHidden(true)
-                    Text(cache ? "Eligible for cache" : "Bypass cache")
-                        .font(.caption)
-                        .foregroundStyle(cache ? .green : .red)
-                }
+                CloudnsBadge(cache ? .active("Eligible for cache") : .error("Bypass cache"), isCompact: true)
             }
         }
         .padding(.vertical, 4)

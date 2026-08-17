@@ -7,14 +7,7 @@ struct SecurityEventsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(SecurityEvent.placeholders) { event in
-                        SecurityEventCardView(event: event)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.events.isEmpty {
+            if !viewModel.events.isEmpty {
                 Section {
                     ForEach(viewModel.events) { event in
                         SecurityEventCardView(event: event)
@@ -23,9 +16,12 @@ struct SecurityEventsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -65,13 +61,7 @@ struct SecurityEventCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(actionDisplayName(event.action))
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(colorForAction(event.action).opacity(0.1))
-                    .foregroundStyle(colorForAction(event.action))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                CloudnsBadge(.custom(color: colorForAction(event.action), text: actionDisplayName(event.action)), isCompact: true)
                 
                 Spacer()
                 

@@ -1,73 +1,120 @@
 import SwiftUI
 
-struct D1RowEditorView: View {
-    let tableName: String
-    let columns: [D1ColumnInfo]
-    let existingRow: [String: String]?
-    let onSave: ([String: String]) async -> Bool
+// MARK: - Single Context for Sheet Presentation
+public struct D1RowContext: Identifiable {
+    public let id = UUID()
+    public let isEditing: Bool
+    public let row: [String: String]?
     
+    public static var insert: D1RowContext {
+        D1RowContext(isEditing: false, row: nil)
+    }
+    
+    public static func edit(row: [String: String]) -> D1RowContext {
+        D1RowContext(isEditing: true, row: row)
+    }
+}
+
+// MARK: - D1 Row Editor View
+struct D1RowEditorView: View {
+    @ObservedObject var viewModel: D1TableViewModel
+    let existingRow: [String: String]?
+
     @Environment(\.dismiss) private var dismiss
     @State private var fieldValues: [String: String] = [:]
     @State private var isSaving = false
-    @State private var errorMessage: String?
-    
-    init(tableName: String, columns: [D1ColumnInfo], existingRow: [String: String]?, onSave: @escaping ([String: String]) async -> Bool) {
-        self.tableName = tableName
-        self.columns = columns
+
+    private var isNewRow: Bool { existingRow == nil }
+
+    private var editableColumns: [D1ColumnInfo] {
+        viewModel.columns.filter { $0.name != "_rowid_" }
+    }
+
+    init(viewModel: D1TableViewModel, existingRow: [String: String]?) {
+        self.viewModel = viewModel
         self.existingRow = existingRow
-        self.onSave = onSave
+
+        var map: [String: String] = [:]
+        for col in viewModel.columns {
+            if let row = existingRow {
+                let raw = row[col.name] ?? ""
+                map[col.name] = (raw == "NULL" || raw == "<null>") ? "" : raw
+            } else {
+                map[col.name] = ""
+            }
+        }
+        _fieldValues = State(initialValue: map)
     }
-    
-    var isNewRow: Bool {
-        existingRow == nil
-    }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 if let rowid = existingRow?["_rowid_"] {
                     Section(header: Text("Internal Identifier")) {
                         HStack {
-                            Text("rowid")
-                                .foregroundStyle(.secondary)
+                            Text("rowid").foregroundStyle(.secondary)
                             Spacer()
-                            Text(rowid)
+                            Text(verbatim: rowid)
                                 .font(.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
-                
-                Section(header: Text(isNewRow ? "New Row Values" : "Edit Column Values"), footer: Text("Values are sanitized and escaped before database update.")) {
-                    ForEach(columns.filter { $0.name != "_rowid_" }) { col in
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Text(col.name)
-                                    .font(.subheadline.weight(.semibold))
-                                Spacer()
-                                Text(col.type)
-                                    .font(.caption2.monospaced())
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color(.secondarySystemFill))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                if editableColumns.isEmpty {
+                    Section {
+                        Text("No editable columns detected.")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Section(
+                        header: Text(isNewRow ? "New Row Values" : "Edit Column Values"),
+                        footer: Text("Leave blank to use column defaults. Values are escaped before saving.")
+                    ) {
+                        ForEach(editableColumns) { col in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(verbatim: col.name)
+                                        .font(.subheadline.weight(.semibold))
+                                    if col.isPrimaryKey {
+                                        Image(systemName: "key.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(.orange)
+                                    }
+                                    Spacer()
+                                    Text(verbatim: col.type)
+                                        .font(.caption2.monospaced())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color(.secondarySystemFill))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                }
+                                
+                                TextField(
+                                    "Value",
+                                    text: Binding(
+                                        get: { fieldValues[col.name] ?? "" },
+                                        set: { fieldValues[col.name] = $0 }
+                                    )
+                                )
+                                .font(.body.monospaced())
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                
+                                if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
+                                    Text(verbatim: "Default: \(dflt)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
-                            
-                            TextField(col.defaultValue ?? "NULL", text: Binding(
-                                get: { fieldValues[col.name] ?? "" },
-                                set: { fieldValues[col.name] = $0 }
-                            ))
-                            .font(.body.monospaced())
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
-                
-                if let err = errorMessage {
+
+                if let err = viewModel.errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -76,35 +123,44 @@ struct D1RowEditorView: View {
             .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .disabled(isSaving)
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(isNewRow ? "Insert" : "Save") {
-                        Task {
-                            isSaving = true
-                            errorMessage = nil
-                            let success = await onSave(fieldValues)
-                            if success {
-                                HapticManager.impact(.medium)
-                                dismiss()
-                            }
-                            isSaving = false
+                ToolbarItem(placement: .confirmationAction) {
+                    if isSaving {
+                        ProgressView()
+                    } else {
+                        Button(isNewRow ? "Insert" : "Save") {
+                            saveRow()
                         }
                     }
-                    .disabled(isSaving)
                 }
             }
-            .onAppear {
-                if let row = existingRow {
-                    var initMap: [String: String] = [:]
-                    for col in columns {
-                        initMap[col.name] = row[col.name] ?? ""
-                    }
-                    self.fieldValues = initMap
+        }
+    }
+
+    private func saveRow() {
+        guard !isSaving else { return }
+        isSaving = true
+        let snapshot = fieldValues
+        Task {
+            let success: Bool
+            if isNewRow {
+                success = await viewModel.insertRow(values: snapshot)
+            } else if let rowid = existingRow?["_rowid_"] {
+                success = await viewModel.updateRow(rowid: rowid, values: snapshot)
+            } else {
+                success = false
+            }
+            
+            await MainActor.run {
+                isSaving = false
+                if success {
+                    HapticManager.impact(.medium)
+                    dismiss()
                 }
             }
-            .toastContainer()
         }
     }
 }

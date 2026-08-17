@@ -18,83 +18,68 @@ struct EmailRoutingView: View {
             Section(header: Text("Status")) {
                 HStack {
                     Text("Email Routing")
+                        .font(.body.weight(.medium))
                     Spacer()
                     if let settings = viewModel.settings {
-                        if settings.isEnabled {
-                            Text("Enabled")
-                                .foregroundStyle(.green)
-                        } else {
-                            Text("Disabled")
-                                .foregroundStyle(.secondary)
-                        }
+                        CloudnsBadge(settings.isEnabled ? .active("Enabled") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
                     } else {
-                        Text("Unknown")
-                            .foregroundStyle(.secondary)
+                        CloudnsBadge(.custom(color: .secondary, text: "Unknown"), isCompact: true)
                     }
                 }
             }
             
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Routing Rules")) {
-                    ForEach(EmailRoutingRule.placeholders) { rule in
+            Section(
+                header: HStack {
+                    Text("Routing Rules")
+                    Spacer()
+                    Button(action: {
+                        showingAddSheet = true
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.caption.bold())
+                    }
+                    .accessibilityLabel("Add Email Rule")
+                }
+            ) {
+                if viewModel.rules.isEmpty {
+                    Text("No routing rules configured.")
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
+                } else {
+                    ForEach(viewModel.rules) { rule in
                         ruleRow(rule)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else {
-                Section(
-                    header: HStack {
-                        Text("Routing Rules")
-                        Spacer()
-                        Button(action: {
-                            showingAddSheet = true
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.caption.bold())
-                        }
-                        .accessibilityLabel("Add Email Rule")
-                    }
-                ) {
-                    if viewModel.rules.isEmpty {
-                        Text("No routing rules configured.")
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 4)
-                    } else {
-                        ForEach(viewModel.rules) { rule in
-                            ruleRow(rule)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
-                                        Task {
-                                            await viewModel.deleteRule(ruleId: rule.id)
-                                        }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    Task {
+                                        await viewModel.deleteRule(ruleId: rule.id)
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                        }
+                            }
                     }
                 }
-                
-                Section(header: Text("Destination Addresses")) {
-                    if viewModel.destinations.isEmpty {
-                        Text("No destination addresses configured.")
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 4)
-                    } else {
-                        ForEach(viewModel.destinations) { dest in
-                            HStack {
-                                Text(dest.email)
-                                Spacer()
-                                if dest.isVerified {
-                                    Image(systemName: "checkmark.seal.fill")
-                                        .foregroundStyle(.green)
-                                        .accessibilityHidden(true)
-                                } else {
-                                    Text("Unverified")
-                                        .font(.caption)
-                                        .foregroundStyle(.orange)
-                                }
+            }
+            
+            Section(header: Text("Destination Addresses")) {
+                if viewModel.destinations.isEmpty {
+                    Text("No destination addresses configured.")
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
+                } else {
+                    ForEach(viewModel.destinations) { dest in
+                        HStack {
+                            Text(dest.email)
+                            Spacer()
+                            if dest.isVerified {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .foregroundStyle(.green)
+                                    .accessibilityHidden(true)
+                            } else {
+                                Text("Unverified")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
                             }
                         }
                     }
@@ -102,9 +87,12 @@ struct EmailRoutingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -137,12 +125,15 @@ struct EmailRoutingView: View {
                 if let match = rule.matchAddress {
                     Text(match)
                         .font(.body)
+                        .foregroundStyle(.primary)
                 } else if rule.isCatchAll {
                     Text("Catch-all")
                         .font(.body)
+                        .foregroundStyle(.primary)
                 } else {
                     Text(rule.name ?? "Rule")
                         .font(.body)
+                        .foregroundStyle(.primary)
                 }
                 Spacer()
                 if rule.isEnabled {

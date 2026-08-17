@@ -248,9 +248,55 @@ public struct SkeletonDetailView: View {
         .background(Color(.systemGroupedBackground))
     }
 }
+/// A pixel-matched skeleton for Metric cards
+public struct MetricCardSkeleton: View {
+    public init() {}
+    
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                SkeletonBar(width: 32, height: 32, cornerRadius: 8)
+                Spacer()
+                SkeletonBar(width: 44, height: 18, cornerRadius: 9)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                SkeletonBar(width: 60, height: 26, cornerRadius: 6)
+                SkeletonBar(width: 90, height: 13, cornerRadius: 4)
+            }
+            .padding(.top, 2)
+        }
+        .padding(14)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+}
+
+/// A pixel-matched skeleton for Zone / Domain row card
+public struct ZoneCardSkeleton: View {
+    public init() {}
+    
+    public var body: some View {
+        HStack(spacing: 12) {
+            SkeletonBar(width: 36, height: 36, cornerRadius: 10)
+            
+            VStack(alignment: .leading, spacing: 5) {
+                SkeletonBar(width: 130, height: 16, cornerRadius: 4)
+                SkeletonBar(width: 80, height: 12, cornerRadius: 3)
+            }
+            
+            Spacer()
+            
+            SkeletonBar(width: 50, height: 20, cornerRadius: 10)
+        }
+        .padding(.vertical, 4)
+    }
+}
 
 #Preview("Skeleton Components") {
     VStack(spacing: 20) {
+        MetricCardSkeleton()
+        ZoneCardSkeleton()
         SkeletonRowView()
         SkeletonCardView()
     }

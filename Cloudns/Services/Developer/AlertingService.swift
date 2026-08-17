@@ -10,10 +10,9 @@ final class AlertingService {
     private init() {}
     
     func listAvailableAlertTypes(accountId: String) async throws -> [AlertingAvailableType] {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/alerting/v3/available_types")
-        struct Res: Codable { let available_types: [AlertingAvailableType]? }
-        let (types, _): (Res?, ResultInfo?) = try await client.performRequest(request)
-        return types?.available_types ?? []
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/alerting/v3/available_alerts")
+        let (types, _): ([AlertingAvailableType]?, ResultInfo?) = try await client.performRequest(request)
+        return types ?? []
     }
     
     func listAlertingWebhooks(accountId: String) async throws -> [AlertingWebhookDestination] {

@@ -10,39 +10,6 @@ struct AuditLogsView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section {
-                        ForEach(AuditLog.placeholders) { log in
-                            AuditLogRowView(log: log)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Audit Logs")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("Audit Logs")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Actions or Users")
-                    .refreshable {
-                        await viewModel.fetchLogs()
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchLogs()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredLogs.isEmpty {
                 Section {
@@ -53,8 +20,19 @@ struct AuditLogsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Audit Logs")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Actions or Users")
+        .refreshable {
+            await viewModel.fetchLogs()
+        }
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
+                if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
@@ -77,6 +55,12 @@ struct AuditLogsView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchLogs()
+            }
         }
     }
 }
@@ -94,13 +78,7 @@ struct AuditLogRowView: View {
                 Spacer()
                 
                 if let res = log.action?.result {
-                    Text(res ? "Success" : "Failed")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(res ? .green : .red)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background((res ? Color.green : Color.red).opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    CloudnsBadge(res ? .active("Success") : .error("Failed"), isCompact: true)
                 }
             }
             

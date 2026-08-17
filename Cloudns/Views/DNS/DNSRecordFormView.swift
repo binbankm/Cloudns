@@ -133,9 +133,12 @@ struct DNSRecordFormView: View {
                     if isProxySupported {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Proxy Status")
-                                    .font(.body)
-                                Text(proxied ? "Proxied (Accelerated & Protected)" : "DNS Only")
+                                HStack(spacing: 8) {
+                                    Text("Proxy Status")
+                                        .font(.body.weight(.medium))
+                                    CloudnsBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
+                                }
+                                Text(proxied ? "Accelerated & Protected by Cloudflare" : "Bypasses Cloudflare proxy")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -164,6 +167,7 @@ struct DNSRecordFormView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle(existingRecord == nil ? "Add Record" : "Edit Record")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -245,7 +249,7 @@ struct DNSRecordFormView: View {
             name: name,
             content: finalContent,
             ttl: ttl,
-            proxied: isProxySupported ? proxied : false,
+            proxied: isProxySupported ? proxied : nil,
             priority: finalPriority,
             comment: comment.isEmpty ? nil : comment,
             data: payloadData
@@ -260,10 +264,8 @@ struct DNSRecordFormView: View {
                 ToastManager.shared.showSuccess("DNS Record Created", message: "\(name) (\(type))")
             }
             dismiss()
-        } catch APIError.cloudflareError(let message) {
-            errorMessage = message
         } catch {
-            errorMessage = "Failed to save record. Please try again."
+            errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
         
         isSaving = false

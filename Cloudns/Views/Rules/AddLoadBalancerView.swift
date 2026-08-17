@@ -122,6 +122,7 @@ struct AddLoadBalancerView: View {
                     }
                 }
             }
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Create Load Balancer")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

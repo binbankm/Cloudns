@@ -88,18 +88,52 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable {
     public let domain: String
     public let status: String?
     public let zoneId: String?
+    public let zoneName: String?
     public let enabled: Bool?
+    public let minTLS: String?
     
     enum CodingKeys: String, CodingKey {
-        case domain, status, enabled
-        case zoneId = "zone_id"
+        case domain, status, enabled, minTLS
+        case zoneId = "zoneId"
+        case zone_id = "zone_id"
+        case zoneName = "zoneName"
+        case zone_name = "zone_name"
     }
     
-    public init(domain: String, status: String? = "active", zoneId: String? = "zone_123", enabled: Bool? = true) {
+    public init(domain: String, status: String? = "active", zoneId: String? = nil, zoneName: String? = nil, enabled: Bool? = true, minTLS: String? = nil) {
         self.domain = domain
         self.status = status
         self.zoneId = zoneId
+        self.zoneName = zoneName
         self.enabled = enabled
+        self.minTLS = minTLS
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.domain = (try? container.decode(String.self, forKey: .domain)) ?? ""
+        self.enabled = try? container.decodeIfPresent(Bool.self, forKey: .enabled)
+        self.minTLS = try? container.decodeIfPresent(String.self, forKey: .minTLS)
+        self.zoneId = (try? container.decodeIfPresent(String.self, forKey: .zoneId)) ?? (try? container.decodeIfPresent(String.self, forKey: .zone_id))
+        self.zoneName = (try? container.decodeIfPresent(String.self, forKey: .zoneName)) ?? (try? container.decodeIfPresent(String.self, forKey: .zone_name))
+        
+        if let statusStr = try? container.decode(String.self, forKey: .status) {
+            self.status = statusStr
+        } else if let statusObj = try? container.decode([String: String].self, forKey: .status) {
+            self.status = statusObj["ownership"] ?? statusObj["ssl"] ?? "active"
+        } else {
+            self.status = "active"
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(domain, forKey: .domain)
+        try container.encodeIfPresent(status, forKey: .status)
+        try container.encodeIfPresent(zoneId, forKey: .zoneId)
+        try container.encodeIfPresent(zoneName, forKey: .zoneName)
+        try container.encodeIfPresent(enabled, forKey: .enabled)
+        try container.encodeIfPresent(minTLS, forKey: .minTLS)
     }
     
     public static let placeholders: [R2CustomDomain] = [
@@ -109,7 +143,8 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable {
 }
 
 public struct R2CORSRule: Codable, Identifiable, Equatable {
-    public var id: String { "\(allowedOrigins.joined(separator: ","))-\(allowedMethods.joined(separator: ","))" }
+    public var id: String { customId ?? "\(allowedOrigins.joined(separator: ","))-\(allowedMethods.joined(separator: ","))" }
+    public var customId: String?
     public var allowedOrigins: [String]
     public var allowedMethods: [String]
     public var allowedHeaders: [String]?
@@ -117,19 +152,60 @@ public struct R2CORSRule: Codable, Identifiable, Equatable {
     public var maxAgeSeconds: Int?
     
     enum CodingKeys: String, CodingKey {
-        case allowedOrigins = "allowed"
-        case allowedMethods = "methods"
-        case allowedHeaders = "headers"
-        case exposeHeaders = "exposeHeaders"
-        case maxAgeSeconds = "maxAgeSeconds"
+        case customId = "id"
+        case allowed
+        case exposeHeaders
+        case maxAgeSeconds
     }
     
-    public init(allowedOrigins: [String], allowedMethods: [String], allowedHeaders: [String]? = nil, exposeHeaders: [String]? = nil, maxAgeSeconds: Int? = 3600) {
+    private struct AllowedConfig: Codable {
+        let origins: [String]
+        let methods: [String]
+        let headers: [String]?
+        
+        enum CodingKeys: String, CodingKey {
+            case origins, methods, headers
+        }
+    }
+    
+    public init(allowedOrigins: [String], allowedMethods: [String], allowedHeaders: [String]? = nil, exposeHeaders: [String]? = nil, maxAgeSeconds: Int? = 3600, customId: String? = nil) {
         self.allowedOrigins = allowedOrigins
         self.allowedMethods = allowedMethods
         self.allowedHeaders = allowedHeaders
         self.exposeHeaders = exposeHeaders
         self.maxAgeSeconds = maxAgeSeconds
+        self.customId = customId
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.customId = try? container.decodeIfPresent(String.self, forKey: .customId)
+        self.exposeHeaders = try? container.decodeIfPresent([String].self, forKey: .exposeHeaders)
+        self.maxAgeSeconds = try? container.decodeIfPresent(Int.self, forKey: .maxAgeSeconds)
+        
+        if let allowed = try? container.decode(AllowedConfig.self, forKey: .allowed) {
+            self.allowedOrigins = allowed.origins
+            self.allowedMethods = allowed.methods
+            self.allowedHeaders = allowed.headers
+        } else if let directOrigins = try? container.decode([String].self, forKey: .allowed) {
+            self.allowedOrigins = directOrigins
+            self.allowedMethods = ["GET"]
+            self.allowedHeaders = nil
+        } else {
+            self.allowedOrigins = ["*"]
+            self.allowedMethods = ["GET"]
+            self.allowedHeaders = nil
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(customId, forKey: .customId)
+        try container.encodeIfPresent(exposeHeaders, forKey: .exposeHeaders)
+        try container.encodeIfPresent(maxAgeSeconds, forKey: .maxAgeSeconds)
+        
+        let allowed = AllowedConfig(origins: allowedOrigins, methods: allowedMethods, headers: allowedHeaders)
+        try container.encode(allowed, forKey: .allowed)
     }
     
     public static let placeholders: [R2CORSRule] = [

@@ -103,7 +103,6 @@ struct PagesProjectDetailView: View {
                     )
                 }
             }
-            .toastContainer()
     }
     
     @ViewBuilder
@@ -179,9 +178,10 @@ struct PagesProjectDetailView: View {
                             .foregroundStyle(.secondary)
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.tertiary)
                             .accessibilityHidden(true)
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 
@@ -214,43 +214,50 @@ struct PagesProjectDetailView: View {
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.tertiary)
                             .accessibilityHidden(true)
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                
+                NavigationLink {
+                    PagesAnalyticsView(accountId: accountId, projectName: project.name)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "chart.xyaxis.line")
+                            .font(.body)
+                            .foregroundStyle(.purple)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Analytics & Metrics")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                    }
+                }
             }
             
             // Section: Deployments History
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Deployments History")) {
-                    ForEach(PagesDeployment.placeholders) { dep in
-                        deploymentRow(dep)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else {
-                Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
-                    if viewModel.deployments.isEmpty {
-                        Text("No recent deployments found.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.deployments) { dep in
-                            Button {
-                                HapticManager.impact(.light)
-                                selectedDeployment = dep
-                            } label: {
-                                deploymentRow(dep)
-                            }
-                            .buttonStyle(.plain)
+            Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
+                if viewModel.deployments.isEmpty {
+                    Text("No recent deployments found.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(viewModel.deployments) { dep in
+                        Button {
+                            HapticManager.impact(.light)
+                            selectedDeployment = dep
+                        } label: {
+                            deploymentRow(dep)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
     }
     
     @ViewBuilder
@@ -258,12 +265,7 @@ struct PagesProjectDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 HStack(spacing: 6) {
-                    Circle()
-                        .fill((dep.latestStage?.status == "success") ? Color.green : Color.orange)
-                        .frame(width: 8, height: 8)
-                    Text((dep.environment ?? "Production").capitalized)
-                        .font(.body)
-                        .foregroundStyle(.primary)
+                    CloudnsBadge((dep.latestStage?.status == "success") ? .active((dep.environment ?? "Production").capitalized) : .warning((dep.environment ?? "Preview").capitalized), isCompact: true)
                 }
                 
                 Spacer()

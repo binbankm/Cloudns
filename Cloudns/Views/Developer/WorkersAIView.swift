@@ -11,42 +11,6 @@ struct WorkersAIView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                List {
-                    Section(header: Text("Models")) {
-                        ForEach(AIModel.placeholders) { model in
-                            modelRow(model)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Workers AI")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                contentView
-                    .navigationTitle("Workers AI")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search AI Models")
-                    .sheet(item: $selectedModelForPlayground) { model in
-                        WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
-                    }
-                    .refreshable {
-                        await viewModel.fetchModels()
-                    }
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchModels()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
@@ -66,8 +30,21 @@ struct WorkersAIView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Workers AI")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search AI Models")
+        .sheet(item: $selectedModelForPlayground) { model in
+            WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
+        }
+        .refreshable {
+            await viewModel.fetchModels()
+        }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.models.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -93,6 +70,11 @@ struct WorkersAIView: View {
                         )
                     )
                 }
+            }
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchModels()
             }
         }
     }
@@ -187,7 +169,6 @@ struct WorkersAIPlaygroundSheetView: View {
                     }
                 }
             }
-            .toastContainer()
         }
     }
     

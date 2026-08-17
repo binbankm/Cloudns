@@ -116,17 +116,10 @@ struct WorkerTestView: View {
             if let status = viewModel.responseStatusCode {
                 Section {
                     HStack {
-                        Text("Status Code")
+                        Text("HTTP Status")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill((200...299).contains(status) ? Color.green : Color.orange)
-                                .frame(width: 8, height: 8)
-                            Text("\(status) \(viewModel.responseStatusText ?? "")")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle((200...299).contains(status) ? .green : .orange)
-                        }
+                        CloudnsBadge((200...299).contains(status) ? .active("\(status) \(viewModel.responseStatusText ?? "")") : .error("\(status) \(viewModel.responseStatusText ?? "")"), isCompact: true)
                     }
                     
                     if let dur = viewModel.responseDurationMs {
@@ -134,9 +127,7 @@ struct WorkerTestView: View {
                             Text("Latency / Time")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(String(format: "%.1f ms", dur))
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.green)
+                            CloudnsBadge(.active(String(format: "%.1f ms", dur)), isCompact: true)
                         }
                     }
                 } header: {
@@ -207,6 +198,7 @@ struct WorkerTestView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Test Dispatch")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -60,13 +60,7 @@ struct PagesBindingsView: View {
                                 
                                 Spacer()
                                 
-                                Text(item.isSecret ? "SECRET" : "VARIABLE")
-                                    .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(item.isSecret ? .orange : .blue)
-                                    .padding(.horizontal, 5)
-                                    .padding(.vertical, 2)
-                                    .background((item.isSecret ? Color.orange : Color.blue).opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                CloudnsBadge(item.isSecret ? .proxied("SECRET") : .custom(color: .blue, text: "VARIABLE"), isCompact: true)
                             }
                             .padding(.vertical, 2)
                             .contextMenu {
@@ -204,8 +198,8 @@ struct PagesBindingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Bindings & Variables")
         .navigationBarTitleDisplayMode(.inline)
-        .toastContainer()
     }
 }

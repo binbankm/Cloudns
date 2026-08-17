@@ -8,14 +8,7 @@ struct IPAccessRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(IPAccessRule.placeholders) { rule in
-                        IPAccessRuleRow(rule: rule)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         IPAccessRuleRow(rule: rule)
@@ -35,9 +28,12 @@ struct IPAccessRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -97,13 +93,7 @@ struct IPAccessRuleRow: View {
                 
                 Spacer()
                 
-                Text(rule.mode.uppercased())
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(colorForMode(rule.mode).opacity(0.12))
-                    .foregroundStyle(colorForMode(rule.mode))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                CloudnsBadge(.custom(color: colorForMode(rule.mode), text: rule.mode.uppercased()), isCompact: true)
             }
             
             HStack {
@@ -201,7 +191,6 @@ struct AddIPAccessRuleView: View {
                     .disabled(value.isEmpty || viewModel.isCreating)
                 }
             }
-            .toastContainer()
         }
     }
 }

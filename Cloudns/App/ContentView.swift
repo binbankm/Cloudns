@@ -33,28 +33,29 @@ struct ContentView: View {
                     TabView(selection: $selectedTab) {
                         DashboardView()
                             .tabItem {
-                                Label("Dashboard", systemImage: "square.grid.2x2")
+                                Label("Dashboard", systemImage: selectedTab == 0 ? "square.grid.2x2.fill" : "square.grid.2x2")
                             }
                             .tag(0)
                         
                         ZonesListView()
                             .tabItem {
-                                Label("Domains", systemImage: "network")
+                                Label("Domains", systemImage: selectedTab == 1 ? "globe.americas.fill" : "globe")
                             }
                             .tag(1)
                         
                         DeveloperHubView()
                             .tabItem {
-                                Label("Developer", systemImage: "cpu")
+                                Label("Developer", systemImage: selectedTab == 2 ? "cpu.fill" : "cpu")
                             }
                             .tag(2)
                         
                         SettingsView()
                             .tabItem {
-                                Label("Settings", systemImage: "gearshape")
+                                Label("Settings", systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
                             }
                             .tag(3)
                     }
+                    .cloudnsSensorySelection(trigger: selectedTab)
                     .blur(radius: (isAppLockEnabled && scenePhase != .active) ? 15 : 0)
                     
                     if isAppLockEnabled && !authManager.isUnlocked {

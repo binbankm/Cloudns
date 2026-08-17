@@ -47,14 +47,7 @@ struct RedirectRulesView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData {
-                Section {
-                    ForEach(RedirectRuleItem.placeholders) { rule in
-                        redirectRuleRow(rule)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if !viewModel.rules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         redirectRuleRow(rule)
@@ -72,9 +65,12 @@ struct RedirectRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -110,24 +106,12 @@ struct RedirectRulesView: View {
                 Spacer()
                 
                 let isEnabled = rule.enabled ?? true
-                Text(isEnabled ? "Active" : "Disabled")
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
-                    .foregroundStyle(isEnabled ? .green : .secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                CloudnsBadge(isEnabled ? .active("Active") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
             HStack(spacing: 6) {
                 if let status = rule.statusCode {
-                    Text("\(status)")
-                        .font(.caption.monospacedDigit().weight(.bold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.12))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    CloudnsBadge(.custom(color: .blue, text: "\(status)"), isCompact: true)
                 }
                 
                 if let url = rule.targetUrl {
@@ -229,7 +213,6 @@ struct AddRedirectRuleSheetView: View {
                     .disabled(ruleDescription.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
-            .toastContainer()
         }
     }
 }

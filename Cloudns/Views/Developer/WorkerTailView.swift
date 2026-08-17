@@ -42,12 +42,13 @@ struct WorkerTailView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .centerConstrainedWidth(maxWidth: 840)
                 }
             }
         }
         .navigationTitle("Live Tail Logs")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, prompt: "Search logs & URLs")
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search logs & URLs")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 12) {
@@ -175,9 +176,7 @@ private struct TailEventRow: View {
                 }
                 
                 // Outcome
-                Text(item.outcome ?? "unknown")
-                    .font(.caption)
-                    .foregroundStyle(isOk ? .green : .red)
+                CloudnsBadge(isOk ? .active("OK") : .error((item.outcome ?? "Error").uppercased()), isCompact: true)
                 
                 Spacer()
                 

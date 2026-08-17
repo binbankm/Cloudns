@@ -39,10 +39,12 @@ final class HTTPNetworkClient {
             if decoded.success {
                 return (decoded.result, decoded.resultInfo)
             } else {
-                let errorMessage = decoded.errors?.first?.message ?? "Unknown Cloudflare API Error (HTTP \(httpResponse.statusCode))"
-                throw APIError.cloudflareError(errorMessage)
+                throw APIError.fromCloudflareResponse(data: data, defaultMessage: "Unknown Cloudflare API Error (HTTP \(httpResponse.statusCode))")
             }
         } catch let decodeError as DecodingError {
+            if !(200...299).contains(httpResponse.statusCode) {
+                throw APIError.fromCloudflareResponse(data: data, defaultMessage: "HTTP \(httpResponse.statusCode)")
+            }
             throw APIError.decodingError(decodeError)
         } catch let apiError as APIError {
             throw apiError
@@ -61,8 +63,7 @@ final class HTTPNetworkClient {
             throw APIError.unauthorized
         }
         guard (200...299).contains(httpResponse.statusCode) else {
-            let bodyText = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
-            throw APIError.cloudflareError(bodyText)
+            throw APIError.fromCloudflareResponse(data: data, defaultMessage: "HTTP \(httpResponse.statusCode)")
         }
         return data
     }

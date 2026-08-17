@@ -11,50 +11,6 @@ struct TunnelsListView: View {
     }
     
     var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                // Skeleton phase — no .searchable, prevents overlap
-                List {
-                    Section {
-                        ForEach(CFTunnel.placeholders) { tunnel in
-                            TunnelRowView(tunnel: tunnel)
-                                .skeletonLoading(true)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Cloudflare Tunnels")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                // Data-ready phase — .searchable safely attached
-                contentView
-                    .navigationTitle("Cloudflare Tunnels")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $viewModel.searchText, prompt: "Search Tunnels")
-                    .refreshable { await viewModel.fetchTunnels() }
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                showingCreateTunnelSheet = true
-                            } label: { Image(systemName: "plus") }
-                            .accessibilityLabel("Create Tunnel")
-                        }
-                    }
-                    .sheet(isPresented: $showingCreateTunnelSheet) {
-                        CreateTunnelSheetView(viewModel: viewModel)
-                    }
-            }
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchTunnels()
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
             if !viewModel.filteredTunnels.isEmpty {
                 Section {
@@ -69,8 +25,27 @@ struct TunnelsListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .navigationTitle("Cloudflare Tunnels")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Tunnels")
+        .refreshable { await viewModel.fetchTunnels() }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingCreateTunnelSheet = true
+                } label: { Image(systemName: "plus") }
+                .accessibilityLabel("Create Tunnel")
+            }
+        }
+        .sheet(isPresented: $showingCreateTunnelSheet) {
+            CreateTunnelSheetView(viewModel: viewModel)
+        }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -100,6 +75,11 @@ struct TunnelsListView: View {
                 }
             }
         }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchTunnels()
+            }
+        }
     }
 }
 
@@ -123,16 +103,13 @@ struct TunnelRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(tunnel.name)
-                        .font(.body)
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
-                    Text((tunnel.status ?? "Inactive").capitalized)
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(isHealthy ? .green : .red)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background((isHealthy ? Color.green : Color.red).opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    CloudnsBadge(
+                        isHealthy ? .active((tunnel.status ?? "Healthy").capitalized) : .error((tunnel.status ?? "Inactive").capitalized),
+                        isCompact: true
+                    )
                 }
                 
                 Text(tunnel.id)
@@ -199,7 +176,6 @@ struct CreateTunnelSheetView: View {
                     .disabled(tunnelName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
-            .toastContainer()
         }
     }
 }

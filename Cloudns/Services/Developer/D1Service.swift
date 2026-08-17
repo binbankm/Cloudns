@@ -72,7 +72,11 @@ final class D1Service {
             for item in resultsList {
                 var rowMap: [String: String] = [:]
                 for (k, v) in item {
-                    rowMap[k] = "\(v)"
+                    if v is NSNull {
+                        rowMap[k] = "NULL"
+                    } else {
+                        rowMap[k] = "\(v)"
+                    }
                 }
                 rows.append(rowMap)
             }

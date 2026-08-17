@@ -33,17 +33,11 @@ struct SettingsView: View {
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 6) {
-                                    Text("Active Account")
-                                        .font(.caption2.weight(.medium))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.orange.opacity(0.12))
-                                        .foregroundStyle(.orange)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    CloudnsBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
-                                    .font(.body)
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                                 
@@ -76,12 +70,6 @@ struct SettingsView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
-                            
-                            Spacer()
-                            
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 8, height: 8)
                         }
                         .padding(.vertical, 2)
                     }
@@ -256,6 +244,7 @@ struct SettingsView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Settings")
             .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
                 Button("Cancel", role: .cancel) {}
@@ -274,7 +263,6 @@ struct SettingsView: View {
             } message: {
                 Text("Are you sure you want to log out of your Cloudflare account?")
             }
-            .toastContainer()
         }
     }
 }

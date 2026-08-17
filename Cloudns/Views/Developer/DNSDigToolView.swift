@@ -62,24 +62,14 @@ struct DNSDigToolView: View {
             }
             
             // Section: Results
-            if viewModel.isDnsLoading {
-                Section(header: Text("Resolving Answers...")) {
-                    ForEach(DNSAnswerItem.placeholders) { item in
-                        DNSAnswerRowView(item: item)
-                            .skeletonLoading(true)
-                    }
-                }
-            } else if let result = viewModel.dnsResult {
+            if let result = viewModel.dnsResult {
                 Section(header: HStack {
                     Text("Resolved Answers (\(result.answers.count))")
                     Spacer()
-                    Text(String(format: "%.1f ms", result.latencyMs))
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.green)
+                    CloudnsBadge(.active(String(format: "%.1f ms", result.latencyMs)), isCompact: true)
                 }) {
                     if result.answers.isEmpty {
-                        Text("No DNS records returned for this query.")
-                            .font(.subheadline)
+                        Text("No DNS records found for this domain and type.")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(result.answers) { item in
@@ -96,7 +86,7 @@ struct DNSDigToolView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.dnsResult == nil)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("DNS Dig Query")
         .navigationBarTitleDisplayMode(.inline)
     }

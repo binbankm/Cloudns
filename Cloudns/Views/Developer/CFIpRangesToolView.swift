@@ -13,95 +13,62 @@ struct CFIpRangesToolView: View {
         "190.93.240.0/20"
     ]
     
-    @ViewBuilder
-    private var skeletonContent: some View {
+    var body: some View {
         VStack(spacing: 0) {
             Picker("Protocol", selection: $viewModel.selectedSegment) {
-                Text("IPv4 Ranges").tag(0)
-                Text("IPv6 Ranges").tag(1)
+                Text("IPv4 Ranges (\(viewModel.ipv4List.count))").tag(0)
+                Text("IPv6 Ranges (\(viewModel.ipv6List.count))").tag(1)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
             
-            List {
-                Section(header: Text("Official CIDRs")) {
-                    ForEach(placeholderRanges, id: \.self) { cidr in
-                        cidrRow(cidr)
-                            .skeletonLoading(true)
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
+            contentView
+                .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Cloudflare IP Ranges")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    var body: some View {
-        Group {
-            if !viewModel.hasFetchedData {
-                skeletonContent
-            } else {
-                VStack(spacing: 0) {
-                    Picker("Protocol", selection: $viewModel.selectedSegment) {
-                        Text("IPv4 Ranges (\(viewModel.ipv4List.count))").tag(0)
-                        Text("IPv6 Ranges (\(viewModel.ipv6List.count))").tag(1)
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search CIDR Blocks")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        let text = viewModel.ipv4List.joined(separator: "\n")
+                        UIPasteboard.general.string = text
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("IPv4 CIDRs copied")
+                    } label: {
+                        Label("Copy All IPv4", systemImage: "doc.on.doc")
                     }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGroupedBackground))
                     
-                    contentView
-                }
-                .background(Color(.systemGroupedBackground))
-                .navigationTitle("Cloudflare IP Ranges")
-                .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: $viewModel.searchText, prompt: "Search CIDR Blocks")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            Button {
-                                let text = viewModel.ipv4List.joined(separator: "\n")
-                                UIPasteboard.general.string = text
-                                HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("IPv4 CIDRs copied")
-                            } label: {
-                                Label("Copy All IPv4", systemImage: "doc.on.doc")
-                            }
-                            
-                            Button {
-                                let text = viewModel.ipv6List.joined(separator: "\n")
-                                UIPasteboard.general.string = text
-                                HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("IPv6 CIDRs copied")
-                            } label: {
-                                Label("Copy All IPv6", systemImage: "doc.on.doc")
-                            }
-                            
-                            Button {
-                                let nginx = (viewModel.ipv4List + viewModel.ipv6List).map { "set_real_ip_from \($0);" }.joined(separator: "\n") + "\nreal_ip_header CF-Connecting-IP;"
-                                UIPasteboard.general.string = nginx
-                                HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Nginx config copied")
-                            } label: {
-                                Label("Copy Nginx Real-IP Config", systemImage: "server.rack")
-                            }
-                        } label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                        .accessibilityLabel("Export IP Ranges")
+                    Button {
+                        let text = viewModel.ipv6List.joined(separator: "\n")
+                        UIPasteboard.general.string = text
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("IPv6 CIDRs copied")
+                    } label: {
+                        Label("Copy All IPv6", systemImage: "doc.on.doc")
                     }
+                    
+                    Button {
+                        let nginx = (viewModel.ipv4List + viewModel.ipv6List).map { "set_real_ip_from \($0);" }.joined(separator: "\n") + "\nreal_ip_header CF-Connecting-IP;"
+                        UIPasteboard.general.string = nginx
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Nginx config copied")
+                    } label: {
+                        Label("Copy Nginx Real-IP Config", systemImage: "server.rack")
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
                 }
-                .refreshable {
-                    await viewModel.fetchIPRanges()
-                }
+                .accessibilityLabel("Export IP Ranges")
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.hasFetchedData)
+        .refreshable {
+            await viewModel.fetchIPRanges()
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchIPRanges()
@@ -126,7 +93,10 @@ struct CFIpRangesToolView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.hasFetchedData {
                 let activeList = viewModel.selectedSegment == 0 ? viewModel.filteredIPv4 : viewModel.filteredIPv6
                 if let errorMessage = viewModel.errorMessage, viewModel.ipv4List.isEmpty && viewModel.ipv6List.isEmpty {
                     StateOverlayView(
