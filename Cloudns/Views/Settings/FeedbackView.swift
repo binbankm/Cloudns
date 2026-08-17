@@ -29,7 +29,7 @@ struct FeedbackView: View {
         OS: iOS \(systemVersion)
         Device: \(deviceModel)
         Active Account: \(accountManager.activeEmail)
-        Timestamp: \(Date())
+        Timestamp: \(DateFormatters.formatLocalDiagnosticTimestamp())
         """
     }
     
@@ -67,6 +67,15 @@ struct FeedbackView: View {
                     Spacer()
                     Text(accountManager.activeEmail)
                         .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                HStack {
+                    Text("Local Time")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(DateFormatters.formatLocalDiagnosticTimestamp())
+                        .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 

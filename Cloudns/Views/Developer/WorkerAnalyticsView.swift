@@ -14,26 +14,54 @@ public struct WorkerAnalyticsView: View {
     }
     
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // 1. Unified Header & Time Range Picker Bar
-                headerBar
-                
-                // 2. 4 Key Metrics Cards Grid
-                metricsGrid
-                
-                // 3. Invocations & Errors 折线图 (Line & Area Chart with Error Bars)
-                invocationsLineChartCard
-                
-                // 4. CPU Execution Latency 双折线图 (Line Chart P50 & P99)
-                cpuLatencyLineChartCard
-                
-                // 5. Performance Insights Card
-                insightsCard
+        Group {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+                if let errorMessage = viewModel.errorMessage {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchAnalytics() }
+                            }
+                        )
+                    )
+                } else {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "chart.xyaxis.line",
+                            title: "No Invocations Data",
+                            message: "No Worker invocations recorded for \(scriptName) in the selected time range."
+                        )
+                    )
+                }
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 1. Unified Header & Time Range Picker Bar
+                        headerBar
+                        
+                        // 2. 4 Key Metrics Cards Grid
+                        metricsGrid
+                        
+                        // 3. Invocations & Errors 折线图 (Line & Area Chart with Error Bars)
+                        invocationsLineChartCard
+                        
+                        // 4. CPU Execution Latency 双折线图 (Line Chart P50 & P99)
+                        cpuLatencyLineChartCard
+                        
+                        // 5. Performance Insights Card
+                        insightsCard
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
+                    .centerConstrainedWidth(maxWidth: 840)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Worker Analytics")
@@ -48,28 +76,20 @@ public struct WorkerAnalyticsView: View {
         }
     }
     
-    // MARK: - 1. Time Range Picker Bar
+    // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Image(systemName: "curlybraces.square.fill")
-                        .foregroundStyle(.purple)
-                        .font(.headline)
-                    Text(scriptName)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                }
-                Text("Workers V8 Isolate")
-                    .font(.caption2.monospaced())
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.purple.opacity(0.12))
-                    .foregroundStyle(.purple)
-                    .clipShape(Capsule())
-            }
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: "curlybraces.square.fill")
+                .foregroundStyle(.purple)
+                .font(.title3)
             
-            Spacer()
+            Text(scriptName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            
+            Spacer(minLength: 6)
             
             Picker("Range", selection: $viewModel.selectedDays) {
                 Text("24H").tag(1)
@@ -77,80 +97,83 @@ public struct WorkerAnalyticsView: View {
                 Text("30D").tag(30)
             }
             .pickerStyle(.segmented)
-            .frame(width: 160)
+            .frame(width: 145)
             .onChange(of: viewModel.selectedDays) { _ in
-                Task { await viewModel.fetchAnalytics() }
+                HapticManager.impact(.light)
+                Task {
+                    await viewModel.fetchAnalytics()
+                }
             }
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 2. 4 Metrics Cards Grid
     private var metricsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             metricCard(
-                title: "Total Invocations",
+                title: "Invocations",
                 value: formatNumber(viewModel.totalRequests),
-                icon: "waveform.path.ecg",
+                icon: "bolt.horizontal.fill",
                 color: .purple,
-                badge: "\(viewModel.totalSubrequests) subreqs"
+                badge: "\(viewModel.totalSubrequests) Subrequests"
             )
             
             metricCard(
-                title: "Error Count",
-                value: "\(viewModel.totalErrors)",
+                title: "Exceptions",
+                value: formatNumber(viewModel.totalErrors),
                 icon: "exclamationmark.triangle.fill",
-                color: viewModel.totalErrors > 0 ? .orange : .green,
-                badge: String(format: "%.2f%% err", viewModel.errorRatePercentage)
+                color: viewModel.totalErrors > 0 ? .red : .green,
+                badge: String(format: "%.1f%% Error Rate", viewModel.errorRatePercentage)
             )
             
             metricCard(
                 title: "Success Rate",
-                value: String(format: "%.1f%%", max(0, 100.0 - viewModel.errorRatePercentage)),
+                value: String(format: "%.1f%%", 100.0 - viewModel.errorRatePercentage),
                 icon: "checkmark.seal.fill",
                 color: .green,
-                badge: "Edge Normal"
+                badge: "Operational"
             )
             
             metricCard(
-                title: "Median CPU Time",
-                value: String(format: "%.2f ms", viewModel.avgCpuP50),
-                icon: "bolt.fill",
+                title: "CPU Time (Median)",
+                value: String(format: "%.1f ms", viewModel.avgCpuP50),
+                icon: "timer",
                 color: .cyan,
-                badge: String(format: "P99: %.1fms", viewModel.maxCpuP99)
+                badge: String(format: "P99: %.1f ms", viewModel.maxCpuP99)
             )
         }
     }
     
     private func metricCard(title: String, value: String, icon: String, color: Color, badge: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: icon)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(color)
                 Text(title)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
             }
             
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
             
             Text(badge)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(color.opacity(0.12))
-                .foregroundStyle(color)
-                .clipShape(Capsule())
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 3. Invocations 折线图 (Line Chart)
@@ -160,11 +183,11 @@ public struct WorkerAnalyticsView: View {
                 Image(systemName: "chart.xyaxis.line")
                     .font(.subheadline)
                     .foregroundStyle(.purple)
-                Text("Invocations Volume & Errors (调用量折线图)")
+                Text("Invocations & Errors")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("Invocations/Time")
+                Text("Invocations over Time")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -182,7 +205,7 @@ public struct WorkerAnalyticsView: View {
                             endPoint: .bottom
                         )
                     )
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     LineMark(
                         x: .value("Time", pt.date),
@@ -190,9 +213,7 @@ public struct WorkerAnalyticsView: View {
                     )
                     .foregroundStyle(Color.purple)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(32)
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     if pt.errors > 0 {
                         BarMark(
@@ -208,13 +229,21 @@ public struct WorkerAnalyticsView: View {
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel(format: .dateTime.hour().minute(), centered: true)
+                    if viewModel.selectedDays == 1 {
+                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    } else {
+                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                    }
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading) { _ in
+                AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel()
+                    if let count = value.as(Int.self) {
+                        AxisValueLabel {
+                            Text(formatNumber(count))
+                        }
+                    }
                 }
             }
         }
@@ -230,15 +259,15 @@ public struct WorkerAnalyticsView: View {
                 Image(systemName: "bolt.fill")
                     .font(.subheadline)
                     .foregroundStyle(.cyan)
-                Text("CPU Execution Latency (耗时折线图 ms)")
+                Text("CPU Time")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
                 HStack(spacing: 8) {
-                    Label("P50 (中位数)", systemImage: "circle.fill")
+                    Label("P50 (Median)", systemImage: "circle.fill")
                         .font(.caption2)
                         .foregroundStyle(.cyan)
-                    Label("P99 (极端值)", systemImage: "circle.fill")
+                    Label("P99", systemImage: "circle.fill")
                         .font(.caption2)
                         .foregroundStyle(.orange)
                 }
@@ -252,32 +281,36 @@ public struct WorkerAnalyticsView: View {
                     )
                     .foregroundStyle(Color.cyan)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(32)
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
                     )
                     .foregroundStyle(Color.orange)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [3]))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(28)
-                    .interpolationMethod(.monotone)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [4, 3]))
+                    .interpolationMethod(.catmullRom)
                 }
             }
             .frame(height: 220)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel(format: .dateTime.hour().minute(), centered: true)
+                    if viewModel.selectedDays == 1 {
+                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    } else {
+                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                    }
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading) { _ in
+                AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel()
+                    if let ms = value.as(Double.self) {
+                        AxisValueLabel {
+                            Text(String(format: "%.1f ms", ms))
+                        }
+                    }
                 }
             }
         }
@@ -289,35 +322,35 @@ public struct WorkerAnalyticsView: View {
     // MARK: - 5. Insights & Summary
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Performance Summary", systemImage: "sparkles")
+            Label("Worker Performance Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
             
             HStack {
-                Text("Subrequest Amplification")
+                Text("Subrequest Ratio")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
-                Text(String(format: "%.1fx", ratio))
+                Text(String(format: "%.1f subrequests / req", ratio))
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
             
             Divider()
             
             HStack {
-                Text("Status Health")
+                Text("Execution Health")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? "100% Healthy" : "\(viewModel.totalErrors) Exceptions Observed")
+                Text(viewModel.totalErrors == 0 ? "100% Operational" : "\(viewModel.totalErrors) Exceptions Detected")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     private func formatNumber(_ num: Int) -> String {

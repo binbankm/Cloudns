@@ -46,7 +46,7 @@ struct AIGatewayDetailView: View {
                         Text("Created")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(String(created.prefix(10)))
+                        Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

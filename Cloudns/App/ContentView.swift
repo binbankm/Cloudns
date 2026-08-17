@@ -76,6 +76,11 @@ struct ContentView: View {
         .onAppear {
             _ = AccountManager.shared
         }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                NotificationCenter.default.post(name: .appWillEnterForeground, object: nil)
+            }
+        }
     }
 }
 

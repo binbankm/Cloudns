@@ -11,22 +11,6 @@ struct DashboardView: View {
             ZStack {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 
-                // Ambient Brand Glows (Subtle Top-Leading Orange & Bottom-Trailing Indigo)
-                GeometryReader { _ in
-                    Circle()
-                        .fill(Color.orange.opacity(0.06))
-                        .frame(width: 320, height: 320)
-                        .blur(radius: 80)
-                        .offset(x: -80, y: -80)
-                    
-                    Circle()
-                        .fill(Color.indigo.opacity(0.05))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 70)
-                        .offset(x: 180, y: 120)
-                }
-                .allowsHitTesting(false)
-                
                 ScrollView {
                     VStack(spacing: 20) {
                         // 1. Brand Hero Header
@@ -79,8 +63,16 @@ struct DashboardView: View {
             .refreshable {
                 await viewModel.fetchDashboard(isRefresh: true)
             }
+            .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                Task { await viewModel.fetchDashboard(isRefresh: true) }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in
+                if viewModel.isStale {
+                    Task { await viewModel.fetchDashboard(isRefresh: true) }
+                }
+            }
             .task {
-                if !viewModel.hasFetchedData {
+                if !viewModel.hasFetchedData || viewModel.isStale {
                     await viewModel.fetchDashboard()
                 }
             }
@@ -131,7 +123,7 @@ struct DashboardView: View {
                 .padding(.top, -4)
             }
         }
-        .cloudnsCard(style: .brandGlow(accent: .orange), cornerRadius: 16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
     // MARK: - 2. Resources Overview Cards Grid

@@ -60,4 +60,20 @@ struct CountryCoordinates {
         "PK": CLLocationCoordinate2D(latitude: 30.37, longitude: 69.34),
         "BD": CLLocationCoordinate2D(latitude: 23.68, longitude: 90.35)
     ]
+    
+    /// 将 2 字母国家代码（如 "US", "cn", "JP"）转换为 Flag Emoji，非标准、未知或非法代码返回 "🌐"
+    static func flag(for countryCode: String) -> String {
+        let code = countryCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        guard code.count == 2, CountryCoordinates.map[code] != nil else { return "🌐" }
+        
+        let base: UInt32 = 127397
+        var flagStr = ""
+        for scalar in code.unicodeScalars {
+            guard scalar.value >= 65 && scalar.value <= 90 else { return "🌐" }
+            if let flagScalar = UnicodeScalar(base + scalar.value) {
+                flagStr.unicodeScalars.append(flagScalar)
+            }
+        }
+        return flagStr.isEmpty ? "🌐" : flagStr
+    }
 }

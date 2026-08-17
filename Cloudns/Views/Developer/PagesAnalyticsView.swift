@@ -14,29 +14,57 @@ public struct PagesAnalyticsView: View {
     }
     
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // 1. Unified Header & Time Range Picker Bar
-                headerBar
-                
-                // 2. 4 Key Metrics Cards Grid
-                metricsGrid
-                
-                // 3. Pages Functions Invocations 折线图 (Line & Area Chart)
-                functionsLineChartCard
-                
-                // 4. V8 Isolate Execution Latency 双折线图 (Line Chart P50 & P99)
-                cpuLatencyLineChartCard
-                
-                // 5. Deployments Pipeline Distribution (生产 vs 预览 分布)
-                deploymentsBreakdownCard
-                
-                // 6. Pages Architecture & Deployment Insights Card
-                insightsCard
+        Group {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ProgressView()
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty && viewModel.deployments.isEmpty {
+                if let errorMessage = viewModel.errorMessage {
+                    StateOverlayView(
+                        state: .error(
+                            message: LocalizedStringKey(errorMessage),
+                            retryAction: {
+                                Task { await viewModel.fetchAnalytics() }
+                            }
+                        )
+                    )
+                } else {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "chart.xyaxis.line",
+                            title: "No Pages Data",
+                            message: "No Functions invocations or deployments recorded for \(projectName) in the selected time range."
+                        )
+                    )
+                }
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 1. Unified Header & Time Range Picker Bar
+                        headerBar
+                        
+                        // 2. 4 Key Metrics Cards Grid
+                        metricsGrid
+                        
+                        // 3. Pages Functions Invocations 折线图 (Line & Area Chart)
+                        if !viewModel.dataPoints.isEmpty {
+                            functionsLineChartCard
+                            cpuLatencyLineChartCard
+                        }
+                        
+                        // 4. Deployments Pipeline Distribution (生产 vs 预览 分布)
+                        deploymentsBreakdownCard
+                        
+                        // 5. Pages Architecture & Deployment Insights Card
+                        insightsCard
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
+                    .centerConstrainedWidth(maxWidth: 840)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Pages Analytics")
@@ -53,35 +81,18 @@ public struct PagesAnalyticsView: View {
     
     // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Image(systemName: "doc.richtext.fill")
-                        .foregroundStyle(.purple)
-                        .font(.headline)
-                    Text(projectName)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                }
-                
-                HStack(spacing: 6) {
-                    Text("Pages Edge Full-Stack")
-                        .font(.caption2.monospaced())
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.purple.opacity(0.12))
-                        .foregroundStyle(.purple)
-                        .clipShape(Capsule())
-                    
-                    if viewModel.customDomainsCount > 0 {
-                        Text("\(viewModel.customDomainsCount) Custom Domains")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: "square.stack.3d.up.fill")
+                .foregroundStyle(.purple)
+                .font(.title3)
             
-            Spacer()
+            Text(projectName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            
+            Spacer(minLength: 6)
             
             Picker("Range", selection: $viewModel.selectedDays) {
                 Text("24H").tag(1)
@@ -89,80 +100,83 @@ public struct PagesAnalyticsView: View {
                 Text("30D").tag(30)
             }
             .pickerStyle(.segmented)
-            .frame(width: 160)
+            .frame(width: 145)
             .onChange(of: viewModel.selectedDays) { _ in
-                Task { await viewModel.fetchAnalytics() }
+                HapticManager.impact(.light)
+                Task {
+                    await viewModel.fetchAnalytics()
+                }
             }
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 2. Key Metrics Grid
     private var metricsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             metricCard(
-                title: "Edge Invocations",
+                title: "Functions Invocations",
                 value: formatNumber(viewModel.totalRequests),
                 icon: "bolt.horizontal.fill",
                 color: .blue,
-                badge: "\(viewModel.totalSubrequests) subreqs"
+                badge: "\(viewModel.totalSubrequests) Subrequests"
             )
             
             metricCard(
                 title: "Functions Errors",
-                value: "\(viewModel.totalErrors)",
+                value: formatNumber(viewModel.totalErrors),
                 icon: "exclamationmark.triangle.fill",
-                color: viewModel.totalErrors > 0 ? .orange : .green,
-                badge: String(format: "%.2f%% err", viewModel.errorRatePercentage)
-            )
-            
-            metricCard(
-                title: "Total Deployments",
-                value: "\(viewModel.deployments.count)",
-                icon: "arrow.triangle.2.circlepath.circle.fill",
-                color: .purple,
-                badge: "\(viewModel.productionDeploymentsCount) Prod / \(viewModel.previewDeploymentsCount) Prev"
+                color: viewModel.totalErrors > 0 ? .red : .green,
+                badge: String(format: "%.1f%% Error Rate", viewModel.errorRatePercentage)
             )
             
             metricCard(
                 title: "Build Success Rate",
                 value: String(format: "%.1f%%", viewModel.deploymentSuccessRate),
-                icon: "checkmark.seal.fill",
+                icon: "checkmark.circle.fill",
                 color: .green,
-                badge: String(format: "Median CPU: %.1fms", viewModel.avgCpuP50)
+                badge: "\(viewModel.deployments.count) Deployments"
+            )
+            
+            metricCard(
+                title: "CPU Time (Median)",
+                value: String(format: "%.1f ms", viewModel.avgCpuP50),
+                icon: "timer",
+                color: .cyan,
+                badge: String(format: "P99: %.1f ms", viewModel.maxCpuP99)
             )
         }
     }
     
     private func metricCard(title: String, value: String, icon: String, color: Color, badge: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: icon)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(color)
                 Text(title)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
             }
             
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
             
             Text(badge)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(color.opacity(0.12))
-                .foregroundStyle(color)
-                .clipShape(Capsule())
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 3. Functions Invocations 折线图 (Line Chart)
@@ -172,11 +186,11 @@ public struct PagesAnalyticsView: View {
                 Image(systemName: "chart.xyaxis.line")
                     .font(.subheadline)
                     .foregroundStyle(.blue)
-                Text("Pages Functions Invocations (函数调用折线图)")
+                Text("Functions Invocations")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("Invocations/Time")
+                Text("Invocations over Time")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -194,7 +208,7 @@ public struct PagesAnalyticsView: View {
                             endPoint: .bottom
                         )
                     )
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     LineMark(
                         x: .value("Time", pt.date),
@@ -202,9 +216,7 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(Color.blue)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(32)
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     if pt.errors > 0 {
                         BarMark(
@@ -220,13 +232,21 @@ public struct PagesAnalyticsView: View {
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel(format: .dateTime.hour().minute(), centered: true)
+                    if viewModel.selectedDays == 1 {
+                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    } else {
+                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                    }
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading) { _ in
+                AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel()
+                    if let count = value.as(Int.self) {
+                        AxisValueLabel {
+                            Text(formatNumber(count))
+                        }
+                    }
                 }
             }
         }
@@ -242,15 +262,15 @@ public struct PagesAnalyticsView: View {
                 Image(systemName: "bolt.fill")
                     .font(.subheadline)
                     .foregroundStyle(.cyan)
-                Text("V8 Isolate CPU Latency (执行耗时折线图 ms)")
+                Text("CPU Time")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
                 HStack(spacing: 8) {
-                    Label("P50 (中位数)", systemImage: "circle.fill")
+                    Label("P50 (Median)", systemImage: "circle.fill")
                         .font(.caption2)
                         .foregroundStyle(.cyan)
-                    Label("P99 (极端值)", systemImage: "circle.fill")
+                    Label("P99", systemImage: "circle.fill")
                         .font(.caption2)
                         .foregroundStyle(.orange)
                 }
@@ -264,32 +284,36 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(Color.cyan)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(32)
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(.catmullRom)
                     
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
                     )
                     .foregroundStyle(Color.orange)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [3]))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(28)
-                    .interpolationMethod(.monotone)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [4, 3]))
+                    .interpolationMethod(.catmullRom)
                 }
             }
             .frame(height: 220)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel(format: .dateTime.hour().minute(), centered: true)
+                    if viewModel.selectedDays == 1 {
+                        AxisValueLabel(format: .dateTime.hour(), centered: true)
+                    } else {
+                        AxisValueLabel(format: .dateTime.month().day(), centered: true)
+                    }
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading) { _ in
+                AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                    AxisValueLabel()
+                    if let ms = value.as(Double.self) {
+                        AxisValueLabel {
+                            Text(String(format: "%.1f ms", ms))
+                        }
+                    }
                 }
             }
         }
@@ -305,7 +329,7 @@ public struct PagesAnalyticsView: View {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.subheadline)
                     .foregroundStyle(.purple)
-                Text("Deployments Pipeline (部署环境分布)")
+                Text("Deployments Pipeline")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
@@ -319,7 +343,7 @@ public struct PagesAnalyticsView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Circle().fill(Color.purple).frame(width: 8, height: 8)
-                        Text("Production Branch")
+                        Text("Production")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -337,7 +361,7 @@ public struct PagesAnalyticsView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Circle().fill(Color.blue).frame(width: 8, height: 8)
-                        Text("Preview PRs")
+                        Text("Preview")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -360,17 +384,17 @@ public struct PagesAnalyticsView: View {
     // MARK: - 6. Insights & Summary
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Pages Performance & Health Summary", systemImage: "sparkles")
+            Label("Pages Edge & Pipeline Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
             
             HStack {
-                Text("Subrequest Amplification")
+                Text("Subrequest Ratio")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
-                Text(String(format: "%.1fx (D1/KV/Fetch)", ratio))
+                Text(String(format: "%.1f subrequests / req", ratio))
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
             
@@ -393,14 +417,14 @@ public struct PagesAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(String(format: "%.1f%% Build Success Rate", viewModel.deploymentSuccessRate))
+                Text(String(format: "%.1f%% Success Rate", viewModel.deploymentSuccessRate))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.green)
             }
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     private func formatNumber(_ num: Int) -> String {

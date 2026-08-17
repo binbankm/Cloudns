@@ -18,4 +18,5 @@ public extension Notification.Name {
     nonisolated static let zoneDeleted = Notification.Name("ZoneDeleted")
     nonisolated static let zoneUpdated = Notification.Name("ZoneUpdated")
     nonisolated static let accountSwitched = Notification.Name("AccountSwitched")
+    nonisolated static let appWillEnterForeground = Notification.Name("AppWillEnterForeground")
 }

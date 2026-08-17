@@ -79,8 +79,7 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
     }
     
     private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: (() -> Void)? = nil) async {
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+        HapticManager.impact(.medium)
         
         do {
             try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)

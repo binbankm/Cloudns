@@ -145,8 +145,7 @@ struct D1ConsoleView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(0..<result.rows.count, id: \.self) { idx in
-                            let row = result.rows[idx]
+                        ForEach(Array(result.rows.enumerated()), id: \.offset) { _, row in
                             VStack(alignment: .leading, spacing: 4) {
                                 ForEach(result.columns, id: \.self) { col in
                                     HStack(alignment: .top) {

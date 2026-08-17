@@ -3,47 +3,60 @@ import LocalAuthentication
 import SwiftUI
 import Combine
 
-class AppAuthManager: ObservableObject {
+@MainActor
+final class AppAuthManager: ObservableObject {
     static let shared = AppAuthManager()
     
     @Published var isUnlocked = false
+    @Published var isAuthenticating = false
+    @Published var biometryType: LABiometryType = .none
     
-    func authenticate() {
+    private init() {
+        checkBiometry()
+    }
+    
+    func checkBiometry() {
         let context = LAContext()
         var error: NSError?
-        
-        // Check if biometric authentication is possible
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = "Unlock Cloudns to manage your Cloudflare account."
-            
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
-                DispatchQueue.main.async {
-                    if success {
-                        self.isUnlocked = true
-                    } else {
-                        // Failed to authenticate
-                        self.isUnlocked = false
-                    }
-                }
-            }
+            self.biometryType = context.biometryType
         } else {
-            // No biometrics available, fallback to passcode
-            let reason = "Unlock Cloudns with your device passcode."
+            self.biometryType = .none
+        }
+    }
+    
+    func authenticate() {
+        guard !isUnlocked, !isAuthenticating else { return }
+        
+        let isAppLockEnabled = UserDefaults.standard.bool(forKey: AppStorageKey.isAppLockEnabled)
+        guard isAppLockEnabled else {
+            self.isUnlocked = true
+            return
+        }
+        
+        isAuthenticating = true
+        checkBiometry()
+        
+        Task { @MainActor in
+            defer { self.isAuthenticating = false }
+            
+            let context = LAContext()
+            context.localizedCancelTitle = "Cancel"
+            var error: NSError?
+            let reason = "Unlock Cloudns to manage your Cloudflare infrastructure."
+            
             if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, _ in
-                    DispatchQueue.main.async {
-                        if success {
-                            self.isUnlocked = true
-                        } else {
-                            self.isUnlocked = false
-                        }
+                do {
+                    let success = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
+                    self.isUnlocked = success
+                    if success {
+                        HapticManager.notification(.success)
                     }
+                } catch {
+                    self.isUnlocked = false
                 }
             } else {
-                // Device has no passcode set, just unlock
-                DispatchQueue.main.async {
-                    self.isUnlocked = true
-                }
+                self.isUnlocked = true
             }
         }
     }

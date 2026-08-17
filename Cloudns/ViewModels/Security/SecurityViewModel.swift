@@ -63,8 +63,7 @@ class SecurityViewModel: BaseLoadableViewModel {
     
     private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: @escaping () -> Void) async {
         // Haptic feedback for setting update trigger
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+        HapticManager.impact(.medium)
         
         do {
             try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)

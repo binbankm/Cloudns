@@ -11,14 +11,26 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     @Published var pools: [LBPool] = []
     @Published var monitors: [LBMonitor] = []
     
+    private var cachedAccountId: String?
+    
     init(zoneId: String) {
         self.zoneId = zoneId
+        super.init()
+    }
+    
+    private func resolveAccountId() async throws -> String {
+        if let aid = cachedAccountId, !aid.isEmpty {
+            return aid
+        }
+        let zone = try await self.apiClient.getZoneDetails(zoneId: self.zoneId)
+        let aid = zone.account?.id ?? ""
+        self.cachedAccountId = aid
+        return aid
     }
     
     func fetchData() async {
         await executeLoadingTask {
-            let zone = try await self.apiClient.getZoneDetails(zoneId: self.zoneId)
-            let accountId = zone.account?.id ?? ""
+            let accountId = try await self.resolveAccountId()
             
             async let fetchLBs = self.apiClient.getLoadBalancers(zoneId: self.zoneId)
             async let fetchPools = self.apiClient.getLBPools(accountId: accountId)
@@ -65,8 +77,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         defer { isLoading = false }
         
         do {
-            let zone = try await apiClient.getZoneDetails(zoneId: zoneId)
-            let accountId = zone.account?.id ?? ""
+            let accountId = try await resolveAccountId()
             _ = try await apiClient.createLBPool(accountId: accountId, pool: payload)
             ToastManager.shared.showSuccess("Pool Created", message: payload.name)
             await fetchData()
@@ -80,8 +91,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     
     func deletePool(poolId: String) async {
         do {
-            let zone = try await apiClient.getZoneDetails(zoneId: zoneId)
-            let accountId = zone.account?.id ?? ""
+            let accountId = try await resolveAccountId()
             try await apiClient.deleteLBPool(accountId: accountId, poolId: poolId)
             ToastManager.shared.showSuccess("Pool Deleted", message: "")
             await fetchData()
@@ -96,8 +106,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         defer { isLoading = false }
         
         do {
-            let zone = try await apiClient.getZoneDetails(zoneId: zoneId)
-            let accountId = zone.account?.id ?? ""
+            let accountId = try await resolveAccountId()
             _ = try await apiClient.createLBMonitor(accountId: accountId, monitor: payload)
             ToastManager.shared.showSuccess("Monitor Created", message: payload.description ?? payload.type)
             await fetchData()
@@ -111,8 +120,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     
     func deleteMonitor(monitorId: String) async {
         do {
-            let zone = try await apiClient.getZoneDetails(zoneId: zoneId)
-            let accountId = zone.account?.id ?? ""
+            let accountId = try await resolveAccountId()
             try await apiClient.deleteLBMonitor(accountId: accountId, monitorId: monitorId)
             ToastManager.shared.showSuccess("Monitor Deleted", message: "")
             await fetchData()

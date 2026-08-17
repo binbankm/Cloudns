@@ -412,9 +412,6 @@
         }
       }
     },
-    "%lld Custom Domains" : {
-
-    },
     "%lld Days" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -454,7 +451,7 @@
         }
       }
     },
-    "%lld Exceptions Observed" : {
+    "%lld Exceptions Detected" : {
 
     },
     "%lld Healthy Connectors" : {
@@ -1061,9 +1058,6 @@
           }
         }
       }
-    },
-    "100% Healthy" : {
-
     },
     "100% Operational" : {
 
@@ -3218,9 +3212,6 @@
         }
       }
     },
-    "Bandwidth Transfer Volume (柱状图)" : {
-
-    },
     "Basic Details" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3612,9 +3603,6 @@
         }
       }
     },
-    "Bytes/Time" : {
-
-    },
     "Cache Cleared" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3851,9 +3839,6 @@
           }
         }
       }
-    },
-    "CDN Cache & Origin Savings" : {
-
     },
     "CDN, DNS, WAF and Global Edge Centers" : {
       "extractionState" : "manual",
@@ -4422,6 +4407,9 @@
           }
         }
       }
+    },
+    "Cloudns Locked" : {
+
     },
     "Cloudns v%@ (%@)\nMade with ❤️ for Cloudflare users" : {
       "extractionState" : "manual",
@@ -5312,13 +5300,13 @@
     "Country: %@" : {
 
     },
-    "CPU Execution Latency (耗时折线图 ms)" : {
-
-    },
     "CPU P50" : {
 
     },
     "CPU P99" : {
+
+    },
+    "CPU Time" : {
 
     },
     "Create" : {
@@ -6059,6 +6047,9 @@
         }
       }
     },
+    "Data Transferred over Time" : {
+
+    },
     "Data Usage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6760,7 +6751,7 @@
         }
       }
     },
-    "Deployments Pipeline (部署环境分布)" : {
+    "Deployments Pipeline" : {
 
     },
     "Description (Optional)" : {
@@ -7738,6 +7729,12 @@
         }
       }
     },
+    "Edge Cache Ratio" : {
+
+    },
+    "Edge Caching Savings" : {
+
+    },
     "Edge Certificates" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7761,9 +7758,6 @@
       }
     },
     "Edge Functions Status" : {
-
-    },
-    "Edge Hit Ratio" : {
 
     },
     "Edge PoP Data Center" : {
@@ -8751,6 +8745,9 @@
         }
       }
     },
+    "Execution Health" : {
+
+    },
     "Execution Rules (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9263,6 +9260,9 @@
         }
       }
     },
+    "Functions Invocations" : {
+
+    },
     "Gateway" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9494,9 +9494,6 @@
           }
         }
       }
-    },
-    "Global Traffic by Country" : {
-
     },
     "Global Workers" : {
       "extractionState" : "manual",
@@ -10410,10 +10407,10 @@
         }
       }
     },
-    "Invocations Volume & Errors (调用量折线图)" : {
+    "Invocations & Errors" : {
 
     },
-    "Invocations/Time" : {
+    "Invocations over Time" : {
 
     },
     "iodef" : {
@@ -11458,6 +11455,9 @@
           }
         }
       }
+    },
+    "Local Time" : {
+
     },
     "Location" : {
       "extractionState" : "manual",
@@ -13168,6 +13168,9 @@
         }
       }
     },
+    "No Functions invocations or deployments recorded for %@ in the selected time range." : {
+
+    },
     "No Gateway Rules" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13190,6 +13193,9 @@
         }
       }
     },
+    "No HTTP requests recorded for %@ in the selected time range." : {
+
+    },
     "No Hyperdrive Configs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13211,6 +13217,9 @@
           }
         }
       }
+    },
+    "No Invocations Data" : {
+
     },
     "No IP Access Rules" : {
       "extractionState" : "manual",
@@ -13390,6 +13399,9 @@
           }
         }
       }
+    },
+    "No Pages Data" : {
+
     },
     "No Pages Projects" : {
       "extractionState" : "manual",
@@ -13714,6 +13726,9 @@
         }
       }
     },
+    "No Traffic Data" : {
+
+    },
     "No Transform Rules" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13790,6 +13805,9 @@
           }
         }
       }
+    },
+    "No Worker invocations recorded for %@ in the selected time range." : {
+
     },
     "No Workers Found" : {
       "extractionState" : "manual",
@@ -14267,10 +14285,10 @@
         }
       }
     },
-    "P50 (中位数)" : {
+    "P50 (Median)" : {
 
     },
-    "P99 (极端值)" : {
+    "P99" : {
 
     },
     "Page %lld of %lld" : {
@@ -14337,13 +14355,7 @@
     "Pages Analytics" : {
 
     },
-    "Pages Edge Full-Stack" : {
-
-    },
-    "Pages Functions Invocations (函数调用折线图)" : {
-
-    },
-    "Pages Performance & Health Summary" : {
+    "Pages Edge & Pipeline Summary" : {
 
     },
     "Pages Preview" : {
@@ -14494,6 +14506,9 @@
         }
       }
     },
+    "Path Filter (optional, e.g. /login)" : {
+
+    },
     "Path Prefix (Optional, e.g. /api)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14592,9 +14607,6 @@
           }
         }
       }
-    },
-    "Performance Summary" : {
-
     },
     "Phase" : {
       "extractionState" : "manual",
@@ -14874,9 +14886,6 @@
           }
         }
       }
-    },
-    "Preview PRs" : {
-
     },
     "Preview URL" : {
       "extractionState" : "manual",
@@ -16463,7 +16472,7 @@
         }
       }
     },
-    "Requests Traffic Trend (折线图)" : {
+    "Requests Traffic" : {
 
     },
     "Requests, bandwidth & threats" : {
@@ -16476,9 +16485,6 @@
           }
         }
       }
-    },
-    "Requests/Time" : {
-
     },
     "Require Face ID or Touch ID to unlock the app when returning from the background." : {
       "extractionState" : "manual",
@@ -18884,9 +18890,6 @@
         }
       }
     },
-    "Status Health" : {
-
-    },
     "Steering Policy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -19052,7 +19055,7 @@
         }
       }
     },
-    "Subrequest Amplification" : {
+    "Subrequest Ratio" : {
 
     },
     "Success" : {
@@ -19631,6 +19634,9 @@
         }
       }
     },
+    "Top Traffic Origins" : {
+
+    },
     "Total Requests" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -19663,6 +19669,9 @@
           }
         }
       }
+    },
+    "Total vs Cached" : {
+
     },
     "Trace" : {
       "extractionState" : "manual",
@@ -20456,9 +20465,6 @@
         }
       }
     },
-    "V8 Isolate CPU Latency (执行耗时折线图 ms)" : {
-
-    },
     "Valid Until" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20681,6 +20687,9 @@
           }
         }
       }
+    },
+    "Verify your identity to continue managing Cloudflare." : {
+
     },
     "View" : {
       "extractionState" : "manual",
@@ -21114,6 +21123,9 @@
         }
       }
     },
+    "Worker Performance Summary" : {
+
+    },
     "Worker script exported from Cloudns" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -21212,9 +21224,6 @@
           }
         }
       }
-    },
-    "Workers V8 Isolate" : {
-
     },
     "workers.dev disabled" : {
       "extractionState" : "manual",
@@ -21547,9 +21556,6 @@
       }
     },
     "Zone Analytics" : {
-
-    },
-    "Zone CDN & Traffic" : {
 
     },
     "Zone Status" : {

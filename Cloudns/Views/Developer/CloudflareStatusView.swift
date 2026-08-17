@@ -75,7 +75,7 @@ struct CloudflareStatusView: View {
                                 }
                                 
                                 if let updated = inc.updatedAt {
-                                    Text(String(updated.prefix(19)).replacingOccurrences(of: "T", with: " "))
+                                    Text(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }

@@ -13,6 +13,7 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
     
     init(zoneId: String) {
         self.zoneId = zoneId
+        super.init()
     }
     
     func fetchData() async {
@@ -36,13 +37,11 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
         
         do {
             _ = try await apiClient.createEmailRoutingRule(zoneId: zoneId, rule: ruleInput)
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
             await fetchData()
         } catch {
             self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
     
@@ -50,8 +49,7 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await apiClient.deleteEmailRoutingRule(zoneId: zoneId, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
         }

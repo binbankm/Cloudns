@@ -15,6 +15,13 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     @Published public var isLoading: Bool = false
     @Published public var hasFetchedData: Bool = false
     @Published public var errorMessage: String?
+    public var lastFetchTime: Date?
+    
+    /// 数据新鲜度判断：距离上次请求超过 180 秒（3 分钟）视为过期需要重新再验证
+    public var isStale: Bool {
+        guard let last = lastFetchTime else { return true }
+        return Date().timeIntervalSince(last) > 180
+    }
     
     public init() {}
     
@@ -30,6 +37,7 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         
         do {
             try await action()
+            self.lastFetchTime = Date()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -65,6 +73,7 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
             // 3. [Update] 更新数据并落盘
             onFresh(fresh)
             self.hasFetchedData = true
+            self.lastFetchTime = Date()
             self.errorMessage = nil
             await SWRCacheStore.shared.set(fresh, forKey: scopedKey)
         } catch {

@@ -11,6 +11,22 @@ public struct D1ColumnInfo: Identifiable, Equatable {
     public let isPrimaryKey: Bool
 }
 
+public struct D1TableRow: Identifiable, Equatable {
+    public let id: String
+    public let rowid: String?
+    public let values: [String: String]
+    
+    public init(index: Int, values: [String: String]) {
+        self.rowid = values["_rowid_"]
+        if let rid = values["_rowid_"], !rid.isEmpty {
+            self.id = "rowid_\(rid)"
+        } else {
+            self.id = "row_\(index)_\(abs(values.description.hashValue))"
+        }
+        self.values = values
+    }
+}
+
 @MainActor
 final class D1TableViewModel: BaseLoadableViewModel {
     let accountId: String
@@ -20,6 +36,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     
     @Published var columns: [D1ColumnInfo] = []
     @Published var rows: [[String: String]] = []
+    @Published var rowItems: [D1TableRow] = []
     @Published var totalRowCount: Int = 0
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 50
@@ -88,6 +105,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 sql: sql
             )
             self.rows = result.rows
+            self.rowItems = result.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
         } catch {
             // Fallback for WITHOUT ROWID tables
             let fallbackSql = "SELECT * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
@@ -97,6 +115,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 sql: fallbackSql
             ) {
                 self.rows = fallbackResult.rows
+                self.rowItems = fallbackResult.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
             } else {
                 self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             }
@@ -355,11 +374,12 @@ struct D1TableView: View {
     private var cardsView: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
+                ForEach(viewModel.rowItems) { item in
+                    let row = item.values
                     VStack(alignment: .leading, spacing: 10) {
                         // Card Header
                         HStack {
-                            Label("Row #\(row["_rowid_"] ?? "\(index + 1)")", systemImage: "number")
+                            Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                             
@@ -468,12 +488,13 @@ struct D1TableView: View {
                 Divider()
                 
                 // Data Rows
-                ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { index, row in
+                ForEach(Array(viewModel.rowItems.enumerated()), id: \.element.id) { index, item in
+                    let row = item.values
                     Button {
                         editorContext = .edit(row: row)
                     } label: {
                         HStack(spacing: 0) {
-                            Text(row["_rowid_"] ?? "\(index + 1)")
+                            Text(item.rowid ?? "\(index + 1)")
                                 .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                                 .frame(width: 50, alignment: .leading)

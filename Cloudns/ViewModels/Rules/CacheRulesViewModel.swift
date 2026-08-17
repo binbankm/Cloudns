@@ -12,6 +12,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
     
     init(zoneId: String) {
         self.zoneId = zoneId
+        super.init()
     }
     
     func fetchCacheRules() async {
@@ -43,8 +44,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             // Revert
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
@@ -52,8 +52,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
                 rules[index] = updatedRule
             }
             self.errorMessage = "Failed to update rule status: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
     
@@ -72,12 +71,10 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             try await apiClient.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete cache rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
     
@@ -111,12 +108,10 @@ class CacheRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to create cache rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
 }

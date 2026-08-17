@@ -3,9 +3,10 @@ import SwiftUI
 struct AddRateLimitingRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: RateLimitingViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var ruleName = ""
+    @State private var pathFilter = ""
     @State private var action = "block"
     
     @State private var period: Int = 10
@@ -16,7 +17,7 @@ struct AddRateLimitingRuleView: View {
     
     let actions = [
         ("Block", "block"),
-        ("Log", "log") // Rate limiting typically supports block and log
+        ("Log", "log")
     ]
     
     let periods = [
@@ -39,6 +40,9 @@ struct AddRateLimitingRuleView: View {
             Form {
                 Section(header: Text("Rule Details"), footer: Text("Protect your site from DDoS and brute force attacks.")) {
                     TextField("Rule Name (e.g. Protect login)", text: $ruleName)
+                    TextField("Path Filter (optional, e.g. /login)", text: $pathFilter)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
                 
                 Section(header: Text("Rate Limit Configuration")) {
@@ -79,7 +83,7 @@ struct AddRateLimitingRuleView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
@@ -118,10 +122,18 @@ struct AddRateLimitingRuleView: View {
             requests_per_period: requestCount
         )
         
+        let expr: String
+        let trimmedPath = pathFilter.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedPath.isEmpty {
+            expr = "http.request.uri.path contains \"\(trimmedPath)\""
+        } else {
+            expr = "true"
+        }
+        
         await viewModel.createRule(
             zoneId: zoneId,
             action: action,
-            expression: "true", // Rate limit rules usually apply to all traffic or a specific path. We'll use "true" for all traffic.
+            expression: expr,
             description: ruleName,
             enabled: true,
             ratelimit: ratelimit
@@ -129,7 +141,7 @@ struct AddRateLimitingRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }

@@ -62,6 +62,7 @@ enum DateFormatters {
     /// "yyyy-MM-dd" 日期格式化器
     nonisolated static let yearMonthDay: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         return formatter
@@ -70,6 +71,7 @@ enum DateFormatters {
     /// "yyyy-MM-dd HH:mm" 日期格式化器
     nonisolated static let yearMonthDayHourMinute: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
         return formatter
     }()
@@ -85,12 +87,27 @@ enum DateFormatters {
         }
     }
     
-    /// 将 ISO8601 字符串解析为 Date（优先尝试带微秒，其次尝试标准）
+    /// 将 ISO8601 字符串解析为 Date（优先尝试带微秒，其次尝试标准与无时区 UTC）
     nonisolated static func parseISO8601(_ string: String) -> Date? {
-        if let date = iso8601WithFractionalSeconds.date(from: string) {
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let date = iso8601WithFractionalSeconds.date(from: trimmed) {
             return date
         }
-        return iso8601.date(from: string)
+        if let date = iso8601.date(from: trimmed) {
+            return date
+        }
+        // Fallback for RFC3339 without T or non-standard format
+        let fallback = DateFormatter()
+        fallback.locale = Locale(identifier: "en_US_POSIX")
+        fallback.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        fallback.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        if let date = fallback.date(from: trimmed) { return date }
+        
+        fallback.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = fallback.date(from: trimmed) { return date }
+        
+        return nil
     }
     
     /// 将 ISO8601 字符串格式化为用户友好的展示文本
@@ -105,5 +122,14 @@ enum DateFormatters {
     nonisolated static func formatTimestampMs(_ timestampMs: Double) -> String {
         let date = Date(timeIntervalSince1970: timestampMs / 1000.0)
         return logTime.string(from: date)
+    }
+    
+    /// 将日期格式化为本地时区的诊断日志时间字符串（如 "2026-08-17 18:42:38 (GMT+8)"）
+    nonisolated static func formatLocalDiagnosticTimestamp(_ date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss (zzz)"
+        return formatter.string(from: date)
     }
 }

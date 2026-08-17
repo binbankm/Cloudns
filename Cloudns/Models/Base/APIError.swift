@@ -15,7 +15,7 @@ enum APIError: Error, LocalizedError {
         case .networkError(let error):
             return "Network Error: \(error.localizedDescription)"
         case .unauthorized:
-            return "Unauthorized. Please check your Global API Key and Email."
+            return "Authentication failed. Please verify your Cloudflare Global API Key and Email in Settings."
         case .invalidResponse:
             return "Invalid response from Cloudflare."
         case .decodingError(let error):
@@ -25,8 +25,8 @@ enum APIError: Error, LocalizedError {
         }
     }
     
-    /// 便捷构造器，预先解析原始错误响应
-    static func fromCloudflareResponse(data: Data, defaultMessage: String = "API Request Failed") -> APIError {
+    /// 便捷构造器，预先解析原始错误响应（支持 JSON 与 HTML 容错提取）
+    static func fromCloudflareResponse(data: Data, statusCode: Int? = nil, defaultMessage: String = "API Request Failed") -> APIError {
         struct CFErrorResponse: Codable {
             struct ErrorItem: Codable {
                 let code: Int?
@@ -50,14 +50,42 @@ enum APIError: Error, LocalizedError {
             }
         }
         
-        if let bodyString = String(data: data, encoding: .utf8), !bodyString.isEmpty {
-            return .cloudflareError(bodyString)
+        if let bodyString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines), !bodyString.isEmpty {
+            // Check if response is HTML
+            if bodyString.hasPrefix("<!DOCTYPE") || bodyString.lowercased().contains("<html") {
+                if let status = statusCode {
+                    return .cloudflareError("Cloudflare Gateway Error (HTTP \(status))")
+                } else if bodyString.contains("<title>") && bodyString.contains("</title>") {
+                    if let start = bodyString.range(of: "<title>"),
+                       let end = bodyString.range(of: "</title>", range: start.upperBound..<bodyString.endIndex) {
+                        let title = String(bodyString[start.upperBound..<end.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !title.isEmpty {
+                            return .cloudflareError(title)
+                        }
+                    }
+                }
+                return .cloudflareError(defaultMessage)
+            }
+            
+            // Clean up if short text
+            if bodyString.count <= 250 {
+                return .cloudflareError(bodyString)
+            } else {
+                return .cloudflareError(String(bodyString.prefix(250)) + "...")
+            }
+        }
+        
+        if let status = statusCode {
+            return .cloudflareError("\(defaultMessage) (HTTP \(status))")
         }
         return .cloudflareError(defaultMessage)
     }
     
     static func formatCloudflareError(_ rawMessage: String) -> String {
         guard let data = rawMessage.data(using: .utf8) else {
+            if rawMessage.hasPrefix("<!DOCTYPE") || rawMessage.lowercased().contains("<html") {
+                return "Cloudflare Gateway Error"
+            }
             return rawMessage
         }
         
@@ -82,6 +110,10 @@ enum APIError: Error, LocalizedError {
             if !messages.isEmpty {
                 return messages.joined(separator: "\n")
             }
+        }
+        
+        if rawMessage.hasPrefix("<!DOCTYPE") || rawMessage.lowercased().contains("<html") {
+            return "Cloudflare Gateway Error"
         }
         
         return rawMessage

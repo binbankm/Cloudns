@@ -97,7 +97,7 @@ struct AuditLogRowView: View {
             }
             
             if let when = log.when {
-                Text(String(when.prefix(19)).replacingOccurrences(of: "T", with: " "))
+                Text(DateFormatters.formatISO8601ToDisplay(when, style: DateFormatters.mediumDateTime))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

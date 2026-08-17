@@ -44,9 +44,27 @@ class AnalyticsViewModel: BaseLoadableViewModel {
             let result = try await self.apiClient.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
             if let zones = result.viewer.zones, let zone = zones.first {
                 let groups = zone.httpRequests1dGroups ?? zone.httpRequests1hGroups ?? []
-                let countryGroups = zone.trafficByCountry1d ?? zone.trafficByCountry1h ?? []
                 self.dataPoints = groups
-                self.mapDataPoints = countryGroups
+                
+                // Aggregate countryMap across all time buckets
+                var countryAgg: [String: Int] = [:]
+                for group in groups {
+                    if let entries = group.sum.countryMap {
+                        for entry in entries {
+                            if let code = entry.clientCountryName, let reqs = entry.requests, reqs > 0 {
+                                countryAgg[code, default: 0] += reqs
+                            }
+                        }
+                    }
+                }
+                
+                self.mapDataPoints = countryAgg.map { (code, count) in
+                    CountryDataPoint(
+                        dimensions: CountryDimensions(clientCountryName: code),
+                        count: count,
+                        sum: CountrySum(requests: count)
+                    )
+                }.sorted { ($0.count ?? 0) > ($1.count ?? 0) }
             } else {
                 self.dataPoints = []
                 self.mapDataPoints = []

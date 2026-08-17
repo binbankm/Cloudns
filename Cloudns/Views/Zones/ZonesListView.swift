@@ -116,8 +116,16 @@ struct ZonesListView: View {
         .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+            Task { await viewModel.fetchZones(isRefresh: true) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in
+            if viewModel.isStale {
+                Task { await viewModel.fetchZones(isRefresh: true) }
+            }
+        }
         .task {
-            if !viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData || viewModel.isStale {
                 await viewModel.fetchZones()
             }
         }

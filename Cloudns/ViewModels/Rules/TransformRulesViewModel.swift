@@ -18,6 +18,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
     
     init(zoneId: String) {
         self.zoneId = zoneId
+        super.init()
     }
     
     func fetchTransformRules() async {
@@ -48,8 +49,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
                 let updatedRule = WAFRule(id: rule.id, action: rule.action, expression: rule.expression, description: rule.description, enabled: rule.enabled, ratelimit: rule.ratelimit, action_parameters: rule.action_parameters)
@@ -77,8 +77,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             try await apiClient.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete transform rule: \(error.localizedDescription)"
         }
@@ -118,8 +117,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
             return true
         } catch {
             self.errorMessage = "Failed to create rewrite rule: \(error.localizedDescription)"
@@ -132,7 +130,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         let headerTransform = HeaderTransform(operation: operation, value: operation == "set" ? value : nil, expression: nil)
         params.headers = [headerName: headerTransform]
         
-        let action = (phase == "http_response_headers_transform") ? "set_cache_settings" : "rewrite"
+        let action = "rewrite"
         
         do {
             let updatedRuleset: Ruleset
@@ -163,8 +161,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
             return true
         } catch {
             self.errorMessage = "Failed to create header rule: \(error.localizedDescription)"

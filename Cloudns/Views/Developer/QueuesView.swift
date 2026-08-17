@@ -137,7 +137,7 @@ struct QueuesView: View {
                     .foregroundStyle(.primary)
                 
                 if let created = queue.createdOn {
-                    Text("Created: \(String(created.prefix(10)))")
+                    Text("Created: \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

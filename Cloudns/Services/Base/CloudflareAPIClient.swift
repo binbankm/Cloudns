@@ -551,6 +551,10 @@ class CloudflareAPIClient {
         try await analyticsService.getWorkerAnalytics(accountId: accountId, scriptName: scriptName, days: days)
     }
     
+    func getPagesAnalytics(accountId: String, projectName: String, days: Int = 1) async throws -> [WorkerAnalyticsItem] {
+        try await analyticsService.getPagesAnalytics(accountId: accountId, projectName: projectName, days: days)
+    }
+    
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult {
         guard let url = URL(string: urlString) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)

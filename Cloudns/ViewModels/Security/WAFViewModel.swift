@@ -41,16 +41,14 @@ class WAFViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
                 rules[index] = rule
             }
             self.errorMessage = "Failed to update WAF rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
     
@@ -65,12 +63,10 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
     
@@ -100,12 +96,10 @@ class WAFViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
-            let impact = UINotificationFeedbackGenerator()
-            impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
 }

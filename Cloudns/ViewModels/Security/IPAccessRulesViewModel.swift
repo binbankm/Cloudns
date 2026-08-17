@@ -39,16 +39,14 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
             // Insert at the top
             self.rules.insert(newRule, at: 0)
             
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
             
             isCreating = false
             return true
         } catch {
             self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
             
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
             
             isCreating = false
             return false
@@ -62,13 +60,11 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
             // Remove from local list
             self.rules.removeAll { $0.id == ruleId }
             
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.success)
+            HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
             
-            let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.error)
+            HapticManager.notification(.error)
         }
     }
 }

@@ -75,8 +75,7 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
     }
     
     private func updateSetting(zoneId: String, settingId: String, value: Bool, onSuccess: (() -> Void)? = nil) async {
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+        HapticManager.impact(.medium)
         
         do {
             try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: .string(value ? "on" : "off"))

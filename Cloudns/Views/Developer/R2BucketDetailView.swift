@@ -24,7 +24,7 @@ struct R2BucketDetailView: View {
                             .foregroundStyle(.secondary)
                         Spacer()
                         if let created = bucket.creationDate {
-                            Text(String(created.prefix(10)))
+                            Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
                                 .font(.body.monospacedDigit())
                         }
                     }
@@ -332,7 +332,7 @@ struct R2ObjectDetailSheetView: View {
                             Text("Uploaded")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(String(uploaded.prefix(19)).replacingOccurrences(of: "T", with: " "))
+                            Text(DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.mediumDateTime))
                                 .font(.body.monospacedDigit())
                                 .foregroundStyle(.primary)
                         }
@@ -409,7 +409,7 @@ struct R2ObjectRowView: View {
                         .foregroundStyle(.secondary)
                     
                     if let up = object.uploaded {
-                        Text(String(up.prefix(10)))
+                        Text(DateFormatters.formatISO8601ToDisplay(up, style: DateFormatters.dateOnly))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

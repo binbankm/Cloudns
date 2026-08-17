@@ -92,8 +92,7 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
     
     func deleteRecords(withIds ids: Set<String>) {
         guard !ids.isEmpty else { return }
-        let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.warning)
+        HapticManager.notification(.warning)
         
         records.removeAll { ids.contains($0.id) }
         totalCount = max(0, totalCount - ids.count)
@@ -111,9 +110,7 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
     func deleteRecord(at offsets: IndexSet) {
         let recordsToDelete = offsets.map { records[$0] }
         
-        // impact
-        let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.warning)
+        HapticManager.notification(.warning)
         
         records.remove(atOffsets: offsets)
         
@@ -121,17 +118,10 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
             do {
                 let idsToDelete = recordsToDelete.map { $0.id }
                 try await CloudflareAPIClient.shared.batchDNSRecords(zoneId: zoneId, deletes: idsToDelete)
-                DispatchQueue.main.async {
-                    self.totalCount = max(0, self.totalCount - idsToDelete.count)
-                }
+                self.totalCount = max(0, self.totalCount - idsToDelete.count)
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Failed to batch delete records: \(error.localizedDescription)"
-                    // Re-fetch to restore correct state
-                    Task {
-                        await self.fetchRecords(isRefresh: true)
-                    }
-                }
+                self.errorMessage = "Failed to batch delete records: \(error.localizedDescription)"
+                await self.fetchRecords(isRefresh: true)
             }
         }
     }
@@ -150,8 +140,7 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
     }
     
     func deleteRecord(recordId: String) async throws {
-        let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.warning)
+        HapticManager.notification(.warning)
         try await CloudflareAPIClient.shared.deleteDNSRecord(zoneId: zoneId, recordId: recordId)
         self.records.removeAll { $0.id == recordId }
         self.totalCount = max(0, self.totalCount - 1)

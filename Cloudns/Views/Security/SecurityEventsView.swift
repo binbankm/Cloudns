@@ -140,14 +140,7 @@ struct SecurityEventCardView: View {
     }
     
     private func countryFlag(countryCode: String) -> String {
-        let base: UInt32 = 127397
-        var s = ""
-        for v in countryCode.unicodeScalars {
-            if let scalar = UnicodeScalar(base + v.value) {
-                s.unicodeScalars.append(scalar)
-            }
-        }
-        return s
+        CountryCoordinates.flag(for: countryCode)
     }
     
     private func formatDate(_ isoString: String) -> String {

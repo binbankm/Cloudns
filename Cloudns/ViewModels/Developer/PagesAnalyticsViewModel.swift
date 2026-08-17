@@ -57,14 +57,19 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     
     private func fetchFunctionsMetrics() async {
         do {
-            let items = try await self.apiClient.getWorkerAnalytics(
+            let items = try await self.apiClient.getPagesAnalytics(
                 accountId: self.accountId,
-                scriptName: self.projectName,
+                projectName: self.projectName,
                 days: self.selectedDays
             )
             self.processAnalytics(items)
         } catch {
-            self.generateFallbackData()
+            self.dataPoints = []
+            self.totalRequests = 0
+            self.totalErrors = 0
+            self.totalSubrequests = 0
+            self.avgCpuP50 = 0
+            self.maxCpuP99 = 0
         }
     }
     
@@ -95,9 +100,10 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             self.previewDeploymentsCount = prevCount
             self.deploymentSuccessRate = deps.isEmpty ? 100.0 : (Double(successCount) / Double(deps.count)) * 100.0
         } catch {
-            self.productionDeploymentsCount = 8
-            self.previewDeploymentsCount = 14
-            self.deploymentSuccessRate = 95.5
+            self.deployments = []
+            self.productionDeploymentsCount = 0
+            self.previewDeploymentsCount = 0
+            self.deploymentSuccessRate = 0.0
         }
     }
     
@@ -106,7 +112,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             let doms = try await self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.projectName)
             self.customDomainsCount = doms.count
         } catch {
-            self.customDomainsCount = 1
+            self.customDomainsCount = 0
         }
     }
     
@@ -120,44 +126,48 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         var allCpu99: [Double] = []
         
         for item in items {
-            guard let dt = item.dimensions.datetime else { continue }
+            guard let dt = item.dimensions.datetimeHour ?? item.dimensions.datetime ?? item.dimensions.date else { continue }
             let req = item.sum?.requests ?? 0
             let err = item.sum?.errors ?? 0
             let sub = item.sum?.subrequests ?? 0
-            let p50 = item.quantiles?.cpuTimeP50 ?? 0
-            let p99 = item.quantiles?.cpuTimeP99 ?? 0
+            
+            // Cloudflare GraphQL quantiles: cpuTime is in microseconds (µs) if > 50, otherwise ms
+            var rawP50 = item.quantiles?.cpuTimeP50 ?? 0
+            var rawP99 = item.quantiles?.cpuTimeP99 ?? 0
+            if rawP50 > 50 { rawP50 /= 1000.0 }
+            if rawP99 > 50 { rawP99 /= 1000.0 }
             
             totReq += req
             totErr += err
             totSub += sub
-            if p50 > 0 { allCpu50.append(p50) }
-            if p99 > 0 { allCpu99.append(p99) }
+            if rawP50 > 0 { allCpu50.append(rawP50) }
+            if rawP99 > 0 { allCpu99.append(rawP99) }
             
             if var existing = pointsMap[dt] {
                 existing.requests += req
                 existing.errors += err
                 existing.subrequests += sub
-                if p50 > 0 { existing.cpu50.append(p50) }
-                if p99 > 0 { existing.cpu99.append(p99) }
+                if rawP50 > 0 { existing.cpu50.append(rawP50) }
+                if rawP99 > 0 { existing.cpu99.append(rawP99) }
                 pointsMap[dt] = existing
             } else {
-                pointsMap[dt] = (req, err, sub, p50 > 0 ? [p50] : [], p99 > 0 ? [p99] : [])
+                pointsMap[dt] = (req, err, sub, rawP50 > 0 ? [rawP50] : [], rawP99 > 0 ? [rawP99] : [])
             }
         }
         
         self.totalRequests = totReq
         self.totalErrors = totErr
         self.totalSubrequests = totSub
-        self.avgCpuP50 = allCpu50.isEmpty ? 0.75 : (allCpu50.reduce(0, +) / Double(allCpu50.count))
-        self.maxCpuP99 = allCpu99.max() ?? (self.avgCpuP50 * 2.2)
+        self.avgCpuP50 = allCpu50.isEmpty ? 0 : (allCpu50.reduce(0, +) / Double(allCpu50.count))
+        self.maxCpuP99 = allCpu99.max() ?? 0
         
         let sortedKeys = pointsMap.keys.sorted()
         var points: [AggregatedWorkerDataPoint] = []
         for key in sortedKeys {
             if let entry = pointsMap[key] {
-                let parsedDate = DateFormatters.parseISO8601(key) ?? Date()
-                let avg50 = entry.cpu50.isEmpty ? 0.5 : (entry.cpu50.reduce(0, +) / Double(entry.cpu50.count))
-                let avg99 = entry.cpu99.isEmpty ? (avg50 * 2.0) : (entry.cpu99.reduce(0, +) / Double(entry.cpu99.count))
+                let parsedDate = DateFormatters.parseChartDate(key)
+                let avg50 = entry.cpu50.isEmpty ? 0 : (entry.cpu50.reduce(0, +) / Double(entry.cpu50.count))
+                let avg99 = entry.cpu99.isEmpty ? 0 : (entry.cpu99.reduce(0, +) / Double(entry.cpu99.count))
                 points.append(AggregatedWorkerDataPoint(
                     timestamp: key,
                     date: parsedDate,
@@ -170,57 +180,6 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             }
         }
         
-        if points.isEmpty {
-            generateFallbackData()
-        } else {
-            self.dataPoints = points
-        }
-    }
-    
-    private func generateFallbackData() {
-        let count = selectedDays == 1 ? 24 : (selectedDays == 7 ? 14 : 30)
-        let now = Date()
-        var points: [AggregatedWorkerDataPoint] = []
-        
-        var totReq = 0
-        var totErr = 0
-        var totSub = 0
-        
-        for i in 0..<count {
-            let offset = count - 1 - i
-            let dt: Date
-            if selectedDays == 1 {
-                dt = Calendar.current.date(byAdding: .hour, value: -offset, to: now) ?? now
-            } else {
-                dt = Calendar.current.date(byAdding: .day, value: -offset, to: now) ?? now
-            }
-            let iso = DateFormatters.iso8601.string(from: dt)
-            let baseReq = Int.random(in: 80...450)
-            let err = Double.random(in: 0...1) > 0.85 ? Int.random(in: 1...3) : 0
-            let sub = Int(Double(baseReq) * 0.35)
-            let cpu50 = Double.random(in: 0.5...1.4)
-            let cpu99 = cpu50 * Double.random(in: 1.8...3.5)
-            
-            totReq += baseReq
-            totErr += err
-            totSub += sub
-            
-            points.append(AggregatedWorkerDataPoint(
-                timestamp: iso,
-                date: dt,
-                requests: baseReq,
-                errors: err,
-                subrequests: sub,
-                cpuP50: cpu50,
-                cpuP99: cpu99
-            ))
-        }
-        
-        self.totalRequests = totReq
-        self.totalErrors = totErr
-        self.totalSubrequests = totSub
-        self.avgCpuP50 = 0.95
-        self.maxCpuP99 = 3.65
         self.dataPoints = points
     }
 }

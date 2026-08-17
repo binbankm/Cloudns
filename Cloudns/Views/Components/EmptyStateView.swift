@@ -167,14 +167,17 @@ public struct StateOverlayView: View {
     }
     
     public var body: some View {
-        switch state {
-        case .search(let query, let clearAction):
-            searchView(query: query, clearAction: clearAction)
-        case .error(let title, let message, let retryAction):
-            errorView(title: title, message: message, retryAction: retryAction)
-        case .empty(let icon, let title, let message, let actionTitle, let action):
-            emptyView(icon: icon, title: title, message: message, actionTitle: actionTitle, action: action)
+        Group {
+            switch state {
+            case .search(let query, let clearAction):
+                searchView(query: query, clearAction: clearAction)
+            case .error(let title, let message, let retryAction):
+                errorView(title: title, message: message, retryAction: retryAction)
+            case .empty(let icon, let title, let message, let actionTitle, let action):
+                emptyView(icon: icon, title: title, message: message, actionTitle: actionTitle, action: action)
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
     
     @ViewBuilder

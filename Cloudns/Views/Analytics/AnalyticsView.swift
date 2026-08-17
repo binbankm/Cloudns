@@ -15,41 +15,13 @@ public struct AnalyticsView: View {
     }
     
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // 1. Unified Header & Time Range Picker Bar
-                headerBar
-                
-                if viewModel.hasFetchedData && !viewModel.dataPoints.isEmpty {
-                    // 2. 4 Key Metrics Cards Grid
-                    metricsGrid
-                    
-                    // 3. Requests 折线图 (Line Chart with Points & Gradient Area)
-                    requestsLineChartCard
-                    
-                    // 4. Bandwidth 柱状图 (Bar Chart)
-                    bandwidthBarChartCard
-                    
-                    // 5. Traffic by Country Map Section
-                    if !viewModel.mapDataPoints.isEmpty {
-                        trafficMapCard
-                    }
-                    
-                    // 6. CDN Origin Savings Summary Card
-                    insightsCard
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .centerConstrainedWidth(maxWidth: 840)
-        }
-        .background(Color(.systemGroupedBackground))
-        .overlay {
+        Group {
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.dataPoints.isEmpty {
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+                if let errorMessage = viewModel.errorMessage {
                     StateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
@@ -58,17 +30,46 @@ public struct AnalyticsView: View {
                             }
                         )
                     )
-                } else if viewModel.dataPoints.isEmpty {
+                } else {
                     StateOverlayView(
                         state: .empty(
                             icon: "chart.xyaxis.line",
-                            title: "No Analytics Data",
-                            message: "Traffic metrics for the selected time range are currently unavailable."
+                            title: "No Traffic Data",
+                            message: "No HTTP requests recorded for \(zoneName) in the selected time range."
                         )
                     )
                 }
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 1. Unified Header & Time Range Picker Bar
+                        headerBar
+                        
+                        // 2. 4 Key Metrics Cards Grid
+                        metricsGrid
+                        
+                        // 3. Requests 折线图 (Line Chart with Gradient Area)
+                        requestsLineChartCard
+                        
+                        // 4. Bandwidth 柱状图 (Bar Chart)
+                        bandwidthBarChartCard
+                        
+                        // 5. Traffic by Country Map Section
+                        if !viewModel.mapDataPoints.isEmpty {
+                            trafficMapCard
+                        }
+                        
+                        // 6. CDN Origin Savings Summary Card
+                        insightsCard
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
+                    .centerConstrainedWidth(maxWidth: 840)
+                }
             }
         }
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Zone Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -83,27 +84,18 @@ public struct AnalyticsView: View {
     
     // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Image(systemName: "globe.americas.fill")
-                        .foregroundStyle(.blue)
-                        .font(.headline)
-                    Text(zoneName)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                }
-                
-                Text("Zone CDN & Traffic")
-                    .font(.caption2.monospaced())
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.blue.opacity(0.12))
-                    .foregroundStyle(.blue)
-                    .clipShape(Capsule())
-            }
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: "globe")
+                .foregroundStyle(.blue)
+                .font(.title3)
             
-            Spacer()
+            Text(zoneName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            
+            Spacer(minLength: 6)
             
             Picker("Range", selection: $timeRange) {
                 Text("24H").tag(1)
@@ -111,7 +103,7 @@ public struct AnalyticsView: View {
                 Text("30D").tag(30)
             }
             .pickerStyle(.segmented)
-            .frame(width: 160)
+            .frame(width: 145)
             .onChange(of: timeRange) { newValue in
                 HapticManager.impact(.light)
                 Task {
@@ -121,7 +113,7 @@ public struct AnalyticsView: View {
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 2. Key Metrics Grid
@@ -132,7 +124,7 @@ public struct AnalyticsView: View {
                 value: formatNumber(viewModel.totalRequests),
                 icon: "globe",
                 color: .blue,
-                badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) transferred"
+                badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Data Transferred"
             )
             
             metricCard(
@@ -140,54 +132,54 @@ public struct AnalyticsView: View {
                 value: formatNumber(viewModel.totalCachedRequests),
                 icon: "bolt.fill",
                 color: .orange,
-                badge: String(format: "%.1f%% Cache Hit", viewModel.cachedRatio * 100)
+                badge: String(format: "%.1f%% Cache Rate", viewModel.cachedRatio * 100)
             )
             
             metricCard(
-                title: "Cache Efficiency",
+                title: "Cache Hit Ratio",
                 value: String(format: "%.1f%%", viewModel.cachedRatio * 100),
                 icon: "chart.pie.fill",
                 color: .green,
-                badge: "Edge Optimized"
+                badge: "Edge Served"
             )
             
             metricCard(
-                title: "Total Bandwidth",
+                title: "Data Transferred",
                 value: viewModel.formatBytes(viewModel.totalBandwidthBytes),
                 icon: "arrow.up.arrow.down",
                 color: .purple,
-                badge: "\(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes)) saved"
+                badge: "\(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes)) Saved by Cache"
             )
         }
     }
     
     private func metricCard(title: String, value: String, icon: String, color: Color, badge: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: icon)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(color)
                 Text(title)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
             }
             
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
             
             Text(badge)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(color.opacity(0.12))
-                .foregroundStyle(color)
-                .clipShape(Capsule())
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     // MARK: - 3. Requests 折线图 (Line Chart)
@@ -197,19 +189,21 @@ public struct AnalyticsView: View {
                 Image(systemName: "chart.xyaxis.line")
                     .font(.subheadline)
                     .foregroundStyle(.blue)
-                Text("Requests Traffic Trend (折线图)")
+                Text("Requests Traffic")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("Requests/Time")
+                Text("Total vs Cached")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             
             Chart {
                 ForEach(viewModel.dataPoints) { point in
+                    let ptDate = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
+                    
                     AreaMark(
-                        x: .value("Date", dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")),
+                        x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
                     .foregroundStyle(
@@ -222,13 +216,11 @@ public struct AnalyticsView: View {
                     .interpolationMethod(.catmullRom)
                     
                     LineMark(
-                        x: .value("Date", dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")),
+                        x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
                     .foregroundStyle(Color.blue)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .symbol(Circle().strokeBorder(lineWidth: 1.5))
-                    .symbolSize(32)
                     .interpolationMethod(.catmullRom)
                 }
             }
@@ -266,19 +258,20 @@ public struct AnalyticsView: View {
                 Image(systemName: "chart.bar.fill")
                     .font(.subheadline)
                     .foregroundStyle(.purple)
-                Text("Bandwidth Transfer Volume (柱状图)")
+                Text("Bandwidth")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("Bytes/Time")
+                Text("Data Transferred over Time")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             
             Chart {
                 ForEach(viewModel.dataPoints) { point in
+                    let ptDate = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
                     BarMark(
-                        x: .value("Date", dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")),
+                        x: .value("Date", ptDate),
                         y: .value("Bytes", point.sum.bytes)
                     )
                     .foregroundStyle(Color.purple)
@@ -316,12 +309,21 @@ public struct AnalyticsView: View {
         DateFormatters.parseChartDate(dateString)
     }
     
-    // MARK: - 5. Map Component Card
+    // MARK: - 5. Traffic by Country Map
     private var trafficMapCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Global Traffic by Country", systemImage: "map.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.blue)
+            HStack {
+                Image(systemName: "map.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+                Text("Traffic by Country / Region")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text("Top Traffic Origins")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
             
             trafficMapView
                 .frame(height: 260)
@@ -342,13 +344,14 @@ public struct AnalyticsView: View {
     }
     
     private var mapAnnotations: [MapAnnotationItem] {
-        guard let maxRequests = viewModel.mapDataPoints.map({ $0.count }).max(), maxRequests > 0 else { return [] }
+        guard let maxRequests = viewModel.mapDataPoints.map({ $0.requestsCount }).max(), maxRequests > 0 else { return [] }
         return viewModel.mapDataPoints.compactMap { point in
             guard let code = point.dimensions.clientCountryName,
                   let coordinate = CountryCoordinates.map[code] else { return nil }
-            let ratio = Double(point.count) / Double(maxRequests)
+            let requests = point.requestsCount
+            let ratio = Double(requests) / Double(maxRequests)
             let size = 12.0
-            return MapAnnotationItem(countryCode: code, coordinate: coordinate, size: size, requests: point.count, ratio: ratio)
+            return MapAnnotationItem(countryCode: code, coordinate: coordinate, size: size, requests: requests, ratio: ratio)
         }
     }
     
@@ -416,7 +419,7 @@ public struct AnalyticsView: View {
     // MARK: - 6. Performance Insights Card
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("CDN Cache & Origin Savings", systemImage: "sparkles")
+            Label("Edge Caching Savings", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.blue)
             
@@ -432,7 +435,7 @@ public struct AnalyticsView: View {
             Divider()
             
             HStack {
-                Text("Edge Hit Ratio")
+                Text("Edge Cache Ratio")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -443,7 +446,7 @@ public struct AnalyticsView: View {
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
     private func formatNumber(_ num: Int) -> String {

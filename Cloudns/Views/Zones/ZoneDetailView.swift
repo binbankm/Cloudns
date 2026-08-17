@@ -359,6 +359,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isUnderAttack)
                         .labelsHidden()
                         .onChange(of: isUnderAttack) { val in
+                            guard hasFetchedData && !isLoading && !updatingAttack else { return }
                             HapticManager.impact(.light)
                             Task { await setUnderAttack(val) }
                         }
@@ -392,6 +393,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isDevMode)
                         .labelsHidden()
                         .onChange(of: isDevMode) { val in
+                            guard hasFetchedData && !isLoading && !updatingDev else { return }
                             HapticManager.impact(.light)
                             Task { await setDevMode(val) }
                         }
@@ -425,6 +427,7 @@ private struct QuickControlsSection: View {
                     Toggle("", isOn: $isPaused)
                         .labelsHidden()
                         .onChange(of: isPaused) { val in
+                            guard hasFetchedData && !isLoading && !updatingPause else { return }
                             HapticManager.impact(.light)
                             Task { await setPaused(val) }
                         }
