@@ -8,6 +8,7 @@ struct TunnelDetailView: View {
     
     @State private var showingAddIngressSheet = false
     @State private var showingDeleteAlert = false
+    @State private var isTokenRevealed = false
     
     init(accountId: String, tunnel: CFTunnel) {
         self.accountId = accountId
@@ -86,31 +87,58 @@ struct TunnelDetailView: View {
             }
             
             // Section: Connector Token / Install Command
-            if let token = viewModel.token, !token.isEmpty {
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Connector Token")) {
+                    HStack {
+                        Image(systemName: "terminal")
+                            .foregroundStyle(.blue)
+                        Text("cloudflared tunnel run --token ••••••••••••••••••••••••")
+                            .font(.caption.monospaced())
+                        Spacer()
+                    }
+                    .skeletonLoading(true)
+                }
+            } else if let token = viewModel.token, !token.isEmpty {
                 Section(
                     header: Text("Connector Token"),
                     footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
                 ) {
-                    Button {
-                        let cmd = "cloudflared tunnel run --token \(token)"
-                        UIPasteboard.general.string = cmd
-                        HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Install command copied")
-                    } label: {
-                        HStack {
-                            Image(systemName: "terminal")
-                                .foregroundStyle(.blue)
-                                .accessibilityHidden(true)
-                            Text("cloudflared tunnel run --token ...")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                            Spacer()
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                                .accessibilityHidden(true)
+                    HStack {
+                        Button {
+                            let cmd = "cloudflared tunnel run --token \(token)"
+                            UIPasteboard.general.string = cmd
+                            HapticManager.notification(.success)
+                            ToastManager.shared.showCopied("Install command copied")
+                        } label: {
+                            HStack {
+                                Image(systemName: "terminal")
+                                    .foregroundStyle(.blue)
+                                    .accessibilityHidden(true)
+                                Text(isTokenRevealed ? "cloudflared tunnel run --token \(token)" : "cloudflared tunnel run --token ••••••••")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(isTokenRevealed ? 3 : 1)
+                                Spacer()
+                                Image(systemName: "doc.on.doc")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                                    .accessibilityHidden(true)
+                            }
                         }
+                        
+                        Button {
+                            HapticManager.impact(.light)
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isTokenRevealed.toggle()
+                            }
+                        } label: {
+                            Image(systemName: isTokenRevealed ? "eye.slash" : "eye")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 28, height: 28)
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(isTokenRevealed ? "Hide token" : "Reveal token")
                     }
                 }
             }
@@ -128,7 +156,26 @@ struct TunnelDetailView: View {
                 },
                 footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
             ) {
-                if viewModel.ingressRules.isEmpty {
+                if !viewModel.hasFetchedData {
+                    ForEach(0..<2, id: \.self) { idx in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Image(systemName: "globe")
+                                    .foregroundStyle(.blue)
+                                Text("app\(idx + 1).example.com")
+                                    .font(.body.weight(.medium))
+                            }
+                            HStack {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text("http://localhost:\(8080 + idx)")
+                                    .font(.caption.monospaced())
+                            }
+                        }
+                        .padding(.vertical, 3)
+                    }
+                    .skeletonLoading(true)
+                } else if viewModel.ingressRules.isEmpty {
                     Text("No public ingress hostnames configured.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -253,44 +300,57 @@ struct AddIngressRuleSheetView: View {
     @State private var path = ""
     @State private var serviceURL = "http://localhost:8080"
     @State private var isSaving = false
+    @FocusState private var focusedField: String?
     
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Public Hostname"), footer: Text("Public domain or subdomain to route traffic from (e.g. app.my-domain.com).")) {
                     TextField("app.domain.com", text: $hostname)
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "hostname")
                     TextField("Path Prefix (Optional, e.g. /api)", text: $path)
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "path")
+                        .onSubmit { focusedField = "service" }
                 }
                 
                 Section(header: Text("Target Service"), footer: Text("Address of your local service (e.g. http://localhost:8080, tcp://localhost:22, or http_status:404).")) {
                     TextField("http://localhost:8080", text: $serviceURL)
+                        .keyboardType(.URL)
+                        .submitLabel(.done)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .focused($focusedField, equals: "serviceURL")
                 }
             }
-            .navigationTitle("Add Hostname Rule")
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
+            .navigationTitle("New Hostname Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             isSaving = true
                             let cleanHost = hostname.trimmingCharacters(in: .whitespaces)
                             let cleanPath = path.trimmingCharacters(in: .whitespaces)
                             let cleanSvc = serviceURL.trimmingCharacters(in: .whitespaces)
                             let success = await viewModel.addIngressRule(hostname: cleanHost, path: cleanPath.isEmpty ? nil : cleanPath, service: cleanSvc)
+                            isSaving = false
                             if success {
-                                HapticManager.impact(.medium)
                                 dismiss()
                             }
-                            isSaving = false
                         }
                     }
                     .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || serviceURL.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)

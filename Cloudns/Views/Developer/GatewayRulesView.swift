@@ -14,7 +14,15 @@ struct GatewayRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredRules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Security Rules")) {
+                    ForEach(GatewayRule.placeholders) { placeholder in
+                        ruleRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
@@ -48,10 +56,7 @@ struct GatewayRulesView: View {
             await viewModel.fetchRules()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(

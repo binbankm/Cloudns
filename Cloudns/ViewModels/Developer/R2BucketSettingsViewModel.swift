@@ -6,24 +6,25 @@ import Combine
 final class R2BucketSettingsViewModel: BaseLoadableViewModel {
     let accountId: String
     let bucketName: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let r2Service: R2ServiceProtocol
     
     @Published var managedDomain: R2ManagedDomain?
     @Published var customDomains: [R2CustomDomain] = []
     @Published var corsRules: [R2CORSRule] = []
     @Published var isManagedDomainEnabled: Bool = false
     
-    init(accountId: String, bucketName: String) {
+    init(accountId: String, bucketName: String, r2Service: R2ServiceProtocol = R2Service.shared) {
         self.accountId = accountId
         self.bucketName = bucketName
+        self.r2Service = r2Service
         super.init()
     }
     
     func fetchSettings() async {
         await executeLoadingTask {
-            async let fetchManaged = self.apiClient.getR2ManagedDomain(accountId: self.accountId, bucketName: self.bucketName)
-            async let fetchCustom = self.apiClient.getR2CustomDomains(accountId: self.accountId, bucketName: self.bucketName)
-            async let fetchCORS = self.apiClient.getR2CORS(accountId: self.accountId, bucketName: self.bucketName)
+            async let fetchManaged = self.r2Service.getR2ManagedDomain(accountId: self.accountId, bucketName: self.bucketName)
+            async let fetchCustom = self.r2Service.getR2CustomDomains(accountId: self.accountId, bucketName: self.bucketName)
+            async let fetchCORS = self.r2Service.getR2CORS(accountId: self.accountId, bucketName: self.bucketName)
             
             let (managed, custom, cors) = try await (fetchManaged, fetchCustom, fetchCORS)
             self.managedDomain = managed
@@ -36,7 +37,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
     func toggleManagedDomain(enabled: Bool) async {
         isManagedDomainEnabled = enabled
         do {
-            try await apiClient.setR2ManagedDomain(accountId: accountId, bucketName: bucketName, enabled: enabled)
+            try await r2Service.setR2ManagedDomain(accountId: accountId, bucketName: bucketName, enabled: enabled)
             HapticManager.impact(.light)
             ToastManager.shared.showSuccess("Managed Domain Updated", message: enabled ? "r2.dev access enabled" : "r2.dev access disabled")
             await fetchSettings()
@@ -48,7 +49,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
     
     func deleteCustomDomain(domain: String) async {
         do {
-            try await apiClient.deleteR2CustomDomain(accountId: accountId, bucketName: bucketName, domain: domain)
+            try await r2Service.deleteR2CustomDomain(accountId: accountId, bucketName: bucketName, domain: domain)
             HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("Domain Removed", message: domain)
             await fetchSettings()
@@ -61,7 +62,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         var updated = corsRules
         updated.append(rule)
         do {
-            try await apiClient.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
+            try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("CORS Rule Added", message: "Allowed origins: \(rule.allowedOrigins.joined(separator: ", "))")
             await fetchSettings()
@@ -78,9 +79,9 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         updated.remove(at: index)
         do {
             if updated.isEmpty {
-                try await apiClient.deleteR2CORS(accountId: accountId, bucketName: bucketName)
+                try await r2Service.deleteR2CORS(accountId: accountId, bucketName: bucketName)
             } else {
-                try await apiClient.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
+                try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             }
             HapticManager.impact(.medium)
             ToastManager.shared.showSuccess("CORS Rule Removed", message: "")

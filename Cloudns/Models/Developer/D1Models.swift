@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - D1 Database Models
 
-public struct D1Database: Codable, Identifiable, Equatable {
+public struct D1Database: Codable, Identifiable, Equatable, Sendable {
     public var id: String { uuid }
     public let uuid: String
     public let name: String
@@ -42,7 +42,7 @@ public struct D1Database: Codable, Identifiable, Equatable {
     }
 }
 
-public struct D1QueryResult: Codable, Equatable {
+public struct D1QueryResult: Codable, Equatable, Sendable {
     public let success: Bool
     public let query: String
     public let durationMs: Double
@@ -64,7 +64,7 @@ public struct D1QueryResult: Codable, Equatable {
     }
 }
 
-public struct D1TableColumn: Identifiable, Equatable {
+public struct D1TableColumn: Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let cid: Int
     public let name: String

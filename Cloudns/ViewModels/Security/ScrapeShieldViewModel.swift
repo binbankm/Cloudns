@@ -9,7 +9,12 @@ class ScrapeShieldViewModel: BaseLoadableViewModel {
     @Published var hotlinkProtection: String = "off"
     @Published var successMessage: String?
     
-    let apiClient = CloudflareAPIClient.shared
+    private let securityService: SecuritySettingsServiceProtocol
+    
+    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
+        self.securityService = securityService
+        super.init()
+    }
     
     // MARK: - Computed Booleans
     var emailObfuscationEnabled: Bool {
@@ -29,26 +34,16 @@ class ScrapeShieldViewModel: BaseLoadableViewModel {
     
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
-            let settings = try await self.apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                switch setting.id {
-                case "email_obfuscation":
-                    self.emailObfuscation = setting.value.stringValue ?? "off"
-                case "server_side_exclude":
-                    self.serverSideExcludes = setting.value.stringValue ?? "off"
-                case "hotlink_protection":
-                    self.hotlinkProtection = setting.value.stringValue ?? "off"
-                default:
-                    break
-                }
-            }
+            let res = try await self.securityService.getScrapeShieldSettings(zoneId: zoneId)
+            self.emailObfuscation = res.emailObfuscation
+            self.serverSideExcludes = res.serverSideExcludes
+            self.hotlinkProtection = res.hotlinkProtection
         }
     }
     
     func updateSetting(zoneId: String, settingId: String, value: String) async {
         do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: .string(value))
+            try await securityService.updateScrapeShieldSetting(zoneId: zoneId, settingId: settingId, value: value)
             ToastManager.shared.showSuccess("Setting Updated")
         } catch {
             self.errorMessage = "Update failed: \(error.localizedDescription)"

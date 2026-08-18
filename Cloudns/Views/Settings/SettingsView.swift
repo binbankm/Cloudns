@@ -101,20 +101,25 @@ struct SettingsView: View {
                 
                 // MARK: - Security Section
                 Section {
-                    Toggle(isOn: $isAppLockEnabled) {
-                        SettingsRowView(
-                            icon: "faceid",
-                            color: .green,
-                            title: "App Lock"
-                        )
-                    }
-                    .onChange(of: isAppLockEnabled) { _ in
-                        HapticManager.impact(.light)
+                    NavigationLink {
+                        AppLockSettingsView()
+                    } label: {
+                        HStack {
+                            SettingsRowView(
+                                icon: "faceid",
+                                color: .green,
+                                title: "App Lock"
+                            )
+                            
+                            Spacer()
+                            
+                            Text(isAppLockEnabled ? "On" : "Off")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
                     Text("Security")
-                } footer: {
-                    Text("Require Face ID or Touch ID to unlock the app when returning from the background.")
                 }
                 
                 // MARK: - Preferences & Appearance Section
@@ -239,11 +244,16 @@ struct SettingsView: View {
             .listStyle(.insetGrouped)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
             .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) {
                     URLCache.shared.removeAllCachedResponses()
-                    ToastManager.shared.showSuccess("Cache Cleared", message: "Local network cache purged")
+                    Task {
+                        await SWRCacheStore.shared.clearAll()
+                    }
+                    HapticManager.notification(.success)
+                    ToastManager.shared.showSuccess("Cache Cleared", message: "Local and SWR network cache purged")
                 }
             } message: {
                 Text("Are you sure you want to clear cached network responses and temporary storage?")

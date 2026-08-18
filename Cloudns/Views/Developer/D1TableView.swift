@@ -32,7 +32,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     let accountId: String
     let databaseId: String
     let tableName: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let d1Service: D1ServiceProtocol
     
     @Published var columns: [D1ColumnInfo] = []
     @Published var rows: [[String: String]] = []
@@ -41,10 +41,11 @@ final class D1TableViewModel: BaseLoadableViewModel {
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 50
     
-    init(accountId: String, databaseId: String, tableName: String) {
+    init(accountId: String, databaseId: String, tableName: String, d1Service: D1ServiceProtocol = D1Service.shared) {
         self.accountId = accountId
         self.databaseId = databaseId
         self.tableName = tableName
+        self.d1Service = d1Service
         super.init()
     }
     
@@ -55,7 +56,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     func loadTable() async {
         await executeLoadingTask {
             // 1. Fetch column metadata
-            let pragmaResult = try await self.apiClient.executeD1Query(
+            let pragmaResult = try await self.d1Service.executeD1Query(
                 accountId: self.accountId,
                 databaseId: self.databaseId,
                 sql: "PRAGMA table_info(\"\(self.tableName)\");"
@@ -81,7 +82,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             self.columns = fetchedCols
             
             // 2. Fetch row count
-            let countResult = try await self.apiClient.executeD1Query(
+            let countResult = try await self.d1Service.executeD1Query(
                 accountId: self.accountId,
                 databaseId: self.databaseId,
                 sql: "SELECT count(*) as count FROM \"\(self.tableName)\";"
@@ -99,7 +100,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         let offset = (currentPage - 1) * pageSize
         let sql = "SELECT rowid as _rowid_, * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
         do {
-            let result = try await apiClient.executeD1Query(
+            let result = try await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
                 sql: sql
@@ -109,7 +110,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         } catch {
             // Fallback for WITHOUT ROWID tables
             let fallbackSql = "SELECT * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
-            if let fallbackResult = try? await apiClient.executeD1Query(
+            if let fallbackResult = try? await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
                 sql: fallbackSql
@@ -141,7 +142,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     func deleteRow(rowid: String) async -> Bool {
         let sql = "DELETE FROM \"\(tableName)\" WHERE rowid = \(rowid);"
         do {
-            _ = try await apiClient.executeD1Query(
+            _ = try await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
                 sql: sql
@@ -172,7 +173,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         }
         
         do {
-            _ = try await apiClient.executeD1Query(
+            _ = try await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
                 sql: sql
@@ -196,7 +197,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         
         let sql = "UPDATE \"\(tableName)\" SET \(setClauses) WHERE rowid = \(rowid);"
         do {
-            _ = try await apiClient.executeD1Query(
+            _ = try await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
                 sql: sql
@@ -267,12 +268,8 @@ struct D1TableView: View {
                 Divider()
                 
                 if viewModel.isLoading && !viewModel.hasFetchedData {
-                    List {
-                        ForEach(0..<6, id: \.self) { _ in
-                            SkeletonRowView()
-                        }
-                    }
-                    .listStyle(.insetGrouped)
+                    cardsView
+                        .skeletonLoading(true)
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
                     StateOverlayView(
                         state: .error(
@@ -332,6 +329,7 @@ struct D1TableView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(tableName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

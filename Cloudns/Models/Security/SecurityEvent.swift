@@ -1,18 +1,18 @@
 import Foundation
 
-struct SecurityGraphQLData: Codable {
+struct SecurityGraphQLData: Codable, Sendable {
     let viewer: SecurityGraphQLViewer
 }
 
-struct SecurityGraphQLViewer: Codable {
+struct SecurityGraphQLViewer: Codable, Sendable {
     let zones: [SecurityGraphQLZone]
 }
 
-struct SecurityGraphQLZone: Codable {
+struct SecurityGraphQLZone: Codable, Sendable {
     let firewallEventsAdaptive: [SecurityEvent]?
 }
 
-struct SecurityEvent: Codable, Identifiable {
+struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
     var id: String { datetime + clientIP + ruleId }
     
     let action: String

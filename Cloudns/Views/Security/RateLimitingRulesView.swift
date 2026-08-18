@@ -5,12 +5,30 @@ struct RateLimitingRulesView: View {
     
     @StateObject private var viewModel = RateLimitingViewModel()
     @State private var showingAddSheet = false
+    @State private var searchText = ""
+    
+    private var displayedRules: [WAFRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            $0.expression.localizedCaseInsensitiveContains(searchText) ||
+            $0.action.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         List {
-            if !viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
                 Section {
-                    ForEach(viewModel.rules) { rule in
+                    ForEach(WAFRule.placeholders) { placeholderRule in
+                        WAFRuleCardView(rule: placeholderRule, onToggle: {})
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedRules.isEmpty {
+                Section {
+                    ForEach(displayedRules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             HapticManager.impact(.light)
                             Task {
@@ -25,11 +43,14 @@ struct RateLimitingRulesView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Rate Limiting Rules")
+        .refreshable {
+            await viewModel.fetchRateLimitingRules(zoneId: zoneId)
+        }
+        .navigationTitle("Rate Limiting")
+        .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -49,14 +70,16 @@ struct RateLimitingRulesView: View {
                             action: { showingAddSheet = true }
                         )
                     )
+                } else if displayedRules.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
                 }
             }
         }
-        .refreshable {
-            await viewModel.fetchRateLimitingRules(zoneId: zoneId)
-        }
-        .navigationTitle("Rate Limiting")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {

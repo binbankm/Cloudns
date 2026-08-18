@@ -6,22 +6,23 @@ import Combine
 class TunnelDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let tunnel: CFTunnel
-    private let apiClient = CloudflareAPIClient.shared
+    private let tunnelService: TunnelServiceProtocol
     
     @Published var ingressRules: [TunnelIngressRule] = []
     @Published var token: String?
     @Published var isDeleting = false
     
-    init(accountId: String, tunnel: CFTunnel) {
+    init(accountId: String, tunnel: CFTunnel, tunnelService: TunnelServiceProtocol = TunnelService.shared) {
         self.accountId = accountId
         self.tunnel = tunnel
+        self.tunnelService = tunnelService
         super.init()
     }
     
     func fetchConfiguration() async {
         await executeLoadingTask {
-            async let fetchConfig = self.apiClient.getTunnelConfigurations(accountId: self.accountId, tunnelId: self.tunnel.id)
-            async let fetchTok = self.apiClient.getTunnelToken(accountId: self.accountId, tunnelId: self.tunnel.id)
+            async let fetchConfig = self.tunnelService.getTunnelConfigurations(accountId: self.accountId, tunnelId: self.tunnel.id)
+            async let fetchTok = self.tunnelService.getTunnelToken(accountId: self.accountId, tunnelId: self.tunnel.id)
             let (rules, tok) = try await (fetchConfig, fetchTok)
             self.ingressRules = rules
             self.token = tok
@@ -41,7 +42,7 @@ class TunnelDetailViewModel: BaseLoadableViewModel {
         }
         
         do {
-            try await apiClient.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
+            try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
             self.ingressRules = updated
             ToastManager.shared.showSuccess("Ingress Rule Added", message: hostname)
             return true
@@ -59,7 +60,7 @@ class TunnelDetailViewModel: BaseLoadableViewModel {
             updated.append(TunnelIngressRule(hostname: nil, path: nil, service: "http_status:404"))
         }
         do {
-            try await apiClient.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
+            try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
             self.ingressRules = updated
             ToastManager.shared.showSuccess("Ingress Rule Deleted", message: "")
         } catch {
@@ -70,7 +71,7 @@ class TunnelDetailViewModel: BaseLoadableViewModel {
     func deleteTunnel() async -> Bool {
         isDeleting = true
         do {
-            try await apiClient.deleteTunnel(accountId: accountId, tunnelId: tunnel.id)
+            try await tunnelService.deleteTunnel(accountId: accountId, tunnelId: tunnel.id)
             ToastManager.shared.showSuccess("Tunnel Deleted", message: tunnel.name)
             isDeleting = false
             return true

@@ -15,7 +15,15 @@ struct ZonesListView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !displayedZones.isEmpty {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(Zone.placeholders) { placeholderZone in
+                            ZoneRowView(zone: placeholderZone)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !displayedZones.isEmpty {
                     Section {
                         ForEach(displayedZones) { zone in
                             NavigationLink(destination: ZoneDetailView(zone: zone)) {
@@ -76,10 +84,7 @@ struct ZonesListView: View {
                 AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
             }
             .overlay {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.hasFetchedData {
+                if viewModel.hasFetchedData {
                     if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
                         StateOverlayView(
                             state: .error(
@@ -264,8 +269,22 @@ struct AddZoneView: View {
                     ) {
                         TextField("example.com", text: $domainName)
                             .keyboardType(.URL)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
+                            .onSubmit {
+                                guard !domainName.isEmpty && !isSubmitting else { return }
+                                Task {
+                                    isSubmitting = true
+                                    let zone = await viewModel.addZone(
+                                        name: domainName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    )
+                                    isSubmitting = false
+                                    if let zone = zone {
+                                        createdZone = zone
+                                    }
+                                }
+                            }
                     }
 
                     if let error = viewModel.addZoneError {
@@ -281,6 +300,7 @@ struct AddZoneView: View {
                         }
                     }
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .navigationTitle("Add Domain")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {

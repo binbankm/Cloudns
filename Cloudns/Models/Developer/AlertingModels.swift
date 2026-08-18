@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Alerting Models
 
-public struct AlertingAvailableType: Codable, Identifiable, Equatable {
+public struct AlertingAvailableType: Codable, Identifiable, Equatable, Sendable {
     public var id: String { type }
     public let type: String
     public let displayName: String?
@@ -15,7 +15,7 @@ public struct AlertingAvailableType: Codable, Identifiable, Equatable {
     }
 }
 
-public struct AlertingWebhookDestination: Codable, Identifiable, Equatable {
+public struct AlertingWebhookDestination: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let url: String?
@@ -29,7 +29,7 @@ public struct AlertingWebhookDestination: Codable, Identifiable, Equatable {
     }
 }
 
-public struct AlertingPolicy: Codable, Identifiable, Equatable {
+public struct AlertingPolicy: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let description: String?

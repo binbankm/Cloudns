@@ -5,7 +5,8 @@ import Combine
 @MainActor
 class KVViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let kvService: KVServiceProtocol
+    private let d1Service: D1ServiceProtocol
     
     @Published var namespaces: [KVNamespace] = []
     @Published var d1Databases: [D1Database] = []
@@ -16,15 +17,21 @@ class KVViewModel: BaseLoadableViewModel {
     @Published var selectedKeyValue: String?
     @Published var isValueLoading = false
     
-    init(accountId: String) {
+    init(
+        accountId: String,
+        kvService: KVServiceProtocol = KVService.shared,
+        d1Service: D1ServiceProtocol = D1Service.shared
+    ) {
         self.accountId = accountId
+        self.kvService = kvService
+        self.d1Service = d1Service
         super.init()
     }
     
     func fetchData() async {
         await executeLoadingTask {
-            async let fetchKV = self.apiClient.getKVNamespaces(accountId: self.accountId)
-            async let fetchD1 = self.apiClient.getD1Databases(accountId: self.accountId)
+            async let fetchKV = self.kvService.listKVNamespaces(accountId: self.accountId)
+            async let fetchD1 = self.d1Service.listD1Databases(accountId: self.accountId)
             
             let (k, d) = try await (fetchKV, fetchD1)
             self.namespaces = k
@@ -33,29 +40,29 @@ class KVViewModel: BaseLoadableViewModel {
     }
 
     func createNamespace(title: String) async throws {
-        _ = try await apiClient.createKVNamespace(accountId: accountId, title: title)
+        _ = try await kvService.createKVNamespace(accountId: accountId, title: title)
         await fetchData()
     }
 
     func deleteNamespace(namespaceId: String) async throws {
-        try await apiClient.deleteKVNamespace(accountId: accountId, namespaceId: namespaceId)
+        try await kvService.deleteKVNamespace(accountId: accountId, namespaceId: namespaceId)
         await fetchData()
     }
 
     func createDatabase(name: String, locationHint: String? = nil) async throws {
-        _ = try await apiClient.createD1Database(accountId: accountId, name: name, primaryLocationHint: locationHint)
+        _ = try await d1Service.createD1Database(accountId: accountId, name: name, primaryLocationHint: locationHint)
         await fetchData()
     }
 
     func deleteDatabase(databaseId: String) async throws {
-        try await apiClient.deleteD1Database(accountId: accountId, databaseId: databaseId)
+        try await d1Service.deleteD1Database(accountId: accountId, databaseId: databaseId)
         await fetchData()
     }
     
     func fetchKeys(for namespaceId: String) async {
         isLoading = true
         do {
-            self.keys = try await apiClient.getKVKeys(accountId: accountId, namespaceId: namespaceId)
+            self.keys = try await kvService.listKVKeys(accountId: accountId, namespaceId: namespaceId, prefix: nil, limit: 100)
         } catch {
             self.errorMessage = error.localizedDescription
         }
@@ -67,7 +74,7 @@ class KVViewModel: BaseLoadableViewModel {
         selectedKey = key
         selectedKeyValue = nil
         do {
-            self.selectedKeyValue = try await apiClient.getKVValue(accountId: accountId, namespaceId: namespaceId, key: key)
+            self.selectedKeyValue = try await kvService.getKVValue(accountId: accountId, namespaceId: namespaceId, key: key)
         } catch {
             self.selectedKeyValue = "Error reading value: \(error.localizedDescription)"
         }
@@ -75,12 +82,12 @@ class KVViewModel: BaseLoadableViewModel {
     }
     
     func saveKey(namespaceId: String, key: String, value: String, ttl: Int? = nil) async throws {
-        try await apiClient.saveKVValue(accountId: accountId, namespaceId: namespaceId, key: key, value: value, expirationTTL: ttl)
+        try await kvService.saveKVValue(accountId: accountId, namespaceId: namespaceId, key: key, value: value, expirationTTL: ttl)
         await fetchKeys(for: namespaceId)
     }
     
     func deleteKey(namespaceId: String, key: String) async throws {
-        try await apiClient.deleteKVKey(accountId: accountId, namespaceId: namespaceId, key: key)
+        try await kvService.deleteKVKey(accountId: accountId, namespaceId: namespaceId, key: key)
         await fetchKeys(for: namespaceId)
     }
 }

@@ -1,10 +1,19 @@
 import Foundation
 import Security
 
-class KeychainHelper {
+protocol KeychainHelperProtocol: Sendable {
+    func save(_ data: Data, service: String, account: String)
+    func read(service: String, account: String) -> Data?
+    func readAll(service: String) -> [String: String]
+    func delete(service: String, account: String)
+    func saveString(_ string: String, service: String, account: String)
+    func readString(service: String, account: String) -> String?
+}
+
+final class KeychainHelper: KeychainHelperProtocol, Sendable {
     static let standard = KeychainHelper()
     
-    private init() {}
+    init() {}
     
     func save(_ data: Data, service: String, account: String) {
         let query = [

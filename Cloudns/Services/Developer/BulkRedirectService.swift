@@ -1,7 +1,17 @@
 import Foundation
 
+/// Cloudflare 批量重定向与批量操作领域服务抽象协议
+protocol BulkRedirectServiceProtocol: Sendable {
+    func listRedirectLists(accountId: String) async throws -> [RedirectList]
+    func createRedirectList(accountId: String, name: String, description: String?) async throws -> RedirectList
+    func deleteRedirectList(accountId: String, listId: String) async throws
+    func listRedirectListItems(accountId: String, listId: String) async throws -> [RedirectListItem]
+    func createRedirectListItems(accountId: String, listId: String, items: [RedirectItemDetail]) async throws -> String
+    func deleteRedirectListItems(accountId: String, listId: String, itemIds: [String]) async throws -> String
+}
+
 /// 统一的 Cloudflare 批量重定向与批量操作领域服务
-final class BulkRedirectService {
+final class BulkRedirectService: BulkRedirectServiceProtocol {
     static let shared = BulkRedirectService()
     
     private let client = HTTPNetworkClient.shared

@@ -7,99 +7,114 @@ struct NetworkDiagnosticsListView: View {
         let subtitle: String
         let icon: String
         let iconColor: Color
-        let badge: String
         let destination: AnyView
     }
     
-    private var allTools: [DiagnosticToolItem] {
+    private var edgeTools: [DiagnosticToolItem] {
         [
             DiagnosticToolItem(
                 title: "Cloudflare Trace",
-                subtitle: "Edge PoP data center & client trace (/cdn-cgi/trace)",
+                subtitle: "Edge PoP data center & client route trace (/cdn-cgi/trace)",
                 icon: "antenna.radiowaves.left.and.right.circle.fill",
                 iconColor: .orange,
-                badge: "Trace",
                 destination: AnyView(CFTraceToolView())
             ),
             DiagnosticToolItem(
-                title: "DNS Dig (1.1.1.1)",
-                subtitle: "Recursive DNS over HTTPS query & response timing",
+                title: "DNS Dig & Benchmark",
+                subtitle: "1.1.1.1 query, DNSSEC validation & 5-resolver benchmark",
                 icon: "magnifyingglass.circle.fill",
                 iconColor: .indigo,
-                badge: "DoH",
                 destination: AnyView(DNSDigToolView())
             ),
             DiagnosticToolItem(
                 title: "HTTP & Cache Inspector",
-                subtitle: "Inspect CF-Ray, CF-Cache-Status & edge headers",
+                subtitle: "CF-Ray, CF-Cache-Status, HTTP/3 & edge timing breakdown",
                 icon: "arrow.up.right.circle.fill",
                 iconColor: .blue,
-                badge: "HTTP",
                 destination: AnyView(HTTPHeaderInspectorView())
             ),
             DiagnosticToolItem(
                 title: "SSL Certificate Inspector",
-                subtitle: "Deep certificate chain, SANs & expiration analysis",
+                subtitle: "Certificate chain hierarchy, SANs & expiration countdown",
                 icon: "checkmark.seal.fill",
                 iconColor: .green,
-                badge: "TLS",
                 destination: AnyView(CertInspectToolView())
+            )
+        ]
+    }
+    
+    private var globalProbingTools: [DiagnosticToolItem] {
+        [
+            DiagnosticToolItem(
+                title: "Global DNS Propagation",
+                subtitle: "Probe worldwide resolution across 8 regional edge nodes",
+                icon: "globe.americas.fill",
+                iconColor: .indigo,
+                destination: AnyView(DNSPropagationView())
             ),
             DiagnosticToolItem(
+                title: "Edge Latency & Jitter",
+                subtitle: "Multi-round response timing, packet loss & jitter test",
+                icon: "speedometer",
+                iconColor: .purple,
+                destination: AnyView(EdgeLatencyTestView())
+            )
+        ]
+    }
+    
+    private var ipRoutingTools: [DiagnosticToolItem] {
+        [
+            DiagnosticToolItem(
                 title: "IP & ASN Lookup",
-                subtitle: "Geolocation, ISP organization & network ASN diagnosis",
+                subtitle: "Cloudflare Anycast detection, ISP organization & ASN",
                 icon: "location.circle.fill",
                 iconColor: .teal,
-                badge: "IP",
                 destination: AnyView(IPLookupToolView())
             ),
             DiagnosticToolItem(
                 title: "WHOIS & RDAP Lookup",
-                subtitle: "Domain registrar, creation date & nameserver records",
+                subtitle: "Domain registrar, lifecycle timeline & nameserver records",
                 icon: "person.text.rectangle.fill",
                 iconColor: .purple,
-                badge: "RDAP",
                 destination: AnyView(WhoisToolView())
             ),
             DiagnosticToolItem(
                 title: "Cloudflare IP Ranges",
-                subtitle: "Official IPv4/IPv6 CIDRs & Nginx allowlist export",
+                subtitle: "Official IPv4/IPv6 CIDRs, IP matcher & firewall exporter",
                 icon: "network.badge.shield.half.filled",
                 iconColor: .cyan,
-                badge: "CIDR",
                 destination: AnyView(CFIpRangesToolView())
+            ),
+            DiagnosticToolItem(
+                title: "Subnet & CIDR Calculator",
+                subtitle: "IPv4/IPv6 network mask, broadcast & host range calculator",
+                icon: "number.square.fill",
+                iconColor: .blue,
+                destination: AnyView(CIDRCalculatorView())
             )
         ]
     }
     
     var body: some View {
         List {
-            Section(header: Text("Network & Security Diagnostics (\(allTools.count))"), footer: Text("All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network.")) {
-                ForEach(allTools) { tool in
-                    NavigationLink {
-                        tool.destination
-                    } label: {
-                        HStack(alignment: .center, spacing: 14) {
-                            Image(systemName: tool.icon)
-                                .font(.body)
-                                .foregroundStyle(tool.iconColor)
-                                .frame(width: 32, height: 32)
-                                .background(tool.iconColor.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(LocalizedStringKey(tool.title))
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                
-                                Text(LocalizedStringKey(tool.subtitle))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .padding(.vertical, 3)
-                    }
+            // Section 1: Edge Diagnostics
+            Section(header: Text("Network & Edge Diagnostics (\(edgeTools.count))")) {
+                ForEach(edgeTools) { tool in
+                    toolRow(tool)
+                }
+            }
+            
+            // Section 2: Global Probing & Performance
+            Section(header: Text("Global Probing & Performance (\(globalProbingTools.count))")) {
+                ForEach(globalProbingTools) { tool in
+                    toolRow(tool)
+                }
+            }
+            
+            // Section 3: IP, Routing & Utilities
+            Section(header: Text("IP, Routing & Utilities (\(ipRoutingTools.count))"), footer: Text("All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network.")) {
+                ForEach(ipRoutingTools) { tool in
+                    toolRow(tool)
                 }
             }
         }
@@ -107,5 +122,33 @@ struct NetworkDiagnosticsListView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Network Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    @ViewBuilder
+    private func toolRow(_ tool: DiagnosticToolItem) -> some View {
+        NavigationLink {
+            tool.destination
+        } label: {
+            HStack(alignment: .center, spacing: 14) {
+                Image(systemName: tool.icon)
+                    .font(.body)
+                    .foregroundStyle(tool.iconColor)
+                    .frame(width: 32, height: 32)
+                    .background(tool.iconColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LocalizedStringKey(tool.title))
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                    
+                    Text(LocalizedStringKey(tool.subtitle))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .padding(.vertical, 3)
+        }
     }
 }

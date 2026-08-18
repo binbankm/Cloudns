@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Dynamic Redirect Rules Models
 
-public struct RedirectRuleItem: Codable, Identifiable, Equatable {
+public struct RedirectRuleItem: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let description: String?
     public let expression: String?
@@ -18,14 +18,14 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable {
         case statusCode = "status_code"
     }
     
-    private struct ActionParams: Codable {
+    private struct ActionParams: Codable, Sendable {
         let fromValue: FromValue?
         enum CodingKeys: String, CodingKey {
             case fromValue = "from_value"
         }
     }
     
-    private struct FromValue: Codable {
+    private struct FromValue: Codable, Sendable {
         let statusCode: Int?
         let targetUrl: TargetUrlObj?
         let preserveQueryString: Bool?
@@ -37,7 +37,7 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable {
         }
     }
     
-    private struct TargetUrlObj: Codable {
+    private struct TargetUrlObj: Codable, Sendable {
         let value: String?
         let expression: String?
     }

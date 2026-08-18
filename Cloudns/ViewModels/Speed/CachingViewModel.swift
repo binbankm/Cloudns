@@ -14,26 +14,23 @@ class CachingViewModel: BaseLoadableViewModel {
     @Published var purgeSuccessMessage: String?
     @Published var purgeErrorMessage: String?
     
-    let apiClient = CloudflareAPIClient.shared
+    private let cachingService: SpeedAndNetworkServiceProtocol
+    
+    init(cachingService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+        self.cachingService = cachingService
+        super.init()
+    }
     
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let settings = try await apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                if setting.id == "cache_level", let val = setting.value.stringValue {
-                    self.cacheLevel = val
-                } else if setting.id == "browser_cache_ttl", let val = setting.value.intValue {
-                    self.browserCacheTTL = val
-                } else if setting.id == "always_online", let val = setting.value.stringValue {
-                    self.alwaysOnline = (val == "on")
-                } else if setting.id == "development_mode", let val = setting.value.stringValue {
-                    self.developmentMode = (val == "on")
-                }
-            }
+            let res = try await cachingService.getCachingSettings(zoneId: zoneId)
+            self.cacheLevel = res.cacheLevel
+            self.browserCacheTTL = res.browserTTL
+            self.alwaysOnline = res.alwaysOnline
+            self.developmentMode = res.devMode
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to fetch caching settings: \(error.localizedDescription)"
@@ -48,7 +45,7 @@ class CachingViewModel: BaseLoadableViewModel {
         purgeErrorMessage = nil
         
         do {
-            try await apiClient.purgeCacheEverything(zoneId: zoneId)
+            try await cachingService.purgeEverything(zoneId: zoneId)
             purgeSuccessMessage = "Successfully purged all cache!"
             ToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
         } catch {
@@ -65,7 +62,7 @@ class CachingViewModel: BaseLoadableViewModel {
         purgeErrorMessage = nil
         
         do {
-            try await apiClient.purgeCacheByURLs(zoneId: zoneId, urls: urls)
+            try await cachingService.purgeCacheByURLs(zoneId: zoneId, urls: urls)
             purgeSuccessMessage = "Successfully purged requested URLs!"
             ToastManager.shared.showSuccess("URLs Purged", message: "\(urls.count) URL(s) purged from cache.")
         } catch {
@@ -82,7 +79,7 @@ class CachingViewModel: BaseLoadableViewModel {
         purgeErrorMessage = nil
         
         do {
-            try await apiClient.purgeCacheByHosts(zoneId: zoneId, hosts: hosts)
+            try await cachingService.purgeCacheByHosts(zoneId: zoneId, hosts: hosts)
             purgeSuccessMessage = "Successfully purged requested Hosts!"
             ToastManager.shared.showSuccess("Hosts Purged", message: "\(hosts.count) host(s) purged from cache.")
         } catch {
@@ -99,7 +96,7 @@ class CachingViewModel: BaseLoadableViewModel {
         purgeErrorMessage = nil
         
         do {
-            try await apiClient.purgeCacheByPrefixes(zoneId: zoneId, prefixes: prefixes)
+            try await cachingService.purgeCacheByPrefixes(zoneId: zoneId, prefixes: prefixes)
             purgeSuccessMessage = "Successfully purged requested URL prefixes!"
             ToastManager.shared.showSuccess("Prefixes Purged", message: "\(prefixes.count) prefix(es) purged from cache.")
         } catch {
@@ -116,7 +113,7 @@ class CachingViewModel: BaseLoadableViewModel {
         purgeErrorMessage = nil
         
         do {
-            try await apiClient.purgeCacheByTags(zoneId: zoneId, tags: tags)
+            try await cachingService.purgeCacheByTags(zoneId: zoneId, tags: tags)
             purgeSuccessMessage = "Successfully purged requested Cache-Tags!"
             ToastManager.shared.showSuccess("Tags Purged", message: "\(tags.count) tag(s) purged from cache.")
         } catch {
@@ -128,36 +125,39 @@ class CachingViewModel: BaseLoadableViewModel {
     }
     
     func updateCacheLevel(zoneId: String, level: String) async {
-        await updateSetting(zoneId: zoneId, settingId: "cache_level", value: .string(level)) {
+        do {
+            try await cachingService.updateCacheLevel(zoneId: zoneId, level: level)
             self.cacheLevel = level
+        } catch {
+            self.errorMessage = "Failed to update cache level: \(error.localizedDescription)"
         }
     }
     
     func updateBrowserCacheTTL(zoneId: String, ttl: Int) async {
-        await updateSetting(zoneId: zoneId, settingId: "browser_cache_ttl", value: .int(ttl)) {
+        do {
+            try await cachingService.updateBrowserCacheTTL(zoneId: zoneId, ttl: ttl)
             self.browserCacheTTL = ttl
+        } catch {
+            self.errorMessage = "Failed to update Browser Cache TTL: \(error.localizedDescription)"
         }
     }
     
     func updateAlwaysOnline(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "always_online", value: .string(isOn ? "on" : "off")) {
+        do {
+            try await cachingService.updateAlwaysOnline(zoneId: zoneId, isOn: isOn)
             self.alwaysOnline = isOn
+        } catch {
+            self.errorMessage = "Failed to update Always Online: \(error.localizedDescription)"
         }
     }
     
     func updateDevelopmentMode(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "development_mode", value: .string(isOn ? "on" : "off")) {
+        do {
+            try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
             self.developmentMode = isOn
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-        }
-    }
-    
-    private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: @escaping () -> Void) async {
-        do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)
-            onSuccess()
         } catch {
-            self.errorMessage = "Failed to update \(settingId): \(error.localizedDescription)"
+            self.errorMessage = "Failed to update Development Mode: \(error.localizedDescription)"
         }
     }
 }

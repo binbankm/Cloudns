@@ -1,30 +1,30 @@
 import Foundation
 
-struct GraphQLResponse<T: Codable>: Codable {
+struct GraphQLResponse<T: Codable & Sendable>: Codable, Sendable {
     let data: T?
     let errors: [GraphQLError]?
 }
 
-struct GraphQLError: Codable {
+struct GraphQLError: Codable, Sendable {
     let message: String
 }
 
-struct AnalyticsViewerData: Codable {
+struct AnalyticsViewerData: Codable, Sendable {
     let viewer: AnalyticsViewer
 }
 
-struct AnalyticsViewer: Codable {
+struct AnalyticsViewer: Codable, Sendable {
     let zones: [AnalyticsZone]?
 }
 
-struct AnalyticsZone: Codable {
+struct AnalyticsZone: Codable, Sendable {
     let httpRequests1dGroups: [AnalyticsDataPoint]?
     let httpRequests1hGroups: [AnalyticsDataPoint]?
     let trafficByCountry1d: [CountryDataPoint]?
     let trafficByCountry1h: [CountryDataPoint]?
 }
 
-struct CountryDataPoint: Codable, Identifiable, Equatable {
+struct CountryDataPoint: Codable, Identifiable, Equatable, Sendable {
     var id: String { dimensions.clientCountryName ?? UUID().uuidString }
     let dimensions: CountryDimensions
     let count: Int?
@@ -35,33 +35,33 @@ struct CountryDataPoint: Codable, Identifiable, Equatable {
     }
 }
 
-struct CountrySum: Codable, Equatable {
+struct CountrySum: Codable, Equatable, Sendable {
     let requests: Int?
 }
 
-struct CountryDimensions: Codable, Equatable {
+struct CountryDimensions: Codable, Equatable, Sendable {
     let clientCountryName: String?
 }
 
-public struct CountryMapEntry: Codable, Equatable {
+public struct CountryMapEntry: Codable, Equatable, Sendable {
     public let clientCountryName: String?
     public let requests: Int?
     public let threats: Int?
     public let bytes: Int?
 }
 
-public struct AnalyticsDataPoint: Codable, Identifiable, Equatable {
+public struct AnalyticsDataPoint: Codable, Identifiable, Equatable, Sendable {
     public var id: String { dimensions.datetime ?? dimensions.date ?? UUID().uuidString }
     public let dimensions: AnalyticsDimensions
     public let sum: AnalyticsSum
 }
 
-public struct AnalyticsDimensions: Codable, Equatable {
+public struct AnalyticsDimensions: Codable, Equatable, Sendable {
     public let date: String? // e.g., "2023-09-02"
     public let datetime: String? // e.g., "2023-09-02T15:00:00Z"
 }
 
-public struct AnalyticsSum: Codable, Equatable {
+public struct AnalyticsSum: Codable, Equatable, Sendable {
     public let requests: Int
     public let bytes: Int
     public let cachedRequests: Int
@@ -100,7 +100,7 @@ public struct AnalyticsSum: Codable, Equatable {
 
 // MARK: - Workers & Pages GraphQL Analytics Models
 
-public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable {
+public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable, Sendable {
     public var id: String {
         let dim = dimensions.datetimeHour ?? dimensions.datetime ?? dimensions.date ?? UUID().uuidString
         let status = dimensions.status ?? ""
@@ -110,7 +110,7 @@ public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable {
     public let sum: WorkerAnalyticsSum?
     public let quantiles: WorkerAnalyticsQuantiles?
     
-    public struct WorkerAnalyticsDimensions: Codable, Equatable {
+    public struct WorkerAnalyticsDimensions: Codable, Equatable, Sendable {
         public let datetimeHour: String?
         public let datetime: String?
         public let date: String?
@@ -119,24 +119,24 @@ public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable {
         public let environment: String?
     }
     
-    public struct WorkerAnalyticsSum: Codable, Equatable {
+    public struct WorkerAnalyticsSum: Codable, Equatable, Sendable {
         public let requests: Int?
         public let errors: Int?
         public let subrequests: Int?
     }
     
-    public struct WorkerAnalyticsQuantiles: Codable, Equatable {
+    public struct WorkerAnalyticsQuantiles: Codable, Equatable, Sendable {
         public let cpuTimeP50: Double?
         public let cpuTimeP99: Double?
     }
 }
 
-public struct WorkerAnalyticsSummaryItem: Codable, Equatable {
+public struct WorkerAnalyticsSummaryItem: Codable, Equatable, Sendable {
     public let sum: WorkerAnalyticsItem.WorkerAnalyticsSum?
     public let quantiles: WorkerAnalyticsItem.WorkerAnalyticsQuantiles?
 }
 
-public struct WorkerAnalyticsAccountItem: Codable {
+public struct WorkerAnalyticsAccountItem: Codable, Sendable {
     public let summary: [WorkerAnalyticsSummaryItem]?
     public let series: [WorkerAnalyticsItem]?
     public let byStatus: [WorkerAnalyticsItem]?
@@ -144,10 +144,10 @@ public struct WorkerAnalyticsAccountItem: Codable {
     public let pagesFunctionsInvocationsAdaptiveGroups: [WorkerAnalyticsItem]?
 }
 
-public struct WorkerAnalyticsViewer: Codable {
+public struct WorkerAnalyticsViewer: Codable, Sendable {
     public let accounts: [WorkerAnalyticsAccountItem]?
 }
 
-public struct WorkerAnalyticsViewerData: Codable {
+public struct WorkerAnalyticsViewerData: Codable, Sendable {
     public let viewer: WorkerAnalyticsViewer
 }

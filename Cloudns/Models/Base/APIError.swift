@@ -1,27 +1,61 @@
 import Foundation
 
-enum APIError: Error, LocalizedError {
+enum APIError: Error, LocalizedError, Sendable {
     case invalidURL
-    case networkError(Error)
+    case networkError(String)
     case unauthorized
     case invalidResponse
-    case decodingError(Error)
+    case decodingError(String)
     case cloudflareError(String)
     
     var errorDescription: String? {
         switch self {
         case .invalidURL:
             return "Invalid API URL."
-        case .networkError(let error):
-            return "Network Error: \(error.localizedDescription)"
+        case .networkError(let message):
+            return "Network Error: \(message)"
         case .unauthorized:
-            return "Authentication failed. Please verify your Cloudflare Global API Key and Email in Settings."
+            return "Authentication failed. Please verify your Cloudflare API Token or Global Key in Settings."
         case .invalidResponse:
-            return "Invalid response from Cloudflare."
-        case .decodingError(let error):
-            return "Failed to decode response: \(error.localizedDescription)"
+            return "Invalid response from Cloudflare server."
+        case .decodingError(let message):
+            return "Data formatting error: \(message)"
         case .cloudflareError(let message):
             return message
+        }
+    }
+    
+    var failureReason: String? {
+        switch self {
+        case .invalidURL:
+            return "The constructed URL was malformed or could not be parsed."
+        case .networkError(let message):
+            return message
+        case .unauthorized:
+            return "The API token or key provided was rejected or has expired."
+        case .invalidResponse:
+            return "The server returned a non-standard HTTP status code or empty response body."
+        case .decodingError(let message):
+            return message
+        case .cloudflareError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .invalidURL:
+            return "Please check your endpoint settings and domain name format."
+        case .networkError:
+            return "Please check your network connection and try again."
+        case .unauthorized:
+            return "Please re-enter your API credentials in Account Settings."
+        case .invalidResponse:
+            return "Please try again later or check Cloudflare Status."
+        case .decodingError:
+            return "Please check for app updates to support the latest Cloudflare API schema."
+        case .cloudflareError:
+            return "Please verify your input parameters and permissions."
         }
     }
     

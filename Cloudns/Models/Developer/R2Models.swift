@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - R2 Storage Models
 
-public struct R2Bucket: Codable, Identifiable, Equatable {
+public struct R2Bucket: Codable, Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let name: String
     public let creationDate: String?
@@ -25,7 +25,7 @@ public struct R2Bucket: Codable, Identifiable, Equatable {
     }
 }
 
-public struct R2Object: Codable, Identifiable, Equatable {
+public struct R2Object: Codable, Identifiable, Equatable, Sendable {
     public var id: String { key }
     public let key: String
     public let size: Int
@@ -73,7 +73,7 @@ public struct R2Object: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct R2ManagedDomain: Codable, Equatable {
+public struct R2ManagedDomain: Codable, Equatable, Sendable {
     public let domain: String?
     public let enabled: Bool?
     
@@ -83,7 +83,7 @@ public struct R2ManagedDomain: Codable, Equatable {
     }
 }
 
-public struct R2CustomDomain: Codable, Identifiable, Equatable {
+public struct R2CustomDomain: Codable, Identifiable, Equatable, Sendable {
     public var id: String { domain }
     public let domain: String
     public let status: String?
@@ -142,7 +142,7 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct R2CORSRule: Codable, Identifiable, Equatable {
+public struct R2CORSRule: Codable, Identifiable, Equatable, Sendable {
     public var id: String { customId ?? "\(allowedOrigins.joined(separator: ","))-\(allowedMethods.joined(separator: ","))" }
     public var customId: String?
     public var allowedOrigins: [String]
@@ -158,7 +158,7 @@ public struct R2CORSRule: Codable, Identifiable, Equatable {
         case maxAgeSeconds
     }
     
-    private struct AllowedConfig: Codable {
+    private struct AllowedConfig: Codable, Sendable {
         let origins: [String]
         let methods: [String]
         let headers: [String]?

@@ -5,15 +5,22 @@ import Combine
 @MainActor
 class WorkersViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let workerService: WorkerServiceProtocol
+    private let pagesService: PagesServiceProtocol
     
     @Published var workers: [WorkerScript] = []
     @Published var pages: [PagesProject] = []
     @Published var selectedSegment = 0 // 0: Workers, 1: Pages
     @Published var searchText = ""
     
-    init(accountId: String) {
+    init(
+        accountId: String,
+        workerService: WorkerServiceProtocol = WorkerService.shared,
+        pagesService: PagesServiceProtocol = PagesService.shared
+    ) {
         self.accountId = accountId
+        self.workerService = workerService
+        self.pagesService = pagesService
         super.init()
     }
     
@@ -29,8 +36,8 @@ class WorkersViewModel: BaseLoadableViewModel {
     
     func fetchData() async {
         await executeLoadingTask {
-            async let fetchW = self.apiClient.getWorkers(accountId: self.accountId)
-            async let fetchP = self.apiClient.getPagesProjects(accountId: self.accountId)
+            async let fetchW = self.workerService.listWorkers(accountId: self.accountId)
+            async let fetchP = self.pagesService.listPagesProjects(accountId: self.accountId)
             
             let (w, p) = try await (fetchW, fetchP)
             self.workers = w
@@ -39,22 +46,32 @@ class WorkersViewModel: BaseLoadableViewModel {
     }
     
     func createWorker(name: String, code: String) async throws {
-        try await apiClient.createWorkerScript(accountId: accountId, name: name, code: code)
+        try await workerService.uploadWorkerScript(accountId: accountId, scriptName: name, code: code, isModule: false)
         await fetchData()
     }
     
-    func deleteWorker(name: String) async throws {
-        try await apiClient.deleteWorkerScript(accountId: accountId, scriptName: name)
-        await fetchData()
+    func deleteWorker(name: String) async {
+        do {
+            try await workerService.deleteWorker(accountId: accountId, scriptName: name)
+            ToastManager.shared.showSuccess("Worker Deleted", message: "\(name) removed.")
+            await fetchData()
+        } catch {
+            ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
+        }
     }
 
     func createPagesProject(name: String, branch: String) async throws {
-        _ = try await apiClient.createPagesProject(accountId: accountId, name: name, productionBranch: branch)
+        _ = try await pagesService.createPagesProject(accountId: accountId, name: name, productionBranch: branch)
         await fetchData()
     }
     
-    func deletePagesProject(name: String) async throws {
-        try await apiClient.deletePagesProject(accountId: accountId, projectName: name)
-        await fetchData()
+    func deletePagesProject(name: String) async {
+        do {
+            try await pagesService.deletePagesProject(accountId: accountId, projectName: name)
+            ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(name) removed.")
+            await fetchData()
+        } catch {
+            ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
+        }
     }
 }

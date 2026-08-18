@@ -29,37 +29,55 @@ struct ContentView: View {
             if !hasSeenOnboarding {
                 OnboardingView()
             } else if isLoggedIn {
-                ZStack {
-                    TabView(selection: $selectedTab) {
-                        DashboardView()
-                            .tabItem {
-                                Label("Dashboard", systemImage: selectedTab == 0 ? "square.grid.2x2.fill" : "square.grid.2x2")
-                            }
-                            .tag(0)
-                        
-                        ZonesListView()
-                            .tabItem {
-                                Label("Domains", systemImage: selectedTab == 1 ? "globe.americas.fill" : "globe")
-                            }
-                            .tag(1)
-                        
-                        DeveloperHubView()
-                            .tabItem {
-                                Label("Developer", systemImage: selectedTab == 2 ? "cpu.fill" : "cpu")
-                            }
-                            .tag(2)
-                        
-                        SettingsView()
-                            .tabItem {
-                                Label("Settings", systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
-                            }
-                            .tag(3)
-                    }
-                    .cloudnsSensorySelection(trigger: selectedTab)
-                    .blur(radius: (isAppLockEnabled && scenePhase != .active) ? 15 : 0)
+                TabView(selection: $selectedTab) {
+                    DashboardView()
+                        .tabItem {
+                            Label("Dashboard", systemImage: selectedTab == 0 ? "square.grid.2x2.fill" : "square.grid.2x2")
+                        }
+                        .tag(0)
                     
-                    if isAppLockEnabled && !authManager.isUnlocked {
-                        AppLockView()
+                    ZonesListView()
+                        .tabItem {
+                            Label("Domains", systemImage: selectedTab == 1 ? "globe.americas.fill" : "globe")
+                        }
+                        .tag(1)
+                    
+                    DeveloperHubView()
+                        .tabItem {
+                            Label("Developer", systemImage: selectedTab == 2 ? "cpu.fill" : "cpu")
+                        }
+                        .tag(2)
+                    
+                    SettingsView()
+                        .tabItem {
+                            Label("Settings", systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
+                        }
+                        .tag(3)
+                }
+                .cloudnsSensorySelection(trigger: selectedTab)
+                .overlay {
+                    if isAppLockEnabled {
+                        let shouldMask = !authManager.isUnlocked || scenePhase != .active
+                        
+                        ZStack {
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .ignoresSafeArea()
+                            
+                            Image(systemName: "lock.shield.fill")
+                                .font(.system(size: 48, weight: .light))
+                                .foregroundStyle(.secondary.opacity(0.6))
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if !authManager.isUnlocked {
+                                HapticManager.impact(.light)
+                                authManager.authenticate()
+                            }
+                        }
+                        .opacity(shouldMask ? 1 : 0)
+                        .allowsHitTesting(!authManager.isUnlocked && scenePhase == .active)
+                        .animation(.easeInOut(duration: 0.15), value: shouldMask)
                     }
                 }
             } else {
@@ -68,17 +86,22 @@ struct ContentView: View {
         }
         .animation(.default, value: isLoggedIn)
         .animation(.default, value: hasSeenOnboarding)
-        .animation(.default, value: authManager.isUnlocked)
         .toastContainer()
         .preferredColorScheme(themePreference == "light" ? .light : (themePreference == "dark" ? .dark : nil))
         .environment(\.locale, currentLocale)
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
+            if isAppLockEnabled && !authManager.isUnlocked {
+                authManager.authenticate()
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 NotificationCenter.default.post(name: .appWillEnterForeground, object: nil)
+                authManager.handleAppWillEnterForeground()
+            } else if newPhase == .background {
+                authManager.handleAppDidEnterBackground()
             }
         }
     }

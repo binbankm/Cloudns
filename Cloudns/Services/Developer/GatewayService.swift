@@ -1,7 +1,13 @@
 import Foundation
 
+/// Cloudflare Gateway 网关规则领域服务抽象协议
+protocol GatewayServiceProtocol: Sendable {
+    func listGatewayRules(accountId: String) async throws -> [GatewayRule]
+    func deleteGatewayRule(accountId: String, ruleId: String) async throws
+}
+
 /// 统一的 Cloudflare Gateway 网关规则领域服务
-final class GatewayService {
+final class GatewayService: GatewayServiceProtocol {
     static let shared = GatewayService()
     
     private let client = HTTPNetworkClient.shared

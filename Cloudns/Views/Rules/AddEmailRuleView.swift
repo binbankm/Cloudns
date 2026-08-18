@@ -3,11 +3,12 @@ import SwiftUI
 struct AddEmailRuleView: View {
     @ObservedObject var viewModel: EmailRoutingViewModel
     let zoneName: String
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var customAddress = ""
     @State private var destinationAddress = ""
     @State private var isSubmitting = false
+    @FocusState private var isCustomAddressFocused: Bool
     
     init(viewModel: EmailRoutingViewModel, zoneName: String = "") {
         self.viewModel = viewModel
@@ -20,8 +21,11 @@ struct AddEmailRuleView: View {
                 Section(header: Text("Custom Address"), footer: Text("The email address on your domain that will receive messages.")) {
                     HStack {
                         TextField("e.g. info", text: $customAddress)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
+                            .focused($isCustomAddressFocused)
                         Text(zoneName.isEmpty ? "@yourdomain.com" : "@\(zoneName)")
                             .foregroundStyle(.secondary)
                     }
@@ -40,18 +44,20 @@ struct AddEmailRuleView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Routing Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
@@ -59,6 +65,7 @@ struct AddEmailRuleView: View {
                     .disabled(customAddress.trimmingCharacters(in: .whitespaces).isEmpty || destinationAddress.isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .onAppear {
                 if let firstVerified = viewModel.destinations.first(where: { $0.isVerified }) {
                     destinationAddress = firstVerified.email
@@ -67,7 +74,7 @@ struct AddEmailRuleView: View {
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
@@ -100,7 +107,7 @@ struct AddEmailRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }

@@ -17,7 +17,15 @@ struct QueuesView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredQueues.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Message Queues")) {
+                    ForEach(CFQueue.placeholders) { placeholderQueue in
+                        queueRow(placeholderQueue)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredQueues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
                     ForEach(viewModel.filteredQueues) { queue in
                         NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
@@ -82,10 +90,7 @@ struct QueuesView: View {
             await viewModel.fetchQueues()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -282,17 +287,20 @@ struct CreateQueueSheet: View {
             Form {
                 Section(header: Text("Queue Name"), footer: Text("Queue names must contain only lowercase alphanumeric characters and hyphens.")) {
                     TextField("my-queue", text: $queueName)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Queue")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isSubmitting = true
@@ -305,6 +313,8 @@ struct CreateQueueSheet: View {
                     .disabled(queueName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
+            .toastContainer()
         }
     }
 }

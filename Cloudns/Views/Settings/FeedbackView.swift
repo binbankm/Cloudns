@@ -111,6 +111,7 @@ struct FeedbackView: View {
                 }
             }
         }
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Feedback & Support")
         .navigationBarTitleDisplayMode(.inline)

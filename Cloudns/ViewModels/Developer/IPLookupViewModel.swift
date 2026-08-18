@@ -4,10 +4,15 @@ import Combine
 
 @MainActor
 class IPLookupViewModel: BaseLoadableViewModel {
-    private let apiClient = CloudflareAPIClient.shared
+    private let devToolsService: DevToolsServiceProtocol
     
     @Published var ipInput: String = ""
     @Published var lookupResult: IPLookupResult?
+    
+    init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
+        self.devToolsService = devToolsService
+        super.init()
+    }
     
     func queryIP() async {
         let target = ipInput.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -15,7 +20,7 @@ class IPLookupViewModel: BaseLoadableViewModel {
         lookupResult = nil
         
         await executeLoadingTask {
-            self.lookupResult = try await self.apiClient.lookupIP(target: target)
+            self.lookupResult = try await self.devToolsService.lookupIP(target: target)
         }
     }
 }

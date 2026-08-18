@@ -1,11 +1,11 @@
 import Foundation
 
-struct DNSSECResponse: Codable {
+struct DNSSECResponse: Codable, Sendable {
     let result: DNSSEC
     let success: Bool
 }
 
-struct DNSSEC: Codable {
+struct DNSSEC: Codable, Sendable {
     var status: String
     var ds: String?
     var digest: String?

@@ -147,7 +147,27 @@ struct WorkerBindingsView: View {
             header: Text("Plaintext Variables (\(secretsViewModel.plainVariables.count))"),
             footer: Text("Plaintext environment variables are readable in worker script code.")
         ) {
-            if secretsViewModel.plainVariables.isEmpty {
+            if !secretsViewModel.hasFetchedData {
+                ForEach(0..<3, id: \.self) { idx in
+                    HStack(spacing: 12) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.body)
+                            .foregroundStyle(.blue)
+                            .frame(width: 30, height: 30)
+                            .background(Color.blue.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("VARIABLE_\(idx + 1)")
+                                .font(.body.monospaced().weight(.medium))
+                            Text("environment_variable_value")
+                                .font(.caption.monospaced())
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 2)
+                }
+                .skeletonLoading(true)
+            } else if secretsViewModel.plainVariables.isEmpty {
                 Text("No plaintext variables configured.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -207,7 +227,27 @@ struct WorkerBindingsView: View {
             header: Text("Encrypted Secrets (\(secretsViewModel.secrets.count))"),
             footer: Text("Secrets are encrypted at rest and masked in responses.")
         ) {
-            if secretsViewModel.secrets.isEmpty {
+            if !secretsViewModel.hasFetchedData {
+                ForEach(WorkerSecret.placeholders.prefix(3)) { secret in
+                    HStack(spacing: 12) {
+                        Image(systemName: "key.fill")
+                            .font(.body)
+                            .foregroundStyle(.orange)
+                            .frame(width: 30, height: 30)
+                            .background(Color.orange.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(secret.name)
+                                .font(.body.monospaced().weight(.medium))
+                            Text("•••••••• (Encrypted Secret)")
+                                .font(.caption.monospaced())
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 2)
+                }
+                .skeletonLoading(true)
+            } else if secretsViewModel.secrets.isEmpty {
                 Text("No encrypted secrets configured.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

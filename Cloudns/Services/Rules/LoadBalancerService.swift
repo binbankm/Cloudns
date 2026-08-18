@@ -1,7 +1,20 @@
 import Foundation
 
+/// Cloudflare Load Balancing 负载均衡领域服务抽象协议
+protocol LoadBalancerServiceProtocol: Sendable {
+    func getLoadBalancers(zoneId: String) async throws -> [LoadBalancer]
+    func getLBPools(accountId: String) async throws -> [LBPool]
+    func getLBMonitors(accountId: String) async throws -> [LBMonitor]
+    func createLoadBalancer(zoneId: String, lb: LoadBalancerUpdate) async throws -> LoadBalancer
+    func deleteLoadBalancer(zoneId: String, lbId: String) async throws
+    func createLBPool(accountId: String, pool: LBPoolUpdate) async throws -> LBPool
+    func deleteLBPool(accountId: String, poolId: String) async throws
+    func createLBMonitor(accountId: String, monitor: LBMonitorUpdate) async throws -> LBMonitor
+    func deleteLBMonitor(accountId: String, monitorId: String) async throws
+}
+
 /// 统一的 Cloudflare Load Balancing 负载均衡领域服务
-final class LoadBalancerService {
+final class LoadBalancerService: LoadBalancerServiceProtocol {
     static let shared = LoadBalancerService()
     
     private let client = HTTPNetworkClient.shared

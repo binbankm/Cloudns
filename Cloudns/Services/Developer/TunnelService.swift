@@ -1,7 +1,17 @@
 import Foundation
 
+/// Cloudflare Tunnels (Zero Trust) 领域服务抽象协议
+protocol TunnelServiceProtocol: Sendable {
+    func getTunnels(accountId: String) async throws -> [CFTunnel]
+    func createTunnel(accountId: String, name: String) async throws -> CFTunnel
+    func deleteTunnel(accountId: String, tunnelId: String) async throws
+    func getTunnelConfigurations(accountId: String, tunnelId: String) async throws -> [TunnelIngressRule]
+    func updateTunnelConfigurations(accountId: String, tunnelId: String, ingressRules: [TunnelIngressRule]) async throws
+    func getTunnelToken(accountId: String, tunnelId: String) async throws -> String?
+}
+
 /// 统一的 Cloudflare Tunnels (Zero Trust) 领域服务
-final class TunnelService {
+final class TunnelService: TunnelServiceProtocol {
     static let shared = TunnelService()
     
     private let client = HTTPNetworkClient.shared
@@ -58,10 +68,7 @@ final class TunnelService {
     
     func getTunnelToken(accountId: String, tunnelId: String) async throws -> String? {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/token")
-        struct TokenResponse: Codable {
-            let token: String?
-        }
-        let (res, _): (TokenResponse?, ResultInfo?) = try await client.performRequest(request)
-        return res?.token
+        let (token, _): (String?, ResultInfo?) = try await client.performRequest(request)
+        return token
     }
 }

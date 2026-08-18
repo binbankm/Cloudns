@@ -37,7 +37,7 @@ struct WorkerRoutesView: View {
                 Button("Detach", role: .destructive) {
                     Task {
                         do {
-                            try await CloudflareAPIClient.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
+                            try await WorkerService.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
                             ToastManager.shared.showSuccess("Domain Detached", message: dom.hostname)
                             await fetchDomains()
                         } catch {
@@ -66,7 +66,13 @@ struct WorkerRoutesView: View {
                 header: Text("Custom Domains (\(customDomains.count))"),
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
             ) {
-                if customDomains.isEmpty {
+                if !hasFetchedData && isLoading {
+                    ForEach(WorkerCustomDomain.placeholders) { dom in
+                        domainRow(dom)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -88,15 +94,22 @@ struct WorkerRoutesView: View {
             
             // Section: Standard Zone Routes
             if !fallbackRoutes.isEmpty {
-                Section(header: Text("Bound Zone Routes (\(fallbackRoutes.count))")) {
-                    ForEach(fallbackRoutes, id: \.self) { r in
+                Section(
+                    header: Text("Zone Routes (\(fallbackRoutes.count))"),
+                    footer: Text("Enterprise/Zone routes pattern-matched against Cloudflare Edge requests.")
+                ) {
+                    ForEach(fallbackRoutes, id: \.self) { route in
                         HStack {
-                            Image(systemName: "arrow.triangle.branch")
-                                .foregroundStyle(.purple)
-                                .font(.caption)
+                            Image(systemName: "arrow.triangle.swap")
+                                .font(.body)
+                                .foregroundStyle(.blue)
+                                .frame(width: 30, height: 30)
+                                .background(Color.blue.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                                 .accessibilityHidden(true)
-                            Text(r)
-                                .font(.footnote)
+                            
+                            Text(route)
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                         }
                         .padding(.vertical, 2)
@@ -107,10 +120,7 @@ struct WorkerRoutesView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !hasFetchedData && isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if hasFetchedData {
+            if hasFetchedData {
                 if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -155,7 +165,7 @@ struct WorkerRoutesView: View {
         isLoading = true
         errorMessage = nil
         do {
-            self.customDomains = try await CloudflareAPIClient.shared.getWorkerCustomDomains(accountId: accountId, scriptName: scriptName)
+            self.customDomains = try await WorkerService.shared.getWorkerCustomDomains(accountId: accountId, scriptName: scriptName)
             self.hasFetchedData = true
         } catch {
             self.errorMessage = error.localizedDescription
@@ -258,6 +268,8 @@ struct WorkerAttachDomainSheetView: View {
                         ) {
                             HStack {
                                 TextField("api", text: $subdomainPrefix)
+                                    .keyboardType(.URL)
+                                    .submitLabel(.done)
                                     .textInputAutocapitalization(.never)
                                     .autocorrectionDisabled()
                                 
@@ -285,37 +297,39 @@ struct WorkerAttachDomainSheetView: View {
                         footer: Text("Enter a domain or subdomain owned by your account (e.g. api.example.com).")
                     ) {
                         TextField("api.example.com", text: $manualHostname)
+                            .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .keyboardType(.URL)
+                            .submitLabel(.done)
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Attach Custom Domain")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Attach") {
                         Task {
                             isAttaching = true
                             errorMessage = nil
                             do {
-                                try await CloudflareAPIClient.shared.attachWorkerDomain(
+                                try await WorkerService.shared.attachWorkerDomain(
                                     accountId: accountId,
+                                    scriptName: scriptName,
                                     hostname: computedHostname,
-                                    zoneId: computedZoneId,
-                                    service: scriptName
+                                    zoneId: computedZoneId
                                 )
                                 HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Custom Domain", message: "Attached \(computedHostname)")
@@ -330,9 +344,11 @@ struct WorkerAttachDomainSheetView: View {
                     .disabled(!isValidInput || isAttaching)
                 }
             }
+            .interactiveDismissDisabled(isAttaching)
+            .toastContainer()
             .task {
                 isLoadingZones = true
-                if let (zones, _) = try? await CloudflareAPIClient.shared.getZones(), !zones.isEmpty {
+                if let (zones, _) = try? await ZoneService.shared.getZones(), !zones.isEmpty {
                     self.availableZones = zones
                     if self.selectedZoneId.isEmpty, let first = zones.first {
                         self.selectedZoneId = first.id

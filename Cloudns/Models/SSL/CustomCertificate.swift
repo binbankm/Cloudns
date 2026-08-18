@@ -1,6 +1,6 @@
 import Foundation
 
-struct CustomCertificate: Codable, Identifiable {
+struct CustomCertificate: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let hosts: [String]
     let issuer: String?
@@ -18,13 +18,13 @@ struct CustomCertificate: Codable, Identifiable {
     }
 }
 
-struct CustomCertificatesResponse: Codable {
+struct CustomCertificatesResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: [CustomCertificate]?
 }
 
-struct CustomCertificateUploadRequest: Codable {
+struct CustomCertificateUploadRequest: Codable, Sendable {
     let certificate: String
     let private_key: String
     let bundle_method: String

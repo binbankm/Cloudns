@@ -86,6 +86,18 @@ struct R2BucketSettingsView: View {
                         }
                     }
                 }
+            } else if viewModel.isLoading {
+                Section(header: Text("Public Access (r2.dev)")) {
+                    Toggle("Enable r2.dev Subdomain", isOn: .constant(false))
+                        .skeletonLoading(true)
+                }
+                Section(header: Text("Connected Custom Domains")) {
+                    ForEach(R2CustomDomain.placeholders) { ph in
+                        customDomainRow(ph)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -103,12 +115,6 @@ struct R2BucketSettingsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add CORS Rule")
-            }
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .refreshable {
@@ -198,8 +204,10 @@ struct AddCORSRuleSheetView: View {
             Form {
                 Section(header: Text("Allowed Origins"), footer: Text("Comma-separated origins (e.g. https://example.com, *)")) {
                     TextField("https://example.com or *", text: $originText)
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Allowed HTTP Methods")) {
@@ -215,21 +223,24 @@ struct AddCORSRuleSheetView: View {
                 
                 Section(header: Text("Allowed Headers"), footer: Text("Comma-separated headers (e.g. Content-Type, Authorization, *)")) {
                     TextField("Content-Type or *", text: $headersText)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 Section(header: Text("Max-Age (Seconds)")) {
                     Stepper("\(maxAgeSeconds) seconds", value: $maxAgeSeconds, in: 0...86400, step: 300)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New CORS Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
                             isSaving = true
@@ -250,6 +261,8 @@ struct AddCORSRuleSheetView: View {
                     .disabled(selectedMethods.isEmpty || originText.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
+            .toastContainer()
         }
     }
 }

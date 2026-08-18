@@ -6,10 +6,32 @@ struct LoadBalancerView: View {
     @StateObject private var viewModel: LoadBalancerViewModel
     @State private var selectedTab = 0
     @State private var showingAddSheet = false
+    @State private var searchText = ""
     
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: LoadBalancerViewModel(zoneId: zoneId))
+    }
+    
+    private var displayedLoadBalancers: [LoadBalancer] {
+        if searchText.isEmpty { return viewModel.loadBalancers }
+        return viewModel.loadBalancers.filter { ($0.name ?? "").localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var displayedPools: [LBPool] {
+        if searchText.isEmpty { return viewModel.pools }
+        return viewModel.pools.filter {
+            ($0.name ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    private var displayedMonitors: [LBMonitor] {
+        if searchText.isEmpty { return viewModel.monitors }
+        return viewModel.monitors.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.path ?? "").localizedCaseInsensitiveContains(searchText)
+        }
     }
     
     var body: some View {
@@ -26,9 +48,17 @@ struct LoadBalancerView: View {
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
             
             if selectedTab == 0 {
-                if !viewModel.loadBalancers.isEmpty {
-                    Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
-                        ForEach(viewModel.loadBalancers) { lb in
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section(header: Text("Load Balancers")) {
+                        ForEach(LoadBalancer.placeholders) { placeholderLB in
+                            lbRow(placeholderLB)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !displayedLoadBalancers.isEmpty {
+                    Section(header: Text("Load Balancers (\(displayedLoadBalancers.count))")) {
+                        ForEach(displayedLoadBalancers) { lb in
                             lbRow(lb)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -45,9 +75,17 @@ struct LoadBalancerView: View {
                     }
                 }
             } else if selectedTab == 1 {
-                if !viewModel.pools.isEmpty {
-                    Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
-                        ForEach(viewModel.pools) { pool in
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section(header: Text("Origin Pools")) {
+                        ForEach(LBPool.placeholders) { placeholderPool in
+                            poolRow(placeholderPool)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !displayedPools.isEmpty {
+                    Section(header: Text("Origin Pools (\(displayedPools.count))")) {
+                        ForEach(displayedPools) { pool in
                             poolRow(pool)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -63,9 +101,17 @@ struct LoadBalancerView: View {
                     }
                 }
             } else if selectedTab == 2 {
-                if !viewModel.monitors.isEmpty {
-                    Section(header: Text("Monitors (\(viewModel.monitors.count))")) {
-                        ForEach(viewModel.monitors) { monitor in
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section(header: Text("Monitors")) {
+                        ForEach(LBMonitor.placeholders) { placeholderMon in
+                            monRow(placeholderMon)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !displayedMonitors.isEmpty {
+                    Section(header: Text("Monitors (\(displayedMonitors.count))")) {
+                        ForEach(displayedMonitors) { monitor in
                             monRow(monitor)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -83,11 +129,10 @@ struct LoadBalancerView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Load Balancers, Pools, Monitors")
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -263,23 +308,35 @@ struct AddLBPoolSheetView: View {
             Form {
                 Section(header: Text("Pool Details")) {
                     TextField("Pool Name (e.g. primary-cluster)", text: $poolName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                     TextField("Description (Optional)", text: $description)
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Initial Origin Server")) {
                     TextField("Origin Name (e.g. srv-01)", text: $originName)
-                    TextField("IP or Hostname (e.g. 192.0.2.1)", text: $originAddress)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                    TextField("IP or Hostname (e.g. 192.0.2.1)", text: $originAddress)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Origin Pool")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
                             isSaving = true
@@ -300,6 +357,7 @@ struct AddLBPoolSheetView: View {
                     .disabled(poolName.isEmpty || originAddress.isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }
@@ -332,11 +390,15 @@ struct AddLBMonitorSheetView: View {
                 
                 Section(header: Text("Health Check Request")) {
                     TextField("Path (e.g. /healthz)", text: $path)
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
                     TextField("Expected Status Code (e.g. 200 or 2xx)", text: $expectedCodes)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 Section(header: Text("Check Timing")) {
@@ -345,13 +407,14 @@ struct AddLBMonitorSheetView: View {
                     Stepper("Retries: \(retries)", value: $retries, in: 1...5)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Health Monitor")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
                             isSaving = true
@@ -374,6 +437,7 @@ struct AddLBMonitorSheetView: View {
                     .disabled(path.isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }

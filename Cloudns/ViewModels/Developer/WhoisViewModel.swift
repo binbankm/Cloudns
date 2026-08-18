@@ -4,7 +4,7 @@ import Combine
 
 @MainActor
 class WhoisViewModel: BaseLoadableViewModel {
-    @Published var domainInput = "cloudflare.com"
+    @Published var domainInput = ""
     @Published var info: WhoisInfo?
     
     func performLookup() async {

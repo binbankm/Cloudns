@@ -2,50 +2,55 @@ import Foundation
 import SwiftUI
 import Combine
 
-public struct AggregatedWorkerDataPoint: Codable, Identifiable, Equatable {
-    public var id: String { timestamp }
-    public let timestamp: String
-    public let date: Date
-    public let requests: Int
-    public let errors: Int
-    public let subrequests: Int
-    public let cpuP50: Double
-    public let cpuP99: Double
+nonisolated struct AggregatedWorkerDataPoint: Codable, Identifiable, Equatable, Sendable {
+    var id: String { timestamp }
+    let timestamp: String
+    let date: Date
+    let requests: Int
+    let errors: Int
+    let subrequests: Int
+    let cpuP50: Double
+    let cpuP99: Double
 }
 
-public struct WorkerAnalyticsSnapshot: Codable {
-    public let dataPoints: [AggregatedWorkerDataPoint]
-    public let totalRequests: Int
-    public let totalErrors: Int
-    public let totalSubrequests: Int
-    public let avgCpuP50: Double
-    public let maxCpuP99: Double
-    public let loadedDays: Int
+nonisolated struct WorkerAnalyticsSnapshot: Codable, Sendable {
+    let dataPoints: [AggregatedWorkerDataPoint]
+    let totalRequests: Int
+    let totalErrors: Int
+    let totalSubrequests: Int
+    let avgCpuP50: Double
+    let maxCpuP99: Double
+    let loadedDays: Int
 }
 
 @MainActor
-public final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
-    public let accountId: String
-    public let scriptName: String
-    private let apiClient = CloudflareAPIClient.shared
+final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
+    let accountId: String
+    let scriptName: String
+    private let analyticsService: AnalyticsServiceProtocol
     
-    @Published public var selectedDays: Int = 1
-    @Published public var loadedDays: Int = 1
-    @Published public var dataPoints: [AggregatedWorkerDataPoint] = []
-    @Published public var totalRequests: Int = 0
-    @Published public var totalErrors: Int = 0
-    @Published public var totalSubrequests: Int = 0
-    @Published public var avgCpuP50: Double = 0
-    @Published public var maxCpuP99: Double = 0
+    @Published var selectedDays: Int = 1
+    @Published var loadedDays: Int = 1
+    @Published var dataPoints: [AggregatedWorkerDataPoint] = []
+    @Published var totalRequests: Int = 0
+    @Published var totalErrors: Int = 0
+    @Published var totalSubrequests: Int = 0
+    @Published var avgCpuP50: Double = 0
+    @Published var maxCpuP99: Double = 0
     
-    public var errorRatePercentage: Double {
+    var errorRatePercentage: Double {
         guard totalRequests > 0 else { return 0.0 }
         return (Double(totalErrors) / Double(totalRequests)) * 100.0
     }
     
-    public init(accountId: String, scriptName: String) {
+    init(
+        accountId: String,
+        scriptName: String,
+        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared
+    ) {
         self.accountId = accountId
         self.scriptName = scriptName
+        self.analyticsService = analyticsService
         super.init()
     }
     
@@ -70,7 +75,7 @@ public final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         
         // 2. [Revalidate] 执行网络请求（错误发生时不破坏已有数据）
         await executeLoadingTask(clearError: true) {
-            let items = try await self.apiClient.getWorkerAnalytics(
+            let items = try await self.analyticsService.getWorkerAnalytics(
                 accountId: self.accountId,
                 scriptName: self.scriptName,
                 days: self.selectedDays

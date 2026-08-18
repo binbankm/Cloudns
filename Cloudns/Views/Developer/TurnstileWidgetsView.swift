@@ -14,7 +14,15 @@ struct TurnstileWidgetsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredWidgets.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(TurnstileWidget.placeholders) { placeholder in
+                        TurnstileWidgetRowView(widget: placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredWidgets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredWidgets) { widget in
                         NavigationLink(destination: TurnstileDetailView(widget: widget, viewModel: viewModel)) {
@@ -70,10 +78,7 @@ struct TurnstileWidgetsView: View {
             await viewModel.fetchWidgets()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -176,6 +181,10 @@ struct CreateTurnstileWidgetSheetView: View {
             Form {
                 Section(header: Text("General Information")) {
                     TextField("Widget Name (e.g. My Website Login)", text: $widgetName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Widget Mode"), footer: Text(modes.first(where: { $0.0 == selectedMode })?.2 ?? "")) {
@@ -190,8 +199,12 @@ struct CreateTurnstileWidgetSheetView: View {
                 Section(header: Text("Allowed Domains"), footer: Text("Enter hostnames allowed to display this Turnstile widget, separated by comma or newlines.")) {
                     TextField("Domains (e.g. example.com, app.example.com)", text: $domainsText, axis: .vertical)
                         .lineLimit(2...4)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Turnstile Widget")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -212,6 +225,8 @@ struct CreateTurnstileWidgetSheetView: View {
                     .disabled(widgetName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
+            .toastContainer()
         }
     }
     

@@ -1,7 +1,35 @@
 import Foundation
 
+/// Cloudflare SSL / TLS 与边缘证书管理领域服务抽象协议
+protocol CertificateServiceProtocol: Sendable {
+    func getSSLSettings(zoneId: String) async throws -> (
+        sslMode: String,
+        alwaysUseHTTPS: Bool,
+        automaticHTTPSRewrites: Bool,
+        minTLSVersion: String,
+        tls13: Bool,
+        opportunisticEncryption: Bool,
+        opportunisticOnion: Bool,
+        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool)
+    )
+    func updateSSLMode(zoneId: String, mode: String) async throws
+    func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async throws
+    func updateAutomaticHTTPSRewrites(zoneId: String, isOn: Bool) async throws
+    func updateMinTLSVersion(zoneId: String, version: String) async throws
+    func updateTLS13(zoneId: String, isOn: Bool) async throws
+    func updateOpportunisticEncryption(zoneId: String, isOn: Bool) async throws
+    func updateOpportunisticOnion(zoneId: String, isOn: Bool) async throws
+    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async throws
+    func getCertificates(zoneId: String) async throws -> [CertificatePack]
+    func getUniversalSSLSetting(zoneId: String) async throws -> Bool
+    func updateUniversalSSL(zoneId: String, enabled: Bool) async throws
+    func deleteCertificatePack(zoneId: String, packId: String) async throws
+    func fetchCustomCertificates(zoneId: String) async throws -> [CustomCertificate]
+    func deleteCustomCertificate(zoneId: String, certificateId: String) async throws
+}
+
 /// 统一的 Cloudflare SSL / TLS 与边缘证书管理领域服务
-final class CertificateService {
+final class CertificateService: CertificateServiceProtocol {
     static let shared = CertificateService()
     
     private let client = HTTPNetworkClient.shared
@@ -21,38 +49,67 @@ final class CertificateService {
         opportunisticOnion: Bool,
         hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool)
     ) {
-        async let ssl = getSetting(zoneId: zoneId, settingName: "ssl")
-        async let https = getSetting(zoneId: zoneId, settingName: "always_use_https")
-        async let rewrites = getSetting(zoneId: zoneId, settingName: "automatic_https_rewrites")
-        async let minTLS = getSetting(zoneId: zoneId, settingName: "min_tls_version")
-        async let tls13 = getSetting(zoneId: zoneId, settingName: "tls_1_3")
-        async let oppEnc = getSetting(zoneId: zoneId, settingName: "opportunistic_encryption")
-        async let oppOnion = getSetting(zoneId: zoneId, settingName: "opportunistic_onion")
-        async let hsts = getSetting(zoneId: zoneId, settingName: "security_header")
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        let (s, h, r, mt, t, oe, oo, sh) = try await (ssl, https, rewrites, minTLS, tls13, oppEnc, oppOnion, hsts)
+        var s: ZoneSetting?
+        var h: ZoneSetting?
+        var r: ZoneSetting?
+        var mt: ZoneSetting?
+        var t: ZoneSetting?
+        var oe: ZoneSetting?
+        var oo: ZoneSetting?
+        var sh: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            s = allSettings.first(where: { $0.id == "ssl" })
+            h = allSettings.first(where: { $0.id == "always_use_https" })
+            r = allSettings.first(where: { $0.id == "automatic_https_rewrites" })
+            mt = allSettings.first(where: { $0.id == "min_tls_version" })
+            t = allSettings.first(where: { $0.id == "tls_1_3" })
+            oe = allSettings.first(where: { $0.id == "opportunistic_encryption" })
+            oo = allSettings.first(where: { $0.id == "opportunistic_onion" })
+            sh = allSettings.first(where: { $0.id == "security_header" })
+        } else {
+            async let ssl = try? getSetting(zoneId: zoneId, settingName: "ssl")
+            async let https = try? getSetting(zoneId: zoneId, settingName: "always_use_https")
+            async let rewrites = try? getSetting(zoneId: zoneId, settingName: "automatic_https_rewrites")
+            async let minTLS = try? getSetting(zoneId: zoneId, settingName: "min_tls_version")
+            async let tls13 = try? getSetting(zoneId: zoneId, settingName: "tls_1_3")
+            async let oppEnc = try? getSetting(zoneId: zoneId, settingName: "opportunistic_encryption")
+            async let oppOnion = try? getSetting(zoneId: zoneId, settingName: "opportunistic_onion")
+            async let hsts = try? getSetting(zoneId: zoneId, settingName: "security_header")
+            
+            let (sslRes, httpsRes, rewritesRes, minTLSRes, tls13Res, oppEncRes, oppOnionRes, hstsRes) = await (ssl, https, rewrites, minTLS, tls13, oppEnc, oppOnion, hsts)
+            s = sslRes
+            h = httpsRes
+            r = rewritesRes
+            mt = minTLSRes
+            t = tls13Res
+            oe = oppEncRes
+            oo = oppOnionRes
+            sh = hstsRes
+        }
         
         var hstsEnabled = false
         var hstsMaxAge = 2592000
         var hstsSubdomains = false
         var hstsNoSniff = false
         
-        if let headerDict = sh?.value as? [String: Any],
-           let strictHeader = headerDict["strict_transport_security"] as? [String: Any] {
-            hstsEnabled = (strictHeader["enabled"] as? Bool) ?? false
-            hstsMaxAge = (strictHeader["max_age"] as? Int) ?? 2592000
-            hstsSubdomains = (strictHeader["include_subdomains"] as? Bool) ?? false
-            hstsNoSniff = (strictHeader["nosniff"] as? Bool) ?? false
+        if let hstsVal = sh?.value.securityHeaderValue?.strict_transport_security {
+            hstsEnabled = hstsVal.enabled
+            hstsMaxAge = hstsVal.max_age
+            hstsSubdomains = hstsVal.include_subdomains
+            hstsNoSniff = hstsVal.nosniff
         }
         
         return (
-            sslMode: (s?.value as? String) ?? "off",
-            alwaysUseHTTPS: ((h?.value as? String) ?? "off") == "on",
-            automaticHTTPSRewrites: ((r?.value as? String) ?? "off") == "on",
-            minTLSVersion: (mt?.value as? String) ?? "1.0",
-            tls13: ((t?.value as? String) ?? "off") == "on",
-            opportunisticEncryption: ((oe?.value as? String) ?? "off") == "on",
-            opportunisticOnion: ((oo?.value as? String) ?? "off") == "on",
+            sslMode: s?.value.stringValue ?? "off",
+            alwaysUseHTTPS: h?.value.boolValue ?? false,
+            automaticHTTPSRewrites: r?.value.boolValue ?? false,
+            minTLSVersion: mt?.value.stringValue ?? "1.0",
+            tls13: t?.value.boolValue ?? false,
+            opportunisticEncryption: oe?.value.boolValue ?? false,
+            opportunisticOnion: oo?.value.boolValue ?? false,
             hsts: (hstsEnabled, hstsMaxAge, hstsSubdomains, hstsNoSniff)
         )
     }
@@ -131,7 +188,31 @@ final class CertificateService {
         let (_, _): (UniversalSSLSettingResult?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    func deleteCertificatePack(zoneId: String, packId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/ssl/certificate_packs/\(packId)", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func fetchCustomCertificates(zoneId: String) async throws -> [CustomCertificate] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/custom_certificates")
+        let (certs, _): ([CustomCertificate]?, ResultInfo?) = try await client.performRequest(request)
+        return certs ?? []
+    }
+    
+    func deleteCustomCertificate(zoneId: String, certificateId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/custom_certificates/\(certificateId)", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
     // MARK: - Generic Setting Helpers
+    
+    private func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings")
+        let (settings, _): ([ZoneSetting]?, ResultInfo?) = try await client.performRequest(request)
+        return settings ?? []
+    }
     
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")

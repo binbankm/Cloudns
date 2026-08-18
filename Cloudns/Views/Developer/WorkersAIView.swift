@@ -12,7 +12,15 @@ struct WorkersAIView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredModels.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Featured Models")) {
+                    ForEach(AIModel.placeholders) { placeholder in
+                        modelRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {
                         Section(header: Text(taskName)) {
@@ -41,10 +49,7 @@ struct WorkersAIView: View {
             await viewModel.fetchModels()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.models.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -235,6 +240,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.chatMessages.count) { _ in
                 withAnimation(.easeOut(duration: 0.25)) {
                     if let last = viewModel.chatMessages.last {
@@ -407,6 +413,9 @@ struct WorkersAIPlaygroundSheetView: View {
     private var chatInputBar: some View {
         HStack(alignment: .bottom, spacing: 10) {
             TextField("Ask \(model.shortName)...", text: $viewModel.promptInput, axis: .vertical)
+                .keyboardType(.asciiCapable)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
                 .lineLimit(1...5)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -414,6 +423,15 @@ struct WorkersAIPlaygroundSheetView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18))
                 .focused($isInputFocused)
                 .disabled(viewModel.isSendingMessage)
+                .submitLabel(.send)
+                .onSubmit {
+                    guard !viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !viewModel.isSendingMessage else { return }
+                    isInputFocused = false
+                    Task {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        await viewModel.sendMessage(model: model.modelPath)
+                    }
+                }
             
             Button {
                 isInputFocused = false

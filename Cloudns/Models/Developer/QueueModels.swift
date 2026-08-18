@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Cloudflare Queues Models
 
-public struct CFQueue: Codable, Identifiable, Equatable {
+public struct CFQueue: Codable, Identifiable, Equatable, Sendable {
     public var id: String { queueId ?? queueName }
     public let queueId: String?
     public let queueName: String
@@ -36,7 +36,7 @@ public struct CFQueue: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct CFQueueSettings: Codable, Equatable {
+public struct CFQueueSettings: Codable, Equatable, Sendable {
     public let deliveryDelay: Int?
     public let messageRetentionPeriod: Int?
     public let deliveryPaused: Bool?
@@ -48,14 +48,14 @@ public struct CFQueueSettings: Codable, Equatable {
     }
 }
 
-public struct CFQueueProducer: Codable, Equatable, Identifiable {
+public struct CFQueueProducer: Codable, Equatable, Identifiable, Sendable {
     public var id: String { script ?? "\(service ?? "")-\(environment ?? "")" }
     public let service: String?
     public let environment: String?
     public let script: String?
 }
 
-public struct CFQueueConsumer: Codable, Equatable, Identifiable {
+public struct CFQueueConsumer: Codable, Equatable, Identifiable, Sendable {
     public var id: String { scriptName ?? "\(service ?? "")-\(environment ?? "")" }
     public let service: String?
     public let environment: String?
@@ -69,7 +69,7 @@ public struct CFQueueConsumer: Codable, Equatable, Identifiable {
     }
 }
 
-public struct CFQueueConsumerSettings: Codable, Equatable {
+public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
     public let batchSize: Int?
     public let maxBatchTimeout: Int?
     public let maxRetries: Int?
@@ -85,7 +85,7 @@ public struct CFQueueConsumerSettings: Codable, Equatable {
     }
 }
 
-public struct CFQueueCreate: Codable {
+public struct CFQueueCreate: Codable, Sendable {
     public let queueName: String
     enum CodingKeys: String, CodingKey {
         case queueName = "queue_name"
@@ -93,7 +93,7 @@ public struct CFQueueCreate: Codable {
     public init(queueName: String) { self.queueName = queueName }
 }
 
-public struct CFQueueUpdate: Codable {
+public struct CFQueueUpdate: Codable, Sendable {
     public let queueName: String?
     public let deliveryDelay: Int?
     public let messageRetentionPeriod: Int?
@@ -113,7 +113,7 @@ public struct CFQueueUpdate: Codable {
     }
 }
 
-public struct CFQueuePurge: Codable {
+public struct CFQueuePurge: Codable, Sendable {
     public let deleteMessagesPermanently: Bool
     enum CodingKeys: String, CodingKey {
         case deleteMessagesPermanently = "delete_messages_permanently"

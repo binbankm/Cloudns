@@ -258,46 +258,46 @@ struct DeveloperHubView: View {
     // MARK: - Account Header Card
     
     private var accountHeaderCard: some View {
-        ZStack {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Developer Suite")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white)
+                    
+                    Text(viewModel.selectedAccount?.name ?? "Active Account")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+                
+                Spacer()
+                
+                Image(systemName: "cpu.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .accessibilityHidden(true)
+            }
+            
+            Divider()
+                .overlay(Color.white.opacity(0.25))
+            
+            // Metrics grid
+            HStack(spacing: 12) {
+                metricItem(title: "Workers", value: "\(viewModel.workers.count)")
+                metricItem(title: "Pages", value: "\(viewModel.pagesProjects.count)")
+                metricItem(title: "R2", value: "\(viewModel.r2Buckets.count)")
+                metricItem(title: "Tunnels", value: "\(viewModel.tunnels.count)")
+            }
+            .skeletonLoading(!viewModel.hasFetchedData)
+        }
+        .padding(16)
+        .background(
             LinearGradient(
                 colors: [Color(red: 0.15, green: 0.45, blue: 0.95), Color(red: 0.08, green: 0.30, blue: 0.75)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Developer Suite")
-                            .font(.title2.weight(.bold))
-                            .foregroundStyle(.white)
-                        
-                        Text(viewModel.selectedAccount?.name ?? "Active Account")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.85))
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "cpu.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .accessibilityHidden(true)
-                }
-                
-                Divider()
-                    .overlay(Color.white.opacity(0.25))
-                
-                // Metrics grid
-                HStack(spacing: 12) {
-                    metricItem(title: "Workers", value: "\(viewModel.workers.count)")
-                    metricItem(title: "Pages", value: "\(viewModel.pagesProjects.count)")
-                    metricItem(title: "R2", value: "\(viewModel.r2Buckets.count)")
-                    metricItem(title: "Tunnels", value: "\(viewModel.tunnels.count)")
-                }
-            }
-            .padding(16)
-        }
+        )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

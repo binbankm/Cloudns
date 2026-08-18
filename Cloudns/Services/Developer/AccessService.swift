@@ -1,7 +1,14 @@
 import Foundation
 
+/// Cloudflare Access 访问控制领域服务抽象协议
+protocol AccessServiceProtocol: Sendable {
+    func listAccessApps(accountId: String) async throws -> [AccessApp]
+    func deleteAccessApp(accountId: String, appId: String) async throws
+    func listAccessPolicies(accountId: String, appId: String) async throws -> [AccessPolicy]
+}
+
 /// 统一的 Cloudflare Access 访问控制领域服务
-final class AccessService {
+final class AccessService: AccessServiceProtocol {
     static let shared = AccessService()
     
     private let client = HTTPNetworkClient.shared

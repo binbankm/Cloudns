@@ -50,11 +50,11 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     /// 1. [Stale] 0ms 瞬间尝试从缓存取出旧数据回调渲染，标记 hasFetchedData = true 消除骨架屏
     /// 2. [Revalidate] 后台静默并发向网络获取最新数据
     /// 3. [Update] 成功后回调最新数据，并自动写入 SWRCacheStore
-    public func executeSWR<T: Codable>(
+    public func executeSWR<T: Codable & Sendable>(
         cacheKey: String,
         targetType: T.Type,
         onCached: @MainActor (T) -> Void,
-        fetcher: () async throws -> T,
+        fetcher: @Sendable () async throws -> T,
         onFresh: @MainActor (T) -> Void
     ) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)

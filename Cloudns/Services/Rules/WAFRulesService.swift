@@ -1,7 +1,59 @@
 import Foundation
 
+/// Cloudflare WAF 规则集、Transform Rules 与 Cache Rules 领域服务抽象协议
+protocol WAFRulesServiceProtocol: Sendable {
+    func fetchRulesetByPhase(zoneId: String, phase: String) async throws -> Ruleset?
+    func updateRulesetRules(zoneId: String, phase: String, rules: [WAFRule]) async throws -> Ruleset
+    func updateWAFRule(zoneId: String, rulesetId: String, ruleId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws
+    func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws
+    func createWAFRule(zoneId: String, rulesetId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
+    func createRuleset(zoneId: String, phase: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
+}
+
+extension WAFRulesServiceProtocol {
+    func updateWAFRule(
+        zoneId: String,
+        rulesetId: String,
+        ruleId: String,
+        action: String,
+        expression: String,
+        description: String?,
+        enabled: Bool,
+        ratelimit: RateLimitConfig? = nil,
+        actionParameters: ActionParameters? = nil
+    ) async throws {
+        try await updateWAFRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId, action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, actionParameters: actionParameters)
+    }
+    
+    func createWAFRule(
+        zoneId: String,
+        rulesetId: String,
+        action: String,
+        expression: String,
+        description: String?,
+        enabled: Bool,
+        ratelimit: RateLimitConfig? = nil,
+        actionParameters: ActionParameters? = nil
+    ) async throws -> Ruleset {
+        try await createWAFRule(zoneId: zoneId, rulesetId: rulesetId, action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, actionParameters: actionParameters)
+    }
+    
+    func createRuleset(
+        zoneId: String,
+        phase: String,
+        action: String,
+        expression: String,
+        description: String?,
+        enabled: Bool,
+        ratelimit: RateLimitConfig? = nil,
+        actionParameters: ActionParameters? = nil
+    ) async throws -> Ruleset {
+        try await createRuleset(zoneId: zoneId, phase: phase, action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, actionParameters: actionParameters)
+    }
+}
+
 /// 统一的 Cloudflare WAF 规则集、Transform Rules 与 Cache Rules 领域服务
-final class WAFRulesService {
+final class WAFRulesService: WAFRulesServiceProtocol {
     static let shared = WAFRulesService()
     
     private let client = HTTPNetworkClient.shared

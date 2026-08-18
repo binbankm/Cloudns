@@ -50,6 +50,8 @@ public struct CloudnsBadge: View {
             Capsule()
                 .stroke(badgeColor.opacity(0.18), lineWidth: 0.5)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(badgeText)
     }
     
     @ViewBuilder

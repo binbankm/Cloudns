@@ -14,7 +14,15 @@ struct R2BucketsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredBuckets.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(R2Bucket.placeholders) { placeholderBucket in
+                        R2BucketRowView(bucket: placeholderBucket)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
                         NavigationLink {
@@ -64,10 +72,7 @@ struct R2BucketsView: View {
             Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -155,8 +160,10 @@ struct R2CreateBucketSheetView: View {
             Form {
                 Section(header: Text("Bucket Information"), footer: Text("3-63 characters, lowercase letters, numbers, and hyphens only.")) {
                     TextField("my-bucket-name", text: $bucketName)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                         .onChange(of: bucketName) { newValue in
                             let lower = newValue.lowercased().filter { $0.isLetter || $0.isNumber || $0 == "-" }
                             if lower != newValue {
@@ -187,13 +194,14 @@ struct R2CreateBucketSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create R2 Bucket")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -212,6 +220,8 @@ struct R2CreateBucketSheetView: View {
                     .disabled(!isValidBucketName || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
+            .toastContainer()
         }
     }
 }

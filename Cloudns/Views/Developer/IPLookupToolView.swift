@@ -6,14 +6,15 @@ struct IPLookupToolView: View {
     
     var body: some View {
         List {
-            // Section: Input
-            Section(header: Text("Query Target")) {
+            // Target IP Input
+            Section(header: Text("Target IP Address or Hostname")) {
                 HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.blue)
+                    Image(systemName: "location.circle")
+                        .foregroundStyle(.teal)
                         .accessibilityHidden(true)
                     
-                    TextField("e.g. 1.1.1.1 or cloudflare.com", text: $viewModel.ipInput)
+                    TextField("e.g. 1.1.1.1 or 104.21.45.12", text: $viewModel.ipInput)
+                        .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
@@ -29,7 +30,6 @@ struct IPLookupToolView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
                         }
-                        .accessibilityLabel("Clear input")
                     }
                 }
                 
@@ -44,19 +44,22 @@ struct IPLookupToolView: View {
                             ProgressView()
                                 .padding(.trailing, 4)
                         } else {
-                            Image(systemName: "network.badge.shield.half.filled")
+                            Image(systemName: "location.fill")
                         }
-                        Text("Query IP / ASN Info")
-                            .font(.body)
-                            .foregroundStyle(.blue)
+                        Text("Lookup IP Geolocation & ASN")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.teal)
                         Spacer()
                     }
                 }
                 .disabled(viewModel.ipInput.isEmpty || viewModel.isLoading)
             }
             
-            if let res = viewModel.lookupResult {
-                ipLookupSections(res)
+            if viewModel.isLoading && viewModel.lookupResult == nil {
+                ipDetailsSection(result: IPLookupResult.placeholder)
+                    .skeletonLoading(true)
+            } else if let result = viewModel.lookupResult {
+                ipDetailsSection(result: result)
             } else if let error = viewModel.errorMessage {
                 Section {
                     Text(error)
@@ -66,37 +69,103 @@ struct IPLookupToolView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("IP & ASN Lookup")
         .navigationBarTitleDisplayMode(.inline)
     }
     
     @ViewBuilder
-    private func ipLookupSections(_ res: IPLookupResult) -> some View {
-        Section(header: Text("IP & Geolocation")) {
-            HStack {
-                Text("IP Address")
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(res.ip)
-                    .font(.subheadline.monospaced())
-                    .foregroundStyle(.primary)
-            }
-            
-            if let city = res.city, let country = res.country {
+    private func ipDetailsSection(result: IPLookupResult) -> some View {
+        // 1. IP & Cloud Provider Identification
+        Section(header: Text("Network Identification")) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Location")
+                    Text(result.countryFlag)
+                        .font(.system(size: 32))
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(result.ip)
+                            .font(.title3.weight(.bold).monospacedDigit())
+                            .foregroundStyle(.primary)
+                        
+                        if let city = result.city, let country = result.country {
+                            Text("\(city), \(country)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        UIPasteboard.general.string = result.ip
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("IP copied to clipboard")
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .foregroundStyle(.teal)
+                    }
+                    .buttonStyle(.plain)
+                }
+                
+                if let cloud = result.cloudProvider {
+                    HStack {
+                        Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
+                            .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                        Text(cloud)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(.tertiarySystemFill))
+                    .clipShape(Capsule())
+                }
+            }
+            .padding(.vertical, 4)
+        }
+        
+        // 2. ASN & BGP Route Details
+        Section(header: Text("BGP Autonomous System (ASN)")) {
+            if let asn = result.asn {
+                HStack {
+                    Text("ASN Number")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text("\(city), \(country)")
+                    CloudnsBadge(.active(asn), isCompact: true)
+                }
+            }
+            
+            if let org = result.org {
+                HStack {
+                    Text("ISP / Organization")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(org)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+        }
+        
+        // 3. Geolocation & Coordinates
+        Section(header: Text("Geographical Location")) {
+            if let country = result.country {
+                HStack {
+                    Text("Country / Region")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(result.countryFlag) \(country)")
                         .font(.subheadline)
                         .foregroundStyle(.primary)
                 }
             }
             
-            if let region = res.region {
+            if let region = result.region {
                 HStack {
-                    Text("Region")
+                    Text("State / Province")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(region)
@@ -105,42 +174,24 @@ struct IPLookupToolView: View {
                 }
             }
             
-            if let tz = res.timezone {
+            if let tz = result.timezone {
                 HStack {
                     Text("Timezone")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(tz)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-        
-        // Section: ASN & Network
-        Section(header: Text("Network & Autonomous System (ASN)")) {
-            if let asn = res.asn {
-                HStack {
-                    Text("ASN")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(asn)
-                        .font(.subheadline.monospaced().weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.12))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .foregroundStyle(.primary)
                 }
             }
             
-            if let org = res.org {
+            if let lat = result.latitude, let lon = result.longitude {
                 HStack {
-                    Text("ISP / Organization")
+                    Text("Coordinates (Lat / Lon)")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(org)
-                        .font(.subheadline)
+                    Text(String(format: "%.4f, %.4f", lat, lon))
+                        .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
             }

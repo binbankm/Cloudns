@@ -4,10 +4,15 @@ import Combine
 
 @MainActor
 class SSLCertInspectorViewModel: BaseLoadableViewModel {
-    private let apiClient = CloudflareAPIClient.shared
+    private let devToolsService: DevToolsServiceProtocol
     
-    @Published var domainInput: String = "cloudflare.com"
+    @Published var domainInput: String = ""
     @Published var certDetails: SSLCertDetails?
+    
+    init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
+        self.devToolsService = devToolsService
+        super.init()
+    }
     
     func inspectCert() async {
         let domain = domainInput.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
@@ -15,7 +20,7 @@ class SSLCertInspectorViewModel: BaseLoadableViewModel {
         certDetails = nil
         
         await executeLoadingTask {
-            self.certDetails = try await self.apiClient.inspectSSLCertificate(domain: domain)
+            self.certDetails = try await self.devToolsService.inspectSSLCertificate(domain: domain)
         }
     }
 }

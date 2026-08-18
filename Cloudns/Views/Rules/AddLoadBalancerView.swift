@@ -3,7 +3,7 @@ import SwiftUI
 struct AddLoadBalancerView: View {
     let zoneId: String
     @ObservedObject var viewModel: LoadBalancerViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var name: String = ""
     @State private var enabled: Bool = true
@@ -43,8 +43,10 @@ struct AddLoadBalancerView: View {
             Form {
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                     
                     Toggle("Enabled", isOn: $enabled)
                     Toggle("Proxied through Cloudflare", isOn: $proxied)
@@ -55,11 +57,14 @@ struct AddLoadBalancerView: View {
                             Spacer()
                             TextField("30", text: $ttl)
                                 .keyboardType(.numberPad)
+                                .autocorrectionDisabled()
                                 .multilineTextAlignment(.trailing)
+                                .submitLabel(.done)
                                 .frame(width: 80)
                         }
                     }
                 }
+                .scrollDismissesKeyboard(.interactively)
                 
                 Section(header: Text("Traffic Steering")) {
                     Picker("Steering Policy", selection: $steeringPolicy) {
@@ -126,12 +131,12 @@ struct AddLoadBalancerView: View {
             .navigationTitle("Create Load Balancer")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
                         if isSubmitting {
                             ProgressView().progressViewStyle(CircularProgressViewStyle())
@@ -142,6 +147,7 @@ struct AddLoadBalancerView: View {
                     .disabled(!isValid || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .toastContainer()
         }
     }
@@ -167,7 +173,7 @@ struct AddLoadBalancerView: View {
             let success = await viewModel.createLoadBalancer(payload: payload)
             isSubmitting = false
             if success {
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             }
         }
     }

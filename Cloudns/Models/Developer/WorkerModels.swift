@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Workers Models
 
-public struct WorkerScript: Codable, Identifiable, Equatable {
+public struct WorkerScript: Codable, Identifiable, Equatable, Sendable {
     public var id: String { id_field ?? id_name ?? "worker" }
     public let id_field: String?
     public let id_name: String?
@@ -43,7 +43,7 @@ public struct WorkerScript: Codable, Identifiable, Equatable {
     }
 }
 
-public struct WorkerModuleItem: Identifiable, Hashable, Codable {
+public struct WorkerModuleItem: Identifiable, Hashable, Codable, Sendable {
     public var id: String { name }
     public let name: String
     public let code: String
@@ -58,7 +58,7 @@ public struct WorkerModuleItem: Identifiable, Hashable, Codable {
     }
 }
 
-public struct WorkerScriptContentResult: Equatable {
+public struct WorkerScriptContentResult: Equatable, Sendable {
     public let rawCode: String
     public let modules: [WorkerModuleItem]
     public let mainModuleName: String?
@@ -72,7 +72,7 @@ public struct WorkerScriptContentResult: Equatable {
     }
 }
 
-public struct WorkerBinding: Codable, Identifiable, Equatable {
+public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let name: String
     public let type: String
@@ -120,7 +120,7 @@ public struct WorkerBinding: Codable, Identifiable, Equatable {
     }
 }
 
-public struct WorkerSecret: Codable, Identifiable, Equatable {
+public struct WorkerSecret: Codable, Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let name: String
     public let type: String
@@ -142,13 +142,13 @@ public struct WorkerSecret: Codable, Identifiable, Equatable {
     }
 }
 
-public struct WorkerCustomRoute: Codable, Identifiable, Equatable {
+public struct WorkerCustomRoute: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let pattern: String
     public let script: String?
 }
 
-public struct WorkerCustomDomain: Codable, Identifiable, Equatable {
+public struct WorkerCustomDomain: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let hostname: String
     public let zoneName: String?
@@ -175,12 +175,12 @@ public struct WorkerCustomDomain: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct WorkerSubdomain: Codable, Equatable {
+public struct WorkerSubdomain: Codable, Equatable, Sendable {
     public let id: String?
     public let enabled: Bool
 }
 
-public struct WorkerSchedule: Codable, Identifiable, Equatable {
+public struct WorkerSchedule: Codable, Identifiable, Equatable, Sendable {
     public var id: String { cron }
     public let cron: String
     public let createdOn: String?
@@ -204,15 +204,15 @@ public struct WorkerSchedule: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct WorkerSchedulesResult: Codable {
+public struct WorkerSchedulesResult: Codable, Sendable {
     public let schedules: [WorkerSchedule]?
 }
 
-public struct WorkerScheduleInput: Codable {
+public struct WorkerScheduleInput: Codable, Sendable {
     public let cron: String
 }
 
-public struct WorkerTailSession: Codable {
+public struct WorkerTailSession: Codable, Sendable {
     public let id: String
     public let url: String
     public let expiresAt: String?

@@ -1,7 +1,26 @@
 import Foundation
 
+/// Cloudflare Zone（域名）管理领域服务抽象协议
+protocol ZoneServiceProtocol: Sendable {
+    func getZones(page: Int, perPage: Int, name: String?, status: String?) async throws -> ([Zone], ResultInfo?)
+    func getAccounts() async throws -> [Account]
+    func getZoneDetails(zoneId: String) async throws -> Zone
+    func createZone(name: String, accountId: String, jumpStart: Bool) async throws -> Zone
+    func deleteZone(zoneId: String) async throws -> String
+    func updateZoneStatus(zoneId: String, paused: Bool) async throws
+    func pauseZone(zoneId: String, paused: Bool) async throws
+    func purgeCache(zoneId: String) async throws
+    func getAuditLogs(accountId: String) async throws -> [AuditLog]
+}
+
+extension ZoneServiceProtocol {
+    func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
+        try await getZones(page: page, perPage: perPage, name: name, status: status)
+    }
+}
+
 /// 统一的 Cloudflare Zone（域名）管理领域服务
-final class ZoneService {
+final class ZoneService: ZoneServiceProtocol {
     static let shared = ZoneService()
     
     private let client = HTTPNetworkClient.shared
@@ -90,5 +109,12 @@ final class ZoneService {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/purge_cache", method: "POST", body: data)
         struct PurgeResult: Codable { let id: String? }
         let (_, _): (PurgeResult?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    /// 获取账户审计日志 (Audit Logs)
+    func getAuditLogs(accountId: String) async throws -> [AuditLog] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/audit_logs")
+        let (logs, _): ([AuditLog]?, ResultInfo?) = try await client.performRequest(request)
+        return logs ?? []
     }
 }

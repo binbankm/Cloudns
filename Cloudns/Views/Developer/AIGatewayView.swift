@@ -14,7 +14,15 @@ struct AIGatewayView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredGateways.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Configured Gateways")) {
+                    ForEach(AIGateway.placeholders) { placeholder in
+                        gatewayRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
                     ForEach(viewModel.filteredGateways) { gw in
                         NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
@@ -70,10 +78,7 @@ struct AIGatewayView: View {
             await viewModel.fetchGateways()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -158,8 +163,10 @@ struct AIGatewayCreateSheetView: View {
             Form {
                 Section(header: Text("Gateway ID"), footer: Text("A unique slug used in the Gateway universal endpoint URL.")) {
                     TextField("my-ai-gateway", text: $gatewayId)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 if let err = errorMessage {
@@ -170,13 +177,14 @@ struct AIGatewayCreateSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New AI Gateway")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -194,6 +202,8 @@ struct AIGatewayCreateSheetView: View {
                     .disabled(gatewayId.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
+            .toastContainer()
         }
     }
 }

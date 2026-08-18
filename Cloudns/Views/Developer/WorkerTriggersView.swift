@@ -60,7 +60,15 @@ struct WorkerTriggersView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.schedules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Scheduled Triggers")) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        scheduleRow(WorkerSchedule(cron: "0 * * * *"))
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
                     footer: Text("Cloudflare evaluates Cron triggers based on UTC timezone.")
@@ -83,10 +91,7 @@ struct WorkerTriggersView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -181,6 +186,8 @@ private struct AddCronTriggerSheet: View {
             Form {
                 Section(header: Text("Cron Expression")) {
                     TextField("*/5 * * * *", text: $cronExpression)
+                        .keyboardType(.asciiCapable)
+                        .submitLabel(.done)
                         .font(.body.monospacedDigit())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -201,10 +208,12 @@ private struct AddCronTriggerSheet: View {
                                     .foregroundStyle(.secondary)
                                 if cronExpression == preset.expr {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.tint)
+                                        .foregroundStyle(Color.accentColor)
                                 }
                             }
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 
@@ -216,6 +225,7 @@ private struct AddCronTriggerSheet: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Cron Trigger")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -241,6 +251,8 @@ private struct AddCronTriggerSheet: View {
                     .disabled(cronExpression.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
+            .toastContainer()
         }
     }
 }

@@ -60,7 +60,7 @@ struct PagesProjectDetailView: View {
                 Button("Delete '\(project.name)'", role: .destructive) {
                     Task {
                         do {
-                            try await CloudflareAPIClient.shared.deletePagesProject(accountId: accountId, projectName: project.name)
+                            try await PagesService.shared.deletePagesProject(accountId: accountId, projectName: project.name)
                             ToastManager.shared.showSuccess("Pages Project Deleted", message: project.name)
                             dismiss()
                         } catch {
@@ -239,7 +239,12 @@ struct PagesProjectDetailView: View {
             
             // Section: Deployments History
             Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
-                if viewModel.deployments.isEmpty {
+                if !viewModel.hasFetchedData {
+                    ForEach(PagesDeployment.placeholders) { dep in
+                        deploymentRow(dep)
+                    }
+                    .skeletonLoading(true)
+                } else if viewModel.deployments.isEmpty {
                     Text("No recent deployments found.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)

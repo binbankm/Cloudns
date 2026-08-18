@@ -30,75 +30,80 @@ struct CloudflareStatusView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if let summary = viewModel.summary {
-                // Section: Overall Status Banner Card
-                Section {
-                    overallBanner(summary: summary)
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                
-                // Section: Core Services Health
-                if let components = summary.components, !components.isEmpty {
-                    Section(header: Text("Services & Infrastructure (\(filteredComponents(components).count))")) {
-                        ForEach(filteredComponents(components)) { comp in
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(statusColor(comp.status))
-                                    .frame(width: 8, height: 8)
-                                
-                                Text(comp.name)
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-                                
-                                Spacer()
-                                
-                                Text(statusLabel(comp.status))
-                                    .font(.caption)
-                                    .foregroundStyle(statusColor(comp.status))
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-                
-                // Section: Unresolved Incidents
-                if let incidents = summary.incidents, !incidents.isEmpty {
-                    Section(header: Text("Active Incidents (\(incidents.count))")) {
-                        ForEach(incidents) { inc in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(inc.name)
-                                        .font(.body.weight(.medium))
-                                    Spacer()
-                                    CloudnsBadge(.warning(inc.status.capitalized), isCompact: true)
-                                }
-                                
-                                if let updated = inc.updatedAt {
-                                    Text(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 3)
-                        }
-                    }
-                }
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                statusSections(summary: CFStatusSummary.placeholder)
+                    .skeletonLoading(true)
+            } else if let summary = viewModel.summary {
+                statusSections(summary: summary)
             }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
+            if viewModel.hasFetchedData, let err = viewModel.errorMessage, viewModel.summary == nil {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(err),
                         retryAction: { Task { await viewModel.fetchStatus() } }
                     )
                 )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func statusSections(summary: CFStatusSummary) -> some View {
+        // Section: Overall Status Banner Card
+        Section {
+            overallBanner(summary: summary)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        
+        // Section: Core Services Health
+        if let components = summary.components, !components.isEmpty {
+            Section(header: Text("Services & Infrastructure (\(filteredComponents(components).count))")) {
+                ForEach(filteredComponents(components)) { comp in
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(statusColor(comp.status))
+                            .frame(width: 8, height: 8)
+                        
+                        Text(comp.name)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                        
+                        Spacer()
+                        
+                        Text(statusLabel(comp.status))
+                            .font(.caption)
+                            .foregroundStyle(statusColor(comp.status))
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        
+        // Section: Unresolved Incidents
+        if let incidents = summary.incidents, !incidents.isEmpty {
+            Section(header: Text("Active Incidents (\(incidents.count))")) {
+                ForEach(incidents) { inc in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(inc.name)
+                                .font(.body.weight(.medium))
+                            Spacer()
+                            CloudnsBadge(.warning(inc.status.capitalized), isCompact: true)
+                        }
+                        
+                        if let updated = inc.updatedAt {
+                            Text(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 3)
+                }
             }
         }
     }

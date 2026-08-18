@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Cloudflare Tunnel (Zero Trust) Models
 
-public struct CFTunnel: Codable, Identifiable, Equatable {
+public struct CFTunnel: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let status: String?
@@ -41,7 +41,7 @@ public struct CFTunnel: Codable, Identifiable, Equatable {
     }
 }
 
-public struct TunnelConnection: Codable, Identifiable, Equatable {
+public struct TunnelConnection: Codable, Identifiable, Equatable, Sendable {
     public var id: String { clientId ?? UUID().uuidString }
     public let clientId: String?
     public let version: String?
@@ -61,7 +61,7 @@ public struct TunnelConnection: Codable, Identifiable, Equatable {
     }
 }
 
-public struct TunnelIngressRule: Codable, Identifiable, Equatable {
+public struct TunnelIngressRule: Codable, Identifiable, Equatable, Sendable {
     public var id: String { "\(hostname ?? "")-\(path ?? "")-\(service ?? "")" }
     public let hostname: String?
     public let path: String?

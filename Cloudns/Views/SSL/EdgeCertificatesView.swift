@@ -4,6 +4,16 @@ struct EdgeCertificatesView: View {
     let zoneId: String
     
     @StateObject private var viewModel = EdgeCertificatesViewModel()
+    @State private var searchText = ""
+    
+    private var displayedCertificates: [EdgeCertificateModel] {
+        if searchText.isEmpty { return viewModel.certificates }
+        return viewModel.certificates.filter {
+            $0.hosts.joined(separator: " ").localizedCaseInsensitiveContains(searchText) ||
+            $0.issuer.localizedCaseInsensitiveContains(searchText) ||
+            $0.type.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         List {
@@ -20,9 +30,18 @@ struct EdgeCertificatesView: View {
                 ))
             }
             
-            if !viewModel.certificates.isEmpty {
-                Section(header: Text("Active Certificates (\(viewModel.certificates.count))")) {
-                    ForEach(viewModel.certificates) { cert in
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Active Certificates")) {
+                    ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
+                        EdgeCertificateCardView(certificate: placeholderCert)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedCertificates.isEmpty {
+                Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
+                    ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -41,11 +60,9 @@ struct EdgeCertificatesView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Certificates")
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -61,6 +78,13 @@ struct EdgeCertificatesView: View {
                             icon: "lock.shield",
                             title: "No Edge Certificates",
                             message: "No Edge Certificates found."
+                        )
+                    )
+                } else if displayedCertificates.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
                         )
                     )
                 }

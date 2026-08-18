@@ -7,21 +7,26 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
     @Published var certificates: [EdgeCertificateModel] = []
     @Published var isUniversalSSLEnabled: Bool = true
     
-    let apiClient = CloudflareAPIClient.shared
+    private let certService: CertificateServiceProtocol
+    
+    init(certService: CertificateServiceProtocol = CertificateService.shared) {
+        self.certService = certService
+        super.init()
+    }
     
     func fetchCertificates(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            async let fetchPacks = apiClient.fetchCertificatePacks(zoneId: zoneId)
-            async let fetchUni = apiClient.getUniversalSSLSettings(zoneId: zoneId)
+            async let fetchPacks = certService.getCertificates(zoneId: zoneId)
+            async let fetchUni = (try? certService.getUniversalSSLSetting(zoneId: zoneId)) ?? true
             let (packs, uniEnabled) = try await (fetchPacks, fetchUni)
             self.isUniversalSSLEnabled = uniEnabled
             
             var customCerts: [CustomCertificate] = []
             do {
-                customCerts = try await apiClient.fetchCustomCertificates(zoneId: zoneId)
+                customCerts = try await certService.fetchCustomCertificates(zoneId: zoneId)
             } catch {
                 print("Notice: Custom certificates fetch failed: \(error.localizedDescription)")
             }
@@ -79,7 +84,7 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
     func toggleUniversalSSL(zoneId: String, enabled: Bool) async {
         isUniversalSSLEnabled = enabled
         do {
-            try await apiClient.updateUniversalSSLSettings(zoneId: zoneId, enabled: enabled)
+            try await certService.updateUniversalSSL(zoneId: zoneId, enabled: enabled)
             ToastManager.shared.showSuccess("Universal SSL", message: enabled ? "Enabled" : "Disabled")
             await fetchCertificates(zoneId: zoneId)
         } catch {
@@ -91,9 +96,9 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
     func deleteCertificate(zoneId: String, cert: EdgeCertificateModel) async {
         do {
             if cert.type.lowercased() == "custom" {
-                try await apiClient.deleteCustomCertificate(zoneId: zoneId, certificateId: cert.id)
+                try await certService.deleteCustomCertificate(zoneId: zoneId, certificateId: cert.id)
             } else {
-                try await apiClient.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
+                try await certService.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
             }
             ToastManager.shared.showSuccess("Certificate Removed", message: "")
             await fetchCertificates(zoneId: zoneId)

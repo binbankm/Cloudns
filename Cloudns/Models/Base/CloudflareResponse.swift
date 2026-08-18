@@ -1,6 +1,6 @@
 import Foundation
 
-public struct CloudflareResponse<T: Codable>: Codable {
+public struct CloudflareResponse<T: Codable & Sendable>: Codable, Sendable {
     public let success: Bool
     public let errors: [CloudflareError]?
     public let result: T?
@@ -12,7 +12,7 @@ public struct CloudflareResponse<T: Codable>: Codable {
     }
 }
 
-public struct ResultInfo: Codable {
+public struct ResultInfo: Codable, Equatable, Sendable {
     public let page: Int
     public let perPage: Int
     public let totalPages: Int
@@ -21,7 +21,7 @@ public struct ResultInfo: Codable {
     public let cursor: String?
     public let cursors: ResultCursors?
     
-    public struct ResultCursors: Codable {
+    public struct ResultCursors: Codable, Equatable, Sendable {
         public let before: String?
         public let after: String?
         
@@ -63,7 +63,7 @@ public struct ResultInfo: Codable {
     }
 }
 
-public struct CloudflareError: Codable {
+public struct CloudflareError: Codable, Equatable, Sendable {
     public let code: Int
     public let message: String
 }

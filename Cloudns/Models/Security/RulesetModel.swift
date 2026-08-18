@@ -1,18 +1,18 @@
 import Foundation
 
-struct RulesetsResponse: Codable {
+struct RulesetsResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: [Ruleset]?
 }
 
-struct SingleRulesetResponse: Codable {
+struct SingleRulesetResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: Ruleset?
 }
 
-struct Ruleset: Codable, Identifiable {
+struct Ruleset: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let name: String
     let description: String?
@@ -21,7 +21,7 @@ struct Ruleset: Codable, Identifiable {
     let rules: [WAFRule]?
 }
 
-struct WAFRule: Codable, Identifiable {
+struct WAFRule: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let action: String
     let expression: String
@@ -55,14 +55,14 @@ struct WAFRule: Codable, Identifiable {
     ]
 }
 
-struct RateLimitConfig: Codable {
+struct RateLimitConfig: Codable, Equatable, Sendable {
     let characteristics: [String]?
     let mitigation_timeout: Int?
     let period: Int
     let requests_per_period: Int
 }
 
-struct UpdateWAFRuleRequest: Codable {
+struct UpdateWAFRuleRequest: Codable, Sendable {
     let action: String
     let expression: String
     let description: String?
@@ -71,12 +71,12 @@ struct UpdateWAFRuleRequest: Codable {
     let action_parameters: ActionParameters?
 }
 
-struct UpdateWAFRuleResponse: Codable {
+struct UpdateWAFRuleResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: Ruleset? // The API returns the whole ruleset when updating a rule
 }
 
-struct WAFEntrypointUpdate: Codable {
+struct WAFEntrypointUpdate: Codable, Sendable {
     let rules: [UpdateWAFRuleRequest]
 }

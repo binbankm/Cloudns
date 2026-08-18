@@ -154,12 +154,18 @@ struct PagesDeploymentDetailView: View {
             // Section 3: Build Logs
             Section(header: Text("Build Logs (\(viewModel.logs.count) lines)")) {
                 if viewModel.isLoadingLogs {
-                    HStack {
-                        Spacer()
-                        ProgressView("Loading logs…")
-                        Spacer()
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(0..<4, id: \.self) { idx in
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(Color.secondary.opacity(0.25))
+                                .frame(height: 10)
+                                .frame(maxWidth: idx == 3 ? 180 : .infinity)
+                        }
                     }
-                    .padding(.vertical, 8)
+                    .padding(10)
+                    .background(Color.black.opacity(0.85))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .skeletonLoading(true)
                 } else if viewModel.logs.isEmpty {
                     Text("No build logs available for this deployment.")
                         .font(.footnote)

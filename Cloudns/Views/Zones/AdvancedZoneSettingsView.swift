@@ -62,6 +62,7 @@ struct AdvancedZoneSettingsView: View {
                 .disabled(isDeleting)
             }
         }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Advanced Settings")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Remove Site from Cloudflare", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
@@ -86,7 +87,7 @@ struct AdvancedZoneSettingsView: View {
     
     private func updatePauseStatus(paused: Bool) async {
         do {
-            try await CloudflareAPIClient.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
+            try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             ToastManager.shared.showSuccess(paused ? "Site Paused" : "Site Resumed")
         } catch {
@@ -98,7 +99,7 @@ struct AdvancedZoneSettingsView: View {
     private func deleteZone() async {
         isDeleting = true
         do {
-            try await CloudflareAPIClient.shared.deleteZone(zoneId: zoneId)
+            _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
             isDeleting = false
             NotificationCenter.default.post(name: .zoneDeleted, object: nil)
             dismiss()

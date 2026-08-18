@@ -195,15 +195,34 @@ struct SSLSettingsView: View {
                     .foregroundStyle(.blue)
                 }
             }
-        }
-        }
-        .centerConstrainedWidth(maxWidth: 840)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.isLoading {
+            Section(header: Text("SSL/TLS Encryption Mode")) {
+                    Picker("Encryption Mode", selection: .constant("full")) {
+                        Text("Full").tag("full")
+                    }
+                    .skeletonLoading(true)
+                }
+                
+                Section(header: Text("Edge Certificates")) {
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Always Use HTTPS")
+                            Text("Redirect all HTTP requests to HTTPS.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                    
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Automatic HTTPS Rewrites")
+                            Text("Automatically rewrite HTTP resources to HTTPS.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
             }
         }
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

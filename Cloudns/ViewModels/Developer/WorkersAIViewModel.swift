@@ -19,7 +19,7 @@ public struct AIChatMessageItem: Identifiable, Equatable {
 @MainActor
 class WorkersAIViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let aiService: AIServiceProtocol
     
     @Published var models: [AIModel] = []
     @Published var searchText: String = ""
@@ -29,8 +29,9 @@ class WorkersAIViewModel: BaseLoadableViewModel {
     @Published var promptInput: String = ""
     @Published var isSendingMessage = false
     
-    init(accountId: String) {
+    init(accountId: String, aiService: AIServiceProtocol = AIService.shared) {
         self.accountId = accountId
+        self.aiService = aiService
         super.init()
     }
     
@@ -49,7 +50,7 @@ class WorkersAIViewModel: BaseLoadableViewModel {
     
     func fetchModels() async {
         await executeLoadingTask {
-            self.models = try await self.apiClient.getWorkersAIModels(accountId: self.accountId)
+            self.models = try await self.aiService.getWorkersAIModels(accountId: self.accountId)
         }
     }
     
@@ -65,7 +66,7 @@ class WorkersAIViewModel: BaseLoadableViewModel {
         let payloadMessages = chatMessages.filter { !$0.isError }.map { ["role": $0.role, "content": $0.content] }
         
         do {
-            let reply = try await apiClient.runAIChat(accountId: accountId, model: model, messages: payloadMessages)
+            let reply = try await aiService.runAIChat(accountId: accountId, model: model, messages: payloadMessages)
             let assistantMsg = AIChatMessageItem(role: "assistant", content: reply)
             chatMessages.append(assistantMsg)
         } catch {

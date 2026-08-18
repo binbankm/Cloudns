@@ -6,7 +6,7 @@ import Combine
 class WorkerSecretsViewModel: BaseLoadableViewModel {
     let accountId: String
     let scriptName: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let workerService: WorkerServiceProtocol
     
     @Published var selectedTab: String = "variables" // "variables" | "secrets"
     @Published var plainVariables: [WorkerBinding] = []
@@ -14,9 +14,10 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
     @Published var allBindings: [WorkerBinding] = []
     @Published var searchText: String = ""
     
-    init(accountId: String, scriptName: String) {
+    init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
+        self.workerService = workerService
         super.init()
     }
     
@@ -32,8 +33,8 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
     
     func fetchSecrets() async {
         await executeLoadingTask {
-            async let fetchedSecrets = self.apiClient.getWorkerSecrets(accountId: self.accountId, scriptName: self.scriptName)
-            async let fetchedBindings = self.apiClient.getWorkerBindings(accountId: self.accountId, scriptName: self.scriptName)
+            async let fetchedSecrets = self.workerService.getWorkerSecrets(accountId: self.accountId, scriptName: self.scriptName)
+            async let fetchedBindings = self.workerService.getWorkerBindings(accountId: self.accountId, scriptName: self.scriptName)
             
             let (secList, bindList) = try await (fetchedSecrets, fetchedBindings)
             self.secrets = secList
@@ -45,23 +46,23 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
     func savePlainVariable(name: String, value: String) async throws {
         var updated = allBindings.filter { $0.name != name }
         updated.append(WorkerBinding(name: name, type: "plain_text", namespaceId: nil, bucketName: nil, databaseId: nil, text: value))
-        try await apiClient.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
         await fetchSecrets()
     }
     
     func deletePlainVariable(name: String) async throws {
         let updated = allBindings.filter { $0.name != name }
-        try await apiClient.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
         await fetchSecrets()
     }
     
     func saveSecret(name: String, value: String) async throws {
-        try await apiClient.putWorkerSecret(accountId: accountId, scriptName: scriptName, name: name, text: value)
+        try await workerService.putWorkerSecret(accountId: accountId, scriptName: scriptName, name: name, text: value)
         await fetchSecrets()
     }
     
     func deleteSecret(name: String) async throws {
-        try await apiClient.deleteWorkerSecret(accountId: accountId, scriptName: scriptName, name: name)
+        try await workerService.deleteWorkerSecret(accountId: accountId, scriptName: scriptName, name: name)
         await fetchSecrets()
     }
 }

@@ -6,11 +6,22 @@ struct RedirectRulesView: View {
     @State private var showingAddSheet = false
     @State private var ruleToDelete: RedirectRuleItem?
     @State private var showingDeleteAlert = false
+    @State private var searchText = ""
+    
+    private var displayedRules: [RedirectRuleItem] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.expression ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.targetUrl ?? "").localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         contentView
             .navigationTitle("Redirect Rules")
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Redirect Rules")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -47,9 +58,17 @@ struct RedirectRulesView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.rules.isEmpty {
-                Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
-                    ForEach(viewModel.rules) { rule in
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Configured Rules")) {
+                    ForEach(RedirectRuleItem.placeholders) { placeholderRule in
+                        redirectRuleRow(placeholderRule)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedRules.isEmpty {
+                Section(header: Text("Configured Rules (\(displayedRules.count))")) {
+                    ForEach(displayedRules) { rule in
                         redirectRuleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -67,10 +86,7 @@ struct RedirectRulesView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -88,6 +104,13 @@ struct RedirectRulesView: View {
                             message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
                             actionTitle: "Add Rule",
                             action: { showingAddSheet = true }
+                        )
+                    )
+                } else if displayedRules.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
                         )
                     )
                 }
@@ -151,21 +174,27 @@ struct AddRedirectRuleSheetView: View {
             Form {
                 Section(header: Text("Rule Description")) {
                     TextField("Rule Name", text: $ruleDescription)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")) {
                     TextField("Expression", text: $expression)
-                        .font(.footnote)
+                        .font(.footnote.monospaced())
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Redirect Target & Code")) {
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
                         .font(.footnote)
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .keyboardType(.URL)
+                        .submitLabel(.done)
                     
                     Picker("Status Code", selection: $statusCode) {
                         Text("301 - Moved Permanently").tag(301)
@@ -185,13 +214,14 @@ struct AddRedirectRuleSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -210,9 +240,11 @@ struct AddRedirectRuleSheetView: View {
                             isCreating = false
                         }
                     }
-                    .disabled(ruleDescription.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .disabled(ruleDescription.trimmingCharacters(in: .whitespaces).isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
+            .toastContainer()
         }
     }
 }

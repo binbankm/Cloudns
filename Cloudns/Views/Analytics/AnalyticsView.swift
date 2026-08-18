@@ -33,13 +33,16 @@ public struct AnalyticsView: View {
                 headerBar
                 
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    VStack {
-                        Spacer(minLength: 80)
-                        ProgressView()
-                            .controlSize(.large)
-                        Spacer(minLength: 120)
+                    Group {
+                        metricsGrid
+                            .skeletonLoading(true)
+                        
+                        requestsLineChartCard
+                            .skeletonLoading(true)
+                        
+                        bandwidthBarChartCard
+                            .skeletonLoading(true)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 300)
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                     if let errorMessage = viewModel.errorMessage {
                         StateOverlayView(

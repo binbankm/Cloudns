@@ -10,32 +10,24 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var http3: Bool = false
     @Published var ipGeolocation: Bool = false
     
-    let apiClient = CloudflareAPIClient.shared
+    private let networkService: SpeedAndNetworkServiceProtocol
+    
+    init(networkService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+        self.networkService = networkService
+        super.init()
+    }
     
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let settings = try await apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                switch setting.id {
-                case "ipv6":
-                    self.ipv6 = (setting.value.stringValue == "on")
-                case "websockets":
-                    self.websockets = (setting.value.stringValue == "on")
-                case "http2":
-                    self.http2 = (setting.value.stringValue == "on")
-                case "http3":
-                    self.http3 = (setting.value.stringValue == "on")
-                case "ip_geolocation":
-                    self.ipGeolocation = (setting.value.stringValue == "on")
-                default:
-                    break
-                }
-            }
-            
+            let res = try await networkService.getNetworkSettings(zoneId: zoneId)
+            self.ipv6 = res.ipv6
+            self.websockets = res.websockets
+            self.http2 = res.http2
+            self.http3 = res.http3
+            self.ipGeolocation = res.ipGeolocation
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load network settings: \(error.localizedDescription)"
@@ -45,43 +37,52 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
     }
     
     func updateIPv6(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "ipv6", value: isOn) {
+        HapticManager.impact(.medium)
+        do {
+            try await networkService.updateIPv6(zoneId: zoneId, isOn: isOn)
             self.ipv6 = isOn
+        } catch {
+            self.errorMessage = "Failed to update IPv6: \(error.localizedDescription)"
         }
     }
     
     func updateWebsockets(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "websockets", value: isOn) {
+        HapticManager.impact(.medium)
+        do {
+            try await networkService.updateWebsockets(zoneId: zoneId, isOn: isOn)
             self.websockets = isOn
+        } catch {
+            self.errorMessage = "Failed to update WebSockets: \(error.localizedDescription)"
         }
     }
     
     func updateHTTP2(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "http2", value: isOn) {
+        HapticManager.impact(.medium)
+        do {
+            try await networkService.updateHTTP2(zoneId: zoneId, isOn: isOn)
             self.http2 = isOn
+        } catch {
+            self.errorMessage = "Failed to update HTTP/2: \(error.localizedDescription)"
         }
     }
     
     func updateHTTP3(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "http3", value: isOn) {
+        HapticManager.impact(.medium)
+        do {
+            try await networkService.updateHTTP3(zoneId: zoneId, isOn: isOn)
             self.http3 = isOn
+        } catch {
+            self.errorMessage = "Failed to update HTTP/3: \(error.localizedDescription)"
         }
     }
     
     func updateIPGeolocation(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "ip_geolocation", value: isOn) {
-            self.ipGeolocation = isOn
-        }
-    }
-    
-    private func updateSetting(zoneId: String, settingId: String, value: Bool, onSuccess: (() -> Void)? = nil) async {
         HapticManager.impact(.medium)
-        
         do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: .string(value ? "on" : "off"))
-            onSuccess?()
+            try await networkService.updateIPGeolocation(zoneId: zoneId, isOn: isOn)
+            self.ipGeolocation = isOn
         } catch {
-            self.errorMessage = "Failed to update \(settingId.replacingOccurrences(of: "_", with: " ")): \(error.localizedDescription)"
+            self.errorMessage = "Failed to update IP Geolocation: \(error.localizedDescription)"
         }
     }
 }

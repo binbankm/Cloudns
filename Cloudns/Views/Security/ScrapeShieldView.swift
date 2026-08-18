@@ -92,15 +92,26 @@ struct ScrapeShieldView: View {
                         isLoading: viewModel.isLoading && !viewModel.hasFetchedData
                     )
                 }
+            } else if viewModel.isLoading {
+                Section {
+                    ForEach(0..<3, id: \.self) { _ in
+                        ScrapeShieldRow(
+                            title: "Scrape Protection Setting",
+                            subtitle: "Configuring security level and scraper prevention rules...",
+                            icon: "shield.fill",
+                            iconColor: .purple,
+                            isOn: .constant(true),
+                            isLoading: true
+                        )
+                        .skeletonLoading(true)
+                    }
+                }
             }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),

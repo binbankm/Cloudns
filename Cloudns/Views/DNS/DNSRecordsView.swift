@@ -29,7 +29,15 @@ struct DNSRecordsView: View {
     
     var body: some View {
         List(selection: $multiSelection) {
-            if !displayRecords.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(DNSRecord.placeholders) { placeholderRecord in
+                        DNSRecordRowView(record: placeholderRecord)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayRecords.isEmpty {
                 recordsSections
 
                 if viewModel.canLoadMore && viewModel.hasFetchedData {
@@ -108,10 +116,7 @@ struct DNSRecordsView: View {
             DNSRecordFormView(viewModel: viewModel, existingRecord: record)
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
                     StateOverlayView(
                         state: .error(

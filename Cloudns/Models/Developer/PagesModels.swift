@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Pages Models
 
-public struct PagesProject: Codable, Identifiable, Equatable {
+public struct PagesProject: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let subdomain: String?
@@ -39,12 +39,12 @@ public struct PagesProject: Codable, Identifiable, Equatable {
     }
 }
 
-public struct PagesProjectSource: Codable, Equatable {
+public struct PagesProjectSource: Codable, Equatable, Sendable {
     public let type: String?
     public let config: PagesProjectSourceConfig?
 }
 
-public struct PagesProjectSourceConfig: Codable, Equatable {
+public struct PagesProjectSourceConfig: Codable, Equatable, Sendable {
     public let repoName: String?
     public let owner: String?
     public let productionBranch: String?
@@ -56,12 +56,12 @@ public struct PagesProjectSourceConfig: Codable, Equatable {
     }
 }
 
-public struct PagesDeploymentConfigs: Codable, Equatable {
+public struct PagesDeploymentConfigs: Codable, Equatable, Sendable {
     public let production: PagesEnvConfig?
     public let preview: PagesEnvConfig?
 }
 
-public struct PagesEnvConfig: Codable, Equatable {
+public struct PagesEnvConfig: Codable, Equatable, Sendable {
     public let envVars: [String: PagesEnvVarValue]?
     public let compatibilityDate: String?
     public let compatibilityFlags: [String]?
@@ -83,40 +83,40 @@ public struct PagesEnvConfig: Codable, Equatable {
     }
 }
 
-public struct PagesEnvVarValue: Codable, Equatable {
+public struct PagesEnvVarValue: Codable, Equatable, Sendable {
     public let value: String?
     public let type: String?
     
     public var isSecret: Bool { type == "secret_text" }
 }
 
-public struct PagesD1Binding: Codable, Equatable {
+public struct PagesD1Binding: Codable, Equatable, Sendable {
     public let id: String?
 }
 
-public struct PagesKVBinding: Codable, Equatable {
+public struct PagesKVBinding: Codable, Equatable, Sendable {
     public let namespaceId: String?
     enum CodingKeys: String, CodingKey {
         case namespaceId = "namespace_id"
     }
 }
 
-public struct PagesR2Binding: Codable, Equatable {
+public struct PagesR2Binding: Codable, Equatable, Sendable {
     public let name: String?
 }
 
-public struct PagesAIBinding: Codable, Equatable {
+public struct PagesAIBinding: Codable, Equatable, Sendable {
     public let projectId: String?
     enum CodingKeys: String, CodingKey {
         case projectId = "project_id"
     }
 }
 
-public struct PagesQueueBinding: Codable, Equatable {
+public struct PagesQueueBinding: Codable, Equatable, Sendable {
     public let name: String?
 }
 
-public struct PagesBuildConfig: Codable, Equatable {
+public struct PagesBuildConfig: Codable, Equatable, Sendable {
     public let buildCommand: String?
     public let destinationDir: String?
     public let rootDir: String?
@@ -132,7 +132,7 @@ public struct PagesBuildConfig: Codable, Equatable {
     }
 }
 
-public struct PagesDomain: Codable, Identifiable, Equatable {
+public struct PagesDomain: Codable, Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let name: String
     public let status: String?
@@ -167,7 +167,7 @@ public struct PagesDomain: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct PagesDeployment: Codable, Identifiable, Equatable {
+public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let url: String?
     public let environment: String?
@@ -208,18 +208,18 @@ public struct PagesDeployment: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct PagesDeploymentLog: Codable, Identifiable, Equatable {
+public struct PagesDeploymentLog: Codable, Identifiable, Equatable, Sendable {
     public var id: String { "\(ts)-\(line.hashValue)" }
     public let ts: String
     public let line: String
 }
 
-public struct PagesDeploymentLogsResult: Codable {
+public struct PagesDeploymentLogsResult: Codable, Sendable {
     public let total: Int?
     public let data: [PagesDeploymentLog]?
 }
 
-public struct PagesStage: Codable, Equatable {
+public struct PagesStage: Codable, Equatable, Sendable {
     public let name: String?
     public let status: String?
     public let startedOn: String?
@@ -239,12 +239,12 @@ public struct PagesStage: Codable, Equatable {
     }
 }
 
-public struct PagesTrigger: Codable, Equatable {
+public struct PagesTrigger: Codable, Equatable, Sendable {
     public let type: String?
     public let metadata: PagesTriggerMetadata?
 }
 
-public struct PagesTriggerMetadata: Codable, Equatable {
+public struct PagesTriggerMetadata: Codable, Equatable, Sendable {
     public let branch: String?
     public let commitHash: String?
     public let commitMessage: String?

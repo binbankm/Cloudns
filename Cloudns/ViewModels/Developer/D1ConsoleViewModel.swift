@@ -6,7 +6,7 @@ import Combine
 class D1ConsoleViewModel: BaseLoadableViewModel {
     let accountId: String
     let database: D1Database
-    private let apiClient = CloudflareAPIClient.shared
+    private let d1Service: D1ServiceProtocol
     
     @Published var tables: [String] = []
     @Published var sqlInput: String = "SELECT name, type FROM sqlite_master WHERE type='table';"
@@ -20,9 +20,10 @@ class D1ConsoleViewModel: BaseLoadableViewModel {
         ("Table Info", "PRAGMA table_list;")
     ]
     
-    init(accountId: String, database: D1Database) {
+    init(accountId: String, database: D1Database, d1Service: D1ServiceProtocol = D1Service.shared) {
         self.accountId = accountId
         self.database = database
+        self.d1Service = d1Service
         super.init()
     }
     
@@ -30,7 +31,7 @@ class D1ConsoleViewModel: BaseLoadableViewModel {
         isLoadingTables = true
         do {
             let sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;"
-            let res = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: sql)
+            let res = try await d1Service.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: sql)
             self.tables = res.rows.compactMap { $0["name"] }
         } catch {
             print("Failed to fetch tables: \(error.localizedDescription)")
@@ -46,7 +47,7 @@ class D1ConsoleViewModel: BaseLoadableViewModel {
         errorMessage = nil
         
         do {
-            self.queryResult = try await apiClient.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: trimmed)
+            self.queryResult = try await d1Service.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: trimmed)
             if trimmed.localizedCaseInsensitiveContains("CREATE TABLE") || trimmed.localizedCaseInsensitiveContains("DROP TABLE") {
                 await fetchTables()
             }

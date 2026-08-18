@@ -1,11 +1,37 @@
 import Foundation
 
+/// Cloudflare R2 对象存储领域服务抽象协议
+protocol R2ServiceProtocol: Sendable {
+    func getR2Buckets(accountId: String) async throws -> [R2Bucket]
+    func listR2Buckets(accountId: String) async throws -> [R2Bucket]
+    func createR2Bucket(accountId: String, name: String, locationHint: String?) async throws -> R2Bucket
+    func deleteR2Bucket(accountId: String, bucketName: String) async throws
+    func getR2Objects(accountId: String, bucketName: String) async throws -> [R2Object]
+    func listR2Objects(accountId: String, bucketName: String, prefix: String?, cursor: String?) async throws -> (objects: [R2Object], cursor: String?, isTruncated: Bool)
+    func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String) async throws
+    func uploadR2ObjectFromFile(accountId: String, bucketName: String, objectKey: String, fileURL: URL, contentType: String) async throws
+    func deleteR2Object(accountId: String, bucketName: String, objectKey: String) async throws
+    func getR2ManagedDomain(accountId: String, bucketName: String) async throws -> R2ManagedDomain
+    func setR2ManagedDomain(accountId: String, bucketName: String, enabled: Bool) async throws
+    func getR2CustomDomains(accountId: String, bucketName: String) async throws -> [R2CustomDomain]
+    func deleteR2CustomDomain(accountId: String, bucketName: String, domain: String) async throws
+    func getR2CORS(accountId: String, bucketName: String) async throws -> [R2CORSRule]
+    func putR2CORS(accountId: String, bucketName: String, rules: [R2CORSRule]) async throws
+    func deleteR2CORS(accountId: String, bucketName: String) async throws
+}
+
 /// 统一的 Cloudflare R2 对象存储领域服务
-final class R2Service {
+final class R2Service: R2ServiceProtocol {
     static let shared = R2Service()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
+    
+    private static let safeKeyCharSet: CharacterSet = {
+        var set = CharacterSet.urlPathAllowed
+        set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
+        return set
+    }()
     
     private init() {}
     
@@ -62,13 +88,24 @@ final class R2Service {
     }
     
     func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String = "application/octet-stream") async throws {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(objectKey)", method: "PUT", body: data, contentType: contentType)
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "PUT", body: data, contentType: contentType)
         struct Res: Codable { let key: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    func uploadR2ObjectFromFile(accountId: String, bucketName: String, objectKey: String, fileURL: URL, contentType: String = "application/octet-stream") async throws {
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "PUT", contentType: contentType)
+        let (_, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw APIError.invalidResponse
+        }
+    }
+    
     func deleteR2Object(accountId: String, bucketName: String, objectKey: String) async throws {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(objectKey)", method: "DELETE")
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "DELETE")
         struct Res: Codable { let key: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }

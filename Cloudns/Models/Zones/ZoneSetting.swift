@@ -52,12 +52,38 @@ enum SettingValue: Codable, Equatable {
     }
     
     var stringValue: String? {
-        if case .string(let val) = self { return val }
-        return nil
+        switch self {
+        case .string(let val): return val
+        case .bool(let val): return val ? "on" : "off"
+        case .int(let val): return String(val)
+        default: return nil
+        }
+    }
+    
+    var boolValue: Bool {
+        switch self {
+        case .bool(let val): return val
+        case .string(let val): return val.lowercased() == "on" || val.lowercased() == "true"
+        case .int(let val): return val == 1
+        default: return false
+        }
     }
     
     var intValue: Int? {
-        if case .int(let val) = self { return val }
+        switch self {
+        case .int(let val): return val
+        case .string(let val): return Int(val)
+        default: return nil
+        }
+    }
+    
+    var objectValue: [String: String]? {
+        if case .object(let val) = self { return val }
+        return nil
+    }
+    
+    var securityHeaderValue: SecurityHeader? {
+        if case .securityHeader(let val) = self { return val }
         return nil
     }
     

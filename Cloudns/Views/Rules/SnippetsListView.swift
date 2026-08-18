@@ -10,11 +10,26 @@ struct SnippetsListView: View {
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteSnippetAlert = false
     @State private var showingDeleteRuleAlert = false
+    @State private var searchText = ""
+    
+    private var displayedSnippets: [SnippetItem] {
+        if searchText.isEmpty { return viewModel.snippets }
+        return viewModel.snippets.filter { $0.snippet_name.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var displayedRules: [WAFRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            $0.expression.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         contentView
             .navigationTitle("Edge Snippets")
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Snippets & Rules")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
@@ -78,15 +93,23 @@ struct SnippetsListView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.snippets.isEmpty || !viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Snippet Scripts")) {
+                    ForEach(SnippetItem.placeholders) { placeholderSnippet in
+                        snippetRow(placeholderSnippet)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedSnippets.isEmpty || !displayedRules.isEmpty {
                 // Section 1: Snippet Scripts
-                Section(header: Text("Snippet Scripts (\(viewModel.snippets.count))")) {
-                    if viewModel.snippets.isEmpty {
+                Section(header: Text("Snippet Scripts (\(displayedSnippets.count))")) {
+                    if displayedSnippets.isEmpty {
                         Text("No snippet scripts uploaded.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(viewModel.snippets) { snip in
+                        ForEach(displayedSnippets) { snip in
                             snippetRow(snip)
                         }
                     }
@@ -94,15 +117,15 @@ struct SnippetsListView: View {
 
                 // Section 2: Snippet Rules (Routing)
                 Section(
-                    header: Text("Execution Rules (\(viewModel.rules.count))"),
+                    header: Text("Execution Rules (\(displayedRules.count))"),
                     footer: Text("Rules determine which HTTP requests execute specific snippets based on expression filters.")
                 ) {
-                    if viewModel.rules.isEmpty {
-                        Text("No rules attached. Add a rule to trigger your snippets.")
+                    if displayedRules.isEmpty {
+                        Text("No trigger rules configured.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(viewModel.rules) { rule in
+                        ForEach(displayedRules) { rule in
                             ruleRow(rule)
                         }
                     }
@@ -112,10 +135,7 @@ struct SnippetsListView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -267,13 +287,16 @@ struct BindSnippetRuleSheetView: View {
                 
                 Section(header: Text("Rule Description")) {
                     TextField("e.g. Route /api requests to snippet", text: $ruleDescription)
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Matching Expression"), footer: Text("Requests matching this wirefilter expression will execute the selected snippet.")) {
                     TextField("Expression", text: $expression)
-                        .font(.footnote)
+                        .font(.footnote.monospaced())
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 if let err = errorMessage {
@@ -284,13 +307,14 @@ struct BindSnippetRuleSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Trigger Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Bind") {
                         Task {
                             isBinding = true
@@ -310,6 +334,7 @@ struct BindSnippetRuleSheetView: View {
                     .disabled(selectedSnippetName.isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || isBinding)
                 }
             }
+            .interactiveDismissDisabled(isBinding)
             .onAppear {
                 if selectedSnippetName.isEmpty, let first = snippets.first {
                     selectedSnippetName = first.snippet_name
@@ -343,8 +368,10 @@ struct SnippetEditorSheetView: View {
             Form {
                 Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
                     TextField("my_snippet", text: $snippetName)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
                         .disabled(existingSnippet != nil)
                 }
                 
@@ -362,13 +389,14 @@ struct SnippetEditorSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
                             isSaving = true
@@ -387,6 +415,7 @@ struct SnippetEditorSheetView: View {
                     .disabled(snippetName.trimmingCharacters(in: .whitespaces).isEmpty || code.isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .task {
                 if let ex = existingSnippet {
                     snippetName = ex.snippet_name

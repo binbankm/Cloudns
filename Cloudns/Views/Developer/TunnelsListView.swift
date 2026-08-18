@@ -12,7 +12,15 @@ struct TunnelsListView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredTunnels.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(CFTunnel.placeholders) { placeholderTunnel in
+                        TunnelRowView(tunnel: placeholderTunnel)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredTunnels.isEmpty {
                 Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in
                         NavigationLink {
@@ -42,10 +50,7 @@ struct TunnelsListView: View {
             CreateTunnelSheetView(viewModel: viewModel)
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -154,17 +159,20 @@ struct CreateTunnelSheetView: View {
                     footer: Text("Creates a remotely managed Cloudflare Zero Trust tunnel. Once created, install cloudflared using the generated connector token.")
                 ) {
                     TextField("Tunnel Name (e.g. homelab-gateway)", text: $tunnelName)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Tunnel")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -176,6 +184,8 @@ struct CreateTunnelSheetView: View {
                     .disabled(tunnelName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
+            .toastContainer()
         }
     }
 }

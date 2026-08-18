@@ -56,12 +56,7 @@ struct WorkersListView: View {
         .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
             Button("Delete '\(worker.id)'", role: .destructive) {
                 Task {
-                    do {
-                        try await viewModel.deleteWorker(name: worker.id)
-                        ToastManager.shared.showSuccess("Worker Deleted", message: "\(worker.id) removed.")
-                    } catch {
-                        ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
-                    }
+                    await viewModel.deleteWorker(name: worker.id)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -71,12 +66,7 @@ struct WorkersListView: View {
         .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
             Button("Delete '\(proj.name)'", role: .destructive) {
                 Task {
-                    do {
-                        try await viewModel.deletePagesProject(name: proj.name)
-                        ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(proj.name) removed.")
-                    } catch {
-                        ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
-                    }
+                    await viewModel.deletePagesProject(name: proj.name)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -94,7 +84,23 @@ struct WorkersListView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.selectedSegment == 0 {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    if viewModel.selectedSegment == 0 {
+                        ForEach(WorkerScript.placeholders) { script in
+                            WorkerRowView(worker: script)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    } else {
+                        ForEach(PagesProject.placeholders) { proj in
+                            pagesRow(proj)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                }
+            } else if viewModel.selectedSegment == 0 {
                 if !viewModel.filteredWorkers.isEmpty {
                     Section {
                         ForEach(viewModel.filteredWorkers) { worker in
@@ -140,10 +146,7 @@ struct WorkersListView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty && viewModel.pages.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -300,8 +303,10 @@ struct WorkerCreateSheetView: View {
             Form {
                 Section(header: Text("Worker Information")) {
                     TextField("Worker Name (e.g. api-service)", text: $scriptName)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 Section(header: Text("Initial Code (ES Module)")) {
@@ -317,13 +322,14 @@ struct WorkerCreateSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Worker")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Deploy") {
                         Task {
                             isCreating = true
@@ -340,6 +346,7 @@ struct WorkerCreateSheetView: View {
                     .disabled(scriptName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
             .toastContainer()
         }
     }
@@ -359,12 +366,20 @@ struct PagesCreateProjectSheetView: View {
             Form {
                 Section(header: Text("Project Information"), footer: Text("Projects created via API receive a direct-upload *.pages.dev deployment endpoint.")) {
                     TextField("Project Name", text: $projectName)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                     
                     TextField("Production Branch", text: $prodBranch)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 
                 if let err = errorMessage {
@@ -375,13 +390,14 @@ struct PagesCreateProjectSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Pages Project")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -401,6 +417,7 @@ struct PagesCreateProjectSheetView: View {
                     .disabled(projectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
             .toastContainer()
         }
     }

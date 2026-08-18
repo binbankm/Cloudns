@@ -1,7 +1,26 @@
 import Foundation
 
+/// Cloudflare 域名安全与防御领域服务抽象协议
+protocol SecuritySettingsServiceProtocol: Sendable {
+    func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting]
+    func getSecuritySettings(zoneId: String) async throws -> (level: String, challengeTTL: Int, browserCheck: Bool, botFightMode: Bool)
+    func updateSecuritySetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting
+    func updateSecurityLevel(zoneId: String, level: String) async throws
+    func updateChallengeTTL(zoneId: String, ttl: Int) async throws
+    func updateBrowserCheck(zoneId: String, isOn: Bool) async throws
+    func updateBotFightMode(zoneId: String, isOn: Bool) async throws
+    func getWAFRules(zoneId: String) async throws -> [WAFRule]
+    func updateWAFRules(zoneId: String, rules: [WAFRule]) async throws -> [WAFRule]
+    func getIPAccessRules(zoneId: String, page: Int, perPage: Int) async throws -> ([IPAccessRule], ResultInfo?)
+    func createIPAccessRule(zoneId: String, mode: String, target: String, value: String, notes: String?) async throws -> IPAccessRule
+    func deleteIPAccessRule(zoneId: String, ruleId: String) async throws
+    func fetchSecurityEvents(zoneId: String, limit: Int) async throws -> [SecurityEvent]
+    func getScrapeShieldSettings(zoneId: String) async throws -> (emailObfuscation: String, serverSideExcludes: String, hotlinkProtection: String)
+    func updateScrapeShieldSetting(zoneId: String, settingId: String, value: String) async throws
+}
+
 /// 统一的 Cloudflare 域名安全与防御领域服务
-final class SecuritySettingsService {
+final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     static let shared = SecuritySettingsService()
     
     private let client = HTTPNetworkClient.shared
@@ -18,17 +37,35 @@ final class SecuritySettingsService {
     }
     
     func getSecuritySettings(zoneId: String) async throws -> (level: String, challengeTTL: Int, browserCheck: Bool, botFightMode: Bool) {
-        async let secLevel = getSetting(zoneId: zoneId, settingName: "security_level")
-        async let ttl = getSetting(zoneId: zoneId, settingName: "challenge_ttl")
-        async let browser = getSetting(zoneId: zoneId, settingName: "browser_check")
-        async let bot = getSetting(zoneId: zoneId, settingName: "bot_fight_mode")
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        let (l, t, b, bf) = try await (secLevel, ttl, browser, bot)
+        var secLevel: ZoneSetting?
+        var ttl: ZoneSetting?
+        var browser: ZoneSetting?
+        var bot: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            secLevel = allSettings.first(where: { $0.id == "security_level" })
+            ttl = allSettings.first(where: { $0.id == "challenge_ttl" })
+            browser = allSettings.first(where: { $0.id == "browser_check" })
+            bot = allSettings.first(where: { $0.id == "bot_fight_mode" })
+        } else {
+            async let sec = try? getSetting(zoneId: zoneId, settingName: "security_level")
+            async let t = try? getSetting(zoneId: zoneId, settingName: "challenge_ttl")
+            async let b = try? getSetting(zoneId: zoneId, settingName: "browser_check")
+            async let bf = try? getSetting(zoneId: zoneId, settingName: "bot_fight_mode")
+            let (resSec, resT, resB, resBf) = await (sec, t, b, bf)
+            secLevel = resSec
+            ttl = resT
+            browser = resB
+            bot = resBf
+        }
+        
         return (
-            level: (l?.value as? String) ?? "medium",
-            challengeTTL: (t?.value as? Int) ?? 1800,
-            browserCheck: ((b?.value as? String) ?? "on") == "on",
-            botFightMode: ((bf?.value as? String) ?? "off") == "on"
+            level: secLevel?.value.stringValue ?? "medium",
+            challengeTTL: ttl?.value.intValue ?? 1800,
+            browserCheck: browser?.value.boolValue ?? true,
+            botFightMode: bot?.value.boolValue ?? false
         )
     }
     
@@ -50,6 +87,40 @@ final class SecuritySettingsService {
     
     func updateBotFightMode(zoneId: String, isOn: Bool) async throws {
         _ = try await updateSetting(zoneId: zoneId, settingName: "bot_fight_mode", value: isOn ? "on" : "off")
+    }
+    
+    // MARK: - Scrape Shield
+    
+    func getScrapeShieldSettings(zoneId: String) async throws -> (emailObfuscation: String, serverSideExcludes: String, hotlinkProtection: String) {
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
+        
+        var email: ZoneSetting?
+        var sse: ZoneSetting?
+        var hotlink: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            email = allSettings.first(where: { $0.id == "email_obfuscation" })
+            sse = allSettings.first(where: { $0.id == "server_side_exclude" })
+            hotlink = allSettings.first(where: { $0.id == "hotlink_protection" })
+        } else {
+            async let e = try? getSetting(zoneId: zoneId, settingName: "email_obfuscation")
+            async let s = try? getSetting(zoneId: zoneId, settingName: "server_side_exclude")
+            async let h = try? getSetting(zoneId: zoneId, settingName: "hotlink_protection")
+            let (resE, resS, resH) = await (e, s, h)
+            email = resE
+            sse = resS
+            hotlink = resH
+        }
+        
+        return (
+            emailObfuscation: email?.value.stringValue ?? "off",
+            serverSideExcludes: sse?.value.stringValue ?? "off",
+            hotlinkProtection: hotlink?.value.stringValue ?? "off"
+        )
+    }
+    
+    func updateScrapeShieldSetting(zoneId: String, settingId: String, value: String) async throws {
+        _ = try await updateSetting(zoneId: zoneId, settingName: settingId, value: value)
     }
     
     // MARK: - Generic Setting Helpers

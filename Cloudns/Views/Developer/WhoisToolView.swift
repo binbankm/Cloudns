@@ -14,6 +14,7 @@ struct WhoisToolView: View {
                         .foregroundStyle(.teal)
                     
                     TextField("example.com", text: $viewModel.domainInput)
+                        .keyboardType(.URL)
                         .font(.body.monospacedDigit())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -68,8 +69,10 @@ struct WhoisToolView: View {
                 }
             }
             
-            // Section 2: Results
-            if let error = viewModel.errorMessage {
+            if viewModel.isLoading && viewModel.info == nil {
+                whoisDetailsView(info: WhoisInfo.placeholder)
+                    .skeletonLoading(true)
+            } else if let error = viewModel.errorMessage {
                 Section {
                     VStack(alignment: .leading, spacing: 6) {
                         Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
@@ -85,27 +88,11 @@ struct WhoisToolView: View {
                 whoisDetailsView(info: info)
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("WHOIS")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if viewModel.isLoading && viewModel.info == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let err = viewModel.errorMessage, viewModel.info == nil && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
-                        message: LocalizedStringKey(err),
-                        retryAction: { Task { await viewModel.performLookup() } }
-                    )
-                )
-            }
-        }
-        .task {
-            if viewModel.info == nil {
-                await viewModel.performLookup()
-            }
-        }
     }
     
     @ViewBuilder

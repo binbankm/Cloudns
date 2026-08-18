@@ -15,7 +15,15 @@ struct BulkRedirectListsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredLists.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Redirect Lists")) {
+                    ForEach(RedirectList.placeholders) { placeholder in
+                        listRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredLists.isEmpty {
                 Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
                     ForEach(viewModel.filteredLists) { item in
                         NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
@@ -64,10 +72,7 @@ struct BulkRedirectListsView: View {
             await viewModel.fetchLists()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -103,7 +108,7 @@ struct BulkRedirectListsView: View {
     }
     
     @ViewBuilder
-    private func listRow(_ item: RedirectList) -> some View {
+    private func listRow(_ list: RedirectList) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "arrow.triangle.swap")
                 .foregroundStyle(.indigo)
@@ -114,20 +119,21 @@ struct BulkRedirectListsView: View {
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.name)
+                Text(list.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let desc = item.description, !desc.isEmpty {
+                if let desc = list.description, !desc.isEmpty {
                     Text(desc)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
             
             Spacer()
             
-            if let count = item.count {
+            if let count = list.count {
                 Text("\(count) items")
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -167,34 +173,18 @@ struct RedirectListDetailView: View {
             
             Section(header: Text("Redirect Items (\(items.count))")) {
                 if isLoading && items.isEmpty {
-                    ProgressView()
+                    ForEach(RedirectListItem.placeholders) { placeholder in
+                        redirectItemRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
                 } else if items.isEmpty {
                     Text("No redirect items in this list.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(items) { item in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(item.redirect.sourceUrl)
-                                    .font(.caption.monospaced())
-                                Spacer()
-                                Text("\(item.redirect.statusCode ?? 301)")
-                                    .font(.caption2.weight(.bold))
-                                    .foregroundStyle(.indigo)
-                            }
-                            
-                            HStack {
-                                Image(systemName: "arrow.turn.down.right")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                    .accessibilityHidden(true)
-                                Text(item.redirect.targetUrl)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.blue)
-                            }
-                        }
-                        .padding(.vertical, 2)
+                        redirectItemRow(item)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
@@ -208,8 +198,12 @@ struct RedirectListDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(list.name)
         .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            await fetchItems()
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -233,7 +227,7 @@ struct RedirectListDetailView: View {
     private func fetchItems() async {
         isLoading = true
         do {
-            self.items = try await CloudflareAPIClient.shared.listRedirectListItems(accountId: accountId, listId: list.id)
+            self.items = try await BulkRedirectService.shared.listRedirectListItems(accountId: accountId, listId: list.id)
         } catch {
             print("Failed to load items: \(error.localizedDescription)")
         }
@@ -242,12 +236,37 @@ struct RedirectListDetailView: View {
     
     private func deleteItem(id: String) async {
         do {
-            _ = try await CloudflareAPIClient.shared.deleteRedirectListItems(accountId: accountId, listId: list.id, itemIds: [id])
+            _ = try await BulkRedirectService.shared.deleteRedirectListItems(accountId: accountId, listId: list.id, itemIds: [id])
             ToastManager.shared.showSuccess("Item Deleted", message: "")
             await fetchItems()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
+    }
+    
+    @ViewBuilder
+    private func redirectItemRow(_ item: RedirectListItem) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(item.redirect.sourceUrl)
+                    .font(.caption.monospaced())
+                Spacer()
+                Text("\(item.redirect.statusCode ?? 301)")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.indigo)
+            }
+            
+            HStack {
+                Image(systemName: "arrow.turn.down.right")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                Text(item.redirect.targetUrl)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.blue)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -272,10 +291,18 @@ struct AddRedirectItemSheet: View {
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 
                 Section(header: Text("Target URL")) {
                     TextField("https://new.example.com/target", text: $targetUrl)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -293,13 +320,14 @@ struct AddRedirectItemSheet: View {
                     Toggle("Subpath Matching", isOn: $subpathMatching)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         Task {
                             isSubmitting = true
@@ -313,7 +341,7 @@ struct AddRedirectItemSheet: View {
                                 preservePathSuffix: false
                             )
                             do {
-                                _ = try await CloudflareAPIClient.shared.createRedirectListItems(accountId: accountId, listId: listId, items: [item])
+                                _ = try await BulkRedirectService.shared.createRedirectListItems(accountId: accountId, listId: listId, items: [item])
                                 ToastManager.shared.showSuccess("Item Added", message: "")
                                 onAdded()
                                 dismiss()
@@ -326,6 +354,8 @@ struct AddRedirectItemSheet: View {
                     .disabled(sourceUrl.isEmpty || targetUrl.isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
+            .toastContainer()
         }
     }
 }
@@ -342,21 +372,30 @@ struct CreateBulkRedirectListSheet: View {
             Form {
                 Section(header: Text("List Name")) {
                     TextField("marketing-redirects", text: $name)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
                 
                 Section(header: Text("Description (Optional)")) {
                     TextField("Redirects for domain migration", text: $description)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect List")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isSubmitting = true
@@ -369,6 +408,8 @@ struct CreateBulkRedirectListSheet: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
+            .toastContainer()
         }
     }
 }

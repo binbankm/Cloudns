@@ -42,6 +42,7 @@ struct WorkerTestView: View {
                             .accessibilityHidden(true)
                         
                         TextField("https://...", text: $viewModel.targetUrl)
+                            .submitLabel(.done)
                             .font(.body.monospacedDigit())
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -198,6 +199,7 @@ struct WorkerTestView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Test Dispatch")
         .navigationBarTitleDisplayMode(.inline)

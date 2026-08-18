@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - AI Gateway Models
 
-public struct AIGateway: Codable, Identifiable, Equatable {
+public struct AIGateway: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let collectLogs: Bool?
@@ -28,7 +28,7 @@ public struct AIGateway: Codable, Identifiable, Equatable {
 
 // MARK: - Workers AI Models
 
-public struct AIModel: Codable, Identifiable, Equatable {
+public struct AIModel: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let description: String?
@@ -67,7 +67,7 @@ public struct AIModel: Codable, Identifiable, Equatable {
     }
 }
 
-public struct AIModelTask: Codable, Equatable {
+public struct AIModelTask: Codable, Equatable, Sendable {
     public let id: String?
     public let name: String?
     public let description: String?

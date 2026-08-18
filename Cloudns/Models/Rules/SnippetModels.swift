@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Snippets Models
 
-public struct SnippetItem: Codable, Identifiable, Equatable {
+public struct SnippetItem: Codable, Identifiable, Equatable, Sendable {
     public var id: String { snippet_name }
     public let snippet_name: String
     public let modifiedOn: String?

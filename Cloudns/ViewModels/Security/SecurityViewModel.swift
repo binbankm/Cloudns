@@ -9,26 +9,23 @@ class SecurityViewModel: BaseLoadableViewModel {
     @Published var browserCheck: Bool = true
     @Published var botFightMode: Bool = false
     
-    let apiClient = CloudflareAPIClient.shared
+    private let securityService: SecuritySettingsServiceProtocol
+    
+    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
+        self.securityService = securityService
+        super.init()
+    }
     
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let settings = try await apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                if setting.id == "security_level", let val = setting.value.stringValue {
-                    self.securityLevel = val
-                } else if setting.id == "challenge_ttl", let val = setting.value.intValue {
-                    self.challengeTTL = val
-                } else if setting.id == "browser_check", let val = setting.value.stringValue {
-                    self.browserCheck = (val == "on")
-                } else if setting.id == "bot_fight_mode", let val = setting.value.stringValue {
-                    self.botFightMode = (val == "on")
-                }
-            }
+            let res = try await securityService.getSecuritySettings(zoneId: zoneId)
+            self.securityLevel = res.level
+            self.challengeTTL = res.challengeTTL
+            self.browserCheck = res.browserCheck
+            self.botFightMode = res.botFightMode
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to fetch security settings: \(error.localizedDescription)"
@@ -38,38 +35,42 @@ class SecurityViewModel: BaseLoadableViewModel {
     }
     
     func updateSecurityLevel(zoneId: String, level: String) async {
-        await updateSetting(zoneId: zoneId, settingId: "security_level", value: .string(level)) {
+        HapticManager.impact(.medium)
+        do {
+            try await securityService.updateSecurityLevel(zoneId: zoneId, level: level)
             self.securityLevel = level
+        } catch {
+            self.errorMessage = "Failed to update security level: \(error.localizedDescription)"
         }
     }
     
     func updateChallengeTTL(zoneId: String, ttl: Int) async {
-        await updateSetting(zoneId: zoneId, settingId: "challenge_ttl", value: .int(ttl)) {
+        HapticManager.impact(.medium)
+        do {
+            try await securityService.updateChallengeTTL(zoneId: zoneId, ttl: ttl)
             self.challengeTTL = ttl
+        } catch {
+            self.errorMessage = "Failed to update challenge TTL: \(error.localizedDescription)"
         }
     }
     
     func updateBrowserCheck(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "browser_check", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await securityService.updateBrowserCheck(zoneId: zoneId, isOn: isOn)
             self.browserCheck = isOn
+        } catch {
+            self.errorMessage = "Failed to update browser check: \(error.localizedDescription)"
         }
     }
     
     func updateBotFightMode(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "bot_fight_mode", value: .string(isOn ? "on" : "off")) {
-            self.botFightMode = isOn
-        }
-    }
-    
-    private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: @escaping () -> Void) async {
-        // Haptic feedback for setting update trigger
         HapticManager.impact(.medium)
-        
         do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)
-            onSuccess()
+            try await securityService.updateBotFightMode(zoneId: zoneId, isOn: isOn)
+            self.botFightMode = isOn
         } catch {
-            self.errorMessage = "Failed to update \(settingId): \(error.localizedDescription)"
+            self.errorMessage = "Failed to update bot fight mode: \(error.localizedDescription)"
         }
     }
 }

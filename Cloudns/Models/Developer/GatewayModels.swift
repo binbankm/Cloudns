@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Gateway Rules Models
 
-public struct GatewayRule: Codable, Identifiable, Equatable {
+public struct GatewayRule: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let action: String

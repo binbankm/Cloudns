@@ -6,7 +6,7 @@ import Combine
 class WorkerTailViewModel: BaseLoadableViewModel {
     let accountId: String
     let scriptName: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let workerService: WorkerServiceProtocol
     
     @Published var isStreaming = false
     @Published var events: [TailTraceItem] = []
@@ -14,12 +14,14 @@ class WorkerTailViewModel: BaseLoadableViewModel {
     @Published var selectedFilter = 0 // 0: All, 1: Logs Only, 2: Exceptions Only
     
     private var webSocketTask: URLSessionWebSocketTask?
+    private var receiveTask: Task<Void, Never>?
     private var currentSessionId: String?
     private var isTaskCancelled = false
     
-    init(accountId: String, scriptName: String) {
+    init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
+        self.workerService = workerService
         super.init()
     }
     
@@ -59,7 +61,7 @@ class WorkerTailViewModel: BaseLoadableViewModel {
         isTaskCancelled = false
         
         do {
-            let session = try await apiClient.createWorkerTailSession(accountId: accountId, scriptName: scriptName)
+            let session = try await workerService.createWorkerTailSession(accountId: accountId, scriptName: scriptName)
             self.currentSessionId = session.id
             guard let url = URL(string: session.url) else {
                 throw APIError.invalidURL
@@ -80,8 +82,9 @@ class WorkerTailViewModel: BaseLoadableViewModel {
     }
     
     private func startReceiveLoop(for task: URLSessionWebSocketTask) {
-        Task { [weak self] in
-            while true {
+        receiveTask?.cancel()
+        receiveTask = Task { [weak self] in
+            while !Task.isCancelled {
                 guard let self = self, self.isStreaming, !self.isTaskCancelled else { break }
                 do {
                     let message = try await task.receive()
@@ -102,7 +105,7 @@ class WorkerTailViewModel: BaseLoadableViewModel {
                         }
                     }
                 } catch {
-                    if !self.isTaskCancelled {
+                    if !self.isTaskCancelled && !Task.isCancelled {
                         self.errorMessage = "Disconnected: \(error.localizedDescription)"
                         self.isStreaming = false
                     }
@@ -115,12 +118,14 @@ class WorkerTailViewModel: BaseLoadableViewModel {
     func stopStream() {
         isTaskCancelled = true
         isStreaming = false
+        receiveTask?.cancel()
+        receiveTask = nil
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
         
         if let sid = currentSessionId {
             Task {
-                try? await apiClient.deleteWorkerTailSession(accountId: accountId, scriptName: scriptName, tailId: sid)
+                try? await workerService.deleteWorkerTailSession(accountId: accountId, scriptName: scriptName, tailId: sid)
             }
             currentSessionId = nil
         }

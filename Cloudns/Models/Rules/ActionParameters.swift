@@ -1,6 +1,6 @@
 import Foundation
 
-struct ActionParameters: Codable {
+struct ActionParameters: Codable, Equatable, Sendable {
     // Cache Rules
     var cache: Bool?
     var edge_ttl: CacheEdgeTTL?
@@ -17,12 +17,12 @@ struct ActionParameters: Codable {
     // Redirect Rules
     var from_value: FromValue?
     
-    struct SnippetRef: Codable {
+    struct SnippetRef: Codable, Equatable, Sendable {
         var name: String
         public init(name: String) { self.name = name }
     }
     
-    struct FromValue: Codable {
+    struct FromValue: Codable, Equatable, Sendable {
         var status_code: Int?
         var target_url: TargetUrl?
         var preserve_query_string: Bool?
@@ -34,7 +34,7 @@ struct ActionParameters: Codable {
         }
     }
     
-    struct TargetUrl: Codable {
+    struct TargetUrl: Codable, Equatable, Sendable {
         var value: String?
         var expression: String?
         
@@ -65,7 +65,7 @@ struct ActionParameters: Codable {
     }
 }
 
-struct CacheEdgeTTL: Codable {
+struct CacheEdgeTTL: Codable, Equatable, Sendable {
     var mode: String
     var default_ttl: Int?
     
@@ -75,7 +75,7 @@ struct CacheEdgeTTL: Codable {
     }
 }
 
-struct CacheBrowserTTL: Codable {
+struct CacheBrowserTTL: Codable, Equatable, Sendable {
     var mode: String
     var default_ttl: Int?
     
@@ -85,17 +85,17 @@ struct CacheBrowserTTL: Codable {
     }
 }
 
-struct URIRewrite: Codable {
+struct URIRewrite: Codable, Equatable, Sendable {
     var path: RewriteTarget?
     var query: RewriteTarget?
 }
 
-struct RewriteTarget: Codable {
+struct RewriteTarget: Codable, Equatable, Sendable {
     var value: String?
     var expression: String?
 }
 
-struct HeaderTransform: Codable {
+struct HeaderTransform: Codable, Equatable, Sendable {
     var operation: String
     var value: String?
     var expression: String?

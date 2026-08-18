@@ -5,13 +5,14 @@ import Combine
 @MainActor
 class TunnelsViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let tunnelService: TunnelServiceProtocol
     
     @Published var tunnels: [CFTunnel] = []
     @Published var searchText = ""
     
-    init(accountId: String) {
+    init(accountId: String, tunnelService: TunnelServiceProtocol = TunnelService.shared) {
         self.accountId = accountId
+        self.tunnelService = tunnelService
         super.init()
     }
     
@@ -22,13 +23,13 @@ class TunnelsViewModel: BaseLoadableViewModel {
     
     func fetchTunnels() async {
         await executeLoadingTask {
-            self.tunnels = try await self.apiClient.getTunnels(accountId: self.accountId)
+            self.tunnels = try await self.tunnelService.getTunnels(accountId: self.accountId)
         }
     }
     
     func createTunnel(name: String) async -> Bool {
         do {
-            let created = try await apiClient.createTunnel(accountId: accountId, name: name)
+            let created = try await tunnelService.createTunnel(accountId: accountId, name: name)
             tunnels.insert(created, at: 0)
             ToastManager.shared.showSuccess("Tunnel Created", message: name)
             return true

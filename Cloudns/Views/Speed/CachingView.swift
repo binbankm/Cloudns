@@ -28,8 +28,29 @@ struct CachingView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     TextField(purgePlaceholder, text: $purgeInputText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .onSubmit {
+                            let clean = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !clean.isEmpty && !viewModel.isPurging else { return }
+                            let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+                            
+                            HapticManager.impact(.medium)
+                            Task {
+                                if purgeType == "url" {
+                                    await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
+                                } else if purgeType == "host" {
+                                    await viewModel.purgeCacheByHosts(zoneId: zoneId, hosts: items)
+                                } else if purgeType == "prefix" {
+                                    await viewModel.purgeCacheByPrefixes(zoneId: zoneId, prefixes: items)
+                                } else if purgeType == "tag" {
+                                    await viewModel.purgeCacheByTags(zoneId: zoneId, tags: items)
+                                }
+                                purgeInputText = ""
+                            }
+                        }
                     
                     Button(action: {
                         let clean = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -204,15 +225,33 @@ struct CachingView: View {
                     }
                 }
             }
-        }
+        } else if viewModel.isLoading {
+            Section(header: Text("Custom Cache Purge")) {
+                    Picker("Purge By", selection: .constant("url")) {
+                        Text("URL").tag("url")
+                    }
+                    .pickerStyle(.segmented)
+                    .skeletonLoading(true)
+                }
+                
+                Section(header: Text("General Caching Settings")) {
+                    Picker("Caching Level", selection: .constant("standard")) {
+                        Text("Standard").tag("standard")
+                    }
+                    .skeletonLoading(true)
+                    
+                    Picker("Browser Cache TTL", selection: .constant(14400)) {
+                        Text("4 Hours").tag(14400)
+                    }
+                    .skeletonLoading(true)
+                }
+            }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging {
+            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),

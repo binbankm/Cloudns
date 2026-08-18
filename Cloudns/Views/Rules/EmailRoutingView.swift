@@ -6,11 +6,21 @@ struct EmailRoutingView: View {
     
     @StateObject private var viewModel: EmailRoutingViewModel
     @State private var showingAddSheet = false
+    @State private var searchText = ""
     
     init(zoneId: String, zoneName: String = "") {
         self.zoneId = zoneId
         self.zoneName = zoneName
         _viewModel = StateObject(wrappedValue: EmailRoutingViewModel(zoneId: zoneId))
+    }
+    
+    private var displayedRules: [EmailRoutingRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.name ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.matchAddress ?? "").localizedCaseInsensitiveContains(searchText) ||
+            ($0.forwardTo ?? "").localizedCaseInsensitiveContains(searchText)
+        }
     }
     
     var body: some View {
@@ -41,12 +51,18 @@ struct EmailRoutingView: View {
                     .accessibilityLabel("Add Email Rule")
                 }
             ) {
-                if viewModel.rules.isEmpty {
-                    Text("No routing rules configured.")
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    ForEach(EmailRoutingRule.placeholders) { placeholderRule in
+                        ruleRow(placeholderRule)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                } else if displayedRules.isEmpty {
+                    Text(searchText.isEmpty ? "No routing rules configured." : "No matching email rules found.")
                         .foregroundStyle(.secondary)
                         .padding(.vertical, 4)
                 } else {
-                    ForEach(viewModel.rules) { rule in
+                    ForEach(displayedRules) { rule in
                         ruleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -88,11 +104,9 @@ struct EmailRoutingView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Email Rules")
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
                     StateOverlayView(
                         state: .error(

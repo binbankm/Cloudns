@@ -5,12 +5,31 @@ struct IPAccessRulesView: View {
     
     @StateObject private var viewModel = IPAccessRulesViewModel()
     @State private var showingAddRule = false
+    @State private var searchText = ""
+    
+    private var displayedRules: [IPAccessRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            $0.configuration.value.localizedCaseInsensitiveContains(searchText) ||
+            $0.configuration.target.localizedCaseInsensitiveContains(searchText) ||
+            $0.mode.localizedCaseInsensitiveContains(searchText) ||
+            ($0.notes ?? "").localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         List {
-            if !viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
                 Section {
-                    ForEach(viewModel.rules) { rule in
+                    ForEach(IPAccessRule.placeholders) { placeholderRule in
+                        IPAccessRuleRow(rule: placeholderRule)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedRules.isEmpty {
+                Section {
+                    ForEach(displayedRules) { rule in
                         IPAccessRuleRow(rule: rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -29,11 +48,14 @@ struct IPAccessRulesView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search IP Rules")
+        .refreshable {
+            await viewModel.fetchRules(zoneId: zoneId)
+        }
+        .navigationTitle("IP Access Rules")
+        .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -53,14 +75,16 @@ struct IPAccessRulesView: View {
                             action: { showingAddRule = true }
                         )
                     )
+                } else if displayedRules.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
                 }
             }
         }
-        .refreshable {
-            await viewModel.fetchRules(zoneId: zoneId)
-        }
-        .navigationTitle("IP Access Rules")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -134,6 +158,9 @@ struct AddIPAccessRuleView: View {
     @State private var mode = "block"
     @State private var notes = ""
     
+    enum Field { case value, notes }
+    @FocusState private var focusedField: Field?
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -146,8 +173,12 @@ struct AddIPAccessRuleView: View {
                     }
                     
                     TextField(target == "country" ? "e.g. US, CN, GB" : (target == "asn" ? "e.g. AS12345" : "e.g. 192.168.1.1"), text: $value)
+                        .keyboardType(target == "asn" ? .numberPad : .asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .value)
+                        .onSubmit { focusedField = .notes }
                 }
                 
                 Section(header: Text("Action")) {
@@ -162,8 +193,14 @@ struct AddIPAccessRuleView: View {
                 
                 Section(header: Text("Notes (Optional)")) {
                     TextField("Reason for this rule", text: $notes)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .focused($focusedField, equals: .notes)
+                        .onSubmit { focusedField = nil }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

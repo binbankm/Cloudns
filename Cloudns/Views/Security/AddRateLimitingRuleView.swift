@@ -15,14 +15,21 @@ struct AddRateLimitingRuleView: View {
     
     @State private var isSubmitting = false
     
+    enum Field { case name, path, requests }
+    @FocusState private var focusedField: Field?
+    
     let actions = [
         ("Block", "block"),
+        ("Managed Challenge", "managed_challenge"),
+        ("JS Challenge", "js_challenge"),
         ("Log", "log")
     ]
     
     let periods = [
         (10, "10 seconds"),
         (60, "1 minute"),
+        (120, "2 minutes"),
+        (300, "5 minutes"),
         (600, "10 minutes"),
         (3600, "1 hour")
     ]
@@ -40,9 +47,16 @@ struct AddRateLimitingRuleView: View {
             Form {
                 Section(header: Text("Rule Details"), footer: Text("Protect your site from DDoS and brute force attacks.")) {
                     TextField("Rule Name (e.g. Protect login)", text: $ruleName)
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .name)
+                        .onSubmit { focusedField = .path }
                     TextField("Path Filter (optional, e.g. /login)", text: $pathFilter)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .path)
+                        .onSubmit { focusedField = .requests }
                 }
                 
                 Section(header: Text("Rate Limit Configuration")) {
@@ -57,7 +71,10 @@ struct AddRateLimitingRuleView: View {
                         Spacer()
                         TextField("50", text: $requests)
                             .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
                             .multilineTextAlignment(.trailing)
+                            .submitLabel(.done)
+                            .focused($focusedField, equals: .requests)
                     }
                 }
                 
@@ -77,6 +94,7 @@ struct AddRateLimitingRuleView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Rate Limit")
             .navigationBarTitleDisplayMode(.inline)
@@ -96,6 +114,7 @@ struct AddRateLimitingRuleView: View {
                     .disabled(ruleName.isEmpty || requests.isEmpty || Int(requests) == nil || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .overlay(
                 Group {
                     if isSubmitting {

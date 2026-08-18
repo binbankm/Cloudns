@@ -1,7 +1,14 @@
 import Foundation
 
+/// Cloudflare 动态 URL 重定向规则领域服务抽象协议
+protocol RedirectRulesServiceProtocol: Sendable {
+    func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem]
+    func createRedirectRule(zoneId: String, description: String, expression: String, targetUrl: String, statusCode: Int, preserveQueryString: Bool) async throws
+    func deleteRedirectRule(zoneId: String, ruleId: String) async throws
+}
+
 /// 统一的 Cloudflare 动态 URL 重定向规则领域服务
-final class RedirectRulesService {
+final class RedirectRulesService: RedirectRulesServiceProtocol {
     static let shared = RedirectRulesService()
     
     private let client = HTTPNetworkClient.shared

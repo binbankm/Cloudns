@@ -1,7 +1,24 @@
 import Foundation
 
+/// Cloudflare Pages 项目与部署领域服务抽象协议
+protocol PagesServiceProtocol: Sendable {
+    func getPagesProjects(accountId: String) async throws -> [PagesProject]
+    func listPagesProjects(accountId: String) async throws -> [PagesProject]
+    func createPagesProject(accountId: String, name: String, productionBranch: String) async throws -> PagesProject
+    func deletePagesProject(accountId: String, projectName: String) async throws
+    func updatePagesProject(accountId: String, projectName: String, buildCommand: String?, destinationDir: String?, rootDir: String?, productionBranch: String?, buildConfig: PagesBuildConfig?, envConfig: PagesEnvConfig?) async throws
+    func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment]
+    func getPagesDomains(accountId: String, projectName: String) async throws -> [PagesDomain]
+    func addPagesDomain(accountId: String, projectName: String, domain: String) async throws
+    func deletePagesDomain(accountId: String, projectName: String, domain: String) async throws
+    func rollbackPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws
+    func retryPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws
+    func deletePagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws
+    func getPagesDeploymentLogs(accountId: String, projectName: String, deploymentId: String) async throws -> [PagesDeploymentLog]
+}
+
 /// 统一的 Cloudflare Pages 项目与部署领域服务
-final class PagesService {
+final class PagesService: PagesServiceProtocol {
     static let shared = PagesService()
     
     private let client = HTTPNetworkClient.shared

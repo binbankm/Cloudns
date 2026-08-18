@@ -9,6 +9,13 @@ class ZonesViewModel: BaseLoadableViewModel {
     @Published var totalCount: Int = 0
     private var currentPage: Int = 1
     
+    private let zoneService: ZoneServiceProtocol
+    
+    init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
+        self.zoneService = zoneService
+        super.init()
+    }
+    
     func filteredZones(query: String) -> [Zone] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
@@ -18,8 +25,12 @@ class ZonesViewModel: BaseLoadableViewModel {
         }
     }
     
-    func fetchZones(isRefresh: Bool = true) async {
-        if isRefresh {
+    func fetchZones(isRefresh: Bool = false) async {
+        if !isRefresh && hasFetchedData && !isStale {
+            return
+        }
+        
+        if isRefresh || !hasFetchedData {
             currentPage = 1
             await executeSWR(
                 cacheKey: "cloudflare_zones_list",
@@ -28,25 +39,22 @@ class ZonesViewModel: BaseLoadableViewModel {
                     self.zones = cachedZones
                     self.totalCount = cachedZones.count
                 },
-                fetcher: {
-                    let (fetchedZones, resultInfo) = try await ZoneService.shared.getZones(page: 1)
-                    if let info = resultInfo, info.page < info.totalPages {
-                        self.canLoadMore = true
-                        self.currentPage = 2
-                    } else {
-                        self.canLoadMore = false
-                    }
-                    self.totalCount = resultInfo?.totalCount ?? fetchedZones.count
+                fetcher: { [zoneService] in
+                    let (fetchedZones, _) = try await zoneService.getZones(page: 1, perPage: 50, name: nil, status: nil)
                     return fetchedZones
                 },
                 onFresh: { latestZones in
                     self.zones = latestZones
+                    self.totalCount = latestZones.count
+                    self.canLoadMore = latestZones.count >= 50
+                    self.currentPage = latestZones.count >= 50 ? 2 : 1
                 }
             )
         } else {
-            if !canLoadMore { return }
+            // 分页加载下一页
+            guard canLoadMore else { return }
             do {
-                let (fetchedZones, resultInfo) = try await ZoneService.shared.getZones(page: currentPage)
+                let (fetchedZones, resultInfo) = try await self.zoneService.getZones(page: currentPage, perPage: 50, name: nil, status: nil)
                 self.zones.append(contentsOf: fetchedZones)
                 if let info = resultInfo, info.page < info.totalPages {
                     canLoadMore = true
@@ -67,14 +75,14 @@ class ZonesViewModel: BaseLoadableViewModel {
         isAddingZone = true
         addZoneError = nil
         do {
-            let accounts = try await CloudflareAPIClient.shared.getAccounts()
+            let accounts = try await zoneService.getAccounts()
             guard let firstAccount = accounts.first else {
                 addZoneError = "No Cloudflare account found."
                 isAddingZone = false
                 return nil
             }
             
-            let zone = try await CloudflareAPIClient.shared.createZone(name: name, accountId: firstAccount.id)
+            let zone = try await zoneService.createZone(name: name, accountId: firstAccount.id, jumpStart: false)
             await fetchZones(isRefresh: true)
             isAddingZone = false
             return zone
@@ -93,7 +101,7 @@ class ZonesViewModel: BaseLoadableViewModel {
         let impact = UINotificationFeedbackGenerator()
         impact.notificationOccurred(.warning)
         do {
-            try await CloudflareAPIClient.shared.deleteZone(zoneId: zoneId)
+            _ = try await zoneService.deleteZone(zoneId: zoneId)
             // Remove locally
             if let index = zones.firstIndex(where: { $0.id == zoneId }) {
                 zones.remove(at: index)

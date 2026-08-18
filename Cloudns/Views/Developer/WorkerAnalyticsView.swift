@@ -27,13 +27,10 @@ public struct WorkerAnalyticsView: View {
                 headerBar
                 
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    VStack {
-                        Spacer(minLength: 80)
-                        ProgressView()
-                            .controlSize(.large)
-                        Spacer(minLength: 120)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 300)
+                    metricsGrid
+                        .skeletonLoading(true)
+                    invocationsLineChartCard
+                        .skeletonLoading(true)
                 } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                     if let errorMessage = viewModel.errorMessage {
                         StateOverlayView(

@@ -1,6 +1,6 @@
 import Foundation
 
-struct IPAccessRule: Codable, Identifiable {
+struct IPAccessRule: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let mode: String // "block", "challenge", "js_challenge", "managed_challenge", "whitelist" (allow)
     let notes: String?
@@ -25,25 +25,25 @@ struct IPAccessRule: Codable, Identifiable {
     ]
 }
 
-struct IPAccessRuleConfiguration: Codable {
+struct IPAccessRuleConfiguration: Codable, Equatable, Sendable {
     let target: String // "ip", "ip_range", "asn", "country"
     let value: String // The actual IP, CIDR, AS number, or 2-letter country code
 }
 
-struct IPAccessRulesResponse: Codable {
+struct IPAccessRulesResponse: Codable, Sendable {
     let success: Bool
     let errors: [CFAPIError]?
     let messages: [String]?
     let result: [IPAccessRule]?
 }
 
-struct IPAccessRuleCreateRequest: Codable {
+struct IPAccessRuleCreateRequest: Codable, Sendable {
     let mode: String
     let configuration: IPAccessRuleConfiguration
     let notes: String
 }
 
-struct IPAccessRuleCreateResponse: Codable {
+struct IPAccessRuleCreateResponse: Codable, Sendable {
     let success: Bool
     let errors: [CFAPIError]?
     let result: IPAccessRule?

@@ -16,15 +16,15 @@ struct DNSSECView: View {
         List {
             if let dnssec = viewModel.dnssec {
                 dnssecSections(dnssec)
+            } else if viewModel.isLoading {
+                dnssecSections(DNSSEC.placeholder)
+                    .skeletonLoading(true)
             }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if viewModel.isLoading && viewModel.dnssec == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
+            if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),

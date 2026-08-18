@@ -1,7 +1,18 @@
 import Foundation
 
+/// Cloudflare AI Gateway 与 Workers AI 模型推理领域服务抽象协议
+protocol AIServiceProtocol: Sendable {
+    func getAIGateways(accountId: String) async throws -> [AIGateway]
+    func listAIGateways(accountId: String) async throws -> [AIGateway]
+    func createAIGateway(accountId: String, id: String) async throws
+    func deleteAIGateway(accountId: String, id: String) async throws
+    func getWorkersAIModels(accountId: String) async throws -> [AIModel]
+    func listAIModels(accountId: String, search: String?) async throws -> [AIModel]
+    func runAIChat(accountId: String, model: String, messages: [[String: String]]) async throws -> String
+}
+
 /// 统一的 Cloudflare AI Gateway 与 Workers AI 模型推理领域服务
-final class AIService {
+final class AIService: AIServiceProtocol {
     static let shared = AIService()
     
     private let client = HTTPNetworkClient.shared

@@ -9,7 +9,10 @@ class LoginViewModel: BaseLoadableViewModel {
     
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
-    public override init() {
+    private let zoneService: ZoneServiceProtocol
+    
+    public init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
+        self.zoneService = zoneService
         super.init()
     }
     
@@ -29,11 +32,11 @@ class LoginViewModel: BaseLoadableViewModel {
         // Save temporarily to validate
         let previousActive = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
         UserDefaults.standard.set(trimmedEmail, forKey: AppStorageKey.activeAccountEmail)
-        KeychainHelper.standard.saveString(trimmedKey, service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
+        KeychainHelper.standard.saveString(trimmedKey, service: AppStorageKey.keychainService, account: trimmedEmail)
         
         do {
             // Validate credentials by attempting to fetch zones
-            _ = try await CloudflareAPIClient.shared.getZones(page: 1, perPage: 1)
+            _ = try await zoneService.getZones(page: 1, perPage: 1, name: nil, status: nil)
             
             // If successful, permanently add to AccountManager
             AccountManager.shared.addAccount(email: trimmedEmail, apiKey: trimmedKey)
@@ -41,7 +44,7 @@ class LoginViewModel: BaseLoadableViewModel {
             onSuccess?()
         } catch {
             // If failed, remove from keychain and rollback active email
-            KeychainHelper.standard.delete(service: CloudflareAPIClient.shared.serviceName, account: trimmedEmail)
+            KeychainHelper.standard.delete(service: AppStorageKey.keychainService, account: trimmedEmail)
             if let prev = previousActive {
                 UserDefaults.standard.set(prev, forKey: AppStorageKey.activeAccountEmail)
             } else {

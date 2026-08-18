@@ -162,15 +162,25 @@ struct SecuritySettingsView: View {
                     }
                 }
             }
+        } else if viewModel.isLoading {
+            Section(header: Text("Security Level")) {
+                Picker("Security Level", selection: .constant("medium")) {
+                    Text("Medium").tag("medium")
+                }
+                .skeletonLoading(true)
+            }
+            Section(header: Text("Browser Integrity Check")) {
+                Toggle(isOn: .constant(true)) {
+                    Text("Browser Integrity Check")
+                }
+                .skeletonLoading(true)
+            }
         }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),

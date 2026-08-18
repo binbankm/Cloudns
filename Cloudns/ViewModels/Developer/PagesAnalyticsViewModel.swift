@@ -2,61 +2,68 @@ import Foundation
 import SwiftUI
 import Combine
 
-public struct PagesDeploymentStat: Identifiable, Equatable {
-    public var id: String { deploymentId }
-    public let deploymentId: String
-    public let environment: String
-    public let status: String
-    public let date: Date
-    public let isSuccess: Bool
+nonisolated struct PagesDeploymentStat: Identifiable, Equatable, Sendable {
+    var id: String { deploymentId }
+    let deploymentId: String
+    let environment: String
+    let status: String
+    let date: Date
+    let isSuccess: Bool
 }
 
-public struct PagesAnalyticsSnapshot: Codable {
-    public let dataPoints: [AggregatedWorkerDataPoint]
-    public let totalRequests: Int
-    public let totalErrors: Int
-    public let totalSubrequests: Int
-    public let avgCpuP50: Double
-    public let maxCpuP99: Double
-    public let deployments: [PagesDeployment]
-    public let productionDeploymentsCount: Int
-    public let previewDeploymentsCount: Int
-    public let deploymentSuccessRate: Double
-    public let customDomainsCount: Int
-    public let loadedDays: Int
+nonisolated struct PagesAnalyticsSnapshot: Codable, Sendable {
+    let dataPoints: [AggregatedWorkerDataPoint]
+    let totalRequests: Int
+    let totalErrors: Int
+    let totalSubrequests: Int
+    let avgCpuP50: Double
+    let maxCpuP99: Double
+    let deployments: [PagesDeployment]
+    let productionDeploymentsCount: Int
+    let previewDeploymentsCount: Int
+    let deploymentSuccessRate: Double
+    let customDomainsCount: Int
+    let loadedDays: Int
 }
 
 @MainActor
-public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
-    public let accountId: String
-    public let projectName: String
-    private let apiClient = CloudflareAPIClient.shared
-    private let pagesService = PagesService.shared
+final class PagesAnalyticsViewModel: BaseLoadableViewModel {
+    let accountId: String
+    let projectName: String
+    private let analyticsService: AnalyticsServiceProtocol
+    private let pagesService: PagesServiceProtocol
     
-    @Published public var selectedDays: Int = 1
-    @Published public var loadedDays: Int = 1
-    @Published public var dataPoints: [AggregatedWorkerDataPoint] = []
-    @Published public var totalRequests: Int = 0
-    @Published public var totalErrors: Int = 0
-    @Published public var totalSubrequests: Int = 0
-    @Published public var avgCpuP50: Double = 0
-    @Published public var maxCpuP99: Double = 0
+    @Published var selectedDays: Int = 1
+    @Published var loadedDays: Int = 1
+    @Published var dataPoints: [AggregatedWorkerDataPoint] = []
+    @Published var totalRequests: Int = 0
+    @Published var totalErrors: Int = 0
+    @Published var totalSubrequests: Int = 0
+    @Published var avgCpuP50: Double = 0
+    @Published var maxCpuP99: Double = 0
     
     // Deployment Specific Analytics
-    @Published public var deployments: [PagesDeployment] = []
-    @Published public var productionDeploymentsCount: Int = 0
-    @Published public var previewDeploymentsCount: Int = 0
-    @Published public var deploymentSuccessRate: Double = 100.0
-    @Published public var customDomainsCount: Int = 0
+    @Published var deployments: [PagesDeployment] = []
+    @Published var productionDeploymentsCount: Int = 0
+    @Published var previewDeploymentsCount: Int = 0
+    @Published var deploymentSuccessRate: Double = 100.0
+    @Published var customDomainsCount: Int = 0
     
-    public var errorRatePercentage: Double {
+    var errorRatePercentage: Double {
         guard totalRequests > 0 else { return 0.0 }
         return (Double(totalErrors) / Double(totalRequests)) * 100.0
     }
     
-    public init(accountId: String, projectName: String) {
+    init(
+        accountId: String,
+        projectName: String,
+        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared,
+        pagesService: PagesServiceProtocol = PagesService.shared
+    ) {
         self.accountId = accountId
         self.projectName = projectName
+        self.analyticsService = analyticsService
+        self.pagesService = pagesService
         super.init()
     }
     
@@ -114,7 +121,7 @@ public final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     
     private func fetchFunctionsMetrics() async {
         do {
-            let items = try await self.apiClient.getPagesAnalytics(
+            let items = try await self.analyticsService.getPagesAnalytics(
                 accountId: self.accountId,
                 projectName: self.projectName,
                 days: self.selectedDays

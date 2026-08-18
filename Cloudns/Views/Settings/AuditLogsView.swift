@@ -4,6 +4,7 @@ struct AuditLogsView: View {
     let accountId: String
     @StateObject private var viewModel: AuditLogsViewModel
     @State private var selectedLog: AuditLog?
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
     init(accountId: String) {
         self.accountId = accountId
@@ -12,7 +13,15 @@ struct AuditLogsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredLogs.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(AuditLog.placeholders) { placeholderLog in
+                        AuditLogRowView(log: placeholderLog)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredLogs.isEmpty {
                 Section {
                     ForEach(viewModel.filteredLogs) { log in
                         Button {
@@ -30,7 +39,8 @@ struct AuditLogsView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Audit Logs")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Actions or Users")
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search actions, domains, or users")
+        .id(appLanguage)
         .refreshable {
             await viewModel.fetchLogs()
         }
@@ -40,10 +50,7 @@ struct AuditLogsView: View {
             }
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -83,32 +90,31 @@ struct AuditLogRowView: View {
     let log: AuditLog
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
                     .fill(log.actionColor.opacity(0.12))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 38, height: 38)
                 Image(systemName: log.actionIcon)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(log.actionColor)
             }
             .accessibilityHidden(true)
+            .padding(.top, 2)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 6) {
-                    Text(log.displayAction)
-                        .font(.subheadline.weight(.semibold))
+                    Text(LocalizedStringKey(log.displayActionKey))
+                        .font(.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
                     
-                    if let resType = log.resource?.type, !resType.isEmpty {
-                        Text(resType)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Color(.tertiarySystemFill))
-                            .clipShape(Capsule())
-                    }
+                    Text(LocalizedStringKey(log.friendlyResourceTypeKey))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color(.tertiarySystemFill))
+                        .clipShape(Capsule())
                     
                     Spacer()
                     
@@ -117,10 +123,12 @@ struct AuditLogRowView: View {
                     }
                 }
                 
-                Text(log.displayResourceTitle)
-                    .font(.caption.weight(.medium))
+                log.primarySummaryView
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                
+                log.secondaryContextView
                 
                 HStack(spacing: 8) {
                     if let email = log.actor?.email, !email.isEmpty {
@@ -153,6 +161,7 @@ struct AuditLogRowView: View {
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.tertiary)
+                .padding(.top, 4)
         }
         .padding(.vertical, 4)
     }
@@ -163,6 +172,7 @@ struct AuditLogRowView: View {
 struct AuditLogDetailSheet: View {
     let log: AuditLog
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
     var body: some View {
         List {
@@ -179,11 +189,15 @@ struct AuditLogDetailSheet: View {
                     }
                     
                     VStack(spacing: 4) {
-                        Text(log.displayAction)
-                            .font(.title3.weight(.bold))
-                            .foregroundStyle(.primary)
+                        HStack(spacing: 4) {
+                            Text(LocalizedStringKey(log.displayActionKey))
+                            Text("•")
+                            Text(LocalizedStringKey(log.friendlyResourceTypeKey))
+                        }
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.primary)
                         
-                        Text(log.displayResourceTitle)
+                        log.primarySummaryView
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -202,7 +216,7 @@ struct AuditLogDetailSheet: View {
             Section("Operation Summary") {
                 detailRow(label: "Action Type", value: log.action?.type ?? "-")
                 if let info = log.action?.info, !info.isEmpty {
-                    detailRow(label: "Info", value: info)
+                    detailRow(label: "Action Info", value: info)
                 }
                 if let iface = log.interface, !iface.isEmpty {
                     detailRow(label: "Interface", value: iface)
@@ -213,7 +227,55 @@ struct AuditLogDetailSheet: View {
                 }
             }
             
-            // MARK: 3. Actor Info
+            // MARK: 3. Payload / Changes Diff
+            if hasChanges {
+                Section("Changes & Payload") {
+                    if let oldText = formattedOldValue, !oldText.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("Previous Value (Before)", systemImage: "minus.circle.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.red)
+                            Text(oldText)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.primary)
+                                .padding(10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.red.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    
+                    if let newText = formattedNewValue, !newText.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("New Value (After)", systemImage: "plus.circle.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.green)
+                            Text(newText)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.primary)
+                                .padding(10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.green.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            
+            // MARK: 4. Metadata
+            if let meta = log.metadata, !meta.isEmpty {
+                Section("Metadata & Context") {
+                    ForEach(Array(meta.keys.sorted()), id: \.self) { key in
+                        if let val = meta[key] {
+                            detailRow(label: LocalizedStringKey(key), value: val.description, isCopyable: true)
+                        }
+                    }
+                }
+            }
+            
+            // MARK: 5. Actor Info
             Section("Actor Details") {
                 if let email = log.actor?.email, !email.isEmpty {
                     detailRow(label: "Actor Email", value: email, isCopyable: true)
@@ -229,7 +291,7 @@ struct AuditLogDetailSheet: View {
                 }
             }
             
-            // MARK: 4. Target Resource
+            // MARK: 6. Target Resource
             Section("Target Resource") {
                 if let resType = log.resource?.type, !resType.isEmpty {
                     detailRow(label: "Resource Type", value: resType)
@@ -245,44 +307,7 @@ struct AuditLogDetailSheet: View {
                 }
             }
             
-            // MARK: 5. Payload / Changes
-            if log.oldValue != nil || log.newValue != nil {
-                Section("Changes") {
-                    if let oldVal = log.oldValue, !oldVal.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Previous Value")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                            Text(oldVal)
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.red)
-                                .padding(8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(.tertiarySystemFill))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .padding(.vertical, 2)
-                    }
-                    
-                    if let newVal = log.newValue, !newVal.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("New Value")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                            Text(newVal)
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.green)
-                                .padding(8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(.tertiarySystemFill))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
-            }
-            
-            // MARK: 6. Event ID
+            // MARK: 7. Event ID
             Section {
                 detailRow(label: "Audit Log ID", value: log.id, isCopyable: true)
             }
@@ -290,6 +315,7 @@ struct AuditLogDetailSheet: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Audit Log Detail")
         .navigationBarTitleDisplayMode(.inline)
+        .id(appLanguage)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {
@@ -297,6 +323,32 @@ struct AuditLogDetailSheet: View {
                 }
             }
         }
+    }
+    
+    private var hasChanges: Bool {
+        return formattedOldValue != nil || formattedNewValue != nil
+    }
+    
+    private var formattedOldValue: String? {
+        if let json = log.oldValueJson, !json.isEmpty {
+            let val = AnyJSONValue.dictionary(json)
+            return val.prettyJSONString
+        }
+        if let old = log.oldValue, old != .null && old != .string("") {
+            return old.prettyJSONString
+        }
+        return nil
+    }
+    
+    private var formattedNewValue: String? {
+        if let json = log.newValueJson, !json.isEmpty {
+            let val = AnyJSONValue.dictionary(json)
+            return val.prettyJSONString
+        }
+        if let new = log.newValue, new != .null && new != .string("") {
+            return new.prettyJSONString
+        }
+        return nil
     }
     
     private func detailRow(label: LocalizedStringKey, value: String, isCopyable: Bool = false) -> some View {

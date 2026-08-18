@@ -1,7 +1,14 @@
 import Foundation
 
+/// Cloudflare Hyperdrive 领域服务抽象协议
+protocol HyperdriveServiceProtocol: Sendable {
+    func listHyperdriveConfigs(accountId: String) async throws -> [HyperdriveConfig]
+    func createHyperdriveConfig(accountId: String, payload: HyperdriveCreate) async throws -> HyperdriveConfig
+    func deleteHyperdriveConfig(accountId: String, configId: String) async throws
+}
+
 /// 统一的 Cloudflare Hyperdrive 领域服务
-final class HyperdriveService {
+final class HyperdriveService: HyperdriveServiceProtocol {
     static let shared = HyperdriveService()
     
     private let client = HTTPNetworkClient.shared

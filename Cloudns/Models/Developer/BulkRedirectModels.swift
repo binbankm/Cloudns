@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Bulk Redirects & Operations Models
 
-public struct RedirectList: Codable, Identifiable, Equatable {
+public struct RedirectList: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let description: String?
@@ -33,7 +33,7 @@ public struct RedirectList: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct RedirectListItem: Codable, Identifiable, Equatable {
+public struct RedirectListItem: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let redirect: RedirectItemDetail
     public let createdOn: String?
@@ -51,9 +51,14 @@ public struct RedirectListItem: Codable, Identifiable, Equatable {
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
+    
+    public static let placeholders: [RedirectListItem] = [
+        RedirectListItem(id: "item_1", redirect: RedirectItemDetail(sourceUrl: "example.com/old-blog", targetUrl: "example.com/blog", statusCode: 301)),
+        RedirectListItem(id: "item_2", redirect: RedirectItemDetail(sourceUrl: "example.com/docs/v1", targetUrl: "docs.example.com", statusCode: 302))
+    ]
 }
 
-public struct RedirectItemDetail: Codable, Equatable {
+public struct RedirectItemDetail: Codable, Equatable, Sendable {
     public let sourceUrl: String
     public let targetUrl: String
     public let statusCode: Int?
@@ -83,7 +88,7 @@ public struct RedirectItemDetail: Codable, Equatable {
     }
 }
 
-public struct BulkOperationRef: Codable {
+public struct BulkOperationRef: Codable, Sendable {
     public let operationId: String
     enum CodingKeys: String, CodingKey {
         case operationId = "operation_id"
@@ -94,7 +99,7 @@ public struct BulkOperationRef: Codable {
     }
 }
 
-public struct BulkOperation: Codable {
+public struct BulkOperation: Codable, Sendable {
     public let id: String
     public let status: String
     public let error: String?

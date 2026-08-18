@@ -1,7 +1,33 @@
 import Foundation
 
+/// Cloudflare 速度优化、网络协议与缓存管理领域服务抽象协议
+protocol SpeedAndNetworkServiceProtocol: Sendable {
+    func getSpeedSettings(zoneId: String) async throws -> (minifyCSS: Bool, minifyHTML: Bool, minifyJS: Bool, brotli: Bool, rocketLoader: Bool, earlyHints: Bool)
+    func updateMinify(zoneId: String, css: Bool, html: Bool, js: Bool) async throws
+    func updateBrotli(zoneId: String, isOn: Bool) async throws
+    func updateRocketLoader(zoneId: String, isOn: Bool) async throws
+    func updateEarlyHints(zoneId: String, isOn: Bool) async throws
+    func getNetworkSettings(zoneId: String) async throws -> (ipv6: Bool, websockets: Bool, http2: Bool, http3: Bool, ipGeolocation: Bool)
+    func updateIPv6(zoneId: String, isOn: Bool) async throws
+    func updateWebsockets(zoneId: String, isOn: Bool) async throws
+    func updateHTTP2(zoneId: String, isOn: Bool) async throws
+    func updateHTTP3(zoneId: String, isOn: Bool) async throws
+    func updateIPGeolocation(zoneId: String, isOn: Bool) async throws
+    func getCachingSettings(zoneId: String) async throws -> (cacheLevel: String, browserTTL: Int, alwaysOnline: Bool, devMode: Bool)
+    func updateCacheLevel(zoneId: String, level: String) async throws
+    func updateBrowserCacheTTL(zoneId: String, ttl: Int) async throws
+    func updateAlwaysOnline(zoneId: String, isOn: Bool) async throws
+    func updateDevelopmentMode(zoneId: String, isOn: Bool) async throws
+    func purgeEverything(zoneId: String) async throws
+    func purgeFiles(zoneId: String, files: [String]) async throws
+    func purgeCacheByURLs(zoneId: String, urls: [String]) async throws
+    func purgeCacheByHosts(zoneId: String, hosts: [String]) async throws
+    func purgeCacheByPrefixes(zoneId: String, prefixes: [String]) async throws
+    func purgeCacheByTags(zoneId: String, tags: [String]) async throws
+}
+
 /// 统一的 Cloudflare 速度优化、网络协议与缓存管理领域服务
-final class SpeedAndNetworkService {
+final class SpeedAndNetworkService: SpeedAndNetworkServiceProtocol {
     static let shared = SpeedAndNetworkService()
     
     private let client = HTTPNetworkClient.shared
@@ -12,15 +38,32 @@ final class SpeedAndNetworkService {
     // MARK: - Speed Settings
     
     func getSpeedSettings(zoneId: String) async throws -> (minifyCSS: Bool, minifyHTML: Bool, minifyJS: Bool, brotli: Bool, rocketLoader: Bool, earlyHints: Bool) {
-        async let min = getSetting(zoneId: zoneId, settingName: "minify")
-        async let br = getSetting(zoneId: zoneId, settingName: "brotli")
-        async let rl = getSetting(zoneId: zoneId, settingName: "rocket_loader")
-        async let eh = getSetting(zoneId: zoneId, settingName: "early_hints")
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        let (minify, brotli, rocket, hints) = try await (min, br, rl, eh)
+        var minify: ZoneSetting?
+        var brotli: ZoneSetting?
+        var rocket: ZoneSetting?
+        var hints: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            minify = allSettings.first(where: { $0.id == "minify" })
+            brotli = allSettings.first(where: { $0.id == "brotli" })
+            rocket = allSettings.first(where: { $0.id == "rocket_loader" })
+            hints = allSettings.first(where: { $0.id == "early_hints" })
+        } else {
+            async let min = try? getSetting(zoneId: zoneId, settingName: "minify")
+            async let br = try? getSetting(zoneId: zoneId, settingName: "brotli")
+            async let rl = try? getSetting(zoneId: zoneId, settingName: "rocket_loader")
+            async let eh = try? getSetting(zoneId: zoneId, settingName: "early_hints")
+            let (m, b, r, h) = await (min, br, rl, eh)
+            minify = m
+            brotli = b
+            rocket = r
+            hints = h
+        }
         
         var css = false, html = false, js = false
-        if let dict = minify?.value as? [String: String] {
+        if let dict = minify?.value.objectValue {
             css = (dict["css"] == "on")
             html = (dict["html"] == "on")
             js = (dict["js"] == "on")
@@ -30,9 +73,9 @@ final class SpeedAndNetworkService {
             minifyCSS: css,
             minifyHTML: html,
             minifyJS: js,
-            brotli: ((brotli?.value as? String) ?? "off") == "on",
-            rocketLoader: ((rocket?.value as? String) ?? "off") == "on",
-            earlyHints: ((hints?.value as? String) ?? "off") == "on"
+            brotli: brotli?.value.boolValue ?? false,
+            rocketLoader: rocket?.value.boolValue ?? false,
+            earlyHints: hints?.value.boolValue ?? false
         )
     }
     
@@ -60,20 +103,40 @@ final class SpeedAndNetworkService {
     // MARK: - Network Settings
     
     func getNetworkSettings(zoneId: String) async throws -> (ipv6: Bool, websockets: Bool, http2: Bool, http3: Bool, ipGeolocation: Bool) {
-        async let v6 = getSetting(zoneId: zoneId, settingName: "ipv6")
-        async let ws = getSetting(zoneId: zoneId, settingName: "websockets")
-        async let h2 = getSetting(zoneId: zoneId, settingName: "http2")
-        async let h3 = getSetting(zoneId: zoneId, settingName: "http3")
-        async let geo = getSetting(zoneId: zoneId, settingName: "ip_geolocation")
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        let (ipv6, websockets, http2, http3, ipGeo) = try await (v6, ws, h2, h3, geo)
+        var ipv6: ZoneSetting?
+        var websockets: ZoneSetting?
+        var http2: ZoneSetting?
+        var http3: ZoneSetting?
+        var ipGeo: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            ipv6 = allSettings.first(where: { $0.id == "ipv6" })
+            websockets = allSettings.first(where: { $0.id == "websockets" })
+            http2 = allSettings.first(where: { $0.id == "http2" })
+            http3 = allSettings.first(where: { $0.id == "http3" })
+            ipGeo = allSettings.first(where: { $0.id == "ip_geolocation" })
+        } else {
+            async let v6 = try? getSetting(zoneId: zoneId, settingName: "ipv6")
+            async let ws = try? getSetting(zoneId: zoneId, settingName: "websockets")
+            async let h2 = try? getSetting(zoneId: zoneId, settingName: "http2")
+            async let h3 = try? getSetting(zoneId: zoneId, settingName: "http3")
+            async let geo = try? getSetting(zoneId: zoneId, settingName: "ip_geolocation")
+            let (v, w, h2Res, h3Res, g) = await (v6, ws, h2, h3, geo)
+            ipv6 = v
+            websockets = w
+            http2 = h2Res
+            http3 = h3Res
+            ipGeo = g
+        }
         
         return (
-            ipv6: ((ipv6?.value as? String) ?? "off") == "on",
-            websockets: ((websockets?.value as? String) ?? "off") == "on",
-            http2: ((http2?.value as? String) ?? "off") == "on",
-            http3: ((http3?.value as? String) ?? "off") == "on",
-            ipGeolocation: ((ipGeo?.value as? String) ?? "off") == "on"
+            ipv6: ipv6?.value.boolValue ?? false,
+            websockets: websockets?.value.boolValue ?? false,
+            http2: http2?.value.boolValue ?? false,
+            http3: http3?.value.boolValue ?? false,
+            ipGeolocation: ipGeo?.value.boolValue ?? false
         )
     }
     
@@ -100,18 +163,35 @@ final class SpeedAndNetworkService {
     // MARK: - Caching Settings & Granular Purge
     
     func getCachingSettings(zoneId: String) async throws -> (cacheLevel: String, browserTTL: Int, alwaysOnline: Bool, devMode: Bool) {
-        async let cl = getSetting(zoneId: zoneId, settingName: "cache_level")
-        async let bt = getSetting(zoneId: zoneId, settingName: "browser_cache_ttl")
-        async let ao = getSetting(zoneId: zoneId, settingName: "always_online")
-        async let dm = getSetting(zoneId: zoneId, settingName: "development_mode")
+        let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        let (cacheLevel, browserTTL, alwaysOnline, devMode) = try await (cl, bt, ao, dm)
+        var cacheLevel: ZoneSetting?
+        var browserTTL: ZoneSetting?
+        var alwaysOnline: ZoneSetting?
+        var devMode: ZoneSetting?
+        
+        if !allSettings.isEmpty {
+            cacheLevel = allSettings.first(where: { $0.id == "cache_level" })
+            browserTTL = allSettings.first(where: { $0.id == "browser_cache_ttl" })
+            alwaysOnline = allSettings.first(where: { $0.id == "always_online" })
+            devMode = allSettings.first(where: { $0.id == "development_mode" })
+        } else {
+            async let cl = try? getSetting(zoneId: zoneId, settingName: "cache_level")
+            async let bt = try? getSetting(zoneId: zoneId, settingName: "browser_cache_ttl")
+            async let ao = try? getSetting(zoneId: zoneId, settingName: "always_online")
+            async let dm = try? getSetting(zoneId: zoneId, settingName: "development_mode")
+            let (c, b, a, d) = await (cl, bt, ao, dm)
+            cacheLevel = c
+            browserTTL = b
+            alwaysOnline = a
+            devMode = d
+        }
         
         return (
-            cacheLevel: (cacheLevel?.value as? String) ?? "aggressive",
-            browserTTL: (browserTTL?.value as? Int) ?? 14400,
-            alwaysOnline: ((alwaysOnline?.value as? String) ?? "off") == "on",
-            devMode: ((devMode?.value as? String) ?? "off") == "on"
+            cacheLevel: cacheLevel?.value.stringValue ?? "aggressive",
+            browserTTL: browserTTL?.value.intValue ?? 14400,
+            alwaysOnline: alwaysOnline?.value.boolValue ?? false,
+            devMode: devMode?.value.boolValue ?? false
         )
     }
     
@@ -176,6 +256,12 @@ final class SpeedAndNetworkService {
     }
     
     // MARK: - Generic Setting Helpers
+    
+    private func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings")
+        let (settings, _): ([ZoneSetting]?, ResultInfo?) = try await client.performRequest(request)
+        return settings ?? []
+    }
     
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")

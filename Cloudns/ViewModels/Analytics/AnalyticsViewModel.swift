@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-struct ZoneAnalyticsSnapshot: Codable {
+nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AnalyticsDataPoint]
     let mapDataPoints: [CountryDataPoint]
     let loadedDays: Int
@@ -14,7 +14,12 @@ class AnalyticsViewModel: BaseLoadableViewModel {
     @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var loadedDays: Int = 30
     
-    let apiClient = CloudflareAPIClient.shared
+    private let analyticsService: AnalyticsServiceProtocol
+    
+    init(analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared) {
+        self.analyticsService = analyticsService
+        super.init()
+    }
     
     // Aggregated Metrics
     var totalRequests: Int {
@@ -63,7 +68,7 @@ class AnalyticsViewModel: BaseLoadableViewModel {
         
         // 2. [Revalidate] 执行网络请求
         await executeLoadingTask(clearError: true) {
-            let result = try await self.apiClient.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
+            let result = try await self.analyticsService.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
             if let zones = result.viewer.zones, let zone = zones.first {
                 let groups = zone.httpRequests1dGroups ?? zone.httpRequests1hGroups ?? []
                 self.dataPoints = groups

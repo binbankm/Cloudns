@@ -3,7 +3,7 @@ import SwiftUI
 struct AddCacheRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: CacheRulesViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var ruleName = ""
     @State private var cacheEligibility = "eligible"
@@ -15,12 +15,23 @@ struct AddCacheRuleView: View {
     @State private var browserTtlValue = "14400"
     
     @State private var isSubmitting = false
+    @FocusState private var focusedField: String?
     
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Cache static assets)", text: $ruleName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "ruleName")
+                        .onSubmit { focusedField = "edgeTtl" }
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "name")
                 }
                 
                 Section(header: Text("Cache Eligibility")) {
@@ -45,8 +56,11 @@ struct AddCacheRuleView: View {
                                 Spacer()
                                 TextField("e.g. 3600", text: $edgeTtlValue)
                                     .keyboardType(.numberPad)
+                                    .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
+                                    .submitLabel(.next)
                                     .frame(width: 100)
+                                    .focused($focusedField, equals: "edgeTtl")
                             }
                         }
                     }
@@ -64,25 +78,30 @@ struct AddCacheRuleView: View {
                                 Spacer()
                                 TextField("e.g. 14400", text: $browserTtlValue)
                                     .keyboardType(.numberPad)
+                                    .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
+                                    .submitLabel(.done)
                                     .frame(width: 100)
+                                    .focused($focusedField, equals: "browserTtl")
                             }
                         }
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Cache Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
@@ -90,10 +109,11 @@ struct AddCacheRuleView: View {
                     .disabled(ruleName.isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
@@ -127,7 +147,7 @@ struct AddCacheRuleView: View {
         
         await viewModel.createRule(
             zoneId: zoneId,
-            expression: "(http.request.uri.path contains \"/\")", // Default to all paths for simplified creation
+            expression: "(http.request.uri.path contains \"/\")",
             description: ruleName,
             enabled: true,
             actionParameters: params
@@ -135,7 +155,7 @@ struct AddCacheRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }

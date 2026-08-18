@@ -1,6 +1,6 @@
 import Foundation
 
-struct CertificatePack: Codable, Identifiable {
+struct CertificatePack: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let type: String
     let hosts: [String]
@@ -10,7 +10,7 @@ struct CertificatePack: Codable, Identifiable {
     let certificates: [PackCertificate]?
 }
 
-struct PackCertificate: Codable, Identifiable {
+struct PackCertificate: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let hosts: [String]
     let issuer: String
@@ -19,12 +19,12 @@ struct PackCertificate: Codable, Identifiable {
     let expires_on: String
 }
 
-struct CFAPIError: Codable {
+struct CFAPIError: Codable, Equatable, Sendable {
     let code: Int?
     let message: String
 }
 
-struct CertificatePacksResponse: Codable {
+struct CertificatePacksResponse: Codable, Sendable {
     let success: Bool
     let errors: [CFAPIError]?
     let messages: [String]?
@@ -32,7 +32,7 @@ struct CertificatePacksResponse: Codable {
 }
 
 // Unified model for display
-struct EdgeCertificateModel: Identifiable {
+struct EdgeCertificateModel: Identifiable, Equatable, Sendable {
     let id: String
     let type: String // "universal", "advanced", "custom"
     let hosts: [String]

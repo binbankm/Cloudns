@@ -1,6 +1,6 @@
 import Foundation
 
-struct LoadBalancer: Codable, Identifiable {
+struct LoadBalancer: Codable, Identifiable, Equatable, Sendable {
     let id: String
     var name: String?
     var enabled: Bool?
@@ -25,7 +25,7 @@ struct LoadBalancer: Codable, Identifiable {
     ]
 }
 
-struct LoadBalancerUpdate: Codable {
+struct LoadBalancerUpdate: Codable, Sendable {
     var name: String?
     var enabled: Bool?
     var ttl: Int?
@@ -46,7 +46,7 @@ struct LoadBalancerUpdate: Codable {
 
 typealias LoadBalancerInput = LoadBalancerUpdate
 
-struct LBPool: Codable, Identifiable {
+struct LBPool: Codable, Identifiable, Equatable, Sendable {
     let id: String
     var name: String?
     var enabled: Bool?
@@ -66,7 +66,7 @@ struct LBPool: Codable, Identifiable {
     ]
 }
 
-struct LBOrigin: Codable, Identifiable {
+struct LBOrigin: Codable, Identifiable, Equatable, Sendable {
     let id: String?
     var name: String?
     var address: String?
@@ -76,7 +76,7 @@ struct LBOrigin: Codable, Identifiable {
     var idResolved: String { id ?? name ?? UUID().uuidString }
 }
 
-struct LBMonitor: Codable, Identifiable {
+struct LBMonitor: Codable, Identifiable, Equatable, Sendable {
     let id: String
     var type: String?
     var description: String?
@@ -102,7 +102,7 @@ struct LBMonitor: Codable, Identifiable {
     ]
 }
 
-struct LBPoolUpdate: Codable {
+struct LBPoolUpdate: Codable, Sendable {
     var name: String
     var description: String?
     var enabled: Bool
@@ -116,7 +116,7 @@ struct LBPoolUpdate: Codable {
     }
 }
 
-struct LBMonitorUpdate: Codable {
+struct LBMonitorUpdate: Codable, Sendable {
     var type: String
     var description: String?
     var method: String?

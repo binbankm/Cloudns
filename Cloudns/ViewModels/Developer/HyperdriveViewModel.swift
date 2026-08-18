@@ -5,13 +5,14 @@ import Combine
 @MainActor
 final class HyperdriveViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let hyperdriveService: HyperdriveServiceProtocol
     
     @Published var configs: [HyperdriveConfig] = []
     @Published var searchText: String = ""
     
-    init(accountId: String) {
+    init(accountId: String, hyperdriveService: HyperdriveServiceProtocol = HyperdriveService.shared) {
         self.accountId = accountId
+        self.hyperdriveService = hyperdriveService
         super.init()
     }
     
@@ -22,13 +23,13 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
     
     func fetchConfigs() async {
         await executeLoadingTask {
-            self.configs = try await self.apiClient.listHyperdriveConfigs(accountId: self.accountId)
+            self.configs = try await self.hyperdriveService.listHyperdriveConfigs(accountId: self.accountId)
         }
     }
     
     func createConfig(payload: HyperdriveCreate) async -> Bool {
         do {
-            _ = try await apiClient.createHyperdriveConfig(accountId: accountId, payload: payload)
+            _ = try await hyperdriveService.createHyperdriveConfig(accountId: accountId, payload: payload)
             ToastManager.shared.showSuccess("Hyperdrive Created", message: payload.name)
             await fetchConfigs()
             return true
@@ -40,7 +41,7 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
     
     func deleteConfig(id: String) async {
         do {
-            try await apiClient.deleteHyperdriveConfig(accountId: accountId, configId: id)
+            try await hyperdriveService.deleteHyperdriveConfig(accountId: accountId, configId: id)
             ToastManager.shared.showSuccess("Hyperdrive Deleted", message: "")
             await fetchConfigs()
         } catch {

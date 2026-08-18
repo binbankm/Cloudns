@@ -141,16 +141,19 @@ struct NetworkCenterView: View {
                     }
                 }
             }
-        }
+            } else if viewModel.isLoading {
+                Section(header: Text("Core Protocols")) {
+                    Toggle("IPv6 Compatibility", isOn: .constant(true))
+                        .skeletonLoading(true)
+                    Toggle("WebSockets", isOn: .constant(true))
+                        .skeletonLoading(true)
+                    Toggle("HTTP/2", isOn: .constant(true))
+                        .skeletonLoading(true)
+                }
+            }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

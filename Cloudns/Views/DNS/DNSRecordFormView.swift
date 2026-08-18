@@ -30,6 +30,11 @@ struct DNSRecordFormView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     
+    enum FocusField {
+        case name, content, comment, priority, srvService, srvPort, srvWeight, srvTarget, caaFlags, caaValue
+    }
+    @FocusState private var focusedField: FocusField?
+    
     let recordTypes = ["A", "AAAA", "CNAME", "TXT", "MX", "NS", "SRV", "CAA", "PTR", "CERT", "DNSKEY", "DS", "NAPTR", "SMIMEA", "SSHFP", "TLSA", "URI"]
     let ttlOptions = [
         (1, "Auto"),
@@ -90,37 +95,91 @@ struct DNSRecordFormView: View {
                     }
                     
                     TextField("Name (e.g., @ or www)", text: $name)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .name)
+                        .onSubmit {
+                            if type == "SRV" {
+                                focusedField = .srvService
+                            } else if type == "CAA" {
+                                focusedField = .caaFlags
+                            } else {
+                                focusedField = .content
+                            }
+                        }
                     
                     if type == "SRV" {
                         TextField("Service (e.g., _sip)", text: $srvService)
-                            .autocapitalization(.none)
+                            .keyboardType(.asciiCapable)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .srvService)
+                            .onSubmit { focusedField = .priority }
                         Picker("Protocol", selection: $srvProto) {
                             Text("_tcp").tag("_tcp")
                             Text("_udp").tag("_udp")
                             Text("_tls").tag("_tls")
                         }
-                        TextField("Priority (e.g., 10)", text: $priority).keyboardType(.numberPad)
-                        TextField("Weight (e.g., 5)", text: $srvWeight).keyboardType(.numberPad)
-                        TextField("Port (e.g., 443)", text: $srvPort).keyboardType(.numberPad)
+                        TextField("Priority (e.g., 10)", text: $priority)
+                            .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .priority)
+                            .onSubmit { focusedField = .srvWeight }
+                        TextField("Weight (e.g., 5)", text: $srvWeight)
+                            .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .srvWeight)
+                            .onSubmit { focusedField = .srvPort }
+                        TextField("Port (e.g., 443)", text: $srvPort)
+                            .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .srvPort)
+                            .onSubmit { focusedField = .srvTarget }
                         TextField("Target (e.g., example.com)", text: $srvTarget)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .srvTarget)
+                            .onSubmit { focusedField = .comment }
                     } else if type == "CAA" {
-                        TextField("Flags (e.g., 0)", text: $caaFlags).keyboardType(.numberPad)
+                        TextField("Flags (e.g., 0)", text: $caaFlags)
+                            .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .caaFlags)
                         Picker("Tag", selection: $caaTag) {
                             Text("issue").tag("issue")
                             Text("issuewild").tag("issuewild")
                             Text("iodef").tag("iodef")
                         }
                         TextField("Value (e.g., letsencrypt.org)", text: $caaValue)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .caaValue)
+                            .onSubmit { focusedField = .comment }
                     } else {
                         TextField("Content (e.g., 192.0.2.1)", text: $content)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .keyboardType(type == "A" || type == "AAAA" ? .numbersAndPunctuation : .URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .content)
+                            .onSubmit {
+                                if type == "MX" || type == "URI" {
+                                    focusedField = .priority
+                                } else {
+                                    focusedField = .comment
+                                }
+                            }
                     }
                 }
                 
@@ -128,6 +187,10 @@ struct DNSRecordFormView: View {
                     if type == "MX" || type == "URI" {
                         TextField("Priority", text: $priority)
                             .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .priority)
+                            .onSubmit { focusedField = .comment }
                     }
                     
                     if isProxySupported {
@@ -157,6 +220,16 @@ struct DNSRecordFormView: View {
                 
                 Section(header: Text("Comment (Optional)")) {
                     TextField("Add a note about this record", text: $comment)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .focused($focusedField, equals: .comment)
+                        .onSubmit {
+                            focusedField = nil
+                            if !name.isEmpty && !isSaving {
+                                Task { await saveRecord() }
+                            }
+                        }
                 }
                 
                 if let error = errorMessage {
@@ -167,17 +240,19 @@ struct DNSRecordFormView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle(existingRecord == nil ? "Add Record" : "Edit Record")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             await saveRecord()
                         }
@@ -185,10 +260,12 @@ struct DNSRecordFormView: View {
                     .disabled(name.isEmpty || isSaving)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .interactiveDismissDisabled(isSaving)
             .overlay {
                 if isSaving {
                     ZStack {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))

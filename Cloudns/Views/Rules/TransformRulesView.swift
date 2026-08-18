@@ -7,10 +7,19 @@ struct TransformRulesView: View {
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteAlert = false
+    @State private var searchText = ""
     
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: TransformRulesViewModel(zoneId: zoneId))
+    }
+    
+    private var displayedRules: [WAFRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            $0.expression.localizedCaseInsensitiveContains(searchText)
+        }
     }
     
     var body: some View {
@@ -26,9 +35,17 @@ struct TransformRulesView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
-            if !viewModel.rules.isEmpty {
-                Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")) {
-                    ForEach(viewModel.rules) { rule in
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules")) {
+                    ForEach(WAFRule.placeholders) { placeholderRule in
+                        TransformRuleCardView(rule: placeholderRule, onToggle: {})
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedRules.isEmpty {
+                Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")) {
+                    ForEach(displayedRules) { rule in
                         TransformRuleCardView(rule: rule) {
                             HapticManager.impact(.light)
                             Task {
@@ -51,11 +68,9 @@ struct TransformRulesView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Transform Rules")
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -73,6 +88,13 @@ struct TransformRulesView: View {
                             message: "Configure URL rewrites and request/response header transformations at the edge.",
                             actionTitle: "Add Rule",
                             action: { showingAddSheet = true }
+                        )
+                    )
+                } else if displayedRules.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
                         )
                     )
                 }

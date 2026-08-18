@@ -28,7 +28,22 @@ struct WorkerSecretsView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
             
-            if viewModel.selectedTab == "variables" {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Variables & Secrets")) {
+                    ForEach(0..<4, id: \.self) { _ in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("SECRET_KEY_PLACEHOLDER")
+                                    .font(.headline)
+                                Text("••••••••••••••••")
+                                    .font(.subheadline)
+                            }
+                            Spacer()
+                        }
+                        .skeletonLoading(true)
+                    }
+                }
+            } else if viewModel.selectedTab == "variables" {
                 if !viewModel.filteredVariables.isEmpty {
                     variablesSection
                 }
@@ -82,10 +97,7 @@ struct WorkerSecretsView: View {
             await viewModel.fetchSecrets()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -315,6 +327,8 @@ struct WorkerAddVariableOrSecretSheetView: View {
                 
                 Section(header: Text(isSecret ? "Secret Key Name" : "Variable Key Name")) {
                     TextField("KEY_NAME", text: $itemName)
+                        .keyboardType(.asciiCapable)
+                        .submitLabel(.done)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                 }
@@ -325,11 +339,15 @@ struct WorkerAddVariableOrSecretSheetView: View {
                 ) {
                     if isSecret {
                         SecureField("Secret Value", text: $itemValue)
+                            .textContentType(.password)
+                            .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .submitLabel(.done)
                     } else {
                         TextField("Variable Value", text: $itemValue, axis: .vertical)
                             .lineLimit(2...5)
+                            .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                     }
@@ -343,6 +361,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle(isSecret ? "Add Secret" : "Add Variable")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -356,14 +375,15 @@ struct WorkerAddVariableOrSecretSheetView: View {
                     .disabled(itemName.trimmingCharacters(in: .whitespaces).isEmpty || itemValue.isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }
     
     private func save() {
-        let name = itemName.trimmingCharacters(in: .whitespaces)
         isSaving = true
         errorMessage = nil
+        let name = itemName.trimmingCharacters(in: .whitespacesAndNewlines)
         Task {
             do {
                 if isSecret {
@@ -413,6 +433,7 @@ struct WorkerEditVariableSheetView: View {
                 Section(header: Text("Variable Value (Plaintext)")) {
                     TextField("Value", text: $variableValue, axis: .vertical)
                         .lineLimit(3...6)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
@@ -425,6 +446,7 @@ struct WorkerEditVariableSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Edit Variable")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -438,6 +460,7 @@ struct WorkerEditVariableSheetView: View {
                     .disabled(isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }

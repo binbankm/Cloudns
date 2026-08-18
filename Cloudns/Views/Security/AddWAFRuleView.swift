@@ -3,7 +3,7 @@ import SwiftUI
 struct AddWAFRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: WAFViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var ruleName = ""
     @State private var action = "block"
@@ -13,6 +13,12 @@ struct AddWAFRuleView: View {
     @State private var value = ""
     
     @State private var isSubmitting = false
+    @FocusState private var focusedField: FocusableField?
+    
+    enum FocusableField {
+        case name
+        case value
+    }
     
     let actions = [
         ("Block", "block"),
@@ -57,6 +63,12 @@ struct AddWAFRuleView: View {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Block bad bots)", text: $ruleName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($focusedField, equals: .name)
+                        .submitLabel(.next)
+                        .onSubmit { focusedField = .value }
                 }
                 
                 Section(header: Text("When incoming requests match...")) {
@@ -77,17 +89,31 @@ struct AddWAFRuleView: View {
                     
                     if field == "ip.geoip.country" {
                         TextField("Value (e.g. CN, US, RU)", text: $value)
-                            .autocapitalization(.allCharacters)
+                            .keyboardType(.asciiCapable)
+                            .textInputAutocapitalization(.characters)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
+                            .focused($focusedField, equals: .value)
                     } else if field == "ip.geoip.asnum" {
                         TextField("Value (e.g. 12345)", text: $value)
                             .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
+                            .focused($focusedField, equals: .value)
                     } else if field == "ip.src" {
                         TextField("Value (e.g. 1.1.1.1 or 1.2.3.0/24)", text: $value)
                             .keyboardType(.numbersAndPunctuation)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
+                            .focused($focusedField, equals: .value)
                     } else {
                         TextField("Value", text: $value)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
+                            .keyboardType(.asciiCapable)
+                            .submitLabel(.done)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .focused($focusedField, equals: .value)
                     }
                 }
                 
@@ -101,22 +127,24 @@ struct AddWAFRuleView: View {
                 
                 Section(header: Text("Generated Expression")) {
                     Text(generatedExpression)
-                        .font(.footnote)
+                        .font(.footnote.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New WAF Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
@@ -124,10 +152,11 @@ struct AddWAFRuleView: View {
                     .disabled(ruleName.isEmpty || value.isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
@@ -142,10 +171,8 @@ struct AddWAFRuleView: View {
     private var generatedExpression: String {
         guard !value.isEmpty else { return "" }
         
-        // Handle strings with quotes, numbers without quotes
         let needsQuotes = (field != "ip.src" && field != "ip.geoip.asnum" && field != "ip.geoip.country" && operatorType != "in") || field == "http.request.uri.path" || field == "http.user_agent" || field == "http.host"
         
-        // Wait, country codes are strings. IP is usually unquoted in rulesets. Asnum is unquoted.
         var formattedValue = value
         if field == "ip.geoip.country" {
             formattedValue = "\"\(value.uppercased())\""
@@ -158,7 +185,6 @@ struct AddWAFRuleView: View {
     
     private func submitRule() async {
         isSubmitting = true
-        
         let expression = generatedExpression
         
         await viewModel.createRule(
@@ -171,7 +197,7 @@ struct AddWAFRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }

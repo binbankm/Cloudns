@@ -98,8 +98,10 @@ struct D1RowEditorView: View {
                                     )
                                 )
                                 .font(.body.monospaced())
+                                .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
+                                .submitLabel(.done)
                                 
                                 if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
                                     Text(verbatim: "Default: \(dflt)")
@@ -120,7 +122,8 @@ struct D1RowEditorView: View {
                     }
                 }
             }
-            .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
+            .scrollDismissesKeyboard(.interactively)
+        .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

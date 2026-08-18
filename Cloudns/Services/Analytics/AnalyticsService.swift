@@ -1,7 +1,15 @@
 import Foundation
 
+/// Cloudflare Analytics 分析领域服务抽象协议
+protocol AnalyticsServiceProtocol: Sendable {
+    func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
+    func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
+    func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem]
+    func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem]
+}
+
 /// 统一的 Cloudflare Zone Analytics 分析领域服务
-final class AnalyticsService {
+final class AnalyticsService: AnalyticsServiceProtocol {
     static let shared = AnalyticsService()
     
     private let client = HTTPNetworkClient.shared
@@ -92,7 +100,7 @@ final class AnalyticsService {
         } catch let apiError as APIError {
             throw apiError
         } catch {
-            throw APIError.decodingError(error)
+            throw APIError.decodingError(error.localizedDescription)
         }
     }
     
@@ -187,7 +195,7 @@ final class AnalyticsService {
         } catch let apiError as APIError {
             throw apiError
         } catch {
-            throw APIError.decodingError(error)
+            throw APIError.decodingError(error.localizedDescription)
         }
     }
     

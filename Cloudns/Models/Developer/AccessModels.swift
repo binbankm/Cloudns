@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Access Apps & Policies Models
 
-public struct AccessApp: Codable, Identifiable, Equatable {
+public struct AccessApp: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let domain: String
@@ -45,7 +45,7 @@ public struct AccessApp: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct AccessPolicy: Codable, Identifiable, Equatable {
+public struct AccessPolicy: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let decision: String
@@ -77,4 +77,9 @@ public struct AccessPolicy: Codable, Identifiable, Equatable {
         self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
         self.updatedAt = try? container.decodeIfPresent(String.self, forKey: .updatedAt)
     }
+    
+    public static let placeholders: [AccessPolicy] = [
+        AccessPolicy(id: "pol_1", name: "Allow Company SSO Emails", decision: "allow", precedence: 1),
+        AccessPolicy(id: "pol_2", name: "Require MFA / Hard Token", decision: "non_identity", precedence: 2)
+    ]
 }

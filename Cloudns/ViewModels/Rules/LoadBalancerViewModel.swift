@@ -5,7 +5,8 @@ import Combine
 @MainActor
 class LoadBalancerViewModel: BaseLoadableViewModel {
     let zoneId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let lbService: LoadBalancerServiceProtocol
+    private let zoneService: ZoneServiceProtocol
     
     @Published var loadBalancers: [LoadBalancer] = []
     @Published var pools: [LBPool] = []
@@ -13,8 +14,14 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     
     private var cachedAccountId: String?
     
-    init(zoneId: String) {
+    init(
+        zoneId: String,
+        lbService: LoadBalancerServiceProtocol = LoadBalancerService.shared,
+        zoneService: ZoneServiceProtocol = ZoneService.shared
+    ) {
         self.zoneId = zoneId
+        self.lbService = lbService
+        self.zoneService = zoneService
         super.init()
     }
     
@@ -22,7 +29,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         if let aid = cachedAccountId, !aid.isEmpty {
             return aid
         }
-        let zone = try await self.apiClient.getZoneDetails(zoneId: self.zoneId)
+        let zone = try await self.zoneService.getZoneDetails(zoneId: self.zoneId)
         let aid = zone.account?.id ?? ""
         self.cachedAccountId = aid
         return aid
@@ -32,9 +39,9 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         await executeLoadingTask {
             let accountId = try await self.resolveAccountId()
             
-            async let fetchLBs = self.apiClient.getLoadBalancers(zoneId: self.zoneId)
-            async let fetchPools = self.apiClient.getLBPools(accountId: accountId)
-            async let fetchMonitors = self.apiClient.getLBMonitors(accountId: accountId)
+            async let fetchLBs = self.lbService.getLoadBalancers(zoneId: self.zoneId)
+            async let fetchPools = self.lbService.getLBPools(accountId: accountId)
+            async let fetchMonitors = self.lbService.getLBMonitors(accountId: accountId)
             
             let (newLBs, newPools, newMonitors) = try await (fetchLBs, fetchPools, fetchMonitors)
             self.loadBalancers = newLBs
@@ -49,7 +56,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         defer { isLoading = false }
         
         do {
-            _ = try await apiClient.createLoadBalancer(zoneId: zoneId, payload: payload)
+            _ = try await lbService.createLoadBalancer(zoneId: zoneId, lb: payload)
             await fetchData()
             return true
         } catch {
@@ -64,7 +71,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         defer { isLoading = false }
         
         do {
-            try await apiClient.deleteLoadBalancer(zoneId: zoneId, lbId: id)
+            try await lbService.deleteLoadBalancer(zoneId: zoneId, lbId: id)
             await fetchData()
         } catch {
             errorMessage = error.localizedDescription
@@ -78,7 +85,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             let accountId = try await resolveAccountId()
-            _ = try await apiClient.createLBPool(accountId: accountId, pool: payload)
+            _ = try await lbService.createLBPool(accountId: accountId, pool: payload)
             ToastManager.shared.showSuccess("Pool Created", message: payload.name)
             await fetchData()
             return true
@@ -92,7 +99,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     func deletePool(poolId: String) async {
         do {
             let accountId = try await resolveAccountId()
-            try await apiClient.deleteLBPool(accountId: accountId, poolId: poolId)
+            try await lbService.deleteLBPool(accountId: accountId, poolId: poolId)
             ToastManager.shared.showSuccess("Pool Deleted", message: "")
             await fetchData()
         } catch {
@@ -107,7 +114,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             let accountId = try await resolveAccountId()
-            _ = try await apiClient.createLBMonitor(accountId: accountId, monitor: payload)
+            _ = try await lbService.createLBMonitor(accountId: accountId, monitor: payload)
             ToastManager.shared.showSuccess("Monitor Created", message: payload.description ?? payload.type)
             await fetchData()
             return true
@@ -121,7 +128,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
     func deleteMonitor(monitorId: String) async {
         do {
             let accountId = try await resolveAccountId()
-            try await apiClient.deleteLBMonitor(accountId: accountId, monitorId: monitorId)
+            try await lbService.deleteLBMonitor(accountId: accountId, monitorId: monitorId)
             ToastManager.shared.showSuccess("Monitor Deleted", message: "")
             await fetchData()
         } catch {

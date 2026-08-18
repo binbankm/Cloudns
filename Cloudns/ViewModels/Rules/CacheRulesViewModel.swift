@@ -5,19 +5,20 @@ import Combine
 @MainActor
 class CacheRulesViewModel: BaseLoadableViewModel {
     let zoneId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let wafService: WAFRulesServiceProtocol
     
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
-    init(zoneId: String) {
+    init(zoneId: String, wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
         self.zoneId = zoneId
+        self.wafService = wafService
         super.init()
     }
     
     func fetchCacheRules() async {
         await executeLoadingTask {
-            let rs = try await self.apiClient.fetchRulesetByPhase(zoneId: self.zoneId, phase: "http_request_cache_settings")
+            let rs = try await self.wafService.fetchRulesetByPhase(zoneId: self.zoneId, phase: "http_request_cache_settings")
             self.ruleset = rs
             self.rules = rs?.rules ?? []
         }
@@ -33,7 +34,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         }
         
         do {
-            try await apiClient.updateWAFRule(
+            try await wafService.updateWAFRule(
                 zoneId: zoneId,
                 rulesetId: rs.id,
                 ruleId: rule.id,
@@ -69,7 +70,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         guard let rs = ruleset else { return }
         
         do {
-            try await apiClient.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
+            try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
             HapticManager.notification(.success)
         } catch {
@@ -82,7 +83,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             let updatedRuleset: Ruleset
             if let rs = ruleset {
-                updatedRuleset = try await apiClient.createWAFRule(
+                updatedRuleset = try await wafService.createWAFRule(
                     zoneId: zoneId,
                     rulesetId: rs.id,
                     action: "set_cache_settings",
@@ -93,7 +94,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
                     actionParameters: actionParameters
                 )
             } else {
-                updatedRuleset = try await apiClient.createRuleset(
+                updatedRuleset = try await wafService.createRuleset(
                     zoneId: zoneId,
                     phase: "http_request_cache_settings",
                     action: "set_cache_settings",

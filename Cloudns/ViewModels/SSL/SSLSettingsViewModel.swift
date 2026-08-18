@@ -18,43 +18,31 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
     @Published var hstsIncludeSubdomains: Bool = false
     @Published var hstsNoSniff: Bool = false
     
-    let apiClient = CloudflareAPIClient.shared
+    private let certService: CertificateServiceProtocol
+    
+    init(certService: CertificateServiceProtocol = CertificateService.shared) {
+        self.certService = certService
+        super.init()
+    }
     
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let settings = try await apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                if setting.id == "ssl", let val = setting.value.stringValue {
-                    self.sslMode = val
-                } else if setting.id == "always_use_https", let val = setting.value.stringValue {
-                    self.alwaysUseHTTPS = (val == "on")
-                } else if setting.id == "automatic_https_rewrites", let val = setting.value.stringValue {
-                    self.automaticHTTPSRewrites = (val == "on")
-                } else if setting.id == "min_tls_version", let val = setting.value.stringValue {
-                    self.minTLSVersion = val
-                } else if setting.id == "tls_1_3", let val = setting.value.stringValue {
-                    self.tls13 = (val == "on")
-                } else if setting.id == "opportunistic_encryption", let val = setting.value.stringValue {
-                    self.opportunisticEncryption = (val == "on")
-                } else if setting.id == "opportunistic_onion", let val = setting.value.stringValue {
-                    self.opportunisticOnion = (val == "on")
-                } else if setting.id == "security_header", case let .securityHeader(header) = setting.value {
-                    let hsts = header.strict_transport_security
-                    self.hstsEnabled = hsts.enabled
-                    self.hstsMaxAge = hsts.max_age
-                    self.hstsIncludeSubdomains = hsts.include_subdomains
-                    self.hstsNoSniff = hsts.nosniff
-                }
-            }
+            let res = try await certService.getSSLSettings(zoneId: zoneId)
+            self.sslMode = res.sslMode
+            self.alwaysUseHTTPS = res.alwaysUseHTTPS
+            self.automaticHTTPSRewrites = res.automaticHTTPSRewrites
+            self.minTLSVersion = res.minTLSVersion
+            self.tls13 = res.tls13
+            self.opportunisticEncryption = res.opportunisticEncryption
+            self.opportunisticOnion = res.opportunisticOnion
+            self.hstsEnabled = res.hsts.enabled
+            self.hstsMaxAge = res.hsts.maxAge
+            self.hstsIncludeSubdomains = res.hsts.subdomains
+            self.hstsNoSniff = res.hsts.nosniff
             self.hasFetchedData = true
-        } catch APIError.decodingError(let error) {
-            self.errorMessage = "Decoding failed. Error: \(error.localizedDescription)"
-        } catch APIError.cloudflareError(let message) {
-            self.errorMessage = message
         } catch {
             self.errorMessage = "Failed to fetch SSL settings: \(error.localizedDescription)"
         }
@@ -63,77 +51,85 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
     }
     
     func updateSSLMode(zoneId: String, mode: String) async {
-        await updateSetting(zoneId: zoneId, settingId: "ssl", value: .string(mode)) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateSSLMode(zoneId: zoneId, mode: mode)
             self.sslMode = mode
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "always_use_https", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: isOn)
             self.alwaysUseHTTPS = isOn
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateAutomaticHTTPSRewrites(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "automatic_https_rewrites", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: isOn)
             self.automaticHTTPSRewrites = isOn
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateMinTLSVersion(zoneId: String, version: String) async {
-        await updateSetting(zoneId: zoneId, settingId: "min_tls_version", value: .string(version)) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateMinTLSVersion(zoneId: zoneId, version: version)
             self.minTLSVersion = version
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateTLS13(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "tls_1_3", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateTLS13(zoneId: zoneId, isOn: isOn)
             self.tls13 = isOn
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateOpportunisticEncryption(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "opportunistic_encryption", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateOpportunisticEncryption(zoneId: zoneId, isOn: isOn)
             self.opportunisticEncryption = isOn
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateOpportunisticOnion(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "opportunistic_onion", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateOpportunisticOnion(zoneId: zoneId, isOn: isOn)
             self.opportunisticOnion = isOn
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
     
     func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async {
-        let hsts = SecurityHeader.StrictTransportSecurity(
-            enabled: enabled,
-            max_age: maxAge,
-            include_subdomains: subdomains,
-            nosniff: nosniff
-        )
-        let header = SecurityHeader(strict_transport_security: hsts)
-        
-        await updateSetting(zoneId: zoneId, settingId: "security_header", value: .securityHeader(header)) {
+        HapticManager.impact(.medium)
+        do {
+            try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff)
             self.hstsEnabled = enabled
             self.hstsMaxAge = maxAge
             self.hstsIncludeSubdomains = subdomains
             self.hstsNoSniff = nosniff
-        }
-    }
-    
-    private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: @escaping () -> Void) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)
-            onSuccess()
-        } catch APIError.cloudflareError(let message) {
-            self.errorMessage = message
         } catch {
-            self.errorMessage = "Failed to update \(settingId)."
+            self.errorMessage = error.localizedDescription
         }
-        
-        isLoading = false
     }
 }

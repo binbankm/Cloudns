@@ -1,7 +1,36 @@
 import Foundation
 
+/// DNS 与 DNSSEC 服务抽象协议
+protocol DNSServiceProtocol: Sendable {
+    func getDNSRecords(zoneId: String, page: Int, perPage: Int, search: String?, type: String?, order: String, direction: String) async throws -> ([DNSRecord], ResultInfo?)
+    func createDNSRecord(zoneId: String, payload: DNSRecordPayload) async throws -> DNSRecord
+    func createDNSRecord(zoneId: String, record: DNSRecord) async throws -> DNSRecord
+    func updateDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPayload) async throws -> DNSRecord
+    func updateDNSRecord(zoneId: String, recordId: String, record: DNSRecord) async throws -> DNSRecord
+    func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String
+    func batchDNSRecords(zoneId: String, deletes: [String]) async throws
+    func exportDNSRecords(zoneId: String) async throws -> URL
+    func importDNSRecords(zoneId: String, fileURL: URL) async throws
+    func getDNSSEC(zoneId: String) async throws -> DNSSEC
+    func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC
+}
+
+extension DNSServiceProtocol {
+    func getDNSRecords(
+        zoneId: String,
+        page: Int = 1,
+        perPage: Int = 50,
+        search: String? = nil,
+        type: String? = nil,
+        order: String = "name",
+        direction: String = "asc"
+    ) async throws -> ([DNSRecord], ResultInfo?) {
+        try await getDNSRecords(zoneId: zoneId, page: page, perPage: perPage, search: search, type: type, order: order, direction: direction)
+    }
+}
+
 /// 统一的 Cloudflare DNS 与 DNSSEC 领域服务
-final class DNSService {
+final class DNSService: DNSServiceProtocol {
     static let shared = DNSService()
     
     private let client = HTTPNetworkClient.shared

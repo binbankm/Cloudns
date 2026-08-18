@@ -7,14 +7,20 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
     @Published var rules: [IPAccessRule] = []
     @Published var isCreating: Bool = false
     
-    let apiClient = CloudflareAPIClient.shared
+    private let securityService: SecuritySettingsServiceProtocol
+    
+    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
+        self.securityService = securityService
+        super.init()
+    }
     
     func fetchRules(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            self.rules = try await apiClient.fetchIPAccessRules(zoneId: zoneId)
+            let (fetched, _) = try await securityService.getIPAccessRules(zoneId: zoneId, page: 1, perPage: 50)
+            self.rules = fetched
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to fetch access rules: \(error.localizedDescription)"
@@ -28,7 +34,7 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
         errorMessage = nil
         
         do {
-            let newRule = try await apiClient.createIPAccessRule(
+            let newRule = try await securityService.createIPAccessRule(
                 zoneId: zoneId,
                 mode: mode,
                 target: target,
@@ -38,16 +44,12 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
             
             // Insert at the top
             self.rules.insert(newRule, at: 0)
-            
             HapticManager.notification(.success)
-            
             isCreating = false
             return true
         } catch {
             self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
-            
             HapticManager.notification(.error)
-            
             isCreating = false
             return false
         }
@@ -55,15 +57,11 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
     
     func deleteRule(zoneId: String, ruleId: String) async {
         do {
-            try await apiClient.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
-            
-            // Remove from local list
+            try await securityService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             self.rules.removeAll { $0.id == ruleId }
-            
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
-            
             HapticManager.notification(.error)
         }
     }

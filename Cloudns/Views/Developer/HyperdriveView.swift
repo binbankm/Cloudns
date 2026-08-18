@@ -15,7 +15,15 @@ struct HyperdriveView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredConfigs.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Database Accelerators")) {
+                    ForEach(HyperdriveConfig.placeholders) { placeholder in
+                        configRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredConfigs.isEmpty {
                 Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
                     ForEach(viewModel.filteredConfigs) { config in
                         NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
@@ -63,10 +71,7 @@ struct HyperdriveView: View {
             await viewModel.fetchConfigs()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -247,6 +252,10 @@ struct CreateHyperdriveSheet: View {
             Form {
                 Section(header: Text("Configuration Name")) {
                     TextField("my-database-accelerator", text: $name)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Origin Connection")) {
@@ -255,24 +264,43 @@ struct CreateHyperdriveSheet: View {
                     }
                     
                     TextField("Host (e.g. db.example.com)", text: $host)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
                     TextField("Port", text: $port)
                         .keyboardType(.numberPad)
+                        .keyboardType(.numberPad)
                     
                     TextField("Database Name", text: $database)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                     TextField("User", text: $user)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                     SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Hyperdrive")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isSubmitting = true
@@ -287,6 +315,8 @@ struct CreateHyperdriveSheet: View {
                     .disabled(name.isEmpty || host.isEmpty || password.isEmpty || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
+            .toastContainer()
         }
     }
 }

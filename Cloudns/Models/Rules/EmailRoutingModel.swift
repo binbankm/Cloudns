@@ -1,6 +1,6 @@
 import Foundation
 
-struct EmailRoutingSettings: Codable {
+struct EmailRoutingSettings: Codable, Equatable, Sendable {
     let id: String?
     let tag: String?
     let name: String?
@@ -10,18 +10,18 @@ struct EmailRoutingSettings: Codable {
     var isEnabled: Bool { enabled ?? false }
 }
 
-struct EmailRoutingMatcher: Codable {
+struct EmailRoutingMatcher: Codable, Equatable, Sendable {
     let type: String
     let field: String?
     let value: String?
 }
 
-struct EmailRoutingAction: Codable {
+struct EmailRoutingAction: Codable, Equatable, Sendable {
     let type: String
     let value: [String]?
 }
 
-struct EmailRoutingRule: Codable, Identifiable {
+struct EmailRoutingRule: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let tag: String?
     let name: String?
@@ -74,7 +74,7 @@ struct EmailRoutingRule: Codable, Identifiable {
     ]
 }
 
-struct EmailRoutingRuleInput: Codable {
+struct EmailRoutingRuleInput: Codable, Sendable {
     let name: String?
     let enabled: Bool
     let matchers: [EmailRoutingMatcher]
@@ -90,7 +90,7 @@ struct EmailRoutingRuleInput: Codable {
     }
 }
 
-struct EmailDestinationAddress: Codable, Identifiable {
+struct EmailDestinationAddress: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let tag: String?
     let email: String
@@ -100,6 +100,6 @@ struct EmailDestinationAddress: Codable, Identifiable {
     var isVerified: Bool { verified != nil }
 }
 
-struct EmailDestinationCreate: Codable {
+struct EmailDestinationCreate: Codable, Sendable {
     let email: String
 }

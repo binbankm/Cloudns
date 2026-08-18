@@ -6,14 +6,15 @@ import Combine
 class R2BucketDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let bucket: R2Bucket
-    private let apiClient = CloudflareAPIClient.shared
+    private let r2Service: R2ServiceProtocol
     
     @Published var objects: [R2Object] = []
     @Published var searchText = ""
     
-    init(accountId: String, bucket: R2Bucket) {
+    init(accountId: String, bucket: R2Bucket, r2Service: R2ServiceProtocol = R2Service.shared) {
         self.accountId = accountId
         self.bucket = bucket
+        self.r2Service = r2Service
         super.init()
     }
     
@@ -24,17 +25,17 @@ class R2BucketDetailViewModel: BaseLoadableViewModel {
     
     func fetchObjects() async {
         await executeLoadingTask {
-            self.objects = try await self.apiClient.getR2Objects(accountId: self.accountId, bucketName: self.bucket.name)
+            self.objects = try await self.r2Service.getR2Objects(accountId: self.accountId, bucketName: self.bucket.name)
         }
     }
 
     func deleteObject(key: String) async throws {
-        try await apiClient.deleteR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key)
+        try await r2Service.deleteR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key)
         await fetchObjects()
     }
 
     func uploadObject(key: String, data: Data, contentType: String = "application/octet-stream") async throws {
-        try await apiClient.putR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key, data: data, contentType: contentType)
+        try await r2Service.putR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key, data: data, contentType: contentType)
         await fetchObjects()
     }
 }

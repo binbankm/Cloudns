@@ -96,7 +96,23 @@ struct KVBrowserView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if viewModel.selectedSegment == 0 {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    if viewModel.selectedSegment == 0 {
+                        ForEach(KVNamespace.placeholders) { ns in
+                            kvRow(ns)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    } else {
+                        ForEach(D1Database.placeholders) { db in
+                            d1Row(db)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                }
+            } else if viewModel.selectedSegment == 0 {
                 if !viewModel.namespaces.isEmpty {
                     Section {
                         ForEach(viewModel.namespaces) { ns in
@@ -142,10 +158,7 @@ struct KVBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -279,7 +292,15 @@ struct KVNamespaceKeysView: View {
     
     var body: some View {
         List {
-            if !filteredKeys.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(KVKey.placeholders) { key in
+                        keyRow(key)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { key in
                         Button {
@@ -339,10 +360,7 @@ struct KVNamespaceKeysView: View {
             KVAddKeySheetView(viewModel: viewModel)
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.keys.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -418,8 +436,12 @@ struct KVCreateNamespaceSheetView: View {
             Form {
                 Section(header: Text("Namespace Information"), footer: Text("Namespaces are globally distributed Key-Value stores.")) {
                     TextField("Title (e.g. AUTH_SESSIONS)", text: $title)
-                        .autocapitalization(.allCharacters)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
                 }
                 
                 if let err = errorMessage {
@@ -430,13 +452,14 @@ struct KVCreateNamespaceSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New KV Namespace")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -454,6 +477,7 @@ struct KVCreateNamespaceSheetView: View {
                     .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
             .toastContainer()
         }
     }
@@ -472,8 +496,12 @@ struct D1CreateDatabaseSheetView: View {
             Form {
                 Section(header: Text("Database Information"), footer: Text("D1 is Cloudflare's native serverless SQL database powered by SQLite.")) {
                     TextField("Database Name (e.g. prod-db)", text: $name)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 
                 if let err = errorMessage {
@@ -484,13 +512,14 @@ struct D1CreateDatabaseSheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New D1 Database")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task {
                             isCreating = true
@@ -508,6 +537,7 @@ struct D1CreateDatabaseSheetView: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
                 }
             }
+            .interactiveDismissDisabled(isCreating)
             .toastContainer()
         }
     }
@@ -528,11 +558,17 @@ struct KVAddKeySheetView: View {
             Form {
                 Section(header: Text("Key Details")) {
                     TextField("Key (e.g. user:12345:profile)", text: $key)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                     
                     TextField("Expiration TTL (seconds, optional)", text: $expirationTtl)
                         .keyboardType(.numberPad)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 Section(header: Text("Value")) {
@@ -549,13 +585,14 @@ struct KVAddKeySheetView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Key / Value")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
                             isSaving = true
@@ -574,6 +611,7 @@ struct KVAddKeySheetView: View {
                     .disabled(key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }

@@ -14,34 +14,25 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
     @Published var rocketLoader: Bool = false
     @Published var earlyHints: Bool = false
     
-    let apiClient = CloudflareAPIClient.shared
+    private let speedService: SpeedAndNetworkServiceProtocol
+    
+    init(speedService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+        self.speedService = speedService
+        super.init()
+    }
     
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let settings = try await apiClient.fetchZoneSettings(zoneId: zoneId)
-            
-            for setting in settings {
-                switch setting.id {
-                case "minify":
-                    if case .object(let dict) = setting.value {
-                        self.minifyCSS = (dict["css"] == "on")
-                        self.minifyHTML = (dict["html"] == "on")
-                        self.minifyJS = (dict["js"] == "on")
-                    }
-                case "brotli":
-                    self.brotli = (setting.value.stringValue == "on")
-                case "rocket_loader":
-                    self.rocketLoader = (setting.value.stringValue == "on")
-                case "early_hints":
-                    self.earlyHints = (setting.value.stringValue == "on")
-                default:
-                    break
-                }
-            }
-            
+            let res = try await speedService.getSpeedSettings(zoneId: zoneId)
+            self.minifyCSS = res.minifyCSS
+            self.minifyHTML = res.minifyHTML
+            self.minifyJS = res.minifyJS
+            self.brotli = res.brotli
+            self.rocketLoader = res.rocketLoader
+            self.earlyHints = res.earlyHints
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load speed settings: \(error.localizedDescription)"
@@ -51,41 +42,44 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
     }
     
     func updateMinify(zoneId: String, css: Bool, html: Bool, js: Bool) async {
-        let dict = [
-            "css": css ? "on" : "off",
-            "html": html ? "on" : "off",
-            "js": js ? "on" : "off"
-        ]
-        
-        await updateSetting(zoneId: zoneId, settingId: "minify", value: .object(dict))
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateMinify(zoneId: zoneId, css: css, html: html, js: js)
+            self.minifyCSS = css
+            self.minifyHTML = html
+            self.minifyJS = js
+        } catch {
+            self.errorMessage = "Failed to update minify settings: \(error.localizedDescription)"
+        }
     }
     
     func updateBrotli(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "brotli", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateBrotli(zoneId: zoneId, isOn: isOn)
             self.brotli = isOn
+        } catch {
+            self.errorMessage = "Failed to update Brotli: \(error.localizedDescription)"
         }
     }
     
     func updateRocketLoader(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "rocket_loader", value: .string(isOn ? "on" : "off")) {
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateRocketLoader(zoneId: zoneId, isOn: isOn)
             self.rocketLoader = isOn
+        } catch {
+            self.errorMessage = "Failed to update Rocket Loader: \(error.localizedDescription)"
         }
     }
     
     func updateEarlyHints(zoneId: String, isOn: Bool) async {
-        await updateSetting(zoneId: zoneId, settingId: "early_hints", value: .string(isOn ? "on" : "off")) {
-            self.earlyHints = isOn
-        }
-    }
-    
-    private func updateSetting(zoneId: String, settingId: String, value: SettingValue, onSuccess: (() -> Void)? = nil) async {
         HapticManager.impact(.medium)
-        
         do {
-            try await apiClient.updateZoneSetting(zoneId: zoneId, settingId: settingId, value: value)
-            onSuccess?()
+            try await speedService.updateEarlyHints(zoneId: zoneId, isOn: isOn)
+            self.earlyHints = isOn
         } catch {
-            self.errorMessage = "Failed to update \(settingId.replacingOccurrences(of: "_", with: " ")): \(error.localizedDescription)"
+            self.errorMessage = "Failed to update Early Hints: \(error.localizedDescription)"
         }
     }
 }

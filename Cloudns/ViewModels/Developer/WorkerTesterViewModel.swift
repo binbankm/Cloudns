@@ -5,7 +5,7 @@ import Combine
 @MainActor
 class WorkerTesterViewModel: BaseLoadableViewModel {
     let scriptName: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let workerService: WorkerServiceProtocol
     
     @Published var targetUrl: String = ""
     @Published var selectedMethod: String = "GET"
@@ -19,8 +19,9 @@ class WorkerTesterViewModel: BaseLoadableViewModel {
     
     let methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     
-    init(scriptName: String, initialRoute: String? = nil) {
+    init(scriptName: String, initialRoute: String? = nil, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.scriptName = scriptName
+        self.workerService = workerService
         if let route = initialRoute, !route.isEmpty {
             self.targetUrl = "https://" + route.replacingOccurrences(of: "*", with: "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         } else {
@@ -47,7 +48,7 @@ class WorkerTesterViewModel: BaseLoadableViewModel {
                 headers["Content-Type"] = "application/json"
             }
             
-            let res = try await apiClient.testWorkerDispatch(
+            let res = try await workerService.testWorkerDispatch(
                 urlString: trimmed,
                 httpMethod: selectedMethod,
                 headers: headers,

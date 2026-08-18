@@ -1,7 +1,12 @@
 import Foundation
 
+/// RDAP / WHOIS 查询领域服务抽象协议
+protocol RDAPServiceProtocol: Sendable {
+    func lookup(domain: String) async throws -> WhoisInfo
+}
+
 /// 统一的 RDAP / WHOIS 查询领域服务
-public actor RDAPService {
+public actor RDAPService: RDAPServiceProtocol {
     public static let shared = RDAPService()
     private let session = URLSession.shared
     
@@ -16,26 +21,55 @@ public actor RDAPService {
             throw APIError.invalidURL
         }
         
-        let base = try await getRdapBase(forTLD: tld)
-        let joined = base.hasSuffix("/") ? "\(base)domain/\(name)" : "\(base)/domain/\(name)"
-        guard let url = URL(string: joined) else { throw APIError.invalidURL }
-        
-        return try await fetchRDAP(url: url, domain: name, isRedirect: false)
+        // 1. Try RDAP lookup
+        do {
+            let base = try await getRdapBase(forTLD: tld)
+            let joined = base.hasSuffix("/") ? "\(base)domain/\(name)" : "\(base)/domain/\(name)"
+            guard let url = URL(string: joined) else { throw APIError.invalidURL }
+            
+            return try await fetchRDAP(url: url, domain: name, isRedirect: false)
+        } catch {
+            // 2. Fallback: Try Global rdap.org universal gateway
+            if let rdapOrgUrl = URL(string: "https://rdap.org/domain/\(name)") {
+                if let info = try? await fetchRDAP(url: rdapOrgUrl, domain: name, isRedirect: true) {
+                    return info
+                }
+            }
+            
+            // 3. Fallback: Authoritative DNS Discovery (for subdomains like .us.kg or unlisted ccTLDs)
+            if let dnsInfo = try? await fallbackDNSLookup(domain: name) {
+                return dnsInfo
+            }
+            
+            throw error
+        }
     }
     
     private func fetchRDAP(url: URL, domain: String, isRedirect: Bool) async throws -> WhoisInfo {
-        var request = URLRequest(url: url)
-        request.timeoutInterval = 12
+        // Enforce HTTPS
+        var finalUrl = url
+        if url.scheme?.lowercased() == "http", var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            components.scheme = "https"
+            if let upgraded = components.url {
+                finalUrl = upgraded
+            }
+        }
+        
+        var request = URLRequest(url: finalUrl)
+        request.timeoutInterval = 10
+        request.setValue("application/rdap+json, application/json", forHTTPHeaderField: "Accept")
         
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
-        if http.statusCode == 404 { throw APIError.cloudflareError("Domain not found or no public RDAP information.") }
+        if http.statusCode == 404 {
+            throw APIError.cloudflareError("Domain not found in RDAP registry.")
+        }
         guard (200...299).contains(http.statusCode) else {
-            throw APIError.cloudflareError("RDAP server responded with status \(http.statusCode)")
+            throw APIError.cloudflareError("RDAP registry returned status \(http.statusCode)")
         }
         
         guard let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
-            throw APIError.decodingError(URLError(.cannotParseResponse))
+            throw APIError.decodingError("Unable to parse RDAP payload.")
         }
         
         let parsed = parseRDAP(obj, domain: domain)
@@ -69,15 +103,80 @@ public actor RDAPService {
         let (data, _) = try await session.data(from: url)
         guard let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
               let services = obj["services"] as? [[Any]] else {
-            throw APIError.decodingError(URLError(.cannotParseResponse))
+            throw APIError.decodingError("Unable to parse IANA RDAP bootstrap data.")
         }
         for service in services where service.count >= 2 {
             guard let tlds = service[0] as? [String], let urls = service[1] as? [String] else { continue }
-            if tlds.contains(tld), let base = urls.first(where: { $0.hasPrefix("https://") }) ?? urls.first {
-                return base
+            if tlds.contains(tld) {
+                // Prefer HTTPS endpoint
+                if let httpsBase = urls.first(where: { $0.hasPrefix("https://") }) {
+                    return httpsBase
+                }
+                if let first = urls.first {
+                    return first.replacingOccurrences(of: "http://", with: "https://")
+                }
             }
         }
         return "https://rdap.org/domain/"
+    }
+    
+    private func fallbackDNSLookup(domain: String) async throws -> WhoisInfo? {
+        guard var comp = URLComponents(string: "https://1.1.1.1/dns-query") else { return nil }
+        comp.queryItems = [
+            URLQueryItem(name: "name", value: domain),
+            URLQueryItem(name: "type", value: "NS")
+        ]
+        guard let url = comp.url else { return nil }
+        
+        var req = URLRequest(url: url)
+        req.setValue("application/dns-json", forHTTPHeaderField: "Accept")
+        req.timeoutInterval = 6.0
+        
+        let (data, response) = try await session.data(for: req)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
+        
+        struct DoHAns: Codable {
+            let name: String
+            let type: Int
+            let data: String
+        }
+        struct DoHResp: Codable {
+            let Status: Int
+            let Answer: [DoHAns]?
+            let Authority: [DoHAns]?
+        }
+        
+        guard let doh = try? JSONDecoder().decode(DoHResp.self, from: data) else { return nil }
+        let answers = (doh.Answer ?? []) + (doh.Authority ?? [])
+        let nsRecords = answers.filter { $0.type == 2 }.map {
+            $0.data.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        }
+        
+        guard !nsRecords.isEmpty else { return nil }
+        
+        var provider = "Authoritative DNS Delegated"
+        let lower = nsRecords.joined(separator: " ").lowercased()
+        if lower.contains("cloudflare.com") {
+            provider = "Cloudflare Managed Authoritative DNS"
+        } else if lower.contains("awsdns") {
+            provider = "Amazon Route 53"
+        } else if lower.contains("googledomains") || lower.contains("google") {
+            provider = "Google Cloud DNS"
+        } else if lower.contains("dnspod") {
+            provider = "Tencent DNSPod"
+        } else if lower.contains("alidns") {
+            provider = "Alibaba Cloud DNS"
+        }
+        
+        return WhoisInfo(
+            domain: domain,
+            statuses: ["Active (DNS Delegated)", "Authoritative Zone"],
+            registrar: provider,
+            created: nil,
+            updated: nil,
+            expires: nil,
+            nameservers: nsRecords
+        )
     }
     
     private func parseRDAP(_ obj: [String: Any], domain: String) -> WhoisInfo {

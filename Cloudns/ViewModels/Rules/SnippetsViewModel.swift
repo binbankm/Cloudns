@@ -8,12 +8,17 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     @Published var rules: [WAFRule] = []
     @Published var rulesetId: String?
     
-    private let apiClient = CloudflareAPIClient.shared
+    private let snippetService: SnippetServiceProtocol
+    
+    init(snippetService: SnippetServiceProtocol = SnippetService.shared) {
+        self.snippetService = snippetService
+        super.init()
+    }
     
     func fetchSnippets(zoneId: String) async {
         await executeLoadingTask {
-            async let fetchList = self.apiClient.getSnippets(zoneId: zoneId)
-            async let fetchRules = self.apiClient.getSnippetRuleset(zoneId: zoneId)
+            async let fetchList = self.snippetService.getSnippets(zoneId: zoneId)
+            async let fetchRules = self.snippetService.getSnippetRuleset(zoneId: zoneId)
             let (snips, (rId, rRules)) = try await (fetchList, fetchRules)
             self.snippets = snips
             self.rulesetId = rId
@@ -23,7 +28,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     
     func deleteSnippet(zoneId: String, snippetName: String) async -> Bool {
         do {
-            try await apiClient.deleteSnippet(zoneId: zoneId, snippetName: snippetName)
+            try await snippetService.deleteSnippet(zoneId: zoneId, snippetName: snippetName)
             ToastManager.shared.showSuccess("Snippet Deleted", message: snippetName)
             await fetchSnippets(zoneId: zoneId)
             return true
@@ -35,7 +40,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     
     func saveSnippet(zoneId: String, name: String, code: String) async -> Bool {
         do {
-            try await apiClient.putSnippet(zoneId: zoneId, name: name.trimmingCharacters(in: .whitespaces), code: code)
+            try await snippetService.putSnippet(zoneId: zoneId, name: name.trimmingCharacters(in: .whitespaces), code: code)
             ToastManager.shared.showSuccess("Snippet Saved", message: name)
             await fetchSnippets(zoneId: zoneId)
             return true
@@ -47,7 +52,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     
     func bindSnippetRule(zoneId: String, snippetName: String, expression: String, description: String?) async -> Bool {
         do {
-            try await apiClient.bindSnippetRule(zoneId: zoneId, snippetName: snippetName, expression: expression, description: description)
+            try await snippetService.bindSnippetRule(zoneId: zoneId, snippetName: snippetName, expression: expression, description: description)
             ToastManager.shared.showSuccess("Snippet Bound", message: "\(snippetName) -> \(expression)")
             await fetchSnippets(zoneId: zoneId)
             return true
@@ -59,7 +64,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async -> Bool {
         do {
-            try await apiClient.deleteSnippetRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId)
+            try await snippetService.deleteSnippetRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId)
             ToastManager.shared.showSuccess("Rule Removed", message: "")
             await fetchSnippets(zoneId: zoneId)
             return true
@@ -70,6 +75,6 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     }
     
     func loadSnippetContent(zoneId: String, name: String) async -> String? {
-        return try? await apiClient.getSnippetContent(zoneId: zoneId, name: name)
+        return try? await snippetService.getSnippetContent(zoneId: zoneId, name: name)
     }
 }

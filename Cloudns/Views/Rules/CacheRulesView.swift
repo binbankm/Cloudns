@@ -5,17 +5,34 @@ struct CacheRulesView: View {
     
     @StateObject private var viewModel: CacheRulesViewModel
     @State private var showingAddSheet = false
+    @State private var searchText = ""
     
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: CacheRulesViewModel(zoneId: zoneId))
     }
     
+    private var displayedRules: [WAFRule] {
+        if searchText.isEmpty { return viewModel.rules }
+        return viewModel.rules.filter {
+            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
+            $0.expression.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
     var body: some View {
         List {
-            if !viewModel.rules.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
                 Section {
-                    ForEach(viewModel.rules) { rule in
+                    ForEach(WAFRule.placeholders) { placeholderRule in
+                        CacheRuleCardView(rule: placeholderRule, onToggle: {})
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !displayedRules.isEmpty {
+                Section {
+                    ForEach(displayedRules) { rule in
                         CacheRuleCardView(rule: rule) {
                             HapticManager.impact(.light)
                             Task {
@@ -26,7 +43,7 @@ struct CacheRulesView: View {
                     .onDelete(perform: { indexSet in
                         HapticManager.impact(.medium)
                         for index in indexSet {
-                            let rule = viewModel.rules[index]
+                            let rule = displayedRules[index]
                             viewModel.deleteRule(at: IndexSet(integer: index))
                             ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
                         }
@@ -36,11 +53,14 @@ struct CacheRulesView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Cache Rules")
+        .refreshable {
+            await viewModel.fetchCacheRules()
+        }
+        .navigationTitle("Cache Rules")
+        .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -60,14 +80,16 @@ struct CacheRulesView: View {
                             action: { showingAddSheet = true }
                         )
                     )
+                } else if displayedRules.isEmpty && !searchText.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
                 }
             }
         }
-        .refreshable {
-            await viewModel.fetchCacheRules()
-        }
-        .navigationTitle("Cache Rules")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {

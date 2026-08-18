@@ -2,19 +2,25 @@ import Foundation
 import Combine
 import SwiftUI
 
-public struct DashboardSnapshot: Codable {
-    public let zones: [Zone]
-    public let workers: [WorkerScript]
-    public let pages: [PagesProject]
-    public let tunnels: [CFTunnel]
-    public let kvCount: Int
-    public let r2Count: Int
-    public let d1Count: Int
+nonisolated struct DashboardSnapshot: Codable, Sendable {
+    let zones: [Zone]
+    let workers: [WorkerScript]
+    let pages: [PagesProject]
+    let tunnels: [CFTunnel]
+    let kvCount: Int
+    let r2Count: Int
+    let d1Count: Int
 }
 
 @MainActor
 final class DashboardViewModel: BaseLoadableViewModel {
-    private let apiClient = CloudflareAPIClient.shared
+    private let zoneService: ZoneServiceProtocol
+    private let workerService: WorkerServiceProtocol
+    private let pagesService: PagesServiceProtocol
+    private let tunnelService: TunnelServiceProtocol
+    private let kvService: KVServiceProtocol
+    private let r2Service: R2ServiceProtocol
+    private let d1Service: D1ServiceProtocol
     
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
@@ -27,6 +33,25 @@ final class DashboardViewModel: BaseLoadableViewModel {
     @Published var kvCount: Int = 0
     @Published var r2Count: Int = 0
     @Published var d1Count: Int = 0
+    
+    init(
+        zoneService: ZoneServiceProtocol = ZoneService.shared,
+        workerService: WorkerServiceProtocol = WorkerService.shared,
+        pagesService: PagesServiceProtocol = PagesService.shared,
+        tunnelService: TunnelServiceProtocol = TunnelService.shared,
+        kvService: KVServiceProtocol = KVService.shared,
+        r2Service: R2ServiceProtocol = R2Service.shared,
+        d1Service: D1ServiceProtocol = D1Service.shared
+    ) {
+        self.zoneService = zoneService
+        self.workerService = workerService
+        self.pagesService = pagesService
+        self.tunnelService = tunnelService
+        self.kvService = kvService
+        self.r2Service = r2Service
+        self.d1Service = d1Service
+        super.init()
+    }
     
     var activeZonesCount: Int {
         zones.filter { $0.status.lowercased() == "active" }.count
@@ -69,7 +94,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         // 2. [Revalidate / Refresh] 统一执行前台/下拉拉取
         await executeLoadingTask(clearError: false) {
             // A. 获取账户列表
-            let fetchedAccounts = (try? await self.apiClient.getAccounts()) ?? []
+            let fetchedAccounts = (try? await self.zoneService.getAccounts()) ?? []
             if !fetchedAccounts.isEmpty {
                 self.accounts = fetchedAccounts
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
@@ -78,18 +103,18 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
             
             // B. 获取域名列表
-            if let fetchedZones = try? await self.apiClient.getZones().0 {
+            if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
             }
             
             // C. 获取开发者全套资源
             if let accountId = self.selectedAccount?.id, !accountId.isEmpty {
-                async let fetchW = try? self.apiClient.getWorkers(accountId: accountId)
-                async let fetchP = try? self.apiClient.getPagesProjects(accountId: accountId)
-                async let fetchT = try? self.apiClient.getTunnels(accountId: accountId)
-                async let fetchK = try? self.apiClient.getKVNamespaces(accountId: accountId)
-                async let fetchR = try? self.apiClient.getR2Buckets(accountId: accountId)
-                async let fetchD = try? self.apiClient.getD1Databases(accountId: accountId)
+                async let fetchW = try? self.workerService.getWorkers(accountId: accountId)
+                async let fetchP = try? self.pagesService.getPagesProjects(accountId: accountId)
+                async let fetchT = try? self.tunnelService.getTunnels(accountId: accountId)
+                async let fetchK = try? self.kvService.getKVNamespaces(accountId: accountId)
+                async let fetchR = try? self.r2Service.getR2Buckets(accountId: accountId)
+                async let fetchD = try? self.d1Service.getD1Databases(accountId: accountId)
                 
                 let (w, p, t, k, r, d) = await (fetchW, fetchP, fetchT, fetchK, fetchR, fetchD)
                 

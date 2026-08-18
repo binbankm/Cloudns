@@ -6,17 +6,22 @@ import Combine
 final class RedirectRulesViewModel: BaseLoadableViewModel {
     @Published var rules: [RedirectRuleItem] = []
     
-    private let apiClient = CloudflareAPIClient.shared
+    private let redirectService: RedirectRulesServiceProtocol
+    
+    init(redirectService: RedirectRulesServiceProtocol = RedirectRulesService.shared) {
+        self.redirectService = redirectService
+        super.init()
+    }
     
     func fetchRules(zoneId: String) async {
         await executeLoadingTask {
-            self.rules = try await self.apiClient.getRedirectRules(zoneId: zoneId)
+            self.rules = try await self.redirectService.getRedirectRules(zoneId: zoneId)
         }
     }
     
     func deleteRule(zoneId: String, ruleId: String, description: String?) async -> Bool {
         do {
-            try await apiClient.deleteRedirectRule(zoneId: zoneId, ruleId: ruleId)
+            try await redirectService.deleteRedirectRule(zoneId: zoneId, ruleId: ruleId)
             ToastManager.shared.showSuccess("Rule Deleted", message: description ?? "Redirect Rule")
             await fetchRules(zoneId: zoneId)
             return true
@@ -35,7 +40,7 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
         preserveQueryString: Bool = false
     ) async -> Bool {
         do {
-            try await apiClient.createRedirectRule(
+            try await redirectService.createRedirectRule(
                 zoneId: zoneId,
                 description: description.trimmingCharacters(in: .whitespaces),
                 expression: expression.trimmingCharacters(in: .whitespaces),

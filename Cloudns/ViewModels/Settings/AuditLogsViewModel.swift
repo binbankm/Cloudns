@@ -5,13 +5,14 @@ import Combine
 @MainActor
 class AuditLogsViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let zoneService: ZoneServiceProtocol
     
     @Published var logs: [AuditLog] = []
     @Published var searchText: String = ""
     
-    init(accountId: String) {
+    init(accountId: String, zoneService: ZoneServiceProtocol = ZoneService.shared) {
         self.accountId = accountId
+        self.zoneService = zoneService
         super.init()
     }
     
@@ -19,7 +20,8 @@ class AuditLogsViewModel: BaseLoadableViewModel {
         if searchText.isEmpty { return logs }
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return logs.filter {
-            $0.displayAction.localizedCaseInsensitiveContains(query) ||
+            $0.displayActionKey.localizedCaseInsensitiveContains(query) ||
+            $0.friendlyResourceTypeKey.localizedCaseInsensitiveContains(query) ||
             ($0.action?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
             ($0.action?.info?.localizedCaseInsensitiveContains(query) ?? false) ||
             ($0.actor?.email?.localizedCaseInsensitiveContains(query) ?? false) ||
@@ -27,8 +29,8 @@ class AuditLogsViewModel: BaseLoadableViewModel {
             ($0.resource?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
             ($0.resource?.id?.localizedCaseInsensitiveContains(query) ?? false) ||
             ($0.zone?.name?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.metadata?["zone_name"]?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.metadata?["script_name"]?.localizedCaseInsensitiveContains(query) ?? false)
+            ($0.metadata?["zone_name"]?.stringValue?.localizedCaseInsensitiveContains(query) ?? false) ||
+            ($0.metadata?["script_name"]?.stringValue?.localizedCaseInsensitiveContains(query) ?? false)
         }
     }
     
@@ -36,7 +38,7 @@ class AuditLogsViewModel: BaseLoadableViewModel {
         await executeLoadingTask {
             var targetAccountId = self.accountId
             if targetAccountId.isEmpty {
-                let accounts = try? await self.apiClient.getAccounts()
+                let accounts = try? await self.zoneService.getAccounts()
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
                 targetAccountId = accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
             }
@@ -46,7 +48,7 @@ class AuditLogsViewModel: BaseLoadableViewModel {
                 return
             }
             
-            self.logs = try await self.apiClient.getAuditLogs(accountId: targetAccountId)
+            self.logs = try await self.zoneService.getAuditLogs(accountId: targetAccountId)
         }
     }
 }

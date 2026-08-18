@@ -1,6 +1,6 @@
 import Foundation
 
-struct PageRule: Codable, Identifiable {
+struct PageRule: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let targets: [PageRuleTarget]
     let actions: [PageRuleAction]
@@ -16,12 +16,12 @@ struct PageRule: Codable, Identifiable {
     }
 }
 
-struct PageRuleTarget: Codable {
+struct PageRuleTarget: Codable, Equatable, Sendable {
     let target: String // usually "url"
     let constraint: PageRuleConstraint
 }
 
-struct PageRuleConstraint: Codable {
+struct PageRuleConstraint: Codable, Equatable, Sendable {
     let operatorStr: String
     let value: String // The actual URL pattern
     
@@ -31,9 +31,6 @@ struct PageRuleConstraint: Codable {
     }
 }
 
-struct PageRuleAction: Codable {
+struct PageRuleAction: Codable, Equatable, Sendable {
     let id: String // e.g., "always_online", "browser_cache_ttl", "ssl"
-    // Since value can be a string, int, or dictionary, we can use a custom decoder or just an AnyCodable if needed.
-    // For now, we only need to read the ID and count them to show users what actions are applied.
-    // We don't strictly need to parse the `value` field just to display the rule summary.
 }

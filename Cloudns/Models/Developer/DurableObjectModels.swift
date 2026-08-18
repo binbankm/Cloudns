@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Durable Objects Models
 
-public struct DurableObjectNamespace: Codable, Identifiable, Equatable {
+public struct DurableObjectNamespace: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let script: String?
@@ -32,7 +32,7 @@ public struct DurableObjectNamespace: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct DurableObjectInstance: Codable, Identifiable, Equatable {
+public struct DurableObjectInstance: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let hasStoredData: Bool?
     
@@ -45,4 +45,9 @@ public struct DurableObjectInstance: Codable, Identifiable, Equatable {
         self.id = id
         self.hasStoredData = hasStoredData
     }
+    
+    public static let placeholders: [DurableObjectInstance] = [
+        DurableObjectInstance(id: "inst_1a2b3c4d", hasStoredData: true),
+        DurableObjectInstance(id: "inst_5e6f7g8h", hasStoredData: false)
+    ]
 }

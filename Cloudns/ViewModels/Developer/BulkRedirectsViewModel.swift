@@ -5,13 +5,14 @@ import Combine
 @MainActor
 final class BulkRedirectsViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let bulkRedirectService: BulkRedirectServiceProtocol
     
     @Published var lists: [RedirectList] = []
     @Published var searchText: String = ""
     
-    init(accountId: String) {
+    init(accountId: String, bulkRedirectService: BulkRedirectServiceProtocol = BulkRedirectService.shared) {
         self.accountId = accountId
+        self.bulkRedirectService = bulkRedirectService
         super.init()
     }
     
@@ -22,13 +23,13 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     
     func fetchLists() async {
         await executeLoadingTask {
-            self.lists = try await self.apiClient.listRedirectLists(accountId: self.accountId)
+            self.lists = try await self.bulkRedirectService.listRedirectLists(accountId: self.accountId)
         }
     }
     
     func createList(name: String, description: String?) async -> Bool {
         do {
-            _ = try await apiClient.createRedirectList(accountId: accountId, name: name, description: description)
+            _ = try await bulkRedirectService.createRedirectList(accountId: accountId, name: name, description: description)
             ToastManager.shared.showSuccess("List Created", message: name)
             await fetchLists()
             return true
@@ -40,7 +41,7 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     
     func deleteList(id: String) async {
         do {
-            try await apiClient.deleteRedirectList(accountId: accountId, listId: id)
+            try await bulkRedirectService.deleteRedirectList(accountId: accountId, listId: id)
             ToastManager.shared.showSuccess("List Deleted", message: "")
             await fetchLists()
         } catch {

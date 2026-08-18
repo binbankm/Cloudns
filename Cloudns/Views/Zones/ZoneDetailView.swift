@@ -199,116 +199,133 @@ private struct ZoneHeaderCard: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Gradient background
+        VStack(alignment: .leading, spacing: 10) {
+            // ── Top Row: Domain Name + Plan & Type Badges ──────────────────
+            HStack(alignment: .center, spacing: 8) {
+                Text(zone.name)
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+
+                Spacer(minLength: 4)
+
+                HStack(spacing: 5) {
+                    if let planName = zone.plan?.displayName {
+                        Text(planName.uppercased())
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2.5)
+                            .background(.white.opacity(0.22))
+                            .clipShape(Capsule())
+                    }
+
+                    Text((zone.type ?? "full").uppercased())
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2.5)
+                        .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.8))
+                }
+                .fixedSize(horizontal: true, vertical: true)
+            }
+
+            // ── Compact Status Badges Row (Refined Mini Capsules) ──────────
+            HStack(spacing: 6) {
+                HStack(spacing: 3.5) {
+                    Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                    Text(zone.status.capitalized)
+                        .font(.system(size: 11, weight: .medium))
+                        .lineLimit(1)
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2.5)
+                .background(.white.opacity(0.22))
+                .clipShape(Capsule())
+                .fixedSize(horizontal: true, vertical: true)
+
+                if zone.paused {
+                    Text("Paused")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2.5)
+                        .background(Color.red.opacity(0.70))
+                        .clipShape(Capsule())
+                        .fixedSize(horizontal: true, vertical: true)
+                }
+
+                if (zone.developmentMode ?? 0) > 0 {
+                    Text("Dev Mode")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2.5)
+                        .background(Color.orange.opacity(0.85))
+                        .clipShape(Capsule())
+                        .fixedSize(horizontal: true, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            // ── Nameservers Row ────────────────────────────────────────────
+            if let nsArray = zone.nameServers, !nsArray.isEmpty {
+                Divider().overlay(.white.opacity(0.25))
+                
+                HStack(alignment: .center, spacing: 8) {
+                    Image(systemName: "server.rack")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.80))
+                    
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Nameservers")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.75))
+                        ForEach(nsArray, id: \.self) { ns in
+                            Text(ns)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(.white.opacity(0.95))
+                                .lineLimit(1)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        UIPasteboard.general.string = nsArray.joined(separator: "\n")
+                        ToastManager.shared.showCopied("Nameservers copied to clipboard")
+                    } label: {
+                        Image(systemName: "doc.on.doc.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(5)
+                            .background(.white.opacity(0.16))
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(16)
+        .background(
             LinearGradient(
                 colors: gradientColors,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(minHeight: 100)
-
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(zone.name)
-                            .font(.title2)
-                            .foregroundStyle(.white)
-
-                        // Status + Paused + Dev Mode badges
-                        HStack(spacing: 6) {
-                            Label {
-                                Text(zone.status.capitalized)
-                            } icon: {
-                                Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(.white.opacity(0.20))
-                            .clipShape(Capsule())
-
-                            if zone.paused {
-                                Text("Paused")
-                                    .font(.caption)
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.red.opacity(0.65))
-                                    .clipShape(Capsule())
-                            }
-
-                            if (zone.developmentMode ?? 0) > 0 {
-                                Text("Dev Mode")
-                                    .font(.caption)
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.orange.opacity(0.75))
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
-
-                    Spacer(minLength: 8)
-
-                    HStack(spacing: 6) {
-                        if let planName = zone.plan?.displayName {
-                            Text(planName.uppercased())
-                                .font(.caption2.weight(.medium))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.white.opacity(0.22))
-                                .clipShape(Capsule())
-                        }
-
-                        Text((zone.type ?? "full").uppercased())
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
-                    }
-                }
-
-                // Nameservers
-                if let nsArray = zone.nameServers, !nsArray.isEmpty {
-                    Divider().overlay(.white.opacity(0.3))
-                    HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: "server.rack")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.8))
-                            .padding(.top, 1)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Nameservers")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.75))
-                            ForEach(zone.nameServers ?? [], id: \.self) { ns in
-                                Text(ns)
-                                    .font(.caption.monospacedDigit())
-                                    .foregroundStyle(.white.opacity(0.90))
-                            }
-                        }
-                        Spacer()
-                        Button {
-                            UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                            ToastManager.shared.showCopied("Nameservers copied to clipboard")
-                        } label: {
-                            Image(systemName: "doc.on.doc.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                    }
-                }
-            }
-            .padding(16)
-        }
+        )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 3)
+        .shadow(color: Color.green.opacity(0.20), radius: 10, x: 0, y: 4)
     }
 }
 
@@ -444,16 +461,11 @@ private struct QuickControlsSection: View {
         if hasFetchedData { return }
         isLoading = true
         do {
-            let settings = try await CloudflareAPIClient.shared.fetchZoneSettings(zoneId: zoneId)
-            for setting in settings {
-                switch setting.id {
-                case "security_level":
-                    if let v = setting.value.stringValue { isUnderAttack = v == "under_attack" }
-                case "development_mode":
-                    if let v = setting.value.stringValue { isDevMode = v == "on" }
-                default: break
-                }
-            }
+            async let secSettings = SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId)
+            async let cacheSettings = SpeedAndNetworkService.shared.getCachingSettings(zoneId: zoneId)
+            let (sec, cache) = try await (secSettings, cacheSettings)
+            isUnderAttack = (sec.level == "under_attack")
+            isDevMode = cache.devMode
         } catch {
             // silently fail — toggles stay at defaults
         }
@@ -466,9 +478,9 @@ private struct QuickControlsSection: View {
     private func setUnderAttack(_ on: Bool) async {
         updatingAttack = true
         do {
-            try await CloudflareAPIClient.shared.updateZoneSetting(
-                zoneId: zoneId, settingId: "security_level",
-                value: .string(on ? "under_attack" : "medium")
+            try await SecuritySettingsService.shared.updateSecurityLevel(
+                zoneId: zoneId,
+                level: on ? "under_attack" : "medium"
             )
             ToastManager.shared.showSuccess("Under Attack Mode", message: on ? "Enabled (5s challenge active)" : "Disabled")
         } catch {
@@ -481,9 +493,9 @@ private struct QuickControlsSection: View {
     private func setDevMode(_ on: Bool) async {
         updatingDev = true
         do {
-            try await CloudflareAPIClient.shared.updateZoneSetting(
-                zoneId: zoneId, settingId: "development_mode",
-                value: .string(on ? "on" : "off")
+            try await SpeedAndNetworkService.shared.updateDevelopmentMode(
+                zoneId: zoneId,
+                isOn: on
             )
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             ToastManager.shared.showSuccess("Development Mode", message: on ? "Enabled (Cache bypassed for 3h)" : "Disabled")
@@ -497,7 +509,7 @@ private struct QuickControlsSection: View {
     private func setPaused(_ on: Bool) async {
         updatingPause = true
         do {
-            try await CloudflareAPIClient.shared.updateZoneStatus(zoneId: zoneId, paused: on)
+            try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: on)
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             ToastManager.shared.showSuccess("Zone Status", message: on ? "Domain paused on Cloudflare" : "Domain active on Cloudflare")
         } catch {

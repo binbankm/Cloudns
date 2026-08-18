@@ -14,7 +14,15 @@ struct AccessAppsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredApps.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Protected Applications")) {
+                    ForEach(AccessApp.placeholders) { placeholder in
+                        appRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredApps.isEmpty {
                 Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
                     ForEach(viewModel.filteredApps) { app in
                         NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
@@ -50,10 +58,7 @@ struct AccessAppsView: View {
             await viewModel.fetchApps()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -110,8 +115,12 @@ struct AccessAppsView: View {
             }
             
             Spacer()
+            
+            if let type = app.type {
+                CloudnsBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
+            }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 3)
     }
 }
 
@@ -121,6 +130,8 @@ struct AccessAppDetailView: View {
     @State private var policies: [AccessPolicy] = []
     @State private var isLoadingPolicies = false
     @State private var errorMessage: String?
+    
+    private let accessService = AccessService.shared
     
     var body: some View {
         List {
@@ -138,7 +149,17 @@ struct AccessAppDetailView: View {
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(app.domain)
-                        .font(.caption.monospaced())
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                }
+                
+                if let type = app.type {
+                    HStack {
+                        Text("Type")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        CloudnsBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
+                    }
                 }
                 
                 if let aud = app.aud {
@@ -155,7 +176,11 @@ struct AccessAppDetailView: View {
             
             Section(header: Text("Access Policies (\(policies.count))")) {
                 if isLoadingPolicies && policies.isEmpty {
-                    ProgressView()
+                    ForEach(AccessPolicy.placeholders) { placeholder in
+                        policyRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(err)
                         .font(.caption)
@@ -166,30 +191,36 @@ struct AccessAppDetailView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(policies) { p in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(p.name)
-                                    .font(.body)
-                                Text("Decision: \(p.decision.capitalized)")
-                                    .font(.caption2)
-                                    .foregroundStyle(p.decision.lowercased() == "allow" ? .green : .orange)
-                            }
-                            Spacer()
-                            if let prec = p.precedence {
-                                Text("#\(prec)")
-                                    .font(.caption2.monospaced())
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+                        policyRow(p)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(app.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await fetchPolicies()
+        }
+    }
+    
+    @ViewBuilder
+    private func policyRow(_ p: AccessPolicy) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(p.name)
+                    .font(.body)
+                Text("Decision: \(p.decision.capitalized)")
+                    .font(.caption2)
+                    .foregroundStyle(p.decision.lowercased() == "allow" ? .green : .orange)
+            }
+            Spacer()
+            if let prec = p.precedence {
+                Text("#\(prec)")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+            }
         }
     }
     
@@ -199,7 +230,7 @@ struct AccessAppDetailView: View {
         do {
             var targetId = self.accountId
             if targetId.isEmpty {
-                let accounts = try? await CloudflareAPIClient.shared.getAccounts()
+                let accounts = try? await ZoneService.shared.getAccounts()
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
                 targetId = accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
             }
@@ -208,7 +239,7 @@ struct AccessAppDetailView: View {
                 self.isLoadingPolicies = false
                 return
             }
-            self.policies = try await CloudflareAPIClient.shared.listAccessPolicies(accountId: targetId, appId: app.id)
+            self.policies = try await AccessService.shared.listAccessPolicies(accountId: targetId, appId: app.id)
         } catch {
             self.errorMessage = error.localizedDescription
         }

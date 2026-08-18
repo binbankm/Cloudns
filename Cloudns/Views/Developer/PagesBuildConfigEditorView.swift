@@ -13,6 +13,7 @@ struct PagesBuildConfigEditorView: View {
     
     @State private var isSaving = false
     @State private var errorMessage: String?
+    @FocusState private var focusedField: String?
     
     init(accountId: String, project: PagesProject, parentViewModel: PagesProjectDetailViewModel) {
         self.accountId = accountId
@@ -33,9 +34,12 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("npm run build / hugo / next build", text: $buildCommand)
+                            .keyboardType(.asciiCapable)
+                            .submitLabel(.done)
                             .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: "command")
                     }
                     .padding(.vertical, 2)
                     
@@ -44,9 +48,12 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("dist / public / .next", text: $destinationDir)
+                            .keyboardType(.asciiCapable)
+                            .submitLabel(.done)
                             .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: "output")
                     }
                     .padding(.vertical, 2)
                     
@@ -55,9 +62,12 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("/", text: $rootDir)
+                            .keyboardType(.asciiCapable)
+                            .submitLabel(.done)
                             .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: "root")
                     }
                     .padding(.vertical, 2)
                 }
@@ -68,9 +78,12 @@ struct PagesBuildConfigEditorView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("main / master", text: $productionBranch)
+                            .keyboardType(.asciiCapable)
+                            .submitLabel(.done)
                             .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: "branch")
                     }
                     .padding(.vertical, 2)
                 }
@@ -83,6 +96,7 @@ struct PagesBuildConfigEditorView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Build Configuration")
             .navigationBarTitleDisplayMode(.inline)
@@ -92,11 +106,12 @@ struct PagesBuildConfigEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             isSaving = true
                             errorMessage = nil
                             do {
-                                try await CloudflareAPIClient.shared.updatePagesProject(
+                                try await PagesService.shared.updatePagesProject(
                                     accountId: accountId,
                                     projectName: project.name,
                                     buildCommand: buildCommand.isEmpty ? nil : buildCommand,

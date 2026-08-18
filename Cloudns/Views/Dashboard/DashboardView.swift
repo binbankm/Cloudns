@@ -243,13 +243,32 @@ struct DashboardView: View {
             .padding(.horizontal, 4)
             
             if !viewModel.hasFetchedData {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                        .padding(24)
-                    Spacer()
+                VStack(spacing: 8) {
+                    ForEach(Zone.placeholders.prefix(3)) { placeholderZone in
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(Color.blue.opacity(0.10))
+                                .frame(width: 36, height: 36)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(placeholderZone.name)
+                                    .font(.body.weight(.medium))
+                                    .lineLimit(1)
+                                
+                                Text(placeholderZone.plan?.name ?? "Free Plan")
+                                    .font(.caption2)
+                            }
+                            
+                            Spacer()
+                            
+                            CloudnsBadge(.active("Active"), isCompact: true)
+                        }
+                        .padding(12)
+                        .cloudnsCard(style: .frosted, cornerRadius: 14)
+                        .redacted(reason: .placeholder)
+                        .shimmering()
+                    }
                 }
-                .cloudnsCard(style: .frosted, cornerRadius: 16)
             } else if viewModel.zones.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "globe.badge.chevron.backward")
@@ -269,11 +288,11 @@ struct DashboardView: View {
                             HStack(spacing: 12) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.orange.opacity(0.12))
+                                        .fill(Color.blue.opacity(0.10))
                                         .frame(width: 36, height: 36)
                                     Image(systemName: "globe")
                                         .font(.subheadline)
-                                        .foregroundStyle(.orange)
+                                        .foregroundStyle(.blue)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 2) {
@@ -396,7 +415,7 @@ struct DashboardMetricCard: View {
             }
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 148, maxHeight: 148)
+        .frame(maxWidth: .infinity, minHeight: 136)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }

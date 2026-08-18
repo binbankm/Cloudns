@@ -5,7 +5,7 @@ import Combine
 @MainActor
 class TransformRulesViewModel: BaseLoadableViewModel {
     let zoneId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let wafService: WAFRulesServiceProtocol
     
     @Published var selectedPhase: String = "http_request_transform" {
         didSet {
@@ -16,14 +16,15 @@ class TransformRulesViewModel: BaseLoadableViewModel {
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
-    init(zoneId: String) {
+    init(zoneId: String, wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
         self.zoneId = zoneId
+        self.wafService = wafService
         super.init()
     }
     
     func fetchTransformRules() async {
         await executeLoadingTask {
-            let rs = try await self.apiClient.fetchRulesetByPhase(zoneId: self.zoneId, phase: self.selectedPhase)
+            let rs = try await self.wafService.fetchRulesetByPhase(zoneId: self.zoneId, phase: self.selectedPhase)
             self.ruleset = rs
             self.rules = rs?.rules ?? []
         }
@@ -38,7 +39,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         }
         
         do {
-            try await apiClient.updateWAFRule(
+            try await wafService.updateWAFRule(
                 zoneId: zoneId,
                 rulesetId: rs.id,
                 ruleId: rule.id,
@@ -75,7 +76,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
     private func performDelete(ruleId: String) async {
         guard let rs = ruleset else { return }
         do {
-            try await apiClient.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
+            try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
             HapticManager.notification(.success)
         } catch {
@@ -91,7 +92,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             let updatedRuleset: Ruleset
             if let rs = ruleset {
-                updatedRuleset = try await apiClient.createWAFRule(
+                updatedRuleset = try await wafService.createWAFRule(
                     zoneId: zoneId,
                     rulesetId: rs.id,
                     action: "rewrite",
@@ -102,7 +103,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
                     actionParameters: params
                 )
             } else {
-                updatedRuleset = try await apiClient.createRuleset(
+                updatedRuleset = try await wafService.createRuleset(
                     zoneId: zoneId,
                     phase: "http_request_transform",
                     action: "rewrite",
@@ -135,7 +136,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             let updatedRuleset: Ruleset
             if let rs = ruleset {
-                updatedRuleset = try await apiClient.createWAFRule(
+                updatedRuleset = try await wafService.createWAFRule(
                     zoneId: zoneId,
                     rulesetId: rs.id,
                     action: action,
@@ -146,7 +147,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
                     actionParameters: params
                 )
             } else {
-                updatedRuleset = try await apiClient.createRuleset(
+                updatedRuleset = try await wafService.createRuleset(
                     zoneId: zoneId,
                     phase: phase,
                     action: action,

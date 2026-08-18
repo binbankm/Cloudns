@@ -5,13 +5,20 @@ import Combine
 @MainActor
 final class AccessAppsViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let accessService: AccessServiceProtocol
+    private let zoneService: ZoneServiceProtocol
     
     @Published var apps: [AccessApp] = []
     @Published var searchText: String = ""
     
-    init(accountId: String) {
+    init(
+        accountId: String,
+        accessService: AccessServiceProtocol = AccessService.shared,
+        zoneService: ZoneServiceProtocol = ZoneService.shared
+    ) {
         self.accountId = accountId
+        self.accessService = accessService
+        self.zoneService = zoneService
         super.init()
     }
     
@@ -22,7 +29,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
     
     private func resolveTargetAccountId() async -> String {
         if !accountId.isEmpty { return accountId }
-        let accounts = try? await apiClient.getAccounts()
+        let accounts = try? await zoneService.getAccounts()
         let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
         return accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
     }
@@ -34,7 +41,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
                 self.apps = []
                 return
             }
-            self.apps = try await self.apiClient.listAccessApps(accountId: targetId)
+            self.apps = try await self.accessService.listAccessApps(accountId: targetId)
         }
     }
     
@@ -42,7 +49,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         do {
             let targetId = await resolveTargetAccountId()
             guard !targetId.isEmpty else { return }
-            try await apiClient.deleteAccessApp(accountId: targetId, appId: id)
+            try await accessService.deleteAccessApp(accountId: targetId, appId: id)
             ToastManager.shared.showSuccess("Access App Deleted", message: "")
             await fetchApps()
         } catch {

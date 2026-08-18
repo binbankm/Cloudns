@@ -1,6 +1,6 @@
 import Foundation
 
-struct DNSRecord: Codable, Identifiable {
+struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let type: String
     let name: String
@@ -52,7 +52,7 @@ struct DNSRecord: Codable, Identifiable {
     }
 }
 
-struct DNSRecordData: Codable {
+struct DNSRecordData: Codable, Equatable, Sendable {
     // SRV
     var service: String?
     var proto: String?
@@ -68,7 +68,7 @@ struct DNSRecordData: Codable {
     var value: String?
 }
 
-struct DNSRecordPayload: Codable {
+struct DNSRecordPayload: Codable, Sendable {
     let type: String
     let name: String
     let content: String?
@@ -79,10 +79,10 @@ struct DNSRecordPayload: Codable {
     let data: DNSRecordData?
 }
 
-struct BatchDNSRecordDelete: Codable {
+struct BatchDNSRecordDelete: Codable, Sendable {
     let id: String
 }
 
-struct BatchDNSRecordsRequest: Codable {
+struct BatchDNSRecordsRequest: Codable, Sendable {
     let deletes: [BatchDNSRecordDelete]?
 }

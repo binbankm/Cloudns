@@ -12,7 +12,15 @@ struct DurableObjectsView: View {
     
     var body: some View {
         List {
-            if !viewModel.filteredNamespaces.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Namespaces")) {
+                    ForEach(DurableObjectNamespace.placeholders) { placeholder in
+                        nsRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.filteredNamespaces.isEmpty {
                 Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
                     ForEach(viewModel.filteredNamespaces) { ns in
                         NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
@@ -31,10 +39,7 @@ struct DurableObjectsView: View {
             await viewModel.fetchNamespaces()
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -85,18 +90,18 @@ struct DurableObjectsView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let script = ns.script {
-                    Text("Worker: \(script)")
-                        .font(.caption2)
+                if let s = ns.script {
+                    Text("Script: \(s)")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             
             Spacer()
             
-            Text(String(ns.id.prefix(8)))
-                .font(.caption2.monospaced())
-                .foregroundStyle(.secondary)
+            if let cls = ns.class {
+                CloudnsBadge(.custom(color: .cyan, text: cls), isCompact: true)
+            }
         }
         .padding(.vertical, 2)
     }
@@ -113,31 +118,23 @@ struct DurableObjectNamespaceDetailView: View {
     
     var body: some View {
         List {
-            Section(header: Text("Namespace Metadata")) {
-                HStack {
-                    Text("Namespace Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(namespace.displayName)
-                        .font(.body.weight(.medium))
-                }
-                
+            Section(header: Text("Namespace Details")) {
                 HStack {
                     Text("Namespace ID")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(namespace.id)
-                        .font(.caption.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 
-                if let script = namespace.script {
+                if let scr = namespace.script {
                     HStack {
-                        Text("Bound Script")
+                        Text("Bound Worker Script")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text(script)
-                            .font(.subheadline)
+                        Text(scr)
+                            .font(.subheadline.monospaced())
                     }
                 }
                 
@@ -154,7 +151,11 @@ struct DurableObjectNamespaceDetailView: View {
             
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
                 if isLoading && objects.isEmpty {
-                    ProgressView()
+                    ForEach(DurableObjectInstance.placeholders) { placeholder in
+                        instanceRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
                 } else if let err = errorMessage, objects.isEmpty {
                     Text(err)
                         .font(.caption)
@@ -165,37 +166,49 @@ struct DurableObjectNamespaceDetailView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(objects) { obj in
-                        HStack {
-                            Image(systemName: "circle.circle.fill")
-                                .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
-                                .font(.caption)
-                                .accessibilityHidden(true)
-                            Text(obj.id)
-                                .font(.caption.monospaced())
-                            Spacer()
-                            if obj.hasStoredData == true {
-                                Text("Stored Data")
-                                    .font(.caption2)
-                                    .foregroundStyle(.green)
-                            }
-                        }
+                        instanceRow(obj)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(namespace.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            await fetchObjects()
+        }
         .task {
             await fetchObjects()
         }
+    }
+    
+    @ViewBuilder
+    private func instanceRow(_ obj: DurableObjectInstance) -> some View {
+        HStack {
+            Image(systemName: "circle.circle.fill")
+                .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
+                .font(.caption)
+                .accessibilityHidden(true)
+            
+            Text(obj.id)
+                .font(.caption.monospaced())
+                .foregroundStyle(.primary)
+            
+            Spacer()
+            
+            if obj.hasStoredData == true {
+                CloudnsBadge(.active("Persistent Data"), isCompact: true)
+            }
+        }
+        .padding(.vertical, 2)
     }
     
     private func fetchObjects() async {
         isLoading = true
         errorMessage = nil
         do {
-            let res = try await CloudflareAPIClient.shared.listDOObjects(accountId: accountId, namespaceId: namespace.id)
+            let res = try await DurableObjectService.shared.listDOObjects(accountId: accountId, namespaceId: namespace.id)
             self.objects = res.items
             self.nextCursor = res.cursor
         } catch {

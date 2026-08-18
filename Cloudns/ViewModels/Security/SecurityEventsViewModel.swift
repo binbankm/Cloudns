@@ -6,11 +6,16 @@ import Combine
 class SecurityEventsViewModel: BaseLoadableViewModel {
     @Published var events: [SecurityEvent] = []
     
-    let apiClient = CloudflareAPIClient.shared
+    private let securityService: SecuritySettingsServiceProtocol
+    
+    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
+        self.securityService = securityService
+        super.init()
+    }
     
     func fetchEvents(zoneId: String) async {
         await executeLoadingTask {
-            self.events = try await self.apiClient.fetchSecurityEvents(zoneId: zoneId, limit: 50)
+            self.events = try await self.securityService.fetchSecurityEvents(zoneId: zoneId, limit: 50)
         }
     }
 }

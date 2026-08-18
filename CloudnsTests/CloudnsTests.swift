@@ -54,13 +54,15 @@ struct APIErrorTests {
     @Test("APIError localized error descriptions")
     func testLocalizedDescriptions() {
         let unauthorized = APIError.unauthorized
-        #expect(unauthorized.localizedDescription.contains("Global API Key and Email"))
+        #expect(unauthorized.localizedDescription.contains("API Token or Global Key"))
+        #expect(unauthorized.recoverySuggestion != nil)
         
         let invalidURL = APIError.invalidURL
         #expect(invalidURL.localizedDescription == "Invalid API URL.")
+        #expect(invalidURL.failureReason != nil)
         
         let invalidResponse = APIError.invalidResponse
-        #expect(invalidResponse.localizedDescription == "Invalid response from Cloudflare.")
+        #expect(invalidResponse.localizedDescription.contains("Invalid response"))
     }
 }
 
@@ -69,7 +71,7 @@ struct APIErrorTests {
 @Suite("SWRCacheStore Tests")
 struct SWRCacheStoreTests {
     
-    struct TestItem: Codable, Equatable {
+    struct TestItem: Codable, Equatable, Sendable {
         let id: String
         let name: String
         let score: Int
@@ -99,6 +101,29 @@ struct SWRCacheStoreTests {
     func testAccountScopedKey() {
         let keyA = SWRCacheStore.accountScopedKey("zones_list")
         #expect(keyA.contains("zones_list"))
+    }
+    
+    @Test("SWR Cache TTL and metadata support")
+    func testSWRCacheTTLAndMetadata() async throws {
+        let store = SWRCacheStore.shared
+        let ttlKey = "ttl_test_key_\(UUID().uuidString)"
+        let item = TestItem(id: "ttl_1", name: "TTL Test", score: 100)
+        
+        // Write with 0.2s TTL
+        await store.set(item, forKey: ttlKey, ttl: 0.2)
+        
+        let meta = await store.getWithMetadata(forKey: ttlKey, as: TestItem.self)
+        #expect(meta != nil)
+        #expect(meta?.value.name == "TTL Test")
+        #expect(meta?.metadata.ttl == 0.2)
+        #expect(meta?.metadata.isExpired == false)
+        
+        // Wait for TTL expiration
+        try await Task.sleep(nanoseconds: 300_000_000)
+        
+        // With ignoreExpiration: false -> should return nil
+        let expiredItem = await store.get(forKey: ttlKey, as: TestItem.self, ignoreExpiration: false)
+        #expect(expiredItem == nil)
     }
 }
 
@@ -397,6 +422,101 @@ struct ModelsDecodingTests {
         
         let dayDate = DateFormatters.parseChartDate("2026-08-17")
         #expect(dayDate.timeIntervalSince1970 > 0)
+    }
+}
+
+// MARK: - 6. HTTPNetworkClient Tests
+
+@Suite("HTTPNetworkClient Tests")
+struct HTTPNetworkClientTests {
+    
+    final class MockURLProtocol: URLProtocol, @unchecked Sendable {
+        override class func canInit(with request: URLRequest) -> Bool {
+            return true
+        }
+        
+        override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+            return request
+        }
+        
+        override func startLoading() {
+            let url = request.url ?? URL(string: "https://api.cloudflare.com/client/v4/user")!
+            let path = url.path
+            
+            if path.contains("unauthorized") {
+                let response = HTTPURLResponse(url: url, statusCode: 401, httpVersion: "HTTP/2.0", headerFields: nil)!
+                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+                client?.urlProtocol(self, didLoad: Data())
+                client?.urlProtocolDidFinishLoading(self)
+                return
+            }
+            
+            if path.contains("zones") {
+                let json = """
+                {
+                    "success": true,
+                    "errors": [],
+                    "messages": [],
+                    "result": {
+                        "id": "mock_zone_123",
+                        "name": "example.com",
+                        "status": "active",
+                        "paused": false
+                    }
+                }
+                """.data(using: .utf8)!
+                let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/2.0", headerFields: ["Content-Type": "application/json"])!
+                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+                client?.urlProtocol(self, didLoad: json)
+                client?.urlProtocolDidFinishLoading(self)
+                return
+            }
+            
+            let defaultResponse = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/2.0", headerFields: nil)!
+            client?.urlProtocol(self, didReceive: defaultResponse, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocolDidFinishLoading(self)
+        }
+        
+        override func stopLoading() {}
+    }
+    
+    @Test("HTTPNetworkClient successful performRequest")
+    func testSuccessfulPerformRequest() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: config)
+        let client = HTTPNetworkClient(session: session, maxRetries: 1)
+        
+        let request = URLRequest(url: URL(string: "https://api.cloudflare.com/client/v4/zones/mock_zone_123")!)
+        let (zone, _): (Zone?, ResultInfo?) = try await client.performRequest(request)
+        
+        #expect(zone != nil)
+        #expect(zone?.id == "mock_zone_123")
+        #expect(zone?.name == "example.com")
+    }
+    
+    @Test("HTTPNetworkClient handles 401 unauthorized")
+    func testUnauthorizedResponse() async {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: config)
+        let client = HTTPNetworkClient(session: session, maxRetries: 1)
+        
+        let request = URLRequest(url: URL(string: "https://api.cloudflare.com/client/v4/unauthorized")!)
+        
+        do {
+            let _: (Zone?, ResultInfo?) = try await client.performRequest(request)
+            #expect(Bool(false), "Should have thrown unauthorized error")
+        } catch let error as APIError {
+            switch error {
+            case .unauthorized:
+                #expect(true)
+            default:
+                #expect(Bool(false), "Expected .unauthorized, got \(error)")
+            }
+        } catch {
+            #expect(Bool(false), "Expected APIError.unauthorized")
+        }
     }
 }
 

@@ -122,16 +122,37 @@ struct SpeedSettingsView: View {
                     }
                     .disabled(!viewModel.hasFetchedData)
                 }
+            } else if viewModel.isLoading {
+                Section(header: Text("Auto Minify")) {
+                    Toggle("JavaScript", isOn: .constant(true))
+                        .skeletonLoading(true)
+                    Toggle("CSS", isOn: .constant(true))
+                        .skeletonLoading(true)
+                    Toggle("HTML", isOn: .constant(true))
+                        .skeletonLoading(true)
+                }
+                
+                Section(header: Text("Advanced Optimizations")) {
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Brotli")
+                            Text("Speed up page load times for your visitor's HTTPS traffic.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                    
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Rocket Loader™")
+                            Text("Improve the paint time for pages which include JavaScript.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
             }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

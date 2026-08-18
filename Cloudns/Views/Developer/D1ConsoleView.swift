@@ -175,6 +175,7 @@ struct D1ConsoleView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchTables()

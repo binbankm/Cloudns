@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - KV Storage Models
 
-public struct KVNamespace: Codable, Identifiable, Equatable {
+public struct KVNamespace: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let title: String
     public let supportsUrlEncoding: Bool?
@@ -23,7 +23,7 @@ public struct KVNamespace: Codable, Identifiable, Equatable {
     }
 }
 
-public struct KVKey: Codable, Identifiable, Equatable {
+public struct KVKey: Codable, Identifiable, Equatable, Sendable {
     public var id: String { name }
     public let name: String
     public let expiration: Int?

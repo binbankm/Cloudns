@@ -4,7 +4,7 @@ struct AddTransformRuleView: View {
     let zoneId: String
     let initialPhase: String
     @ObservedObject var viewModel: TransformRulesViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     @State private var phase: String
     @State private var ruleName = ""
@@ -20,6 +20,7 @@ struct AddTransformRuleView: View {
     @State private var headerValue = ""
     
     @State private var isSubmitting = false
+    @FocusState private var focusedField: String?
     
     init(zoneId: String, initialPhase: String = "http_request_transform", viewModel: TransformRulesViewModel) {
         self.zoneId = zoneId
@@ -41,29 +42,46 @@ struct AddTransformRuleView: View {
                 
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Modify X-Custom-Header)", text: $ruleName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "name")
+                        .onSubmit { focusedField = "expression" }
                 }
                 
                 Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining matching incoming traffic.")) {
                     TextField("Expression", text: $expression)
-                        .font(.footnote)
+                        .font(.footnote.monospaced())
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: "expression")
                 }
                 
                 if phase == "http_request_transform" {
                     Section(header: Text("URI Path & Query Rewrite"), footer: Text("Rewrites incoming URI path and query string before reaching origin server.")) {
                         TextField("Static Path (e.g. /api/v2)", text: $rewritePath)
+                            .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: "rewritePath")
                         TextField("Query String (Optional)", text: $rewriteQuery)
+                            .submitLabel(.done)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .focused($focusedField, equals: "rewriteQuery")
                     }
                 } else {
                     Section(header: Text("HTTP Header Action"), footer: Text(phase == "http_request_late_transform" ? "Modifies HTTP request headers sent to the origin." : "Modifies HTTP response headers returned to the client.")) {
                         TextField("Header Name (e.g. X-Frame-Options)", text: $headerName)
+                            .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: "headerName")
                         
                         Picker("Operation", selection: $headerOperation) {
                             Text("Set Static Value").tag("set")
@@ -72,24 +90,31 @@ struct AddTransformRuleView: View {
                         
                         if headerOperation == "set" {
                             TextField("Header Value (e.g. DENY)", text: $headerValue)
+                                .keyboardType(.asciiCapable)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.done)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
+                                .focused($focusedField, equals: "headerValue")
                         }
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Transform Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
@@ -97,10 +122,11 @@ struct AddTransformRuleView: View {
                     .disabled(isFormInvalid || isSubmitting)
                 }
             }
+            .interactiveDismissDisabled(isSubmitting)
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
@@ -113,16 +139,14 @@ struct AddTransformRuleView: View {
     }
     
     private var isFormInvalid: Bool {
-        if ruleName.trimmingCharacters(in: .whitespaces).isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty {
-            return true
-        }
+        if ruleName.isEmpty || expression.isEmpty { return true }
         if phase == "http_request_transform" {
-            return rewritePath.trimmingCharacters(in: .whitespaces).isEmpty
+            return rewritePath.isEmpty && rewriteQuery.isEmpty
         } else {
-            if headerName.trimmingCharacters(in: .whitespaces).isEmpty { return true }
-            if headerOperation == "set" && headerValue.trimmingCharacters(in: .whitespaces).isEmpty { return true }
-            return false
+            if headerName.isEmpty { return true }
+            if headerOperation == "set" && headerValue.isEmpty { return true }
         }
+        return false
     }
     
     private func submitRule() async {
@@ -153,7 +177,7 @@ struct AddTransformRuleView: View {
         
         isSubmitting = false
         if success {
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }

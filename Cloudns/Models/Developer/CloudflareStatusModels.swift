@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Models for Cloudflare Statuspage
 
-public struct CFStatusSummary: Codable {
+public struct CFStatusSummary: Codable, Equatable, Sendable {
     public let page: CFStatusPage?
     public let status: CFOverallStatus?
     public let components: [CFComponentItem]?
@@ -14,9 +14,16 @@ public struct CFStatusSummary: Codable {
         self.components = components
         self.incidents = incidents
     }
+    
+    public static let placeholder = CFStatusSummary(
+        page: CFStatusPage(name: "Cloudflare Status", url: "https://www.cloudflarestatus.com"),
+        status: CFOverallStatus(indicator: "none", description: "All Systems Operational"),
+        components: CFComponentItem.placeholders,
+        incidents: []
+    )
 }
 
-public struct CFStatusPage: Codable {
+public struct CFStatusPage: Codable, Equatable, Sendable {
     public let id: String?
     public let name: String?
     public let url: String?
@@ -35,7 +42,7 @@ public struct CFStatusPage: Codable {
     }
 }
 
-public struct CFOverallStatus: Codable {
+public struct CFOverallStatus: Codable, Equatable, Sendable {
     public let indicator: String // none, minor, major, critical
     public let description: String
     
@@ -45,7 +52,7 @@ public struct CFOverallStatus: Codable {
     }
 }
 
-public struct CFComponentItem: Codable, Identifiable {
+public struct CFComponentItem: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let status: String // operational, degraded_performance, partial_outage, major_outage
@@ -70,7 +77,7 @@ public struct CFComponentItem: Codable, Identifiable {
     ]
 }
 
-public struct CFIncidentItem: Codable, Identifiable {
+public struct CFIncidentItem: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let status: String // resolved, monitoring, identified, investigating

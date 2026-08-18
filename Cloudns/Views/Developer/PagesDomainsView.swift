@@ -49,7 +49,15 @@ struct PagesDomainsView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.domains.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Connected Domains")) {
+                    ForEach(PagesDomain.placeholders) { placeholder in
+                        domainRow(placeholder)
+                            .redacted(reason: .placeholder)
+                            .shimmering()
+                    }
+                }
+            } else if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
                         domainRow(domain)
@@ -69,10 +77,7 @@ struct PagesDomainsView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData && viewModel.domains.isEmpty {
+            if viewModel.hasFetchedData && viewModel.domains.isEmpty {
                 StateOverlayView(
                     state: .empty(
                         icon: "globe",
@@ -132,6 +137,10 @@ private struct AddPagesDomainSheet: View {
             Form {
                 Section(header: Text("Domain Name"), footer: Text("Enter a fully qualified domain name (e.g. docs.example.com or example.com).")) {
                     TextField("sub.example.com", text: $domainName)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                         .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -145,6 +154,7 @@ private struct AddPagesDomainSheet: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Custom Domain")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -171,6 +181,7 @@ private struct AddPagesDomainSheet: View {
                     .disabled(domainName.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
             .toastContainer()
         }
     }

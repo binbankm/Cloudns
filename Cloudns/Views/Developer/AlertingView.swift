@@ -23,7 +23,15 @@ struct AlertingView: View {
             .padding(.vertical, 4)
             
             if selectedTab == "policies" {
-                if !viewModel.policies.isEmpty {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section(header: Text("Configured Policies")) {
+                        ForEach(AlertingPolicy.placeholders) { placeholder in
+                            policyRow(placeholder)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !viewModel.policies.isEmpty {
                     Section(header: Text("Configured Policies (\(viewModel.policies.count))")) {
                         ForEach(viewModel.policies) { p in
                             policyRow(p)
@@ -80,10 +88,7 @@ struct AlertingView: View {
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if selectedTab == "policies" && viewModel.policies.isEmpty {
                     StateOverlayView(
                         state: .empty(

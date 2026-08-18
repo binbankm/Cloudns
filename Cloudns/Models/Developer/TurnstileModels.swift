@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Turnstile Models
 
-public struct TurnstileWidget: Codable, Identifiable, Equatable {
+public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
     public var id: String { sitekey }
     public let sitekey: String
     public let name: String
@@ -41,7 +41,7 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable {
     }
 }
 
-public struct TurnstileCreateInput: Codable {
+public struct TurnstileCreateInput: Codable, Sendable {
     public let name: String
     public let domains: [String]
     public let mode: String
@@ -55,7 +55,7 @@ public struct TurnstileCreateInput: Codable {
     }
 }
 
-public struct TurnstileUpdateInput: Codable {
+public struct TurnstileUpdateInput: Codable, Sendable {
     public let name: String
     public let domains: [String]
     public let mode: String

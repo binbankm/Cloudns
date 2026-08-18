@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Hyperdrive Models
 
-public struct HyperdriveConfig: Codable, Identifiable, Equatable {
+public struct HyperdriveConfig: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let origin: HyperdriveOrigin?
@@ -31,7 +31,7 @@ public struct HyperdriveConfig: Codable, Identifiable, Equatable {
     ]
 }
 
-public struct HyperdriveOrigin: Codable, Equatable {
+public struct HyperdriveOrigin: Codable, Equatable, Sendable {
     public let host: String?
     public let port: Int?
     public let database: String?
@@ -47,7 +47,7 @@ public struct HyperdriveOrigin: Codable, Equatable {
     }
 }
 
-public struct HyperdriveCaching: Codable, Equatable {
+public struct HyperdriveCaching: Codable, Equatable, Sendable {
     public let disabled: Bool?
     public let maxAge: Int?
     public let staleWhileRevalidate: Int?
@@ -65,7 +65,7 @@ public struct HyperdriveCaching: Codable, Equatable {
     }
 }
 
-public struct HyperdriveCreate: Codable {
+public struct HyperdriveCreate: Codable, Sendable {
     public let name: String
     public let origin: HyperdriveOriginInput
     public let caching: HyperdriveCaching?
@@ -77,7 +77,7 @@ public struct HyperdriveCreate: Codable {
     }
 }
 
-public struct HyperdriveOriginInput: Codable {
+public struct HyperdriveOriginInput: Codable, Sendable {
     public let host: String
     public let port: Int
     public let database: String
@@ -95,7 +95,7 @@ public struct HyperdriveOriginInput: Codable {
     }
 }
 
-public struct HyperdrivePatch: Codable {
+public struct HyperdrivePatch: Codable, Sendable {
     public let name: String?
     public let origin: HyperdriveOriginInput?
     public let caching: HyperdriveCaching?

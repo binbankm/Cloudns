@@ -2,7 +2,7 @@ import Foundation
 
 /// 统一的 Cloudflare API 认证请求构造工厂
 /// 负责从安全 Keychain 获取凭证，并拼接标准 API BaseURL 与请求头
-final class AuthenticatedRequestFactory {
+final class AuthenticatedRequestFactory: Sendable {
     static let shared = AuthenticatedRequestFactory()
     
     let baseURL = "https://api.cloudflare.com/client/v4"

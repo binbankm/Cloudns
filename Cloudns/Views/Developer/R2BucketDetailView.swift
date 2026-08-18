@@ -42,7 +42,15 @@ struct R2BucketDetailView: View {
                 }
                 
                 // Section: Objects
-                if !viewModel.filteredObjects.isEmpty {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section(header: Text("Objects")) {
+                        ForEach(R2Object.placeholders) { placeholder in
+                            R2ObjectRowView(object: placeholder)
+                                .redacted(reason: .placeholder)
+                                .shimmering()
+                        }
+                    }
+                } else if !viewModel.filteredObjects.isEmpty {
                     Section(header: Text("Objects (\(viewModel.objects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in
                             Button {
@@ -103,10 +111,7 @@ struct R2BucketDetailView: View {
             R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
         }
         .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData {
+            if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
                     StateOverlayView(
                         state: .error(
@@ -173,8 +178,10 @@ struct R2UploadObjectSheetView: View {
             Form {
                 Section(header: Text("Object Key"), footer: Text("Enter the storage path/name (e.g. data.json or images/avatar.png).")) {
                     TextField("example.txt", text: $objectKey)
+                        .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
                 
                 Section(header: Text("Upload Source")) {
@@ -248,11 +255,14 @@ struct R2UploadObjectSheetView: View {
                     errorMessage = err.localizedDescription
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Upload Object")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Upload") {
                         Task {
                             isUploading = true
@@ -278,6 +288,8 @@ struct R2UploadObjectSheetView: View {
                     .disabled(!isValid || isUploading)
                 }
             }
+            .interactiveDismissDisabled(isUploading)
+            .toastContainer()
         }
     }
     

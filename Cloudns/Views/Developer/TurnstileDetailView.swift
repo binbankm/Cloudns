@@ -333,6 +333,10 @@ struct EditTurnstileWidgetSheetView: View {
             Form {
                 Section(header: Text("General Information")) {
                     TextField("Widget Name", text: $widgetName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
                 }
                 
                 Section(header: Text("Widget Mode")) {
@@ -347,8 +351,13 @@ struct EditTurnstileWidgetSheetView: View {
                 Section(header: Text("Allowed Domains"), footer: Text("Hostnames allowed to use this widget.")) {
                     TextField("Domains (e.g. example.com, app.example.com)", text: $domainsText, axis: .vertical)
                         .lineLimit(2...4)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Edit Widget")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

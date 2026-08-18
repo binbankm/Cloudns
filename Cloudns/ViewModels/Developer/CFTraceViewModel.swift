@@ -4,10 +4,15 @@ import Combine
 
 @MainActor
 class CFTraceViewModel: BaseLoadableViewModel {
-    private let apiClient = CloudflareAPIClient.shared
+    private let devToolsService: DevToolsServiceProtocol
     
     @Published var host: String = "www.cloudflare.com"
     @Published var traceFields: [HTTPHeaderItem] = []
+    
+    init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
+        self.devToolsService = devToolsService
+        super.init()
+    }
     
     var coloCode: String? {
         traceFields.first(where: { $0.key == "colo" })?.value
@@ -27,7 +32,7 @@ class CFTraceViewModel: BaseLoadableViewModel {
     
     func queryTrace() async {
         await executeLoadingTask {
-            self.traceFields = try await self.apiClient.getCFTrace(host: self.host)
+            self.traceFields = try await self.devToolsService.getCFTrace(host: self.host)
         }
     }
 }

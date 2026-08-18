@@ -7,11 +7,16 @@ class RateLimitingViewModel: BaseLoadableViewModel {
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
-    let apiClient = CloudflareAPIClient.shared
+    private let wafService: WAFRulesServiceProtocol
+    
+    init(wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
+        self.wafService = wafService
+        super.init()
+    }
     
     func fetchRateLimitingRules(zoneId: String) async {
         await executeLoadingTask {
-            if let rs = try await self.apiClient.fetchRulesetByPhase(zoneId: zoneId, phase: "http_ratelimit") {
+            if let rs = try await self.wafService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_ratelimit") {
                 self.ruleset = rs
                 self.rules = rs.rules ?? []
             } else {
@@ -31,7 +36,7 @@ class RateLimitingViewModel: BaseLoadableViewModel {
         }
         
         do {
-            try await apiClient.updateWAFRule(
+            try await wafService.updateWAFRule(
                 zoneId: zoneId,
                 rulesetId: rs.id,
                 ruleId: rule.id,
@@ -56,7 +61,7 @@ class RateLimitingViewModel: BaseLoadableViewModel {
         guard let rs = ruleset else { return }
         
         do {
-            try await apiClient.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
+            try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             
             // Remove from UI
             if let index = rules.firstIndex(where: { $0.id == ruleId }) {
@@ -74,7 +79,7 @@ class RateLimitingViewModel: BaseLoadableViewModel {
         do {
             let updatedRuleset: Ruleset
             if let rs = ruleset {
-                updatedRuleset = try await apiClient.createWAFRule(
+                updatedRuleset = try await wafService.createWAFRule(
                     zoneId: zoneId,
                     rulesetId: rs.id,
                     action: action,
@@ -84,7 +89,7 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                     ratelimit: ratelimit
                 )
             } else {
-                updatedRuleset = try await apiClient.createRuleset(
+                updatedRuleset = try await wafService.createRuleset(
                     zoneId: zoneId,
                     phase: "http_ratelimit",
                     action: action,

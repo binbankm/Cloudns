@@ -5,13 +5,14 @@ import Combine
 @MainActor
 class R2ViewModel: BaseLoadableViewModel {
     let accountId: String
-    private let apiClient = CloudflareAPIClient.shared
+    private let r2Service: R2ServiceProtocol
     
     @Published var buckets: [R2Bucket] = []
     @Published var searchText = ""
     
-    init(accountId: String) {
+    init(accountId: String, r2Service: R2ServiceProtocol = R2Service.shared) {
         self.accountId = accountId
+        self.r2Service = r2Service
         super.init()
     }
     
@@ -22,17 +23,17 @@ class R2ViewModel: BaseLoadableViewModel {
     
     func fetchBuckets() async {
         await executeLoadingTask {
-            self.buckets = try await self.apiClient.getR2Buckets(accountId: self.accountId)
+            self.buckets = try await self.r2Service.listR2Buckets(accountId: self.accountId)
         }
     }
 
     func createBucket(name: String, locationHint: String? = nil) async throws {
-        _ = try await apiClient.createR2Bucket(accountId: accountId, name: name, locationHint: locationHint)
+        _ = try await r2Service.createR2Bucket(accountId: accountId, name: name, locationHint: locationHint)
         await fetchBuckets()
     }
 
     func deleteBucket(bucketName: String) async throws {
-        try await apiClient.deleteR2Bucket(accountId: accountId, bucketName: bucketName)
+        try await r2Service.deleteR2Bucket(accountId: accountId, bucketName: bucketName)
         await fetchBuckets()
     }
 }

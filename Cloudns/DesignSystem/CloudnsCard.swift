@@ -58,15 +58,9 @@ public struct CloudnsCardModifier: ViewModifier {
         switch style {
         case .frosted:
             if colorScheme == .dark {
-                ZStack {
-                    Color(.systemBackground).opacity(0.4)
-                    Rectangle().fill(.ultraThinMaterial)
-                }
+                Color(.secondarySystemGroupedBackground)
             } else {
-                ZStack {
-                    Color.white.opacity(0.85)
-                    Rectangle().fill(.ultraThinMaterial)
-                }
+                Color(.secondarySystemGroupedBackground)
             }
         case .grouped:
             Color(.secondarySystemGroupedBackground)
