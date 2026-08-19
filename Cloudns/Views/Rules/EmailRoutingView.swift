@@ -135,19 +135,10 @@ struct EmailRoutingView: View {
                 footer: Text("Cloudflare sends a verification link to newly added destination inboxes before emails can be routed to them.")
             ) {
                 if viewModel.destinations.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("No destination addresses configured.")
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                        Button {
-                            showingAddDestinationSheet = true
-                        } label: {
-                            Label("Add Destination Address", systemImage: "plus.circle.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                    .padding(.vertical, 4)
+                    Text("No destination addresses configured.")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
                 } else {
                     ForEach(viewModel.destinations) { dest in
                         HStack {

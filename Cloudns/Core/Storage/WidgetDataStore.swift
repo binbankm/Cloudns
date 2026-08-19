@@ -85,4 +85,17 @@ public final class WidgetDataStore: @unchecked Sendable {
         WidgetCenter.shared.reloadAllTimelines()
         #endif
     }
+    
+    public func clearAll() {
+        userDefaults.removeObject(forKey: Keys.zoneSnapshot)
+        userDefaults.removeObject(forKey: Keys.statusSnapshot)
+        userDefaults.removeObject(forKey: Keys.allZonesList)
+        
+        if let container = containerFolderURL {
+            try? FileManager.default.removeItem(at: container.appendingPathComponent("zone_snapshot.json"))
+            try? FileManager.default.removeItem(at: container.appendingPathComponent("status_snapshot.json"))
+        }
+        
+        notifyWidgetsToReload()
+    }
 }

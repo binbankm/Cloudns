@@ -96,7 +96,6 @@ struct ZonesListView: View {
         } message: { zone in
             Text("Are you sure you want to remove \(zone.name) from your Cloudflare account? This action cannot be undone.")
         }
-        .toastContainer()
     }
     
     // MARK: - Subviews

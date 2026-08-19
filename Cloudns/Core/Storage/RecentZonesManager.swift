@@ -40,4 +40,9 @@ public final class RecentZonesManager: @unchecked Sendable {
         }
         return result
     }
+    
+    public func clearAll() {
+        recentZoneIds = []
+        UserDefaults.standard.removeObject(forKey: AppStorageKey.recentZoneIds)
+    }
 }

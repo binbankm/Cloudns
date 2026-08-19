@@ -37,11 +37,24 @@ class AccountManager: ObservableObject {
             KeychainHelper.standard.delete(service: serviceName, account: "email")
             KeychainHelper.standard.delete(service: serviceName, account: "apiKey")
             
+            // Wipe local cached history, widget snapshots, SWR caches and AppLock
+            RecentZonesManager.shared.clearAll()
+            WidgetDataStore.shared.clearAll()
+            
             self.activeEmail = ""
             self.isLoggedIn = false
             self.accountEmails = []
             
+            UserDefaults.standard.set(false, forKey: AppStorageKey.isLoggedIn)
+            UserDefaults.standard.set("", forKey: AppStorageKey.activeAccountEmail)
+            UserDefaults.standard.set(false, forKey: AppStorageKey.isAppLockEnabled)
+            UserDefaults.standard.set(false, forKey: AppStorageKey.hasSeenOnboarding)
             UserDefaults.standard.set(true, forKey: hasRunKey)
+            
+            Task {
+                await SWRCacheStore.shared.clearAll()
+                await CacheManager.shared.clearAllCaches()
+            }
         }
     }
     
@@ -95,10 +108,28 @@ class AccountManager: ObservableObject {
         for email in accountEmails {
             KeychainHelper.standard.delete(service: serviceName, account: email)
         }
+        KeychainHelper.standard.deleteAll(service: serviceName)
+        KeychainHelper.standard.delete(service: serviceName, account: "email")
+        KeychainHelper.standard.delete(service: serviceName, account: "apiKey")
+        
+        RecentZonesManager.shared.clearAll()
+        WidgetDataStore.shared.clearAll()
+        
         activeEmail = ""
         isLoggedIn = false
         accountEmails.removeAll()
+        
+        UserDefaults.standard.set(false, forKey: AppStorageKey.isLoggedIn)
+        UserDefaults.standard.set("", forKey: AppStorageKey.activeAccountEmail)
+        UserDefaults.standard.set(false, forKey: AppStorageKey.isAppLockEnabled)
+        
+        Task {
+            await SWRCacheStore.shared.clearAll()
+            await CacheManager.shared.clearAllCaches()
+        }
+        
         NotificationCenter.default.post(name: .accountSwitched, object: nil)
+        NotificationCenter.default.post(name: .localCachePurged, object: nil)
     }
     
     // Legacy migration
