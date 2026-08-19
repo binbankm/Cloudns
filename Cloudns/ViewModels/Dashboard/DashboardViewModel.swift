@@ -57,6 +57,10 @@ final class DashboardViewModel: BaseLoadableViewModel {
         zones.filter { $0.status.lowercased() == "active" }.count
     }
     
+    var recentZones: [Zone] {
+        RecentZonesManager.shared.getRecentZones(from: zones, limit: 3)
+    }
+    
     var healthyTunnelsCount: Int {
         tunnels.filter { $0.isHealthy }.count
     }
@@ -153,7 +157,27 @@ final class DashboardViewModel: BaseLoadableViewModel {
                     d1Count: self.d1Count
                 )
                 await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
+                self.syncTopZoneToWidget()
             }
         }
     }
+    
+    private func syncTopZoneToWidget() {
+        guard let topZone = recentZones.first ?? zones.first else { return }
+        let current = WidgetDataStore.shared.loadZoneSnapshot()
+        let snap = ZoneWidgetSnapshot(
+            id: topZone.id,
+            name: topZone.name,
+            status: topZone.status,
+            plan: topZone.plan?.name ?? "Free Plan",
+            requests24h: current.id == topZone.id ? current.requests24h : 0,
+            cachedRatio: current.id == topZone.id ? current.cachedRatio : 0.85,
+            threats24h: current.id == topZone.id ? current.threats24h : 0,
+            isProxied: !topZone.paused,
+            isSSLEnabled: true,
+            lastUpdated: Date()
+        )
+        WidgetDataStore.shared.saveZoneSnapshot(snap)
+    }
 }
+

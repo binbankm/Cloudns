@@ -28,7 +28,7 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
             do {
                 customCerts = try await certService.fetchCustomCertificates(zoneId: zoneId)
             } catch {
-                print("Notice: Custom certificates fetch failed: \(error.localizedDescription)")
+                customCerts = []
             }
             
             var unifiedCerts: [EdgeCertificateModel] = []

@@ -14,7 +14,7 @@ struct WorkerTestView: View {
     
     var body: some View {
         List {
-            // Section 1: Target URL & Method
+            // MARK: - Target URL & Method
             Section {
                 HStack {
                     Text("HTTP Method")
@@ -76,7 +76,7 @@ struct WorkerTestView: View {
                 Text("Request Configuration")
             }
             
-            // Section 2: Request Payload (if POST/PUT/PATCH)
+            // MARK: - Request Payload (if POST/PUT/PATCH)
             if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
                 Section {
                     TextEditor(text: $viewModel.requestBody)
@@ -89,7 +89,7 @@ struct WorkerTestView: View {
                 }
             }
             
-            // Section 3: Dispatch Action
+            // MARK: - Dispatch Action
             Section {
                 Button {
                     isFieldFocused = false
@@ -113,7 +113,7 @@ struct WorkerTestView: View {
                 .disabled(viewModel.targetUrl.isEmpty || viewModel.isTesting)
             }
             
-            // Section 4: Response Display
+            // MARK: - Response Display
             if let status = viewModel.responseStatusCode {
                 Section {
                     HStack {

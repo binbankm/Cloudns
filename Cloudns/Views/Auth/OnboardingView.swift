@@ -10,7 +10,7 @@ struct OnboardingView: View {
             
             VStack {
                 TabView(selection: $currentPage) {
-                    OnboardingPage(
+                    OnboardingPageView(
                         icon: "network",
                         title: "Manage Domains",
                         description: "Effortlessly manage your Cloudflare zones, DNS records, and settings from anywhere.",
@@ -18,7 +18,7 @@ struct OnboardingView: View {
                     )
                     .tag(0)
                     
-                    OnboardingPage(
+                    OnboardingPageView(
                         icon: "shield.fill",
                         title: "Ultimate Security",
                         description: "Quickly enable Under Attack Mode, manage WAF, and tweak security levels when you need it most.",
@@ -26,7 +26,7 @@ struct OnboardingView: View {
                     )
                     .tag(1)
                     
-                    OnboardingPage(
+                    OnboardingPageView(
                         icon: "bolt.fill",
                         title: "Lightning Fast",
                         description: "Purge cache instantly, enable dev mode, and optimize your site's performance with a tap.",
@@ -34,7 +34,7 @@ struct OnboardingView: View {
                     )
                     .tag(2)
                     
-                    OnboardingPage(
+                    OnboardingPageView(
                         icon: "faceid",
                         title: "Private & Secure",
                         description: "Protect your Cloudflare account data with Face ID / Touch ID app lock.",
@@ -69,42 +69,6 @@ struct OnboardingView: View {
                 }
                 .padding(.bottom, 40)
             }
-        }
-    }
-}
-
-struct OnboardingPage: View {
-    let icon: String
-    let title: LocalizedStringKey
-    let description: LocalizedStringKey
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.12))
-                    .frame(width: 160, height: 160)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 80))
-                    .foregroundStyle(color)
-                    .accessibilityHidden(true)
-            }
-            
-            Text(title)
-                .font(.title.weight(.bold))
-                .padding(.top, 16)
-            
-            Text(description)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            
-            Spacer()
         }
     }
 }

@@ -51,12 +51,12 @@ struct DeveloperHubView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
                 
-                // Section: Compute
+                // MARK: - Compute
                 Section(header: Text("Compute & Applications")) {
                     NavigationLink {
                         WorkersListView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "bolt.fill",
                             iconColor: .orange,
                             title: "Workers & Pages",
@@ -68,7 +68,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         QueuesView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "tray.2.fill",
                             iconColor: .purple,
                             title: "Queues",
@@ -80,7 +80,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         DurableObjectsView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "cube.fill",
                             iconColor: .cyan,
                             title: "Durable Objects",
@@ -90,12 +90,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: Storage
+                // MARK: - Storage
                 Section(header: Text("Storage & Databases")) {
                     NavigationLink {
                         R2BucketsView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "externaldrive.fill",
                             iconColor: .blue,
                             title: "R2 Object Storage",
@@ -107,7 +107,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         KVBrowserView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "key.fill",
                             iconColor: .purple,
                             title: "KV & D1 Databases",
@@ -119,7 +119,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         HyperdriveView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "bolt.horizontal.fill",
                             iconColor: .yellow,
                             title: "Hyperdrive",
@@ -129,12 +129,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: Zero Trust & Connectivity
+                // MARK: - Zero Trust & Connectivity
                 Section(header: Text("Zero Trust & Connectivity")) {
                     NavigationLink {
                         TunnelsListView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "network",
                             iconColor: .green,
                             title: "Cloudflare Tunnels",
@@ -146,7 +146,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         AccessAppsView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "lock.shield.fill",
                             iconColor: .blue,
                             title: "Access Applications",
@@ -158,7 +158,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         GatewayRulesView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "shield.lefthalf.filled",
                             iconColor: .teal,
                             title: "Gateway Rules",
@@ -168,12 +168,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: Account Rules & Bulk Redirects
+                // MARK: - Account Rules & Bulk Redirects
                 Section(header: Text("Account Rules & Routing")) {
                     NavigationLink {
                         BulkRedirectListsView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "arrow.triangle.swap",
                             iconColor: .indigo,
                             title: "Bulk Redirects",
@@ -185,7 +185,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         AlertingView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "bell.badge.fill",
                             iconColor: .red,
                             title: "Notification Alerts",
@@ -195,12 +195,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: AI Platform
+                // MARK: - AI Platform
                 Section(header: Text("AI & Machine Learning")) {
                     NavigationLink {
                         WorkersAIView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "sparkles",
                             iconColor: .purple,
                             title: "Workers AI",
@@ -212,7 +212,7 @@ struct DeveloperHubView: View {
                     NavigationLink {
                         AIGatewayView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "brain.head.profile",
                             iconColor: .pink,
                             title: "AI Gateway",
@@ -222,12 +222,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: Security & Verification
+                // MARK: - Security & Verification
                 Section(header: Text("Security & Verification")) {
                     NavigationLink {
                         TurnstileWidgetsView(accountId: accountId)
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "checkmark.shield.fill",
                             iconColor: .blue,
                             title: "Turnstile Captcha",
@@ -237,12 +237,12 @@ struct DeveloperHubView: View {
                     .disabled(!isAccountReady)
                 }
                 
-                // Section: Dev Diagnostics (Option A: Consolidated)
+                // MARK: - Dev Diagnostics (Option A: Consolidated)
                 Section(header: Text("Diagnostics & Tools")) {
                     NavigationLink {
                         NetworkDiagnosticsListView()
                     } label: {
-                        DeveloperHubRow(
+                        DeveloperHubRowView(
                             icon: "wrench.and.screwdriver.fill",
                             iconColor: .indigo,
                             title: "Network & Security Diagnostics",
@@ -316,38 +316,5 @@ struct DeveloperHubView: View {
                 .foregroundStyle(.white.opacity(0.8))
         }
         .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - Row Component (Strictly conforming to ZoneNavRow)
-
-struct DeveloperHubRow: View {
-    let icon: String
-    let iconColor: Color
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-    
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(iconColor)
-                .frame(width: 32, height: 32)
-                .background(iconColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-                
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 3)
-        .accessibilityElement(children: .combine)
     }
 }

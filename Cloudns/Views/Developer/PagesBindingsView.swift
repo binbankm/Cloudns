@@ -24,7 +24,7 @@ struct PagesBindingsView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
             
-            // Section 1: Environment Variables
+            // MARK: - Environment Variables
             Section(
                 header: Text("Environment Variables"),
                 footer: Text("Plaintext variables can be viewed directly. Secret variables are encrypted and masked for security.")
@@ -90,7 +90,7 @@ struct PagesBindingsView: View {
                 }
             }
             
-            // Section 2: KV Namespaces
+            // MARK: - KV Namespaces
             if let kv = currentConfig?.kvNamespaces, !kv.isEmpty {
                 Section(header: Text("KV Namespaces (\(kv.count))")) {
                     ForEach(Array(kv.keys.sorted()), id: \.self) { key in
@@ -113,7 +113,7 @@ struct PagesBindingsView: View {
                 }
             }
             
-            // Section 3: D1 Databases
+            // MARK: - D1 Databases
             if let d1 = currentConfig?.d1Databases, !d1.isEmpty {
                 Section(header: Text("D1 Databases (\(d1.count))")) {
                     ForEach(Array(d1.keys.sorted()), id: \.self) { key in
@@ -136,7 +136,7 @@ struct PagesBindingsView: View {
                 }
             }
             
-            // Section 4: R2 Buckets
+            // MARK: - R2 Buckets
             if let r2 = currentConfig?.r2Buckets, !r2.isEmpty {
                 Section(header: Text("R2 Buckets (\(r2.count))")) {
                     ForEach(Array(r2.keys.sorted()), id: \.self) { key in
@@ -159,7 +159,7 @@ struct PagesBindingsView: View {
                 }
             }
             
-            // Section 5: AI Models & Queues
+            // MARK: - AI Models & Queues
             if let ai = currentConfig?.aiBindings, !ai.isEmpty {
                 Section(header: Text("AI Bindings (\(ai.count))")) {
                     ForEach(Array(ai.keys.sorted()), id: \.self) { key in
@@ -175,7 +175,7 @@ struct PagesBindingsView: View {
                 }
             }
             
-            // Section 6: Compatibility
+            // MARK: - Compatibility
             Section(header: Text("Compatibility Settings")) {
                 HStack {
                     Text("Compatibility Date")

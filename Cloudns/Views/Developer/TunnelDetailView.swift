@@ -58,7 +58,7 @@ struct TunnelDetailView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            // Section: Overview
+            // MARK: - Overview
             Section(header: Text("Tunnel Overview")) {
                 HStack {
                     Text("Tunnel Name")
@@ -86,7 +86,7 @@ struct TunnelDetailView: View {
                 }
             }
             
-            // Section: Connector Token / Install Command
+            // MARK: - Connector Token / Install Command
             if !viewModel.hasFetchedData {
                 Section(header: Text("Connector Token")) {
                     HStack {
@@ -143,7 +143,7 @@ struct TunnelDetailView: View {
                 }
             }
             
-            // Section: Ingress Public Routing Rules
+            // MARK: - Ingress Public Routing Rules
             Section(
                 header: HStack {
                     Text("Public Hostnames / Ingress (\(viewModel.ingressRules.count))")
@@ -230,7 +230,7 @@ struct TunnelDetailView: View {
                 }
             }
             
-            // Section: Connectors
+            // MARK: - Connectors
             if let conns = tunnel.connections, !conns.isEmpty {
                 Section(header: Text("Active Connectors (\(conns.count))")) {
                     ForEach(conns) { conn in
@@ -272,7 +272,7 @@ struct TunnelDetailView: View {
                 }
             }
             
-            // Section: Danger Zone
+            // MARK: - Danger Zone
             Section {
                 Button(role: .destructive) {
                     HapticManager.impact(.medium)
@@ -289,73 +289,5 @@ struct TunnelDetailView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
-    }
-}
-
-struct AddIngressRuleSheetView: View {
-    @ObservedObject var viewModel: TunnelDetailViewModel
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var hostname = ""
-    @State private var path = ""
-    @State private var serviceURL = "http://localhost:8080"
-    @State private var isSaving = false
-    @FocusState private var focusedField: String?
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Public Hostname"), footer: Text("Public domain or subdomain to route traffic from (e.g. app.my-domain.com).")) {
-                    TextField("app.domain.com", text: $hostname)
-                        .keyboardType(.URL)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.next)
-                        .focused($focusedField, equals: "hostname")
-                    TextField("Path Prefix (Optional, e.g. /api)", text: $path)
-                        .keyboardType(.URL)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.next)
-                        .focused($focusedField, equals: "path")
-                        .onSubmit { focusedField = "service" }
-                }
-                
-                Section(header: Text("Target Service"), footer: Text("Address of your local service (e.g. http://localhost:8080, tcp://localhost:22, or http_status:404).")) {
-                    TextField("http://localhost:8080", text: $serviceURL)
-                        .keyboardType(.URL)
-                        .submitLabel(.done)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .focused($focusedField, equals: "serviceURL")
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
-            .navigationTitle("New Hostname Rule")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        HapticManager.impact(.medium)
-                        Task {
-                            isSaving = true
-                            let cleanHost = hostname.trimmingCharacters(in: .whitespaces)
-                            let cleanPath = path.trimmingCharacters(in: .whitespaces)
-                            let cleanSvc = serviceURL.trimmingCharacters(in: .whitespaces)
-                            let success = await viewModel.addIngressRule(hostname: cleanHost, path: cleanPath.isEmpty ? nil : cleanPath, service: cleanSvc)
-                            isSaving = false
-                            if success {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || serviceURL.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                }
-            }
-        }
     }
 }

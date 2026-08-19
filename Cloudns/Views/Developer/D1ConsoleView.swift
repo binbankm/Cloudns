@@ -14,7 +14,7 @@ struct D1ConsoleView: View {
     
     var body: some View {
         List {
-            // Section: DB Summary
+            // MARK: - DB Summary
             Section(header: Text("Database Overview")) {
                 HStack {
                     Text("Database Name")
@@ -45,7 +45,7 @@ struct D1ConsoleView: View {
                 }
             }
             
-            // Section: Database Tables
+            // MARK: - Database Tables
             Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
                     HStack {
@@ -83,7 +83,7 @@ struct D1ConsoleView: View {
                 }
             }
             
-            // Section: SQL Query Editor
+            // MARK: - SQL Query Editor
             Section(header: Text("SQL Query Console")) {
                 // Presets
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -136,7 +136,7 @@ struct D1ConsoleView: View {
                 .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
             }
             
-            // Section: Results
+            // MARK: - Results
             if let result = viewModel.queryResult {
                 Section(header: HStack {
                     Text("Query Results (\(result.rows.count) rows)")

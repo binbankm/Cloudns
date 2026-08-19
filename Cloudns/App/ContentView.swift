@@ -1,13 +1,10 @@
-//
-//  ContentView.swift
-//  Cloudns
-//
-//  Created by lbyan on 2026/8/11.
-//
-
 import SwiftUI
 
+// MARK: - ContentView
+
 struct ContentView: View {
+    // MARK: - Properties
+    
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
@@ -18,12 +15,16 @@ struct ContentView: View {
     @StateObject private var authManager = AppAuthManager.shared
     @Environment(\.scenePhase) private var scenePhase
     
+    @State private var deepLinkDestination: DeepLinkDestination?
+    
     var currentLocale: Locale {
         if appLanguage == "system" {
             return Locale.autoupdatingCurrent
         }
         return Locale(identifier: appLanguage)
     }
+    
+    // MARK: - Body
     
     var body: some View {
         Group {
@@ -112,8 +113,123 @@ struct ContentView: View {
                 authManager.handleAppDidEnterBackground()
             }
         }
+        .onOpenURL { url in
+            handleDeepLink(url)
+        }
+        .sheet(item: $deepLinkDestination) { dest in
+            NavigationStack {
+                switch dest {
+                case .dig:
+                    DNSDigToolView()
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Done") { deepLinkDestination = nil }
+                            }
+                        }
+                case .trace:
+                    CFTraceToolView()
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Done") { deepLinkDestination = nil }
+                            }
+                        }
+                case .status:
+                    CloudflareStatusView()
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Done") { deepLinkDestination = nil }
+                            }
+                        }
+                case .ipranges:
+                    CFIpRangesToolView()
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Done") { deepLinkDestination = nil }
+                            }
+                        }
+                case .zone(let id):
+                    ZoneDetailDeepLinkWrapper(zoneId: id) {
+                        deepLinkDestination = nil
+                    }
+                }
+            }
+            .environment(\.locale, currentLocale)
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "cloudns" else { return }
+        HapticManager.selection()
+        
+        let host = (url.host ?? "").lowercased()
+        let path = url.path.lowercased()
+        let fullUrl = url.absoluteString.lowercased()
+        
+        var destination: DeepLinkDestination?
+        
+        if host == "tools" || fullUrl.contains("tools") {
+            if path.contains("dig") || fullUrl.contains("dig") {
+                destination = .dig
+            } else if path.contains("trace") || fullUrl.contains("trace") {
+                destination = .trace
+            } else if path.contains("status") || fullUrl.contains("status") {
+                destination = .status
+            } else if path.contains("ipranges") || fullUrl.contains("ipranges") {
+                destination = .ipranges
+            } else {
+                selectedTab = 2
+            }
+        } else if host == "zone" || fullUrl.contains("cloudns://zone") {
+            let zoneId = url.lastPathComponent
+            if !zoneId.isEmpty && zoneId != "/" && zoneId != "zone" {
+                destination = .zone(id: zoneId)
+            } else {
+                selectedTab = 1
+            }
+        } else if host == "status" || fullUrl.contains("status") {
+            destination = .status
+        } else if host == "dig" || fullUrl.contains("dig") {
+            destination = .dig
+        } else if host == "trace" || fullUrl.contains("trace") {
+            destination = .trace
+        } else if host == "ipranges" || fullUrl.contains("ipranges") {
+            destination = .ipranges
+        }
+        
+        if let dest = destination {
+            if deepLinkDestination != nil {
+                deepLinkDestination = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    self.deepLinkDestination = dest
+                }
+            } else {
+                self.deepLinkDestination = dest
+            }
+        }
     }
 }
+
+// MARK: - DeepLinkDestination
+
+enum DeepLinkDestination: Identifiable {
+    case zone(id: String)
+    case dig
+    case trace
+    case status
+    case ipranges
+    
+    var id: String {
+        switch self {
+        case .zone(let id): return "zone_\(id)"
+        case .dig: return "dig"
+        case .trace: return "trace"
+        case .status: return "status"
+        case .ipranges: return "ipranges"
+        }
+    }
+}
+
+// MARK: - Preview
 
 #Preview {
     ContentView()

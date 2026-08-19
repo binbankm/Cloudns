@@ -108,7 +108,25 @@ class AnalyticsViewModel: BaseLoadableViewModel {
                     loadedDays: days
                 )
                 await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
+                self.syncAnalyticsToWidget(zoneTag: zoneTag)
             }
         }
+    }
+    
+    private func syncAnalyticsToWidget(zoneTag: String) {
+        let current = WidgetDataStore.shared.loadZoneSnapshot()
+        let snap = ZoneWidgetSnapshot(
+            id: zoneTag,
+            name: current.id == zoneTag ? current.name : "Active Zone",
+            status: current.status,
+            plan: current.plan,
+            requests24h: totalRequests,
+            cachedRatio: cachedRatio,
+            threats24h: current.threats24h,
+            isProxied: current.isProxied,
+            isSSLEnabled: current.isSSLEnabled,
+            lastUpdated: Date()
+        )
+        WidgetDataStore.shared.saveZoneSnapshot(snap)
     }
 }

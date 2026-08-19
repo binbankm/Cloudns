@@ -108,7 +108,7 @@ struct PagesProjectDetailView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            // Section: Project Info
+            // MARK: - Project Info
             Section(header: Text("Project Overview")) {
                 HStack {
                     Text("Project Name")
@@ -159,7 +159,7 @@ struct PagesProjectDetailView: View {
                 }
             }
             
-            // Section: Features Navigation
+            // MARK: - Features Navigation
             Section(header: Text("Management")) {
                 Button {
                     showingDomainsSheet = true
@@ -237,7 +237,7 @@ struct PagesProjectDetailView: View {
                 }
             }
             
-            // Section: Deployments History
+            // MARK: - Deployments History
             Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
                 if !viewModel.hasFetchedData {
                     ForEach(PagesDeployment.placeholders) { dep in

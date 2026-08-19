@@ -79,13 +79,13 @@ struct DNSSECView: View {
         // DS Records Section (if active/pending)
         if dnssec.status == "active" || dnssec.status == "pending" {
             Section(header: Text("DS Record (Registrar Configuration)")) {
-                DetailRow(title: "DS Record", value: dnssec.ds)
-                DetailRow(title: "Digest", value: dnssec.digest)
-                DetailRow(title: "Digest Type", value: dnssec.digest_type)
-                DetailRow(title: "Algorithm", value: dnssec.algorithm)
-                DetailRow(title: "Key Tag", value: dnssec.key_tag.map(String.init))
-                DetailRow(title: "Flags", value: dnssec.flags.map(String.init))
-                DetailRow(title: "Public Key", value: dnssec.public_key, isLast: true)
+                DNSSECDetailRowView(title: "DS Record", value: dnssec.ds)
+                DNSSECDetailRowView(title: "Digest", value: dnssec.digest)
+                DNSSECDetailRowView(title: "Digest Type", value: dnssec.digest_type)
+                DNSSECDetailRowView(title: "Algorithm", value: dnssec.algorithm)
+                DNSSECDetailRowView(title: "Key Tag", value: dnssec.key_tag.map(String.init))
+                DNSSECDetailRowView(title: "Flags", value: dnssec.flags.map(String.init))
+                DNSSECDetailRowView(title: "Public Key", value: dnssec.public_key, isLast: true)
             }
         }
     }
@@ -96,42 +96,6 @@ struct DNSSECView: View {
         case "pending": return .orange
         case "disabled": return .gray
         default: return .gray
-        }
-    }
-}
-
-struct DetailRow: View {
-    let title: String
-    let value: String?
-    var isLast: Bool = false
-    
-    var body: some View {
-        if let validValue = value, !validValue.isEmpty {
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringKey(title))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(validValue)
-                        .font(.body.monospacedDigit())
-                        .foregroundStyle(.primary)
-                }
-                .padding(.vertical, 4)
-                
-                Spacer()
-                
-                Button(action: {
-                    UIPasteboard.general.string = validValue
-                    HapticManager.notification(.success)
-                    let localizedTitle = NSLocalizedString(title, comment: "")
-                    let copyFormat = NSLocalizedString("%@ copied", comment: "")
-                    ToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
-                }) {
-                    Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.blue)
-                }
-                .accessibilityLabel("Copy \(title)")
-            }
         }
     }
 }

@@ -2,14 +2,16 @@ import SwiftUI
 import Charts
 import MapKit
 
-public struct AnalyticsView: View {
-    public let zoneId: String
-    public let zoneName: String
+// MARK: - AnalyticsView
+
+struct AnalyticsView: View {
+    let zoneId: String
+    let zoneName: String
     
     @StateObject private var viewModel = AnalyticsViewModel()
     @State private var timeRange: Int = 30
     
-    public init(zoneId: String, zoneName: String) {
+    init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
         self.zoneName = zoneName
     }
@@ -383,15 +385,6 @@ public struct AnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    struct MapAnnotationItem: Identifiable {
-        let id = UUID()
-        let countryCode: String
-        let coordinate: CLLocationCoordinate2D
-        let size: CGFloat
-        let requests: Int
-        let ratio: Double
-    }
-    
     private var mapAnnotations: [MapAnnotationItem] {
         guard let maxRequests = viewModel.mapDataPoints.map({ $0.requestsCount }).max(), maxRequests > 0 else { return [] }
         return viewModel.mapDataPoints.compactMap { point in
@@ -504,42 +497,5 @@ public struct AnalyticsView: View {
         if k < 1000 { return String(format: "%.1fK", k) }
         let m = k / 1000.0
         return String(format: "%.2fM", m)
-    }
-}
-
-public struct PulsingAnnotationView: View {
-    let item: AnalyticsView.MapAnnotationItem
-    let isSelected: Bool
-    @State private var isPulsing = false
-    
-    private var heatColor: Color {
-        switch item.ratio {
-        case 0.7...: return .red
-        case 0.3..<0.7: return .orange
-        case 0.1..<0.3: return .yellow
-        default: return .cyan
-        }
-    }
-    
-    public var body: some View {
-        ZStack {
-            Circle()
-                .stroke(heatColor, lineWidth: 2)
-                .frame(width: item.size, height: item.size)
-                .scaleEffect(isPulsing ? 2.5 : 1.0)
-                .opacity(isPulsing ? 0.0 : 0.8)
-            
-            Circle()
-                .fill(heatColor)
-                .frame(width: item.size, height: item.size)
-                .overlay(Circle().stroke(Color.white, lineWidth: isSelected ? 2.5 : 0.5))
-                .shadow(color: heatColor.opacity(0.6), radius: isSelected ? 10 : 3, x: 0, y: 0)
-                .scaleEffect(isSelected ? 1.3 : 1.0)
-        }
-        .onAppear {
-            withAnimation(Animation.easeOut(duration: 2.0).repeatForever(autoreverses: false)) {
-                isPulsing = true
-            }
-        }
     }
 }

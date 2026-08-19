@@ -6,28 +6,28 @@ struct RulesHubView: View {
     var body: some View {
         List {
             Section {
-                ZoneNavRow(
+                ZoneNavRowView(
                     title: "Transform Rules",
                     subtitle: "Modify request & response headers, rewrite URLs",
                     icon: "arrow.triangle.2.circlepath",
                     color: .teal,
                     destination: TransformRulesView(zoneId: zoneId)
                 )
-                ZoneNavRow(
+                ZoneNavRowView(
                     title: "Cache Rules",
                     subtitle: "Custom cache behavior per URL pattern",
                     icon: "memorychip",
                     color: .indigo,
                     destination: CacheRulesView(zoneId: zoneId)
                 )
-                ZoneNavRow(
+                ZoneNavRowView(
                     title: "Redirect Rules",
                     subtitle: "Static & dynamic 301/302 URL redirects",
                     icon: "arrow.turn.up.right",
                     color: .blue,
                     destination: RedirectRulesView(zoneId: zoneId)
                 )
-                ZoneNavRow(
+                ZoneNavRowView(
                     title: "Edge Snippets",
                     subtitle: "Lightweight JavaScript on HTTP requests",
                     icon: "curlybraces",

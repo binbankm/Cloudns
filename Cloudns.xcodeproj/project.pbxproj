@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9BAA00010000000000000010 /* CloudnsWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9BAA00010000000000000009 /* CloudnsWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		9BAA00010000000000000011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B4D3029302B13CD00DDAA76 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9BAA00010000000000000001;
+			remoteInfo = CloudnsWidgets;
+		};
 		9B4D3044302B13D000DDAA76 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9B4D3029302B13CD00DDAA76 /* Project object */;
@@ -23,15 +34,58 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		9BAA00010000000000000013 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9BAA00010000000000000010 /* CloudnsWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		9BAA00010000000000000009 /* CloudnsWidgets.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = CloudnsWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B4D3031302B13CD00DDAA76 /* Cloudns.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloudns.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B4D3043302B13D000DDAA76 /* CloudnsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudnsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B4D304D302B13D000DDAA76 /* CloudnsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudnsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9BAA00010000000000000020 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9BAA00010000000000000001 /* CloudnsWidgets */;
+		};
+		9BAA00010000000000000021 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9B4D3030302B13CD00DDAA76 /* Cloudns */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		9BAA00010000000000000008 /* CloudnsWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9BAA00010000000000000020 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			path = CloudnsWidgets;
+			sourceTree = "<group>";
+		};
 		9B4D3033302B13CD00DDAA76 /* Cloudns */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9BAA00010000000000000021 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
 			path = Cloudns;
 			sourceTree = "<group>";
 		};
@@ -48,6 +102,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9BAA00010000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B4D302E302B13CD00DDAA76 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -76,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				9B4D3033302B13CD00DDAA76 /* Cloudns */,
+				9BAA00010000000000000008 /* CloudnsWidgets */,
 				9B4D3046302B13D000DDAA76 /* CloudnsTests */,
 				9B4D3050302B13D000DDAA76 /* CloudnsUITests */,
 				9B4D3032302B13CD00DDAA76 /* Products */,
@@ -86,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				9B4D3031302B13CD00DDAA76 /* Cloudns.app */,
+				9BAA00010000000000000009 /* CloudnsWidgets.appex */,
 				9B4D3043302B13D000DDAA76 /* CloudnsTests.xctest */,
 				9B4D304D302B13D000DDAA76 /* CloudnsUITests.xctest */,
 			);
@@ -95,6 +158,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9BAA00010000000000000001 /* CloudnsWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9BAA00010000000000000005 /* Build configuration list for PBXNativeTarget "CloudnsWidgets" */;
+			buildPhases = (
+				9BAA00010000000000000002 /* Sources */,
+				9BAA00010000000000000003 /* Frameworks */,
+				9BAA00010000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9BAA00010000000000000008 /* CloudnsWidgets */,
+			);
+			name = CloudnsWidgets;
+			packageProductDependencies = (
+			);
+			productName = CloudnsWidgets;
+			productReference = 9BAA00010000000000000009 /* CloudnsWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9B4D3030302B13CD00DDAA76 /* Cloudns */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9B4D3057302B13D000DDAA76 /* Build configuration list for PBXNativeTarget "Cloudns" */;
@@ -103,10 +188,12 @@
 				9B4D302E302B13CD00DDAA76 /* Frameworks */,
 				9B4D302F302B13CD00DDAA76 /* Resources */,
 				9B08A3A53032F69A00932C09 /* swiftlint */,
+				9BAA00010000000000000013 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9BAA00010000000000000012 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9B4D3033302B13CD00DDAA76 /* Cloudns */,
@@ -174,6 +261,9 @@
 				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
+										9BAA00010000000000000001 = {
+						CreatedOnToolsVersion = 26.3;
+					};
 					9B4D3030302B13CD00DDAA76 = {
 						CreatedOnToolsVersion = 26.3;
 					};
@@ -203,6 +293,7 @@
 			projectRoot = "";
 			targets = (
 				9B4D3030302B13CD00DDAA76 /* Cloudns */,
+				9BAA00010000000000000001 /* CloudnsWidgets */,
 				9B4D3042302B13D000DDAA76 /* CloudnsTests */,
 				9B4D304C302B13D000DDAA76 /* CloudnsUITests */,
 			);
@@ -210,6 +301,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9BAA00010000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B4D302F302B13CD00DDAA76 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +354,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9BAA00010000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B4D302D302B13CD00DDAA76 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -280,6 +385,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9BAA00010000000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9BAA00010000000000000001 /* CloudnsWidgets */;
+			targetProxy = 9BAA00010000000000000011 /* PBXContainerItemProxy */;
+		};
 		9B4D3045302B13D000DDAA76 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9B4D3030302B13CD00DDAA76 /* Cloudns */;
@@ -293,6 +403,69 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		9BAA00010000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CloudnsWidgets/CloudnsWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 38FTS86UNN;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CloudnsWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cloudns";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lbyan.Cloudns.CloudnsWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9BAA00010000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = CloudnsWidgets/CloudnsWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 38FTS86UNN;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CloudnsWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cloudns";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lbyan.Cloudns.CloudnsWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		9B4D3055302B13D000DDAA76 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -419,11 +592,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Cloudns/Cloudns.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 38FTS86UNN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Cloudns/Info.plist";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely lock your Cloudflare settings.";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -454,11 +629,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Cloudns/Cloudns.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 38FTS86UNN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Cloudns/Info.plist";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely lock your Cloudflare settings.";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -579,6 +756,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9BAA00010000000000000005 /* Build configuration list for PBXNativeTarget "CloudnsWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9BAA00010000000000000006 /* Debug */,
+				9BAA00010000000000000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9B4D302C302B13CD00DDAA76 /* Build configuration list for PBXProject "Cloudns" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

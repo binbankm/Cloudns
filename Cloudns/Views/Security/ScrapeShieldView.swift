@@ -42,7 +42,7 @@ struct ScrapeShieldView: View {
                     .padding(.top, 8)
                 ) {
                     // Email Obfuscation
-                    ScrapeShieldRow(
+                    ScrapeShieldRowView(
                         title: "Email Address Obfuscation",
                         subtitle: "Hides your email addresses from scrapers. Visitors can still see them.",
                         icon: "envelope.badge.shield.half.filled.fill",
@@ -59,7 +59,7 @@ struct ScrapeShieldView: View {
                     )
                     
                     // Server-Side Excludes
-                    ScrapeShieldRow(
+                    ScrapeShieldRowView(
                         title: "Server-Side Excludes",
                         subtitle: "Hides specific page content from suspicious visitors.",
                         icon: "server.rack",
@@ -76,7 +76,7 @@ struct ScrapeShieldView: View {
                     )
                     
                     // Hotlink Protection
-                    ScrapeShieldRow(
+                    ScrapeShieldRowView(
                         title: "Hotlink Protection",
                         subtitle: "Prevents other sites from embedding your images, saving your bandwidth.",
                         icon: "photo.fill",
@@ -95,7 +95,7 @@ struct ScrapeShieldView: View {
             } else if viewModel.isLoading {
                 Section {
                     ForEach(0..<3, id: \.self) { _ in
-                        ScrapeShieldRow(
+                        ScrapeShieldRowView(
                             title: "Scrape Protection Setting",
                             subtitle: "Configuring security level and scraper prevention rules...",
                             icon: "shield.fill",
@@ -130,45 +130,5 @@ struct ScrapeShieldView: View {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-    }
-}
-
-struct ScrapeShieldRow: View {
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-    let icon: String
-    let iconColor: Color
-    @Binding var isOn: Bool
-    let isLoading: Bool
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                iconColor.opacity(0.15)
-                Image(systemName: icon)
-                    .foregroundStyle(iconColor)
-                    .font(.body)
-            }
-            .frame(width: 36, height: 36)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .accessibilityHidden(true)
-            
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            
-            Spacer()
-            
-            Toggle("", isOn: $isOn)
-                .labelsHidden()
-                .disabled(isLoading)
-        }
-        .padding(.vertical, 8)
     }
 }

@@ -280,25 +280,3 @@ struct SettingsView: View {
         }
     }
 }
-
-struct SettingsRowView: View {
-    let icon: String
-    let color: Color
-    let title: LocalizedStringKey
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
-                .background(color)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .accessibilityHidden(true)
-            
-            Text(title)
-                .font(.body)
-                .foregroundStyle(.primary)
-        }
-    }
-}

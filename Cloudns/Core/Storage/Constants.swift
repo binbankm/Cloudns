@@ -14,6 +14,7 @@ public enum AppStorageKey: Sendable {
     nonisolated public static let hapticsEnabled = "hapticsEnabled"
     nonisolated public static let hasRunBeforeAppInstallation = "hasRunBeforeAppInstallation"
     nonisolated public static let keychainService = "com.cloudflare.api"
+    nonisolated public static let recentZoneIds = "cloudns.recent.zone.ids"
 }
 
 // MARK: - Type-Safe Notifications

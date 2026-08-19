@@ -17,7 +17,7 @@ struct AppLockSettingsView: View {
     
     var body: some View {
         List {
-            // Section 1: Biometric Requirement Toggle
+            // MARK: - Biometric Requirement Toggle
             Section {
                 Toggle(isOn: Binding(
                     get: { isAppLockEnabled },
@@ -43,7 +43,7 @@ struct AppLockSettingsView: View {
                 footerLabel
             }
             
-            // Section 2: Auto-Lock Options (Only shown when Enabled)
+            // MARK: - Auto-Lock Options (Only shown when Enabled)
             if isAppLockEnabled {
                 Section {
                     ForEach(timeoutOptions, id: \.seconds) { option in

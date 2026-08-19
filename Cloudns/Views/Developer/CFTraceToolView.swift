@@ -7,7 +7,7 @@ struct CFTraceToolView: View {
     
     var body: some View {
         List {
-            // Section: Host Input
+            // MARK: - Host Input
             Section(header: Text("Trace Host")) {
                 HStack {
                     Image(systemName: "network")

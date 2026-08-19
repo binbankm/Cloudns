@@ -24,7 +24,7 @@ struct PagesDeploymentDetailView: View {
     
     var body: some View {
         List {
-            // Section 1: Overview
+            // MARK: - Overview
             Section(header: Text("Deployment Overview")) {
                 HStack {
                     Text("Status")
@@ -96,7 +96,7 @@ struct PagesDeploymentDetailView: View {
                 }
             }
             
-            // Section 2: Actions
+            // MARK: - Actions
             Section(header: Text("Actions")) {
                 Button {
                     HapticManager.impact(.medium)
@@ -151,7 +151,7 @@ struct PagesDeploymentDetailView: View {
                 .disabled(isActionRunning)
             }
             
-            // Section 3: Build Logs
+            // MARK: - Build Logs
             Section(header: Text("Build Logs (\(viewModel.logs.count) lines)")) {
                 if viewModel.isLoadingLogs {
                     VStack(alignment: .leading, spacing: 6) {

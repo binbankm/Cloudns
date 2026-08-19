@@ -1,21 +1,7 @@
 import SwiftUI
 
-// MARK: - Single Context for Sheet Presentation
-public struct D1RowContext: Identifiable {
-    public let id = UUID()
-    public let isEditing: Bool
-    public let row: [String: String]?
-    
-    public static var insert: D1RowContext {
-        D1RowContext(isEditing: false, row: nil)
-    }
-    
-    public static func edit(row: [String: String]) -> D1RowContext {
-        D1RowContext(isEditing: true, row: row)
-    }
-}
+// MARK: - D1RowEditorView
 
-// MARK: - D1 Row Editor View
 struct D1RowEditorView: View {
     @ObservedObject var viewModel: D1TableViewModel
     let existingRow: [String: String]?

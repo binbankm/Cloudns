@@ -7,7 +7,7 @@ struct WhoisToolView: View {
     
     var body: some View {
         List {
-            // Section 1: Query Input
+            // MARK: - Query Input
             Section(header: Text("WHOIS & RDAP Lookup"), footer: Text("Queries global IANA RDAP directory over encrypted HTTPS (no account needed).")) {
                 HStack(spacing: 8) {
                     Image(systemName: "globe")
@@ -160,7 +160,7 @@ struct WhoisToolView: View {
             }
         }
         
-        // Section: Domain Statuses
+        // MARK: - Domain Statuses
         if !info.statuses.isEmpty {
             Section(header: Text("Domain Statuses (\(info.statuses.count))")) {
                 ForEach(info.statuses, id: \.self) { status in
@@ -177,7 +177,7 @@ struct WhoisToolView: View {
             }
         }
         
-        // Section: Nameservers
+        // MARK: - Nameservers
         if !info.nameservers.isEmpty {
             Section(header: Text("Authoritative Nameservers (\(info.nameservers.count))")) {
                 ForEach(info.nameservers, id: \.self) { ns in

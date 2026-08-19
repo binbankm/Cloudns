@@ -102,7 +102,7 @@ struct SnippetsListView: View {
                     }
                 }
             } else if !displayedSnippets.isEmpty || !displayedRules.isEmpty {
-                // Section 1: Snippet Scripts
+                // MARK: - Snippet Scripts
                 Section(header: Text("Snippet Scripts (\(displayedSnippets.count))")) {
                     if displayedSnippets.isEmpty {
                         Text("No snippet scripts uploaded.")
@@ -115,7 +115,7 @@ struct SnippetsListView: View {
                     }
                 }
 
-                // Section 2: Snippet Rules (Routing)
+                // MARK: - Snippet Rules (Routing)
                 Section(
                     header: Text("Execution Rules (\(displayedRules.count))"),
                     footer: Text("Rules determine which HTTP requests execute specific snippets based on expression filters.")
@@ -258,173 +258,6 @@ struct SnippetsListView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-    }
-}
-
-struct BindSnippetRuleSheetView: View {
-    let zoneId: String
-    let snippets: [SnippetItem]
-    @ObservedObject var viewModel: SnippetsViewModel
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var selectedSnippetName = ""
-    @State private var ruleDescription = ""
-    @State private var expression = "http.request.uri.path starts_with \"/api\""
-    @State private var isBinding = false
-    @State private var errorMessage: String?
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Target Snippet")) {
-                    Picker("Select Snippet", selection: $selectedSnippetName) {
-                        ForEach(snippets) { snip in
-                            Text(snip.snippet_name).tag(snip.snippet_name)
-                        }
-                    }
-                }
-                
-                Section(header: Text("Rule Description")) {
-                    TextField("e.g. Route /api requests to snippet", text: $ruleDescription)
-                        .submitLabel(.next)
-                }
-                
-                Section(header: Text("Matching Expression"), footer: Text("Requests matching this wirefilter expression will execute the selected snippet.")) {
-                    TextField("Expression", text: $expression)
-                        .font(.footnote.monospaced())
-                        .keyboardType(.asciiCapable)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.done)
-                }
-                
-                if let err = errorMessage {
-                    Section {
-                        Text(err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("Add Trigger Rule")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Bind") {
-                        Task {
-                            isBinding = true
-                            errorMessage = nil
-                            let success = await viewModel.bindSnippetRule(
-                                zoneId: zoneId,
-                                snippetName: selectedSnippetName,
-                                expression: expression,
-                                description: ruleDescription.isEmpty ? nil : ruleDescription
-                            )
-                            if success {
-                                dismiss()
-                            }
-                            isBinding = false
-                        }
-                    }
-                    .disabled(selectedSnippetName.isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || isBinding)
-                }
-            }
-            .interactiveDismissDisabled(isBinding)
-            .onAppear {
-                if selectedSnippetName.isEmpty, let first = snippets.first {
-                    selectedSnippetName = first.snippet_name
-                }
-            }
-            .toastContainer()
-        }
-    }
-}
-
-struct SnippetEditorSheetView: View {
-    let zoneId: String
-    let existingSnippet: SnippetItem?
-    @ObservedObject var viewModel: SnippetsViewModel
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var snippetName = ""
-    @State private var code = """
-    export default {
-      async fetch(request) {
-        // Modify request or response on the edge
-        return fetch(request);
-      }
-    };
-    """
-    @State private var isSaving = false
-    @State private var errorMessage: String?
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
-                    TextField("my_snippet", text: $snippetName)
-                        .keyboardType(.asciiCapable)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.next)
-                        .disabled(existingSnippet != nil)
-                }
-                
-                Section(header: Text("JavaScript Code (ES Module)")) {
-                    TextEditor(text: $code)
-                        .font(.footnote)
-                        .frame(minHeight: 180)
-                }
-                
-                if let err = errorMessage {
-                    Section {
-                        Text(err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            isSaving = true
-                            errorMessage = nil
-                            let success = await viewModel.saveSnippet(
-                                zoneId: zoneId,
-                                name: snippetName,
-                                code: code
-                            )
-                            if success {
-                                dismiss()
-                            }
-                            isSaving = false
-                        }
-                    }
-                    .disabled(snippetName.trimmingCharacters(in: .whitespaces).isEmpty || code.isEmpty || isSaving)
-                }
-            }
-            .interactiveDismissDisabled(isSaving)
-            .task {
-                if let ex = existingSnippet {
-                    snippetName = ex.snippet_name
-                    if let fetched = await viewModel.loadSnippetContent(zoneId: zoneId, name: ex.snippet_name), !fetched.isEmpty {
-                        code = fetched
-                    }
-                }
-            }
-            .toastContainer()
         }
     }
 }

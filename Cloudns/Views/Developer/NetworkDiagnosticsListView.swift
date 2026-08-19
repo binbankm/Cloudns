@@ -97,21 +97,21 @@ struct NetworkDiagnosticsListView: View {
     
     var body: some View {
         List {
-            // Section 1: Edge Diagnostics
+            // MARK: - Edge Diagnostics
             Section(header: Text("Network & Edge Diagnostics (\(edgeTools.count))")) {
                 ForEach(edgeTools) { tool in
                     toolRow(tool)
                 }
             }
             
-            // Section 2: Global Probing & Performance
+            // MARK: - Global Probing & Performance
             Section(header: Text("Global Probing & Performance (\(globalProbingTools.count))")) {
                 ForEach(globalProbingTools) { tool in
                     toolRow(tool)
                 }
             }
             
-            // Section 3: IP, Routing & Utilities
+            // MARK: - IP, Routing & Utilities
             Section(header: Text("IP, Routing & Utilities (\(ipRoutingTools.count))"), footer: Text("All diagnostics queries run directly from your device or Cloudflare's 1.1.1.1 edge network.")) {
                 ForEach(ipRoutingTools) { tool in
                     toolRow(tool)

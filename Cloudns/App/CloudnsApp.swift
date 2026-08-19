@@ -1,10 +1,3 @@
-//
-//  CloudnsApp.swift
-//  Cloudns
-//
-//  Created by lbyan on 2026/8/11.
-//
-
 import SwiftUI
 
 @main

@@ -159,7 +159,7 @@ struct CFIpRangesToolView: View {
         }
     }
     
-    private func testIP() {
+    func testIP() {
         let ip = testIpInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !ip.isEmpty else { return }
         

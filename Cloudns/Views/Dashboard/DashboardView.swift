@@ -134,7 +134,7 @@ struct DashboardView: View {
     private var resourcesOverviewGridView: some View {
         LazyVGrid(columns: GridItem.cloudnsAdaptiveMetrics, spacing: 12) {
             NavigationLink(destination: ZonesListView()) {
-                DashboardMetricCard(
+                DashboardMetricCardView(
                     icon: "globe",
                     iconColor: .blue,
                     title: "Active Zones",
@@ -146,7 +146,7 @@ struct DashboardView: View {
             .buttonStyle(PlainButtonStyle())
             
             NavigationLink(destination: DeveloperHubView()) {
-                DashboardMetricCard(
+                DashboardMetricCardView(
                     icon: "cpu.fill",
                     iconColor: .orange,
                     title: "Workers & Pages",
@@ -158,7 +158,7 @@ struct DashboardView: View {
             .buttonStyle(PlainButtonStyle())
             
             NavigationLink(destination: KVBrowserView(accountId: viewModel.selectedAccount?.id ?? "")) {
-                DashboardMetricCard(
+                DashboardMetricCardView(
                     icon: "cylinder.split.1x2.fill",
                     iconColor: .purple,
                     title: "Cloud Storage",
@@ -170,7 +170,7 @@ struct DashboardView: View {
             .buttonStyle(PlainButtonStyle())
             
             NavigationLink(destination: TunnelsListView(accountId: viewModel.selectedAccount?.id ?? "")) {
-                DashboardMetricCard(
+                DashboardMetricCardView(
                     icon: "shield.righthalf.filled",
                     iconColor: .green,
                     title: "Zero Trust Tunnels",
@@ -228,11 +228,11 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 4. Active Zones Section
+    // MARK: - 4. Recent Domains Section
     private var activeZonesSectionView: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Active Domains")
+                Text("Recent Domains")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
@@ -287,7 +287,7 @@ struct DashboardView: View {
                 .cloudnsCard(style: .frosted, cornerRadius: 16)
             } else {
                 VStack(spacing: 8) {
-                    ForEach(viewModel.zones.prefix(3)) { zone in
+                    ForEach(viewModel.recentZones) { zone in
                         NavigationLink(destination: ZoneDetailView(zone: zone)) {
                             HStack(spacing: 12) {
                                 ZStack {
@@ -357,98 +357,5 @@ struct DashboardView: View {
             .cloudnsCard(style: .frosted, cornerRadius: 16)
         }
         .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Custom Dashboard Components
-
-struct DashboardMetricCard: View {
-    let icon: String
-    let iconColor: Color
-    let title: LocalizedStringKey
-    let value: String
-    let subtitle: LocalizedStringKey
-    let badge: LocalizedStringKey
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(iconColor.opacity(0.12))
-                        .frame(width: 30, height: 30)
-                    Image(systemName: icon)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(iconColor)
-                }
-                .accessibilityHidden(true)
-                
-                Spacer()
-                
-                Text(badge)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1.5)
-                    .background(Color(.tertiarySystemFill))
-                    .clipShape(Capsule())
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-            }
-            
-            CloudnsRollingNumber(
-                value: value,
-                font: .system(.title2, design: .rounded),
-                weight: .bold,
-                color: .primary
-            )
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                
-                Text(subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 136)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-}
-
-struct QuickDeckButton: View {
-    let icon: String
-    let color: Color
-    let title: LocalizedStringKey
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.12))
-                    .frame(width: 44, height: 44)
-                Image(systemName: icon)
-                    .font(.body)
-                    .foregroundStyle(color)
-            }
-            .accessibilityHidden(true)
-            
-            Text(title)
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-        }
-        .frame(width: 82)
-        .padding(.vertical, 10)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
     }
 }

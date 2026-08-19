@@ -46,6 +46,7 @@ class ZonesViewModel: BaseLoadableViewModel {
                 onCached: { cachedZones in
                     self.zones = cachedZones
                     self.totalCount = cachedZones.count
+                    self.syncFirstZoneToWidget(zones: cachedZones)
                 },
                 fetcher: { [zoneService] in
                     let (fetchedZones, _) = try await zoneService.getZones(page: 1, perPage: 50, name: nil, status: nil)
@@ -56,6 +57,7 @@ class ZonesViewModel: BaseLoadableViewModel {
                     self.totalCount = latestZones.count
                     self.canLoadMore = latestZones.count >= 50
                     self.currentPage = latestZones.count >= 50 ? 2 : 1
+                    self.syncFirstZoneToWidget(zones: latestZones)
                 }
             )
         } else {
@@ -121,5 +123,22 @@ class ZonesViewModel: BaseLoadableViewModel {
             errorMessage = error.localizedDescription
         }
         isDeleting = false
+    }
+    
+    private func syncFirstZoneToWidget(zones: [Zone]) {
+        guard let first = zones.first else { return }
+        let snap = ZoneWidgetSnapshot(
+            id: first.id,
+            name: first.name,
+            status: first.status,
+            plan: first.plan?.name ?? "Free",
+            requests24h: 0,
+            cachedRatio: 0.85,
+            threats24h: 0,
+            isProxied: true,
+            isSSLEnabled: true,
+            lastUpdated: Date()
+        )
+        WidgetDataStore.shared.saveZoneSnapshot(snap)
     }
 }

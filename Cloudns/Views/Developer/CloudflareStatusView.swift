@@ -53,14 +53,14 @@ struct CloudflareStatusView: View {
     
     @ViewBuilder
     private func statusSections(summary: CFStatusSummary) -> some View {
-        // Section: Overall Status Banner Card
+        // MARK: - Overall Status Banner Card
         Section {
             overallBanner(summary: summary)
         }
         .listRowInsets(EdgeInsets())
         .listRowBackground(Color.clear)
         
-        // Section: Core Services Health
+        // MARK: - Core Services Health
         if let components = summary.components, !components.isEmpty {
             Section(header: Text("Services & Infrastructure (\(filteredComponents(components).count))")) {
                 ForEach(filteredComponents(components)) { comp in
@@ -84,7 +84,7 @@ struct CloudflareStatusView: View {
             }
         }
         
-        // Section: Unresolved Incidents
+        // MARK: - Unresolved Incidents
         if let incidents = summary.incidents, !incidents.isEmpty {
             Section(header: Text("Active Incidents (\(incidents.count))")) {
                 ForEach(incidents) { inc in

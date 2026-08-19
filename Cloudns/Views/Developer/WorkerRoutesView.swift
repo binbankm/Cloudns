@@ -61,7 +61,7 @@ struct WorkerRoutesView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            // Section: Custom Domains
+            // MARK: - Custom Domains
             Section(
                 header: Text("Custom Domains (\(customDomains.count))"),
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
@@ -92,7 +92,7 @@ struct WorkerRoutesView: View {
                 }
             }
             
-            // Section: Standard Zone Routes
+            // MARK: - Standard Zone Routes
             if !fallbackRoutes.isEmpty {
                 Section(
                     header: Text("Zone Routes (\(fallbackRoutes.count))"),
@@ -172,192 +172,5 @@ struct WorkerRoutesView: View {
             self.hasFetchedData = true
         }
         isLoading = false
-    }
-}
-
-struct WorkerAttachDomainSheetView: View {
-    let accountId: String
-    let scriptName: String
-    let onAttached: () -> Void
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var availableZones: [Zone] = []
-    @State private var selectedZoneId: String = ""
-    @State private var subdomainPrefix = "api"
-    @State private var isCustomMode = false
-    @State private var manualHostname = ""
-    
-    @State private var isLoadingZones = false
-    @State private var isAttaching = false
-    @State private var errorMessage: String?
-    
-    private var selectedZone: Zone? {
-        availableZones.first(where: { $0.id == selectedZoneId })
-    }
-    
-    private var computedHostname: String {
-        if isCustomMode {
-            return manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        }
-        guard let zone = selectedZone else { return "" }
-        let prefix = subdomainPrefix.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if prefix.isEmpty || prefix == "@" {
-            return zone.name
-        } else {
-            return "\(prefix).\(zone.name)"
-        }
-    }
-    
-    private var computedZoneId: String {
-        if isCustomMode {
-            let host = manualHostname.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            if let matched = availableZones.first(where: { host == $0.name.lowercased() || host.hasSuffix("." + $0.name.lowercased()) }) {
-                return matched.id
-            }
-            return selectedZoneId
-        }
-        return selectedZoneId
-    }
-    
-    private var isValidInput: Bool {
-        if isCustomMode {
-            let host = manualHostname.trimmingCharacters(in: .whitespacesAndNewlines)
-            return !host.isEmpty && !computedZoneId.isEmpty
-        }
-        return !selectedZoneId.isEmpty && !computedHostname.isEmpty
-    }
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                if !availableZones.isEmpty {
-                    Section(header: Text("Configuration Mode")) {
-                        Picker("Mode", selection: $isCustomMode) {
-                            Text("Select from My Domains").tag(false)
-                            Text("Manual Entry").tag(true)
-                        }
-                        .pickerStyle(.segmented)
-                    }
-                }
-                
-                if !isCustomMode {
-                    Section(header: Text("Managed Domain (Zone)")) {
-                        if isLoadingZones {
-                            HStack {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            Text("Loading domains...")
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else if availableZones.isEmpty {
-                            Text("No managed domains found.")
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Picker("Domain", selection: $selectedZoneId) {
-                                ForEach(availableZones) { zone in
-                                    Text(zone.name).tag(zone.id)
-                                }
-                            }
-                        }
-                    }
-                    
-                    if !availableZones.isEmpty {
-                        Section(
-                            header: Text("Subdomain Prefix"),
-                            footer: Text("Enter a subdomain prefix (e.g. 'api' for api.\(selectedZone?.name ?? "example.com")) or leave blank / enter '@' for apex domain.")
-                        ) {
-                            HStack {
-                                TextField("api", text: $subdomainPrefix)
-                                    .keyboardType(.URL)
-                                    .submitLabel(.done)
-                                    .textInputAutocapitalization(.never)
-                                    .autocorrectionDisabled()
-                                
-                                if let zone = selectedZone {
-                                    Text(".\(zone.name)")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
-                        
-                        Section(header: Text("Target Custom Domain")) {
-                            HStack {
-                                Image(systemName: "link")
-                                    .foregroundStyle(.orange)
-                                    .accessibilityHidden(true)
-                                Text(computedHostname)
-                                    .font(.body.monospaced())
-                                    .foregroundStyle(.primary)
-                            }
-                        }
-                    }
-                } else {
-                    Section(
-                        header: Text("Custom Domain Hostname"),
-                        footer: Text("Enter a domain or subdomain owned by your account (e.g. api.example.com).")
-                    ) {
-                        TextField("api.example.com", text: $manualHostname)
-                            .keyboardType(.URL)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .submitLabel(.done)
-                    }
-                }
-                
-                if let err = errorMessage {
-                    Section {
-                        Text(err)
-                                .font(.caption)
-                                .foregroundStyle(.red)
-                    }
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("Attach Custom Domain")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Attach") {
-                        Task {
-                            isAttaching = true
-                            errorMessage = nil
-                            do {
-                                try await WorkerService.shared.attachWorkerDomain(
-                                    accountId: accountId,
-                                    scriptName: scriptName,
-                                    hostname: computedHostname,
-                                    zoneId: computedZoneId
-                                )
-                                HapticManager.impact(.medium)
-                                ToastManager.shared.showSuccess("Custom Domain", message: "Attached \(computedHostname)")
-                                onAttached()
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                            }
-                            isAttaching = false
-                        }
-                    }
-                    .disabled(!isValidInput || isAttaching)
-                }
-            }
-            .interactiveDismissDisabled(isAttaching)
-            .toastContainer()
-            .task {
-                isLoadingZones = true
-                if let (zones, _) = try? await ZoneService.shared.getZones(), !zones.isEmpty {
-                    self.availableZones = zones
-                    if self.selectedZoneId.isEmpty, let first = zones.first {
-                        self.selectedZoneId = first.id
-                    }
-                } else {
-                    self.isCustomMode = true
-                }
-                isLoadingZones = false
-            }
-        }
     }
 }

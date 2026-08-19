@@ -1,0 +1,31 @@
+import SwiftUI
+
+// MARK: - SettingsRowView
+
+struct SettingsRowView: View {
+    let icon: String
+    let color: Color
+    let title: LocalizedStringKey
+    
+    init(icon: String, color: Color, title: LocalizedStringKey) {
+        self.icon = icon
+        self.color = color
+        self.title = title
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(.white)
+                .frame(width: 28, height: 28)
+                .background(color)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .accessibilityHidden(true)
+            
+            Text(title)
+                .font(.body)
+                .foregroundStyle(.primary)
+        }
+    }
+}

@@ -34,7 +34,7 @@ class D1ConsoleViewModel: BaseLoadableViewModel {
             let res = try await d1Service.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: sql)
             self.tables = res.rows.compactMap { $0["name"] }
         } catch {
-            print("Failed to fetch tables: \(error.localizedDescription)")
+            self.tables = []
         }
         isLoadingTables = false
     }

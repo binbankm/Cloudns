@@ -21,7 +21,7 @@ struct AIGatewayDetailView: View {
     
     var body: some View {
         List {
-            // Section 1: Overview
+            // MARK: - Overview
             Section(header: Text("Gateway Overview")) {
                 HStack {
                     Text("Gateway Slug")
@@ -53,7 +53,7 @@ struct AIGatewayDetailView: View {
                 }
             }
             
-            // Section 2: Universal AI Endpoint Generator
+            // MARK: - Universal AI Endpoint Generator
             Section(
                 header: Text("Universal AI Endpoint"),
                 footer: Text("Route requests through this endpoint to get caching, rate limiting, and analytics.")
@@ -89,7 +89,7 @@ struct AIGatewayDetailView: View {
                 .padding(.vertical, 2)
             }
             
-            // Section 3: Integration Code Examples
+            // MARK: - Integration Code Examples
             Section(header: Text("Quick Integration Snippets")) {
                 Picker("Language", selection: $selectedCodeLanguage) {
                     Text("cURL").tag("curl")
