@@ -37,52 +37,72 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
     }
     
     func updateIPv6(zoneId: String, isOn: Bool) async {
+        let previous = self.ipv6
+        self.ipv6 = isOn
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPv6(zoneId: zoneId, isOn: isOn)
-            self.ipv6 = isOn
+            ToastManager.shared.showSuccess("IPv6", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update IPv6: \(error.localizedDescription)"
+            self.ipv6 = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateWebsockets(zoneId: String, isOn: Bool) async {
+        let previous = self.websockets
+        self.websockets = isOn
         HapticManager.impact(.medium)
         do {
             try await networkService.updateWebsockets(zoneId: zoneId, isOn: isOn)
-            self.websockets = isOn
+            ToastManager.shared.showSuccess("WebSockets", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update WebSockets: \(error.localizedDescription)"
+            self.websockets = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateHTTP2(zoneId: String, isOn: Bool) async {
+        let previous = self.http2
+        self.http2 = isOn
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP2(zoneId: zoneId, isOn: isOn)
-            self.http2 = isOn
+            ToastManager.shared.showSuccess("HTTP/2", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update HTTP/2: \(error.localizedDescription)"
+            self.http2 = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateHTTP3(zoneId: String, isOn: Bool) async {
+        let previous = self.http3
+        self.http3 = isOn
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP3(zoneId: zoneId, isOn: isOn)
-            self.http3 = isOn
+            ToastManager.shared.showSuccess("HTTP/3 (QUIC)", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update HTTP/3: \(error.localizedDescription)"
+            self.http3 = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateIPGeolocation(zoneId: String, isOn: Bool) async {
+        let previous = self.ipGeolocation
+        self.ipGeolocation = isOn
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPGeolocation(zoneId: zoneId, isOn: isOn)
-            self.ipGeolocation = isOn
+            ToastManager.shared.showSuccess("IP Geolocation", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update IP Geolocation: \(error.localizedDescription)"
+            self.ipGeolocation = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

@@ -57,10 +57,12 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             _ = try await lbService.createLoadBalancer(zoneId: zoneId, lb: payload)
+            ToastManager.shared.showSuccess("Load Balancer Created", message: payload.name)
             await fetchData()
             return true
         } catch {
             errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -72,9 +74,11 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             try await lbService.deleteLoadBalancer(zoneId: zoneId, lbId: id)
+            ToastManager.shared.showSuccess("Load Balancer Deleted", message: "")
             await fetchData()
         } catch {
             errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     

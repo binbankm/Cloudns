@@ -125,39 +125,55 @@ class CachingViewModel: BaseLoadableViewModel {
     }
     
     func updateCacheLevel(zoneId: String, level: String) async {
+        let prev = self.cacheLevel
+        self.cacheLevel = level
         do {
             try await cachingService.updateCacheLevel(zoneId: zoneId, level: level)
-            self.cacheLevel = level
+            ToastManager.shared.showSuccess("Caching Level", message: "Updated to \(level.capitalized)")
         } catch {
-            self.errorMessage = "Failed to update cache level: \(error.localizedDescription)"
+            self.cacheLevel = prev
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateBrowserCacheTTL(zoneId: String, ttl: Int) async {
+        let prev = self.browserCacheTTL
+        self.browserCacheTTL = ttl
         do {
             try await cachingService.updateBrowserCacheTTL(zoneId: zoneId, ttl: ttl)
-            self.browserCacheTTL = ttl
+            ToastManager.shared.showSuccess("Browser Cache TTL", message: "TTL updated successfully.")
         } catch {
-            self.errorMessage = "Failed to update Browser Cache TTL: \(error.localizedDescription)"
+            self.browserCacheTTL = prev
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateAlwaysOnline(zoneId: String, isOn: Bool) async {
+        let prev = self.alwaysOnline
+        self.alwaysOnline = isOn
         do {
             try await cachingService.updateAlwaysOnline(zoneId: zoneId, isOn: isOn)
-            self.alwaysOnline = isOn
+            ToastManager.shared.showSuccess("Always Online", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update Always Online: \(error.localizedDescription)"
+            self.alwaysOnline = prev
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateDevelopmentMode(zoneId: String, isOn: Bool) async {
+        let prev = self.developmentMode
+        self.developmentMode = isOn
         do {
             try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
-            self.developmentMode = isOn
+            ToastManager.shared.showSuccess("Development Mode", message: isOn ? "Enabled (3 hours)" : "Disabled")
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
         } catch {
-            self.errorMessage = "Failed to update Development Mode: \(error.localizedDescription)"
+            self.developmentMode = prev
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

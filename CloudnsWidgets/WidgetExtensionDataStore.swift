@@ -5,7 +5,7 @@ import WidgetKit
 
 // MARK: - WidgetDataStore
 
-public final class WidgetDataStore {
+public final class WidgetDataStore: @unchecked Sendable {
     public static let shared = WidgetDataStore()
     
     public static let appGroupIdentifier = "group.com.lbyan.Cloudns"

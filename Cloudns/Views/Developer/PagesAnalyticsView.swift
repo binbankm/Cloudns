@@ -439,7 +439,7 @@ public struct PagesAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? "100% Operational" : "\(viewModel.totalErrors) Invocations Failed")
+                Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Invocations Failed")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }
@@ -451,7 +451,7 @@ public struct PagesAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(String(format: "%.1f%% Success Rate", viewModel.deploymentSuccessRate))
+                (Text(verbatim: String(format: "%.1f%% ", viewModel.deploymentSuccessRate)) + Text("Success Rate"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.green)
             }

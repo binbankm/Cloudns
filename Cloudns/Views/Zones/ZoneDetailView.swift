@@ -139,6 +139,7 @@ struct ZoneDetailView: View {
                     subtitle: "Distribute traffic across origins",
                     icon: "arrow.triangle.branch",
                     color: .blue,
+                    badge: .custom(color: .purple, text: "ADD-ON"),
                     destination: LoadBalancerView(zoneId: zone.id)
                 )
             }

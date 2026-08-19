@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Widget Snapshot Models
 
-public struct ZoneWidgetSnapshot: Codable, Identifiable {
+public struct ZoneWidgetSnapshot: Codable, Identifiable, Sendable {
     public let id: String
     public let name: String
     public let status: String
@@ -66,7 +66,7 @@ public struct ZoneWidgetSnapshot: Codable, Identifiable {
     )
 }
 
-public struct CFStatusWidgetSnapshot: Codable {
+public struct CFStatusWidgetSnapshot: Codable, Sendable {
     public let indicator: String // none, minor, major, critical, maintenance
     public let description: String
     public let activeIncidentsCount: Int

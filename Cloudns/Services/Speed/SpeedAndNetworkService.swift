@@ -2,8 +2,7 @@ import Foundation
 
 /// Cloudflare 速度优化、网络协议与缓存管理领域服务抽象协议
 protocol SpeedAndNetworkServiceProtocol: Sendable {
-    func getSpeedSettings(zoneId: String) async throws -> (minifyCSS: Bool, minifyHTML: Bool, minifyJS: Bool, brotli: Bool, rocketLoader: Bool, earlyHints: Bool)
-    func updateMinify(zoneId: String, css: Bool, html: Bool, js: Bool) async throws
+    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool)
     func updateBrotli(zoneId: String, isOn: Bool) async throws
     func updateRocketLoader(zoneId: String, isOn: Bool) async throws
     func updateEarlyHints(zoneId: String, isOn: Bool) async throws
@@ -37,55 +36,32 @@ final class SpeedAndNetworkService: SpeedAndNetworkServiceProtocol {
     
     // MARK: - Speed Settings
     
-    func getSpeedSettings(zoneId: String) async throws -> (minifyCSS: Bool, minifyHTML: Bool, minifyJS: Bool, brotli: Bool, rocketLoader: Bool, earlyHints: Bool) {
+    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool) {
         let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
-        var minify: ZoneSetting?
         var brotli: ZoneSetting?
         var rocket: ZoneSetting?
         var hints: ZoneSetting?
         
         if !allSettings.isEmpty {
-            minify = allSettings.first(where: { $0.id == "minify" })
             brotli = allSettings.first(where: { $0.id == "brotli" })
             rocket = allSettings.first(where: { $0.id == "rocket_loader" })
             hints = allSettings.first(where: { $0.id == "early_hints" })
         } else {
-            async let min = try? getSetting(zoneId: zoneId, settingName: "minify")
             async let br = try? getSetting(zoneId: zoneId, settingName: "brotli")
             async let rl = try? getSetting(zoneId: zoneId, settingName: "rocket_loader")
             async let eh = try? getSetting(zoneId: zoneId, settingName: "early_hints")
-            let (m, b, r, h) = await (min, br, rl, eh)
-            minify = m
+            let (b, r, h) = await (br, rl, eh)
             brotli = b
             rocket = r
             hints = h
         }
         
-        var css = false, html = false, js = false
-        if let dict = minify?.value.objectValue {
-            css = (dict["css"] == "on")
-            html = (dict["html"] == "on")
-            js = (dict["js"] == "on")
-        }
-        
         return (
-            minifyCSS: css,
-            minifyHTML: html,
-            minifyJS: js,
             brotli: brotli?.value.boolValue ?? false,
             rocketLoader: rocket?.value.boolValue ?? false,
             earlyHints: hints?.value.boolValue ?? false
         )
-    }
-    
-    func updateMinify(zoneId: String, css: Bool, html: Bool, js: Bool) async throws {
-        let valueDict = [
-            "css": css ? "on" : "off",
-            "html": html ? "on" : "off",
-            "js": js ? "on" : "off"
-        ]
-        _ = try await updateSetting(zoneId: zoneId, settingName: "minify", value: valueDict)
     }
     
     func updateBrotli(zoneId: String, isOn: Bool) async throws {

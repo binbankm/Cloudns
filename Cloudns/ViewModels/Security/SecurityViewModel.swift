@@ -35,42 +35,58 @@ class SecurityViewModel: BaseLoadableViewModel {
     }
     
     func updateSecurityLevel(zoneId: String, level: String) async {
+        let previous = self.securityLevel
+        self.securityLevel = level
         HapticManager.impact(.medium)
         do {
             try await securityService.updateSecurityLevel(zoneId: zoneId, level: level)
-            self.securityLevel = level
+            ToastManager.shared.showSuccess("Security Level", message: "Updated to \(level.capitalized)")
         } catch {
-            self.errorMessage = "Failed to update security level: \(error.localizedDescription)"
+            self.securityLevel = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Security Level Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateChallengeTTL(zoneId: String, ttl: Int) async {
+        let previous = self.challengeTTL
+        self.challengeTTL = ttl
         HapticManager.impact(.medium)
         do {
             try await securityService.updateChallengeTTL(zoneId: zoneId, ttl: ttl)
-            self.challengeTTL = ttl
+            ToastManager.shared.showSuccess("Challenge Passage", message: "TTL updated successfully.")
         } catch {
-            self.errorMessage = "Failed to update challenge TTL: \(error.localizedDescription)"
+            self.challengeTTL = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateBrowserCheck(zoneId: String, isOn: Bool) async {
+        let previous = self.browserCheck
+        self.browserCheck = isOn
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBrowserCheck(zoneId: zoneId, isOn: isOn)
-            self.browserCheck = isOn
+            ToastManager.shared.showSuccess("Browser Integrity Check", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update browser check: \(error.localizedDescription)"
+            self.browserCheck = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateBotFightMode(zoneId: String, isOn: Bool) async {
+        let previous = self.botFightMode
+        self.botFightMode = isOn
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBotFightMode(zoneId: zoneId, isOn: isOn)
-            self.botFightMode = isOn
+            ToastManager.shared.showSuccess("Bot Fight Mode", message: isOn ? "Enabled" : "Disabled")
         } catch {
-            self.errorMessage = "Failed to update bot fight mode: \(error.localizedDescription)"
+            self.botFightMode = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

@@ -191,9 +191,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             rulePayload["ratelimit"] = try JSONSerialization.jsonObject(with: data)
         }
         let payload: [String: Any] = [
-            "name": "\(phase) ruleset",
-            "kind": "zone",
-            "phase": phase,
+            "description": "\(phase) ruleset",
             "rules": [rulePayload]
         ]
         let data = try JSONSerialization.data(withJSONObject: payload)

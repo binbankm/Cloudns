@@ -23,6 +23,18 @@ struct SnippetEditorSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    HStack(spacing: 10) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.orange)
+                        Text("Cloudflare Snippets is available on Pro, Business, and Enterprise plans.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                }
+                
                 Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
                     TextField("my_snippet", text: $snippetName)
                         .keyboardType(.asciiCapable)

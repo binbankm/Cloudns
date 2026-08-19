@@ -41,6 +41,18 @@ struct AddLoadBalancerView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    HStack(spacing: 10) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.purple)
+                        Text("Cloudflare Load Balancing is a paid add-on service. Make sure it is active on your Cloudflare account.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                }
+                
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
                         .keyboardType(.URL)

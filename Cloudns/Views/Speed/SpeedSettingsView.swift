@@ -21,52 +21,12 @@ struct SpeedSettingsView: View {
                     }
                 }
                 
-                // Auto Minify
-                Section(header: Text("Auto Minify")) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Reduce the file size of source code on your website.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Toggle("JavaScript", isOn: Binding(
-                        get: { viewModel.minifyJS },
-                        set: { val in
-                            HapticManager.impact(.light)
-                            viewModel.minifyJS = val
-                            Task { await viewModel.updateMinify(zoneId: zoneId, css: viewModel.minifyCSS, html: viewModel.minifyHTML, js: val) }
-                        }
-                    ))
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    Toggle("CSS", isOn: Binding(
-                        get: { viewModel.minifyCSS },
-                        set: { val in
-                            HapticManager.impact(.light)
-                            viewModel.minifyCSS = val
-                            Task { await viewModel.updateMinify(zoneId: zoneId, css: val, html: viewModel.minifyHTML, js: viewModel.minifyJS) }
-                        }
-                    ))
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    Toggle("HTML", isOn: Binding(
-                        get: { viewModel.minifyHTML },
-                        set: { val in
-                            HapticManager.impact(.light)
-                            viewModel.minifyHTML = val
-                            Task { await viewModel.updateMinify(zoneId: zoneId, css: viewModel.minifyCSS, html: val, js: viewModel.minifyJS) }
-                        }
-                    ))
-                    .disabled(!viewModel.hasFetchedData)
-                }
-                
                 // Advanced Optimizations
-                Section(header: Text("Advanced Optimizations")) {
+                Section(header: Text("Speed & Optimization"), footer: Text("Configure CDN edge acceleration and asset optimizations for faster page loads.")) {
                     // Brotli
                     Toggle(isOn: Binding(
                         get: { viewModel.brotli },
                         set: { val in
-                            HapticManager.impact(.light)
                             Task { await viewModel.updateBrotli(zoneId: zoneId, isOn: val) }
                         }
                     )) {
@@ -84,7 +44,6 @@ struct SpeedSettingsView: View {
                     Toggle(isOn: Binding(
                         get: { viewModel.rocketLoader },
                         set: { val in
-                            HapticManager.impact(.light)
                             Task { await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val) }
                         }
                     )) {
@@ -108,7 +67,6 @@ struct SpeedSettingsView: View {
                     Toggle(isOn: Binding(
                         get: { viewModel.earlyHints },
                         set: { val in
-                            HapticManager.impact(.light)
                             Task { await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val) }
                         }
                     )) {
@@ -123,16 +81,7 @@ struct SpeedSettingsView: View {
                     .disabled(!viewModel.hasFetchedData)
                 }
             } else if viewModel.isLoading {
-                Section(header: Text("Auto Minify")) {
-                    Toggle("JavaScript", isOn: .constant(true))
-                        .skeletonLoading(true)
-                    Toggle("CSS", isOn: .constant(true))
-                        .skeletonLoading(true)
-                    Toggle("HTML", isOn: .constant(true))
-                        .skeletonLoading(true)
-                }
-                
-                Section(header: Text("Advanced Optimizations")) {
+                Section(header: Text("Speed & Optimization")) {
                     Toggle(isOn: .constant(true)) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Brotli")
@@ -145,6 +94,14 @@ struct SpeedSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Rocket Loader™")
                             Text("Improve the paint time for pages which include JavaScript.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                    
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Early Hints")
+                            Text("Help browsers start loading assets sooner.")
                         }
                     }
                     .skeletonLoading(true)

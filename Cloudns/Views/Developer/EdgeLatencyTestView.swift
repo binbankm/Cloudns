@@ -85,7 +85,7 @@ struct EdgeLatencyTestView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(String(format: "%.0f%%", result.packetLossPercent))
+                            Text(verbatim: String(format: "%.0f%%", result.packetLossPercent))
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
                         }

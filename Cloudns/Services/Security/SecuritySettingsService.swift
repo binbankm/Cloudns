@@ -36,36 +36,41 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
         return settings ?? []
     }
     
+    func getBotManagement(zoneId: String) async throws -> BotManagementConfig? {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/bot_management")
+        let (config, _): (BotManagementConfig?, ResultInfo?) = try await client.performRequest(request)
+        return config
+    }
+
     func getSecuritySettings(zoneId: String) async throws -> (level: String, challengeTTL: Int, browserCheck: Bool, botFightMode: Bool) {
         let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
         var secLevel: ZoneSetting?
         var ttl: ZoneSetting?
         var browser: ZoneSetting?
-        var bot: ZoneSetting?
         
         if !allSettings.isEmpty {
             secLevel = allSettings.first(where: { $0.id == "security_level" })
             ttl = allSettings.first(where: { $0.id == "challenge_ttl" })
             browser = allSettings.first(where: { $0.id == "browser_check" })
-            bot = allSettings.first(where: { $0.id == "bot_fight_mode" })
         } else {
             async let sec = try? getSetting(zoneId: zoneId, settingName: "security_level")
             async let t = try? getSetting(zoneId: zoneId, settingName: "challenge_ttl")
             async let b = try? getSetting(zoneId: zoneId, settingName: "browser_check")
-            async let bf = try? getSetting(zoneId: zoneId, settingName: "bot_fight_mode")
-            let (resSec, resT, resB, resBf) = await (sec, t, b, bf)
+            let (resSec, resT, resB) = await (sec, t, b)
             secLevel = resSec
             ttl = resT
             browser = resB
-            bot = resBf
         }
+        
+        let botConfig = try? await getBotManagement(zoneId: zoneId)
+        let botFightMode = botConfig?.fight_mode ?? false
         
         return (
             level: secLevel?.value.stringValue ?? "medium",
             challengeTTL: ttl?.value.intValue ?? 1800,
             browserCheck: browser?.value.boolValue ?? true,
-            botFightMode: bot?.value.boolValue ?? false
+            botFightMode: botFightMode
         )
     }
     
@@ -86,7 +91,10 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     }
     
     func updateBotFightMode(zoneId: String, isOn: Bool) async throws {
-        _ = try await updateSetting(zoneId: zoneId, settingName: "bot_fight_mode", value: isOn ? "on" : "off")
+        let payload: [String: Any] = ["fight_mode": isOn]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/bot_management", method: "PUT", body: data)
+        let (_, _): (BotManagementConfig?, ResultInfo?) = try await client.performRequest(request)
     }
     
     // MARK: - Scrape Shield

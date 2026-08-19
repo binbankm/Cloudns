@@ -481,7 +481,7 @@ struct AnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(String(format: "%.1f%%", viewModel.cachedRatio * 100))
+                Text(verbatim: String(format: "%.1f%%", viewModel.cachedRatio * 100))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.cachedRatio > 0.5 ? .green : .orange)
             }

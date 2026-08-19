@@ -69,7 +69,12 @@ struct SecuritySettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     
-                    Picker("Security Level", selection: $viewModel.securityLevel) {
+                    Picker("Security Level", selection: Binding(
+                        get: { viewModel.securityLevel },
+                        set: { newValue in
+                            Task { await viewModel.updateSecurityLevel(zoneId: zoneId, level: newValue) }
+                        }
+                    )) {
                         Text("Essentially Off").tag("essentially_off")
                         Text("Low").tag("low")
                         Text("Medium").tag("medium")
@@ -78,13 +83,6 @@ struct SecuritySettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .disabled(!viewModel.hasFetchedData)
-                    .onChange(of: viewModel.securityLevel) { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HapticManager.impact(.light)
-                        Task {
-                            await viewModel.updateSecurityLevel(zoneId: zoneId, level: newValue)
-                        }
-                    }
                 }
                 
                 // Challenge Passage (TTL)
@@ -95,7 +93,12 @@ struct SecuritySettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     
-                    Picker("TTL", selection: $viewModel.challengeTTL) {
+                    Picker("TTL", selection: Binding(
+                        get: { viewModel.challengeTTL },
+                        set: { newValue in
+                            Task { await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: newValue) }
+                        }
+                    )) {
                         Text("5 minutes").tag(300)
                         Text("15 minutes").tag(900)
                         Text("30 minutes").tag(1800)
@@ -109,17 +112,15 @@ struct SecuritySettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .disabled(!viewModel.hasFetchedData)
-                    .onChange(of: viewModel.challengeTTL) { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HapticManager.impact(.light)
-                        Task {
-                            await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: newValue)
-                        }
-                    }
                 }
                 
                 // Browser Integrity Check
-                Toggle(isOn: $viewModel.browserCheck) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.browserCheck },
+                    set: { newValue in
+                        Task { await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Browser Integrity Check")
                             .font(.body)
@@ -129,16 +130,14 @@ struct SecuritySettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.browserCheck) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
-                    Task {
-                        await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: newValue)
-                    }
-                }
                 
                 // Bot Fight Mode
-                Toggle(isOn: $viewModel.botFightMode) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.botFightMode },
+                    set: { newValue in
+                        Task { await viewModel.updateBotFightMode(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
                             Text("Bot Fight Mode")
@@ -154,13 +153,6 @@ struct SecuritySettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.botFightMode) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
-                    Task {
-                        await viewModel.updateBotFightMode(zoneId: zoneId, isOn: newValue)
-                    }
-                }
             }
         } else if viewModel.isLoading {
             Section(header: Text("Security Level")) {

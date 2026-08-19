@@ -63,14 +63,16 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         
         // 1. [Stale] 0ms 尝试从缓存恢复历史数据
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: WorkerAnalyticsSnapshot.self) {
-            self.dataPoints = cached.dataPoints
-            self.totalRequests = cached.totalRequests
-            self.totalErrors = cached.totalErrors
-            self.totalSubrequests = cached.totalSubrequests
-            self.avgCpuP50 = cached.avgCpuP50
-            self.maxCpuP99 = cached.maxCpuP99
-            self.loadedDays = cached.loadedDays
-            self.hasFetchedData = true
+            await MainActor.run {
+                self.dataPoints = cached.dataPoints
+                self.totalRequests = cached.totalRequests
+                self.totalErrors = cached.totalErrors
+                self.totalSubrequests = cached.totalSubrequests
+                self.avgCpuP50 = cached.avgCpuP50
+                self.maxCpuP99 = cached.maxCpuP99
+                self.loadedDays = cached.loadedDays
+                self.hasFetchedData = true
+            }
         }
         
         // 2. [Revalidate] 执行网络请求（错误发生时不破坏已有数据）

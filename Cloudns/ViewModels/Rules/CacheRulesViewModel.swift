@@ -45,6 +45,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
+            ToastManager.shared.showSuccess("Cache Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert
@@ -52,7 +53,8 @@ class CacheRulesViewModel: BaseLoadableViewModel {
                 let updatedRule = WAFRule(id: rule.id, action: rule.action, expression: rule.expression, description: rule.description, enabled: rule.enabled, ratelimit: rule.ratelimit, action_parameters: rule.action_parameters)
                 rules[index] = updatedRule
             }
-            self.errorMessage = "Failed to update rule status: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -72,9 +74,11 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
+            ToastManager.shared.showSuccess("Rule Deleted", message: "")
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to delete cache rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -109,9 +113,11 @@ class CacheRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
+            ToastManager.shared.showSuccess("Cache Rule Created", message: description.isEmpty ? "Rule added" : description)
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to create cache rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

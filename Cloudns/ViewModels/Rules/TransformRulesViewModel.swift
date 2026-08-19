@@ -78,9 +78,11 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
+            ToastManager.shared.showSuccess("Rule Deleted", message: "")
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to delete transform rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -118,10 +120,12 @@ class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
+            ToastManager.shared.showSuccess("Transform Rule Created", message: description.isEmpty ? "URL Rewrite" : description)
             HapticManager.notification(.success)
             return true
         } catch {
-            self.errorMessage = "Failed to create rewrite rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -162,10 +166,12 @@ class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
+            ToastManager.shared.showSuccess("Header Rule Created", message: description.isEmpty ? headerName : description)
             HapticManager.notification(.success)
             return true
         } catch {
-            self.errorMessage = "Failed to create header rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }

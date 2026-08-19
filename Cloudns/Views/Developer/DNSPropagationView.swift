@@ -96,7 +96,7 @@ struct DNSPropagationView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 
-                                Text("\(result.propagationPercent)% Synchronized")
+                                (Text(verbatim: "\(result.propagationPercent)% ") + Text("Synchronized"))
                                     .font(.title3.weight(.bold))
                                     .foregroundStyle(result.propagationPercent >= 100 ? .green : (result.propagationPercent >= 50 ? .orange : .red))
                             }

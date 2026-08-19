@@ -51,85 +51,125 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
     }
     
     func updateSSLMode(zoneId: String, mode: String) async {
+        let previous = self.sslMode
+        self.sslMode = mode
         HapticManager.impact(.medium)
         do {
             try await certService.updateSSLMode(zoneId: zoneId, mode: mode)
-            self.sslMode = mode
+            ToastManager.shared.showSuccess("SSL/TLS Mode", message: "Updated to \(mode.capitalized)")
         } catch {
+            self.sslMode = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async {
+        let previous = self.alwaysUseHTTPS
+        self.alwaysUseHTTPS = isOn
         HapticManager.impact(.medium)
         do {
             try await certService.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: isOn)
-            self.alwaysUseHTTPS = isOn
+            ToastManager.shared.showSuccess("Always Use HTTPS", message: isOn ? "Enabled" : "Disabled")
         } catch {
+            self.alwaysUseHTTPS = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateAutomaticHTTPSRewrites(zoneId: String, isOn: Bool) async {
+        let previous = self.automaticHTTPSRewrites
+        self.automaticHTTPSRewrites = isOn
         HapticManager.impact(.medium)
         do {
             try await certService.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: isOn)
-            self.automaticHTTPSRewrites = isOn
+            ToastManager.shared.showSuccess("HTTPS Rewrites", message: isOn ? "Enabled" : "Disabled")
         } catch {
+            self.automaticHTTPSRewrites = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateMinTLSVersion(zoneId: String, version: String) async {
+        let previous = self.minTLSVersion
+        self.minTLSVersion = version
         HapticManager.impact(.medium)
         do {
             try await certService.updateMinTLSVersion(zoneId: zoneId, version: version)
-            self.minTLSVersion = version
+            ToastManager.shared.showSuccess("Minimum TLS", message: "Set to TLS \(version)")
         } catch {
+            self.minTLSVersion = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateTLS13(zoneId: String, isOn: Bool) async {
+        let previous = self.tls13
+        self.tls13 = isOn
         HapticManager.impact(.medium)
         do {
             try await certService.updateTLS13(zoneId: zoneId, isOn: isOn)
-            self.tls13 = isOn
+            ToastManager.shared.showSuccess("TLS 1.3", message: isOn ? "Enabled" : "Disabled")
         } catch {
+            self.tls13 = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateOpportunisticEncryption(zoneId: String, isOn: Bool) async {
+        let previous = self.opportunisticEncryption
+        self.opportunisticEncryption = isOn
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticEncryption(zoneId: zoneId, isOn: isOn)
-            self.opportunisticEncryption = isOn
+            ToastManager.shared.showSuccess("Opportunistic Encryption", message: isOn ? "Enabled" : "Disabled")
         } catch {
+            self.opportunisticEncryption = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateOpportunisticOnion(zoneId: String, isOn: Bool) async {
+        let previous = self.opportunisticOnion
+        self.opportunisticOnion = isOn
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticOnion(zoneId: zoneId, isOn: isOn)
-            self.opportunisticOnion = isOn
+            ToastManager.shared.showSuccess("Opportunistic Onion", message: isOn ? "Enabled" : "Disabled")
         } catch {
+            self.opportunisticOnion = previous
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
     func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async {
+        let prevEnabled = self.hstsEnabled
+        let prevMaxAge = self.hstsMaxAge
+        let prevSubdomains = self.hstsIncludeSubdomains
+        let prevNosniff = self.hstsNoSniff
+        
+        self.hstsEnabled = enabled
+        self.hstsMaxAge = maxAge
+        self.hstsIncludeSubdomains = subdomains
+        self.hstsNoSniff = nosniff
+        
         HapticManager.impact(.medium)
         do {
             try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff)
-            self.hstsEnabled = enabled
-            self.hstsMaxAge = maxAge
-            self.hstsIncludeSubdomains = subdomains
-            self.hstsNoSniff = nosniff
+            ToastManager.shared.showSuccess("HSTS Updated", message: enabled ? "HSTS is active." : "HSTS is disabled.")
         } catch {
+            self.hstsEnabled = prevEnabled
+            self.hstsMaxAge = prevMaxAge
+            self.hstsIncludeSubdomains = prevSubdomains
+            self.hstsNoSniff = prevNosniff
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("HSTS Update Failed", message: error.localizedDescription)
         }
     }
 }

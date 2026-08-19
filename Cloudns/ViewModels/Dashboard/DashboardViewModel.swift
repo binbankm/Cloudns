@@ -96,14 +96,16 @@ final class DashboardViewModel: BaseLoadableViewModel {
         
         // 1. [Stale] 0ms 尝试从缓存预加载
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DashboardSnapshot.self) {
-            self.zones = cached.zones
-            self.workers = cached.workers
-            self.pages = cached.pages
-            self.tunnels = cached.tunnels
-            self.kvCount = cached.kvCount
-            self.r2Count = cached.r2Count
-            self.d1Count = cached.d1Count
-            self.hasFetchedData = true
+            await MainActor.run {
+                self.zones = cached.zones
+                self.workers = cached.workers
+                self.pages = cached.pages
+                self.tunnels = cached.tunnels
+                self.kvCount = cached.kvCount
+                self.r2Count = cached.r2Count
+                self.d1Count = cached.d1Count
+                self.hasFetchedData = true
+            }
         }
         
         // 2. [Revalidate / Refresh] 统一执行前台/下拉拉取
@@ -180,4 +182,3 @@ final class DashboardViewModel: BaseLoadableViewModel {
         WidgetDataStore.shared.saveZoneSnapshot(snap)
     }
 }
-

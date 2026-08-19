@@ -95,9 +95,9 @@ struct ContentView: View {
         }
         .animation(.default, value: isLoggedIn)
         .animation(.default, value: hasSeenOnboarding)
+        .environment(\.locale, currentLocale)
         .toastContainer()
         .preferredColorScheme(themePreference == "light" ? .light : (themePreference == "dark" ? .dark : nil))
-        .environment(\.locale, currentLocale)
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared

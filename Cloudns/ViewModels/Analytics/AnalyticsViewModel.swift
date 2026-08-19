@@ -66,10 +66,12 @@ class AnalyticsViewModel: BaseLoadableViewModel {
         
         // 1. [Stale] 0ms 尝试从缓存恢复
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneAnalyticsSnapshot.self) {
-            self.dataPoints = cached.dataPoints
-            self.mapDataPoints = cached.mapDataPoints
-            self.loadedDays = cached.loadedDays
-            self.hasFetchedData = true
+            await MainActor.run {
+                self.dataPoints = cached.dataPoints
+                self.mapDataPoints = cached.mapDataPoints
+                self.loadedDays = cached.loadedDays
+                self.hasFetchedData = true
+            }
         }
         
         // 2. [Revalidate] 执行网络请求

@@ -7,17 +7,20 @@ struct DeveloperHubRowView: View {
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
+    let badge: CloudnsBadgeType?
     
     init(
         icon: String,
         iconColor: Color,
         title: LocalizedStringKey,
-        subtitle: LocalizedStringKey
+        subtitle: LocalizedStringKey,
+        badge: CloudnsBadgeType? = nil
     ) {
         self.icon = icon
         self.iconColor = iconColor
         self.title = title
         self.subtitle = subtitle
+        self.badge = badge
     }
     
     var body: some View {
@@ -31,9 +34,15 @@ struct DeveloperHubRowView: View {
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                    
+                    if let badge = badge {
+                        CloudnsBadge(badge, isCompact: true)
+                    }
+                }
                 
                 Text(subtitle)
                     .font(.caption)

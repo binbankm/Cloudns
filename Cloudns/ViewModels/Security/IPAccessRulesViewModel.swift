@@ -44,11 +44,13 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
             
             // Insert at the top
             self.rules.insert(newRule, at: 0)
+            ToastManager.shared.showSuccess("IP Rule Added", message: "\(value) (\(mode.uppercased()))")
             HapticManager.notification(.success)
             isCreating = false
             return true
         } catch {
-            self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Failed to Add IP Rule", message: error.localizedDescription)
             HapticManager.notification(.error)
             isCreating = false
             return false
@@ -59,9 +61,11 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
         do {
             try await securityService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             self.rules.removeAll { $0.id == ruleId }
+            ToastManager.shared.showSuccess("IP Rule Deleted", message: "")
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

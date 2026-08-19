@@ -30,20 +30,28 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         clearError: Bool = true,
         action: () async throws -> Void
     ) async {
-        isLoading = true
-        if clearError {
-            errorMessage = nil
+        await MainActor.run {
+            isLoading = true
+            if clearError {
+                errorMessage = nil
+            }
         }
         
         do {
             try await action()
-            self.lastFetchTime = Date()
+            await MainActor.run {
+                self.lastFetchTime = Date()
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+            }
         }
         
-        hasFetchedData = true
-        isLoading = false
+        await MainActor.run {
+            hasFetchedData = true
+            isLoading = false
+        }
     }
     
     /// 重置加载状态与时间戳
@@ -61,35 +69,45 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     public func executeSWR<T: Codable & Sendable>(
         cacheKey: String,
         targetType: T.Type,
-        onCached: @MainActor (T) -> Void,
-        fetcher: @Sendable () async throws -> T,
-        onFresh: @MainActor (T) -> Void
+        onCached: @MainActor @Sendable @escaping (T) -> Void,
+        fetcher: @Sendable @escaping () async throws -> T,
+        onFresh: @MainActor @Sendable @escaping (T) -> Void
     ) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
         // 1. [Stale] 0ms 从缓存恢复
         if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: targetType) {
-            onCached(cached)
-            self.hasFetchedData = true
+            await MainActor.run {
+                onCached(cached)
+                self.hasFetchedData = true
+            }
         } else if !self.hasFetchedData {
-            self.isLoading = true
+            await MainActor.run {
+                self.isLoading = true
+            }
         }
         
         // 2. [Revalidate] 后台静默拉取
         do {
             let fresh = try await fetcher()
             // 3. [Update] 更新数据并落盘
-            onFresh(fresh)
-            self.hasFetchedData = true
-            self.lastFetchTime = Date()
-            self.errorMessage = nil
+            await MainActor.run {
+                onFresh(fresh)
+                self.hasFetchedData = true
+                self.lastFetchTime = Date()
+                self.errorMessage = nil
+            }
             await SWRCacheStore.shared.set(fresh, forKey: scopedKey)
         } catch {
-            if !self.hasFetchedData {
-                self.errorMessage = error.localizedDescription
+            await MainActor.run {
+                if !self.hasFetchedData {
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
-        self.isLoading = false
+        await MainActor.run {
+            self.isLoading = false
+        }
     }
 }
 

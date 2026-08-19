@@ -46,13 +46,15 @@ class WAFViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
+            ToastManager.shared.showSuccess("WAF Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
                 rules[index] = rule
             }
-            self.errorMessage = "Failed to update WAF rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -68,9 +70,11 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
+            ToastManager.shared.showSuccess("Rule Deleted", message: "")
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to delete rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -101,9 +105,11 @@ class WAFViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
+            ToastManager.shared.showSuccess("WAF Rule Created", message: description.isEmpty ? action.uppercased() : description)
             HapticManager.notification(.success)
         } catch {
-            self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

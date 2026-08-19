@@ -5,7 +5,8 @@ struct EmailRoutingView: View {
     let zoneName: String
     
     @StateObject private var viewModel: EmailRoutingViewModel
-    @State private var showingAddSheet = false
+    @State private var showingAddRuleSheet = false
+    @State private var showingAddDestinationSheet = false
     @State private var searchText = ""
     
     init(zoneId: String, zoneName: String = "") {
@@ -25,31 +26,71 @@ struct EmailRoutingView: View {
     
     var body: some View {
         List {
-            Section(header: Text("Status")) {
-                HStack {
-                    Text("Email Routing")
-                        .font(.body.weight(.medium))
-                    Spacer()
-                    if let settings = viewModel.settings {
-                        CloudnsBadge(settings.isEnabled ? .active("Enabled") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
-                    } else {
-                        CloudnsBadge(.custom(color: .secondary, text: "Unknown"), isCompact: true)
+            // MARK: - Master Toggle
+            Section(
+                header: Text("Status"),
+                footer: Text("When enabled, Cloudflare receives incoming emails for your domain and forwards them according to your routing rules.")
+            ) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.settings?.isEnabled ?? false },
+                    set: { enabled in
+                        Task { await viewModel.toggleEnabled(enabled) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "envelope.badge.fill")
+                            .foregroundStyle(.orange)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Email Routing")
+                                .font(.body.weight(.medium))
+                            if let status = viewModel.settings?.status {
+                                Text("Status: \(status.capitalized)")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
             }
             
+            // MARK: - Catch-all Rule
+            Section(
+                header: Text("Catch-All Rule"),
+                footer: Text("Action for emails sent to addresses on this domain that do not match any explicit routing rule.")
+            ) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.catchAllRule?.isEnabled ?? false },
+                    set: { enabled in
+                        Task { await viewModel.toggleCatchAll(enabled: enabled) }
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Catch-all Email")
+                            .font(.body)
+                        Text(viewModel.catchAllRule?.actionSummary ?? "Drop all unmatched emails")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Routing Rules
             Section(
                 header: HStack {
-                    Text("Routing Rules")
+                    Text("Custom Routing Rules")
                     Spacer()
-                    Button(action: {
-                        showingAddSheet = true
-                    }) {
+                    Button {
+                        showingAddRuleSheet = true
+                    } label: {
                         Image(systemName: "plus")
                             .font(.caption.bold())
                     }
                     .accessibilityLabel("Add Email Rule")
-                }
+                },
+                footer: Text(viewModel.verifiedDestinations.isEmpty ? "To create forwarding rules, you must first add and verify at least one destination address below." : "Forward custom domain addresses to your verified email inboxes.")
             ) {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
                     ForEach(EmailRoutingRule.placeholders) { placeholderRule in
@@ -58,7 +99,7 @@ struct EmailRoutingView: View {
                             .shimmering()
                     }
                 } else if displayedRules.isEmpty {
-                    Text(searchText.isEmpty ? "No routing rules configured." : "No matching email rules found.")
+                    Text(searchText.isEmpty ? "No custom routing rules configured." : "No matching email rules found.")
                         .foregroundStyle(.secondary)
                         .padding(.vertical, 4)
                 } else {
@@ -78,24 +119,74 @@ struct EmailRoutingView: View {
                 }
             }
             
-            Section(header: Text("Destination Addresses")) {
+            // MARK: - Destination Addresses
+            Section(
+                header: HStack {
+                    Text("Destination Addresses (\(viewModel.destinations.count))")
+                    Spacer()
+                    Button {
+                        showingAddDestinationSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.caption.bold())
+                    }
+                    .accessibilityLabel("Add Destination Address")
+                },
+                footer: Text("Cloudflare sends a verification link to newly added destination inboxes before emails can be routed to them.")
+            ) {
                 if viewModel.destinations.isEmpty {
-                    Text("No destination addresses configured.")
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 4)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("No destination addresses configured.")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                        Button {
+                            showingAddDestinationSheet = true
+                        } label: {
+                            Label("Add Destination Address", systemImage: "plus.circle.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                    .padding(.vertical, 4)
                 } else {
                     ForEach(viewModel.destinations) { dest in
                         HStack {
-                            Text(dest.email)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(dest.email)
+                                    .font(.body)
+                                if let created = dest.created {
+                                    Text("Added: \(created.prefix(10))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                             Spacer()
                             if dest.isVerified {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .foregroundStyle(.green)
-                                    .accessibilityHidden(true)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundStyle(.green)
+                                    Text("Verified")
+                                        .font(.caption2)
+                                        .foregroundStyle(.green)
+                                }
                             } else {
-                                Text("Unverified")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "clock.badge.exclamationmark")
+                                        .foregroundStyle(.orange)
+                                    Text("Pending")
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                Task {
+                                    await viewModel.deleteDestination(addressId: dest.id)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
@@ -119,8 +210,11 @@ struct EmailRoutingView: View {
         }
         .navigationTitle("Email Routing")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingAddSheet) {
+        .sheet(isPresented: $showingAddRuleSheet) {
             AddEmailRuleView(viewModel: viewModel, zoneName: zoneName)
+        }
+        .sheet(isPresented: $showingAddDestinationSheet) {
+            AddDestinationAddressSheetView(viewModel: viewModel)
         }
         .task {
             if !viewModel.hasFetchedData {

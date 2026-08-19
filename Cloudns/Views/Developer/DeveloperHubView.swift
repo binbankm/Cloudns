@@ -72,7 +72,8 @@ struct DeveloperHubView: View {
                             icon: "tray.2.fill",
                             iconColor: .purple,
                             title: "Queues",
-                            subtitle: "Asynchronous message queue delivery"
+                            subtitle: "Asynchronous message queue delivery",
+                            badge: .custom(color: .purple, text: "PAID")
                         )
                     }
                     .disabled(!isAccountReady)

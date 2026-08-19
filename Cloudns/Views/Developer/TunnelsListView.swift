@@ -85,5 +85,10 @@ struct TunnelsListView: View {
                 await viewModel.fetchTunnels()
             }
         }
+        .onAppear {
+            if viewModel.hasFetchedData {
+                Task { await viewModel.fetchTunnels() }
+            }
+        }
     }
 }

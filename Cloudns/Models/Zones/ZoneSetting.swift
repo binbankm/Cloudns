@@ -108,10 +108,25 @@ enum SettingValue: Codable, Equatable {
 }
 
 struct ZoneSetting: Codable, Identifiable {
-    let id: String
+    var id: String { rawId ?? UUID().uuidString }
+    let rawId: String?
     let value: SettingValue
     let editable: Bool?
     let modified_on: String?
+    
+    init(id: String? = nil, value: SettingValue, editable: Bool? = nil, modified_on: String? = nil) {
+        self.rawId = id
+        self.value = value
+        self.editable = editable
+        self.modified_on = modified_on
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case rawId = "id"
+        case value
+        case editable
+        case modified_on
+    }
 }
 
 struct ZoneSettingsResponse: Codable {
@@ -124,4 +139,31 @@ struct ZoneSettingUpdateResponse: Codable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: ZoneSetting?
+}
+
+// MARK: - Bot Management Config
+
+public struct BotManagementConfig: Codable, Sendable {
+    public let fight_mode: Bool?
+    public let optimize_wordpress: Bool?
+    public let sbfm_definitely_automated: String?
+    public let sbfm_likely_automated: String?
+    public let sbfm_verified_bots: String?
+    public let sbfm_static_resource_protection: Bool?
+    
+    public init(
+        fight_mode: Bool? = nil,
+        optimize_wordpress: Bool? = nil,
+        sbfm_definitely_automated: String? = nil,
+        sbfm_likely_automated: String? = nil,
+        sbfm_verified_bots: String? = nil,
+        sbfm_static_resource_protection: Bool? = nil
+    ) {
+        self.fight_mode = fight_mode
+        self.optimize_wordpress = optimize_wordpress
+        self.sbfm_definitely_automated = sbfm_definitely_automated
+        self.sbfm_likely_automated = sbfm_likely_automated
+        self.sbfm_verified_bots = sbfm_verified_bots
+        self.sbfm_static_resource_protection = sbfm_static_resource_protection
+    }
 }

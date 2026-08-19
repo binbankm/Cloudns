@@ -377,7 +377,7 @@ public struct WorkerAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? "100% Operational" : "\(viewModel.totalErrors) Exceptions Detected")
+                Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Exceptions Detected")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }
