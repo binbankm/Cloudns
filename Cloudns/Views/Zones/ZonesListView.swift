@@ -122,6 +122,11 @@ struct ZonesListView: View {
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
         .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+            viewModel.resetState()
+            Task { await viewModel.fetchZones(isRefresh: true) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+            viewModel.resetState()
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
         .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in

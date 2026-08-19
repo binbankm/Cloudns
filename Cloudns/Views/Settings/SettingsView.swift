@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var showingLogoutAlert = false
     @State private var showingClearCacheAlert = false
     @StateObject private var accountManager = AccountManager.shared
+    @StateObject private var cacheManager = CacheManager.shared
     
     var body: some View {
         NavigationStack {
@@ -176,10 +177,18 @@ struct SettingsView: View {
                         HStack {
                             SettingsRowView(
                                 icon: "trash.fill",
-                                color: .red,
+                                color: .orange,
                                 title: "Clear Local Cache"
                             )
                             Spacer()
+                            if cacheManager.isCalculating {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            } else {
+                                Text(cacheManager.formattedCacheSize)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .foregroundStyle(.primary)
@@ -245,15 +254,17 @@ struct SettingsView: View {
             .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await cacheManager.calculateCacheSize()
+            }
             .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) {
-                    URLCache.shared.removeAllCachedResponses()
                     Task {
-                        await SWRCacheStore.shared.clearAll()
+                        await cacheManager.clearAllCaches()
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showSuccess("Cache Cleared", message: "All local caches and temporary storage purged")
                     }
-                    HapticManager.notification(.success)
-                    ToastManager.shared.showSuccess("Cache Cleared", message: "Local and SWR network cache purged")
                 }
             } message: {
                 Text("Are you sure you want to clear cached network responses and temporary storage?")

@@ -109,6 +109,9 @@ struct D1ConsoleView: View {
                 TextEditor(text: $viewModel.sqlInput)
                     .font(.body.monospacedDigit())
                     .frame(minHeight: 80)
+                    .keyboardType(.asciiCapable)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
                     .focused($isEditorFocused)
                 
                 Button {

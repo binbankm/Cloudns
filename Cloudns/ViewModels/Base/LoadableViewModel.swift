@@ -46,6 +46,14 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         isLoading = false
     }
     
+    /// 重置加载状态与时间戳
+    public func resetLoadingState() {
+        self.isLoading = false
+        self.hasFetchedData = false
+        self.errorMessage = nil
+        self.lastFetchTime = nil
+    }
+    
     /// 统一 SWR（Stale-While-Revalidate）异步任务执行包装器：
     /// 1. [Stale] 0ms 瞬间尝试从缓存取出旧数据回调渲染，标记 hasFetchedData = true 消除骨架屏
     /// 2. [Revalidate] 后台静默并发向网络获取最新数据

@@ -23,8 +23,26 @@ class AccountManager: ObservableObject {
     private let serviceName = "com.cloudflare.api"
     
     private init() {
+        handleFirstLaunchAfterInstallIfNeeded()
         migrateLegacyAccountIfNeeded()
         loadAccounts()
+    }
+    
+    private func handleFirstLaunchAfterInstallIfNeeded() {
+        let hasRunKey = AppStorageKey.hasRunBeforeAppInstallation
+        if !UserDefaults.standard.bool(forKey: hasRunKey) {
+            // App was newly installed or re-installed after being deleted
+            // Wipe stale residual keychain records from past installs
+            KeychainHelper.standard.deleteAll(service: serviceName)
+            KeychainHelper.standard.delete(service: serviceName, account: "email")
+            KeychainHelper.standard.delete(service: serviceName, account: "apiKey")
+            
+            self.activeEmail = ""
+            self.isLoggedIn = false
+            self.accountEmails = []
+            
+            UserDefaults.standard.set(true, forKey: hasRunKey)
+        }
     }
     
     func loadAccounts() {

@@ -6,6 +6,7 @@ protocol KeychainHelperProtocol: Sendable {
     func read(service: String, account: String) -> Data?
     func readAll(service: String) -> [String: String]
     func delete(service: String, account: String)
+    func deleteAll(service: String)
     func saveString(_ string: String, service: String, account: String)
     func readString(service: String, account: String) -> String?
 }
@@ -88,6 +89,15 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
         let query = [
             kSecAttrService: service,
             kSecAttrAccount: account,
+            kSecClass: kSecClassGenericPassword
+        ] as CFDictionary
+        
+        SecItemDelete(query)
+    }
+    
+    func deleteAll(service: String) {
+        let query = [
+            kSecAttrService: service,
             kSecClass: kSecClassGenericPassword
         ] as CFDictionary
         

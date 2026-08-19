@@ -22,10 +22,12 @@ struct DeveloperHubView: View {
             }
             .navigationTitle("Developer Hub")
             .navigationBarTitleDisplayMode(.inline)
-            .refreshable {
-                await viewModel.fetchOverview(isRefresh: true)
-            }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                viewModel.resetState()
+                Task { await viewModel.fetchOverview(isRefresh: true) }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+                viewModel.resetState()
                 Task { await viewModel.fetchOverview(isRefresh: true) }
             }
             .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in
@@ -34,9 +36,7 @@ struct DeveloperHubView: View {
                 }
             }
             .task {
-                if !viewModel.hasFetchedData || viewModel.isStale {
-                    await viewModel.fetchOverview(isRefresh: false)
-                }
+                await viewModel.fetchOverview(isRefresh: false)
             }
         }
     }
@@ -253,6 +253,10 @@ struct DeveloperHubView: View {
             }
             .listStyle(.insetGrouped)
             .centerConstrainedWidth(maxWidth: 840)
+            .refreshable {
+                HapticManager.impact(.light)
+                await viewModel.fetchOverview(isRefresh: true)
+            }
         }
     
     // MARK: - Account Header Card

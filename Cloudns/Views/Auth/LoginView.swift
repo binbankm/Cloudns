@@ -13,23 +13,26 @@ struct LoginView: View {
     var onLoginSuccess: (() -> Void)?
     
     var body: some View {
-        ScrollView {
+        ZStack {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+            
             VStack(spacing: 0) {
-                Spacer().frame(height: 40)
+                Spacer(minLength: 12)
                 
-                // Logo and Title Area
-                VStack(spacing: 16) {
+                // 1. Logo and Title Area
+                VStack(spacing: 12) {
                     Image(systemName: "cloud.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 60, height: 60)
+                        .frame(width: 56, height: 56)
                         .foregroundStyle(.orange)
                         .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
                         .accessibilityHidden(true)
                     
-                    VStack(spacing: 8) {
+                    VStack(spacing: 6) {
                         Text(onLoginSuccess == nil ? "Welcome Back" : "Add Account")
-                            .font(.title)
+                            .font(.title2.weight(.bold))
                             .foregroundStyle(.primary)
                         
                         Text(onLoginSuccess == nil ? "Manage your domains with ease." : "Enter your Cloudflare credentials.")
@@ -37,12 +40,12 @@ struct LoginView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, 24)
                 
-                // Input Fields
-                VStack(spacing: 24) {
+                // 2. Input Fields
+                VStack(spacing: 18) {
                     // Email Field
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Email")
                             .font(.footnote)
                             .fontWeight(.medium)
@@ -64,7 +67,8 @@ struct LoginView: View {
                                     focusedField = .apiKey
                                 }
                         }
-                        .padding()
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -74,7 +78,7 @@ struct LoginView: View {
                     }
                     
                     // API Key Field
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Global API Key")
                             .font(.footnote)
                             .fontWeight(.medium)
@@ -99,7 +103,8 @@ struct LoginView: View {
                                     }
                                 }
                         }
-                        .padding()
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -109,101 +114,113 @@ struct LoginView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-            
-            // Error Message
-            if let errorMessage = viewModel.errorMessage {
-                Text(LocalizedStringKey(errorMessage))
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 16)
-                    .padding(.horizontal, 24)
-                    .onAppear {
-                        HapticManager.notification(.error)
-                    }
-            }
-            
-            // Login Button
-            let isFormValid = !viewModel.email.isEmpty && !viewModel.apiKey.isEmpty
-            let isButtonDisabled = viewModel.isLoading || !isFormValid
-            
-            Button(action: {
-                focusedField = nil // Dismiss keyboard
-                HapticManager.impact(.medium)
-                Task {
-                    await viewModel.login(onSuccess: onLoginSuccess)
-                }
-            }) {
-                Group {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    } else {
-                        Text("Log In")
-                            .font(.body.weight(.semibold))
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .padding(.top, 32)
-            .padding(.horizontal, 24)
-            .disabled(isButtonDisabled)
-            
-            Spacer().frame(height: 40)
-            
-            // Footer
-            VStack(spacing: 16) {
-                Button(action: {
-                    if let url = URL(string: "https://dash.cloudflare.com/profile/api-tokens") {
-                        UIApplication.shared.open(url)
-                    }
-                }) {
-                    Text("Forgot your API key?")
+                
+                // Error Message
+                if let errorMessage = viewModel.errorMessage {
+                    Text(LocalizedStringKey(errorMessage))
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 12)
+                        .padding(.horizontal, 24)
+                        .onAppear {
+                            HapticManager.notification(.error)
+                        }
                 }
                 
-                HStack {
-                    VStack { Divider() }
-                    Text("or")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 8)
-                    VStack { Divider() }
-                }
-                .padding(.horizontal, 60)
+                // 3. Login Button
+                let isFormValid = !viewModel.email.isEmpty && !viewModel.apiKey.isEmpty
+                let isButtonDisabled = viewModel.isLoading || !isFormValid
                 
                 Button(action: {
-                    if let url = URL(string: "https://dash.cloudflare.com/sign-up") {
-                        UIApplication.shared.open(url)
+                    focusedField = nil
+                    HapticManager.impact(.medium)
+                    Task {
+                        await viewModel.login(onSuccess: onLoginSuccess)
                     }
                 }) {
-                    HStack(spacing: 4) {
-                        Text("Don't have an account?")
+                    Group {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Log In")
+                                .font(.body.weight(.semibold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.top, 24)
+                .padding(.horizontal, 24)
+                .disabled(isButtonDisabled)
+                
+                Spacer(minLength: 16)
+                
+                // 4. Footer
+                VStack(spacing: 12) {
+                    Button(action: {
+                        if let url = URL(string: "https://dash.cloudflare.com/profile/api-tokens") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        Text("Forgot your API key?")
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
-                        Text("Sign Up")
-                            .foregroundStyle(.orange)
-                            .fontWeight(.medium)
                     }
-                    .font(.footnote)
+                    
+                    HStack {
+                        VStack { Divider() }
+                        Text("or")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                        VStack { Divider() }
+                    }
+                    .padding(.horizontal, 60)
+                    
+                    Button(action: {
+                        if let url = URL(string: "https://dash.cloudflare.com/sign-up") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack(spacing: 4) {
+                            Text("Don't have an account?")
+                                .foregroundStyle(.secondary)
+                            Text("Sign Up")
+                                .foregroundStyle(.orange)
+                                .fontWeight(.medium)
+                        }
+                        .font(.footnote)
+                    }
                 }
+                .padding(.bottom, 16)
             }
-            
-                Spacer()
+            .centerConstrainedWidth(maxWidth: 500)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 15, coordinateSpace: .local)
+                    .onChanged { value in
+                        if value.translation.height > 15 {
+                            focusedField = nil
+                        }
+                    }
+            )
+            .onTapGesture {
+                focusedField = nil
             }
-            .scrollDismissesKeyboard(.interactively)
         }
-        .background(
-            Color(.systemBackground)
-                .ignoresSafeArea()
-                .onTapGesture {
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
                     focusedField = nil
                 }
-        )
+            }
+        }
     }
 }
 

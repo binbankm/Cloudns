@@ -54,6 +54,16 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
         tunnels.filter { $0.isHealthy }.count
     }
     
+    func resetState() {
+        self.workers = []
+        self.pagesProjects = []
+        self.r2Buckets = []
+        self.kvNamespaces = []
+        self.d1Databases = []
+        self.tunnels = []
+        self.resetLoadingState()
+    }
+    
     func fetchOverview(isRefresh: Bool = false) async {
         if !isRefresh && hasFetchedData && !isStale { return }
         
@@ -76,6 +86,9 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
                 self.accounts = fetchedAccounts
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
                 self.selectedAccount = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
+            } else if let fetchedZones = try? await zoneService.getZones().0, let zoneAccount = fetchedZones.first?.account {
+                // Fallback: 如果 getAccounts() 无权限（如单域名 Token），从 Zones 自动提取关联的 Account
+                self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
             }
         }
         

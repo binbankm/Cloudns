@@ -25,6 +25,14 @@ class ZonesViewModel: BaseLoadableViewModel {
         }
     }
     
+    func resetState() {
+        self.zones = []
+        self.totalCount = 0
+        self.canLoadMore = false
+        self.currentPage = 1
+        self.resetLoadingState()
+    }
+    
     func fetchZones(isRefresh: Bool = false) async {
         if !isRefresh && hasFetchedData && !isStale {
             return

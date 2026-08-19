@@ -14,6 +14,7 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var selectedTab = 0
+    @State private var tabViewResetId = UUID()
     @StateObject private var authManager = AppAuthManager.shared
     @Environment(\.scenePhase) private var scenePhase
     
@@ -53,6 +54,13 @@ struct ContentView: View {
                             Label("Settings", systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
                         }
                         .tag(3)
+                }
+                .id(tabViewResetId)
+                .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+                    tabViewResetId = UUID()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                    tabViewResetId = UUID()
                 }
                 .cloudnsSensorySelection(trigger: selectedTab)
                 .overlay {

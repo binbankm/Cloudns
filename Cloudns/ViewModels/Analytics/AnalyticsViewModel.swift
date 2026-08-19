@@ -21,6 +21,12 @@ class AnalyticsViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    func resetState() {
+        self.dataPoints = []
+        self.mapDataPoints = []
+        self.resetLoadingState()
+    }
+    
     // Aggregated Metrics
     var totalRequests: Int {
         dataPoints.reduce(0) { $0 + $1.sum.requests }

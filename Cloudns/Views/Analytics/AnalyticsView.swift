@@ -98,6 +98,10 @@ public struct AnalyticsView: View {
         .refreshable {
             await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+            viewModel.resetState()
+            Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true) }
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange)

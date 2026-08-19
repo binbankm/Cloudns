@@ -33,6 +33,10 @@ struct DashboardView: View {
                     .padding(.bottom, 32)
                     .centerConstrainedWidth(maxWidth: 840)
                 }
+                .refreshable {
+                    HapticManager.impact(.light)
+                    await viewModel.fetchDashboard(isRefresh: true)
+                }
             }
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
@@ -60,10 +64,12 @@ struct DashboardView: View {
             .sheet(isPresented: $showingAccountSheet) {
                 AccountsView()
             }
-            .refreshable {
-                await viewModel.fetchDashboard(isRefresh: true)
-            }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                viewModel.resetState()
+                Task { await viewModel.fetchDashboard(isRefresh: true) }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+                viewModel.resetState()
                 Task { await viewModel.fetchDashboard(isRefresh: true) }
             }
             .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in
@@ -72,9 +78,7 @@ struct DashboardView: View {
                 }
             }
             .task {
-                if !viewModel.hasFetchedData || viewModel.isStale {
-                    await viewModel.fetchDashboard()
-                }
+                await viewModel.fetchDashboard(isRefresh: false)
             }
         }
     }

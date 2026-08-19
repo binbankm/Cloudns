@@ -74,6 +74,17 @@ final class DashboardViewModel: BaseLoadableViewModel {
         }
     }
     
+    func resetState() {
+        self.zones = []
+        self.workers = []
+        self.pages = []
+        self.tunnels = []
+        self.kvCount = 0
+        self.r2Count = 0
+        self.d1Count = 0
+        self.resetLoadingState()
+    }
+    
     func fetchDashboard(isRefresh: Bool = false) async {
         if !isRefresh && hasFetchedData && !isStale { return }
         
@@ -92,7 +103,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         }
         
         // 2. [Revalidate / Refresh] 统一执行前台/下拉拉取
-        await executeLoadingTask(clearError: false) {
+        await executeLoadingTask(clearError: isRefresh) {
             // A. 获取账户列表
             let fetchedAccounts = (try? await self.zoneService.getAccounts()) ?? []
             if !fetchedAccounts.isEmpty {
@@ -105,6 +116,10 @@ final class DashboardViewModel: BaseLoadableViewModel {
             // B. 获取域名列表
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
+                // Fallback: 如果 getAccounts() 无返回（如普通 Zone 权限 Token），从 Zones 列表自动提取关联的 Account
+                if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
+                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
+                }
             }
             
             // C. 获取开发者全套资源
@@ -126,7 +141,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 if let d { self.d1Count = d.count }
             }
             
-            // D. 持久化最新非空快照，杜绝缓存毒化
+            // D. 持久化最新非空快照
             if !self.zones.isEmpty || !self.workers.isEmpty || !self.pages.isEmpty || self.selectedAccount != nil {
                 let snapshot = DashboardSnapshot(
                     zones: self.zones,
