@@ -24,29 +24,21 @@ struct WorkerBindingsView: View {
     }
     
     var body: some View {
-        List {
-            // Segmented Switcher
-            Section {
-                Picker("Category", selection: $selectedTab) {
-                    Text("Resources (\(resourceBindings.count))").tag("resources")
-                    Text("Variables (\(secretsViewModel.plainVariables.count))").tag("variables")
-                    Text("Secrets (\(secretsViewModel.secrets.count))").tag("secrets")
-                }
-                .pickerStyle(.segmented)
+        VStack(spacing: 0) {
+            Picker("Category", selection: $selectedTab) {
+                Text("Resources (\(resourceBindings.count))").tag("resources")
+                Text("Variables (\(secretsViewModel.plainVariables.count))").tag("variables")
+                Text("Secrets (\(secretsViewModel.secrets.count))").tag("secrets")
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
             
-            if selectedTab == "resources" {
-                resourcesSection
-            } else if selectedTab == "variables" {
-                variablesSection
-            } else {
-                secretsSection
-            }
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Bindings & Variables")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -94,6 +86,20 @@ struct WorkerBindingsView: View {
                 await secretsViewModel.fetchSecrets()
             }
         }
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
+            if selectedTab == "resources" {
+                resourcesSection
+            } else if selectedTab == "variables" {
+                variablesSection
+            } else {
+                secretsSection
+            }
+        }
+        .listStyle(.insetGrouped)
     }
     
     // MARK: - 1. Resources Section (KV, R2, D1, Queues, Services, etc.)
@@ -144,7 +150,7 @@ struct WorkerBindingsView: View {
     @ViewBuilder
     private var variablesSection: some View {
         Section(
-            header: Text("Plaintext Variables (\(secretsViewModel.plainVariables.count))"),
+            header: Text(secretsViewModel.hasFetchedData ? "Plaintext Variables (\(secretsViewModel.plainVariables.count))" : "Plaintext Variables"),
             footer: Text("Plaintext environment variables are readable in worker script code.")
         ) {
             if !secretsViewModel.hasFetchedData {
@@ -224,7 +230,7 @@ struct WorkerBindingsView: View {
     @ViewBuilder
     private var secretsSection: some View {
         Section(
-            header: Text("Encrypted Secrets (\(secretsViewModel.secrets.count))"),
+            header: Text(secretsViewModel.hasFetchedData ? "Encrypted Secrets (\(secretsViewModel.secrets.count))" : "Encrypted Secrets"),
             footer: Text("Secrets are encrypted at rest and masked in responses.")
         ) {
             if !secretsViewModel.hasFetchedData {

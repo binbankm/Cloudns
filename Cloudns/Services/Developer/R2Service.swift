@@ -41,11 +41,36 @@ final class R2Service: R2ServiceProtocol {
     
     func listR2Buckets(accountId: String) async throws -> [R2Bucket] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets")
-        struct R2BucketsResponse: Codable {
+        let rawData = try await client.performDataRequest(request)
+        
+        // 1. { "result": { "buckets": [...] }, "success": true }
+        struct ResWithBuckets: Codable {
+            let result: BucketsContainer?
+            struct BucketsContainer: Codable {
+                let buckets: [R2Bucket]?
+            }
+        }
+        if let decoded = try? JSONDecoder().decode(ResWithBuckets.self, from: rawData), let buckets = decoded.result?.buckets {
+            return buckets
+        }
+        
+        // 2. { "result": [R2Bucket], "success": true }
+        struct ResWithArray: Codable {
+            let result: [R2Bucket]?
+        }
+        if let decoded = try? JSONDecoder().decode(ResWithArray.self, from: rawData), let buckets = decoded.result {
+            return buckets
+        }
+        
+        // 3. { "buckets": [R2Bucket] }
+        struct DirectBuckets: Codable {
             let buckets: [R2Bucket]?
         }
-        let (res, _): (R2BucketsResponse?, ResultInfo?) = try await client.performRequest(request)
-        return res?.buckets ?? []
+        if let decoded = try? JSONDecoder().decode(DirectBuckets.self, from: rawData), let buckets = decoded.buckets {
+            return buckets
+        }
+        
+        return []
     }
     
     func createR2Bucket(accountId: String, name: String, locationHint: String? = nil) async throws -> R2Bucket {
@@ -78,13 +103,45 @@ final class R2Service: R2ServiceProtocol {
             queryItems.append(URLQueryItem(name: "cursor", value: c))
         }
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects", queryItems: queryItems)
-        struct R2ObjectsListRes: Codable {
+        let rawData = try await client.performDataRequest(request)
+        
+        // Strategy 1: { "result": { "objects": [...], "cursor": "...", "truncated": false } }
+        struct R2WrappedResult: Codable {
+            let result: R2ObjectsListRes?
+            struct R2ObjectsListRes: Codable {
+                let objects: [R2Object]?
+                let cursor: String?
+                let truncated: Bool?
+            }
+        }
+        if let wrapped = try? JSONDecoder().decode(R2WrappedResult.self, from: rawData), let res = wrapped.result {
+            return (res.objects ?? [], res.cursor, res.truncated ?? false)
+        }
+        
+        // Strategy 2: { "result": [R2Object], "success": true }
+        struct R2ArrayResult: Codable {
+            let result: [R2Object]?
+        }
+        if let arrayWrapped = try? JSONDecoder().decode(R2ArrayResult.self, from: rawData), let objects = arrayWrapped.result {
+            return (objects, nil, false)
+        }
+        
+        // Strategy 3: { "objects": [R2Object], "cursor": "...", "truncated": false }
+        struct R2DirectObjects: Codable {
             let objects: [R2Object]?
             let cursor: String?
             let truncated: Bool?
         }
-        let (res, _): (R2ObjectsListRes?, ResultInfo?) = try await client.performRequest(request)
-        return (res?.objects ?? [], res?.cursor, res?.truncated ?? false)
+        if let direct = try? JSONDecoder().decode(R2DirectObjects.self, from: rawData) {
+            return (direct.objects ?? [], direct.cursor, direct.truncated ?? false)
+        }
+        
+        // Strategy 4: Direct array [R2Object]
+        if let directList = try? JSONDecoder().decode([R2Object].self, from: rawData) {
+            return (directList, nil, false)
+        }
+        
+        return ([], nil, false)
     }
     
     func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String = "application/octet-stream") async throws {

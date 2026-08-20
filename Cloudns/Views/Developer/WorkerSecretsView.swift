@@ -16,45 +16,20 @@ struct WorkerSecretsView: View {
     }
     
     var body: some View {
-        List {
-            // Segment Picker
-            Section {
-                Picker("Type", selection: $viewModel.selectedTab) {
-                    Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
-                    Text(viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets").tag("secrets")
-                }
-                .pickerStyle(.segmented)
+        VStack(spacing: 0) {
+            Picker("Type", selection: $viewModel.selectedTab) {
+                Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
+                Text(viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets").tag("secrets")
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
             
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Variables & Secrets")) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("SECRET_KEY_PLACEHOLDER")
-                                    .font(.headline)
-                                Text("••••••••••••••••")
-                                    .font(.subheadline)
-                            }
-                            Spacer()
-                        }
-                        .skeletonLoading(true)
-                    }
-                }
-            } else if viewModel.selectedTab == "variables" {
-                if !viewModel.filteredVariables.isEmpty {
-                    variablesSection
-                }
-            } else {
-                if !viewModel.filteredSecrets.isEmpty {
-                    secretsSection
-                }
-            }
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Variables & Secrets")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Variables & Secrets")
@@ -96,6 +71,42 @@ struct WorkerSecretsView: View {
         .refreshable {
             await viewModel.fetchSecrets()
         }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchSecrets()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Variables & Secrets")) {
+                    ForEach(0..<4, id: \.self) { _ in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("SECRET_KEY_PLACEHOLDER")
+                                    .font(.headline)
+                                Text("••••••••••••••••")
+                                    .font(.subheadline)
+                            }
+                            Spacer()
+                        }
+                        .skeletonLoading(true)
+                    }
+                }
+            } else if viewModel.selectedTab == "variables" {
+                if !viewModel.filteredVariables.isEmpty {
+                    variablesSection
+                }
+            } else {
+                if !viewModel.filteredSecrets.isEmpty {
+                    secretsSection
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
@@ -146,11 +157,6 @@ struct WorkerSecretsView: View {
                         )
                     }
                 }
-            }
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchSecrets()
             }
         }
     }

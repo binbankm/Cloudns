@@ -44,6 +44,28 @@ public struct ShimmerEffect: ViewModifier {
     }
 }
 
+// MARK: - Adaptive Toggle Style for Skeleton Redaction
+
+public struct CloudnsAdaptiveToggleStyle: ToggleStyle {
+    @Environment(\.redactionReasons) private var redactionReasons
+    
+    public init() {}
+    
+    public func makeBody(configuration: Configuration) -> some View {
+        if redactionReasons.contains(.placeholder) {
+            HStack {
+                configuration.label
+                Spacer()
+                Capsule()
+                    .fill(Color(.tertiarySystemFill))
+                    .frame(width: 51, height: 31)
+            }
+        } else {
+            Toggle(configuration)
+        }
+    }
+}
+
 public extension View {
     /// Applies a shimmering effect to the view conditionally.
     @ViewBuilder
@@ -59,6 +81,7 @@ public extension View {
     @ViewBuilder
     func skeletonLoading(_ isLoading: Bool) -> some View {
         self
+            .toggleStyle(CloudnsAdaptiveToggleStyle())
             .redacted(reason: isLoading ? .placeholder : [])
             .shimmering(active: isLoading)
             .allowsHitTesting(!isLoading)

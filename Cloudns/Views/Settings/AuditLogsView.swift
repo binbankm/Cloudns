@@ -17,10 +17,9 @@ struct AuditLogsView: View {
                 Section {
                     ForEach(AuditLog.placeholders) { placeholderLog in
                         AuditLogRowView(log: placeholderLog)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredLogs.isEmpty {
                 Section {
                     ForEach(viewModel.filteredLogs) { log in

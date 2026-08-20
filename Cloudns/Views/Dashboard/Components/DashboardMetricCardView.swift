@@ -42,7 +42,7 @@ struct DashboardMetricCardView: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 1.5)

@@ -23,10 +23,9 @@ struct IPAccessRulesView: View {
                 Section {
                     ForEach(IPAccessRule.placeholders) { placeholderRule in
                         IPAccessRuleRowView(rule: placeholderRule)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
                 Section {
                     ForEach(displayedRules) { rule in

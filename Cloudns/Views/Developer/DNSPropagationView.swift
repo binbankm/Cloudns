@@ -80,12 +80,13 @@ struct DNSPropagationView: View {
                 Section(header: Text("Querying 8 Global Edge Nodes...")) {
                     ForEach(0..<8, id: \.self) { _ in
                         HStack {
-                            Text("🇺🇸 North America (East)").redacted(reason: .placeholder)
+                            Text("🇺🇸 North America (East)")
                             Spacer()
-                            Text("Matched").redacted(reason: .placeholder)
+                            Text("Matched")
                         }
                     }
                 }
+                .skeletonLoading(true)
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
                 Section(header: Text("Global Status")) {

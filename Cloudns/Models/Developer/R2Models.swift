@@ -33,10 +33,12 @@ public struct R2Object: Codable, Identifiable, Equatable, Sendable {
     public let version: String?
     public let uploaded: String?
     public let storageClass: String?
+    public let httpEtag: String?
     
     enum CodingKeys: String, CodingKey {
         case key, size, etag, version, uploaded
         case storageClass = "storage_class"
+        case httpEtag
     }
     
     public var formattedSize: String {
@@ -56,7 +58,8 @@ public struct R2Object: Codable, Identifiable, Equatable, Sendable {
         etag: String? = "d41d8cd98f00b204e9800998ecf8427e",
         version: String? = "v1",
         uploaded: String? = "2024-01-01T00:00:00Z",
-        storageClass: String? = "Standard"
+        storageClass: String? = "Standard",
+        httpEtag: String? = nil
     ) {
         self.key = key
         self.size = size
@@ -64,6 +67,39 @@ public struct R2Object: Codable, Identifiable, Equatable, Sendable {
         self.version = version
         self.uploaded = uploaded
         self.storageClass = storageClass
+        self.httpEtag = httpEtag
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.key = (try? container.decode(String.self, forKey: .key)) ?? ""
+        
+        if let intSize = try? container.decode(Int.self, forKey: .size) {
+            self.size = intSize
+        } else if let dblSize = try? container.decode(Double.self, forKey: .size) {
+            self.size = Int(dblSize)
+        } else if let strSize = try? container.decode(String.self, forKey: .size), let parsed = Int(strSize) {
+            self.size = parsed
+        } else {
+            self.size = 0
+        }
+        
+        self.etag = (try? container.decodeIfPresent(String.self, forKey: .etag)) ?? (try? container.decodeIfPresent(String.self, forKey: .httpEtag))
+        self.version = try? container.decodeIfPresent(String.self, forKey: .version)
+        self.uploaded = try? container.decodeIfPresent(String.self, forKey: .uploaded)
+        self.storageClass = (try? container.decodeIfPresent(String.self, forKey: .storageClass)) ?? "Standard"
+        self.httpEtag = try? container.decodeIfPresent(String.self, forKey: .httpEtag)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(key, forKey: .key)
+        try container.encode(size, forKey: .size)
+        try container.encodeIfPresent(etag, forKey: .etag)
+        try container.encodeIfPresent(version, forKey: .version)
+        try container.encodeIfPresent(uploaded, forKey: .uploaded)
+        try container.encodeIfPresent(storageClass, forKey: .storageClass)
+        try container.encodeIfPresent(httpEtag, forKey: .httpEtag)
     }
     
     public static let placeholders: [R2Object] = [

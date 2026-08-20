@@ -22,10 +22,9 @@ struct WAFCustomRulesView: View {
                 Section {
                     ForEach(WAFRule.placeholders) { placeholderRule in
                         WAFRuleCardView(rule: placeholderRule, onToggle: {})
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
                 Section {
                     ForEach(displayedRules) { rule in

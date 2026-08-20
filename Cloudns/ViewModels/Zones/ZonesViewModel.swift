@@ -5,6 +5,7 @@ import Combine
 @MainActor
 class ZonesViewModel: BaseLoadableViewModel {
     @Published var zones: [Zone] = []
+    @Published var sparklines: [String: ZoneSparklineCache] = [:]
     @Published var canLoadMore: Bool = false
     @Published var totalCount: Int = 0
     private var currentPage: Int = 1
@@ -27,6 +28,7 @@ class ZonesViewModel: BaseLoadableViewModel {
     
     func resetState() {
         self.zones = []
+        self.sparklines = [:]
         self.totalCount = 0
         self.canLoadMore = false
         self.currentPage = 1
@@ -46,6 +48,7 @@ class ZonesViewModel: BaseLoadableViewModel {
                 onCached: { cachedZones in
                     self.zones = cachedZones
                     self.totalCount = cachedZones.count
+                    self.fetchBatchSparklines(for: cachedZones)
                     self.syncFirstZoneToWidget(zones: cachedZones)
                 },
                 fetcher: { [zoneService] in
@@ -57,6 +60,7 @@ class ZonesViewModel: BaseLoadableViewModel {
                     self.totalCount = latestZones.count
                     self.canLoadMore = latestZones.count >= 50
                     self.currentPage = latestZones.count >= 50 ? 2 : 1
+                    self.fetchBatchSparklines(for: latestZones)
                     self.syncFirstZoneToWidget(zones: latestZones)
                 }
             )
@@ -66,6 +70,7 @@ class ZonesViewModel: BaseLoadableViewModel {
             do {
                 let (fetchedZones, resultInfo) = try await self.zoneService.getZones(page: currentPage, perPage: 50, name: nil, status: nil)
                 self.zones.append(contentsOf: fetchedZones)
+                self.fetchBatchSparklines(for: fetchedZones)
                 if let info = resultInfo, info.page < info.totalPages {
                     canLoadMore = true
                     currentPage += 1
@@ -74,6 +79,35 @@ class ZonesViewModel: BaseLoadableViewModel {
                 }
             } catch {
                 self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    /// 一次性批量拉取当前列表中所有活跃 Zone 的 24h 流量走势微图（单次 GraphQL 网络请求）
+    private func fetchBatchSparklines(for zones: [Zone]) {
+        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+        guard !activeZoneIds.isEmpty else { return }
+        
+        Task {
+            // 1. 优先读取已有的 SWR 本地缓存，极速呈现
+            for id in activeZoneIds {
+                if let cached = await SWRCacheStore.shared.get(forKey: "zone_sparkline_\(id)", as: ZoneSparklineCache.self) {
+                    await MainActor.run {
+                        self.sparklines[id] = cached
+                    }
+                }
+            }
+            
+            // 2. 单次聚合请求拉取全部域名的最新 24 小时点位
+            if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeZoneIds) {
+                await MainActor.run {
+                    for (id, cache) in batchMap {
+                        self.sparklines[id] = cache
+                    }
+                }
+                for (id, cache) in batchMap {
+                    await SWRCacheStore.shared.set(cache, forKey: "zone_sparkline_\(id)")
+                }
             }
         }
     }

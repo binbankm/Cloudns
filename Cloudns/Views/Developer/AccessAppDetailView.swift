@@ -56,9 +56,8 @@ struct AccessAppDetailView: View {
                 if isLoadingPolicies && policies.isEmpty {
                     ForEach(AccessPolicy.placeholders) { placeholder in
                         policyRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(err)
                         .font(.caption)

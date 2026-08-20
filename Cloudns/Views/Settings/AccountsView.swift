@@ -38,6 +38,7 @@ struct AccountsView: View {
                                 }
                             }
                         }
+                        .buttonStyle(.plain)
                     }
                     .onDelete(perform: deleteAccount)
                 }

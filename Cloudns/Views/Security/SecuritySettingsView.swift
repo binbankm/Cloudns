@@ -53,6 +53,7 @@ struct SecuritySettingsView: View {
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
+                        .buttonStyle(.plain)
                         .disabled(!viewModel.hasFetchedData)
                     }
                     .padding(.vertical, 8)

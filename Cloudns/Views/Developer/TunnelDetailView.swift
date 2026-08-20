@@ -125,6 +125,7 @@ struct TunnelDetailView: View {
                                     .accessibilityHidden(true)
                             }
                         }
+                        .buttonStyle(.plain)
                         
                         Button {
                             HapticManager.impact(.light)

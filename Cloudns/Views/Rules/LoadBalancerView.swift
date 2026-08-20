@@ -35,27 +35,64 @@ struct LoadBalancerView: View {
     }
     
     var body: some View {
-        List {
-            Section {
-                Picker("Section", selection: $selectedTab) {
-                    Text("Load Balancers").tag(0)
-                    Text("Pools").tag(1)
-                    Text("Monitors").tag(2)
-                }
-                .pickerStyle(SegmentedPickerStyle())
+        VStack(spacing: 0) {
+            Picker("Section", selection: $selectedTab) {
+                Text("Load Balancers").tag(0)
+                Text("Pools").tag(1)
+                Text("Monitors").tag(2)
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
             
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Load Balancing")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Load Balancers, Pools, Monitors")
+        .refreshable {
+            await viewModel.fetchData()
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchData()
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showingAddSheet = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Load Balancing Resource")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            if selectedTab == 0 {
+                AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
+            } else if selectedTab == 1 {
+                AddLBPoolSheetView(viewModel: viewModel)
+            } else {
+                AddLBMonitorSheetView(viewModel: viewModel)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
             if selectedTab == 0 {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Load Balancers")) {
+                    Section {
                         ForEach(LoadBalancer.placeholders) { placeholderLB in
                             lbRow(placeholderLB)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
+                    .skeletonLoading(true)
                 } else if !displayedLoadBalancers.isEmpty {
                     Section(header: Text("Load Balancers (\(displayedLoadBalancers.count))")) {
                         ForEach(displayedLoadBalancers) { lb in
@@ -76,13 +113,12 @@ struct LoadBalancerView: View {
                 }
             } else if selectedTab == 1 {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Origin Pools")) {
+                    Section {
                         ForEach(LBPool.placeholders) { placeholderPool in
                             poolRow(placeholderPool)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
+                    .skeletonLoading(true)
                 } else if !displayedPools.isEmpty {
                     Section(header: Text("Origin Pools (\(displayedPools.count))")) {
                         ForEach(displayedPools) { pool in
@@ -102,13 +138,12 @@ struct LoadBalancerView: View {
                 }
             } else if selectedTab == 2 {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Monitors")) {
+                    Section {
                         ForEach(LBMonitor.placeholders) { placeholderMon in
                             monRow(placeholderMon)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
+                    .skeletonLoading(true)
                 } else if !displayedMonitors.isEmpty {
                     Section(header: Text("Monitors (\(displayedMonitors.count))")) {
                         ForEach(displayedMonitors) { monitor in
@@ -129,8 +164,6 @@ struct LoadBalancerView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Load Balancers, Pools, Monitors")
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
@@ -170,38 +203,14 @@ struct LoadBalancerView: View {
                             action: { showingAddSheet = true }
                         )
                     )
+                } else if !searchText.isEmpty && ((selectedTab == 0 && displayedLoadBalancers.isEmpty) || (selectedTab == 1 && displayedPools.isEmpty) || (selectedTab == 2 && displayedMonitors.isEmpty)) {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
                 }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .navigationTitle("Load Balancing")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable {
-            await viewModel.fetchData()
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchData()
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showingAddSheet = true
-                }) {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Load Balancing Resource")
-            }
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            if selectedTab == 0 {
-                AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
-            } else if selectedTab == 1 {
-                AddLBPoolSheetView(viewModel: viewModel)
-            } else {
-                AddLBMonitorSheetView(viewModel: viewModel)
             }
         }
     }
@@ -266,13 +275,7 @@ struct LoadBalancerView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
                 Spacer()
-                Text(monitor.type?.uppercased() ?? "HTTP")
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.blue.opacity(0.12))
-                    .foregroundStyle(.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                CloudnsBadge(.custom(color: .blue, text: monitor.type?.uppercased() ?? "HTTP"), isCompact: true)
             }
             HStack {
                 Text(monitor.method ?? "GET")

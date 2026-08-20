@@ -21,39 +21,60 @@ public struct WorkerAnalyticsView: View {
     }
     
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // 1. Unified Header & Time Range Picker Bar
-                headerBar
-                
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    metricsGrid
-                        .skeletonLoading(true)
-                    invocationsLineChartCard
-                        .skeletonLoading(true)
-                } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
-                    if let errorMessage = viewModel.errorMessage {
-                        StateOverlayView(
-                            state: .error(
-                                message: LocalizedStringKey(errorMessage),
-                                retryAction: {
-                                    Task { await viewModel.fetchAnalytics(isRefresh: true) }
-                                }
-                            )
-                        )
-                        .padding(.vertical, 30)
-                    } else {
-                        StateOverlayView(
-                            state: .empty(
-                                icon: "chart.xyaxis.line",
-                                title: "No Invocations Data",
-                                message: "No Worker invocations recorded for \(scriptName) in the selected time range."
-                            )
-                        )
-                        .padding(.vertical, 30)
+        VStack(spacing: 0) {
+            // 1. Unified Header & Time Range Picker Bar
+            headerBar
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
+                .centerConstrainedWidth(maxWidth: 840)
+            
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        metricsGrid
+                            .skeletonLoading(true)
+                        invocationsLineChartCard
+                            .skeletonLoading(true)
                     }
-                } else {
-                    Group {
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 28)
+                    .centerConstrainedWidth(maxWidth: 840)
+                }
+            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+                ScrollView {
+                    VStack {
+                        Spacer(minLength: 40)
+                        if let errorMessage = viewModel.errorMessage {
+                            StateOverlayView(
+                                state: .error(
+                                    message: LocalizedStringKey(errorMessage),
+                                    retryAction: {
+                                        Task { await viewModel.fetchAnalytics(isRefresh: true) }
+                                    }
+                                )
+                            )
+                        } else {
+                            StateOverlayView(
+                                state: .empty(
+                                    icon: "chart.xyaxis.line",
+                                    title: "No Invocations Data",
+                                    message: "No Worker invocations recorded for \(scriptName) in the selected time range."
+                                )
+                            )
+                        }
+                        Spacer(minLength: 80)
+                    }
+                    .frame(minHeight: 450)
+                    .padding(.horizontal, 16)
+                    .centerConstrainedWidth(maxWidth: 840)
+                }
+                .refreshable {
+                    await viewModel.fetchAnalytics(isRefresh: true)
+                }
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
@@ -66,21 +87,20 @@ public struct WorkerAnalyticsView: View {
                         // 5. Performance Insights Card
                         insightsCard
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 28)
+                    .centerConstrainedWidth(maxWidth: 840)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
+                .refreshable {
+                    await viewModel.fetchAnalytics(isRefresh: true)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 28)
-            .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Worker Analytics")
         .navigationBarTitleDisplayMode(.inline)
-        .refreshable {
-            await viewModel.fetchAnalytics(isRefresh: true)
-        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchAnalytics()
@@ -99,17 +119,17 @@ public struct WorkerAnalyticsView: View {
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .minimumScaleFactor(0.7)
             
-            Spacer(minLength: 6)
+            Spacer(minLength: 4)
             
             Picker("Range", selection: $viewModel.selectedDays) {
-                Text("24H").tag(1)
-                Text("7D").tag(7)
-                Text("30D").tag(30)
+                Text("24h").tag(1)
+                Text("7d").tag(7)
+                Text("30d").tag(30)
             }
             .pickerStyle(.segmented)
-            .frame(width: 145)
+            .frame(width: 155)
             .onChange(of: viewModel.selectedDays) { _ in
                 HapticManager.impact(.light)
                 Task {
@@ -152,7 +172,7 @@ public struct WorkerAnalyticsView: View {
             metricCard(
                 title: "Max CPU (P99)",
                 value: String(format: "%.2f ms", viewModel.maxCpuP99),
-                icon: "gauge.with.needle",
+                icon: "speedometer",
                 color: .orange,
                 badge: "99th Percentile"
             )
@@ -167,7 +187,7 @@ public struct WorkerAnalyticsView: View {
                         .fill(color.opacity(0.12))
                         .frame(width: 22, height: 22)
                     Image(systemName: icon)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)

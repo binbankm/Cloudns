@@ -34,9 +34,8 @@ struct RedirectListDetailView: View {
                 if isLoading && items.isEmpty {
                     ForEach(RedirectListItem.placeholders) { placeholder in
                         redirectItemRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 } else if items.isEmpty {
                     Text("No redirect items in this list.")
                         .font(.subheadline)
@@ -122,7 +121,7 @@ struct RedirectListDetailView: View {
                     .accessibilityHidden(true)
                 Text(item.redirect.targetUrl)
                     .font(.caption.monospaced())
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 2)

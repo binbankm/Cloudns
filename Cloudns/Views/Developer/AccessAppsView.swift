@@ -15,13 +15,12 @@ struct AccessAppsView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Protected Applications")) {
+                Section {
                     ForEach(AccessApp.placeholders) { placeholder in
                         appRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredApps.isEmpty {
                 Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
                     ForEach(viewModel.filteredApps) { app in

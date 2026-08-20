@@ -6,7 +6,7 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
     let name: String
     let content: String?
     let proxiable: Bool?
-    let proxied: Bool?
+    var proxied: Bool?
     let ttl: Int
     let locked: Bool?
     let zoneId: String?

@@ -348,3 +348,97 @@ public struct WorkerZoneRoute: Codable, Identifiable, Equatable {
         self.requestLimitFailOpen = requestLimitFailOpen
     }
 }
+
+// MARK: - Worker Deployment Models
+
+public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
+    public var id: String { id_field ?? uuid ?? "deployment-\(number ?? 1)" }
+    public let id_field: String?
+    public let uuid: String?
+    public let number: Int?
+    public let createdOn: String?
+    public let author: String?
+    public let authorEmail: String?
+    public let source: String?
+    public let strategy: String?
+    public let annotations: WorkerDeploymentAnnotations?
+    public let compatibilityDate: String?
+    public let usageModel: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id_field = "id"
+        case uuid
+        case number
+        case createdOn = "created_on"
+        case author
+        case authorEmail = "author_email"
+        case source
+        case strategy
+        case annotations
+        case compatibilityDate = "compatibility_date"
+        case usageModel = "usage_model"
+    }
+    
+    public init(
+        id: String,
+        number: Int? = 1,
+        createdOn: String? = "2024-01-01T00:00:00Z",
+        authorEmail: String? = "developer@example.com",
+        source: String? = "dash",
+        annotations: WorkerDeploymentAnnotations? = nil
+    ) {
+        self.id_field = id
+        self.uuid = id
+        self.number = number
+        self.createdOn = createdOn
+        self.author = authorEmail
+        self.authorEmail = authorEmail
+        self.source = source
+        self.strategy = "percentage"
+        self.annotations = annotations
+        self.compatibilityDate = "2024-01-01"
+        self.usageModel = "bundled"
+    }
+    
+    public var displaySource: String {
+        guard let s = source, !s.isEmpty else { return "Dashboard" }
+        switch s.lowercased() {
+        case "wrangler": return "Wrangler CLI"
+        case "dash", "dashboard": return "Cloudflare Dashboard"
+        case "api": return "Cloudflare API"
+        case "github", "git": return "Git Integration"
+        case "rollback": return "Rollback"
+        default: return s.capitalized
+        }
+    }
+    
+    public static let placeholders: [WorkerDeployment] = (1...4).reversed().map { num in
+        WorkerDeployment(
+            id: "d-\(num)-uuid-deployment",
+            number: num,
+            createdOn: "2024-01-0\(num)T12:00:00Z",
+            authorEmail: "admin@cloudflare.com",
+            source: num == 4 ? "wrangler" : "dash",
+            annotations: WorkerDeploymentAnnotations(message: "Release v1.\(num).0 - Production updates", triggeredBy: "upload")
+        )
+    }
+}
+
+public struct WorkerDeploymentAnnotations: Codable, Equatable, Sendable {
+    public let message: String?
+    public let triggeredBy: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case message = "workers/message"
+        case triggeredBy = "workers/triggered_by"
+    }
+    
+    public init(message: String? = nil, triggeredBy: String? = nil) {
+        self.message = message
+        self.triggeredBy = triggeredBy
+    }
+}
+
+public struct WorkerDeploymentsResult: Codable, Sendable {
+    public let deployments: [WorkerDeployment]?
+}

@@ -13,13 +13,12 @@ struct DurableObjectsView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Namespaces")) {
+                Section {
                     ForEach(DurableObjectNamespace.placeholders) { placeholder in
                         nsRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredNamespaces.isEmpty {
                 Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
                     ForEach(viewModel.filteredNamespaces) { ns in

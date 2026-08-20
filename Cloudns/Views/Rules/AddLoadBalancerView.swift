@@ -116,6 +116,7 @@ struct AddLoadBalancerView: View {
                                     }
                                 }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }

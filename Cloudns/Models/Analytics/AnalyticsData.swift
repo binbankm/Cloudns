@@ -18,6 +18,7 @@ struct AnalyticsViewer: Codable, Sendable {
 }
 
 struct AnalyticsZone: Codable, Sendable {
+    let zoneTag: String?
     let httpRequests1dGroups: [AnalyticsDataPoint]?
     let httpRequests1hGroups: [AnalyticsDataPoint]?
     let trafficByCountry1d: [CountryDataPoint]?

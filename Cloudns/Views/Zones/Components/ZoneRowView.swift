@@ -4,9 +4,11 @@ import SwiftUI
 
 struct ZoneRowView: View {
     let zone: Zone
+    let sparkline: ZoneSparklineCache?
     
-    init(zone: Zone) {
+    init(zone: Zone, sparkline: ZoneSparklineCache? = nil) {
         self.zone = zone
+        self.sparkline = sparkline
     }
     
     private var initialChar: String {
@@ -21,7 +23,7 @@ struct ZoneRowView: View {
     }
     
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: 12) {
             // Leading Initial Avatar with Deterministic Color Hashing
             ZStack {
                 Circle()
@@ -33,47 +35,48 @@ struct ZoneRowView: View {
             }
             .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 4) {
+            // Domain Info & Status Badges
+            VStack(alignment: .leading, spacing: 3) {
                 Text(zone.name)
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundStyle(.primary)
+                    .lineLimit(1)
                 
-                // Warning Badges (Only show when active)
-                if zone.paused || (zone.developmentMode ?? 0) > 0 {
-                    HStack(spacing: 6) {
-                        if zone.paused {
-                            Text("Paused")
-                                .font(.caption2.weight(.medium))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.red.opacity(0.15))
-                                .foregroundStyle(.red)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-                        
-                        if (zone.developmentMode ?? 0) > 0 {
-                            Text("Dev Mode")
-                                .font(.caption2.weight(.medium))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.orange.opacity(0.15))
-                                .foregroundStyle(.orange)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
+                HStack(spacing: 5) {
+                    CloudnsBadge(
+                        zone.status.lowercased() == "active" ? .active("Active") : .warning(zone.status.capitalized),
+                        isCompact: true
+                    )
+                    
+                    if zone.paused {
+                        Text("Paused")
+                            .font(.caption2.weight(.medium))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Color.red.opacity(0.15))
+                            .foregroundStyle(.red)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
+                    
+                    if (zone.developmentMode ?? 0) > 0 {
+                        Text("Dev Mode")
+                            .font(.caption2.weight(.medium))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Color.orange.opacity(0.15))
+                            .foregroundStyle(.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
                     }
                 }
             }
             
-            Spacer()
+            Spacer(minLength: 8)
             
-            // Status Badge
-            CloudnsBadge(
-                zone.status.lowercased() == "active" ? .active("Active") : .warning(zone.status.capitalized),
-                isCompact: true
-            )
+            // Trailing 24h Traffic Sparkline Chart (Directly rendered with 0ms latency)
+            ZoneRowSparklineView(zoneId: zone.id, cached: sparkline)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(zone.name), status \(zone.status)")
     }

@@ -76,7 +76,7 @@ struct ZoneDetailView: View {
                 ZoneNavRowView(
                     title: "Settings",
                     subtitle: "Security level, Bot Fight Mode",
-                    icon: "gear.badge.checkmark",
+                    icon: "slider.horizontal.3",
                     color: .gray,
                     destination: SecuritySettingsView(zoneId: zone.id)
                 )
@@ -87,14 +87,14 @@ struct ZoneDetailView: View {
                 ZoneNavRowView(
                     title: "Overview",
                     subtitle: "Encryption mode & HTTPS settings",
-                    icon: "lock.fill",
+                    icon: "lock.shield.fill",
                     color: .orange,
                     destination: SSLSettingsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Edge Certificates",
                     subtitle: "Universal, ACM & custom certificates",
-                    icon: "doc.badge.gearshape.fill",
+                    icon: "checkmark.seal.fill",
                     color: .orange,
                     destination: EdgeCertificatesView(zoneId: zone.id)
                 )
@@ -105,7 +105,7 @@ struct ZoneDetailView: View {
                 ZoneNavRowView(
                     title: "Speed",
                     subtitle: "Minification, Brotli, HTTP/2",
-                    icon: "bolt.fill",
+                    icon: "speedometer",
                     color: .yellow,
                     destination: SpeedSettingsView(zoneId: zone.id)
                 )
@@ -119,7 +119,7 @@ struct ZoneDetailView: View {
                 ZoneNavRowView(
                     title: "Rules",
                     subtitle: "Transform, Cache, Redirect, Snippets",
-                    icon: "arrow.triangle.2.circlepath",
+                    icon: "slider.horizontal.3",
                     color: .teal,
                     destination: RulesHubView(zoneId: zone.id)
                 )

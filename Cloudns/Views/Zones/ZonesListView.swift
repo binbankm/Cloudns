@@ -104,17 +104,16 @@ struct ZonesListView: View {
         Section {
             ForEach(Zone.placeholders) { placeholderZone in
                 ZoneRowView(zone: placeholderZone)
-                    .redacted(reason: .placeholder)
-                    .shimmering()
             }
         }
+        .skeletonLoading(true)
     }
     
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
                 NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                    ZoneRowView(zone: zone)
+                    ZoneRowView(zone: zone, sparkline: viewModel.sparklines[zone.id])
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {

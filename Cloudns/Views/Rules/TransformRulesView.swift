@@ -23,26 +23,67 @@ struct TransformRulesView: View {
     }
     
     var body: some View {
-        List {
-            Section {
-                Picker("Phase", selection: $viewModel.selectedPhase) {
-                    Text("URL Rewrite").tag("http_request_transform")
-                    Text("Request Headers").tag("http_request_late_transform")
-                    Text("Response Headers").tag("http_response_headers_transform")
-                }
-                .pickerStyle(.segmented)
+        VStack(spacing: 0) {
+            Picker("Phase", selection: $viewModel.selectedPhase) {
+                Text("URL Rewrite").tag("http_request_transform")
+                Text("Request Headers").tag("http_request_late_transform")
+                Text("Response Headers").tag("http_response_headers_transform")
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
+            
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Transform Rules")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Transform Rules")
+        .refreshable {
+            await viewModel.fetchTransformRules()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showingAddSheet = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Transform Rule")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                Task {
+                    await viewModel.deleteRule(ruleId: rule.id)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { rule in
+            Text("Are you sure you want to delete '\(rule.description ?? "Rule")'?")
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchTransformRules()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules")) {
+                Section {
                     ForEach(WAFRule.placeholders) { placeholderRule in
                         TransformRuleCardView(rule: placeholderRule, onToggle: {})
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
                 Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")) {
                     ForEach(displayedRules) { rule in
@@ -67,8 +108,6 @@ struct TransformRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Transform Rules")
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
@@ -98,39 +137,6 @@ struct TransformRulesView: View {
                         )
                     )
                 }
-            }
-        }
-        .refreshable {
-            await viewModel.fetchTransformRules()
-        }
-        .navigationTitle("Transform Rules")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showingAddSheet = true
-                }) {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Transform Rule")
-            }
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
-        }
-        .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                Task {
-                    await viewModel.deleteRule(ruleId: rule.id)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { rule in
-            Text("Are you sure you want to delete '\(rule.description ?? "Rule")'?")
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchTransformRules()
             }
         }
     }

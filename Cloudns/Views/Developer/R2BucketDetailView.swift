@@ -43,13 +43,12 @@ struct R2BucketDetailView: View {
                 
                 // MARK: - Objects
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Objects")) {
+                    Section {
                         ForEach(R2Object.placeholders) { placeholder in
                             R2ObjectRowView(object: placeholder)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
+                    .skeletonLoading(true)
                 } else if !viewModel.filteredObjects.isEmpty {
                     Section(header: Text("Objects (\(viewModel.objects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in

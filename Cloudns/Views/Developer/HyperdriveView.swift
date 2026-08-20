@@ -16,13 +16,12 @@ struct HyperdriveView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Database Accelerators")) {
+                Section {
                     ForEach(HyperdriveConfig.placeholders) { placeholder in
                         configRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredConfigs.isEmpty {
                 Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
                     ForEach(viewModel.filteredConfigs) { config in

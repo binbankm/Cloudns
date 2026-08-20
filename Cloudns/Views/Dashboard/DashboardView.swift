@@ -47,14 +47,14 @@ struct DashboardView: View {
                         showingAccountSheet = true
                     } label: {
                         Circle()
-                            .fill(LinearGradient(gradient: Gradient(colors: [.orange, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .fill(LinearGradient(gradient: Gradient(colors: [.blue, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing))
                             .frame(width: 28, height: 28)
                             .overlay(
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
                                     .font(.caption.weight(.bold))
                                     .foregroundStyle(.white)
                             )
-                            .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 1)
+                            .shadow(color: Color.blue.opacity(0.3), radius: 4, x: 0, y: 1)
                     }
                     .buttonStyle(.plain)
                     .transaction { $0.animation = nil }
@@ -119,7 +119,7 @@ struct DashboardView: View {
                         ToastManager.shared.showCopied("Account ID copied")
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 10))
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
@@ -269,10 +269,9 @@ struct DashboardView: View {
                         }
                         .padding(12)
                         .cloudnsCard(style: .frosted, cornerRadius: 14)
-                        .redacted(reason: .placeholder)
-                        .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if viewModel.zones.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "globe.badge.chevron.backward")

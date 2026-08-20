@@ -60,9 +60,9 @@ struct EdgeLatencyTestView: View {
             if viewModel.isLatencyLoading {
                 Section(header: Text("Testing Edge Latency Over Consecutive Requests...")) {
                     HStack {
-                        Text("Round 1...").redacted(reason: .placeholder)
+                        Text("Round 1...")
                         Spacer()
-                        Text("42.5 ms").redacted(reason: .placeholder)
+                        Text("42.5 ms")
                     }
                     .skeletonLoading(true)
                 }

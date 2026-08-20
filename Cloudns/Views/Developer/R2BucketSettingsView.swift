@@ -94,9 +94,8 @@ struct R2BucketSettingsView: View {
                 Section(header: Text("Connected Custom Domains")) {
                     ForEach(R2CustomDomain.placeholders) { ph in
                         customDomainRow(ph)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 }
             }
         }

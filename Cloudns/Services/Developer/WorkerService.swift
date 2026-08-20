@@ -23,6 +23,8 @@ protocol WorkerServiceProtocol: Sendable {
     func createWorkerTailSession(accountId: String, scriptName: String) async throws -> WorkerTailSession
     func deleteWorkerTailSession(accountId: String, scriptName: String, tailId: String) async throws
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult
+    func getWorkerDeployments(accountId: String, scriptName: String) async throws -> [WorkerDeployment]
+    func rollbackWorkerDeployment(accountId: String, scriptName: String, deploymentId: String) async throws
 }
 
 /// 统一的 Cloudflare Workers 脚本、触发器与 Secrets 领域服务
@@ -228,5 +230,44 @@ final class WorkerService: WorkerServiceProtocol {
             durationMs: duration,
             responseBody: bodyString
         )
+    }
+    
+    func getWorkerDeployments(accountId: String, scriptName: String) async throws -> [WorkerDeployment] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/deployments")
+        let rawData = try await client.performDataRequest(request)
+        
+        // 1. { "result": { "deployments": [...] } }
+        struct ResWithDeployments: Codable {
+            let result: WorkerDeploymentsResult?
+        }
+        if let decoded = try? JSONDecoder().decode(ResWithDeployments.self, from: rawData), let list = decoded.result?.deployments {
+            return list
+        }
+        
+        // 2. { "result": [WorkerDeployment] }
+        struct ResWithArray: Codable {
+            let result: [WorkerDeployment]?
+        }
+        if let decoded = try? JSONDecoder().decode(ResWithArray.self, from: rawData), let list = decoded.result {
+            return list
+        }
+        
+        // 3. { "deployments": [WorkerDeployment] }
+        if let direct = try? JSONDecoder().decode(WorkerDeploymentsResult.self, from: rawData), let list = direct.deployments {
+            return list
+        }
+        
+        // 4. [WorkerDeployment]
+        if let directList = try? JSONDecoder().decode([WorkerDeployment].self, from: rawData) {
+            return directList
+        }
+        
+        return []
+    }
+    
+    func rollbackWorkerDeployment(accountId: String, scriptName: String, deploymentId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/deployments/\(deploymentId)/rollback", method: "POST")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
 }

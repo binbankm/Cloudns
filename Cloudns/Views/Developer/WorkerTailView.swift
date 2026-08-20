@@ -128,7 +128,7 @@ struct WorkerTailView: View {
                     .padding(.horizontal, 32)
             } else {
                 Image(systemName: "pause.circle")
-                    .font(.system(size: 44))
+                    .font(.largeTitle)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
                 Text("Log stream paused")

@@ -16,10 +16,9 @@ struct TunnelsListView: View {
                 Section {
                     ForEach(CFTunnel.placeholders) { placeholderTunnel in
                         TunnelRowView(tunnel: placeholderTunnel)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredTunnels.isEmpty {
                 Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in

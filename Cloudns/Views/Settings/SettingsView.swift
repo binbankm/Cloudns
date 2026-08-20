@@ -22,9 +22,9 @@ struct SettingsView: View {
                         HStack(spacing: 16) {
                             ZStack {
                                 Circle()
-                                    .fill(LinearGradient(gradient: Gradient(colors: [.orange, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .fill(LinearGradient(gradient: Gradient(colors: [.blue, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                     .frame(width: 54, height: 54)
-                                    .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
+                                    .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
                                     .font(.title2.weight(.bold))

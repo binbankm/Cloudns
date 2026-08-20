@@ -12,7 +12,7 @@ struct NetworkCenterView: View {
             Section {
                 VStack(spacing: 12) {
                     Image(systemName: "network")
-                        .font(.system(size: 60, weight: .light))
+                        .font(.largeTitle)
                         .foregroundStyle(.blue)
                         .padding(.top, 10)
                         .accessibilityHidden(true)

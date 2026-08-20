@@ -25,7 +25,7 @@ struct ZoneDetailDeepLinkWrapper: View {
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 44))
+                        .font(.largeTitle)
                         .foregroundStyle(.orange)
                     Text(errorMessage ?? "Unable to load domain")
                         .font(.headline)

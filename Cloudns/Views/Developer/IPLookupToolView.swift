@@ -82,7 +82,7 @@ struct IPLookupToolView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(result.countryFlag)
-                        .font(.system(size: 32))
+                        .font(.title)
                     
                     VStack(alignment: .leading, spacing: 2) {
                         Text(result.ip)

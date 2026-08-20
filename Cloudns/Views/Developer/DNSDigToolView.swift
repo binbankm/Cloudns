@@ -116,12 +116,13 @@ struct DNSDigToolView: View {
                         ForEach(0..<5, id: \.self) { _ in
                             HStack {
                                 Circle().fill(Color.gray.opacity(0.3)).frame(width: 24, height: 24)
-                                Text("Cloudflare 1.1.1.1").redacted(reason: .placeholder)
+                                Text("Cloudflare 1.1.1.1")
                                 Spacer()
-                                Text("12.4 ms").redacted(reason: .placeholder)
+                                Text("12.4 ms")
                             }
                         }
                     }
+                    .skeletonLoading(true)
                 } else if let bench = viewModel.benchmarkResult {
                     Section(header: Text("Resolver Latency & Accuracy Benchmark")) {
                         ForEach(bench.items) { item in
@@ -188,7 +189,7 @@ struct DNSDigToolView: View {
                 NavigationStack {
                     ScrollView {
                         Text(result.rawResponseRFC)
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.footnote.monospaced())
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

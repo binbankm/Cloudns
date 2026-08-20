@@ -142,7 +142,7 @@ struct WorkersAIPlaygroundSheetView: View {
         VStack(spacing: 16) {
             VStack(spacing: 8) {
                 Image(systemName: "brain.head.profile")
-                    .font(.system(size: 40))
+                    .font(.largeTitle)
                     .foregroundStyle(.purple.opacity(0.8))
                     .padding(.top, 24)
                 
@@ -319,7 +319,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 }
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 32))
+                    .font(.title)
                     .foregroundStyle(
                         viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage
                         ? Color.gray.opacity(0.4)

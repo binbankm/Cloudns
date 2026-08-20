@@ -4,6 +4,7 @@ import SwiftUI
 
 struct DNSRecordRowView: View {
     let record: DNSRecord
+    var onToggleProxy: (() -> Void)?
     
     private var recordTypeColor: Color {
         switch record.type.uppercased() {
@@ -37,12 +38,18 @@ struct DNSRecordRowView: View {
                 
                 Spacer()
                 
-                // Proxy Status Badge
+                // Interactive Proxy Status Badge (Click to quick toggle)
                 if record.proxiable == true {
-                    CloudnsBadge(
-                        record.proxied == true ? .proxied("Proxied") : .dnsOnly("DNS Only"),
-                        isCompact: true
-                    )
+                    Button {
+                        HapticManager.impact(.medium)
+                        onToggleProxy?()
+                    } label: {
+                        CloudnsBadge(
+                            record.proxied == true ? .proxied("Proxied") : .dnsOnly("DNS Only"),
+                            isCompact: true
+                        )
+                    }
+                    .buttonStyle(.plain)
                 } else {
                     CloudnsBadge(.dnsOnly("DNS Only"), isCompact: true)
                 }
@@ -70,6 +77,7 @@ struct DNSRecordRowView: View {
             }
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(record.type) record \(record.name), points to \(record.content ?? ""), \(record.proxied == true ? "Proxied" : "DNS Only")")
     }

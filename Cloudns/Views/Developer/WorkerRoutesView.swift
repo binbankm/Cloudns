@@ -69,9 +69,8 @@ struct WorkerRoutesView: View {
                 if !hasFetchedData && isLoading {
                     ForEach(WorkerCustomDomain.placeholders) { dom in
                         domainRow(dom)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(.subheadline)

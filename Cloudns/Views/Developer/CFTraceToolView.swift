@@ -119,7 +119,7 @@ struct CFTraceToolView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .center, spacing: 12) {
                     Text(popInfo?.flag ?? "🌐")
-                        .font(.system(size: 36))
+                        .font(.largeTitle)
                     
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {

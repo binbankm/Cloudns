@@ -48,9 +48,8 @@ struct DurableObjectNamespaceDetailView: View {
                 if isLoading && objects.isEmpty {
                     ForEach(DurableObjectInstance.placeholders) { placeholder in
                         instanceRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 } else if let err = errorMessage, objects.isEmpty {
                     Text(err)
                         .font(.caption)

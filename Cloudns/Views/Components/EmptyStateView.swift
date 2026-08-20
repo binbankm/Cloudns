@@ -37,7 +37,7 @@ public struct EmptyStateView: View {
         VStack(spacing: 0) {
             // Icon
             Image(systemName: icon)
-                .font(.system(size: 48, weight: .regular))
+                .font(.largeTitle)
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(iconColor ?? .secondary)
                 .accessibilityHidden(true)

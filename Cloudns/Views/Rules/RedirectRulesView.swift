@@ -59,13 +59,12 @@ struct RedirectRulesView: View {
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Configured Rules")) {
+                Section {
                     ForEach(RedirectRuleItem.placeholders) { placeholderRule in
                         redirectRuleRow(placeholderRule)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
                 Section(header: Text("Configured Rules (\(displayedRules.count))")) {
                     ForEach(displayedRules) { rule in

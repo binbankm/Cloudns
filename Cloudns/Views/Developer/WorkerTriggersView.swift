@@ -61,13 +61,12 @@ struct WorkerTriggersView: View {
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Scheduled Triggers")) {
+                Section {
                     ForEach(0..<3, id: \.self) { _ in
                         scheduleRow(WorkerSchedule(cron: "0 * * * *"))
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),

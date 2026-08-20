@@ -9,20 +9,30 @@ struct PagesBindingsView: View {
     }
     
     var body: some View {
-        List {
-            // Environment Picker
-            Section {
-                Picker("Environment", selection: $selectedEnv) {
-                    Text("Production").tag("production")
-                    Text("Preview").tag("preview")
-                }
-                .pickerStyle(.segmented)
-                .onChange(of: selectedEnv) { _ in
-                    HapticManager.impact(.light)
-                }
+        VStack(spacing: 0) {
+            Picker("Environment", selection: $selectedEnv) {
+                Text("Production").tag("production")
+                Text("Preview").tag("preview")
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
+            .onChange(of: selectedEnv) { _ in
+                HapticManager.impact(.light)
+            }
+            
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Bindings & Variables")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
             
             // MARK: - Environment Variables
             Section(
@@ -198,8 +208,5 @@ struct PagesBindingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .navigationTitle("Bindings & Variables")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

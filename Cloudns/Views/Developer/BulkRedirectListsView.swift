@@ -16,13 +16,12 @@ struct BulkRedirectListsView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Redirect Lists")) {
+                Section {
                     ForEach(RedirectList.placeholders) { placeholder in
                         listRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredLists.isEmpty {
                 Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
                     ForEach(viewModel.filteredLists) { item in

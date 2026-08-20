@@ -157,6 +157,50 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
         }
     }
     
+    func toggleProxy(for record: DNSRecord) async {
+        guard record.proxiable == true else { return }
+        let currentProxied = record.proxied ?? false
+        let newProxied = !currentProxied
+        
+        // Optimistic UI update
+        if let idx = records.firstIndex(where: { $0.id == record.id }) {
+            var updated = records[idx]
+            updated.proxied = newProxied
+            records[idx] = updated
+        }
+        
+        HapticManager.impact(.medium)
+        
+        do {
+            let payload = DNSRecordPayload(
+                type: record.type,
+                name: record.name,
+                content: record.content,
+                ttl: record.ttl,
+                proxied: newProxied,
+                priority: record.priority,
+                comment: record.comment,
+                data: record.data
+            )
+            let updatedRecord = try await dnsService.updateDNSRecord(zoneId: zoneId, recordId: record.id, payload: payload)
+            if let idx = records.firstIndex(where: { $0.id == record.id }) {
+                records[idx] = updatedRecord
+            }
+            ToastManager.shared.showSuccess(
+                newProxied ? "CDN Proxy Enabled" : "DNS Only Enabled",
+                message: "\(record.name) (\(record.type))"
+            )
+        } catch {
+            // Rollback on error
+            if let idx = records.firstIndex(where: { $0.id == record.id }) {
+                var rollback = records[idx]
+                rollback.proxied = currentProxied
+                records[idx] = rollback
+            }
+            ToastManager.shared.showError("Failed to update proxy status", message: error.localizedDescription)
+        }
+    }
+    
     func deleteRecord(recordId: String) async throws {
         HapticManager.notification(.warning)
         _ = try await dnsService.deleteDNSRecord(zoneId: zoneId, recordId: recordId)

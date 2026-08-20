@@ -13,13 +13,12 @@ struct WorkersAIView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Featured Models")) {
+                Section {
                     ForEach(AIModel.placeholders) { placeholder in
                         modelRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {

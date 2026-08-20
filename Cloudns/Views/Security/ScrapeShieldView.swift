@@ -10,7 +10,7 @@ struct ScrapeShieldView: View {
             Section {
                 VStack(spacing: 12) {
                     Image(systemName: "eye.slash.fill")
-                        .font(.system(size: 52, weight: .light))
+                        .font(.largeTitle)
                         .foregroundStyle(.purple)
                         .padding(.top, 10)
                         .accessibilityHidden(true)

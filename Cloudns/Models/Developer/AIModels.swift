@@ -42,9 +42,12 @@ public struct AIModel: Codable, Identifiable, Equatable, Sendable {
     }
     
     public static let placeholders: [AIModel] = [
-        AIModel(id: "@cf/meta/llama-3-8b-instruct", name: "@cf/meta/llama-3-8b-instruct", description: "Generation 3 of Llama, trained on 8B tokens.", task: AIModelTask(id: "text-generation", name: "Text Generation", description: nil)),
-        AIModel(id: "@cf/stabilityai/stable-diffusion-xl-base-1.0", name: "@cf/stabilityai/stable-diffusion-xl-base-1.0", description: "Diffusion-based text-to-image generative model.", task: AIModelTask(id: "text-to-image", name: "Text-to-Image", description: nil)),
-        AIModel(id: "@cf/baai/bge-large-en-v1.5", name: "@cf/baai/bge-large-en-v1.5", description: "Embedding model for text similarity and search.", task: AIModelTask(id: "text-embeddings", name: "Text Embeddings", description: nil))
+        AIModel(id: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", name: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", description: "DeepSeek R1 reasoning model distilled into Qwen 32B.", task: AIModelTask(id: "text-generation", name: "Text Generation", description: nil)),
+        AIModel(id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", name: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", description: "Meta's flagship Llama 3.3 70B model with high-speed FP8 inference.", task: AIModelTask(id: "text-generation", name: "Text Generation", description: nil)),
+        AIModel(id: "@cf/qwen/qwen2.5-72b-instruct", name: "@cf/qwen/qwen2.5-72b-instruct", description: "Alibaba's flagship open-weight 72B language model.", task: AIModelTask(id: "text-generation", name: "Text Generation", description: nil)),
+        AIModel(id: "@cf/black-forest-labs/flux-1-schnell", name: "@cf/black-forest-labs/flux-1-schnell", description: "State-of-the-art 12B parameter text-to-image rectified flow transformer.", task: AIModelTask(id: "text-to-image", name: "Text-to-Image", description: nil)),
+        AIModel(id: "@cf/openai/whisper-large-v3-turbo", name: "@cf/openai/whisper-large-v3-turbo", description: "High-accuracy multilingual speech-to-text recognition.", task: AIModelTask(id: "automatic-speech-recognition", name: "Speech Recognition", description: nil)),
+        AIModel(id: "@cf/baai/bge-large-en-v1.5", name: "@cf/baai/bge-large-en-v1.5", description: "High-performance embedding model for semantic search and retrieval.", task: AIModelTask(id: "text-embeddings", name: "Text Embeddings", description: nil))
     ]
     
     public var modelPath: String {

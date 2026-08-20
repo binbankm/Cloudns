@@ -23,10 +23,9 @@ struct SecurityEventsView: View {
                 Section {
                     ForEach(SecurityEvent.placeholders) { placeholderEvent in
                         SecurityEventCardView(event: placeholderEvent)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedEvents.isEmpty {
                 Section {
                     ForEach(displayedEvents) { event in

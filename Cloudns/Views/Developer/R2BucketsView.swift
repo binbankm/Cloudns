@@ -18,10 +18,9 @@ struct R2BucketsView: View {
                 Section {
                     ForEach(R2Bucket.placeholders) { placeholderBucket in
                         R2BucketRowView(bucket: placeholderBucket)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in

@@ -18,10 +18,9 @@ struct TurnstileWidgetsView: View {
                 Section {
                     ForEach(TurnstileWidget.placeholders) { placeholder in
                         TurnstileWidgetRowView(widget: placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredWidgets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredWidgets) { widget in

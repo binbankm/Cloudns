@@ -9,7 +9,7 @@ struct RulesHubView: View {
                 ZoneNavRowView(
                     title: "Transform Rules",
                     subtitle: "Modify request & response headers, rewrite URLs",
-                    icon: "arrow.triangle.2.circlepath",
+                    icon: "slider.horizontal.3",
                     color: .teal,
                     destination: TransformRulesView(zoneId: zoneId)
                 )

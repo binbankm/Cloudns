@@ -12,7 +12,7 @@ struct AuditLogRowView: View {
                     .fill(log.actionColor.opacity(0.12))
                     .frame(width: 38, height: 38)
                 Image(systemName: log.actionIcon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(log.actionColor)
             }
             .accessibilityHidden(true)
@@ -25,7 +25,7 @@ struct AuditLogRowView: View {
                         .foregroundStyle(.primary)
                     
                     Text(LocalizedStringKey(log.friendlyResourceTypeKey))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)

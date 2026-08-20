@@ -1,6 +1,8 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+// MARK: - DNSRecordsView
+
 struct DNSRecordsView: View {
     let zoneId: String
     let zoneName: String
@@ -9,10 +11,10 @@ struct DNSRecordsView: View {
     @State private var showingForm = false
     @State private var recordToEdit: DNSRecord?
     
-    // Export/Import/Edit states
-    @State private var showingExporter = false
-    @State private var exportedFileURL: URL?
+    // Export / Import / Presets states
+    @State private var showingExportSheet = false
     @State private var showingImporter = false
+    @State private var showingPresetsSheet = false
     @State private var multiSelection = Set<String>()
     
     @Environment(\.editMode) private var editMode
@@ -33,10 +35,9 @@ struct DNSRecordsView: View {
                 Section {
                     ForEach(DNSRecord.placeholders) { placeholderRecord in
                         DNSRecordRowView(record: placeholderRecord)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayRecords.isEmpty {
                 recordsSections
 
@@ -85,12 +86,21 @@ struct DNSRecordsView: View {
                 }
             }
         }
-        .fileExporter(
-            isPresented: $showingExporter,
-            document: TextDocument(url: exportedFileURL),
-            contentType: .plainText,
-            defaultFilename: "dns_records_\(zoneName).txt"
-        ) { _ in }
+        .sheet(isPresented: $showingExportSheet) {
+            DNSExportSheetView(
+                zoneName: zoneName,
+                zoneId: zoneId,
+                records: viewModel.records,
+                viewModel: viewModel
+            )
+        }
+        .sheet(isPresented: $showingPresetsSheet) {
+            DNSPresetsSheetView(
+                zoneName: zoneName,
+                zoneId: zoneId,
+                viewModel: viewModel
+            )
+        }
         .fileImporter(
             isPresented: $showingImporter,
             allowedContentTypes: [.plainText, .data]
@@ -200,12 +210,13 @@ struct DNSRecordsView: View {
                 Divider()
                 
                 Button {
-                    Task {
-                        if let url = try? await viewModel.exportRecords() {
-                            self.exportedFileURL = url
-                            self.showingExporter = true
-                        }
-                    }
+                    showingPresetsSheet = true
+                } label: {
+                    Label("1-Click Presets", systemImage: "wand.and.stars")
+                }
+                
+                Button {
+                    showingExportSheet = true
                 } label: {
                     Label("Export Records", systemImage: "square.and.arrow.up")
                 }
@@ -232,39 +243,60 @@ struct DNSRecordsView: View {
     
     @ViewBuilder
     private func recordRow(record: DNSRecord) -> some View {
-        DNSRecordRowView(record: record)
-            .tag(record.id)
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                Button(role: .destructive) {
-                    HapticManager.impact(.medium)
-                    Task {
-                        do {
-                            try await viewModel.deleteRecord(recordId: record.id)
-                            ToastManager.shared.showSuccess("DNS Record Deleted", message: "\(record.name) (\(record.type))")
-                        } catch {
-                            ToastManager.shared.showError("Failed to delete record", message: error.localizedDescription)
-                        }
+        Group {
+            if editMode?.wrappedValue.isEditing == true {
+                DNSRecordRowView(
+                    record: record,
+                    onToggleProxy: {
+                        Task { await viewModel.toggleProxy(for: record) }
                     }
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                
+                )
+                .tag(record.id)
+            } else {
                 Button {
                     recordToEdit = record
                 } label: {
-                    Label("Edit", systemImage: "pencil")
+                    DNSRecordRowView(
+                        record: record,
+                        onToggleProxy: {
+                            Task { await viewModel.toggleProxy(for: record) }
+                        }
+                    )
                 }
-                .tint(.orange)
+                .buttonStyle(.plain)
             }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                Button {
-                    UIPasteboard.general.string = record.content ?? record.name
-                    HapticManager.impact(.light)
-                    ToastManager.shared.showCopied("Record content copied")
-                } label: {
-                    Label("Copy", systemImage: "doc.on.doc")
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                HapticManager.impact(.medium)
+                Task {
+                    do {
+                        try await viewModel.deleteRecord(recordId: record.id)
+                        ToastManager.shared.showSuccess("DNS Record Deleted", message: "\(record.name) (\(record.type))")
+                    } catch {
+                        ToastManager.shared.showError("Failed to delete record", message: error.localizedDescription)
+                    }
                 }
-                .tint(.blue)
+            } label: {
+                Label("Delete", systemImage: "trash")
             }
+            
+            Button {
+                recordToEdit = record
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.orange)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                UIPasteboard.general.string = record.content ?? record.name
+                HapticManager.impact(.light)
+                ToastManager.shared.showCopied("Record content copied")
+            } label: {
+                Label("Copy", systemImage: "doc.on.doc")
+            }
+            .tint(.blue)
+        }
     }
 }

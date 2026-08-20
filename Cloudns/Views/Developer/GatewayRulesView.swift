@@ -15,13 +15,12 @@ struct GatewayRulesView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Security Rules")) {
+                Section {
                     ForEach(GatewayRule.placeholders) { placeholder in
                         ruleRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in

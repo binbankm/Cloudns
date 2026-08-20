@@ -89,17 +89,14 @@ struct WorkersListView: View {
                     if viewModel.selectedSegment == 0 {
                         ForEach(WorkerScript.placeholders) { script in
                             WorkerRowView(worker: script)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     } else {
                         ForEach(PagesProject.placeholders) { proj in
                             pagesRow(proj)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
                 }
+                .skeletonLoading(true)
             } else if viewModel.selectedSegment == 0 {
                 if !viewModel.filteredWorkers.isEmpty {
                     Section {
@@ -177,7 +174,7 @@ struct WorkersListView: View {
                     if viewModel.pages.isEmpty {
                         StateOverlayView(
                             state: .empty(
-                                icon: "doc.richtext",
+                                icon: "macwindow",
                                 title: "No Pages Projects Found",
                                 message: "You haven't connected or deployed any Cloudflare Pages projects yet.",
                                 actionTitle: "Create Pages Project",
@@ -200,7 +197,7 @@ struct WorkersListView: View {
     @ViewBuilder
     private func pagesRow(_ page: PagesProject) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "doc.richtext.fill")
+            Image(systemName: "macwindow")
                 .font(.body)
                 .foregroundStyle(.blue)
                 .frame(width: 32, height: 32)

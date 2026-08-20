@@ -32,7 +32,7 @@ struct WorkerRowView: View {
                     if let routes = worker.routes, !routes.isEmpty {
                         Text("·")
                             .foregroundStyle(.secondary)
-                        Text("\(routes.count) Route\(routes.count == 1 ? "" : "s")")
+                        Text("\(routes.count) routes")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }

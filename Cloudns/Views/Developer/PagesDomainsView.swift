@@ -50,13 +50,12 @@ struct PagesDomainsView: View {
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Connected Domains")) {
+                Section {
                     ForEach(PagesDomain.placeholders) { placeholder in
                         domainRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in

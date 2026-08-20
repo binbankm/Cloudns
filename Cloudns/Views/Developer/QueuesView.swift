@@ -18,13 +18,12 @@ struct QueuesView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Message Queues")) {
+                Section {
                     ForEach(CFQueue.placeholders) { placeholderQueue in
                         queueRow(placeholderQueue)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredQueues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
                     ForEach(viewModel.filteredQueues) { queue in

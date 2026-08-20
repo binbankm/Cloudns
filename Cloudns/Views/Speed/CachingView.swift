@@ -86,6 +86,7 @@ struct CachingView: View {
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
+                    .buttonStyle(.plain)
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
                 }
                 .padding(.vertical, 4)
@@ -126,6 +127,7 @@ struct CachingView: View {
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
                 }
                 .padding(.vertical, 4)

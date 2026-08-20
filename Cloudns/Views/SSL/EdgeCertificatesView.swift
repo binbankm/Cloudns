@@ -31,14 +31,13 @@ struct EdgeCertificatesView: View {
             }
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Active Certificates")) {
+                Section {
                     ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
                         EdgeCertificateCardView(certificate: placeholderCert)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedCertificates.isEmpty {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in

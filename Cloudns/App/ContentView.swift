@@ -74,7 +74,7 @@ struct ContentView: View {
                                 .ignoresSafeArea()
                             
                             Image(systemName: "lock.shield.fill")
-                                .font(.system(size: 48, weight: .light))
+                                .font(.largeTitle)
                                 .foregroundStyle(.secondary.opacity(0.6))
                         }
                         .contentShape(Rectangle())

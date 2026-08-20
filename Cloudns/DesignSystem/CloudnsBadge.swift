@@ -28,6 +28,11 @@ public enum CloudnsBadgeType {
 public struct CloudnsBadge: View {
     let type: CloudnsBadgeType
     let isCompact: Bool
+    @Environment(\.redactionReasons) private var redactionReasons
+    
+    private var isRedacted: Bool {
+        redactionReasons.contains(.placeholder)
+    }
     
     public init(_ type: CloudnsBadgeType, isCompact: Bool = false) {
         self.type = type
@@ -39,16 +44,16 @@ public struct CloudnsBadge: View {
             badgeIcon
             
             Text(LocalizedStringKey(badgeText))
-                .font(isCompact ? .system(size: 10, weight: .medium) : .system(size: 11, weight: .medium))
-                .foregroundStyle(badgeColor)
+                .font(isCompact ? .caption2.weight(.medium) : .caption.weight(.medium))
+                .foregroundStyle(isRedacted ? Color(.tertiarySystemFill) : badgeColor)
         }
         .padding(.horizontal, isCompact ? 5 : 6.5)
         .padding(.vertical, isCompact ? 1.5 : 2.5)
-        .background(badgeColor.opacity(0.10))
+        .background(isRedacted ? Color(.tertiarySystemFill) : badgeColor.opacity(0.10))
         .clipShape(Capsule())
         .overlay(
             Capsule()
-                .stroke(badgeColor.opacity(0.18), lineWidth: 0.5)
+                .stroke(isRedacted ? Color.clear : badgeColor.opacity(0.18), lineWidth: 0.5)
         )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(badgeText)
@@ -56,38 +61,45 @@ public struct CloudnsBadge: View {
     
     @ViewBuilder
     private var badgeIcon: some View {
-        switch type {
-        case .proxied:
-            Image(systemName: "cloud.fill")
-                .font(.system(size: isCompact ? 8 : 9.5))
-                .foregroundStyle(badgeColor)
-        case .dnsOnly:
-            Image(systemName: "cloud")
-                .font(.system(size: isCompact ? 8 : 9.5))
-                .foregroundStyle(badgeColor)
-        case .active:
-            Circle()
-                .fill(Color.green)
-                .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
-                .shadow(color: Color.green.opacity(0.5), radius: 2, x: 0, y: 0)
-        case .warning:
-            Circle()
-                .fill(Color.orange)
-                .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
-        case .error:
-            Circle()
-                .fill(Color.red)
-                .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
-        case .custom(_, _, let icon):
-            if let icon = icon {
-                Image(systemName: icon)
-                    .font(.system(size: isCompact ? 8 : 9.5))
+        if isRedacted {
+            EmptyView()
+        } else {
+            switch type {
+            case .proxied:
+                Image(systemName: "cloud.fill")
+                    .font(isCompact ? .caption2 : .caption)
                     .foregroundStyle(badgeColor)
+            case .dnsOnly:
+                Image(systemName: "cloud")
+                    .font(isCompact ? .caption2 : .caption)
+                    .foregroundStyle(badgeColor)
+            case .active:
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
+                    .shadow(color: Color.green.opacity(0.5), radius: 2, x: 0, y: 0)
+            case .warning:
+                Circle()
+                    .fill(Color.orange)
+                    .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
+            case .error:
+                Circle()
+                    .fill(Color.red)
+                    .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
+            case .custom(_, _, let icon):
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                }
             }
         }
     }
     
     private var badgeColor: Color {
+        if isRedacted {
+            return Color(.tertiarySystemFill)
+        }
         switch type {
         case .proxied:
             return Color.orange

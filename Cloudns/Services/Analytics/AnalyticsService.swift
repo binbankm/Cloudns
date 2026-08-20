@@ -4,6 +4,7 @@ import Foundation
 protocol AnalyticsServiceProtocol: Sendable {
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
+    func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache]
     func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem]
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem]
 }
@@ -16,6 +17,69 @@ final class AnalyticsService: AnalyticsServiceProtocol {
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
+    
+    /// 批量获取多个 Zone 的 24 小时流量走势微图点位（采用 GraphQL 别名聚合单次请求）
+    func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {
+        guard !zoneTags.isEmpty else { return [:] }
+        let targetTags = Array(zoneTags.prefix(30))
+        let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
+        let dateString = DateFormatters.iso8601.string(from: pastDate)
+        
+        var querySubfields = ""
+        for (index, tag) in targetTags.enumerated() {
+            querySubfields += """
+            z_\(index): zones(filter: { zoneTag: "\(tag)" }) {
+              httpRequests1hGroups(limit: 24, filter: { datetime_geq: "\(dateString)" }, orderBy: [datetime_ASC]) {
+                dimensions {
+                  datetime
+                }
+                sum {
+                  requests
+                }
+              }
+            }
+            """
+        }
+        
+        let query = """
+        query {
+          viewer {
+            \(querySubfields)
+          }
+        }
+        """
+        
+        let payload: [String: Any] = ["query": query]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
+        let rawData = try await client.performDataRequest(request)
+        
+        guard let json = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let viewerObj = dataObj["viewer"] as? [String: Any] else {
+            return [:]
+        }
+        
+        var result: [String: ZoneSparklineCache] = [:]
+        for (index, tag) in targetTags.enumerated() {
+            if let zoneArray = viewerObj["z_\(index)"] as? [[String: Any]],
+               let firstZone = zoneArray.first,
+               let groups = firstZone["httpRequests1hGroups"] as? [[String: Any]] {
+                var points: [Double] = []
+                var sumRequests: Double = 0
+                for group in groups {
+                    if let sum = group["sum"] as? [String: Any],
+                       let reqs = sum["requests"] as? NSNumber {
+                        let val = reqs.doubleValue
+                        points.append(val)
+                        sumRequests += val
+                    }
+                }
+                result[tag] = ZoneSparklineCache(points: points, totalRequests: Int(sumRequests))
+            }
+        }
+        return result
+    }
     
     /// 获取 Zone 基础 Analytics 数据（过去 24 小时或指定时间跨度）
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {

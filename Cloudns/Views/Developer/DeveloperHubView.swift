@@ -97,7 +97,7 @@ struct DeveloperHubView: View {
                         R2BucketsView(accountId: accountId)
                     } label: {
                         DeveloperHubRowView(
-                            icon: "externaldrive.fill",
+                            icon: "archivebox.fill",
                             iconColor: .blue,
                             title: "R2 Object Storage",
                             subtitle: "Zero egress fee S3-compatible storage"
@@ -109,7 +109,7 @@ struct DeveloperHubView: View {
                         KVBrowserView(accountId: accountId)
                     } label: {
                         DeveloperHubRowView(
-                            icon: "key.fill",
+                            icon: "cylinder.split.1x2.fill",
                             iconColor: .purple,
                             title: "KV & D1 Databases",
                             subtitle: "Global low-latency key-value & SQL"
@@ -136,7 +136,7 @@ struct DeveloperHubView: View {
                         TunnelsListView(accountId: accountId)
                     } label: {
                         DeveloperHubRowView(
-                            icon: "network",
+                            icon: "arrow.left.arrow.right.circle.fill",
                             iconColor: .green,
                             title: "Cloudflare Tunnels",
                             subtitle: "Secure internal server ingress"
@@ -175,7 +175,7 @@ struct DeveloperHubView: View {
                         BulkRedirectListsView(accountId: accountId)
                     } label: {
                         DeveloperHubRowView(
-                            icon: "arrow.triangle.swap",
+                            icon: "arrow.turn.up.right",
                             iconColor: .indigo,
                             title: "Bulk Redirects",
                             subtitle: "High-volume URL redirects at account level"
@@ -278,7 +278,7 @@ struct DeveloperHubView: View {
                 Spacer()
                 
                 Image(systemName: "cpu.fill")
-                    .font(.system(size: 28))
+                    .font(.title2)
                     .foregroundStyle(.white.opacity(0.85))
                     .accessibilityHidden(true)
             }

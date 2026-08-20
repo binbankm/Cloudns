@@ -27,10 +27,9 @@ struct KVNamespaceKeysView: View {
                 Section {
                     ForEach(KVKey.placeholders) { key in
                         keyRow(key)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { key in

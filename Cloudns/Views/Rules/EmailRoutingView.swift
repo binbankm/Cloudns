@@ -95,11 +95,10 @@ struct EmailRoutingView: View {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
                     ForEach(EmailRoutingRule.placeholders) { placeholderRule in
                         ruleRow(placeholderRule)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
+                    .skeletonLoading(true)
                 } else if displayedRules.isEmpty {
-                    Text(searchText.isEmpty ? "No custom routing rules configured." : "No matching email rules found.")
+                    Text("No custom routing rules configured.")
                         .foregroundStyle(.secondary)
                         .padding(.vertical, 4)
                 } else {
@@ -194,6 +193,13 @@ struct EmailRoutingView: View {
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
+                        )
+                    )
+                } else if !searchText.isEmpty && displayedRules.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
                         )
                     )
                 }

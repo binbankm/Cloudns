@@ -202,12 +202,12 @@ struct D1TableView: View {
                                             .foregroundStyle(.primary)
                                         if col.isPrimaryKey {
                                             Image(systemName: "key.fill")
-                                                .font(.system(size: 9))
+                                                .font(.caption2)
                                                 .foregroundStyle(.orange)
                                         }
                                     }
                                     Text(col.type)
-                                        .font(.system(size: 10, design: .monospaced))
+                                        .font(.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                 }
                                 .frame(width: 100, alignment: .leading)

@@ -17,7 +17,7 @@ struct AuditLogDetailSheetView: View {
                             .fill(log.actionColor.opacity(0.15))
                             .frame(width: 56, height: 56)
                         Image(systemName: log.actionIcon)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(log.actionColor)
                     }
                     

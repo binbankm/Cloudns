@@ -9,7 +9,6 @@ struct PagesProjectDetailView: View {
     @State private var showingDeleteAlert = false
     @State private var showingDomainsSheet = false
     @State private var showingBuildConfigSheet = false
-    @State private var selectedDeployment: PagesDeployment?
     
     init(accountId: String, project: PagesProject) {
         self.accountId = accountId
@@ -93,74 +92,186 @@ struct PagesProjectDetailView: View {
             .sheet(isPresented: $showingBuildConfigSheet) {
                 PagesBuildConfigEditorView(accountId: accountId, project: project, parentViewModel: viewModel)
             }
-            .sheet(item: $selectedDeployment) { dep in
-                NavigationStack {
-                    PagesDeploymentDetailView(
-                        accountId: accountId,
-                        projectName: project.name,
-                        deployment: dep,
-                        parentViewModel: viewModel
-                    )
-                }
-            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            // MARK: - Project Info
-            Section(header: Text("Project Overview")) {
-                HStack {
-                    Text("Project Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(project.name)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                }
-                
-                if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
-                    Link(destination: url) {
-                        HStack {
-                            Text("Production URL")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(sub)
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                            Image(systemName: "arrow.up.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+            // MARK: - Hero & Project Overview Card
+            Section {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "macwindow")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.blue, Color.cyan],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
+                            .accessibilityHidden(true)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(project.name)
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            
+                            HStack(spacing: 6) {
+                                if let branch = project.productionBranch {
+                                    CloudnsBadge(.active(branch), isCompact: true)
+                                }
+                                if let cmd = project.buildConfig?.buildCommand, !cmd.isEmpty {
+                                    CloudnsBadge(.custom(color: .purple, text: cmd), isCompact: true)
+                                }
+                            }
                         }
                     }
-                    .buttonStyle(.plain)
+                    
+                    if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
+                        Divider()
+                        
+                        HStack(spacing: 10) {
+                            Image(systemName: "globe")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Production URL")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                Text("https://\(sub)")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(.blue)
+                                    .lineLimit(1)
+                            }
+                            
+                            Spacer()
+                            
+                            Button {
+                                UIPasteboard.general.string = "https://\(sub)"
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showSuccess("URL Copied", message: "https://\(sub)")
+                            } label: {
+                                Image(systemName: "doc.on.doc")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 28, height: 28)
+                                    .background(Color(.tertiarySystemFill))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Copy Production URL")
+                            
+                            Link(destination: url) {
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 28, height: 28)
+                                    .background(Color(.tertiarySystemFill))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Open Production URL")
+                        }
+                    }
                 }
-                
+                .padding(.vertical, 4)
+            }
+            
+            // MARK: - Project Details
+            Section(header: Text("Project Details")) {
                 if let branch = project.productionBranch {
                     HStack {
-                        Text("Production Branch")
-                            .foregroundStyle(.secondary)
+                        Label {
+                            Text("Production Branch")
+                        } icon: {
+                            Image(systemName: "arrow.triangle.branch")
+                                .foregroundStyle(.blue)
+                        }
+                        .foregroundStyle(.primary)
                         Spacer()
                         Text(branch)
-                            .font(.body)
-                            .foregroundStyle(.primary)
+                            .font(.body.monospacedDigit())
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
                 if let repo = project.source?.config?.repoName {
                     HStack {
-                        Text("Repository")
-                            .foregroundStyle(.secondary)
+                        Label {
+                            Text("Repository")
+                        } icon: {
+                            Image(systemName: "folder")
+                                .foregroundStyle(.purple)
+                        }
+                        .foregroundStyle(.primary)
                         Spacer()
                         Text(repo)
                             .font(.body)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if let created = project.createdOn {
+                    HStack {
+                        Label {
+                            Text("Created Date")
+                        } icon: {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(.orange)
+                        }
+                        .foregroundStyle(.primary)
+                        Spacer()
+                        Text(created.prefix(10))
+                            .font(.body.monospacedDigit())
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
             
             // MARK: - Features Navigation
             Section(header: Text("Management")) {
+                NavigationLink {
+                    PagesAnalyticsView(accountId: accountId, projectName: project.name)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "chart.xyaxis.line")
+                            .font(.body)
+                            .foregroundStyle(.purple)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Analytics & Metrics")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                    }
+                }
+                
+                NavigationLink {
+                    PagesDeploymentsListView(accountId: accountId, projectName: project.name, viewModel: viewModel)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.body)
+                            .foregroundStyle(.orange)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        Text("Deployments History")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if !viewModel.deployments.isEmpty {
+                            Text("\(viewModel.deployments.count)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
                 Button {
                     showingDomainsSheet = true
                 } label: {
@@ -220,90 +331,9 @@ struct PagesProjectDetailView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                
-                NavigationLink {
-                    PagesAnalyticsView(accountId: accountId, projectName: project.name)
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "chart.xyaxis.line")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
-                        Text("Analytics & Metrics")
-                            .foregroundStyle(.primary)
-                        Spacer()
-                    }
-                }
-            }
-            
-            // MARK: - Deployments History
-            Section(header: Text("Deployments History (\(viewModel.deployments.count))")) {
-                if !viewModel.hasFetchedData {
-                    ForEach(PagesDeployment.placeholders) { dep in
-                        deploymentRow(dep)
-                    }
-                    .skeletonLoading(true)
-                } else if viewModel.deployments.isEmpty {
-                    Text("No recent deployments found.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(viewModel.deployments) { dep in
-                        Button {
-                            HapticManager.impact(.light)
-                            selectedDeployment = dep
-                        } label: {
-                            deploymentRow(dep)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
             }
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
-    }
-    
-    @ViewBuilder
-    private func deploymentRow(_ dep: PagesDeployment) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                HStack(spacing: 6) {
-                    CloudnsBadge((dep.latestStage?.status == "success") ? .active((dep.environment ?? "Production").capitalized) : .warning((dep.environment ?? "Preview").capitalized), isCompact: true)
-                }
-                
-                Spacer()
-                
-                if let trigger = dep.deploymentTrigger?.metadata?.commitHash {
-                    Text(String(trigger.prefix(7)))
-                        .font(.caption2.monospacedDigit())
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                        .foregroundStyle(.primary)
-                }
-                
-                Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
-            }
-            
-            if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
-                Text(msg)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            
-            if let created = dep.createdOn {
-                Text(created.prefix(19).replacingOccurrences(of: "T", with: " "))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 4)
     }
 }

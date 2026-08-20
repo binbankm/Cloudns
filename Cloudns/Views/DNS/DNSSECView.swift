@@ -51,7 +51,7 @@ struct DNSSECView: View {
         ) {
             HStack {
                 Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 28))
+                    .font(.title2)
                     .foregroundStyle(statusColor(for: dnssec.status))
                     .accessibilityHidden(true)
                 

@@ -86,7 +86,7 @@ struct CIDRCalculatorView: View {
                 // 3. Binary Bitmask
                 Section(header: Text("Binary Bitmask Representation")) {
                     Text(result.binaryMask)
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.caption.monospaced())
                         .foregroundStyle(.blue)
                         .padding(.vertical, 2)
                         .textSelection(.enabled)

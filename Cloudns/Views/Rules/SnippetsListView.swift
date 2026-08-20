@@ -94,13 +94,12 @@ struct SnippetsListView: View {
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Snippet Scripts")) {
+                Section {
                     ForEach(SnippetItem.placeholders) { placeholderSnippet in
                         snippetRow(placeholderSnippet)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !displayedSnippets.isEmpty || !displayedRules.isEmpty {
                 // MARK: - Snippet Scripts
                 Section(header: Text("Snippet Scripts (\(displayedSnippets.count))")) {
@@ -158,6 +157,13 @@ struct SnippetsListView: View {
                             }
                         )
                     )
+                } else if !searchText.isEmpty && displayedSnippets.isEmpty && displayedRules.isEmpty {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
+                        )
+                    )
                 }
             }
         }
@@ -201,6 +207,7 @@ struct SnippetsListView: View {
             }
             .padding(.vertical, 3)
         }
+        .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 HapticManager.impact(.medium)

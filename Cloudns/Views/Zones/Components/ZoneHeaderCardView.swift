@@ -4,6 +4,8 @@ import SwiftUI
 
 struct ZoneHeaderCardView: View {
     let zone: Zone
+    @State private var showingPurgeAlert = false
+    @State private var isPurging = false
 
     init(zone: Zone) {
         self.zone = zone
@@ -17,7 +19,7 @@ struct ZoneHeaderCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             // ── Top Row: Domain Name + Plan & Type Badges ──────────────────
             HStack(alignment: .center, spacing: 8) {
                 Text(zone.name)
@@ -31,7 +33,7 @@ struct ZoneHeaderCardView: View {
                 HStack(spacing: 5) {
                     if let planName = zone.plan?.displayName {
                         Text(planName.uppercased())
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.caption2.weight(.semibold))
                             .foregroundStyle(.white)
                             .lineLimit(1)
                             .padding(.horizontal, 6)
@@ -41,7 +43,7 @@ struct ZoneHeaderCardView: View {
                     }
 
                     Text((zone.type ?? "full").uppercased())
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .padding(.horizontal, 6)
@@ -51,13 +53,13 @@ struct ZoneHeaderCardView: View {
                 .fixedSize(horizontal: true, vertical: true)
             }
 
-            // ── Compact Status Badges Row ──────────────────────────────────
+            // ── Compact Status Badges & Quick Purge Row ────────────────────
             HStack(spacing: 6) {
                 HStack(spacing: 3.5) {
                     Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.semibold))
                     Text(zone.status.capitalized)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .lineLimit(1)
                 }
                 .foregroundStyle(.white)
@@ -69,7 +71,7 @@ struct ZoneHeaderCardView: View {
 
                 if zone.paused {
                     Text("Paused")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .padding(.horizontal, 7)
@@ -81,7 +83,7 @@ struct ZoneHeaderCardView: View {
 
                 if (zone.developmentMode ?? 0) > 0 {
                     Text("Dev Mode")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .padding(.horizontal, 7)
@@ -92,6 +94,32 @@ struct ZoneHeaderCardView: View {
                 }
 
                 Spacer()
+                
+                // ⚡ 1-Tap Quick Purge Cache Button
+                Button {
+                    HapticManager.impact(.medium)
+                    showingPurgeAlert = true
+                } label: {
+                    HStack(spacing: 4) {
+                        if isPurging {
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(0.7)
+                        } else {
+                            Image(systemName: "bolt.fill")
+                                .font(.caption2.weight(.bold))
+                        }
+                        Text("Purge Cache")
+                            .font(.caption2.weight(.semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3.5)
+                    .background(.white.opacity(0.25))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isPurging)
             }
 
             // ── Nameservers Row ────────────────────────────────────────────
@@ -105,11 +133,11 @@ struct ZoneHeaderCardView: View {
                     
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Nameservers")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.caption2.weight(.medium))
                             .foregroundStyle(.white.opacity(0.75))
                         ForEach(nsArray, id: \.self) { ns in
                             Text(ns)
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.white.opacity(0.95))
                                 .lineLimit(1)
                         }
@@ -144,5 +172,29 @@ struct ZoneHeaderCardView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .shadow(color: Color.green.opacity(0.20), radius: 10, x: 0, y: 4)
+        .alert("Purge Everything?", isPresented: $showingPurgeAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Purge All Files", role: .destructive) {
+                Task {
+                    await performQuickPurge()
+                }
+            }
+        } message: {
+            Text("This will immediately expire and clear all cached static files globally across Cloudflare edge data centers for \(zone.name).")
+        }
+    }
+    
+    private func performQuickPurge() async {
+        isPurging = true
+        HapticManager.impact(.heavy)
+        do {
+            try await ZoneService.shared.purgeCache(zoneId: zone.id)
+            HapticManager.notification(.success)
+            ToastManager.shared.showSuccess("Cache Purged", message: "All cached assets purged globally for \(zone.name).")
+        } catch {
+            HapticManager.notification(.error)
+            ToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
+        }
+        isPurging = false
     }
 }

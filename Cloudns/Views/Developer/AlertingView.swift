@@ -12,25 +12,44 @@ struct AlertingView: View {
     }
     
     var body: some View {
-        List {
+        VStack(spacing: 0) {
             Picker("Category", selection: $selectedTab) {
                 Text("Active Policies").tag("policies")
                 Text("Available Alerts").tag("available")
                 Text("Webhooks").tag("webhooks")
             }
             .pickerStyle(.segmented)
-            .listRowBackground(Color.clear)
-            .padding(.vertical, 4)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
             
+            contentList
+                .centerConstrainedWidth(maxWidth: 840)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Notification Alerts")
+        .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            await viewModel.fetchData()
+        }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchData()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var contentList: some View {
+        List {
             if selectedTab == "policies" {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Configured Policies")) {
+                    Section {
                         ForEach(AlertingPolicy.placeholders) { placeholder in
                             policyRow(placeholder)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
+                    .skeletonLoading(true)
                 } else if !viewModel.policies.isEmpty {
                     Section(header: Text("Configured Policies (\(viewModel.policies.count))")) {
                         ForEach(viewModel.policies) { p in
@@ -86,7 +105,6 @@ struct AlertingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData {
                 if selectedTab == "policies" && viewModel.policies.isEmpty {
@@ -106,16 +124,6 @@ struct AlertingView: View {
                         )
                     )
                 }
-            }
-        }
-        .navigationTitle("Notification Alerts")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable {
-            await viewModel.fetchData()
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchData()
             }
         }
     }

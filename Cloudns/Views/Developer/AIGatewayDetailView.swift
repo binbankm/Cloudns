@@ -85,6 +85,7 @@ struct AIGatewayDetailView: View {
                         }
                         .font(.subheadline.weight(.semibold))
                     }
+                    .buttonStyle(.bordered)
                 }
                 .padding(.vertical, 2)
             }

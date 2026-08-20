@@ -129,7 +129,7 @@ struct CFIpRangesToolView: View {
                     
                     ScrollView {
                         Text(generateExportCode())
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.footnote.monospaced())
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

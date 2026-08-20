@@ -36,7 +36,7 @@ struct TransformRuleCardView: View {
                             .accessibilityHidden(true)
                         Text("Rewrite Path -> \(path)")
                             .font(.caption)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 if let query = uri.query?.value {
@@ -47,7 +47,7 @@ struct TransformRuleCardView: View {
                             .accessibilityHidden(true)
                         Text("Rewrite Query -> \(query)")
                             .font(.caption)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }

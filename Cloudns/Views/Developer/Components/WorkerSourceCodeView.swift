@@ -9,12 +9,14 @@ struct WorkerSourceCodeView: View {
     let modules: [WorkerModuleItem]
     let singleScriptContent: String
     
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedModuleName: String = "index.js"
     @State private var editableCode: String = ""
     @State private var isEditingMode: Bool = false
     @State private var isDeploying: Bool = false
     @State private var showingDeployAlert: Bool = false
     @State private var wrapLines: Bool = true
+    @State private var fontSize: CGFloat = 13.0
     
     init(
         parentViewModel: WorkerDetailViewModel,
@@ -32,7 +34,6 @@ struct WorkerSourceCodeView: View {
     }
     
     private var currentCode: String {
-        // Prefer live data from parentViewModel over the init-time snapshot
         let liveModules = parentViewModel.modules.isEmpty ? modules : parentViewModel.modules
         let liveContent = parentViewModel.scriptContent.isEmpty ? singleScriptContent : parentViewModel.scriptContent
         
@@ -42,86 +43,29 @@ struct WorkerSourceCodeView: View {
         return liveContent
     }
     
-    @ViewBuilder
-    private var modeSwitcherBar: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 0) {
-                Button {
-                    HapticManager.selection()
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isEditingMode = false
-                    }
-                } label: {
-                    let isActive = !isEditingMode
-                    Text("Read Only")
-                        .font(.footnote.weight(isActive ? .semibold : .regular))
-                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                        .background(isActive ? Color(.systemBackground) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                }
-                .buttonStyle(.plain)
-                
-                Button {
-                    HapticManager.selection()
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isEditingMode = true
-                    }
-                } label: {
-                    let isActive = isEditingMode
-                    Text("Edit")
-                        .font(.footnote.weight(isActive ? .semibold : .regular))
-                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                        .background(isActive ? Color(.systemBackground) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(3)
-            .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .frame(maxWidth: 160)
-            
-            Spacer()
-            
-            if isEditingMode {
-                Button {
-                    HapticManager.impact(.medium)
-                    showingDeployAlert = true
-                } label: {
-                    HStack(spacing: 4) {
-                        if isDeploying {
-                            ProgressView().scaleEffect(0.8)
-                        } else {
-                            Image(systemName: "arrow.up.circle.fill")
-                            Text("Deploy")
-                        }
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .disabled(isDeploying || editableCode.isEmpty)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color(.secondarySystemGroupedBackground))
+    private var activeModules: [WorkerModuleItem] {
+        parentViewModel.modules.isEmpty ? modules : parentViewModel.modules
+    }
+    
+    private var isESMModule: Bool {
+        editableCode.contains("export default") || editableCode.contains("export {") || editableCode.contains("export const") || editableCode.contains("export function")
+    }
+    
+    private var lineCount: Int {
+        editableCode.components(separatedBy: "\n").count
+    }
+    
+    private var byteCount: Int {
+        editableCode.utf8.count
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            // Top Tab Bar: Modules (if multi-module)
-            if modules.count > 1 {
+            // 1. Top Tab Bar: Modules (if multi-module)
+            if activeModules.count > 1 {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        ForEach(modules) { mod in
+                        ForEach(activeModules) { mod in
                             Button {
                                 HapticManager.impact(.light)
                                 selectedModuleName = mod.name
@@ -130,15 +74,20 @@ struct WorkerSourceCodeView: View {
                                 HStack(spacing: 5) {
                                     Image(systemName: mod.isMain ? "star.fill" : "doc.text")
                                         .font(.caption2)
+                                        .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.secondary)
                                         .accessibilityHidden(true)
                                     Text(mod.name)
-                                        .font(.body)
+                                        .font(.subheadline.weight(selectedModuleName == mod.name ? .semibold : .regular))
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(selectedModuleName == mod.name ? Color.orange : Color(.secondarySystemGroupedBackground))
-                                .foregroundStyle(selectedModuleName == mod.name ? .white : .primary)
+                                .background(selectedModuleName == mod.name ? Color.orange.opacity(0.15) : Color(.tertiarySystemFill))
+                                .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.primary)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(selectedModuleName == mod.name ? Color.orange.opacity(0.3) : Color.clear, lineWidth: 1)
+                                )
                             }
                             .buttonStyle(.plain)
                         }
@@ -150,34 +99,31 @@ struct WorkerSourceCodeView: View {
                 Divider()
             }
             
-            // Mode switcher bar (View / Edit)
-            modeSwitcherBar
+            // 2. Control Toolbar (Font scaling + Line Wrap + Mode Switcher)
+            controlBar
             
             Divider()
             
-            // Native High-Performance Code View / Editor
+            // 3. Native Syntax-Highlighted Code View
             CodeEditorView(
                 text: $editableCode,
                 isEditable: isEditingMode,
-                wrapLines: wrapLines
+                wrapLines: wrapLines,
+                fontSize: fontSize,
+                isDarkMode: colorScheme == .dark
             )
-            .id("\(selectedModuleName)-\(wrapLines)")
+            .id("\(selectedModuleName)-\(wrapLines)-\(fontSize)")
             .background(Color(.secondarySystemGroupedBackground))
+            
+            Divider()
+            
+            // 4. Bottom Status & Metadata Bar
+            statusBar
         }
         .navigationTitle(selectedModuleName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    HapticManager.selection()
-                    wrapLines.toggle()
-                } label: {
-                    Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
-                        .font(.subheadline)
-                        .foregroundStyle(wrapLines ? Color.accentColor : Color.secondary)
-                }
-                .accessibilityLabel("Toggle Line Wrap")
-                
                 ShareLink(
                     item: editableCode,
                     subject: Text(selectedModuleName),
@@ -199,17 +145,14 @@ struct WorkerSourceCodeView: View {
             }
         }
         .onAppear {
-            // Use live ViewModel data if available (async fetch may have completed)
-            let liveModules = parentViewModel.modules.isEmpty ? modules : parentViewModel.modules
+            let liveModules = activeModules
             let liveContent = parentViewModel.scriptContent.isEmpty ? singleScriptContent : parentViewModel.scriptContent
             
-            // Sync selected module name to the actual available data
             if !liveModules.isEmpty && !liveModules.contains(where: { $0.name == selectedModuleName }) {
                 selectedModuleName = liveModules.first(where: { $0.isMain })?.name ?? liveModules.first?.name ?? selectedModuleName
             }
             editableCode = currentCode
             
-            // If still empty, it means ViewModel hasn't loaded yet — trigger fetch
             if liveContent.isEmpty && !parentViewModel.hasFetchedData {
                 Task { await parentViewModel.fetchDetails() }
             }
@@ -234,9 +177,8 @@ struct WorkerSourceCodeView: View {
                 Task {
                     isDeploying = true
                     do {
-                        let hasEsm = editableCode.contains("export default") || editableCode.contains("export {") || editableCode.contains("export const") || editableCode.contains("export function")
                         let isServiceWorker = editableCode.contains("addEventListener") || editableCode.contains("respondWith")
-                        let resolvedIsModule = hasEsm || !isServiceWorker
+                        let resolvedIsModule = isESMModule || !isServiceWorker
                         
                         try await parentViewModel.deployScript(code: editableCode, isModule: resolvedIsModule)
                         HapticManager.notification(.success)
@@ -251,5 +193,181 @@ struct WorkerSourceCodeView: View {
         } message: {
             Text("This will immediately deploy the modified code to '\(scriptName)' while safely preserving all resource bindings and secrets.")
         }
+    }
+    
+    // MARK: - Control Bar
+    @ViewBuilder
+    private var controlBar: some View {
+        HStack(spacing: 12) {
+            // Font Size Controls [A-] [A+]
+            HStack(spacing: 2) {
+                Button {
+                    HapticManager.selection()
+                    if fontSize > 10.0 {
+                        fontSize -= 1.0
+                    }
+                } label: {
+                    Text("A-")
+                        .font(.caption.weight(.semibold))
+                        .frame(width: 28, height: 26)
+                        .background(Color(.tertiarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+                .disabled(fontSize <= 10.0)
+                
+                Button {
+                    HapticManager.selection()
+                    if fontSize < 20.0 {
+                        fontSize += 1.0
+                    }
+                } label: {
+                    Text("A+")
+                        .font(.caption.weight(.semibold))
+                        .frame(width: 28, height: 26)
+                        .background(Color(.tertiarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+                .disabled(fontSize >= 20.0)
+            }
+            
+            // Word Wrap Toggle
+            Button {
+                HapticManager.selection()
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    wrapLines.toggle()
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
+                        .font(.caption2)
+                    Text(wrapLines ? "Wrap" : "Scroll")
+                        .font(.caption2.weight(.medium))
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(wrapLines ? Color.orange.opacity(0.12) : Color(.tertiarySystemFill))
+                .foregroundStyle(wrapLines ? Color.orange : Color.secondary)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            // Read-Only / Edit Toggle
+            HStack(spacing: 0) {
+                Button {
+                    HapticManager.selection()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isEditingMode = false
+                    }
+                } label: {
+                    let isActive = !isEditingMode
+                    Text("Read Only")
+                        .font(.caption2.weight(isActive ? .semibold : .regular))
+                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(isActive ? Color(.systemBackground) : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+                
+                Button {
+                    HapticManager.selection()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isEditingMode = true
+                    }
+                } label: {
+                    let isActive = isEditingMode
+                    Text("Edit")
+                        .font(.caption2.weight(isActive ? .semibold : .regular))
+                        .foregroundStyle(isActive ? Color.primary : Color.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(isActive ? Color(.systemBackground) : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(2)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            
+            if isEditingMode {
+                Button {
+                    HapticManager.impact(.medium)
+                    showingDeployAlert = true
+                } label: {
+                    HStack(spacing: 4) {
+                        if isDeploying {
+                            ProgressView().scaleEffect(0.7)
+                        } else {
+                            Image(systemName: "arrow.up.circle.fill")
+                            Text("Deploy")
+                        }
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.blue)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+                .buttonStyle(.plain)
+                .disabled(isDeploying || editableCode.isEmpty)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+        .background(Color(.secondarySystemGroupedBackground))
+    }
+    
+    // MARK: - Status Bar
+    @ViewBuilder
+    private var statusBar: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(isESMModule ? Color.purple : Color.orange)
+                    .frame(width: 6, height: 6)
+                Text(isESMModule ? "ES Module" : "Service Worker")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.primary)
+            }
+            
+            Text("•")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            
+            Text("\(lineCount) Lines")
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            
+            Text("•")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            
+            Text(formatBytes(byteCount))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
+            Text("UTF-8")
+                .font(.caption2.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+        .background(Color(.systemGroupedBackground))
+    }
+    
+    private func formatBytes(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useAll]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 }

@@ -101,17 +101,14 @@ struct KVBrowserView: View {
                     if viewModel.selectedSegment == 0 {
                         ForEach(KVNamespace.placeholders) { ns in
                             kvRow(ns)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     } else {
                         ForEach(D1Database.placeholders) { db in
                             d1Row(db)
-                                .redacted(reason: .placeholder)
-                                .shimmering()
                         }
                     }
                 }
+                .skeletonLoading(true)
             } else if viewModel.selectedSegment == 0 {
                 if !viewModel.namespaces.isEmpty {
                     Section {

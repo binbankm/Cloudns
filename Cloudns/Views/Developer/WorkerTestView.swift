@@ -179,7 +179,7 @@ struct WorkerTestView: View {
                 Section {
                     VStack(spacing: 10) {
                         Image(systemName: "bolt.horizontal.circle.fill")
-                            .font(.system(size: 38))
+                            .font(.largeTitle)
                             .foregroundStyle(.orange.opacity(0.8))
                             .accessibilityHidden(true)
                         
@@ -203,6 +203,62 @@ struct WorkerTestView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Test Dispatch")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        let curl = generateCurlCommand()
+                        UIPasteboard.general.string = curl
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("cURL command copied")
+                    } label: {
+                        Label("Copy as cURL", systemImage: "terminal")
+                    }
+                    
+                    Button {
+                        let fetchCode = generateFetchCode()
+                        UIPasteboard.general.string = fetchCode
+                        HapticManager.notification(.success)
+                        ToastManager.shared.showCopied("Fetch (TS) code copied")
+                    } label: {
+                        Label("Copy as Fetch (TS)", systemImage: "chevron.left.forwardslash.chevron.right")
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                .disabled(viewModel.targetUrl.isEmpty)
+                .accessibilityLabel("Export Request")
+            }
+        }
+    }
+    
+    private func generateCurlCommand() -> String {
+        var parts: [String] = ["curl -X \(viewModel.selectedMethod) \"\(viewModel.targetUrl)\""]
+        if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
+            parts.append("-H \"Content-Type: application/json\"")
+            if !viewModel.requestBody.isEmpty {
+                let escaped = viewModel.requestBody.replacingOccurrences(of: "\"", with: "\\\"")
+                parts.append("-d \"\(escaped)\"")
+            }
+        }
+        return parts.joined(separator: " \\\n  ")
+    }
+    
+    private func generateFetchCode() -> String {
+        var options: [String] = ["method: '\(viewModel.selectedMethod)'"]
+        if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
+            options.append("headers: { 'Content-Type': 'application/json' }")
+            if !viewModel.requestBody.isEmpty {
+                options.append("body: JSON.stringify(\(viewModel.requestBody))")
+            }
+        }
+        return """
+        const response = await fetch('\(viewModel.targetUrl)', {
+          \(options.joined(separator: ",\n  "))
+        });
+        const data = await response.json();
+        console.log(data);
+        """
     }
     
     private func quickPathButton(_ path: String) -> some View {

@@ -15,13 +15,12 @@ struct AIGatewayView: View {
     var body: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Configured Gateways")) {
+                Section {
                     ForEach(AIGateway.placeholders) { placeholder in
                         gatewayRow(placeholder)
-                            .redacted(reason: .placeholder)
-                            .shimmering()
                     }
                 }
+                .skeletonLoading(true)
             } else if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
                     ForEach(viewModel.filteredGateways) { gw in

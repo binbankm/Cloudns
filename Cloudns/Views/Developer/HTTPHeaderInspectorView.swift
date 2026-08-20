@@ -73,9 +73,9 @@ struct HTTPHeaderInspectorView: View {
             if viewModel.isHttpLoading {
                 Section(header: Text("Requesting Edge Headers...")) {
                     HStack {
-                        Text("HTTP/2 200 OK").redacted(reason: .placeholder)
+                        Text("HTTP/2 200 OK")
                         Spacer()
-                        Text("42.5 ms").redacted(reason: .placeholder)
+                        Text("42.5 ms")
                     }
                     .skeletonLoading(true)
                 }
