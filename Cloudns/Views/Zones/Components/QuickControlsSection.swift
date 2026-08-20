@@ -44,7 +44,7 @@ struct QuickControlsSection: View {
                 if updatingAttack || isLoading {
                     ProgressView().controlSize(.small)
                 } else {
-                    Toggle("", isOn: $isUnderAttack)
+                    Toggle(isOn: $isUnderAttack) { }
                         .labelsHidden()
                         .onChange(of: isUnderAttack) { val in
                             guard hasFetchedData && !isLoading && !updatingAttack else { return }
@@ -78,7 +78,7 @@ struct QuickControlsSection: View {
                 if updatingDev || isLoading {
                     ProgressView().controlSize(.small)
                 } else {
-                    Toggle("", isOn: $isDevMode)
+                    Toggle(isOn: $isDevMode) { }
                         .labelsHidden()
                         .onChange(of: isDevMode) { val in
                             guard hasFetchedData && !isLoading && !updatingDev else { return }
@@ -112,7 +112,7 @@ struct QuickControlsSection: View {
                 if updatingPause {
                     ProgressView().controlSize(.small)
                 } else {
-                    Toggle("", isOn: $isPaused)
+                    Toggle(isOn: $isPaused) { }
                         .labelsHidden()
                         .onChange(of: isPaused) { val in
                             guard hasFetchedData && !isLoading && !updatingPause else { return }

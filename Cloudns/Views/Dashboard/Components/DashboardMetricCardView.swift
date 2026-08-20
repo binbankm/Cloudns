@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - DashboardMetricCardView
+// MARK: - DashboardMetricCardView (Compact & Non-wrapping)
 
 struct DashboardMetricCardView: View {
     let icon: String
@@ -27,14 +27,15 @@ struct DashboardMetricCardView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 0) {
+            // 1. Top Bar: Left Icon + Right Tag Badge
+            HStack(alignment: .center) {
                 ZStack {
                     Circle()
-                        .fill(iconColor.opacity(0.12))
-                        .frame(width: 30, height: 30)
+                        .fill(iconColor.opacity(0.14))
+                        .frame(width: 26, height: 26)
                     Image(systemName: icon)
-                        .font(.caption.weight(.semibold))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(iconColor)
                 }
                 .accessibilityHidden(true)
@@ -42,41 +43,46 @@ struct DashboardMetricCardView: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(.caption2.weight(.medium))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1.5)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
                     .background(Color(.tertiarySystemFill))
                     .clipShape(Capsule())
                     .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
             }
             
+            Spacer(minLength: 4)
+            
+            // 2. Middle Value: Large Bold Number
             CloudnsRollingNumber(
                 value: value,
                 font: .system(.title2, design: .rounded),
                 weight: .bold,
                 color: .primary
             )
+            .lineLimit(1)
+            .minimumScaleFactor(0.80)
             
+            Spacer(minLength: 4)
+            
+            // 3. Bottom Text Group: Title (Full width line) & Subtitle
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.85)
                 
                 Text(subtitle)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.80)
             }
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 136)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(11)
+        .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
+        .cloudnsCard(style: .frosted, cornerRadius: 14)
     }
 }

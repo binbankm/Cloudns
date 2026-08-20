@@ -9,7 +9,11 @@ struct AnalyticsView: View {
     let zoneName: String
     
     @StateObject private var viewModel = AnalyticsViewModel()
-    @State private var timeRange: Int = 30
+    @State private var timeRange: Int = 1
+    
+    // Interactive Scrubbing States
+    @State private var selectedPoint: AnalyticsDataPoint?
+    @State private var selectedBandwidthPoint: AnalyticsDataPoint?
     
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
@@ -26,6 +30,19 @@ struct AnalyticsView: View {
             }
         }
         return viewModel.loadedDays == 1
+    }
+    
+    private var chartXRange: ClosedRange<Date> {
+        if let first = viewModel.dataPoints.first,
+           let last = viewModel.dataPoints.last {
+            let start = dateFromString(first.dimensions.datetime ?? first.dimensions.date ?? "")
+            let end = dateFromString(last.dimensions.datetime ?? last.dimensions.date ?? "")
+            if start < end {
+                return start...end
+            }
+        }
+        let now = Date()
+        return now...now.addingTimeInterval(3600)
     }
     
     public var body: some View {
@@ -90,10 +107,10 @@ struct AnalyticsView: View {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
-                        // 3. Requests 折线图 (Line Chart with Gradient Area)
+                        // 3. Requests 折线图 (Line Chart with Luminous Aurora & Interactive Scrubbing)
                         requestsLineChartCard
                         
-                        // 4. Bandwidth 柱状图 (Bar Chart)
+                        // 4. Bandwidth 柱状图 (Bar Chart with Rounded Bars & Scrubbing)
                         bandwidthBarChartCard
                         
                         // 5. Traffic by Country Map Section
@@ -153,6 +170,8 @@ struct AnalyticsView: View {
             .frame(width: 155)
             .onChange(of: timeRange) { newValue in
                 HapticManager.impact(.light)
+                selectedPoint = nil
+                selectedBandwidthPoint = nil
                 Task {
                     await viewModel.fetchAnalytics(zoneTag: zoneId, days: newValue)
                 }
@@ -171,7 +190,7 @@ struct AnalyticsView: View {
                 value: formatNumber(viewModel.totalRequests),
                 icon: "globe",
                 color: .blue,
-                badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Data Transferred"
+                badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Transferred"
             )
             
             metricCard(
@@ -243,20 +262,65 @@ struct AnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 3. Requests 折线图 (Line Chart)
+    // MARK: - 3. Requests 折线图 (Luminous Aurora + Interactive Live Scrubbing)
     private var requestsLineChartCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "chart.xyaxis.line")
-                    .font(.subheadline)
-                    .foregroundStyle(.blue)
-                Text("Requests Traffic")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
+        let maxReq = viewModel.dataPoints.map { $0.sum.requests }.max() ?? 10
+        let yUpper = max(10.0, Double(maxReq) * 1.18)
+        
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chart.xyaxis.line")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.blue)
+                        Text("Requests Traffic")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let selected = selectedPoint {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(formatNumber(selected.sum.requests))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("requests")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(formatNumber(viewModel.totalRequests))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("total")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
                 Spacer()
-                Text("Total vs Cached")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                
+                if let selected = selectedPoint {
+                    let dateStr = formattedPointDate(selected)
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 6, height: 6)
+                        Text(dateStr)
+                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.12))
+                    .clipShape(Capsule())
+                } else {
+                    Text("Drag to Inspect")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.tertiary)
+                }
             }
             
             Chart {
@@ -269,28 +333,60 @@ struct AnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.35), Color.blue.opacity(0.02)],
+                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .interpolationMethod(.catmullRom)
+                    .interpolationMethod(.monotone)
                     
                     LineMark(
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
                     .foregroundStyle(Color.blue)
-                    .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.monotone)
+                }
+                
+                if let selected = selectedPoint {
+                    let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
+                    RuleMark(x: .value("Date", selDate))
+                        .foregroundStyle(Color.blue.opacity(0.6))
+                        .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                    
+                    PointMark(
+                        x: .value("Date", selDate),
+                        y: .value("Requests", selected.sum.requests)
+                    )
+                    .symbol {
+                        ZStack {
+                            Circle()
+                                .fill(Color.blue.opacity(0.25))
+                                .frame(width: 16, height: 16)
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 8, height: 8)
+                                .shadow(color: Color.blue, radius: 4)
+                            Circle()
+                                .stroke(Color.blue, lineWidth: 2)
+                                .frame(width: 8, height: 8)
+                        }
+                    }
                 }
             }
             .id("requests_chart_\(viewModel.loadedDays)")
-            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
-            .frame(height: 230)
+            .frame(height: 220)
+            .chartPlotStyle { plot in
+                plot.clipped()
+            }
+            .chartYScale(domain: 0...yUpper)
+            .chartXScale(domain: chartXRange)
+            .transaction { $0.animation = nil }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if isHourlyData {
                         AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
                             .font(.caption2)
@@ -303,11 +399,40 @@ struct AnalyticsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
                             Text(formatNumber(count))
+                                .frame(width: 44, alignment: .trailing)
                         }
                     }
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(Color.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let origin = geo[proxy.plotAreaFrame].origin
+                                    let locationX = value.location.x - origin.x
+                                    guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
+                                    
+                                    if let date: Date = proxy.value(atX: locationX) {
+                                        if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
+                                            if selectedPoint?.id != closest.id {
+                                                HapticManager.impact(.light)
+                                                selectedPoint = closest
+                                            }
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    selectedPoint = nil
+                                }
+                        )
                 }
             }
         }
@@ -316,39 +441,107 @@ struct AnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 4. Bandwidth 柱状图 (Bar Chart)
+    // MARK: - 4. Bandwidth 柱状图 (Bar Chart with Rounded Bars & Scrubbing)
     private var bandwidthBarChartCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "chart.bar.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(.purple)
-                Text("Bandwidth")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
+        let maxBytes = viewModel.dataPoints.map { $0.sum.bytes }.max() ?? 1024
+        let yUpper = max(1024.0, Double(maxBytes) * 1.18)
+        
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.purple)
+                        Text("Bandwidth Usage")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let selected = selectedBandwidthPoint {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(viewModel.formatBytes(selected.sum.bytes))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("transferred")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(viewModel.formatBytes(viewModel.totalBandwidthBytes))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("total")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
                 Spacer()
-                Text("Data Transferred over Time")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                
+                if let selected = selectedBandwidthPoint {
+                    let dateStr = formattedPointDate(selected)
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.purple)
+                            .frame(width: 6, height: 6)
+                        Text(dateStr)
+                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.purple.opacity(0.12))
+                    .clipShape(Capsule())
+                } else {
+                    Text("Drag to Inspect")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.tertiary)
+                }
             }
             
             Chart {
                 ForEach(viewModel.dataPoints) { point in
                     let ptDate = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
+                    let isSelected = selectedBandwidthPoint?.id == point.id
+                    
                     BarMark(
                         x: .value("Date", ptDate),
                         y: .value("Bytes", point.sum.bytes)
                     )
-                    .foregroundStyle(Color.purple)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: isSelected
+                                ? [Color.purple.opacity(0.95), Color.purple]
+                                : [Color.purple.opacity(0.65), Color.purple.opacity(0.85)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                     .cornerRadius(4)
+                }
+                
+                if let selected = selectedBandwidthPoint {
+                    let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
+                    RuleMark(x: .value("Date", selDate))
+                        .foregroundStyle(Color.purple.opacity(0.6))
+                        .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                 }
             }
             .id("bandwidth_chart_\(viewModel.loadedDays)")
-            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
-            .frame(height: 220)
+            .frame(height: 200)
+            .chartPlotStyle { plot in
+                plot.clipped()
+            }
+            .chartYScale(domain: 0...yUpper)
+            .chartXScale(domain: chartXRange)
+            .transaction { $0.animation = nil }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if isHourlyData {
                         AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
                             .font(.caption2)
@@ -361,21 +554,46 @@ struct AnalyticsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if let bytes = value.as(Int.self) {
                         AxisValueLabel {
                             Text(viewModel.formatBytes(bytes))
+                                .frame(width: 52, alignment: .trailing)
                         }
                     }
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(Color.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let origin = geo[proxy.plotAreaFrame].origin
+                                    let locationX = value.location.x - origin.x
+                                    guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
+                                    
+                                    if let date: Date = proxy.value(atX: locationX) {
+                                        if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
+                                            if selectedBandwidthPoint?.id != closest.id {
+                                                HapticManager.impact(.light)
+                                                selectedBandwidthPoint = closest
+                                            }
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    selectedBandwidthPoint = nil
+                                }
+                        )
                 }
             }
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-    
-    private func dateFromString(_ dateString: String) -> Date {
-        DateFormatters.parseChartDate(dateString)
     }
     
     // MARK: - 5. Traffic by Country Map
@@ -507,6 +725,29 @@ struct AnalyticsView: View {
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+    
+    // MARK: - Helpers
+    private func dateFromString(_ dateString: String) -> Date {
+        DateFormatters.parseChartDate(dateString)
+    }
+    
+    private func formattedPointDate(_ point: AnalyticsDataPoint) -> String {
+        let date = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
+        if isHourlyData {
+            return date.formatted(date: .omitted, time: .shortened)
+        } else {
+            return date.formatted(.dateTime.month().day())
+        }
+    }
+    
+    private func findClosestPoint(for date: Date, in points: [AnalyticsDataPoint]) -> AnalyticsDataPoint? {
+        guard !points.isEmpty else { return nil }
+        return points.min(by: {
+            let d1 = abs(dateFromString($0.dimensions.datetime ?? $0.dimensions.date ?? "").timeIntervalSince(date))
+            let d2 = abs(dateFromString($1.dimensions.datetime ?? $1.dimensions.date ?? "").timeIntervalSince(date))
+            return d1 < d2
+        })
     }
     
     private func formatNumber(_ num: Int) -> String {

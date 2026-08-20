@@ -22,9 +22,10 @@ public struct ZoneTrafficSparklineView: View {
     
     public var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let height = proxy.size.height
-            let points = normalizedPoints(for: data, in: CGSize(width: width, height: height))
+            let width = max(1, proxy.size.width)
+            let height = max(1, proxy.size.height)
+            let validValues = data.map { max(0, $0) }
+            let points = normalizedPoints(for: validValues, in: CGSize(width: width, height: height))
             
             ZStack {
                 if showGradientFill && points.count > 1 {
@@ -42,40 +43,54 @@ public struct ZoneTrafficSparklineView: View {
                     path(for: points, closedToBottom: false, height: height, width: width)
                         .stroke(
                             LinearGradient(
-                                colors: [lineColor.opacity(0.7), lineColor],
+                                colors: [lineColor.opacity(0.65), lineColor],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
                         )
-                } else {
-                    // Minimal flat baseline when no traffic or single point
-                    Path { p in
-                        p.move(to: CGPoint(x: 0, y: height * 0.75))
-                        p.addLine(to: CGPoint(x: width, y: height * 0.75))
+                        .shadow(color: lineColor.opacity(0.35), radius: 2.5, x: 0, y: 1)
+                    
+                    // 末端高亮微光指示点
+                    if let last = points.last {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 3.5, height: 3.5)
+                            .shadow(color: lineColor, radius: 2)
+                            .position(last)
                     }
-                    .stroke(lineColor.opacity(0.20), style: StrokeStyle(lineWidth: 1.2, dash: [3, 3]))
+                } else {
+                    // 无数据或单点时的极简基线
+                    Path { p in
+                        p.move(to: CGPoint(x: 2, y: height * 0.75))
+                        p.addLine(to: CGPoint(x: width - 2, y: height * 0.75))
+                    }
+                    .stroke(lineColor.opacity(0.22), style: StrokeStyle(lineWidth: 1.2, dash: [3, 3]))
                 }
             }
+            .clipped()
         }
     }
     
     private func normalizedPoints(for values: [Double], in size: CGSize) -> [CGPoint] {
         guard values.count > 1 else { return [] }
         
-        let validValues = values.map { max(0, $0) }
-        let maxVal = validValues.max() ?? 1.0
-        let minVal = validValues.min() ?? 0.0
+        let maxVal = values.max() ?? 1.0
+        let minVal = values.min() ?? 0.0
         let range = max(maxVal - minVal, 1.0)
         
-        let stepX = size.width / CGFloat(validValues.count - 1)
-        let usableHeight = size.height * 0.75
-        let offsetY = size.height * 0.12
+        // 留出 2pt 边缘安全间距，防止线条和圆点超出边界
+        let horizontalPadding: CGFloat = 2.0
+        let usableWidth = max(1, size.width - horizontalPadding * 2)
+        let stepX = usableWidth / CGFloat(values.count - 1)
         
-        return validValues.enumerated().map { index, val in
+        let usableHeight = size.height * 0.70
+        let offsetY = size.height * 0.15
+        
+        return values.enumerated().map { index, val in
             let normY = (val - minVal) / range
             let y = size.height - (CGFloat(normY) * usableHeight + offsetY)
-            let x = CGFloat(index) * stepX
+            let x = horizontalPadding + CGFloat(index) * stepX
             return CGPoint(x: x, y: y)
         }
     }
@@ -122,13 +137,13 @@ public struct ZoneRowSparklineView: View {
         let points = cached?.points ?? []
         let total = cached?.totalRequests ?? 0
         
-        HStack(spacing: 6) {
+        HStack(spacing: 5) {
             ZoneTrafficSparklineView(
                 data: points,
                 lineColor: sparklineColor(total: total),
-                lineWidth: 1.6
+                lineWidth: 1.5
             )
-            .frame(width: 52, height: 24)
+            .frame(width: 44, height: 22)
             
             if total > 0 {
                 Text(formatMetric(total))
@@ -136,6 +151,7 @@ public struct ZoneRowSparklineView: View {
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
         .accessibilityHidden(true)

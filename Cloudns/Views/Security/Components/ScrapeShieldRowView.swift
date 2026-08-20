@@ -34,7 +34,7 @@ struct ScrapeShieldRowView: View {
             
             Spacer()
             
-            Toggle("", isOn: $isOn)
+            Toggle(isOn: $isOn) { }
                 .labelsHidden()
                 .disabled(isLoading)
         }

@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showingClearCacheAlert = false
     @StateObject private var accountManager = AccountManager.shared
     @StateObject private var cacheManager = CacheManager.shared
+    @StateObject private var iconManager = AppIconManager.shared
     
     var body: some View {
         NavigationStack {
@@ -137,8 +138,23 @@ struct SettingsView: View {
                         )
                     }
                     .pickerStyle(.menu)
+                    .tint(.secondary)
                     .onChange(of: themePreference) { _ in
                         HapticManager.impact(.light)
+                    }
+                    
+                    NavigationLink(destination: AppIconPickerView()) {
+                        HStack {
+                            SettingsRowView(
+                                icon: "app.badge.fill",
+                                color: .pink,
+                                title: "App Icon"
+                            )
+                            Spacer()
+                            Text(iconManager.currentIcon.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     
                     Picker(selection: $appLanguage) {
@@ -153,6 +169,7 @@ struct SettingsView: View {
                         )
                     }
                     .pickerStyle(.menu)
+                    .tint(.secondary)
                     .onChange(of: appLanguage) { _ in
                         HapticManager.impact(.light)
                     }

@@ -12,10 +12,10 @@ struct TransformRuleCardView: View {
                 Text(rule.description ?? "Unnamed Rule")
                     .font(.body)
                 Spacer()
-                Toggle("", isOn: Binding(
+                Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                ))
+                )) { }
                 .labelsHidden()
             }
             

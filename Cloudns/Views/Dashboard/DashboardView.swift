@@ -12,25 +12,25 @@ struct DashboardView: View {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 14) {
                         // 1. Brand Hero Header
                         heroHeaderView
                         
-                        // 2. Global Fleet Metrics Grid (Adaptive 2x2 or 3x3)
+                        // 2. Global Fleet Metrics Grid (Compact 2x2, 114pt height, non-truncating)
                         resourcesOverviewGridView
                         
-                        // 3. Quick Command Strip
+                        // 3. Quick Command Deck
                         quickCommandDeckView
                         
-                        // 4. Primary Active Zones
+                        // 4. Primary Active Domains (with Sparkline mini charts)
                         activeZonesSectionView
                         
                         // 5. Cloudflare Live Status Bar
                         systemStatusBannerView
                     }
                     .padding(.horizontal, 16)
-                    .padding(.top, 12)
-                    .padding(.bottom, 32)
+                    .padding(.top, 8)
+                    .padding(.bottom, 28)
                     .centerConstrainedWidth(maxWidth: 840)
                 }
                 .refreshable {
@@ -83,22 +83,22 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 1. Hero Header
+    // MARK: - 1. Hero Header (Compact & Crisp)
     private var heroHeaderView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.timeGreeting)
-                        .font(.subheadline)
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                     
                     Text(viewModel.selectedAccount?.name ?? "Cloudflare Account")
-                        .font(.title2.weight(.bold))
+                        .font(.title3.weight(.bold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
                 
-                Spacer()
+                Spacer(minLength: 8)
                 
                 NavigationLink(destination: CloudflareStatusView()) {
                     CloudnsBadge(.active("Edge: Optimal"), isCompact: true)
@@ -124,15 +124,15 @@ struct DashboardView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.top, -4)
             }
         }
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(12)
+        .cloudnsCard(style: .frosted, cornerRadius: 14)
     }
     
-    // MARK: - 2. Resources Overview Cards Grid
+    // MARK: - 2. Resources Overview Cards Grid (114pt Symmetrical)
     private var resourcesOverviewGridView: some View {
-        LazyVGrid(columns: GridItem.cloudnsAdaptiveMetrics, spacing: 12) {
+        LazyVGrid(columns: GridItem.cloudnsAdaptiveMetrics, spacing: 10) {
             NavigationLink(destination: ZonesListView()) {
                 DashboardMetricCardView(
                     icon: "globe",
@@ -140,7 +140,7 @@ struct DashboardView: View {
                     title: "Active Zones",
                     value: viewModel.hasFetchedData ? "\(viewModel.activeZonesCount)" : "-",
                     subtitle: viewModel.hasFetchedData ? "\(viewModel.zones.count) Total Zones" : "Loading...",
-                    badge: "DNS"
+                    badge: "Domains"
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -185,14 +185,14 @@ struct DashboardView: View {
     
     // MARK: - 3. Quick Command Deck
     private var quickCommandDeckView: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("Quick Diagnostics & Tools")
-                .font(.subheadline)
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     NavigationLink(destination: CFTraceToolView()) {
                         QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                     }
@@ -228,20 +228,24 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 4. Recent Domains Section
+    // MARK: - 4. Recent Domains Section (with Real Sparkline Live Charts)
     private var activeZonesSectionView: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Recent Domains")
-                    .font(.subheadline)
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 NavigationLink(destination: ZonesListView()) {
-                    Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+                    HStack(spacing: 2) {
+                        Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.blue)
                 }
             }
             .padding(.horizontal, 4)
@@ -249,14 +253,14 @@ struct DashboardView: View {
             if !viewModel.hasFetchedData {
                 VStack(spacing: 8) {
                     ForEach(Zone.placeholders.prefix(3)) { placeholderZone in
-                        HStack(spacing: 12) {
+                        HStack(spacing: 10) {
                             Circle()
                                 .fill(Color.blue.opacity(0.10))
-                                .frame(width: 36, height: 36)
+                                .frame(width: 32, height: 32)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(placeholderZone.name)
-                                    .font(.body.weight(.medium))
+                                    .font(.subheadline.weight(.medium))
                                     .lineLimit(1)
                                 
                                 Text(placeholderZone.plan?.name ?? "Free Plan")
@@ -267,58 +271,62 @@ struct DashboardView: View {
                             
                             CloudnsBadge(.active("Active"), isCompact: true)
                         }
-                        .padding(12)
+                        .padding(10)
                         .cloudnsCard(style: .frosted, cornerRadius: 14)
                     }
                 }
                 .skeletonLoading(true)
             } else if viewModel.zones.isEmpty {
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     Image(systemName: "globe.badge.chevron.backward")
-                        .font(.largeTitle)
+                        .font(.title)
                         .foregroundStyle(.secondary)
                     Text("No Domains Added Yet")
-                        .font(.headline)
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
-                .cloudnsCard(style: .frosted, cornerRadius: 16)
+                .padding(.vertical, 24)
+                .cloudnsCard(style: .frosted, cornerRadius: 14)
             } else {
                 VStack(spacing: 8) {
                     ForEach(viewModel.recentZones) { zone in
                         NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                            HStack(spacing: 12) {
+                            HStack(spacing: 10) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.blue.opacity(0.10))
-                                        .frame(width: 36, height: 36)
+                                        .fill(Color.blue.opacity(0.12))
+                                        .frame(width: 32, height: 32)
                                     Image(systemName: "globe")
-                                        .font(.subheadline)
+                                        .font(.caption.weight(.semibold))
                                         .foregroundStyle(.blue)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(zone.name)
-                                        .font(.body.weight(.medium))
+                                        .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
+                                        .minimumScaleFactor(0.85)
                                     
                                     Text(zone.plan?.name ?? "Free Plan")
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                                 
-                                Spacer()
+                                Spacer(minLength: 4)
+                                
+                                // 24h Traffic Sparkline mini chart (bound to live SWR cache)
+                                ZoneRowSparklineView(zoneId: zone.id, cached: viewModel.sparklines[zone.id])
                                 
                                 CloudnsBadge(zone.status.lowercased() == "active" ? .active("Active") : .warning(zone.status.capitalized), isCompact: true)
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.caption2)
+                                    .font(.system(size: 10, weight: .semibold))
                                     .foregroundStyle(.tertiary)
                                     .accessibilityHidden(true)
                             }
-                            .padding(12)
+                            .padding(10)
                             .cloudnsCard(style: .frosted, cornerRadius: 14)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -331,15 +339,15 @@ struct DashboardView: View {
     // MARK: - 5. System Status Banner
     private var systemStatusBannerView: some View {
         NavigationLink(destination: CloudflareStatusView()) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Image(systemName: "checkmark.shield.fill")
-                    .font(.title3)
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.green)
                     .accessibilityHidden(true)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Cloudflare Operational Status")
-                        .font(.subheadline.weight(.medium))
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(.primary)
                     Text("CDN, DNS, WAF and Global Edge Centers")
                         .font(.caption2)
@@ -349,11 +357,11 @@ struct DashboardView: View {
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(14)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(12)
+            .cloudnsCard(style: .frosted, cornerRadius: 14)
         }
         .buttonStyle(PlainButtonStyle())
     }

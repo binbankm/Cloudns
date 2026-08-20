@@ -34,6 +34,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
     @Published var r2Count: Int = 0
     @Published var d1Count: Int = 0
     
+    @Published var sparklines: [String: ZoneSparklineCache] = [:]
+    
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -86,6 +88,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         self.kvCount = 0
         self.r2Count = 0
         self.d1Count = 0
+        self.sparklines = [:]
         self.resetLoadingState()
     }
     
@@ -105,6 +108,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.r2Count = cached.r2Count
                 self.d1Count = cached.d1Count
                 self.hasFetchedData = true
+                self.fetchRecentSparklines()
             }
         }
         
@@ -122,6 +126,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             // B. 获取域名列表
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
+                self.fetchRecentSparklines()
                 // Fallback: 如果 getAccounts() 无返回（如普通 Zone 权限 Token），从 Zones 列表自动提取关联的 Account
                 if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
@@ -160,6 +165,35 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 )
                 await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
                 self.syncTopZoneToWidget()
+            }
+        }
+    }
+    
+    /// 获取近期活跃域名的 24h 流量 Sparkline 数据
+    private func fetchRecentSparklines() {
+        let activeRecentIds = recentZones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+        guard !activeRecentIds.isEmpty else { return }
+        
+        Task {
+            // 1. 优先读取已有的 SWR 本地缓存
+            for id in activeRecentIds {
+                if let cached = await SWRCacheStore.shared.get(forKey: "zone_sparkline_\(id)", as: ZoneSparklineCache.self) {
+                    await MainActor.run {
+                        self.sparklines[id] = cached
+                    }
+                }
+            }
+            
+            // 2. 批量拉取实时 24h 流量点位
+            if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeRecentIds) {
+                await MainActor.run {
+                    for (id, cache) in batchMap {
+                        self.sparklines[id] = cache
+                    }
+                }
+                for (id, cache) in batchMap {
+                    await SWRCacheStore.shared.set(cache, forKey: "zone_sparkline_\(id)")
+                }
             }
         }
     }

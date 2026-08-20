@@ -9,12 +9,17 @@ public final class RecentZonesManager: @unchecked Sendable {
     
     private init() {}
     
+    private var storageKey: String {
+        let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? "default"
+        return "recentZoneIds_\(email)"
+    }
+    
     public var recentZoneIds: [String] {
         get {
-            UserDefaults.standard.stringArray(forKey: AppStorageKey.recentZoneIds) ?? []
+            UserDefaults.standard.stringArray(forKey: storageKey) ?? UserDefaults.standard.stringArray(forKey: AppStorageKey.recentZoneIds) ?? []
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: AppStorageKey.recentZoneIds)
+            UserDefaults.standard.set(newValue, forKey: storageKey)
         }
     }
     

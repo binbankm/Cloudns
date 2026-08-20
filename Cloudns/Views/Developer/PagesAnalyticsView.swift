@@ -7,6 +7,10 @@ public struct PagesAnalyticsView: View {
     
     @StateObject private var viewModel: PagesAnalyticsViewModel
     
+    // Interactive Scrubbing States
+    @State private var selectedPoint: AggregatedWorkerDataPoint?
+    @State private var selectedCpuPoint: AggregatedWorkerDataPoint?
+    
     public init(accountId: String, projectName: String) {
         self.accountId = accountId
         self.projectName = projectName
@@ -18,6 +22,16 @@ public struct PagesAnalyticsView: View {
             return first.timestamp.contains("T") || first.timestamp.contains(":")
         }
         return viewModel.loadedDays == 1
+    }
+    
+    private var chartXRange: ClosedRange<Date> {
+        if let first = viewModel.dataPoints.first?.date,
+           let last = viewModel.dataPoints.last?.date,
+           first < last {
+            return first...last
+        }
+        let now = Date()
+        return now...now.addingTimeInterval(3600)
     }
     
     public var body: some View {
@@ -135,6 +149,8 @@ public struct PagesAnalyticsView: View {
             .frame(width: 155)
             .onChange(of: viewModel.selectedDays) { _ in
                 HapticManager.impact(.light)
+                selectedPoint = nil
+                selectedCpuPoint = nil
                 Task {
                     await viewModel.fetchAnalytics()
                 }
@@ -225,20 +241,71 @@ public struct PagesAnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 3. Functions Invocations 折线图 (Line Chart)
+    // MARK: - 3. Functions Invocations 折线图 (Line Chart with Live Scrubbing)
     private var functionsLineChartCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "chart.xyaxis.line")
-                    .font(.subheadline)
-                    .foregroundStyle(.blue)
-                Text("Functions Traffic")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
+        let maxReq = viewModel.dataPoints.map { $0.requests }.max() ?? 10
+        let yUpper = max(10.0, Double(maxReq) * 1.18)
+        
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chart.xyaxis.line")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.blue)
+                        Text("Functions Traffic")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let selected = selectedPoint {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(formatNumber(selected.requests))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("requests")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                            
+                            if selected.errors > 0 {
+                                Text("(\(selected.errors) errors)")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                    } else {
+                        HStack(alignment: .lastTextBaseline, spacing: 6) {
+                            Text(formatNumber(viewModel.totalRequests))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.primary)
+                            Text("total")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
                 Spacer()
-                Text("Invocations & Errors")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                
+                if let selected = selectedPoint {
+                    let dateStr = formattedPointDate(selected)
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 6, height: 6)
+                        Text(dateStr)
+                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.12))
+                    .clipShape(Capsule())
+                } else {
+                    Text("Drag to Inspect")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.tertiary)
+                }
             }
             
             Chart {
@@ -249,20 +316,20 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.35), Color.blue.opacity(0.02)],
+                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .interpolationMethod(.catmullRom)
+                    .interpolationMethod(.monotone)
                     
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
                     )
                     .foregroundStyle(Color.blue)
-                    .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.monotone)
                     
                     if pt.errors > 0 {
                         BarMark(
@@ -273,13 +340,44 @@ public struct PagesAnalyticsView: View {
                         .cornerRadius(3)
                     }
                 }
+                
+                if let selected = selectedPoint {
+                    RuleMark(x: .value("Time", selected.date))
+                        .foregroundStyle(Color.blue.opacity(0.6))
+                        .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                    
+                    PointMark(
+                        x: .value("Time", selected.date),
+                        y: .value("Requests", selected.requests)
+                    )
+                    .symbol {
+                        ZStack {
+                            Circle()
+                                .fill(Color.blue.opacity(0.25))
+                                .frame(width: 16, height: 16)
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 8, height: 8)
+                                .shadow(color: Color.blue, radius: 4)
+                            Circle()
+                                .stroke(Color.blue, lineWidth: 2)
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                }
             }
             .id("pages_functions_\(viewModel.loadedDays)")
-            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
-            .frame(height: 230)
+            .frame(height: 220)
+            .chartPlotStyle { plot in
+                plot.clipped()
+            }
+            .chartYScale(domain: 0...yUpper)
+            .chartXScale(domain: chartXRange)
+            .transaction { $0.animation = nil }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if isHourlyData {
                         AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
                             .font(.caption2)
@@ -292,11 +390,40 @@ public struct PagesAnalyticsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
                             Text(formatNumber(count))
+                                .frame(width: 44, alignment: .trailing)
                         }
                     }
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(Color.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let origin = geo[proxy.plotAreaFrame].origin
+                                    let locationX = value.location.x - origin.x
+                                    guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
+                                    
+                                    if let date: Date = proxy.value(atX: locationX) {
+                                        if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
+                                            if selectedPoint?.id != closest.id {
+                                                HapticManager.impact(.light)
+                                                selectedPoint = closest
+                                            }
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    selectedPoint = nil
+                                }
+                        )
                 }
             }
         }
@@ -305,24 +432,89 @@ public struct PagesAnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 4. CPU Execution Latency 双折线图 (Line Chart)
+    // MARK: - 4. CPU Execution Latency 双折线图 (Line Chart with Live Scrubbing)
     private var cpuLatencyLineChartCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "bolt.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(.cyan)
-                Text("CPU Time")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
+        let maxCpu = viewModel.dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
+        let yUpper = max(2.0, maxCpu * 1.18)
+        
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bolt.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.cyan)
+                        Text("CPU Execution Time")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if let selected = selectedCpuPoint {
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                            Text(String(format: "%.2f ms", selected.cpuP50))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.cyan)
+                            Text("P50")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
+                            
+                            Text("•")
+                                .foregroundStyle(.tertiary)
+                            
+                            Text(String(format: "%.2f ms", selected.cpuP99))
+                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .foregroundStyle(.orange)
+                            Text("P99")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                            Text(String(format: "%.2f ms", viewModel.avgCpuP50))
+                                .font(.system(.title, design: .rounded).weight(.bold))
+                                .foregroundStyle(.cyan)
+                            Text("avg P50")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                            
+                            Text("•")
+                                .foregroundStyle(.tertiary)
+                            
+                            Text(String(format: "%.2f ms", viewModel.maxCpuP99))
+                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .foregroundStyle(.orange)
+                            Text("max P99")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
                 Spacer()
-                HStack(spacing: 8) {
-                    Label("P50 (Median)", systemImage: "circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.cyan)
-                    Label("P99", systemImage: "circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
+                
+                if let selected = selectedCpuPoint {
+                    let dateStr = formattedPointDate(selected)
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.cyan)
+                            .frame(width: 6, height: 6)
+                        Text(dateStr)
+                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.cyan.opacity(0.12))
+                    .clipShape(Capsule())
+                } else {
+                    HStack(spacing: 8) {
+                        Label("P50", systemImage: "circle.fill")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.cyan)
+                        Label("P99", systemImage: "circle.fill")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
             
@@ -333,24 +525,48 @@ public struct PagesAnalyticsView: View {
                         y: .value("CPU P50", pt.cpuP50)
                     )
                     .foregroundStyle(Color.cyan)
-                    .lineStyle(StrokeStyle(lineWidth: 2.5))
-                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.monotone)
                     
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
                     )
                     .foregroundStyle(Color.orange)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [4, 3]))
-                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [4, 3]))
+                    .interpolationMethod(.monotone)
+                }
+                
+                if let selected = selectedCpuPoint {
+                    RuleMark(x: .value("Time", selected.date))
+                        .foregroundStyle(Color.cyan.opacity(0.6))
+                        .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                    
+                    PointMark(
+                        x: .value("Time", selected.date),
+                        y: .value("CPU P50", selected.cpuP50)
+                    )
+                    .symbol {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 8, height: 8)
+                            .overlay(Circle().stroke(Color.cyan, lineWidth: 2))
+                            .shadow(color: Color.cyan, radius: 4)
+                    }
                 }
             }
             .id("pages_cpu_\(viewModel.loadedDays)")
-            .animation(.easeInOut(duration: 0.25), value: viewModel.dataPoints)
-            .frame(height: 220)
+            .frame(height: 200)
+            .chartPlotStyle { plot in
+                plot.clipped()
+            }
+            .chartYScale(domain: 0...yUpper)
+            .chartXScale(domain: chartXRange)
+            .transaction { $0.animation = nil }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if isHourlyData {
                         AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
                             .font(.caption2)
@@ -363,11 +579,40 @@ public struct PagesAnalyticsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
+                        .foregroundStyle(Color.secondary.opacity(0.2))
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
                             Text(String(format: "%.1f ms", ms))
+                                .frame(width: 44, alignment: .trailing)
                         }
                     }
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(Color.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let origin = geo[proxy.plotAreaFrame].origin
+                                    let locationX = value.location.x - origin.x
+                                    guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
+                                    
+                                    if let date: Date = proxy.value(atX: locationX) {
+                                        if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
+                                            if selectedCpuPoint?.id != closest.id {
+                                                HapticManager.impact(.light)
+                                                selectedCpuPoint = closest
+                                            }
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    selectedCpuPoint = nil
+                                }
+                        )
                 }
             }
         }
@@ -479,6 +724,22 @@ public struct PagesAnalyticsView: View {
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+    
+    // MARK: - Helpers
+    private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
+        if isHourlyData {
+            return point.date.formatted(date: .omitted, time: .shortened)
+        } else {
+            return point.date.formatted(.dateTime.month().day())
+        }
+    }
+    
+    private func findClosestWorkerPoint(for date: Date, in points: [AggregatedWorkerDataPoint]) -> AggregatedWorkerDataPoint? {
+        guard !points.isEmpty else { return nil }
+        return points.min(by: {
+            abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date))
+        })
     }
     
     private func formatNumber(_ num: Int) -> String {

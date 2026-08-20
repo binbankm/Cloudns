@@ -120,12 +120,12 @@ struct WorkerDetailView: View {
                                 }
                             }
                             
-                            Toggle("", isOn: Binding(
+                            Toggle(isOn: Binding(
                                 get: { sub.enabled },
                                 set: { val in
                                     Task { await viewModel.toggleSubdomain(enabled: val) }
                                 }
-                            ))
+                            )) { }
                             .labelsHidden()
                             .disabled(viewModel.isSubdomainUpdating)
                         }

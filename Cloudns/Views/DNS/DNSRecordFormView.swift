@@ -206,7 +206,7 @@ struct DNSRecordFormView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Toggle("", isOn: $proxied)
+                            Toggle(isOn: $proxied) { }
                                 .labelsHidden()
                         }
                     }

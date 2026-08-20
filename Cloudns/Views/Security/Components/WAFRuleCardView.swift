@@ -15,10 +15,10 @@ struct WAFRuleCardView: View {
                 
                 Spacer()
                 
-                Toggle("", isOn: Binding(
+                Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                ))
+                )) { }
                 .labelsHidden()
             }
             
