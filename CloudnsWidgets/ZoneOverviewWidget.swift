@@ -18,7 +18,8 @@ struct ZoneTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<ZoneWidgetEntry>) -> Void) {
         let snapshot = WidgetDataStore.shared.loadZoneSnapshot()
         let currentDate = Date()
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate) ?? currentDate.addingTimeInterval(900)
+        let interval: TimeInterval = (snapshot.name == "example.com" || snapshot.id == "placeholder-zone-id") ? 5 : 900
+        let nextUpdate = currentDate.addingTimeInterval(interval)
         let entry = ZoneWidgetEntry(date: currentDate, snapshot: snapshot)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)

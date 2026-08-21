@@ -77,6 +77,9 @@ struct DashboardView: View {
                     Task { await viewModel.fetchDashboard(isRefresh: true) }
                 }
             }
+            .onAppear {
+                viewModel.refreshRecentZones()
+            }
             .task {
                 await viewModel.fetchDashboard(isRefresh: false)
             }

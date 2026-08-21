@@ -76,6 +76,11 @@ struct ZonesListView: View {
                 Task { await viewModel.fetchZones(isRefresh: true) }
             }
         }
+        .onAppear {
+            if !viewModel.zones.isEmpty && viewModel.sparklines.isEmpty {
+                viewModel.fetchBatchSparklines(for: viewModel.zones)
+            }
+        }
         .task {
             if !viewModel.hasFetchedData || viewModel.isStale {
                 await viewModel.fetchZones()

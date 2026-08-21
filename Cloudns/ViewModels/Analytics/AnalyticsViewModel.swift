@@ -116,19 +116,37 @@ class AnalyticsViewModel: BaseLoadableViewModel {
     }
     
     private func syncAnalyticsToWidget(zoneTag: String) {
-        let current = WidgetDataStore.shared.loadZoneSnapshot()
-        let snap = ZoneWidgetSnapshot(
-            id: zoneTag,
-            name: current.id == zoneTag ? current.name : "Active Zone",
-            status: current.status,
-            plan: current.plan,
-            requests24h: totalRequests,
-            cachedRatio: cachedRatio,
-            threats24h: current.threats24h,
-            isProxied: current.isProxied,
-            isSSLEnabled: current.isSSLEnabled,
-            lastUpdated: Date()
-        )
-        WidgetDataStore.shared.saveZoneSnapshot(snap)
+        Task {
+            let current = WidgetDataStore.shared.loadZoneSnapshot()
+            var domainName = current.name
+            var status = current.status
+            var plan = current.plan
+            var isProxied = current.isProxied
+            
+            if current.id != zoneTag || domainName == "example.com" || domainName == "Active Zone" {
+                let cacheKey = SWRCacheStore.accountScopedKey("cloudflare_zones_list")
+                if let cachedZones = await SWRCacheStore.shared.get(forKey: cacheKey, as: [Zone].self),
+                   let matched = cachedZones.first(where: { $0.id == zoneTag }) {
+                    domainName = matched.name
+                    status = matched.status
+                    plan = matched.plan?.name ?? plan
+                    isProxied = !matched.paused
+                }
+            }
+            
+            let snap = ZoneWidgetSnapshot(
+                id: zoneTag,
+                name: domainName,
+                status: status,
+                plan: plan,
+                requests24h: self.totalRequests,
+                cachedRatio: self.cachedRatio,
+                threats24h: current.threats24h,
+                isProxied: isProxied,
+                isSSLEnabled: true,
+                lastUpdated: Date()
+            )
+            WidgetDataStore.shared.saveZoneSnapshot(snap)
+        }
     }
 }

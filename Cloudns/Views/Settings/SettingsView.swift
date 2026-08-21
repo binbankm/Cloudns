@@ -12,7 +12,6 @@ struct SettingsView: View {
     @State private var showingClearCacheAlert = false
     @StateObject private var accountManager = AccountManager.shared
     @StateObject private var cacheManager = CacheManager.shared
-    @StateObject private var iconManager = AppIconManager.shared
     
     var body: some View {
         NavigationStack {
@@ -143,24 +142,20 @@ struct SettingsView: View {
                         HapticManager.impact(.light)
                     }
                     
-                    NavigationLink(destination: AppIconPickerView()) {
-                        HStack {
-                            SettingsRowView(
-                                icon: "app.badge.fill",
-                                color: .pink,
-                                title: "App Icon"
-                            )
-                            Spacer()
-                            Text(iconManager.currentIcon.displayName)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    
                     Picker(selection: $appLanguage) {
                         Text("Follow System").tag("system")
                         Text("English").tag("en")
                         Text("简体中文").tag("zh-Hans")
+                        Text("繁體中文").tag("zh-Hant")
+                        Text("日本語").tag("ja")
+                        Text("한국어").tag("ko")
+                        Text("Deutsch").tag("de")
+                        Text("Français").tag("fr")
+                        Text("Español").tag("es")
+                        Text("Português").tag("pt-BR")
+                        Text("Italiano").tag("it")
+                        Text("Русский").tag("ru")
+                        Text("العربية").tag("ar")
                     } label: {
                         SettingsRowView(
                             icon: "globe",

@@ -101,6 +101,7 @@ struct ContentView: View {
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
+            WidgetDataStore.shared.notifyWidgetsToReload()
             if isAppLockEnabled && !authManager.isUnlocked {
                 authManager.authenticate()
             }
@@ -181,7 +182,7 @@ struct ContentView: View {
             }
         } else if host == "zone" || fullUrl.contains("cloudns://zone") {
             let zoneId = url.lastPathComponent
-            if !zoneId.isEmpty && zoneId != "/" && zoneId != "zone" {
+            if !zoneId.isEmpty && zoneId != "/" && zoneId != "zone" && zoneId != "placeholder-zone-id" && zoneId != "placeholder" {
                 destination = .zone(id: zoneId)
             } else {
                 selectedTab = 1

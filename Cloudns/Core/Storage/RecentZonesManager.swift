@@ -31,6 +31,8 @@ public final class RecentZonesManager: @unchecked Sendable {
             current = Array(current.prefix(maxHistoryCount))
         }
         recentZoneIds = current
+        
+        NotificationCenter.default.post(name: .recentZonesDidUpdate, object: nil, userInfo: ["zoneId": zoneId])
     }
     
     public func getRecentZones(from allZones: [Zone], limit: Int = 3) -> [Zone] {
@@ -49,5 +51,10 @@ public final class RecentZonesManager: @unchecked Sendable {
     public func clearAll() {
         recentZoneIds = []
         UserDefaults.standard.removeObject(forKey: AppStorageKey.recentZoneIds)
+        NotificationCenter.default.post(name: .recentZonesDidUpdate, object: nil)
     }
+}
+
+extension Notification.Name {
+    public static let recentZonesDidUpdate = Notification.Name("CloudnsRecentZonesDidUpdateNotification")
 }

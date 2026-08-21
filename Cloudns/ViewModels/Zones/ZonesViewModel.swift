@@ -84,11 +84,12 @@ class ZonesViewModel: BaseLoadableViewModel {
     }
     
     /// 一次性批量拉取当前列表中所有活跃 Zone 的 24h 流量走势微图（单次 GraphQL 网络请求）
-    private func fetchBatchSparklines(for zones: [Zone]) {
+    public func fetchBatchSparklines(for zones: [Zone]) {
         let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
         guard !activeZoneIds.isEmpty else { return }
         
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             // 1. 优先读取已有的 SWR 本地缓存，极速呈现
             for id in activeZoneIds {
                 if let cached = await SWRCacheStore.shared.get(forKey: "zone_sparkline_\(id)", as: ZoneSparklineCache.self) {
@@ -160,16 +161,20 @@ class ZonesViewModel: BaseLoadableViewModel {
     }
     
     private func syncFirstZoneToWidget(zones: [Zone]) {
-        guard let first = zones.first else { return }
+        let topZoneId = RecentZonesManager.shared.recentZoneIds.first
+        let targetZone = zones.first(where: { $0.id == topZoneId }) ?? zones.first
+        guard let chosen = targetZone else { return }
+        
+        let current = WidgetDataStore.shared.loadZoneSnapshot()
         let snap = ZoneWidgetSnapshot(
-            id: first.id,
-            name: first.name,
-            status: first.status,
-            plan: first.plan?.name ?? "Free",
-            requests24h: 0,
-            cachedRatio: 0.85,
-            threats24h: 0,
-            isProxied: true,
+            id: chosen.id,
+            name: chosen.name,
+            status: chosen.status,
+            plan: chosen.plan?.name ?? "Free",
+            requests24h: current.id == chosen.id ? current.requests24h : 0,
+            cachedRatio: current.id == chosen.id ? current.cachedRatio : 0.85,
+            threats24h: current.id == chosen.id ? current.threats24h : 0,
+            isProxied: !chosen.paused,
             isSSLEnabled: true,
             lastUpdated: Date()
         )

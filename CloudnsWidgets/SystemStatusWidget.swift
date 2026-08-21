@@ -18,7 +18,8 @@ struct StatusTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<StatusWidgetEntry>) -> Void) {
         let snapshot = WidgetDataStore.shared.loadStatusSnapshot()
         let currentDate = Date()
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate) ?? currentDate.addingTimeInterval(900)
+        let interval: TimeInterval = snapshot.description.isEmpty ? 5 : 900
+        let nextUpdate = currentDate.addingTimeInterval(interval)
         let entry = StatusWidgetEntry(date: currentDate, snapshot: snapshot)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)

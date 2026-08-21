@@ -36,6 +36,10 @@ final class DashboardViewModel: BaseLoadableViewModel {
     
     @Published var sparklines: [String: ZoneSparklineCache] = [:]
     
+    @Published var recentZones: [Zone] = []
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -53,14 +57,23 @@ final class DashboardViewModel: BaseLoadableViewModel {
         self.r2Service = r2Service
         self.d1Service = d1Service
         super.init()
+        
+        NotificationCenter.default.publisher(for: .recentZonesDidUpdate)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.refreshRecentZones()
+            }
+            .store(in: &cancellables)
+    }
+    
+    public func refreshRecentZones() {
+        self.recentZones = RecentZonesManager.shared.getRecentZones(from: self.zones, limit: 3)
+        self.fetchRecentSparklines()
+        self.syncTopZoneToWidget()
     }
     
     var activeZonesCount: Int {
         zones.filter { $0.status.lowercased() == "active" }.count
-    }
-    
-    var recentZones: [Zone] {
-        RecentZonesManager.shared.getRecentZones(from: zones, limit: 3)
     }
     
     var healthyTunnelsCount: Int {
@@ -108,7 +121,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.r2Count = cached.r2Count
                 self.d1Count = cached.d1Count
                 self.hasFetchedData = true
-                self.fetchRecentSparklines()
+                self.refreshRecentZones()
+                self.syncTopZoneToWidget()
             }
         }
         
@@ -126,7 +140,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             // B. 获取域名列表
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
-                self.fetchRecentSparklines()
+                self.refreshRecentZones()
                 // Fallback: 如果 getAccounts() 无返回（如普通 Zone 权限 Token），从 Zones 列表自动提取关联的 Account
                 if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")

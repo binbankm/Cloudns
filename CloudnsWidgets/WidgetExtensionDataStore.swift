@@ -35,6 +35,7 @@ public final class WidgetDataStore: @unchecked Sendable {
     public func saveZoneSnapshot(_ snapshot: ZoneWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
         userDefaults.set(data, forKey: Keys.zoneSnapshot)
+        userDefaults.synchronize()
         if let fileURL = containerFolderURL?.appendingPathComponent("zone_snapshot.json") {
             try? data.write(to: fileURL, options: .atomic)
         }
@@ -59,6 +60,7 @@ public final class WidgetDataStore: @unchecked Sendable {
     public func saveStatusSnapshot(_ snapshot: CFStatusWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
         userDefaults.set(data, forKey: Keys.statusSnapshot)
+        userDefaults.synchronize()
         if let fileURL = containerFolderURL?.appendingPathComponent("status_snapshot.json") {
             try? data.write(to: fileURL, options: .atomic)
         }
@@ -82,6 +84,9 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     public func notifyWidgetsToReload() {
         #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "ZoneOverviewWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: "SystemStatusWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: "QuickActionsWidget")
         WidgetCenter.shared.reloadAllTimelines()
         #endif
     }

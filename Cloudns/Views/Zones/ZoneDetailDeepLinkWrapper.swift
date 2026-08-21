@@ -50,6 +50,11 @@ struct ZoneDetailDeepLinkWrapper: View {
     }
     
     private func loadZone() async {
+        guard !zoneId.isEmpty, zoneId != "placeholder-zone-id", zoneId != "placeholder" else {
+            onDismiss()
+            return
+        }
+        
         isLoading = true
         // 1. Check local SWR cache first
         let cacheKey = SWRCacheStore.accountScopedKey("cloudflare_zones_list")
