@@ -45,10 +45,29 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         }
     }
     
+    func createApp(name: String, domain: String, type: String = "self_hosted", sessionDuration: String = "24h") async throws {
+        let targetId = await resolveTargetAccountId()
+        guard !targetId.isEmpty else { throw APIError.cloudflareError("Active account ID not found") }
+        let newApp = try await accessService.createAccessApp(
+            accountId: targetId,
+            name: name,
+            domain: domain,
+            type: type,
+            sessionDuration: sessionDuration
+        )
+        withAnimation {
+            self.apps.insert(newApp, at: 0)
+        }
+        await fetchApps()
+    }
+    
     func deleteApp(id: String) async {
         do {
             let targetId = await resolveTargetAccountId()
             guard !targetId.isEmpty else { return }
+            withAnimation {
+                self.apps.removeAll { $0.id == id }
+            }
             try await accessService.deleteAccessApp(accountId: targetId, appId: id)
             ToastManager.shared.showSuccess("Access App Deleted", message: "")
             await fetchApps()

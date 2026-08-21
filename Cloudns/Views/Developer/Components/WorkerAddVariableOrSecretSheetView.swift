@@ -74,7 +74,6 @@ struct WorkerAddVariableOrSecretSheetView: View {
                 }
             }
             .interactiveDismissDisabled(isSaving)
-            .toastContainer()
         }
     }
     

@@ -15,6 +15,8 @@ protocol PagesServiceProtocol: Sendable {
     func retryPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws
     func deletePagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws
     func getPagesDeploymentLogs(accountId: String, projectName: String, deploymentId: String) async throws -> [PagesDeploymentLog]
+    func updatePagesEnvVars(accountId: String, projectName: String, environment: String, envVars: [String: PagesEnvVarValue]) async throws
+    func updatePagesResourceBindings(accountId: String, projectName: String, environment: String, kvNamespaces: [String: PagesKVBinding]?, d1Databases: [String: PagesD1Binding]?, r2Buckets: [String: PagesR2Binding]?, aiBindings: [String: PagesAIBinding]?) async throws
 }
 
 /// 统一的 Cloudflare Pages 项目与部署领域服务
@@ -132,5 +134,75 @@ final class PagesService: PagesServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/history/logs")
         let (logs, _): (PagesDeploymentLogsResult?, ResultInfo?) = try await client.performRequest(request)
         return logs?.data ?? []
+    }
+    
+    func updatePagesEnvVars(accountId: String, projectName: String, environment: String, envVars: [String: PagesEnvVarValue]) async throws {
+        var envVarsDict: [String: Any] = [:]
+        for (k, v) in envVars {
+            var varDict: [String: Any] = ["type": v.type ?? (v.isSecret ? "secret_text" : "plain_text")]
+            if let val = v.value { varDict["value"] = val }
+            envVarsDict[k] = varDict
+        }
+        let payload: [String: Any] = [
+            "deployment_configs": [
+                environment: [
+                    "env_vars": envVarsDict
+                ]
+            ]
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "PATCH", body: data)
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+    
+    func updatePagesResourceBindings(
+        accountId: String,
+        projectName: String,
+        environment: String,
+        kvNamespaces: [String: PagesKVBinding]? = nil,
+        d1Databases: [String: PagesD1Binding]? = nil,
+        r2Buckets: [String: PagesR2Binding]? = nil,
+        aiBindings: [String: PagesAIBinding]? = nil
+    ) async throws {
+        var envConfigDict: [String: Any] = [:]
+        if let kv = kvNamespaces {
+            var kvDict: [String: Any] = [:]
+            for (k, v) in kv {
+                if let nsId = v.namespaceId { kvDict[k] = ["namespace_id": nsId] }
+            }
+            envConfigDict["kv_namespaces"] = kvDict
+        }
+        if let d1 = d1Databases {
+            var d1Dict: [String: Any] = [:]
+            for (k, v) in d1 {
+                if let id = v.id { d1Dict[k] = ["id": id] }
+            }
+            envConfigDict["d1_databases"] = d1Dict
+        }
+        if let r2 = r2Buckets {
+            var r2Dict: [String: Any] = [:]
+            for (k, v) in r2 {
+                if let name = v.name { r2Dict[k] = ["name": name] }
+            }
+            envConfigDict["r2_buckets"] = r2Dict
+        }
+        if let ai = aiBindings {
+            var aiDict: [String: Any] = [:]
+            for (k, v) in ai {
+                aiDict[k] = ["project_id": v.projectId ?? ""]
+            }
+            envConfigDict["ai_bindings"] = aiDict
+        }
+        
+        let payload: [String: Any] = [
+            "deployment_configs": [
+                environment: envConfigDict
+            ]
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "PATCH", body: data)
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
 }

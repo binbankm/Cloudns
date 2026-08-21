@@ -37,6 +37,7 @@ struct R2ObjectRowView: View {
             Spacer()
         }
         .padding(.vertical, 3)
+        .contentShape(Rectangle())
         .contextMenu {
             Button {
                 UIPasteboard.general.string = object.key

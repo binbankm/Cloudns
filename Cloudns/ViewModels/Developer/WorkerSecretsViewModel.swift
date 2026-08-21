@@ -31,6 +31,10 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
         return secrets.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
     
+    var resourceBindings: [WorkerBinding] {
+        allBindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
+    }
+    
     func fetchSecrets() async {
         await executeLoadingTask {
             async let fetchedSecrets = self.workerService.getWorkerSecrets(accountId: self.accountId, scriptName: self.scriptName)
@@ -43,25 +47,61 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
         }
     }
     
+    func saveResourceBinding(binding: WorkerBinding) async throws {
+        var updated = allBindings.filter { $0.name != binding.name }
+        updated.append(binding)
+        withAnimation {
+            self.allBindings = updated
+        }
+        try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        await fetchSecrets()
+    }
+    
+    func deleteResourceBinding(name: String) async throws {
+        let updated = allBindings.filter { $0.name != name }
+        withAnimation {
+            self.allBindings = updated
+        }
+        try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
+        await fetchSecrets()
+    }
+    
     func savePlainVariable(name: String, value: String) async throws {
         var updated = allBindings.filter { $0.name != name }
-        updated.append(WorkerBinding(name: name, type: "plain_text", namespaceId: nil, bucketName: nil, databaseId: nil, text: value))
+        let newVar = WorkerBinding(name: name, type: "plain_text", namespaceId: nil, bucketName: nil, databaseId: nil, text: value)
+        updated.append(newVar)
+        withAnimation {
+            self.allBindings = updated
+            self.plainVariables = updated.filter { $0.type == "plain_text" }
+        }
         try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
         await fetchSecrets()
     }
     
     func deletePlainVariable(name: String) async throws {
         let updated = allBindings.filter { $0.name != name }
+        withAnimation {
+            self.allBindings = updated
+            self.plainVariables = updated.filter { $0.type == "plain_text" }
+        }
         try await workerService.patchWorkerBindings(accountId: accountId, scriptName: scriptName, bindings: updated)
         await fetchSecrets()
     }
     
     func saveSecret(name: String, value: String) async throws {
+        withAnimation {
+            if !self.secrets.contains(where: { $0.name == name }) {
+                self.secrets.append(WorkerSecret(name: name, type: "secret_text"))
+            }
+        }
         try await workerService.putWorkerSecret(accountId: accountId, scriptName: scriptName, name: name, text: value)
         await fetchSecrets()
     }
     
     func deleteSecret(name: String) async throws {
+        withAnimation {
+            self.secrets.removeAll { $0.name == name }
+        }
         try await workerService.deleteWorkerSecret(accountId: accountId, scriptName: scriptName, name: name)
         await fetchSecrets()
     }

@@ -137,5 +137,6 @@ struct PagesDeploymentsListView: View {
             }
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 }

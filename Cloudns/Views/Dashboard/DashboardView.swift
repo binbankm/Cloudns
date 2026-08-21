@@ -317,12 +317,10 @@ struct DashboardView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 
-                                Spacer(minLength: 4)
+                                Spacer(minLength: 8)
                                 
                                 // 24h Traffic Sparkline mini chart (bound to live SWR cache)
                                 ZoneRowSparklineView(zoneId: zone.id, cached: viewModel.sparklines[zone.id])
-                                
-                                CloudnsBadge(zone.status.lowercased() == "active" ? .active("Active") : .warning(zone.status.capitalized), isCompact: true)
                                 
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 10, weight: .semibold))

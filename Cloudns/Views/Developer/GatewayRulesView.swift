@@ -6,6 +6,7 @@ struct GatewayRulesView: View {
     @StateObject private var viewModel: GatewayRulesViewModel
     @State private var ruleToDelete: GatewayRule?
     @State private var showingDeleteAlert = false
+    @State private var showingAddSheet = false
     
     init(accountId: String) {
         self.accountId = accountId
@@ -25,6 +26,34 @@ struct GatewayRulesView: View {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
+                            .contentShape(Rectangle())
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = rule.name
+                                    HapticManager.notification(.success)
+                                    ToastManager.shared.showCopied("Rule name copied")
+                                } label: {
+                                    Label("Copy Rule Name", systemImage: "doc.on.doc")
+                                }
+                                
+                                if let traffic = rule.traffic, !traffic.isEmpty {
+                                    Button {
+                                        UIPasteboard.general.string = traffic
+                                        HapticManager.notification(.success)
+                                        ToastManager.shared.showCopied("Traffic expression copied")
+                                    } label: {
+                                        Label("Copy Traffic Expression", systemImage: "doc.on.doc")
+                                    }
+                                }
+                                
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    ruleToDelete = rule
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete Rule", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
@@ -42,6 +71,19 @@ struct GatewayRulesView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Gateway Rules")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Gateway Rule")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            AddGatewayRuleSheetView(viewModel: viewModel)
+        }
         .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Rules")
         .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name)'", role: .destructive) {

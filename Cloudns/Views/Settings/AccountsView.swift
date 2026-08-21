@@ -37,6 +37,7 @@ struct AccountsView: View {
                                         .accessibilityHidden(true)
                                 }
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -54,7 +55,9 @@ struct AccountsView: View {
                                 .accessibilityHidden(true)
                             Text("Add Another Account")
                                 .foregroundStyle(.orange)
+                            Spacer()
                         }
+                        .contentShape(Rectangle())
                     }
                 }
             }

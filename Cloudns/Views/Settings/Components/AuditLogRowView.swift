@@ -80,5 +80,6 @@ struct AuditLogRowView: View {
                 .padding(.top, 4)
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 }

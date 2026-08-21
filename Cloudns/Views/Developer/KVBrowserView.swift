@@ -31,7 +31,7 @@ struct KVBrowserView: View {
                 .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("KV & D1 Storage")
+        .navigationTitle("KV & D1")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

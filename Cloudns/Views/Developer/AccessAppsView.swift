@@ -6,6 +6,7 @@ struct AccessAppsView: View {
     @StateObject private var viewModel: AccessAppsViewModel
     @State private var appToDelete: AccessApp?
     @State private var showingDeleteAlert = false
+    @State private var showingAddSheet = false
     
     init(accountId: String) {
         self.accountId = accountId
@@ -27,6 +28,32 @@ struct AccessAppsView: View {
                         NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
                             appRow(app)
                         }
+                        .contentShape(Rectangle())
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = app.domain
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Domain copied")
+                            } label: {
+                                Label("Copy Domain", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                UIPasteboard.general.string = app.name
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Name copied")
+                            } label: {
+                                Label("Copy App Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                appToDelete = app
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Application", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
@@ -44,6 +71,19 @@ struct AccessAppsView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Access Applications")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Access Application")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            AddAccessAppSheetView(viewModel: viewModel)
+        }
         .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Applications")
         .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
             Button("Delete '\(app.name)'", role: .destructive) {

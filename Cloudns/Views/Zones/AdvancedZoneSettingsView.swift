@@ -83,6 +83,20 @@ struct AdvancedZoneSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
+        .task {
+            if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
+                self.isPaused = zd.paused
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
+            Task {
+                if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
+                    await MainActor.run {
+                        self.isPaused = zd.paused
+                    }
+                }
+            }
+        }
     }
     
     private func updatePauseStatus(paused: Bool) async {

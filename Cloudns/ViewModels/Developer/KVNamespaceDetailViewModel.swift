@@ -40,10 +40,22 @@ class KVNamespaceDetailViewModel: BaseLoadableViewModel {
     
     func saveKey(key: String, value: String, ttl: Int? = nil) async throws {
         try await kvService.saveKVValue(accountId: accountId, namespaceId: namespace.id, key: key, value: value, expirationTTL: ttl)
+        let exp: Int? = ttl.flatMap { $0 > 0 ? Int(Date().timeIntervalSince1970) + $0 : nil }
+        let newKey = KVKey(name: key, expiration: exp)
+        withAnimation {
+            if let index = self.keys.firstIndex(where: { $0.name == key }) {
+                self.keys[index] = newKey
+            } else {
+                self.keys.insert(newKey, at: 0)
+            }
+        }
         await fetchKeys()
     }
     
     func deleteKey(key: String) async throws {
+        withAnimation {
+            self.keys.removeAll { $0.name == key }
+        }
         try await kvService.deleteKVKey(accountId: accountId, namespaceId: namespace.id, key: key)
         await fetchKeys()
     }

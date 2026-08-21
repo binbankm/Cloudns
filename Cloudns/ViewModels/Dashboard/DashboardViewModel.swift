@@ -64,6 +64,15 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self?.refreshRecentZones()
             }
             .store(in: &cancellables)
+            
+        NotificationCenter.default.publisher(for: .zoneUpdated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.fetchDashboard(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     public func refreshRecentZones() {
@@ -106,8 +115,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
     }
     
     func fetchDashboard(isRefresh: Bool = false) async {
-        if !isRefresh && hasFetchedData && !isStale { return }
-        
         let scopedKey = SWRCacheStore.accountScopedKey("dashboard_overview_snapshot")
         
         // 1. [Stale] 0ms 尝试从缓存预加载
@@ -128,7 +135,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
         }
         
-        // 2. [Revalidate / Refresh] 统一执行前台/下拉拉取
+        // 2. [Revalidate / Refresh] 统一执行前台/后台实时拉取
         await executeLoadingTask(clearError: isRefresh) {
             // A. 获取账户列表
             let fetchedAccounts = (try? await self.zoneService.getAccounts()) ?? []

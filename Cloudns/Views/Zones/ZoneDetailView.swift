@@ -3,7 +3,13 @@ import SwiftUI
 // MARK: - ZoneDetailView
 
 struct ZoneDetailView: View {
-    let zone: Zone
+    let initialZone: Zone
+    @State private var zone: Zone
+
+    init(zone: Zone) {
+        self.initialZone = zone
+        self._zone = State(initialValue: zone)
+    }
 
     var body: some View {
         List {
@@ -168,6 +174,7 @@ struct ZoneDetailView: View {
 
             // ── Quick Controls ───────────────────────────────────────────
             QuickControlsSection(zoneId: zone.id, initialPaused: zone.paused)
+                .id("quick_ctrl_\(zone.id)_\(zone.paused)")
 
             // ── Advanced ─────────────────────────────────────────────────
             Section(header: Text("Advanced")) {
@@ -184,9 +191,34 @@ struct ZoneDetailView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(zone.name)
         .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            await refreshZoneDetails()
+        }
+        .task {
+            await refreshZoneDetails()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
+            Task { await refreshZoneDetails() }
+        }
         .onAppear {
             RecentZonesManager.shared.recordVisit(zoneId: zone.id)
             WidgetDataStore.shared.syncZoneWithAnalytics(zone: zone)
+        }
+    }
+    
+    private func refreshZoneDetails() async {
+        do {
+            let updated = try await ZoneService.shared.getZoneDetails(zoneId: initialZone.id)
+            await MainActor.run {
+                withAnimation {
+                    self.zone = updated
+                }
+                RecentZonesManager.shared.recordVisit(zoneId: updated.id)
+                WidgetDataStore.shared.syncZoneWithAnalytics(zone: updated)
+                NotificationCenter.default.post(name: .zoneUpdated, object: nil)
+            }
+        } catch {
+            // Keep current zone snapshot if offline
         }
     }
 }

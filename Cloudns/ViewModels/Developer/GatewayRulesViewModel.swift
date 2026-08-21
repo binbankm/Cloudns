@@ -45,10 +45,36 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
         }
     }
     
+    func createRule(
+        name: String,
+        action: String = "block",
+        traffic: String,
+        enabled: Bool = true,
+        filters: [String] = ["dns"]
+    ) async throws {
+        let targetId = await resolveTargetAccountId()
+        guard !targetId.isEmpty else { throw APIError.cloudflareError("Active account ID not found") }
+        let newRule = try await gatewayService.createGatewayRule(
+            accountId: targetId,
+            name: name,
+            action: action,
+            traffic: traffic,
+            enabled: enabled,
+            filters: filters
+        )
+        withAnimation {
+            self.rules.insert(newRule, at: 0)
+        }
+        await fetchRules()
+    }
+    
     func deleteRule(id: String) async {
         do {
             let targetId = await resolveTargetAccountId()
             guard !targetId.isEmpty else { return }
+            withAnimation {
+                self.rules.removeAll { $0.id == id }
+            }
             try await gatewayService.deleteGatewayRule(accountId: targetId, ruleId: id)
             ToastManager.shared.showSuccess("Gateway Rule Deleted", message: "")
             await fetchRules()

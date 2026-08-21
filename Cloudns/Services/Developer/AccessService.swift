@@ -3,6 +3,7 @@ import Foundation
 /// Cloudflare Access 访问控制领域服务抽象协议
 protocol AccessServiceProtocol: Sendable {
     func listAccessApps(accountId: String) async throws -> [AccessApp]
+    func createAccessApp(accountId: String, name: String, domain: String, type: String, sessionDuration: String) async throws -> AccessApp
     func deleteAccessApp(accountId: String, appId: String) async throws
     func listAccessPolicies(accountId: String, appId: String) async throws -> [AccessPolicy]
 }
@@ -24,6 +25,20 @@ final class AccessService: AccessServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/access/apps")
         let (apps, _): ([AccessApp]?, ResultInfo?) = try await client.performRequest(request)
         return apps ?? []
+    }
+    
+    func createAccessApp(accountId: String, name: String, domain: String, type: String = "self_hosted", sessionDuration: String = "24h") async throws -> AccessApp {
+        let payload: [String: Any] = [
+            "name": name,
+            "domain": domain,
+            "type": type,
+            "session_duration": sessionDuration
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/access/apps", method: "POST", body: data)
+        let (app, _): (AccessApp?, ResultInfo?) = try await client.performRequest(request)
+        guard let a = app else { throw APIError.cloudflareError("Failed to create Access application") }
+        return a
     }
     
     func deleteAccessApp(accountId: String, appId: String) async throws {

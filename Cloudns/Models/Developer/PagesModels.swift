@@ -88,10 +88,16 @@ public struct PagesEnvVarValue: Codable, Equatable, Sendable {
     public let type: String?
     
     public var isSecret: Bool { type == "secret_text" }
+    
+    public init(value: String?, type: String? = "plain_text") {
+        self.value = value
+        self.type = type
+    }
 }
 
 public struct PagesD1Binding: Codable, Equatable, Sendable {
     public let id: String?
+    public init(id: String?) { self.id = id }
 }
 
 public struct PagesKVBinding: Codable, Equatable, Sendable {
@@ -99,10 +105,12 @@ public struct PagesKVBinding: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case namespaceId = "namespace_id"
     }
+    public init(namespaceId: String?) { self.namespaceId = namespaceId }
 }
 
 public struct PagesR2Binding: Codable, Equatable, Sendable {
     public let name: String?
+    public init(name: String?) { self.name = name }
 }
 
 public struct PagesAIBinding: Codable, Equatable, Sendable {
@@ -110,10 +118,12 @@ public struct PagesAIBinding: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case projectId = "project_id"
     }
+    public init(projectId: String? = "") { self.projectId = projectId }
 }
 
 public struct PagesQueueBinding: Codable, Equatable, Sendable {
     public let name: String?
+    public init(name: String?) { self.name = name }
 }
 
 public struct PagesBuildConfig: Codable, Equatable, Sendable {

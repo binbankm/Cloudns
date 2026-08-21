@@ -64,7 +64,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         do {
             try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             HapticManager.impact(.medium)
-            ToastManager.shared.showSuccess("CORS Rule Added", message: "Allowed origins: \(rule.allowedOrigins.joined(separator: ", "))")
+            ToastManager.shared.showSuccess("CORS Rule Added", message: rule.allowedOrigins.joined(separator: ", "))
             await fetchSettings()
             return true
         } catch {

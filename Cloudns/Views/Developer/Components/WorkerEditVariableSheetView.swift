@@ -57,7 +57,6 @@ struct WorkerEditVariableSheetView: View {
                 }
             }
             .interactiveDismissDisabled(isSaving)
-            .toastContainer()
         }
     }
     

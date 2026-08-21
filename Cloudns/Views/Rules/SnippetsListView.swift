@@ -206,6 +206,7 @@ struct SnippetsListView: View {
                     .accessibilityHidden(true)
             }
             .padding(.vertical, 3)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {

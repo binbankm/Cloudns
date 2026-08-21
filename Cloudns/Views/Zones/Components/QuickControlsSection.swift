@@ -8,7 +8,6 @@ struct QuickControlsSection: View {
     @State private var isUnderAttack: Bool = false
     @State private var isDevMode: Bool = false
     @State private var isPaused: Bool
-    @State private var isLoading: Bool = true
     @State private var hasFetchedData: Bool = false
 
     @State private var updatingAttack: Bool = false
@@ -41,17 +40,14 @@ struct QuickControlsSection: View {
 
                 Spacer()
 
-                if updatingAttack || isLoading {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Toggle(isOn: $isUnderAttack) { }
-                        .labelsHidden()
-                        .onChange(of: isUnderAttack) { val in
-                            guard hasFetchedData && !isLoading && !updatingAttack else { return }
-                            HapticManager.impact(.light)
-                            Task { await setUnderAttack(val) }
-                        }
-                }
+                Toggle(isOn: $isUnderAttack) { }
+                    .labelsHidden()
+                    .disabled(updatingAttack)
+                    .onChange(of: isUnderAttack) { val in
+                        guard !updatingAttack else { return }
+                        HapticManager.impact(.light)
+                        Task { await setUnderAttack(val) }
+                    }
             }
             .padding(.vertical, 2)
 
@@ -75,17 +71,14 @@ struct QuickControlsSection: View {
 
                 Spacer()
 
-                if updatingDev || isLoading {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Toggle(isOn: $isDevMode) { }
-                        .labelsHidden()
-                        .onChange(of: isDevMode) { val in
-                            guard hasFetchedData && !isLoading && !updatingDev else { return }
-                            HapticManager.impact(.light)
-                            Task { await setDevMode(val) }
-                        }
-                }
+                Toggle(isOn: $isDevMode) { }
+                    .labelsHidden()
+                    .disabled(updatingDev)
+                    .onChange(of: isDevMode) { val in
+                        guard !updatingDev else { return }
+                        HapticManager.impact(.light)
+                        Task { await setDevMode(val) }
+                    }
             }
             .padding(.vertical, 2)
 
@@ -109,38 +102,64 @@ struct QuickControlsSection: View {
 
                 Spacer()
 
-                if updatingPause {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Toggle(isOn: $isPaused) { }
-                        .labelsHidden()
-                        .onChange(of: isPaused) { val in
-                            guard hasFetchedData && !isLoading && !updatingPause else { return }
-                            HapticManager.impact(.light)
-                            Task { await setPaused(val) }
-                        }
-                }
+                Toggle(isOn: $isPaused) { }
+                    .labelsHidden()
+                    .disabled(updatingPause)
+                    .onChange(of: isPaused) { val in
+                        guard !updatingPause else { return }
+                        HapticManager.impact(.light)
+                        Task { await setPaused(val) }
+                    }
             }
             .padding(.vertical, 2)
         }
         .task { await fetchInitialStates() }
+        .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
+            Task {
+                guard !updatingPause else { return }
+                if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
+                    await MainActor.run {
+                        self.isPaused = zd.paused
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Fetch
 
     private func fetchInitialStates() async {
-        if hasFetchedData { return }
-        isLoading = true
-        do {
-            async let secSettings = SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId)
-            async let cacheSettings = SpeedAndNetworkService.shared.getCachingSettings(zoneId: zoneId)
-            let (sec, cache) = try await (secSettings, cacheSettings)
-            isUnderAttack = (sec.level == "under_attack")
-            isDevMode = cache.devMode
-        } catch {
-            // Silently fail — toggles stay at defaults
-        }
-        isLoading = false
+        async let fetchSec: () = {
+            if let sec = try? await SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId) {
+                await MainActor.run {
+                    if !updatingAttack {
+                        self.isUnderAttack = (sec.level == "under_attack")
+                    }
+                }
+            }
+        }()
+        
+        async let fetchCache: () = {
+            if let cache = try? await SpeedAndNetworkService.shared.getCachingSettings(zoneId: zoneId) {
+                await MainActor.run {
+                    if !updatingDev {
+                        self.isDevMode = cache.devMode
+                    }
+                }
+            }
+        }()
+        
+        async let fetchZone: () = {
+            if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
+                await MainActor.run {
+                    if !updatingPause {
+                        self.isPaused = zd.paused
+                    }
+                }
+            }
+        }()
+        
+        _ = await (fetchSec, fetchCache, fetchZone)
         hasFetchedData = true
     }
 

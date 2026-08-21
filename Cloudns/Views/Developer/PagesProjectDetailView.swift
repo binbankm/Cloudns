@@ -300,7 +300,7 @@ struct PagesProjectDetailView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    PagesBindingsView(project: project)
+                    PagesBindingsView(accountId: accountId, project: project)
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "slider.horizontal.3")

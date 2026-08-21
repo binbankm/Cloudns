@@ -66,6 +66,11 @@ struct KVAddKeySheetView: View {
                         }
                     }
                     .disabled(key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSaving)
+                    .overlay {
+                        if isSaving {
+                            ProgressView()
+                        }
+                    }
                 }
             }
             .interactiveDismissDisabled(isSaving)

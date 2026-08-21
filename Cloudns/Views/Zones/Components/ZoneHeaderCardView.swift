@@ -190,7 +190,7 @@ struct ZoneHeaderCardView: View {
         do {
             try await ZoneService.shared.purgeCache(zoneId: zone.id)
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Cache Purged", message: "All cached assets purged globally for \(zone.name).")
+            ToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
         } catch {
             HapticManager.notification(.error)
             ToastManager.shared.showError("Purge Failed", message: error.localizedDescription)

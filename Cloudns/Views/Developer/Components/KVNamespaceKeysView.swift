@@ -23,8 +23,44 @@ struct KVNamespaceKeysView: View {
     
     var body: some View {
         List {
+            // MARK: - Namespace Metadata (Hidden during search)
+            if searchKey.isEmpty {
+                Section(header: Text("Namespace Information")) {
+                    HStack {
+                        Text("Namespace Name")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(namespace.title)
+                            .font(.body.weight(.medium))
+                    }
+                    
+                    HStack {
+                        Text("Namespace ID")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(namespace.id)
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                        
+                        Button {
+                            UIPasteboard.general.string = namespace.id
+                            HapticManager.impact(.light)
+                            ToastManager.shared.showCopied("Namespace ID copied")
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption2)
+                                .foregroundStyle(.purple)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Copy Namespace ID")
+                    }
+                }
+            }
+            
+            // MARK: - Keys List
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
+                Section(header: Text("Keys")) {
                     ForEach(KVKey.placeholders) { key in
                         keyRow(key)
                     }
@@ -34,14 +70,41 @@ struct KVNamespaceKeysView: View {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { key in
                         Button {
+                            HapticManager.impact(.light)
+                            viewModel.selectedKey = key.name
+                            viewModel.selectedKeyValue = nil
+                            viewModel.isValueLoading = true
+                            showingValueSheet = true
                             Task {
                                 await viewModel.fetchValue(key: key.name)
-                                showingValueSheet = true
                             }
                         } label: {
                             keyRow(key)
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = key.name
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Key name copied")
+                            } label: {
+                                Label("Copy Key Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                Task {
+                                    do {
+                                        try await viewModel.deleteKey(key: key.name)
+                                        ToastManager.shared.showSuccess("Key Deleted", message: key.name)
+                                    } catch {
+                                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                    }
+                                }
+                            } label: {
+                                Label("Delete Key", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
@@ -101,7 +164,7 @@ struct KVNamespaceKeysView: View {
                 } else if viewModel.keys.isEmpty {
                     StateOverlayView(
                         state: .empty(
-                            icon: "tray",
+                            icon: "key.horizontal.fill",
                             title: "Empty Namespace",
                             message: "This KV namespace currently contains no keys.",
                             actionTitle: "Add Key",
@@ -127,26 +190,54 @@ struct KVNamespaceKeysView: View {
     
     @ViewBuilder
     private func keyRow(_ key: KVKey) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "key.horizontal.fill")
+                .font(.subheadline)
+                .foregroundStyle(.purple)
+                .frame(width: 32, height: 32)
+                .background(Color.purple.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
                 Text(key.name)
-                    .font(.body.monospacedDigit())
+                    .font(.body.monospacedDigit().weight(.medium))
                     .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .truncationMode(.middle)
                 
                 if let exp = key.expiration {
-                    Text("Expires: \(exp)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.caption2)
+                        Text("Expires: \(formatExpiration(exp))")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: "infinity")
+                            .font(.caption2)
+                        Text("Never expires")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption)
+                .font(.caption2.weight(.semibold))
                 .foregroundStyle(Color(.tertiaryLabel))
                 .accessibilityHidden(true)
         }
         .padding(.vertical, 3)
+        .contentShape(Rectangle())
+    }
+    
+    private func formatExpiration(_ timestamp: Int) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        return DateFormatters.mediumDateTime.string(from: date)
     }
 }
