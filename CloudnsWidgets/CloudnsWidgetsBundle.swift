@@ -9,6 +9,8 @@ public struct CloudnsWidgetsBundle: WidgetBundle {
     
     public var body: some Widget {
         ZoneOverviewWidget()
+        WorkerOverviewWidget()
+        PagesOverviewWidget()
         SystemStatusWidget()
         QuickActionsWidget()
     }

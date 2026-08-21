@@ -11,11 +11,11 @@ public struct ZoneMediumWidgetView: View {
     }
     
     public var body: some View {
-        HStack(spacing: 16) {
-            // Left Column: Domain Identity & Core Status
-            VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 14) {
+            // Left Column: Domain Identity & Security Badges
+            VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 6) {
-                    Image(systemName: "network")
+                    Image(systemName: "globe.americas.fill")
                         .font(.body.weight(.bold))
                         .foregroundStyle(.blue)
                     
@@ -23,7 +23,7 @@ public struct ZoneMediumWidgetView: View {
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+                        .minimumScaleFactor(0.8)
                 }
                 
                 Text(LocalizedStringKey(snapshot.plan))
@@ -33,8 +33,9 @@ public struct ZoneMediumWidgetView: View {
                 
                 Spacer(minLength: 0)
                 
-                HStack(spacing: 6) {
-                    HStack(spacing: 4) {
+                // Status Badges
+                HStack(spacing: 5) {
+                    HStack(spacing: 3) {
                         Circle()
                             .fill(snapshot.status == "active" ? Color.green : Color.orange)
                             .frame(width: 6, height: 6)
@@ -61,61 +62,74 @@ public struct ZoneMediumWidgetView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             Divider()
-                .padding(.vertical, 4)
+                .padding(.vertical, 2)
             
-            // Right Column: 3 Metric Tiles
-            VStack(alignment: .leading, spacing: 8) {
-                // Metric 1: Requests
-                HStack {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(snapshot.formattedRequests)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                        Text("24h Requests")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+            // Right Column: 2x2 Metric Grid (4 Metrics)
+            VStack(spacing: 6) {
+                // Row 1: Requests & Bandwidth
+                HStack(spacing: 6) {
+                    metricTile(
+                        title: "24h Requests",
+                        value: snapshot.formattedRequests,
+                        icon: "chart.line.uptrend.xyaxis",
+                        color: .blue
+                    )
+                    
+                    metricTile(
+                        title: "24h Bandwidth",
+                        value: snapshot.formattedBytes,
+                        icon: "arrow.up.arrow.down",
+                        color: .indigo
+                    )
                 }
                 
-                // Metric 2: Cache Ratio
-                HStack {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(snapshot.formattedCachedRatio)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                        Text("Cached Traffic")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "bolt.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
-                
-                // Metric 3: Threats
-                HStack {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("\(snapshot.threats24h)")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                        Text("Threats Mitigated")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "shield.checkered")
-                        .font(.caption)
-                        .foregroundStyle(.green)
+                // Row 2: Cached & Threats
+                HStack(spacing: 6) {
+                    metricTile(
+                        title: "Cached Traffic",
+                        value: snapshot.formattedCachedRatio,
+                        icon: "bolt.fill",
+                        color: .orange
+                    )
+                    
+                    metricTile(
+                        title: "Threats Blocked",
+                        value: "\(snapshot.threats24h)",
+                        icon: "shield.checkered",
+                        color: .green
+                    )
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(14)
+        .padding(12)
         .widgetURL(URL(string: "cloudns://zone/\(snapshot.id)"))
+    }
+    
+    @ViewBuilder
+    private func metricTile(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 8))
+                    .foregroundStyle(color)
+                
+                Text(title)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            
+            Text(value)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

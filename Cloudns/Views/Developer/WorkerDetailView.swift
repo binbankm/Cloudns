@@ -24,6 +24,9 @@ struct WorkerDetailView: View {
                     await viewModel.fetchDetails()
                 }
             }
+            .onAppear {
+                WidgetDataStore.shared.syncWorkerWithAnalytics(script: worker, accountId: accountId)
+            }
     }
     
     @ViewBuilder

@@ -79,6 +79,9 @@ struct PagesProjectDetailView: View {
                     await viewModel.fetchProjectDetails()
                 }
             }
+            .onAppear {
+                WidgetDataStore.shared.syncPagesWithAnalytics(project: project, accountId: accountId)
+            }
             .sheet(isPresented: $showingDomainsSheet) {
                 NavigationStack {
                     PagesDomainsView(accountId: accountId, projectName: project.name, viewModel: viewModel)

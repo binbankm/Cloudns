@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showingClearCacheAlert = false
     @StateObject private var accountManager = AccountManager.shared
     @StateObject private var cacheManager = CacheManager.shared
+    @StateObject private var iconManager = AppIconManager.shared
     
     var body: some View {
         NavigationStack {
@@ -126,12 +127,12 @@ struct SettingsView: View {
                 // MARK: - Preferences & Appearance Section
                 Section {
                     Picker(selection: $themePreference) {
-                        Text("System").tag("system")
+                        Text("Follow System").tag("system")
                         Text("Light").tag("light")
                         Text("Dark").tag("dark")
                     } label: {
                         SettingsRowView(
-                            icon: "paintbrush.fill",
+                            icon: "circle.righthalf.filled",
                             color: .orange,
                             title: "Appearance"
                         )
@@ -140,6 +141,20 @@ struct SettingsView: View {
                     .tint(.secondary)
                     .onChange(of: themePreference) { _ in
                         HapticManager.impact(.light)
+                    }
+                    
+                    NavigationLink(destination: AppIconPickerView()) {
+                        HStack {
+                            SettingsRowView(
+                                icon: "app.badge.fill",
+                                color: .pink,
+                                title: "App Icon"
+                            )
+                            Spacer()
+                            Text(iconManager.currentIcon.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     
                     Picker(selection: $appLanguage) {

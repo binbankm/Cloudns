@@ -1,5 +1,8 @@
 import Foundation
 import CryptoKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// 缓存元数据
 public struct CacheMetadata: Sendable {
@@ -39,6 +42,14 @@ public actor SWRCacheStore {
         self.diskCacheDirectory = targetDir
         
         try? fm.createDirectory(at: targetDir, withIntermediateDirectories: true, attributes: nil)
+        
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: nil
+        ) { [weak memoryCache] _ in
+            memoryCache?.removeAllObjects()
+        }
     }
     
     /// 构建包含当前账户邮箱的多租户隔离 Cache Key

@@ -42,6 +42,13 @@ class WorkersViewModel: BaseLoadableViewModel {
             let (w, p) = try await (fetchW, fetchP)
             self.workers = w
             self.pages = p
+            
+            if let firstWorker = w.first {
+                WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: self.accountId)
+            }
+            if let firstPage = p.first {
+                WidgetDataStore.shared.syncPagesWithAnalytics(project: firstPage, accountId: self.accountId)
+            }
         }
     }
     

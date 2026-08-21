@@ -520,3 +520,88 @@ struct HTTPNetworkClientTests {
     }
 }
 
+// MARK: - 11. DeepLinkRouter Tests
+
+@Suite("DeepLinkRouter Tests")
+struct DeepLinkRouterTests {
+    
+    @Test("DeepLink routing for Zone")
+    @MainActor
+    func testZoneDeepLink() {
+        var tab = 0
+        let url = URL(string: "cloudns://zone/zone_abc_123")!
+        let binding = Binding(get: { tab }, set: { tab = $0 })
+        
+        DeepLinkRouter.shared.handle(url: url, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .zone(id: "zone_abc_123"))
+    }
+    
+    @Test("DeepLink routing for Developer tab")
+    @MainActor
+    func testDeveloperDeepLink() {
+        var tab = 0
+        let url = URL(string: "cloudns://developer/workers")!
+        let binding = Binding(get: { tab }, set: { tab = $0 })
+        
+        DeepLinkRouter.shared.handle(url: url, currentTab: binding)
+        #expect(tab == 2)
+    }
+    
+    @Test("DeepLink routing for Diagnostic Tools")
+    @MainActor
+    func testToolsDeepLink() {
+        var tab = 0
+        let url = URL(string: "cloudns://tools/dig")!
+        let binding = Binding(get: { tab }, set: { tab = $0 })
+        
+        DeepLinkRouter.shared.handle(url: url, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .dig)
+    }
+}
+
+// MARK: - 12. Widget Snapshot Formatting Tests
+
+@Suite("Widget Snapshot Formatting Tests")
+struct WidgetSnapshotFormattingTests {
+    
+    @Test("ZoneWidgetSnapshot formatted metrics")
+    func testZoneWidgetSnapshotFormatting() {
+        let snap = ZoneWidgetSnapshot(
+            id: "test-zone",
+            name: "example.com",
+            requests24h: 1_250_000,
+            bytes24h: 3_400_000_000,
+            cachedRatio: 0.845,
+            threats24h: 18
+        )
+        
+        #expect(snap.formattedRequests == "1.3M" || snap.formattedRequests == "1.2M")
+        #expect(snap.formattedBytes == "3.2 GB" || snap.formattedBytes.contains("GB"))
+        #expect(snap.formattedCachedRatio == "84%")
+        #expect(snap.threats24h == 18)
+    }
+    
+    @Test("WorkerWidgetSnapshot formatted metrics")
+    func testWorkerWidgetSnapshotFormatting() {
+        let snap = WorkerWidgetSnapshot(
+            id: "worker-api",
+            name: "worker-api",
+            requests24h: 84_500,
+            errors24h: 2,
+            cpuTimeMs: 2.34,
+            successRate: 0.999
+        )
+        
+        #expect(snap.formattedRequests == "84.5K")
+        #expect(snap.formattedSuccessRate == "99.9%")
+        #expect(snap.formattedCpuTime == "2.3ms")
+    }
+    
+    @Test("PagesWidgetSnapshot placeholder defaults")
+    func testPagesWidgetSnapshotDefaults() {
+        let snap = PagesWidgetSnapshot.placeholder
+        #expect(!snap.name.isEmpty)
+        #expect(!snap.subdomain.isEmpty)
+        #expect(!snap.productionBranch.isEmpty)
+    }
+}

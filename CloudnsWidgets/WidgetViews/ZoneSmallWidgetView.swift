@@ -11,9 +11,9 @@ public struct ZoneSmallWidgetView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Header: Domain Icon + Status Indicator
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 6) {
+            // Header: Domain Icon + Name + Status Indicator
+            HStack(spacing: 5) {
                 Image(systemName: "globe")
                     .font(.caption.bold())
                     .foregroundStyle(.blue)
@@ -27,57 +27,76 @@ public struct ZoneSmallWidgetView: View {
                 
                 Circle()
                     .fill(snapshot.status == "active" ? Color.green : Color.orange)
-                    .frame(width: 8, height: 8)
+                    .frame(width: 7, height: 7)
             }
             
             Spacer(minLength: 0)
             
-            // Middle: 24h Requests Main Metric
-            VStack(alignment: .leading, spacing: 2) {
-                Text(snapshot.formattedRequests)
-                    .font(.system(size: 26, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.primary)
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(1)
-                
-                Text("24h Requests")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-            
-            Spacer(minLength: 0)
-            
-            // Footer: Cache Ratio & SSL Badge
-            HStack(spacing: 6) {
-                HStack(spacing: 3) {
-                    Image(systemName: "bolt.fill")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.orange)
-                    Text(snapshot.formattedCachedRatio)
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(Capsule())
-                
-                Spacer(minLength: 0)
-                
-                if snapshot.isSSLEnabled {
-                    Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.green)
+            // 2x2 Metric Grid (All 4 Core Metrics)
+            VStack(spacing: 6) {
+                // Row 1: Requests & Bandwidth
+                HStack(spacing: 6) {
+                    metricCard(
+                        title: "Requests",
+                        value: snapshot.formattedRequests,
+                        icon: "chart.line.uptrend.xyaxis",
+                        color: .blue
+                    )
+                    
+                    metricCard(
+                        title: "Bandwidth",
+                        value: snapshot.formattedBytes,
+                        icon: "arrow.up.arrow.down",
+                        color: .indigo
+                    )
                 }
                 
-                if snapshot.isProxied {
-                    Image(systemName: "cloud.fill")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.orange)
+                // Row 2: Cached & Threats
+                HStack(spacing: 6) {
+                    metricCard(
+                        title: "Cached",
+                        value: snapshot.formattedCachedRatio,
+                        icon: "bolt.fill",
+                        color: .orange
+                    )
+                    
+                    metricCard(
+                        title: "Threats",
+                        value: "\(snapshot.threats24h)",
+                        icon: "shield.checkered",
+                        color: .green
+                    )
                 }
             }
         }
-        .padding(14)
+        .padding(11)
         .widgetURL(URL(string: "cloudns://zone/\(snapshot.id)"))
+    }
+    
+    @ViewBuilder
+    private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 8))
+                    .foregroundStyle(color)
+                
+                Text(title)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            
+            Text(value)
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4.5)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

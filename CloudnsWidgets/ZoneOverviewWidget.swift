@@ -62,23 +62,26 @@ struct ZoneOverviewEntryView: View {
     let entry: ZoneWidgetEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            ZoneSmallWidgetView(snapshot: entry.snapshot)
-                .widgetBackground()
-        case .systemMedium:
-            ZoneMediumWidgetView(snapshot: entry.snapshot)
-                .widgetBackground()
-        case .accessoryRectangular:
-            ZoneAccessoryRectangularView(snapshot: entry.snapshot)
-                .accessoryWidgetBackground()
-        case .accessoryCircular:
-            ZoneAccessoryCircularView(snapshot: entry.snapshot)
-                .accessoryWidgetBackground()
-        default:
-            ZoneSmallWidgetView(snapshot: entry.snapshot)
-                .widgetBackground()
+        Group {
+            switch family {
+            case .systemSmall:
+                ZoneSmallWidgetView(snapshot: entry.snapshot)
+                    .widgetBackground()
+            case .systemMedium:
+                ZoneMediumWidgetView(snapshot: entry.snapshot)
+                    .widgetBackground()
+            case .accessoryRectangular:
+                ZoneAccessoryRectangularView(snapshot: entry.snapshot)
+                    .accessoryWidgetBackground()
+            case .accessoryCircular:
+                ZoneAccessoryCircularView(snapshot: entry.snapshot)
+                    .accessoryWidgetBackground()
+            default:
+                ZoneSmallWidgetView(snapshot: entry.snapshot)
+                    .widgetBackground()
+            }
         }
+        .widgetURL(URL(string: "cloudns://zone/\(entry.snapshot.id)"))
     }
 }
 

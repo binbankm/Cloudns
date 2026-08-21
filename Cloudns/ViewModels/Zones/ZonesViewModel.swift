@@ -164,20 +164,6 @@ class ZonesViewModel: BaseLoadableViewModel {
         let topZoneId = RecentZonesManager.shared.recentZoneIds.first
         let targetZone = zones.first(where: { $0.id == topZoneId }) ?? zones.first
         guard let chosen = targetZone else { return }
-        
-        let current = WidgetDataStore.shared.loadZoneSnapshot()
-        let snap = ZoneWidgetSnapshot(
-            id: chosen.id,
-            name: chosen.name,
-            status: chosen.status,
-            plan: chosen.plan?.name ?? "Free",
-            requests24h: current.id == chosen.id ? current.requests24h : 0,
-            cachedRatio: current.id == chosen.id ? current.cachedRatio : 0.85,
-            threats24h: current.id == chosen.id ? current.threats24h : 0,
-            isProxied: !chosen.paused,
-            isSSLEnabled: true,
-            lastUpdated: Date()
-        )
-        WidgetDataStore.shared.saveZoneSnapshot(snap)
+        WidgetDataStore.shared.syncZoneWithAnalytics(zone: chosen)
     }
 }

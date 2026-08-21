@@ -127,5 +127,13 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
             tunnels: t
         )
         await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
+        
+        // 5. 自动同步首个 Worker 和 Pages 到桌面小组件
+        if let firstWorker = w.first {
+            WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: accountId)
+        }
+        if let firstPage = p.first {
+            WidgetDataStore.shared.syncPagesWithAnalytics(project: firstPage, accountId: accountId)
+        }
     }
 }

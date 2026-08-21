@@ -330,7 +330,7 @@ public indirect enum JSONValue: Codable, Sendable, Equatable {
     }
 }
 
-public struct WorkerZoneRoute: Codable, Identifiable, Equatable {
+public struct WorkerZoneRoute: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let pattern: String
     public let script: String?

@@ -186,20 +186,7 @@ struct ZoneDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             RecentZonesManager.shared.recordVisit(zoneId: zone.id)
-            let current = WidgetDataStore.shared.loadZoneSnapshot()
-            let snap = ZoneWidgetSnapshot(
-                id: zone.id,
-                name: zone.name,
-                status: zone.status,
-                plan: zone.plan?.name ?? "Free Plan",
-                requests24h: current.id == zone.id ? current.requests24h : 0,
-                cachedRatio: current.id == zone.id ? current.cachedRatio : 0.85,
-                threats24h: current.id == zone.id ? current.threats24h : 0,
-                isProxied: !zone.paused,
-                isSSLEnabled: true,
-                lastUpdated: Date()
-            )
-            WidgetDataStore.shared.saveZoneSnapshot(snap)
+            WidgetDataStore.shared.syncZoneWithAnalytics(zone: zone)
         }
     }
 }

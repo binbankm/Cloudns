@@ -14,6 +14,8 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     private enum Keys {
         static let zoneSnapshot = "cloudns.widget.zone.snapshot"
+        static let workerSnapshot = "cloudns.widget.worker.snapshot"
+        static let pagesSnapshot = "cloudns.widget.pages.snapshot"
         static let statusSnapshot = "cloudns.widget.status.snapshot"
         static let allZonesList = "cloudns.widget.zones.all"
     }
@@ -55,6 +57,56 @@ public final class WidgetDataStore: @unchecked Sendable {
         return .placeholder
     }
     
+    // MARK: - Worker Snapshot Operations
+    
+    public func saveWorkerSnapshot(_ snapshot: WorkerWidgetSnapshot) {
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        userDefaults.set(data, forKey: Keys.workerSnapshot)
+        userDefaults.synchronize()
+        if let fileURL = containerFolderURL?.appendingPathComponent("worker_snapshot.json") {
+            try? data.write(to: fileURL, options: .atomic)
+        }
+        notifyWidgetsToReload()
+    }
+    
+    public func loadWorkerSnapshot() -> WorkerWidgetSnapshot {
+        if let data = userDefaults.data(forKey: Keys.workerSnapshot),
+           let snapshot = try? JSONDecoder().decode(WorkerWidgetSnapshot.self, from: data) {
+            return snapshot
+        }
+        if let fileURL = containerFolderURL?.appendingPathComponent("worker_snapshot.json"),
+           let data = try? Data(contentsOf: fileURL),
+           let snapshot = try? JSONDecoder().decode(WorkerWidgetSnapshot.self, from: data) {
+            return snapshot
+        }
+        return .placeholder
+    }
+    
+    // MARK: - Pages Snapshot Operations
+    
+    public func savePagesSnapshot(_ snapshot: PagesWidgetSnapshot) {
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        userDefaults.set(data, forKey: Keys.pagesSnapshot)
+        userDefaults.synchronize()
+        if let fileURL = containerFolderURL?.appendingPathComponent("pages_snapshot.json") {
+            try? data.write(to: fileURL, options: .atomic)
+        }
+        notifyWidgetsToReload()
+    }
+    
+    public func loadPagesSnapshot() -> PagesWidgetSnapshot {
+        if let data = userDefaults.data(forKey: Keys.pagesSnapshot),
+           let snapshot = try? JSONDecoder().decode(PagesWidgetSnapshot.self, from: data) {
+            return snapshot
+        }
+        if let fileURL = containerFolderURL?.appendingPathComponent("pages_snapshot.json"),
+           let data = try? Data(contentsOf: fileURL),
+           let snapshot = try? JSONDecoder().decode(PagesWidgetSnapshot.self, from: data) {
+            return snapshot
+        }
+        return .placeholder
+    }
+    
     // MARK: - CF Status Snapshot Operations
     
     public func saveStatusSnapshot(_ snapshot: CFStatusWidgetSnapshot) {
@@ -85,6 +137,8 @@ public final class WidgetDataStore: @unchecked Sendable {
     public func notifyWidgetsToReload() {
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadTimelines(ofKind: "ZoneOverviewWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: "WorkerOverviewWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: "PagesOverviewWidget")
         WidgetCenter.shared.reloadTimelines(ofKind: "SystemStatusWidget")
         WidgetCenter.shared.reloadTimelines(ofKind: "QuickActionsWidget")
         WidgetCenter.shared.reloadAllTimelines()

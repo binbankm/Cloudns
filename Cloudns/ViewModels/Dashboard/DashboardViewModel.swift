@@ -123,6 +123,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.hasFetchedData = true
                 self.refreshRecentZones()
                 self.syncTopZoneToWidget()
+                self.syncTopWorkerToWidget()
+                self.syncTopPagesToWidget()
             }
         }
         
@@ -179,6 +181,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 )
                 await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
                 self.syncTopZoneToWidget()
+                self.syncTopWorkerToWidget()
+                self.syncTopPagesToWidget()
             }
         }
     }
@@ -214,19 +218,16 @@ final class DashboardViewModel: BaseLoadableViewModel {
     
     private func syncTopZoneToWidget() {
         guard let topZone = recentZones.first ?? zones.first else { return }
-        let current = WidgetDataStore.shared.loadZoneSnapshot()
-        let snap = ZoneWidgetSnapshot(
-            id: topZone.id,
-            name: topZone.name,
-            status: topZone.status,
-            plan: topZone.plan?.name ?? "Free Plan",
-            requests24h: current.id == topZone.id ? current.requests24h : 0,
-            cachedRatio: current.id == topZone.id ? current.cachedRatio : 0.85,
-            threats24h: current.id == topZone.id ? current.threats24h : 0,
-            isProxied: !topZone.paused,
-            isSSLEnabled: true,
-            lastUpdated: Date()
-        )
-        WidgetDataStore.shared.saveZoneSnapshot(snap)
+        WidgetDataStore.shared.syncZoneWithAnalytics(zone: topZone)
+    }
+    
+    private func syncTopWorkerToWidget() {
+        guard let accountId = selectedAccount?.id, let topWorker = workers.first else { return }
+        WidgetDataStore.shared.syncWorkerWithAnalytics(script: topWorker, accountId: accountId)
+    }
+    
+    private func syncTopPagesToWidget() {
+        guard let accountId = selectedAccount?.id, let topPage = pages.first else { return }
+        WidgetDataStore.shared.syncPagesWithAnalytics(project: topPage, accountId: accountId)
     }
 }
