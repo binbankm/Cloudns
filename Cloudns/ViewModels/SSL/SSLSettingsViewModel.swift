@@ -17,6 +17,7 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
     @Published var hstsMaxAge: Int = 0
     @Published var hstsIncludeSubdomains: Bool = false
     @Published var hstsNoSniff: Bool = false
+    @Published var hstsPreload: Bool = false
     
     private let certService: CertificateServiceProtocol
     
@@ -42,6 +43,7 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
             self.hstsMaxAge = res.hsts.maxAge
             self.hstsIncludeSubdomains = res.hsts.subdomains
             self.hstsNoSniff = res.hsts.nosniff
+            self.hstsPreload = res.hsts.preload
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to fetch SSL settings: \(error.localizedDescription)"
@@ -148,26 +150,29 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
         }
     }
     
-    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async {
+    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool = false) async {
         let prevEnabled = self.hstsEnabled
         let prevMaxAge = self.hstsMaxAge
         let prevSubdomains = self.hstsIncludeSubdomains
         let prevNosniff = self.hstsNoSniff
+        let prevPreload = self.hstsPreload
         
         self.hstsEnabled = enabled
         self.hstsMaxAge = maxAge
         self.hstsIncludeSubdomains = subdomains
         self.hstsNoSniff = nosniff
+        self.hstsPreload = preload
         
         HapticManager.impact(.medium)
         do {
-            try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff)
+            try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff, preload: preload)
             ToastManager.shared.showSuccess("HSTS Updated", message: enabled ? "HSTS is active." : "HSTS is disabled.")
         } catch {
             self.hstsEnabled = prevEnabled
             self.hstsMaxAge = prevMaxAge
             self.hstsIncludeSubdomains = prevSubdomains
             self.hstsNoSniff = prevNosniff
+            self.hstsPreload = prevPreload
             self.errorMessage = error.localizedDescription
             ToastManager.shared.showError("HSTS Update Failed", message: error.localizedDescription)
         }

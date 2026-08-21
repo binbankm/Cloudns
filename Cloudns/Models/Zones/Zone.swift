@@ -42,6 +42,14 @@ public struct ZonePlan: Codable, Equatable, Sendable {
         }
         return "Free"
     }
+    
+    public var planTier: PlanTier {
+        let text = (name ?? legacyId ?? "").lowercased()
+        if text.contains("enterprise") { return .enterprise }
+        if text.contains("business") || text.contains("biz") { return .business }
+        if text.contains("pro") { return .pro }
+        return .free
+    }
 }
 
 public struct ZoneAccount: Codable, Equatable, Sendable {
@@ -127,5 +135,9 @@ public struct Zone: Codable, Identifiable, Equatable, Sendable {
             paused: false,
             plan: ZonePlan(name: "Pro Plan")
         )
+    }
+    
+    public var planTier: PlanTier {
+        plan?.planTier ?? .free
     }
 }

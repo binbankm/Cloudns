@@ -75,6 +75,21 @@ struct DNSRecordRowView: View {
                     .lineLimit(2)
                     .padding(.top, 2)
             }
+            
+            if let tags = record.tags, !tags.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(tags, id: \.self) { tag in
+                        Text("#\(tag)")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Color.purple.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+                }
+                .padding(.top, 1)
+            }
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())

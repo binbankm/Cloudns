@@ -1,5 +1,27 @@
 import SwiftUI
 
+// MARK: - Plan Tier Enum
+
+public enum PlanTier: String, Codable, Sendable {
+    case free = "free"
+    case pro = "pro"
+    case business = "business"
+    case enterprise = "enterprise"
+    case paid = "paid"
+    case addOn = "addon"
+    
+    public var title: String {
+        switch self {
+        case .free: return "FREE"
+        case .pro: return "PRO"
+        case .business: return "BUSINESS"
+        case .enterprise: return "ENTERPRISE"
+        case .paid: return "PAID"
+        case .addOn: return "ADD-ON"
+        }
+    }
+}
+
 // MARK: - Cloudns Badge Type
 
 public enum CloudnsBadgeType {
@@ -13,6 +35,8 @@ public enum CloudnsBadgeType {
     case warning(String = "Warning")
     /// 拦截 / 错误 (带红色指示灯 🔴)
     case error(String = "Error")
+    /// 官方套餐计划徽标 (FREE / PRO / BUSINESS / ENTERPRISE / PAID / ADD-ON)
+    case plan(PlanTier)
     /// 自定义徽标
     case custom(color: Color, text: String, icon: String? = nil)
     
@@ -21,6 +45,12 @@ public enum CloudnsBadgeType {
     public static var active: CloudnsBadgeType { .active() }
     public static var warning: CloudnsBadgeType { .warning() }
     public static var error: CloudnsBadgeType { .error() }
+    public static var free: CloudnsBadgeType { .plan(.free) }
+    public static var pro: CloudnsBadgeType { .plan(.pro) }
+    public static var business: CloudnsBadgeType { .plan(.business) }
+    public static var enterprise: CloudnsBadgeType { .plan(.enterprise) }
+    public static var paid: CloudnsBadgeType { .plan(.paid) }
+    public static var addOn: CloudnsBadgeType { .plan(.addOn) }
 }
 
 // MARK: - Cloudns Badge View
@@ -92,6 +122,33 @@ public struct CloudnsBadge: View {
                         .font(isCompact ? .caption2 : .caption)
                         .foregroundStyle(badgeColor)
                 }
+            case .plan(let tier):
+                switch tier {
+                case .free:
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                case .pro:
+                    Image(systemName: "sparkles")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                case .business:
+                    Image(systemName: "briefcase.fill")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                case .enterprise:
+                    Image(systemName: "building.2.fill")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                case .paid:
+                    Image(systemName: "bolt.fill")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                case .addOn:
+                    Image(systemName: "plus.circle.fill")
+                        .font(isCompact ? .caption2 : .caption)
+                        .foregroundStyle(badgeColor)
+                }
             }
         }
     }
@@ -113,6 +170,21 @@ public struct CloudnsBadge: View {
             return Color.red
         case .custom(let color, _, _):
             return color
+        case .plan(let tier):
+            switch tier {
+            case .free:
+                return Color.teal
+            case .pro:
+                return Color.blue
+            case .business:
+                return Color.orange
+            case .enterprise:
+                return Color.purple
+            case .paid:
+                return Color.indigo
+            case .addOn:
+                return Color.cyan
+            }
         }
     }
     
@@ -130,6 +202,8 @@ public struct CloudnsBadge: View {
             return text
         case .custom(_, let text, _):
             return text
+        case .plan(let tier):
+            return tier.title
         }
     }
 }

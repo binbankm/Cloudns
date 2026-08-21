@@ -1154,6 +1154,76 @@
         }
       }
     },
+    "#%@": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
+        }
+      }
+    },
     "#%lld": {
       "extractionState": "manual",
       "localizations": {
@@ -2765,7 +2835,6 @@
       }
     },
     "%@ Rules (%lld)": {
-      "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
@@ -2830,7 +2899,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ 规则 (%2$lld)"
+            "value": "%@ 规则 (%lld)"
           }
         },
         "zh-Hant": {
@@ -3759,6 +3828,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld / 5 active": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5件 有効"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 条已启用"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 5 條已啟用"
           }
         }
       }
@@ -10901,6 +11040,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "第 99 百分位"
+          }
+        }
+      }
+    },
+    "103 Early Hints": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints（早期ヒント）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints 提前提示"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "103 Early Hints 提前提示"
           }
         }
       }
@@ -19210,6 +19419,76 @@
         }
       }
     },
+    "Advanced Routing & Origin": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高度なルーティングとオリジン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Routing & Origin"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高级路由与回源"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "進階路由與源站"
+          }
+        }
+      }
+    },
     "Advanced Settings": {
       "extractionState": "manual",
       "localizations": {
@@ -22593,6 +22872,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "分析与流量"
+          }
+        }
+      }
+    },
+    "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQLi、XSS、RCE攻撃を検出する異常スコアリングエンジン。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anomaly scoring engine detecting SQLi, XSS, and RCE attacks."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基于异常评分引擎检测 SQL 注入、XSS 与 RCE 攻击。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基於異常評分引擎檢測 SQL 注入、XSS 與 RCE 攻擊。"
           }
         }
       }
@@ -26901,6 +27250,76 @@
         }
       }
     },
+    "Asset Optimization": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アセットの最適化"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asset Optimization"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静态资源优化"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "靜態資源最佳化"
+          }
+        }
+      }
+    },
     "Assigned Nameservers": {
       "extractionState": "manual",
       "localizations": {
@@ -28129,6 +28548,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "自動 HTTPS 重写"
+          }
+        }
+      }
+    },
+    "Automatic image compression and WebP conversion.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動画像圧縮とWebP変換。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic image compression and WebP conversion."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动图像压缩与 WebP 格式转换。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動影像壓縮與 WebP 格式轉換。"
           }
         }
       }
@@ -38971,6 +39460,76 @@
         }
       }
     },
+    "Cloudflare Fonts": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts（フォント最適化）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Fonts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 字体优化"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 字型最佳化"
+          }
+        }
+      }
+    },
     "Cloudflare Global Network & Edge Services Normal": {
       "localizations": {
         "ar": {
@@ -39354,6 +39913,146 @@
         }
       }
     },
+    "Cloudflare Managed Ruleset": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflareマネージドルールセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Ruleset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 托管规则集"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 代管規則集"
+          }
+        }
+      }
+    },
+    "Cloudflare Managed Rulesets": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflareマネージドルールセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Managed Rulesets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 托管规则集"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 代管規則集"
+          }
+        }
+      }
+    },
     "Cloudflare Nameservers": {
       "extractionState": "manual",
       "localizations": {
@@ -39504,6 +40203,146 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cloudflare 官方服务良好状態"
+          }
+        }
+      }
+    },
+    "Cloudflare OWASP Core Ruleset": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASPコアルールセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP Core Ruleset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP 核心规则集"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare OWASP 核心規則集"
+          }
+        }
+      }
+    },
+    "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polishは画像を即座に最適化し、モバイル訪問者のペイロードを削減します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish 实时优化图像，大幅缩减移动端访客下载体积。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Polish 即時最佳化影像，大幅縮減行動裝置訪客下載流量。"
           }
         }
       }
@@ -43505,78 +44344,72 @@
         }
       }
     },
-    "Configure CDN edge acceleration and asset optimizations for faster page loads.": {
+    "Configure CDN edge compression and runtime asset improvements.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "قم بتكوين تسريع حافة CDN وتحسينات الأصول لتحميل الصفحات بشكل أسرع."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Konfigurieren Sie CDN-Edge-Beschleunigung und Asset-Optimierungen für schnellere Seitenladevorgänge."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configure CDN edge acceleration and asset optimizations for faster page loads."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configure la aceleración perimetral de CDN y las optimizaciones de activos para cargas de páginas más rápidas."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurez l'accélération CDN Edge et les optimisations des actifs pour des chargements de pages plus rapides."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configura l'accelerazione edge della CDN e le ottimizzazioni delle risorse per caricamenti delle pagine più rapidi."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "CDN エッジ アクセラレーションとアセットの最適化を構成して、ページの読み込みを高速化します。"
+            "value": "CDNエッジ圧縮とランタイムアセットの最適化を設定します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더 빠른 페이지 로드를 위해 CDN 에지 가속화 및 자산 최적화를 구성합니다."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configure a aceleração de borda do CDN e as otimizações de ativos para carregamentos de página mais rápidos."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройте периферийное ускорение CDN и оптимизацию ресурсов для более быстрой загрузки страниц."
+            "value": "Configure CDN edge compression and runtime asset improvements."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配置 CDN 边缘加速与静态资源优化，提升页面加载速度。"
+            "value": "配置 CDN 边缘压缩和运行时静态资源改进。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定 CDN 边缘加速与静態资源优化，提升頁面加載速度。"
+            "value": "設定 CDN 邊緣壓縮和執行階段靜態資源改進。"
           }
         }
       }
@@ -45500,6 +46333,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "继續"
+          }
+        }
+      }
+    },
+    "Control geographic headers and edge-to-origin protocol versions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地理的ヘッダーとエッジからオリジンへのプロトコルバージョンを制御します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control geographic headers and edge-to-origin protocol versions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制地理位置请求头与边缘到源站的协议版本。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制地理位置請求標頭與邊緣到源站的通訊協定版本。"
           }
         }
       }
@@ -49337,6 +50240,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "CPU P99"
+          }
+        }
+      }
+    },
+    "CPU Time": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وقت المعالج"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU-Zeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU Time"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo CPU"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temps CPU"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo CPU"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU時間"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU 시간"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo de CPU"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Время CPU"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU 耗时"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU 耗時"
           }
         }
       }
@@ -53729,6 +54709,216 @@
         }
       }
     },
+    "Custom Rules": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムルール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义规则"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂規則"
+          }
+        }
+      }
+    },
+    "Custom Rules (%lld)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムルール (%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义规则 (%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂規則 (%lld)"
+          }
+        }
+      }
+    },
+    "Custom Rules Quota": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムルール制限枠"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules Quota"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义规则配额"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂規則配額"
+          }
+        }
+      }
+    },
     "Custom rules, managed rules": {
       "extractionState": "manual",
       "localizations": {
@@ -56803,6 +57993,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "刪除"
+          }
+        }
+      }
+    },
+    "DELETE": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
           }
         }
       }
@@ -70961,6 +72221,76 @@
         }
       }
     },
+    "Editor Mode": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エディターモード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑模式"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯模式"
+          }
+        }
+      }
+    },
     "Effortlessly manage your Cloudflare zones, DNS records, and settings from anywhere.": {
       "extractionState": "manual",
       "localizations": {
@@ -83261,6 +84591,76 @@
         }
       }
     },
+    "Generated Expression Preview": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成された式のプレビュー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generated Expression Preview"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成表达式预览"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "產生的運算式預覽"
+          }
+        }
+      }
+    },
     "Generating BIND Zone File...": {
       "localizations": {
         "ar": {
@@ -83564,6 +84964,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "地理位置、ISP 运营商与網路 ASN 诊断"
+          }
+        }
+      }
+    },
+    "GET": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GET"
           }
         }
       }
@@ -84877,6 +86347,76 @@
         }
       }
     },
+    "HEAD": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEAD"
+          }
+        }
+      }
+    },
     "Header copied": {
       "extractionState": "manual",
       "localizations": {
@@ -85493,78 +87033,72 @@
         }
       }
     },
-    "Help browsers start loading assets sooner.": {
+    "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ساعد المتصفحات على بدء تحميل الأصول عاجلاً."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Helfen Sie Browsern, Assets früher zu laden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Help browsers start loading assets sooner."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ayude a los navegadores a comenzar a cargar recursos antes."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aidez les navigateurs à commencer à charger les ressources plus tôt."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aiuta i browser a iniziare a caricare le risorse prima."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ブラウザがアセットの読み込みをより早く開始できるようにします。"
+            "value": "HTML応答のレンダリング完了前に、リンクされたCSS/JSの先行読み込みを開始します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "브라우저가 자산 로드를 더 빨리 시작할 수 있도록 도와주세요."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajude os navegadores a começarem a carregar ativos mais cedo."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Помогите браузерам начать загрузку ресурсов раньше."
+            "value": "Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "帮助浏览器提前并发加载关键资源。"
+            "value": "在 HTML 响应完成渲染前，帮助浏览器提前预加载关联的 CSS/JS 资源。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "帮助浏覽器提前并發加載關鍵资源。"
+            "value": "在 HTML 回應完成轉譯前，協助瀏覽器提前預先載入關聯的 CSS/JS 資源。"
           }
         }
       }
@@ -86103,6 +87637,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "主机名"
+          }
+        }
+      }
+    },
+    "Host (Biz)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホスト名 Host (Biz)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host (Biz)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机名 Host (商业版)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主機名稱 Host (商業版)"
           }
         }
       }
@@ -87798,6 +89402,76 @@
         }
       }
     },
+    "HTTP/1.1 (Legacy)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1（従来互換）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (Legacy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (传统兼容)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/1.1 (傳統相容)"
+          }
+        }
+      }
+    },
     "HTTP/2": {
       "extractionState": "manual",
       "localizations": {
@@ -87871,6 +89545,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "HTTP/2"
+          }
+        }
+      }
+    },
+    "HTTP/2 (Fastest)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2（最速多重化）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (Fastest)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (极速多路复用)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP/2 (極速多工)"
           }
         }
       }
@@ -89413,6 +91157,76 @@
         }
       }
     },
+    "Image Optimization": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画像の最適化"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Optimization"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图像优化"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "影像最佳化"
+          }
+        }
+      }
+    },
     "Immediately": {
       "extractionState": "manual",
       "localizations": {
@@ -89563,6 +91377,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "導入 BIND 文件"
+          }
+        }
+      }
+    },
+    "Improve paint times for pages containing heavy JavaScript.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重いJavaScriptを含むページの描画時間を短縮します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve paint times for pages containing heavy JavaScript."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缩短包含大量 JavaScript 脚本页面的首次渲染耗时。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "縮短包含大量 JavaScript 指令碼頁面的首次繪製耗時。"
           }
         }
       }
@@ -100798,22 +102682,40 @@
     },
     "Loading Pages Project...": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ تحميل مشروع Pages..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pages-Projekt wird geladen..."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Loading Pages Project..."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在加载 Pages 项目..."
+            "value": "Cargando proyecto Pages..."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在載入 Pages 專案..."
+            "value": "Chargement du projet Pages..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento progetto Pages..."
           }
         },
         "ja": {
@@ -100828,30 +102730,6 @@
             "value": "Pages 프로젝트 로드 중..."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pages-Projekt wird geladen..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement du projet Pages..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargando proyecto Pages..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caricamento progetto Pages..."
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -100864,10 +102742,16 @@
             "value": "Загрузка проекта Pages..."
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "جارٍ تحميل مشروع Pages..."
+            "value": "正在加载 Pages 项目..."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在載入 Pages 專案..."
           }
         }
       }
@@ -101336,22 +103220,40 @@
     },
     "Loading Worker Details...": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ تحميل تفاصيل Worker..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker-Details werden geladen..."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Loading Worker Details..."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在加载 Worker 详情..."
+            "value": "Cargando detalles de Worker..."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在載入 Worker 詳情..."
+            "value": "Chargement des détails de Worker..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento dettagli Worker..."
           }
         },
         "ja": {
@@ -101366,30 +103268,6 @@
             "value": "Worker 세부 정보 로드 중..."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Worker-Details werden geladen..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement des détails de Worker..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargando detalles de Worker..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caricamento dettagli Worker..."
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -101402,10 +103280,16 @@
             "value": "Загрузка сведений о Worker..."
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "جارٍ تحميل تفاصيل Worker..."
+            "value": "正在加载 Worker 详情..."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在載入 Worker 詳情..."
           }
         }
       }
@@ -102948,6 +104832,146 @@
         }
       }
     },
+    "Lossless (Fast)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可逆圧縮（高速）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossless (Fast)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无损压缩 (快速)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無損壓縮 (快速)"
+          }
+        }
+      }
+    },
+    "Lossy (Maximum Compression)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非可逆圧縮（最大圧縮）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lossy (Maximum Compression)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有损压缩 (最大压缩比)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有損壓縮 (最大壓縮比)"
+          }
+        }
+      }
+    },
     "Low": {
       "extractionState": "manual",
       "localizations": {
@@ -103796,7 +105820,6 @@
       }
     },
     "Manage network protocols and connectivity for %@.": {
-      "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
@@ -103861,7 +105884,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "管理 %@ 的网络协议和连接。"
+            "value": "管理 %@ 的网络协议与连通性。"
           }
         },
         "zh-Hant": {
@@ -105174,6 +107197,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Max-Age (秒)"
+          }
+        }
+      }
+    },
+    "Maximum HTTP protocol version Cloudflare will use to connect to your origin server.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflareがオリジンサーバーへの接続に使用する最大HTTPプロトコルバージョン。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum HTTP protocol version Cloudflare will use to connect to your origin server."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 连接源站服务器时使用的最高 HTTP 协议版本。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 連線至源站伺服器時使用的最高 HTTP 通訊協定版本。"
           }
         }
       }
@@ -106635,6 +108728,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "模型"
+          }
+        }
+      }
+    },
+    "Modern edge protocols and AI-powered speculation for sub-second page loads.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新のエッジプロトコルとAI投機的プリフェッチによる1秒未満のページ読み込み。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern edge protocols and AI-powered speculation for sub-second page loads."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现代边缘协议与 AI 推测加速，实现毫秒级极速打开。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現代邊緣通訊協定與 AI 預測加速，實現毫秒級極速開啟。"
           }
         }
       }
@@ -113254,6 +115417,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "下一步"
+          }
+        }
+      }
+    },
+    "Next-Gen Acceleration": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次世代スマート高速化"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next-Gen Acceleration"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一代智能加速"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新一代智慧加速"
           }
         }
       }
@@ -125865,6 +128098,76 @@
         }
       }
     },
+    "Origin Max HTTP Version": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オリジン最大HTTPバージョン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin Max HTTP Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "源站最高 HTTP 版本"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "源站最高 HTTP 版本"
+          }
+        }
+      }
+    },
     "Origin Name (e.g. srv-01)": {
       "extractionState": "manual",
       "localizations": {
@@ -130476,6 +132779,76 @@
         }
       }
     },
+    "Polish (WebP)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish画像圧縮（WebP）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish (WebP)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish 图片压缩 (WebP)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish 影像壓縮 (WebP)"
+          }
+        }
+      }
+    },
     "Polish Image Optimization": {
       "extractionState": "manual",
       "localizations": {
@@ -131320,6 +133693,76 @@
         }
       }
     },
+    "POST": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POST"
+          }
+        }
+      }
+    },
     "PostgreSQL": {
       "extractionState": "manual",
       "localizations": {
@@ -131393,6 +133836,146 @@
           "stringUnit": {
             "state": "translated",
             "value": "PostgreSQL"
+          }
+        }
+      }
+    },
+    "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W3C Speculation Rulesによる予測プリフェッチで、遅延ゼロの瞬時遷移を実現します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基于 W3C Speculation Rules 预测性预加载，实现瞬时零延迟页面跳转。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基於 W3C Speculation Rules 預測性預先載入，實現瞬時零延遲頁面導覽。"
+          }
+        }
+      }
+    },
+    "Predictive prefetching via W3C Speculation Rules.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W3C Speculation Rulesによる予測プリフェッチ。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predictive prefetching via W3C Speculation Rules."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基于 W3C Speculation Rules 智能推测预取。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基於 W3C Speculation Rules 智慧預先擷取。"
           }
         }
       }
@@ -131551,6 +134134,76 @@
         }
       }
     },
+    "Prefix (Biz)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URLプレフィックス Prefix (Biz)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefix (Biz)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL 前缀 Prefix (商业版)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL 前置詞 Prefix (商業版)"
+          }
+        }
+      }
+    },
     "Prefix Length": {
       "extractionState": "manual",
       "localizations": {
@@ -131701,6 +134354,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "前缀快取已清除"
+          }
+        }
+      }
+    },
+    "Preload (HSTS Preload List)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プリロード（HSTS Preload List）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS Preload List)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS 预加载名单)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preload (HSTS 預先載入清單)"
           }
         }
       }
@@ -132396,6 +135119,76 @@
         }
       }
     },
+    "Priority (e.g. 1)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先度 Priority（例: 1）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority (e.g. 1)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先级 Priority (如 1)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先順序 Priority (如 1)"
+          }
+        }
+      }
+    },
     "Priority (e.g., 10)": {
       "extractionState": "manual",
       "localizations": {
@@ -132623,6 +135416,146 @@
           "stringUnit": {
             "state": "translated",
             "value": "隱私政策"
+          }
+        }
+      }
+    },
+    "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーを保護するGoogle Fontsエッジプロキシで、追跡とレイアウトの崩れを防ぎます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Fonts 隐私边缘代理，消除第三方追踪与布局抖动。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Fonts 隱私邊緣代理，消除第三方追蹤與版面配置位移。"
+          }
+        }
+      }
+    },
+    "Privacy-preserving edge proxy for Google Fonts.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシー保護Google Fontsエッジプロキシ。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy-preserving edge proxy for Google Fonts."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Fonts 隐私安全边缘代理。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Fonts 隱私安全邊緣代理。"
           }
         }
       }
@@ -136705,7 +139638,6 @@
       }
     },
     "Purge by %@": {
-      "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
@@ -136770,7 +139702,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按 %@ 清理"
+            "value": "按 %@ 清除"
           }
         },
         "zh-Hant": {
@@ -137701,6 +140633,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "清除 URL 快取失败"
+          }
+        }
+      }
+    },
+    "PUT": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUT"
           }
         }
       }
@@ -139627,6 +142629,76 @@
         }
       }
     },
+    "Quick Security Presets": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイックセキュリティプリセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Security Presets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快捷安全预设"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速安全預設"
+          }
+        }
+      }
+    },
     "Quickly configure enterprise email, web hosting, and security policies without typing record values.": {
       "localizations": {
         "ar": {
@@ -140622,6 +143694,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "速率限制規則已更新"
+          }
+        }
+      }
+    },
+    "Raw Expression": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAWフィルター式"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw Expression"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原生表达式"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原生運算式"
           }
         }
       }
@@ -163454,6 +166596,76 @@
         }
       }
     },
+    "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スマートな階層型キャッシュにより、オリジン負荷を軽減しグローバルキャッシュヒット率を大幅に向上させます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智能区域分层缓存，降低源站负载并显著提升全球缓存命中率。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧區域分層快取，降低源站負載並顯著提升全球快取命中率。"
+          }
+        }
+      }
+    },
     "Smart Routing": {
       "extractionState": "manual",
       "localizations": {
@@ -165224,78 +168436,72 @@
         }
       }
     },
-    "Speed & Optimization": {
+    "Speed Brain": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "السرعة والتحسين"
+            "value": "Speed Brain"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geschwindigkeit und Optimierung"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speed & Optimization"
+            "value": "Speed Brain"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad y optimización"
+            "value": "Speed Brain"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vitesse et optimisation"
+            "value": "Speed Brain"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocità e ottimizzazione"
+            "value": "Speed Brain"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スピードと最適化"
+            "value": "Speed Brain（高速化エンジン）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "속도 및 최적화"
+            "value": "Speed Brain"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidade e Otimização"
+            "value": "Speed Brain"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Скорость и оптимизация"
+            "value": "Speed Brain"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "速度与性能优化"
+            "value": "Speed Brain 极速大脑"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "速度与性能优化"
+            "value": "Speed Brain 極速大腦"
           }
         }
       }
@@ -165373,6 +168579,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "速度优化"
+          }
+        }
+      }
+    },
+    "Speed up HTTPS page load times by applying modern Brotli compression.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新のBrotli圧縮を適用してHTTPSページの読み込みを高速化します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed up HTTPS page load times by applying modern Brotli compression."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用现代 Brotli 压缩算法，加快 HTTPS 页面加载速度。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "套用現代 Brotli 壓縮演算法，加快 HTTPS 頁面載入速度。"
           }
         }
       }
@@ -169836,6 +173112,216 @@
         }
       }
     },
+    "Tag (Biz)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャッシュタグ Tag (Biz)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag (Biz)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缓存标签 Tag (商业版)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快取標籤 Tag (商業版)"
+          }
+        }
+      }
+    },
+    "Tags (comma separated, e.g. prod, api)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タグ（カンマ区切り、例: prod, api）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags (comma separated, e.g. prod, api)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标签 (逗号分隔，如 prod, api)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標籤 (逗號分隔，如 prod, api)"
+          }
+        }
+      }
+    },
+    "Tags & Comments (Optional)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タグとコメント（任意）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags & Comments (Optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标签与备注 (选填)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標籤與備註 (選填)"
+          }
+        }
+      }
+    },
     "Tags Purged": {
       "extractionState": "manual",
       "localizations": {
@@ -170293,6 +173779,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "目標"
+          }
+        }
+      }
+    },
+    "Target (e.g. . or domain.com)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ターゲット Target（例: . または domain.com）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target (e.g. . or domain.com)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目标 Target (如 . 或 domain.com)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目標 Target (如 . 或 domain.com)"
           }
         }
       }
@@ -173062,6 +176618,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "限制過高的請求速率"
+          }
+        }
+      }
+    },
+    "Tiered Cache": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "階層型キャッシュ (Tiered Cache)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiered Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分层缓存 (Tiered Cache)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分層快取 (Tiered Cache)"
           }
         }
       }
@@ -181912,6 +185538,83 @@
         }
       }
     },
+    "V8 Edge": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 エッジ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 엣지"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 Edge"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 边缘"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 邊緣"
+          }
+        }
+      }
+    },
     "Valid From: %@": {
       "localizations": {
         "ar": {
@@ -182599,6 +186302,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "值 (例如：letsencrypt.org)"
+          }
+        }
+      }
+    },
+    "Value / Params (e.g. alpn=\"h3,h2\" port=443)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "値とパラメータ（例: alpn=\"h3,h2\" port=443）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值与参数 (如 alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值與參數 (如 alpn=\"h3,h2\" port=443)"
           }
         }
       }
@@ -184367,6 +188140,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "查看 RFC BIND 终端報文"
+          }
+        }
+      }
+    },
+    "Visual Builder": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビジュアルビルダー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Builder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可视化构建器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "視覺化建置器"
           }
         }
       }
@@ -187218,6 +191061,76 @@
         }
       }
     },
+    "Wireshark Filter Expression": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiresharkフィルター式"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark Filter Expression"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark 过滤表达式"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireshark 篩選運算式"
+          }
+        }
+      }
+    },
     "Worker %@, usage model %@": {
       "localizations": {
         "ar": {
@@ -189058,6 +192971,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "自動换行"
+          }
+        }
+      }
+    },
+    "Write native Cloudflare Ruleset expressions using Wireshark filter syntax.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiresharkフィルター構文を使用してネイティブなCloudflare Ruleset式を作成します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write native Cloudflare Ruleset expressions using Wireshark filter syntax."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Wireshark 过滤语法编写原生 Cloudflare Ruleset 表达式。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Wireshark 篩選語法編寫原生 Cloudflare Ruleset 運算式。"
           }
         }
       }
@@ -191371,6 +195354,76 @@
         }
       }
     },
+    "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Threat Researchが直接管理するゼロデイ脆弱性およびOWASP Top 10保護。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由 Cloudflare 威胁研究团队直接维护的零日漏洞与 OWASP Top 10 防护。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由 Cloudflare 威脅研究團隊直接維護的零日漏洞與 OWASP Top 10 防護。"
+          }
+        }
+      }
+    },
     "Zone": {
       "extractionState": "manual",
       "localizations": {
@@ -192444,156 +196497,233 @@
         }
       }
     },
-    "CPU Time": {
+    "Shield WordPress": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CPU Time"
-          }
-        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "CPU 耗时"
+            "value": "WordPress 强化防护"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "CPU 耗時"
+            "value": "WordPress 強化防護"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "CPU時間"
+            "value": "WordPressの保護"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shield WordPress"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "CPU 시간"
+            "value": "Shield WordPress"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "CPU-Zeit"
+            "value": "Shield WordPress"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Temps CPU"
+            "value": "Shield WordPress"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiempo CPU"
+            "value": "Shield WordPress"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempo CPU"
+            "value": "Shield WordPress"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempo de CPU"
+            "value": "Shield WordPress"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Время CPU"
+            "value": "Shield WordPress"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "وقت المعالج"
+            "value": "Shield WordPress"
           }
         }
       }
     },
-    "V8 Edge": {
+    "Block Malicious Bots": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "V8 Edge"
-          }
-        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 边缘"
+            "value": "封禁恶意爬虫"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 邊緣"
+            "value": "封鎖惡意傀儡程式"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 エッジ"
+            "value": "悪意あるBotのブロック"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block Malicious Bots"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 엣지"
+            "value": "Block Malicious Bots"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "V8 Edge"
+            "value": "Block Malicious Bots"
+          }
+        }
+      }
+    },
+    "High Threat Score": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高威胁评分拦截"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高威脅評分攔截"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高脅威スコアの遮断"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Threat Score"
           }
         }
       }

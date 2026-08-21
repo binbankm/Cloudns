@@ -15,12 +15,18 @@ public struct CacheMetadata: Sendable {
     }
 }
 
+/// 内存缓存安全持有者
+private final class MemoryCacheHolder: @unchecked Sendable {
+    let cache = NSCache<NSString, NSData>()
+}
+
 /// 统一的工业级 SWR（Stale-While-Revalidate）双层缓存引擎
 /// 采用 Swift Actor 隔离保证并发线程安全，结合内存 NSCache（0ms）与沙盒磁盘持久化
 public actor SWRCacheStore {
     public static let shared = SWRCacheStore()
     
-    private let memoryCache = NSCache<NSString, NSData>()
+    private let memoryCacheHolder = MemoryCacheHolder()
+    private var memoryCache: NSCache<NSString, NSData> { memoryCacheHolder.cache }
     private let diskCacheDirectory: URL
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -32,9 +38,10 @@ public actor SWRCacheStore {
     }
     
     private init() {
+        let holder = memoryCacheHolder
         // 配置内存缓存限制 (最多 150 个条目，最大 50MB 内存占用)
-        memoryCache.countLimit = 150
-        memoryCache.totalCostLimit = 50 * 1024 * 1024
+        holder.cache.countLimit = 150
+        holder.cache.totalCostLimit = 50 * 1024 * 1024
         
         let fm = FileManager.default
         let cachesDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first ?? fm.temporaryDirectory
@@ -47,8 +54,8 @@ public actor SWRCacheStore {
             forName: UIApplication.didReceiveMemoryWarningNotification,
             object: nil,
             queue: nil
-        ) { [weak memoryCache] _ in
-            memoryCache?.removeAllObjects()
+        ) { [weak holder] _ in
+            holder?.cache.removeAllObjects()
         }
     }
     

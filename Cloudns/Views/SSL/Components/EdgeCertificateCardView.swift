@@ -39,6 +39,14 @@ struct EdgeCertificateCardView: View {
                 Text(certificate.type.capitalized)
                     .font(.body.weight(.medium))
                 
+                if certificate.type.lowercased() == "universal" {
+                    CloudnsBadge(.free, isCompact: true)
+                } else if certificate.type.lowercased() == "advanced" {
+                    CloudnsBadge(.addOn, isCompact: true)
+                } else if certificate.type.lowercased() == "custom" {
+                    CloudnsBadge(.business, isCompact: true)
+                }
+                
                 Spacer()
                 
                 CloudnsBadge(certificate.status.lowercased() == "active" ? .active("Active") : .custom(color: .secondary, text: certificate.status.capitalized), isCompact: true)

@@ -21,8 +21,77 @@ struct SpeedSettingsView: View {
                     }
                 }
                 
-                // Advanced Optimizations
-                Section(header: Text("Speed & Optimization"), footer: Text("Configure CDN edge acceleration and asset optimizations for faster page loads.")) {
+                // 1. Next-Gen Acceleration
+                Section(header: Text("Next-Gen Acceleration"), footer: Text("Modern edge protocols and AI-powered speculation for sub-second page loads.")) {
+                    // Speed Brain
+                    Toggle(isOn: Binding(
+                        get: { viewModel.speedBrain },
+                        set: { val in
+                            Task { await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val) }
+                        }
+                    )) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "bolt.badge.sparkle")
+                                    .foregroundStyle(.purple)
+                                Text("Speed Brain")
+                                    .font(.body.weight(.medium))
+                                CloudnsBadge(.free, isCompact: true)
+                            }
+                            Text("Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                    
+                    // Cloudflare Fonts
+                    Toggle(isOn: Binding(
+                        get: { viewModel.fonts },
+                        set: { val in
+                            Task { await viewModel.updateFonts(zoneId: zoneId, isOn: val) }
+                        }
+                    )) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "textformat.size")
+                                    .foregroundStyle(.teal)
+                                Text("Cloudflare Fonts")
+                                    .font(.body.weight(.medium))
+                                CloudnsBadge(.free, isCompact: true)
+                            }
+                            Text("Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                    
+                    // Tiered Cache
+                    Toggle(isOn: Binding(
+                        get: { viewModel.tieredCache },
+                        set: { val in
+                            Task { await viewModel.updateTieredCache(zoneId: zoneId, isOn: val) }
+                        }
+                    )) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "network")
+                                    .foregroundStyle(.orange)
+                                Text("Tiered Cache")
+                                    .font(.body.weight(.medium))
+                                CloudnsBadge(.free, isCompact: true)
+                            }
+                            Text("Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                }
+                
+                // 2. Asset Optimizations
+                Section(header: Text("Asset Optimization"), footer: Text("Configure CDN edge compression and runtime asset improvements.")) {
                     // Brotli
                     Toggle(isOn: Binding(
                         get: { viewModel.brotli },
@@ -31,9 +100,9 @@ struct SpeedSettingsView: View {
                         }
                     )) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Brotli")
+                            Text("Brotli Compression")
                                 .font(.body)
-                            Text("Speed up page load times for your visitor's HTTPS traffic by applying Brotli compression.")
+                            Text("Speed up HTTPS page load times by applying modern Brotli compression.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -56,7 +125,7 @@ struct SpeedSettingsView: View {
                                     .foregroundStyle(.orange)
                                     .accessibilityHidden(true)
                             }
-                            Text("Improve the paint time for pages which include JavaScript.")
+                            Text("Improve paint times for pages containing heavy JavaScript.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -71,9 +140,35 @@ struct SpeedSettingsView: View {
                         }
                     )) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Early Hints")
+                            Text("103 Early Hints")
                                 .font(.body)
-                            Text("Help browsers start loading assets sooner by responding with 103 Early Hints before the full response is ready.")
+                            Text("Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                }
+                
+                // 3. Image Optimization (Polish)
+                Section(header: Text("Image Optimization"), footer: Text("Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors.")) {
+                    Picker(selection: Binding(
+                        get: { viewModel.polish },
+                        set: { val in
+                            Task { await viewModel.updatePolish(zoneId: zoneId, value: val) }
+                        }
+                    )) {
+                        Text("Off").tag("off")
+                        Text("Lossless (Fast)").tag("lossless")
+                        Text("Lossy (Maximum Compression)").tag("lossy")
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text("Polish (WebP)")
+                                    .font(.body)
+                                CloudnsBadge(.pro, isCompact: true)
+                            }
+                            Text("Automatic image compression and WebP conversion.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -81,27 +176,29 @@ struct SpeedSettingsView: View {
                     .disabled(!viewModel.hasFetchedData)
                 }
             } else if viewModel.isLoading {
-                Section(header: Text("Speed & Optimization")) {
+                Section(header: Text("Next-Gen Acceleration")) {
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Speed Brain")
+                            Text("Predictive prefetching via W3C Speculation Rules.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                    
+                    Toggle(isOn: .constant(true)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Cloudflare Fonts")
+                            Text("Privacy-preserving edge proxy for Google Fonts.")
+                        }
+                    }
+                    .skeletonLoading(true)
+                }
+                
+                Section(header: Text("Asset Optimization")) {
                     Toggle(isOn: .constant(true)) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Brotli")
                             Text("Speed up page load times for your visitor's HTTPS traffic.")
-                        }
-                    }
-                    .skeletonLoading(true)
-                    
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Rocket Loader™")
-                            Text("Improve the paint time for pages which include JavaScript.")
-                        }
-                    }
-                    .skeletonLoading(true)
-                    
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Early Hints")
-                            Text("Help browsers start loading assets sooner.")
                         }
                     }
                     .skeletonLoading(true)

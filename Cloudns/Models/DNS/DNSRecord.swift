@@ -15,10 +15,47 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
     let createdOn: String?
     let priority: Int?
     let comment: String?
+    let tags: [String]?
     let data: DNSRecordData?
     
+    init(
+        id: String,
+        type: String,
+        name: String,
+        content: String?,
+        proxiable: Bool? = nil,
+        proxied: Bool? = nil,
+        ttl: Int = 1,
+        locked: Bool? = nil,
+        zoneId: String? = nil,
+        zoneName: String? = nil,
+        modifiedOn: String? = nil,
+        createdOn: String? = nil,
+        priority: Int? = nil,
+        comment: String? = nil,
+        tags: [String]? = nil,
+        data: DNSRecordData? = nil
+    ) {
+        self.id = id
+        self.type = type
+        self.name = name
+        self.content = content
+        self.proxiable = proxiable
+        self.proxied = proxied
+        self.ttl = ttl
+        self.locked = locked
+        self.zoneId = zoneId
+        self.zoneName = zoneName
+        self.modifiedOn = modifiedOn
+        self.createdOn = createdOn
+        self.priority = priority
+        self.comment = comment
+        self.tags = tags
+        self.data = data
+    }
+    
     enum CodingKeys: String, CodingKey {
-        case id, type, name, content, proxiable, proxied, ttl, locked, priority, comment, data
+        case id, type, name, content, proxiable, proxied, ttl, locked, priority, comment, tags, data
         case zoneId = "zone_id"
         case zoneName = "zone_name"
         case modifiedOn = "modified_on"
@@ -42,6 +79,7 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
                 createdOn: nil,
                 priority: nil,
                 comment: "Dummy comment",
+                tags: ["production", "api"],
                 data: nil
             )
         }
@@ -66,6 +104,9 @@ struct DNSRecordData: Codable, Equatable, Sendable {
     var flags: Int?
     var tag: String?
     var value: String?
+    
+    // HTTPS / SVCB (RFC 9460)
+    // Priority, target, and value / params
 }
 
 struct DNSRecordPayload: Codable, Sendable {
@@ -76,7 +117,30 @@ struct DNSRecordPayload: Codable, Sendable {
     let proxied: Bool?
     let priority: Int?
     let comment: String?
+    let tags: [String]?
     let data: DNSRecordData?
+    
+    init(
+        type: String,
+        name: String,
+        content: String?,
+        ttl: Int = 1,
+        proxied: Bool? = nil,
+        priority: Int? = nil,
+        comment: String? = nil,
+        tags: [String]? = nil,
+        data: DNSRecordData? = nil
+    ) {
+        self.type = type
+        self.name = name
+        self.content = content
+        self.ttl = ttl
+        self.proxied = proxied
+        self.priority = priority
+        self.comment = comment
+        self.tags = tags
+        self.data = data
+    }
 }
 
 struct BatchDNSRecordDelete: Codable, Sendable {

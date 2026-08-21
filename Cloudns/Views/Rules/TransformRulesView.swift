@@ -85,7 +85,11 @@ struct TransformRulesView: View {
                 }
                 .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
-                Section(header: Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")) {
+                Section(header: HStack {
+                    Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")
+                    Spacer()
+                    CloudnsBadge(viewModel.selectedPhase == "http_response_headers_transform" ? .pro : .free, isCompact: true)
+                }) {
                     ForEach(displayedRules) { rule in
                         TransformRuleCardView(rule: rule) {
                             HapticManager.impact(.light)

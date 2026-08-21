@@ -8,6 +8,10 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
     @Published var brotli: Bool = false
     @Published var rocketLoader: Bool = false
     @Published var earlyHints: Bool = false
+    @Published var speedBrain: Bool = false
+    @Published var fonts: Bool = false
+    @Published var tieredCache: Bool = false
+    @Published var polish: String = "off"
     
     private let speedService: SpeedAndNetworkServiceProtocol
     
@@ -25,6 +29,10 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
             self.brotli = res.brotli
             self.rocketLoader = res.rocketLoader
             self.earlyHints = res.earlyHints
+            self.speedBrain = res.speedBrain
+            self.fonts = res.fonts
+            self.tieredCache = res.tieredCache
+            self.polish = res.polish
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load speed settings: \(error.localizedDescription)"
@@ -70,6 +78,62 @@ class SpeedSettingsViewModel: BaseLoadableViewModel {
             ToastManager.shared.showSuccess("Early Hints", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.earlyHints = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func updateSpeedBrain(zoneId: String, isOn: Bool) async {
+        let previous = self.speedBrain
+        self.speedBrain = isOn
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateSpeedBrain(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess("Speed Brain", message: isOn ? "Enabled" : "Disabled")
+        } catch {
+            self.speedBrain = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func updateFonts(zoneId: String, isOn: Bool) async {
+        let previous = self.fonts
+        self.fonts = isOn
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateFonts(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess("Cloudflare Fonts", message: isOn ? "Enabled" : "Disabled")
+        } catch {
+            self.fonts = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func updateTieredCache(zoneId: String, isOn: Bool) async {
+        let previous = self.tieredCache
+        self.tieredCache = isOn
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updateTieredCache(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess("Tiered Cache", message: isOn ? "Enabled" : "Disabled")
+        } catch {
+            self.tieredCache = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func updatePolish(zoneId: String, value: String) async {
+        let previous = self.polish
+        self.polish = value
+        HapticManager.impact(.medium)
+        do {
+            try await speedService.updatePolish(zoneId: zoneId, value: value)
+            ToastManager.shared.showSuccess("Polish", message: "Updated to \(value.capitalized)")
+        } catch {
+            self.polish = previous
             self.errorMessage = error.localizedDescription
             ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }

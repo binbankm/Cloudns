@@ -10,7 +10,7 @@ protocol CertificateServiceProtocol: Sendable {
         tls13: Bool,
         opportunisticEncryption: Bool,
         opportunisticOnion: Bool,
-        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool)
+        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool)
     )
     func updateSSLMode(zoneId: String, mode: String) async throws
     func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async throws
@@ -19,7 +19,7 @@ protocol CertificateServiceProtocol: Sendable {
     func updateTLS13(zoneId: String, isOn: Bool) async throws
     func updateOpportunisticEncryption(zoneId: String, isOn: Bool) async throws
     func updateOpportunisticOnion(zoneId: String, isOn: Bool) async throws
-    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async throws
+    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool) async throws
     func getCertificates(zoneId: String) async throws -> [CertificatePack]
     func getUniversalSSLSetting(zoneId: String) async throws -> Bool
     func updateUniversalSSL(zoneId: String, enabled: Bool) async throws
@@ -47,7 +47,7 @@ final class CertificateService: CertificateServiceProtocol {
         tls13: Bool,
         opportunisticEncryption: Bool,
         opportunisticOnion: Bool,
-        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool)
+        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool)
     ) {
         let allSettings = (try? await fetchZoneSettings(zoneId: zoneId)) ?? []
         
@@ -94,12 +94,14 @@ final class CertificateService: CertificateServiceProtocol {
         var hstsMaxAge = 2592000
         var hstsSubdomains = false
         var hstsNoSniff = false
+        var hstsPreload = false
         
         if let hstsVal = sh?.value.securityHeaderValue?.strict_transport_security {
             hstsEnabled = hstsVal.enabled
             hstsMaxAge = hstsVal.max_age
             hstsSubdomains = hstsVal.include_subdomains
             hstsNoSniff = hstsVal.nosniff
+            hstsPreload = hstsVal.preload ?? false
         }
         
         return (
@@ -110,7 +112,7 @@ final class CertificateService: CertificateServiceProtocol {
             tls13: t?.value.boolValue ?? false,
             opportunisticEncryption: oe?.value.boolValue ?? false,
             opportunisticOnion: oo?.value.boolValue ?? false,
-            hsts: (hstsEnabled, hstsMaxAge, hstsSubdomains, hstsNoSniff)
+            hsts: (enabled: hstsEnabled, maxAge: hstsMaxAge, subdomains: hstsSubdomains, nosniff: hstsNoSniff, preload: hstsPreload)
         )
     }
     
@@ -142,14 +144,15 @@ final class CertificateService: CertificateServiceProtocol {
         _ = try await updateSetting(zoneId: zoneId, settingName: "opportunistic_onion", value: isOn ? "on" : "off")
     }
     
-    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool) async throws {
+    func updateHSTS(zoneId: String, enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool) async throws {
         let payload: [String: Any] = [
             "value": [
                 "strict_transport_security": [
                     "enabled": enabled,
                     "max_age": maxAge,
                     "include_subdomains": subdomains,
-                    "nosniff": nosniff
+                    "nosniff": nosniff,
+                    "preload": preload
                 ]
             ]
         ]

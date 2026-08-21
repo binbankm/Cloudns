@@ -175,11 +175,13 @@ struct SSLSettingsView: View {
                         .disabled(!viewModel.hasFetchedData)
                     Toggle("No-Sniff", isOn: $viewModel.hstsNoSniff)
                         .disabled(!viewModel.hasFetchedData)
+                    Toggle("Preload (HSTS Preload List)", isOn: $viewModel.hstsPreload)
+                        .disabled(!viewModel.hasFetchedData)
                     
                     Button("Save HSTS Configuration") {
                         HapticManager.impact(.medium)
                         Task {
-                            await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff)
+                            await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff, preload: viewModel.hstsPreload)
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)
@@ -188,7 +190,7 @@ struct SSLSettingsView: View {
                     Button("Save HSTS (Disable)") {
                         HapticManager.impact(.medium)
                         Task {
-                            await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false)
+                            await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false, preload: false)
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)

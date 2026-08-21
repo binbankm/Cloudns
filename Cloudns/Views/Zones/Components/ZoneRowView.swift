@@ -49,6 +49,8 @@ struct ZoneRowView: View {
                         isCompact: true
                     )
                     
+                    CloudnsBadge(.plan(zone.planTier), isCompact: true)
+                    
                     if zone.paused {
                         Text("Paused")
                             .font(.caption2.weight(.medium))

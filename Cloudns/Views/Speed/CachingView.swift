@@ -13,14 +13,22 @@ struct CachingView: View {
             if viewModel.hasFetchedData {
                 // Custom Granular Purge
                 Section(
-                    header: Text("Custom Cache Purge"),
+                    header: HStack {
+                        Text("Custom Cache Purge")
+                        Spacer()
+                        if purgeType == "url" {
+                            CloudnsBadge(.free, isCompact: true)
+                        } else {
+                            CloudnsBadge(.business, isCompact: true)
+                        }
+                    },
                     footer: Text(purgeTypeDescription)
                 ) {
                     Picker("Purge By", selection: $purgeType) {
                         Text("URL").tag("url")
-                        Text("Host").tag("host")
-                        Text("Prefix").tag("prefix")
-                        Text("Tag").tag("tag")
+                        Text("Host (Biz)").tag("host")
+                        Text("Prefix (Biz)").tag("prefix")
+                        Text("Tag (Biz)").tag("tag")
                     }
                     .pickerStyle(.segmented)
                     .padding(.vertical, 2)

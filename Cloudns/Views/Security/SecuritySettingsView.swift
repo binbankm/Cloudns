@@ -147,6 +147,7 @@ struct SecuritySettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                                 .accessibilityHidden(true)
+                            CloudnsBadge(.free, isCompact: true)
                         }
                         Text("Detects and challenges known bots and crawlers. Recommended for most sites.")
                             .font(.caption)

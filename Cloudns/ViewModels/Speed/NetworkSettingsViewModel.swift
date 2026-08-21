@@ -9,6 +9,7 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var http2: Bool = false
     @Published var http3: Bool = false
     @Published var ipGeolocation: Bool = false
+    @Published var originMaxHttpVersion: String = "2"
     
     private let networkService: SpeedAndNetworkServiceProtocol
     
@@ -28,6 +29,7 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
             self.http2 = res.http2
             self.http3 = res.http3
             self.ipGeolocation = res.ipGeolocation
+            self.originMaxHttpVersion = res.originMaxHttpVersion
             self.hasFetchedData = true
         } catch {
             self.errorMessage = "Failed to load network settings: \(error.localizedDescription)"
@@ -101,6 +103,20 @@ class NetworkSettingsViewModel: BaseLoadableViewModel {
             ToastManager.shared.showSuccess("IP Geolocation", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.ipGeolocation = previous
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+        }
+    }
+    
+    func updateOriginMaxHTTPVersion(zoneId: String, version: String) async {
+        let previous = self.originMaxHttpVersion
+        self.originMaxHttpVersion = version
+        HapticManager.impact(.medium)
+        do {
+            try await networkService.updateOriginMaxHTTPVersion(zoneId: zoneId, version: version)
+            ToastManager.shared.showSuccess("Origin Max HTTP", message: version == "2" ? "HTTP/2" : "HTTP/1.1")
+        } catch {
+            self.originMaxHttpVersion = previous
             self.errorMessage = error.localizedDescription
             ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }

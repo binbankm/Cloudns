@@ -73,7 +73,7 @@ struct DeveloperHubView: View {
                             iconColor: .purple,
                             title: "Queues",
                             subtitle: "Asynchronous message queue delivery",
-                            badge: .custom(color: .purple, text: "PAID")
+                            badge: .paid
                         )
                     }
                     .disabled(!isAccountReady)
@@ -85,7 +85,8 @@ struct DeveloperHubView: View {
                             icon: "cube.fill",
                             iconColor: .cyan,
                             title: "Durable Objects",
-                            subtitle: "Coordinated edge state namespaces"
+                            subtitle: "Coordinated edge state namespaces",
+                            badge: .paid
                         )
                     }
                     .disabled(!isAccountReady)
@@ -124,7 +125,8 @@ struct DeveloperHubView: View {
                             icon: "bolt.horizontal.fill",
                             iconColor: .yellow,
                             title: "Hyperdrive",
-                            subtitle: "Regional database connection acceleration"
+                            subtitle: "Regional database connection acceleration",
+                            badge: .paid
                         )
                     }
                     .disabled(!isAccountReady)

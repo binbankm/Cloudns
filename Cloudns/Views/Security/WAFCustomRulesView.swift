@@ -18,15 +18,69 @@ struct WAFCustomRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+            if viewModel.hasFetchedData {
+                // Rule Quota Section
                 Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Custom Rules Quota")
+                                .font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text("\(viewModel.rules.count) / 5 active")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                            CloudnsBadge(.free, isCompact: true)
+                        }
+                        
+                        ProgressView(value: Double(viewModel.rules.count), total: 5.0)
+                            .tint(viewModel.rules.count >= 5 ? .red : .blue)
+                    }
+                    .padding(.vertical, 4)
+                }
+                
+                // Managed Rulesets Overview Card
+                Section(header: Text("Cloudflare Managed Rulesets")) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Image(systemName: "shield.lefthalf.filled")
+                                .foregroundStyle(.indigo)
+                            Text("Cloudflare Managed Ruleset")
+                                .font(.body.weight(.medium))
+                            Spacer()
+                            CloudnsBadge(.pro, isCompact: true)
+                        }
+                        Text("Zero-day vulnerability & OWASP top 10 protection maintained directly by Cloudflare Threat Research.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Image(systemName: "lock.shield.fill")
+                                .foregroundStyle(.purple)
+                            Text("Cloudflare OWASP Core Ruleset")
+                                .font(.body.weight(.medium))
+                            Spacer()
+                            CloudnsBadge(.pro, isCompact: true)
+                        }
+                        Text("Anomaly scoring engine detecting SQLi, XSS, and RCE attacks.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Custom Rules")) {
                     ForEach(WAFRule.placeholders) { placeholderRule in
                         WAFRuleCardView(rule: placeholderRule, onToggle: {})
                     }
                 }
                 .skeletonLoading(true)
             } else if !displayedRules.isEmpty {
-                Section {
+                Section(header: Text("Custom Rules (\(displayedRules.count))")) {
                     ForEach(displayedRules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             HapticManager.impact(.light)
@@ -37,6 +91,40 @@ struct WAFCustomRulesView: View {
                         })
                     }
                     .onDelete(perform: deleteRules)
+                }
+            } else if viewModel.hasFetchedData && searchText.isEmpty {
+                Section(header: Text("Custom Rules")) {
+                    VStack(spacing: 12) {
+                        Image(systemName: "shield.slash")
+                            .font(.system(size: 36))
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 10)
+                        
+                        Text("No Custom WAF Rules")
+                            .font(.headline)
+                        
+                        Text("You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button {
+                            HapticManager.impact(.medium)
+                            showingAddSheet = true
+                        } label: {
+                            Text("Add WAF Rule")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 8)
+                                .background(Color.orange)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.bottom, 10)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -57,16 +145,6 @@ struct WAFCustomRulesView: View {
                             retryAction: {
                                 Task { await viewModel.fetchWAFRules(zoneId: zoneId) }
                             }
-                        )
-                    )
-                } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "shield.checkerboard",
-                            title: "No WAF Rules",
-                            message: "You haven't created any custom WAF rules yet. Add a rule to inspect incoming traffic.",
-                            actionTitle: "Add WAF Rule",
-                            action: { showingAddSheet = true }
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {

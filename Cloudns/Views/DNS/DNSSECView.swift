@@ -17,8 +17,36 @@ struct DNSSECView: View {
             if let dnssec = viewModel.dnssec {
                 dnssecSections(dnssec)
             } else if viewModel.isLoading {
-                dnssecSections(DNSSEC.placeholder)
-                    .skeletonLoading(true)
+                Section(header: Text("DNSSEC Status")) {
+                    HStack {
+                        Image(systemName: "lock.shield.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                        Text("DNSSEC Status")
+                            .font(.body.weight(.medium))
+                        Spacer()
+                        Capsule()
+                            .fill(Color(.tertiarySystemFill))
+                            .frame(width: 54, height: 20)
+                    }
+                    .padding(.vertical, 4)
+                    
+                    Toggle("Enable DNSSEC", isOn: .constant(true))
+                }
+                .skeletonLoading(true)
+                
+                Section(header: Text("DS Record (Registrar Configuration)")) {
+                    ForEach(0..<6, id: \.self) { idx in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(placeholderTitle(for: idx))
+                                .font(.caption)
+                            Text(placeholderValue(for: idx))
+                                .font(.body.monospacedDigit())
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .skeletonLoading(true)
             }
         }
         .listStyle(.insetGrouped)
@@ -97,5 +125,22 @@ struct DNSSECView: View {
         case "disabled": return .gray
         default: return .gray
         }
+    }
+    
+    private func placeholderTitle(for index: Int) -> String {
+        let titles = ["DS Record", "Digest", "Digest Type", "Algorithm", "Key Tag", "Flags"]
+        return titles[index % titles.count]
+    }
+    
+    private func placeholderValue(for index: Int) -> String {
+        let values = [
+            "example.com. 3600 IN DS 2371 13 2 4004D79...8F",
+            "4004D7981C02844D04C251877995...8F",
+            "2 (SHA-256)",
+            "13 (ECDSA Curve P-256 with SHA-256)",
+            "2371",
+            "257 (KSK)"
+        ]
+        return values[index % values.count]
     }
 }

@@ -122,8 +122,8 @@ struct NetworkCenterView: View {
                 }
             }
             
-            // Advanced Routing
-            Section(header: Text("Advanced Routing")) {
+            // Advanced Routing & Origin Protocol
+            Section(header: Text("Advanced Routing & Origin"), footer: Text("Control geographic headers and edge-to-origin protocol versions.")) {
                 // IP Geolocation
                 Toggle(isOn: Binding(
                     get: { viewModel.ipGeolocation },
@@ -136,6 +136,29 @@ struct NetworkCenterView: View {
                         Text("IP Geolocation Header")
                             .font(.body)
                         Text("Include the country code of the visitor location with all requests to your website.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                // Origin Max HTTP Version
+                Picker(selection: Binding(
+                    get: { viewModel.originMaxHttpVersion },
+                    set: { val in
+                        HapticManager.impact(.light)
+                        Task { await viewModel.updateOriginMaxHTTPVersion(zoneId: zoneId, version: val) }
+                    }
+                )) {
+                    Text("HTTP/2 (Fastest)").tag("2")
+                    Text("HTTP/1.1 (Legacy)").tag("1")
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text("Origin Max HTTP Version")
+                                .font(.body)
+                            CloudnsBadge(.free, isCompact: true)
+                        }
+                        Text("Maximum HTTP protocol version Cloudflare will use to connect to your origin server.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

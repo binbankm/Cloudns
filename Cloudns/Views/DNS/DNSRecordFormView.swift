@@ -12,8 +12,9 @@ struct DNSRecordFormView: View {
     @State private var content: String = ""
     @State private var proxied: Bool = false
     @State private var ttl: Int = 1 // 1 means Auto in Cloudflare
-    @State private var priority: String = "10" // Used for MX, SRV, URI
+    @State private var priority: String = "10" // Used for MX, SRV, URI, HTTPS
     @State private var comment: String = ""
+    @State private var tagsText: String = ""
     
     // SRV specific
     @State private var srvService: String = "_sip"
@@ -27,15 +28,19 @@ struct DNSRecordFormView: View {
     @State private var caaTag: String = "issue"
     @State private var caaValue: String = ""
     
+    // HTTPS / SVCB specific
+    @State private var httpsTarget: String = "."
+    @State private var httpsParams: String = "alpn=\"h3,h2\" port=443"
+    
     @State private var isSaving = false
     @State private var errorMessage: String?
     
     enum FocusField {
-        case name, content, comment, priority, srvService, srvPort, srvWeight, srvTarget, caaFlags, caaValue
+        case name, content, comment, tags, priority, srvService, srvPort, srvWeight, srvTarget, caaFlags, caaValue, httpsTarget, httpsParams
     }
     @FocusState private var focusedField: FocusField?
     
-    let recordTypes = ["A", "AAAA", "CNAME", "TXT", "MX", "NS", "SRV", "CAA", "PTR", "CERT", "DNSKEY", "DS", "NAPTR", "SMIMEA", "SSHFP", "TLSA", "URI"]
+    let recordTypes = ["A", "AAAA", "CNAME", "HTTPS", "SVCB", "TXT", "MX", "NS", "SRV", "CAA", "PTR", "CERT", "DNSKEY", "DS", "NAPTR", "SMIMEA", "SSHFP", "TLSA", "URI"]
     let ttlOptions = [
         (1, "Auto"),
         (120, "2 min"),
@@ -55,6 +60,7 @@ struct DNSRecordFormView: View {
             _proxied = State(initialValue: record.proxied ?? false)
             _ttl = State(initialValue: record.ttl)
             _comment = State(initialValue: record.comment ?? "")
+            _tagsText = State(initialValue: (record.tags ?? []).joined(separator: ", "))
             
             if let prio = record.priority {
                 _priority = State(initialValue: String(prio))
@@ -76,7 +82,7 @@ struct DNSRecordFormView: View {
     }
     
     var isProxySupported: Bool {
-        return type == "A" || type == "AAAA" || type == "CNAME"
+        return type == "A" || type == "AAAA" || type == "CNAME" || type == "HTTPS" || type == "SVCB"
     }
     
     var body: some View {
@@ -166,6 +172,24 @@ struct DNSRecordFormView: View {
                             .submitLabel(.next)
                             .focused($focusedField, equals: .caaValue)
                             .onSubmit { focusedField = .comment }
+                    } else if type == "HTTPS" || type == "SVCB" {
+                        TextField("Priority (e.g. 1)", text: $priority)
+                            .keyboardType(.numberPad)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .priority)
+                        TextField("Target (e.g. . or domain.com)", text: $httpsTarget)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .httpsTarget)
+                        TextField("Value / Params (e.g. alpn=\"h3,h2\" port=443)", text: $httpsParams)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .httpsParams)
+                            .onSubmit { focusedField = .comment }
                     } else {
                         TextField("Content (e.g., 192.0.2.1)", text: $content)
                             .keyboardType(type == "A" || type == "AAAA" ? .numbersAndPunctuation : .URL)
@@ -218,7 +242,14 @@ struct DNSRecordFormView: View {
                     }
                 }
                 
-                Section(header: Text("Comment (Optional)")) {
+                Section(header: Text("Tags & Comments (Optional)")) {
+                    TextField("Tags (comma separated, e.g. prod, api)", text: $tagsText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .tags)
+                        .onSubmit { focusedField = .comment }
+                    
                     TextField("Add a note about this record", text: $comment)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -317,9 +348,18 @@ struct DNSRecordFormView: View {
                 value: caaValue
             )
             finalContent = nil
+        } else if type == "HTTPS" || type == "SVCB" {
+            let p = Int(priority) ?? 1
+            finalPriority = p
+            finalContent = "\(p) \(httpsTarget) \(httpsParams)".trimmingCharacters(in: .whitespaces)
         } else if type == "MX" || type == "URI" {
             finalPriority = Int(priority) ?? 10
         }
+        
+        let tagsList = tagsText
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
         
         let payload = DNSRecordPayload(
             type: type,
@@ -329,6 +369,7 @@ struct DNSRecordFormView: View {
             proxied: isProxySupported ? proxied : nil,
             priority: finalPriority,
             comment: comment.isEmpty ? nil : comment,
+            tags: tagsList.isEmpty ? nil : tagsList,
             data: payloadData
         )
         

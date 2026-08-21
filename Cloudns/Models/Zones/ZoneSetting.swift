@@ -6,6 +6,7 @@ struct SecurityHeader: Codable, Equatable {
         var max_age: Int
         var include_subdomains: Bool
         var nosniff: Bool
+        var preload: Bool?
     }
     var strict_transport_security: StrictTransportSecurity
 }
@@ -99,7 +100,8 @@ enum SettingValue: Codable, Equatable {
                     "enabled": val.strict_transport_security.enabled,
                     "max_age": val.strict_transport_security.max_age,
                     "include_subdomains": val.strict_transport_security.include_subdomains,
-                    "nosniff": val.strict_transport_security.nosniff
+                    "nosniff": val.strict_transport_security.nosniff,
+                    "preload": val.strict_transport_security.preload ?? false
                 ]
             ]
         case .null, .unknown: return ""
