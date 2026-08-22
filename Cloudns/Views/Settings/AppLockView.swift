@@ -2,7 +2,7 @@ import SwiftUI
 import LocalAuthentication
 
 struct AppLockView: View {
-    @ObservedObject var authManager = AppAuthManager.shared
+    @ObservedObject private var authManager = AppAuthManager.shared
     
     var body: some View {
         ZStack {

@@ -21,7 +21,7 @@ struct PackCertificate: Codable, Identifiable, Equatable, Sendable {
 
 struct CFAPIError: Codable, Equatable, Sendable {
     let code: Int?
-    let message: String
+    let message: String?
 }
 
 struct CertificatePacksResponse: Codable, Sendable {

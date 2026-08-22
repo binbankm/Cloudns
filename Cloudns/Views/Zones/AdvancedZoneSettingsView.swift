@@ -24,18 +24,21 @@ struct AdvancedZoneSettingsView: View {
                 header: Text("Pause Cloudflare"),
                 footer: Text("Pause Cloudflare on Site. This will route traffic directly to your origin server, bypassing Cloudflare's security and caching.")
             ) {
-                Toggle(isOn: $isPaused) {
+                Toggle(isOn: Binding(
+                    get: { isPaused },
+                    set: { newValue in
+                        isPaused = newValue
+                        if newValue {
+                            HapticManager.notification(.warning)
+                        } else {
+                            HapticManager.impact(.light)
+                        }
+                        Task {
+                            await updatePauseStatus(paused: newValue)
+                        }
+                    }
+                )) {
                     Text("Pause Cloudflare")
-                }
-                .onChange(of: isPaused) { newValue in
-                    if newValue {
-                        HapticManager.notification(.warning)
-                    } else {
-                        HapticManager.impact(.light)
-                    }
-                    Task {
-                        await updatePauseStatus(paused: newValue)
-                    }
                 }
             }
             
@@ -114,8 +117,11 @@ struct AdvancedZoneSettingsView: View {
         isDeleting = true
         do {
             _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
+            RecentZonesManager.shared.removeZone(zoneId: zoneId)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
+            await SWRCacheStore.shared.remove(forKey: "zone_sparkline_\(zoneId)")
             isDeleting = false
-            NotificationCenter.default.post(name: .zoneDeleted, object: nil)
+            NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
             dismiss()
         } catch {
             isDeleting = false

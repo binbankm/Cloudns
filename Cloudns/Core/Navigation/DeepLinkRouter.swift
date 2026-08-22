@@ -41,63 +41,52 @@ public final class DeepLinkRouter: ObservableObject {
         HapticManager.selection()
         
         let host = (url.host ?? "").lowercased()
-        let path = url.path.lowercased()
-        let fullUrl = url.absoluteString.lowercased()
-        let lastComponent = url.lastPathComponent
+        let pathComponents = url.pathComponents.filter { $0 != "/" && !$0.isEmpty }
+        let targetId = pathComponents.first
         
         var newDestination: DeepLinkDestination?
         
-        if host == "tools" || fullUrl.contains("tools") {
-            if path.contains("dig") || fullUrl.contains("dig") {
-                newDestination = .dig
-            } else if path.contains("trace") || fullUrl.contains("trace") {
-                newDestination = .trace
-            } else if path.contains("status") || fullUrl.contains("status") {
-                newDestination = .status
-            } else if path.contains("ipranges") || fullUrl.contains("ipranges") {
-                newDestination = .ipranges
-            } else {
-                currentTab.wrappedValue = 2
+        if host == "tools" {
+            let toolName = pathComponents.first?.lowercased() ?? ""
+            switch toolName {
+            case "dig": newDestination = .dig
+            case "trace": newDestination = .trace
+            case "status": newDestination = .status
+            case "ipranges": newDestination = .ipranges
+            default: currentTab.wrappedValue = 2
             }
-        } else if host == "zone" || fullUrl.contains("cloudns://zone") {
-            if !lastComponent.isEmpty && lastComponent != "/" && lastComponent != "zone" && lastComponent != "placeholder-zone-id" && lastComponent != "placeholder" {
-                newDestination = .zone(id: lastComponent)
+        } else if host == "zone" || host == "zones" {
+            if let id = targetId, !id.isEmpty, id != "placeholder-zone-id", id != "placeholder" {
+                newDestination = .zone(id: id)
             } else {
                 currentTab.wrappedValue = 1
             }
-        } else if fullUrl.contains("worker") || host == "worker" || host == "workers" {
-            if !lastComponent.isEmpty && lastComponent != "/" && lastComponent != "worker" && lastComponent != "workers" && lastComponent != "placeholder-worker" && lastComponent != "placeholder" {
-                newDestination = .worker(id: lastComponent)
+        } else if host == "worker" || host == "workers" {
+            if let id = targetId, !id.isEmpty, id != "placeholder-worker", id != "placeholder" {
+                newDestination = .worker(id: id)
             } else {
                 currentTab.wrappedValue = 2
             }
-        } else if fullUrl.contains("pages") || host == "pages" || host == "page" {
-            if !lastComponent.isEmpty && lastComponent != "/" && lastComponent != "pages" && lastComponent != "page" && lastComponent != "placeholder-pages" && lastComponent != "placeholder" {
-                newDestination = .pages(id: lastComponent)
+        } else if host == "pages" || host == "page" {
+            if let id = targetId, !id.isEmpty, id != "placeholder-pages", id != "placeholder" {
+                newDestination = .pages(id: id)
             } else {
                 currentTab.wrappedValue = 2
             }
-        } else if host == "developer" || fullUrl.contains("developer") {
+        } else if host == "developer" {
             currentTab.wrappedValue = 2
-        } else if host == "status" || fullUrl.contains("status") {
+        } else if host == "status" {
             newDestination = .status
-        } else if host == "dig" || fullUrl.contains("dig") {
+        } else if host == "dig" {
             newDestination = .dig
-        } else if host == "trace" || fullUrl.contains("trace") {
+        } else if host == "trace" {
             newDestination = .trace
-        } else if host == "ipranges" || fullUrl.contains("ipranges") {
+        } else if host == "ipranges" {
             newDestination = .ipranges
         }
         
         if let dest = newDestination {
-            if activeDestination != nil {
-                activeDestination = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    self.activeDestination = dest
-                }
-            } else {
-                self.activeDestination = dest
-            }
+            self.activeDestination = dest
         }
     }
 }

@@ -21,7 +21,10 @@ public enum AppStorageKey: Sendable {
 
 public extension Notification.Name {
     nonisolated static let zoneDeleted = Notification.Name("ZoneDeleted")
+    nonisolated static let zoneCreated = Notification.Name("ZoneCreated")
     nonisolated static let zoneUpdated = Notification.Name("ZoneUpdated")
+    nonisolated static let developerResourceMutated = Notification.Name("DeveloperResourceMutated")
+    nonisolated static let recentZonesDidUpdate = Notification.Name("RecentZonesDidUpdate")
     nonisolated static let accountSwitched = Notification.Name("AccountSwitched")
     nonisolated static let appWillEnterForeground = Notification.Name("AppWillEnterForeground")
     nonisolated static let localCachePurged = Notification.Name("LocalCachePurged")

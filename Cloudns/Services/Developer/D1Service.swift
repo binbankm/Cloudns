@@ -51,21 +51,43 @@ final class D1Service: D1ServiceProtocol {
         let rawData = try await client.performDataRequest(request)
         let jsonStr = String(data: rawData, encoding: .utf8)
         
+        // 检查顶层是否包含 Cloudflare 错误结构
+        if let rootObj = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any] {
+            if let errors = rootObj["errors"] as? [[String: Any]], !errors.isEmpty {
+                let msgs = errors.compactMap { $0["message"] as? String }
+                let errorMsg = msgs.isEmpty ? "D1 query execution failed" : msgs.joined(separator: "; ")
+                throw APIError.cloudflareError(errorMsg)
+            }
+            if let success = rootObj["success"] as? Bool, !success {
+                throw APIError.cloudflareError("D1 query returned unsuccessful status")
+            }
+            if let results = rootObj["result"] as? [[String: Any]], let first = results.first {
+                return try parseD1Payload(first, sql: sql, rawJson: jsonStr)
+            }
+            if let resultObj = rootObj["result"] as? [String: Any] {
+                return try parseD1Payload(resultObj, sql: sql, rawJson: jsonStr)
+            }
+        }
+        
         if let jsonArray = try? JSONSerialization.jsonObject(with: rawData) as? [[String: Any]],
            let first = jsonArray.first {
-            return parseD1Payload(first, sql: sql, rawJson: jsonStr)
+            return try parseD1Payload(first, sql: sql, rawJson: jsonStr)
         }
-        if let jsonObj = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any] {
-            if let results = jsonObj["result"] as? [[String: Any]], let first = results.first {
-                return parseD1Payload(first, sql: sql, rawJson: jsonStr)
-            }
-            return parseD1Payload(jsonObj, sql: sql, rawJson: jsonStr)
-        }
-        return D1QueryResult(success: true, query: sql, durationMs: 10.0, rowsRead: 0, rowsWritten: 0, columns: [], rows: [], rawJson: jsonStr)
+        
+        throw APIError.decodingError("Invalid or unexpected D1 response structure")
     }
     
-    private func parseD1Payload(_ dict: [String: Any], sql: String, rawJson: String?) -> D1QueryResult {
+    private func parseD1Payload(_ dict: [String: Any], sql: String, rawJson: String?) throws -> D1QueryResult {
+        if let errors = dict["errors"] as? [[String: Any]], !errors.isEmpty {
+            let msgs = errors.compactMap { $0["message"] as? String }
+            let errorMsg = msgs.isEmpty ? "D1 query execution failed" : msgs.joined(separator: "; ")
+            throw APIError.cloudflareError(errorMsg)
+        }
         let success = (dict["success"] as? Bool) ?? true
+        if !success {
+            let errorMsg = (dict["error"] as? String) ?? "D1 query returned unsuccessful status"
+            throw APIError.cloudflareError(errorMsg)
+        }
         let meta = dict["meta"] as? [String: Any]
         let duration = (meta?["duration"] as? Double) ?? 10.0
         let rowsRead = (meta?["rows_read"] as? Int) ?? 0

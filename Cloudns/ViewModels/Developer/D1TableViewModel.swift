@@ -31,17 +31,23 @@ final class D1TableViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    private func quoteIdentifier(_ id: String) -> String {
+        let escaped = id.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
+    }
+    
     var totalPages: Int {
         max(1, Int(ceil(Double(totalRowCount) / Double(pageSize))))
     }
     
     func loadTable() async {
         await executeLoadingTask {
+            let quotedTable = self.quoteIdentifier(self.tableName)
             // 1. Fetch column metadata
             let pragmaResult = try await self.d1Service.executeD1Query(
                 accountId: self.accountId,
                 databaseId: self.databaseId,
-                sql: "PRAGMA table_info(\"\(self.tableName)\");"
+                sql: "PRAGMA table_info(\(quotedTable));"
             )
             
             var fetchedCols: [D1ColumnInfo] = []
@@ -67,7 +73,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             let countResult = try await self.d1Service.executeD1Query(
                 accountId: self.accountId,
                 databaseId: self.databaseId,
-                sql: "SELECT count(*) as count FROM \"\(self.tableName)\";"
+                sql: "SELECT count(*) as count FROM \(quotedTable);"
             )
             if let firstCount = countResult.rows.first?["count"], let cnt = Int(firstCount) {
                 self.totalRowCount = cnt
@@ -80,7 +86,8 @@ final class D1TableViewModel: BaseLoadableViewModel {
     
     func fetchPageRows() async {
         let offset = (currentPage - 1) * pageSize
-        let sql = "SELECT rowid as _rowid_, * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
+        let quotedTable = quoteIdentifier(tableName)
+        let sql = "SELECT rowid as _rowid_, * FROM \(quotedTable) LIMIT \(pageSize) OFFSET \(offset);"
         do {
             let result = try await d1Service.executeD1Query(
                 accountId: accountId,
@@ -91,7 +98,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             self.rowItems = result.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
         } catch {
             // Fallback for WITHOUT ROWID tables
-            let fallbackSql = "SELECT * FROM \"\(tableName)\" LIMIT \(pageSize) OFFSET \(offset);"
+            let fallbackSql = "SELECT * FROM \(quotedTable) LIMIT \(pageSize) OFFSET \(offset);"
             if let fallbackResult = try? await d1Service.executeD1Query(
                 accountId: accountId,
                 databaseId: databaseId,
@@ -122,7 +129,12 @@ final class D1TableViewModel: BaseLoadableViewModel {
     }
     
     func deleteRow(rowid: String) async -> Bool {
-        let sql = "DELETE FROM \"\(tableName)\" WHERE rowid = \(rowid);"
+        guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
+            ToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
+            return false
+        }
+        let quotedTable = quoteIdentifier(tableName)
+        let sql = "DELETE FROM \(quotedTable) WHERE rowid = \(rowid);"
         do {
             _ = try await d1Service.executeD1Query(
                 accountId: accountId,
@@ -141,17 +153,18 @@ final class D1TableViewModel: BaseLoadableViewModel {
     func insertRow(values: [String: String]) async -> Bool {
         // Filter out blank values to let SQLite handle AUTOINCREMENT and DEFAULT values properly
         let activePairs = values.filter { !$0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        let quotedTable = quoteIdentifier(tableName)
         
         let sql: String
         if activePairs.isEmpty {
-            sql = "INSERT INTO \"\(tableName)\" DEFAULT VALUES;"
+            sql = "INSERT INTO \(quotedTable) DEFAULT VALUES;"
         } else {
-            let cols = activePairs.map { "\"\($0.key)\"" }.joined(separator: ", ")
+            let cols = activePairs.map { quoteIdentifier($0.key) }.joined(separator: ", ")
             let valPlaceholders = activePairs.map { pair -> String in
                 let escaped = pair.value.replacingOccurrences(of: "'", with: "''")
                 return "'\(escaped)'"
             }.joined(separator: ", ")
-            sql = "INSERT INTO \"\(tableName)\" (\(cols)) VALUES (\(valPlaceholders));"
+            sql = "INSERT INTO \(quotedTable) (\(cols)) VALUES (\(valPlaceholders));"
         }
         
         do {
@@ -170,6 +183,10 @@ final class D1TableViewModel: BaseLoadableViewModel {
     }
     
     func updateRow(rowid: String, values: [String: String]) async -> Bool {
+        guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
+            ToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
+            return false
+        }
         let setClauses = values.map { (k, v) -> String in
             let escaped = v.replacingOccurrences(of: "'", with: "''")
             return "\"\(k)\" = '\(escaped)'"

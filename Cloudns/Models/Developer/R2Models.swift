@@ -14,6 +14,13 @@ public struct R2Bucket: Codable, Identifiable, Equatable, Sendable {
         case location
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Bucket"
+        self.creationDate = try container.decodeIfPresent(String.self, forKey: .creationDate)
+        self.location = try container.decodeIfPresent(String.self, forKey: .location)
+    }
+    
     public init(name: String, creationDate: String? = "2024-01-01T00:00:00Z", location: String? = "WNAM") {
         self.name = name
         self.creationDate = creationDate

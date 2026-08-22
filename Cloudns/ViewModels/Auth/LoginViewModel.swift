@@ -7,7 +7,7 @@ class LoginViewModel: BaseLoadableViewModel {
     @Published var email: String = ""
     @Published var apiKey: String = ""
     
-    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
     
     private let zoneService: ZoneServiceProtocol
     

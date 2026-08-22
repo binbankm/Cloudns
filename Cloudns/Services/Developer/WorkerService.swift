@@ -210,15 +210,41 @@ final class WorkerService: WorkerServiceProtocol {
         guard let url = URL(string: urlString) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
+        request.timeoutInterval = 15.0
         for (k, v) in headers { request.setValue(v, forHTTPHeaderField: k) }
         if let b = body, !b.isEmpty { request.httpBody = b.data(using: .utf8) }
+        
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 15.0
+        config.timeoutIntervalForResource = 30.0
+        let session = URLSession(configuration: config)
+        
         let startTime = CFAbsoluteTimeGetCurrent()
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (asyncBytes, response) = try await session.bytes(for: request)
         let duration = (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0
         guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+        
         var headerItems: [HTTPHeaderItem] = []
         for (k, v) in httpResponse.allHeaderFields { headerItems.append(HTTPHeaderItem(key: "\(k)", value: "\(v)")) }
-        let bodyString = String(data: data, encoding: .utf8)
+        
+        // 内存安全防护：限制最大读取 1MB (1,048,576 字节)，杜绝大文件耗尽内存
+        let maxBytes = 1024 * 1024
+        var collectedData = Data()
+        var isTruncated = false
+        
+        for try await byte in asyncBytes {
+            if collectedData.count >= maxBytes {
+                isTruncated = true
+                break
+            }
+            collectedData.append(byte)
+        }
+        
+        var bodyString = String(bytes: collectedData, encoding: .utf8) ?? ""
+        if isTruncated {
+            bodyString += "\n\n⚠️ [Response truncated: payload exceeded 1MB memory safety limit]"
+        }
+        
         return HTTPInspectionResult(
             url: urlString,
             statusCode: httpResponse.statusCode,

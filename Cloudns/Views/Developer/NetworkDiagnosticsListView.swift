@@ -1,99 +1,101 @@
 import SwiftUI
 
 struct NetworkDiagnosticsListView: View {
-    private struct DiagnosticToolItem: Identifiable {
-        let id = UUID()
-        let title: String
-        let subtitle: String
-        let icon: String
-        let iconColor: Color
-        let destination: AnyView
+    private enum DiagnosticToolType: String, Identifiable, CaseIterable {
+        case cfTrace
+        case dnsDig
+        case httpHeader
+        case certInspect
+        case dnsPropagation
+        case edgeLatency
+        case ipLookup
+        case whois
+        case cfIpRanges
+        case cidrCalc
+        
+        var id: String { rawValue }
+        
+        var title: String {
+            switch self {
+            case .cfTrace: return "Cloudflare Trace"
+            case .dnsDig: return "DNS Dig & Benchmark"
+            case .httpHeader: return "HTTP & Cache Inspector"
+            case .certInspect: return "SSL Certificate Inspector"
+            case .dnsPropagation: return "Global DNS Propagation"
+            case .edgeLatency: return "Edge Latency & Jitter"
+            case .ipLookup: return "IP & ASN Lookup"
+            case .whois: return "WHOIS & RDAP Lookup"
+            case .cfIpRanges: return "Cloudflare IP Ranges"
+            case .cidrCalc: return "Subnet & CIDR Calculator"
+            }
+        }
+        
+        var subtitle: String {
+            switch self {
+            case .cfTrace: return "Edge PoP data center & client route trace (/cdn-cgi/trace)"
+            case .dnsDig: return "1.1.1.1 query, DNSSEC validation & 5-resolver benchmark"
+            case .httpHeader: return "CF-Ray, CF-Cache-Status, HTTP/3 & edge timing breakdown"
+            case .certInspect: return "Certificate chain hierarchy, SANs & expiration countdown"
+            case .dnsPropagation: return "Probe worldwide resolution across 8 regional edge nodes"
+            case .edgeLatency: return "Multi-round response timing, packet loss & jitter test"
+            case .ipLookup: return "Cloudflare Anycast detection, ISP organization & ASN"
+            case .whois: return "Domain registrar, lifecycle timeline & nameserver records"
+            case .cfIpRanges: return "Official IPv4/IPv6 CIDRs, IP matcher & firewall exporter"
+            case .cidrCalc: return "IPv4/IPv6 network mask, broadcast & host range calculator"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .cfTrace: return "antenna.radiowaves.left.and.right.circle.fill"
+            case .dnsDig: return "magnifyingglass.circle.fill"
+            case .httpHeader: return "arrow.up.right.circle.fill"
+            case .certInspect: return "checkmark.seal.fill"
+            case .dnsPropagation: return "globe.americas.fill"
+            case .edgeLatency: return "speedometer"
+            case .ipLookup: return "location.circle.fill"
+            case .whois: return "person.text.rectangle.fill"
+            case .cfIpRanges: return "network.badge.shield.half.filled"
+            case .cidrCalc: return "number.square.fill"
+            }
+        }
+        
+        var iconColor: Color {
+            switch self {
+            case .cfTrace: return .orange
+            case .dnsDig: return .indigo
+            case .httpHeader: return .blue
+            case .certInspect: return .green
+            case .dnsPropagation: return .indigo
+            case .edgeLatency: return .purple
+            case .ipLookup: return .teal
+            case .whois: return .purple
+            case .cfIpRanges: return .cyan
+            case .cidrCalc: return .blue
+            }
+        }
+        
+        @ViewBuilder
+        @MainActor
+        var destinationView: some View {
+            switch self {
+            case .cfTrace: CFTraceToolView()
+            case .dnsDig: DNSDigToolView()
+            case .httpHeader: HTTPHeaderInspectorView()
+            case .certInspect: CertInspectToolView()
+            case .dnsPropagation: DNSPropagationView()
+            case .edgeLatency: EdgeLatencyTestView()
+            case .ipLookup: IPLookupToolView()
+            case .whois: WhoisToolView()
+            case .cfIpRanges: CFIpRangesToolView()
+            case .cidrCalc: CIDRCalculatorView()
+            }
+        }
     }
     
-    private var edgeTools: [DiagnosticToolItem] {
-        [
-            DiagnosticToolItem(
-                title: "Cloudflare Trace",
-                subtitle: "Edge PoP data center & client route trace (/cdn-cgi/trace)",
-                icon: "antenna.radiowaves.left.and.right.circle.fill",
-                iconColor: .orange,
-                destination: AnyView(CFTraceToolView())
-            ),
-            DiagnosticToolItem(
-                title: "DNS Dig & Benchmark",
-                subtitle: "1.1.1.1 query, DNSSEC validation & 5-resolver benchmark",
-                icon: "magnifyingglass.circle.fill",
-                iconColor: .indigo,
-                destination: AnyView(DNSDigToolView())
-            ),
-            DiagnosticToolItem(
-                title: "HTTP & Cache Inspector",
-                subtitle: "CF-Ray, CF-Cache-Status, HTTP/3 & edge timing breakdown",
-                icon: "arrow.up.right.circle.fill",
-                iconColor: .blue,
-                destination: AnyView(HTTPHeaderInspectorView())
-            ),
-            DiagnosticToolItem(
-                title: "SSL Certificate Inspector",
-                subtitle: "Certificate chain hierarchy, SANs & expiration countdown",
-                icon: "checkmark.seal.fill",
-                iconColor: .green,
-                destination: AnyView(CertInspectToolView())
-            )
-        ]
-    }
-    
-    private var globalProbingTools: [DiagnosticToolItem] {
-        [
-            DiagnosticToolItem(
-                title: "Global DNS Propagation",
-                subtitle: "Probe worldwide resolution across 8 regional edge nodes",
-                icon: "globe.americas.fill",
-                iconColor: .indigo,
-                destination: AnyView(DNSPropagationView())
-            ),
-            DiagnosticToolItem(
-                title: "Edge Latency & Jitter",
-                subtitle: "Multi-round response timing, packet loss & jitter test",
-                icon: "speedometer",
-                iconColor: .purple,
-                destination: AnyView(EdgeLatencyTestView())
-            )
-        ]
-    }
-    
-    private var ipRoutingTools: [DiagnosticToolItem] {
-        [
-            DiagnosticToolItem(
-                title: "IP & ASN Lookup",
-                subtitle: "Cloudflare Anycast detection, ISP organization & ASN",
-                icon: "location.circle.fill",
-                iconColor: .teal,
-                destination: AnyView(IPLookupToolView())
-            ),
-            DiagnosticToolItem(
-                title: "WHOIS & RDAP Lookup",
-                subtitle: "Domain registrar, lifecycle timeline & nameserver records",
-                icon: "person.text.rectangle.fill",
-                iconColor: .purple,
-                destination: AnyView(WhoisToolView())
-            ),
-            DiagnosticToolItem(
-                title: "Cloudflare IP Ranges",
-                subtitle: "Official IPv4/IPv6 CIDRs, IP matcher & firewall exporter",
-                icon: "network.badge.shield.half.filled",
-                iconColor: .cyan,
-                destination: AnyView(CFIpRangesToolView())
-            ),
-            DiagnosticToolItem(
-                title: "Subnet & CIDR Calculator",
-                subtitle: "IPv4/IPv6 network mask, broadcast & host range calculator",
-                icon: "number.square.fill",
-                iconColor: .blue,
-                destination: AnyView(CIDRCalculatorView())
-            )
-        ]
-    }
+    private let edgeTools: [DiagnosticToolType] = [.cfTrace, .dnsDig, .httpHeader, .certInspect]
+    private let globalProbingTools: [DiagnosticToolType] = [.dnsPropagation, .edgeLatency]
+    private let ipRoutingTools: [DiagnosticToolType] = [.ipLookup, .whois, .cfIpRanges, .cidrCalc]
     
     var body: some View {
         List {
@@ -125,9 +127,9 @@ struct NetworkDiagnosticsListView: View {
     }
     
     @ViewBuilder
-    private func toolRow(_ tool: DiagnosticToolItem) -> some View {
+    private func toolRow(_ tool: DiagnosticToolType) -> some View {
         NavigationLink {
-            tool.destination
+            tool.destinationView
         } label: {
             HStack(alignment: .center, spacing: 14) {
                 Image(systemName: tool.icon)

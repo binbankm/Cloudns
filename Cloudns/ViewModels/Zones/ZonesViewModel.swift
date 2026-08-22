@@ -107,7 +107,7 @@ class ZonesViewModel: BaseLoadableViewModel {
                     }
                 }
                 for (id, cache) in batchMap {
-                    await SWRCacheStore.shared.set(cache, forKey: "zone_sparkline_\(id)")
+                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: "zone_sparkline_\(id)")
                 }
             }
         }
@@ -128,6 +128,7 @@ class ZonesViewModel: BaseLoadableViewModel {
             }
             
             let zone = try await zoneService.createZone(name: name, accountId: firstAccount.id, jumpStart: false)
+            NotificationCenter.default.post(name: .zoneCreated, object: nil, userInfo: ["zone": zone])
             await fetchZones(isRefresh: true)
             isAddingZone = false
             return zone
@@ -147,13 +148,18 @@ class ZonesViewModel: BaseLoadableViewModel {
         impact.notificationOccurred(.warning)
         do {
             _ = try await zoneService.deleteZone(zoneId: zoneId)
+            RecentZonesManager.shared.removeZone(zoneId: zoneId)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
+            await SWRCacheStore.shared.remove(forKey: "zone_sparkline_\(zoneId)")
+            
             // Remove locally
             if let index = zones.firstIndex(where: { $0.id == zoneId }) {
                 zones.remove(at: index)
-                totalCount -= 1
+                totalCount = max(0, totalCount - 1)
                 // 同步刷新本地缓存
                 await SWRCacheStore.shared.set(zones, forKey: SWRCacheStore.accountScopedKey("cloudflare_zones_list"))
             }
+            NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
         } catch {
             errorMessage = error.localizedDescription
         }

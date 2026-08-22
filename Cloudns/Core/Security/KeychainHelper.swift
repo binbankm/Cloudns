@@ -22,7 +22,7 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
             kSecAttrService: service,
             kSecAttrAccount: account,
             kSecClass: kSecClassGenericPassword,
-            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ] as CFDictionary
         
         // Add data to keychain
@@ -38,7 +38,7 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
             
             let attributesToUpdate = [
                 kSecValueData: data,
-                kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+                kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
             ] as CFDictionary
             
             SecItemUpdate(query, attributesToUpdate)

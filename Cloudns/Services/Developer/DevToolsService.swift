@@ -380,7 +380,8 @@ final class DevToolsService: DevToolsServiceProtocol {
                     if let alt = http.value(forHTTPHeaderField: "alt-svc"), alt.contains("h3") {
                         httpProto = "HTTP/3 (QUIC Ready)"
                     }
-                    pings.append(EdgeLatencyPing(id: i, latencyMs: duration, httpStatus: http.statusCode, isSuccess: true))
+                    let isSuccess = (200..<400).contains(http.statusCode)
+                    pings.append(EdgeLatencyPing(id: i, latencyMs: duration, httpStatus: http.statusCode, isSuccess: isSuccess))
                 }
             } catch {
                 pings.append(EdgeLatencyPing(id: i, latencyMs: 0, httpStatus: 0, isSuccess: false))
@@ -435,8 +436,13 @@ final class DevToolsService: DevToolsServiceProtocol {
         request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36", forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", forHTTPHeaderField: "Accept")
         
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 10.0
+        config.timeoutIntervalForResource = 15.0
+        let session = URLSession(configuration: config)
+        
         let startTime = CFAbsoluteTimeGetCurrent()
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (asyncBytes, response) = try await session.bytes(for: request)
         let duration = (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0
         
         guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
@@ -455,9 +461,17 @@ final class DevToolsService: DevToolsServiceProtocol {
         let altSvc = httpResponse.value(forHTTPHeaderField: "alt-svc") ?? ""
         let isH3 = altSvc.contains("h3") || altSvc.contains("quic")
         
-        let bodySnippet: String?
-        if method == "GET", let str = String(data: data.prefix(1500), encoding: .utf8), !str.isEmpty {
-            bodySnippet = str
+        var bodySnippet: String?
+        if method == "GET" {
+            var previewData = Data()
+            let maxPreviewBytes = 65536 // 64KB cap for preview
+            for try await byte in asyncBytes {
+                previewData.append(byte)
+                if previewData.count >= maxPreviewBytes { break }
+            }
+            if let str = String(data: previewData.prefix(1500), encoding: .utf8), !str.isEmpty {
+                bodySnippet = str
+            }
         } else {
             bodySnippet = nil
         }

@@ -64,6 +64,11 @@ public struct ResultInfo: Codable, Equatable, Sendable {
 }
 
 public struct CloudflareError: Codable, Equatable, Sendable {
-    public let code: Int
-    public let message: String
+    public let code: Int?
+    public let message: String?
+    
+    public init(code: Int? = nil, message: String? = nil) {
+        self.code = code
+        self.message = message
+    }
 }

@@ -21,6 +21,18 @@ public struct CFTunnel: Codable, Identifiable, Equatable, Sendable {
         case connections
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Tunnel"
+        self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "inactive"
+        self.createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+        self.deletedAt = try container.decodeIfPresent(String.self, forKey: .deletedAt)
+        self.tunnelType = try container.decodeIfPresent(String.self, forKey: .tunnelType)
+        self.remoteConfig = try container.decodeIfPresent(Bool.self, forKey: .remoteConfig)
+        self.connections = try container.decodeIfPresent([TunnelConnection].self, forKey: .connections)
+    }
+    
     public var isHealthy: Bool {
         status?.lowercased() == "healthy" || status?.lowercased() == "active"
     }

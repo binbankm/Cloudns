@@ -22,13 +22,9 @@ final class SnippetService: SnippetServiceProtocol {
     private init() {}
     
     func getSnippets(zoneId: String) async throws -> [SnippetItem] {
-        do {
-            let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets")
-            let (snips, _): ([SnippetItem]?, ResultInfo?) = try await client.performRequest(request)
-            return snips ?? []
-        } catch {
-            return []
-        }
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets")
+        let (snips, _): ([SnippetItem]?, ResultInfo?) = try await client.performRequest(request)
+        return snips ?? []
     }
     
     func getSnippetRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [WAFRule]) {

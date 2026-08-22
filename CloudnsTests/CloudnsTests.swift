@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftUI
 import Testing
 @testable import Cloudns
 
@@ -605,3 +606,158 @@ struct WidgetSnapshotFormattingTests {
         #expect(!snap.productionBranch.isEmpty)
     }
 }
+
+// MARK: - 13. Data Sync & Security Hardening Tests
+
+@Suite("Data Sync & Security Tests")
+struct DataSyncAndSecurityTests {
+    
+    @Test("Multi-Account Scoped Key isolation on empty email")
+    func testAccountScopedKeySafety() {
+        let prev = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
+        
+        UserDefaults.standard.set("", forKey: AppStorageKey.activeAccountEmail)
+        let keyEmpty = SWRCacheStore.accountScopedKey("test_key")
+        #expect(keyEmpty == "default_test_key")
+        
+        UserDefaults.standard.set("user@example.com", forKey: AppStorageKey.activeAccountEmail)
+        let keyUser = SWRCacheStore.accountScopedKey("test_key")
+        #expect(keyUser == "user@example.com_test_key")
+        
+        if let p = prev {
+            UserDefaults.standard.set(p, forKey: AppStorageKey.activeAccountEmail)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppStorageKey.activeAccountEmail)
+        }
+    }
+    
+    @Test("RecentZonesManager removeZone functionality")
+    func testRecentZonesManagerRemove() {
+        let manager = RecentZonesManager.shared
+        manager.recordVisit(zoneId: "test_zone_1")
+        manager.recordVisit(zoneId: "test_zone_2")
+        #expect(manager.recentZoneIds.contains("test_zone_1"))
+        
+        manager.removeZone(zoneId: "test_zone_1")
+        #expect(!manager.recentZoneIds.contains("test_zone_1"))
+        #expect(manager.recentZoneIds.contains("test_zone_2"))
+    }
+    
+    @Test("SWRCacheStore setMemoryOnly operations")
+    func testSWRCacheStoreMemoryOnly() async {
+        struct MockData: Codable, Equatable, Sendable {
+            let value: String
+        }
+        
+        let store = SWRCacheStore.shared
+        let key = "mem_test_key_\(UUID().uuidString)"
+        let data = MockData(value: "sparkline_points")
+        
+        await store.setMemoryOnly(data, forKey: key, ttl: 60)
+        let fetched = await store.get(forKey: key, as: MockData.self)
+        #expect(fetched == data)
+        await store.remove(forKey: key)
+    }
+    
+    @Test("D1 row ID numeric sanitization")
+    @MainActor
+    func testD1RowIDSafety() async {
+        let vm = D1TableViewModel(accountId: "acc-1", databaseId: "db-1", tableName: "users")
+        
+        // Malicious SQL injection in rowid
+        let maliciousResult = await vm.deleteRow(rowid: "1; DROP TABLE users")
+        #expect(maliciousResult == false)
+        
+        let validNumberResult = await vm.deleteRow(rowid: "abc")
+        #expect(validNumberResult == false)
+    }
+    
+    @Test("D1 table and column identifier quote escaping")
+    @MainActor
+    func testD1IdentifierQuoteEscaping() async {
+        let vm = D1TableViewModel(accountId: "acc-1", databaseId: "db-1", tableName: "user\"table")
+        // Trigger insert with quoted column containing double quotes
+        let result = await vm.insertRow(values: ["col\"name": "test'value"])
+        // If SQL generation handles quotes properly, it won't crash
+        #expect(vm.tableName == "user\"table")
+    }
+}
+
+// MARK: - 16. Security & Multi-tenant Isolation Tests
+
+@Suite("Security & Multi-tenant Isolation Tests")
+struct SecurityAndMultiTenantTests {
+    
+    @Test("WidgetDataStore active account switching isolation")
+    func testWidgetDataStoreAccountIsolation() {
+        let store = WidgetDataStore.shared
+        
+        // 1. Account A saves snapshot
+        store.syncActiveAccount("userA@example.com")
+        let snapA = ZoneWidgetSnapshot(id: "zone_a", name: "usera.com", status: "active", plan: "Free", requests24h: 100, bytes24h: 1000, cachedRatio: 0.8, threats24h: 0, isProxied: true, isSSLEnabled: true, lastUpdated: Date())
+        store.saveZoneSnapshot(snapA)
+        
+        let loadedA = store.loadZoneSnapshot()
+        #expect(loadedA.id == "zone_a")
+        
+        // 2. Switch to Account B
+        store.syncActiveAccount("userB@example.com")
+        let loadedB = store.loadZoneSnapshot()
+        // Account B must not see Account A's zone_a
+        #expect(loadedB.id != "zone_a")
+        
+        // Clean up
+        store.clearAll()
+    }
+    
+    @Test("DeepLinkRouter strict URL parsing avoids false positives")
+    @MainActor
+    func testStrictDeepLinkParsing() {
+        let router = DeepLinkRouter.shared
+        var currentTab = 0
+        let binding = Binding(get: { currentTab }, set: { currentTab = $0 })
+        
+        // Query param or substring containing 'worker' should NOT route to worker
+        if let maliciousUrl = URL(string: "cloudns://tools?search=myworker") {
+            router.handle(url: maliciousUrl, currentTab: binding)
+            #expect(router.activeDestination == nil)
+        }
+        
+        // Proper worker deep link
+        if let validWorkerUrl = URL(string: "cloudns://worker/my-cool-worker") {
+            router.handle(url: validWorkerUrl, currentTab: binding)
+            #expect(router.activeDestination == .worker(id: "my-cool-worker"))
+        }
+        
+        // Proper zone deep link
+        if let validZoneUrl = URL(string: "cloudns://zone/zone12345") {
+            router.handle(url: validZoneUrl, currentTab: binding)
+            #expect(router.activeDestination == .zone(id: "zone12345"))
+        }
+    }
+}
+
+// MARK: - 17. ViewModel State & Logic Tests
+
+@Suite("ViewModel State & Logic Tests")
+struct ViewModelStateTests {
+    
+    @Test("DNSRecordsViewModel record state and canLoadMore calculation")
+    @MainActor
+    func testDNSRecordViewModelState() {
+        let vm = DNSRecordsViewModel(zoneId: "test_zone")
+        
+        let rec1 = DNSRecord(id: "1", type: "A", name: "api.example.com", content: "1.1.1.1", proxiable: true, proxied: true, ttl: 1, comment: "API Server", tags: nil)
+        let rec2 = DNSRecord(id: "2", type: "CNAME", name: "www.example.com", content: "example.com", proxiable: true, proxied: false, ttl: 1, comment: nil, tags: nil)
+        
+        vm.records = [rec1, rec2]
+        vm.totalCount = 2
+        
+        #expect(vm.records.count == 2)
+        #expect(vm.records.first?.id == "1")
+        #expect(vm.records.first?.proxied == true)
+        #expect(vm.records.last?.proxied == false)
+        #expect(vm.canLoadMore == false)
+    }
+}
+

@@ -62,6 +62,26 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
         case createdOn = "created_on"
     }
     
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.type = try container.decodeIfPresent(String.self, forKey: .type) ?? "A"
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        self.content = try container.decodeIfPresent(String.self, forKey: .content)
+        self.proxiable = try container.decodeIfPresent(Bool.self, forKey: .proxiable)
+        self.proxied = try container.decodeIfPresent(Bool.self, forKey: .proxied)
+        self.ttl = try container.decodeIfPresent(Int.self, forKey: .ttl) ?? 1
+        self.locked = try container.decodeIfPresent(Bool.self, forKey: .locked)
+        self.zoneId = try container.decodeIfPresent(String.self, forKey: .zoneId)
+        self.zoneName = try container.decodeIfPresent(String.self, forKey: .zoneName)
+        self.modifiedOn = try container.decodeIfPresent(String.self, forKey: .modifiedOn)
+        self.createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
+        self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
+        self.comment = try container.decodeIfPresent(String.self, forKey: .comment)
+        self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
+        self.data = try container.decodeIfPresent(DNSRecordData.self, forKey: .data)
+    }
+    
     static var dummyData: [DNSRecord] {
         return (0..<5).map { i in
             DNSRecord(

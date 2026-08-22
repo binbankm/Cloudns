@@ -41,21 +41,33 @@ class KVViewModel: BaseLoadableViewModel {
 
     func createNamespace(title: String) async throws {
         _ = try await kvService.createKVNamespace(accountId: accountId, title: title)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
 
     func deleteNamespace(namespaceId: String) async throws {
         try await kvService.deleteKVNamespace(accountId: accountId, namespaceId: namespaceId)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
 
     func createDatabase(name: String, locationHint: String? = nil) async throws {
         _ = try await d1Service.createD1Database(accountId: accountId, name: name, primaryLocationHint: locationHint)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
 
     func deleteDatabase(databaseId: String) async throws {
         try await d1Service.deleteD1Database(accountId: accountId, databaseId: databaseId)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
     

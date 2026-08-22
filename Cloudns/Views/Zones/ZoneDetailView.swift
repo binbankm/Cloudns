@@ -5,6 +5,7 @@ import SwiftUI
 struct ZoneDetailView: View {
     let initialZone: Zone
     @State private var zone: Zone
+    @Environment(\.dismiss) private var dismiss
 
     init(zone: Zone) {
         self.initialZone = zone
@@ -200,6 +201,15 @@ struct ZoneDetailView: View {
         .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
             Task { await refreshZoneDetails() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { notif in
+            if let deletedId = notif.userInfo?["zoneId"] as? String {
+                if deletedId == zone.id {
+                    dismiss()
+                }
+            } else {
+                dismiss()
+            }
+        }
         .onAppear {
             RecentZonesManager.shared.recordVisit(zoneId: zone.id)
             WidgetDataStore.shared.syncZoneWithAnalytics(zone: zone)
@@ -215,7 +225,6 @@ struct ZoneDetailView: View {
                 }
                 RecentZonesManager.shared.recordVisit(zoneId: updated.id)
                 WidgetDataStore.shared.syncZoneWithAnalytics(zone: updated)
-                NotificationCenter.default.post(name: .zoneUpdated, object: nil)
             }
         } catch {
             // Keep current zone snapshot if offline

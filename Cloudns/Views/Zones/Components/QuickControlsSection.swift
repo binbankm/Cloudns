@@ -40,14 +40,17 @@ struct QuickControlsSection: View {
 
                 Spacer()
 
-                Toggle(isOn: $isUnderAttack) { }
-                    .labelsHidden()
-                    .disabled(updatingAttack)
-                    .onChange(of: isUnderAttack) { val in
+                Toggle(isOn: Binding(
+                    get: { isUnderAttack },
+                    set: { val in
                         guard !updatingAttack else { return }
+                        isUnderAttack = val
                         HapticManager.impact(.light)
                         Task { await setUnderAttack(val) }
                     }
+                )) { }
+                    .labelsHidden()
+                    .disabled(updatingAttack)
             }
             .padding(.vertical, 2)
 
@@ -64,31 +67,34 @@ struct QuickControlsSection: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Development Mode")
                         .font(.body)
-                    Text("Bypass cache for 3 hours")
+                    Text("Bypass cache, lasts 3 hours")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Toggle(isOn: $isDevMode) { }
-                    .labelsHidden()
-                    .disabled(updatingDev)
-                    .onChange(of: isDevMode) { val in
+                Toggle(isOn: Binding(
+                    get: { isDevMode },
+                    set: { val in
                         guard !updatingDev else { return }
+                        isDevMode = val
                         HapticManager.impact(.light)
                         Task { await setDevMode(val) }
                     }
+                )) { }
+                    .labelsHidden()
+                    .disabled(updatingDev)
             }
             .padding(.vertical, 2)
 
-            // Pause Cloudflare
+            // Pause Cloudflare on Site
             HStack(spacing: 12) {
                 Image(systemName: "pause.circle.fill")
                     .font(.body)
-                    .foregroundStyle(isPaused ? .white : .secondary)
+                    .foregroundStyle(isPaused ? .white : .gray)
                     .frame(width: 32, height: 32)
-                    .background(isPaused ? Color.secondary : Color.secondary.opacity(0.12))
+                    .background(isPaused ? Color.gray : Color.gray.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .accessibilityHidden(true)
 
@@ -102,14 +108,17 @@ struct QuickControlsSection: View {
 
                 Spacer()
 
-                Toggle(isOn: $isPaused) { }
-                    .labelsHidden()
-                    .disabled(updatingPause)
-                    .onChange(of: isPaused) { val in
+                Toggle(isOn: Binding(
+                    get: { isPaused },
+                    set: { val in
                         guard !updatingPause else { return }
+                        isPaused = val
                         HapticManager.impact(.light)
                         Task { await setPaused(val) }
                     }
+                )) { }
+                    .labelsHidden()
+                    .disabled(updatingPause)
             }
             .padding(.vertical, 2)
         }

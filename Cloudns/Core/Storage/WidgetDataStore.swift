@@ -13,11 +13,29 @@ public final class WidgetDataStore: @unchecked Sendable {
     private let userDefaults: UserDefaults
     
     private enum Keys {
+        static let activeAccount = "cloudns.widget.active.account"
         static let zoneSnapshot = "cloudns.widget.zone.snapshot"
         static let workerSnapshot = "cloudns.widget.worker.snapshot"
         static let pagesSnapshot = "cloudns.widget.pages.snapshot"
         static let statusSnapshot = "cloudns.widget.status.snapshot"
         static let allZonesList = "cloudns.widget.zones.all"
+    }
+    
+    private var activeAccountScope: String {
+        if let stored = userDefaults.string(forKey: Keys.activeAccount), !stored.isEmpty {
+            return stored
+        }
+        let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? "default"
+        return email.isEmpty ? "default" : email
+    }
+    
+    private func scopedKey(_ base: String) -> String {
+        "\(base)_\(activeAccountScope)"
+    }
+    
+    private func scopedFileName(_ base: String) -> String {
+        let cleanScope = activeAccountScope.replacingOccurrences(of: "@", with: "_").replacingOccurrences(of: ".", with: "_")
+        return "\(base)_\(cleanScope).json"
     }
     
     private var containerFolderURL: URL? {
@@ -32,24 +50,31 @@ public final class WidgetDataStore: @unchecked Sendable {
         }
     }
     
+    /// 切换当前活跃账户并即时刷新小组件，彻底杜绝跨账号数据泄露
+    public func syncActiveAccount(_ email: String) {
+        userDefaults.set(email, forKey: Keys.activeAccount)
+        // 切换后立即触发防抖重载
+        notifyWidgetsToReload()
+    }
+    
     // MARK: - Zone Snapshot Operations
     
     public func saveZoneSnapshot(_ snapshot: ZoneWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
-        userDefaults.set(data, forKey: Keys.zoneSnapshot)
-        userDefaults.synchronize()
-        if let fileURL = containerFolderURL?.appendingPathComponent("zone_snapshot.json") {
+        userDefaults.set(data, forKey: scopedKey(Keys.zoneSnapshot))
+        userDefaults.set(data, forKey: Keys.zoneSnapshot) // Fallback for backward compat
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("zone_snapshot")) {
             try? data.write(to: fileURL, options: .atomic)
         }
         notifyWidgetsToReload()
     }
     
     public func loadZoneSnapshot() -> ZoneWidgetSnapshot {
-        if let data = userDefaults.data(forKey: Keys.zoneSnapshot),
+        if let data = userDefaults.data(forKey: scopedKey(Keys.zoneSnapshot)),
            let snapshot = try? JSONDecoder().decode(ZoneWidgetSnapshot.self, from: data) {
             return snapshot
         }
-        if let fileURL = containerFolderURL?.appendingPathComponent("zone_snapshot.json"),
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("zone_snapshot")),
            let data = try? Data(contentsOf: fileURL),
            let snapshot = try? JSONDecoder().decode(ZoneWidgetSnapshot.self, from: data) {
             return snapshot
@@ -69,6 +94,7 @@ public final class WidgetDataStore: @unchecked Sendable {
             status: zone.status,
             plan: zone.plan?.name ?? "Free Plan",
             requests24h: current.id == zone.id ? current.requests24h : 0,
+            bytes24h: current.id == zone.id ? current.bytes24h : 0,
             cachedRatio: current.id == zone.id ? current.cachedRatio : 0.85,
             threats24h: current.id == zone.id ? current.threats24h : 0,
             isProxied: !zone.paused,
@@ -146,20 +172,20 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     public func saveWorkerSnapshot(_ snapshot: WorkerWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        userDefaults.set(data, forKey: scopedKey(Keys.workerSnapshot))
         userDefaults.set(data, forKey: Keys.workerSnapshot)
-        userDefaults.synchronize()
-        if let fileURL = containerFolderURL?.appendingPathComponent("worker_snapshot.json") {
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("worker_snapshot")) {
             try? data.write(to: fileURL, options: .atomic)
         }
         notifyWidgetsToReload()
     }
     
     public func loadWorkerSnapshot() -> WorkerWidgetSnapshot {
-        if let data = userDefaults.data(forKey: Keys.workerSnapshot),
+        if let data = userDefaults.data(forKey: scopedKey(Keys.workerSnapshot)),
            let snapshot = try? JSONDecoder().decode(WorkerWidgetSnapshot.self, from: data) {
             return snapshot
         }
-        if let fileURL = containerFolderURL?.appendingPathComponent("worker_snapshot.json"),
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("worker_snapshot")),
            let data = try? Data(contentsOf: fileURL),
            let snapshot = try? JSONDecoder().decode(WorkerWidgetSnapshot.self, from: data) {
             return snapshot
@@ -211,20 +237,20 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     public func savePagesSnapshot(_ snapshot: PagesWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        userDefaults.set(data, forKey: scopedKey(Keys.pagesSnapshot))
         userDefaults.set(data, forKey: Keys.pagesSnapshot)
-        userDefaults.synchronize()
-        if let fileURL = containerFolderURL?.appendingPathComponent("pages_snapshot.json") {
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("pages_snapshot")) {
             try? data.write(to: fileURL, options: .atomic)
         }
         notifyWidgetsToReload()
     }
     
     public func loadPagesSnapshot() -> PagesWidgetSnapshot {
-        if let data = userDefaults.data(forKey: Keys.pagesSnapshot),
+        if let data = userDefaults.data(forKey: scopedKey(Keys.pagesSnapshot)),
            let snapshot = try? JSONDecoder().decode(PagesWidgetSnapshot.self, from: data) {
             return snapshot
         }
-        if let fileURL = containerFolderURL?.appendingPathComponent("pages_snapshot.json"),
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("pages_snapshot")),
            let data = try? Data(contentsOf: fileURL),
            let snapshot = try? JSONDecoder().decode(PagesWidgetSnapshot.self, from: data) {
             return snapshot
@@ -273,20 +299,20 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     public func saveStatusSnapshot(_ snapshot: CFStatusWidgetSnapshot) {
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        userDefaults.set(data, forKey: scopedKey(Keys.statusSnapshot))
         userDefaults.set(data, forKey: Keys.statusSnapshot)
-        userDefaults.synchronize()
-        if let fileURL = containerFolderURL?.appendingPathComponent("status_snapshot.json") {
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("status_snapshot")) {
             try? data.write(to: fileURL, options: .atomic)
         }
         notifyWidgetsToReload()
     }
     
     public func loadStatusSnapshot() -> CFStatusWidgetSnapshot {
-        if let data = userDefaults.data(forKey: Keys.statusSnapshot),
+        if let data = userDefaults.data(forKey: scopedKey(Keys.statusSnapshot)),
            let snapshot = try? JSONDecoder().decode(CFStatusWidgetSnapshot.self, from: data) {
             return snapshot
         }
-        if let fileURL = containerFolderURL?.appendingPathComponent("status_snapshot.json"),
+        if let fileURL = containerFolderURL?.appendingPathComponent(scopedFileName("status_snapshot")),
            let data = try? Data(contentsOf: fileURL),
            let snapshot = try? JSONDecoder().decode(CFStatusWidgetSnapshot.self, from: data) {
             return snapshot
@@ -296,18 +322,28 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     // MARK: - Reload Trigger
     
+    private let reloadLock = NSLock()
+    private var widgetReloadTask: Task<Void, Never>?
+    
     public func notifyWidgetsToReload() {
         #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadTimelines(ofKind: "ZoneOverviewWidget")
-        WidgetCenter.shared.reloadTimelines(ofKind: "WorkerOverviewWidget")
-        WidgetCenter.shared.reloadTimelines(ofKind: "PagesOverviewWidget")
-        WidgetCenter.shared.reloadTimelines(ofKind: "SystemStatusWidget")
-        WidgetCenter.shared.reloadTimelines(ofKind: "QuickActionsWidget")
-        WidgetCenter.shared.reloadAllTimelines()
+        reloadLock.lock()
+        widgetReloadTask?.cancel()
+        widgetReloadTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+            WidgetCenter.shared.reloadTimelines(ofKind: "ZoneOverviewWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "WorkerOverviewWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "PagesOverviewWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "SystemStatusWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "QuickActionsWidget")
+        }
+        reloadLock.unlock()
         #endif
     }
     
     public func clearAll() {
+        userDefaults.removeObject(forKey: Keys.activeAccount)
         userDefaults.removeObject(forKey: Keys.zoneSnapshot)
         userDefaults.removeObject(forKey: Keys.workerSnapshot)
         userDefaults.removeObject(forKey: Keys.pagesSnapshot)
@@ -315,10 +351,12 @@ public final class WidgetDataStore: @unchecked Sendable {
         userDefaults.removeObject(forKey: Keys.allZonesList)
         
         if let container = containerFolderURL {
-            try? FileManager.default.removeItem(at: container.appendingPathComponent("zone_snapshot.json"))
-            try? FileManager.default.removeItem(at: container.appendingPathComponent("worker_snapshot.json"))
-            try? FileManager.default.removeItem(at: container.appendingPathComponent("pages_snapshot.json"))
-            try? FileManager.default.removeItem(at: container.appendingPathComponent("status_snapshot.json"))
+            let fm = FileManager.default
+            if let contents = try? fm.contentsOfDirectory(at: container, includingPropertiesForKeys: nil) {
+                for fileURL in contents where fileURL.pathExtension == "json" {
+                    try? fm.removeItem(at: fileURL)
+                }
+            }
         }
         
         notifyWidgetsToReload()

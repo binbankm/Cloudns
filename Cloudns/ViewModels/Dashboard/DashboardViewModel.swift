@@ -73,6 +73,41 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 }
             }
             .store(in: &cancellables)
+            
+        NotificationCenter.default.publisher(for: .zoneCreated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.fetchDashboard(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
+            
+        NotificationCenter.default.publisher(for: .developerResourceMutated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.fetchDashboard(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
+            
+        NotificationCenter.default.publisher(for: .zoneDeleted)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] notif in
+                guard let self = self else { return }
+                if let deletedId = notif.userInfo?["zoneId"] as? String {
+                    self.zones.removeAll { $0.id == deletedId }
+                    self.recentZones.removeAll { $0.id == deletedId }
+                    self.sparklines.removeValue(forKey: deletedId)
+                    self.refreshRecentZones()
+                } else {
+                    Task { [weak self] in
+                        await self?.fetchDashboard(isRefresh: true)
+                    }
+                }
+            }
+            .store(in: &cancellables)
     }
     
     public func refreshRecentZones() {
@@ -217,7 +252,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                     }
                 }
                 for (id, cache) in batchMap {
-                    await SWRCacheStore.shared.set(cache, forKey: "zone_sparkline_\(id)")
+                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: "zone_sparkline_\(id)")
                 }
             }
         }

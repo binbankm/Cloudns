@@ -60,9 +60,10 @@ class CacheRulesViewModel: BaseLoadableViewModel {
     }
     
     func deleteRule(at offsets: IndexSet) {
-        for index in offsets {
-            let rule = rules[index]
-            Task {
+        let rulesToDelete = offsets.map { rules[$0] }
+        rules.remove(atOffsets: offsets)
+        Task {
+            for rule in rulesToDelete {
                 await performDelete(ruleId: rule.id)
             }
         }

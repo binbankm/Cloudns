@@ -88,12 +88,14 @@ class AccountManager: ObservableObject {
         KeychainHelper.standard.saveString(apiKey, service: serviceName, account: email)
         activeEmail = email
         isLoggedIn = true
+        WidgetDataStore.shared.syncActiveAccount(email)
         loadAccounts()
     }
     
     func switchAccount(to email: String) {
         guard accountEmails.contains(email) else { return }
         activeEmail = email
+        WidgetDataStore.shared.syncActiveAccount(email)
         HapticManager.impact(.medium)
         NotificationCenter.default.post(name: .accountSwitched, object: nil)
     }
@@ -101,6 +103,14 @@ class AccountManager: ObservableObject {
     func removeAccount(email: String) {
         KeychainHelper.standard.delete(service: serviceName, account: email)
         loadAccounts() // This will also handle fallback if the active account was deleted
+        if accountEmails.isEmpty {
+            RecentZonesManager.shared.clearAll()
+            WidgetDataStore.shared.clearAll()
+            Task {
+                await SWRCacheStore.shared.clearAll()
+                await CacheManager.shared.clearAllCaches()
+            }
+        }
         NotificationCenter.default.post(name: .accountSwitched, object: nil)
     }
     

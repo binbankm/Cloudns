@@ -30,28 +30,23 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         clearError: Bool = true,
         action: () async throws -> Void
     ) async {
-        await MainActor.run {
-            isLoading = true
-            if clearError {
-                errorMessage = nil
-            }
+        isLoading = true
+        if clearError {
+            errorMessage = nil
         }
         
         do {
+            try Task.checkCancellation()
             try await action()
-            await MainActor.run {
-                self.lastFetchTime = Date()
-            }
+            self.lastFetchTime = Date()
+        } catch is CancellationError {
+            // Task was cancelled by SwiftUI lifecycle or manual cancellation; do not treat as an error
         } catch {
-            await MainActor.run {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
         
-        await MainActor.run {
-            hasFetchedData = true
-            isLoading = false
-        }
+        hasFetchedData = true
+        isLoading = false
     }
     
     /// 重置加载状态与时间戳
@@ -73,41 +68,60 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         fetcher: @Sendable @escaping () async throws -> T,
         onFresh: @MainActor @Sendable @escaping (T) -> Void
     ) async {
-        let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
+        let initialEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+        let scopedKey = "\(initialEmail)_\(cacheKey)"
         
-        // 1. [Stale] 0ms 从缓存恢复
+        // 1. [Stale] 0ms 内存/磁盘直出
         if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: targetType) {
-            await MainActor.run {
-                onCached(cached)
-                self.hasFetchedData = true
-            }
-        } else if !self.hasFetchedData {
-            await MainActor.run {
-                self.isLoading = true
-            }
+            onCached(cached)
+            self.hasFetchedData = true
+        }
+        
+        if !self.hasFetchedData {
+            self.isLoading = true
         }
         
         // 2. [Revalidate] 后台静默拉取
         do {
+            try Task.checkCancellation()
             let fresh = try await fetcher()
-            // 3. [Update] 更新数据并落盘
-            await MainActor.run {
-                onFresh(fresh)
-                self.hasFetchedData = true
-                self.lastFetchTime = Date()
-                self.errorMessage = nil
+            
+            // 双重安全校验：确认请求完成时当前账号未被切换
+            let currentEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+            guard currentEmail == initialEmail && !currentEmail.isEmpty else {
+                // 账号在网络飞行期间已被切换，安全丢弃旧账号响应，严禁污染新账号/旧账号缓存
+                self.isLoading = false
+                return
             }
+            
+            // 3. [Update] 更新数据并落盘
+            onFresh(fresh)
+            self.hasFetchedData = true
+            self.lastFetchTime = Date()
+            self.errorMessage = nil
             await SWRCacheStore.shared.set(fresh, forKey: scopedKey)
         } catch {
-            await MainActor.run {
-                if !self.hasFetchedData {
-                    self.errorMessage = error.localizedDescription
-                }
+            let currentEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+            if currentEmail == initialEmail && !self.hasFetchedData {
+                self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             }
         }
-        await MainActor.run {
-            self.isLoading = false
-        }
+        self.isLoading = false
+    }
+    
+    public func executeSWR<T: Codable & Sendable>(
+        cacheKey: String,
+        onStale: @MainActor @Sendable @escaping (T) -> Void,
+        fetcher: @Sendable @escaping () async throws -> T,
+        onFresh: @MainActor @Sendable @escaping (T) -> Void
+    ) async {
+        await executeSWR(
+            cacheKey: cacheKey,
+            targetType: T.self,
+            onCached: onStale,
+            fetcher: fetcher,
+            onFresh: onFresh
+        )
     }
 }
 

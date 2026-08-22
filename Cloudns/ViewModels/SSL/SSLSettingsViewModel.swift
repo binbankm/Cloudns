@@ -27,11 +27,8 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
     }
     
     func fetchSettings(zoneId: String) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let res = try await certService.getSSLSettings(zoneId: zoneId)
+        await executeLoadingTask {
+            let res = try await self.certService.getSSLSettings(zoneId: zoneId)
             self.sslMode = res.sslMode
             self.alwaysUseHTTPS = res.alwaysUseHTTPS
             self.automaticHTTPSRewrites = res.automaticHTTPSRewrites
@@ -45,11 +42,7 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
             self.hstsNoSniff = res.hsts.nosniff
             self.hstsPreload = res.hsts.preload
             self.hasFetchedData = true
-        } catch {
-            self.errorMessage = "Failed to fetch SSL settings: \(error.localizedDescription)"
         }
-        
-        isLoading = false
     }
     
     func updateSSLMode(zoneId: String, mode: String) async {
@@ -58,6 +51,8 @@ class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateSSLMode(zoneId: zoneId, mode: mode)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
             ToastManager.shared.showSuccess("SSL/TLS Mode", message: "Updated to \(mode.capitalized)")
         } catch {
             self.sslMode = previous

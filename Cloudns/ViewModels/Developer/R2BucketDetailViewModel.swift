@@ -38,4 +38,9 @@ class R2BucketDetailViewModel: BaseLoadableViewModel {
         try await r2Service.putR2Object(accountId: accountId, bucketName: bucket.name, objectKey: key, data: data, contentType: contentType)
         await fetchObjects()
     }
+    
+    func uploadObjectFromFile(key: String, fileURL: URL, contentType: String = "application/octet-stream") async throws {
+        try await r2Service.uploadR2ObjectFromFile(accountId: accountId, bucketName: bucket.name, objectKey: key, fileURL: fileURL, contentType: contentType)
+        await fetchObjects()
+    }
 }

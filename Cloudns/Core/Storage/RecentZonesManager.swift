@@ -10,7 +10,8 @@ public final class RecentZonesManager: @unchecked Sendable {
     private init() {}
     
     private var storageKey: String {
-        let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? "default"
+        let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
+            .flatMap { $0.isEmpty ? nil : $0 } ?? "default"
         return "recentZoneIds_\(email)"
     }
     
@@ -35,6 +36,13 @@ public final class RecentZonesManager: @unchecked Sendable {
         NotificationCenter.default.post(name: .recentZonesDidUpdate, object: nil, userInfo: ["zoneId": zoneId])
     }
     
+    public func removeZone(zoneId: String) {
+        guard !zoneId.isEmpty else { return }
+        let current = recentZoneIds.filter { $0 != zoneId }
+        recentZoneIds = current
+        NotificationCenter.default.post(name: .recentZonesDidUpdate, object: nil, userInfo: ["zoneId": zoneId])
+    }
+    
     public func getRecentZones(from allZones: [Zone], limit: Int = 3) -> [Zone] {
         let recents = recentZoneIds.compactMap { id in allZones.first(where: { $0.id == id }) }
         if recents.count >= limit {
@@ -53,8 +61,4 @@ public final class RecentZonesManager: @unchecked Sendable {
         UserDefaults.standard.removeObject(forKey: AppStorageKey.recentZoneIds)
         NotificationCenter.default.post(name: .recentZonesDidUpdate, object: nil)
     }
-}
-
-extension Notification.Name {
-    public static let recentZonesDidUpdate = Notification.Name("CloudnsRecentZonesDidUpdateNotification")
 }

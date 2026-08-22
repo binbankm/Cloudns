@@ -116,6 +116,7 @@ class AnalyticsViewModel: BaseLoadableViewModel {
     }
     
     private func syncAnalyticsToWidget(zoneTag: String) {
+        guard self.loadedDays == 1 else { return }
         Task {
             let current = WidgetDataStore.shared.loadZoneSnapshot()
             var domainName = current.name
@@ -134,12 +135,18 @@ class AnalyticsViewModel: BaseLoadableViewModel {
                 }
             }
             
+            var totalBytes24h = 0
+            for dp in self.dataPoints {
+                totalBytes24h += dp.sum.bytes
+            }
+            
             let snap = ZoneWidgetSnapshot(
                 id: zoneTag,
                 name: domainName,
                 status: status,
                 plan: plan,
                 requests24h: self.totalRequests,
+                bytes24h: totalBytes24h > 0 ? totalBytes24h : current.bytes24h,
                 cachedRatio: self.cachedRatio,
                 threats24h: current.threats24h,
                 isProxied: isProxied,

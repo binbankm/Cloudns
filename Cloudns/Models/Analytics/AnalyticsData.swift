@@ -6,7 +6,7 @@ struct GraphQLResponse<T: Codable & Sendable>: Codable, Sendable {
 }
 
 struct GraphQLError: Codable, Sendable {
-    let message: String
+    let message: String?
 }
 
 struct AnalyticsViewerData: Codable, Sendable {

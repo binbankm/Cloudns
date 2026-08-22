@@ -43,25 +43,12 @@ public final class CacheManager: ObservableObject {
     
     /// 执行四层深度缓存清理并广播通知
     public func clearAllCaches() async {
-        // 1. 清理 SWR 双层持久化缓存
-        await SWRCacheStore.shared.clearAll()
-        
-        // 2. 清理系统网络响应缓存
+        // 1. 清理系统网络响应缓存
         URLCache.shared.removeAllCachedResponses()
         
-        // 3. 异步清理沙盒物理文件
+        // 2. 清理 tmp 目录子项
         await Task.detached(priority: .userInitiated) {
             let fm = FileManager.default
-            
-            // 清理 Caches 目录子项 (保留 Caches 根目录自身)
-            if let cachesDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first,
-               let contents = try? fm.contentsOfDirectory(at: cachesDir, includingPropertiesForKeys: nil) {
-                for fileURL in contents {
-                    try? fm.removeItem(at: fileURL)
-                }
-            }
-            
-            // 清理 tmp 目录子项
             let tmpDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
             if let contents = try? fm.contentsOfDirectory(at: tmpDir, includingPropertiesForKeys: nil) {
                 for fileURL in contents {
@@ -69,6 +56,9 @@ public final class CacheManager: ObservableObject {
                 }
             }
         }.value
+        
+        // 3. 清理并重建 SWR 双层持久化缓存目录
+        await SWRCacheStore.shared.clearAll()
         
         // 4. 重置显示状态为 0 KB
         self.formattedCacheSize = "0 KB"

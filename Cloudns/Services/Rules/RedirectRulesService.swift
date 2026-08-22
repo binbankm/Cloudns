@@ -18,24 +18,20 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
     private init() {}
     
     func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
-        do {
-            let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint")
-            let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
-            guard let rules = ruleset?.rules else { return [] }
-            return rules.compactMap { (r: WAFRule) -> RedirectRuleItem? in
-                guard let ap = r.action_parameters else { return nil }
-                return RedirectRuleItem(
-                    id: r.id,
-                    description: r.description,
-                    expression: r.expression,
-                    targetUrl: ap.from_value?.target_url?.value ?? ap.from_value?.target_url?.expression,
-                    statusCode: ap.from_value?.status_code ?? 301,
-                    preserveQueryString: ap.from_value?.preserve_query_string,
-                    enabled: r.enabled
-                )
-            }
-        } catch {
-            return []
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint")
+        let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
+        guard let rules = ruleset?.rules else { return [] }
+        return rules.compactMap { (r: WAFRule) -> RedirectRuleItem? in
+            guard let ap = r.action_parameters else { return nil }
+            return RedirectRuleItem(
+                id: r.id,
+                description: r.description,
+                expression: r.expression,
+                targetUrl: ap.from_value?.target_url?.value ?? ap.from_value?.target_url?.expression,
+                statusCode: ap.from_value?.status_code ?? 301,
+                preserveQueryString: ap.from_value?.preserve_query_string,
+                enabled: r.enabled
+            )
         }
     }
     

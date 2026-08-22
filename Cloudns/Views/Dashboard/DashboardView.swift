@@ -3,7 +3,7 @@ import Combine
 
 struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
-    @StateObject private var accountManager = AccountManager.shared
+    @ObservedObject private var accountManager = AccountManager.shared
     @State private var showingAccountSheet = false
     
     var body: some View {

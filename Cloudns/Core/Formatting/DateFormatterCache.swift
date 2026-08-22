@@ -76,6 +76,30 @@ enum DateFormatters {
         return formatter
     }()
     
+    private nonisolated static let iso8601FallbackT: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        return formatter
+    }()
+    
+    private nonisolated static let iso8601FallbackSpace: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter
+    }()
+    
+    private nonisolated static let localDiagnosticFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss (zzz)"
+        return formatter
+    }()
+
     // MARK: - Helper Methods
     
     /// 解析分析图表中的日期字符串（支持 ISO8601 或 "yyyy-MM-dd"）
@@ -96,17 +120,12 @@ enum DateFormatters {
         if let date = iso8601.date(from: trimmed) {
             return date
         }
-        // Fallback for RFC3339 without T or non-standard format
-        let fallback = DateFormatter()
-        fallback.locale = Locale(identifier: "en_US_POSIX")
-        fallback.timeZone = TimeZone(secondsFromGMT: 0)
-        
-        fallback.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        if let date = fallback.date(from: trimmed) { return date }
-        
-        fallback.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        if let date = fallback.date(from: trimmed) { return date }
-        
+        if let date = iso8601FallbackT.date(from: trimmed) {
+            return date
+        }
+        if let date = iso8601FallbackSpace.date(from: trimmed) {
+            return date
+        }
         return nil
     }
     
@@ -126,10 +145,6 @@ enum DateFormatters {
     
     /// 将日期格式化为本地时区的诊断日志时间字符串（如 "2026-08-17 18:42:38 (GMT+8)"）
     nonisolated static func formatLocalDiagnosticTimestamp(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss (zzz)"
-        return formatter.string(from: date)
+        return localDiagnosticFormatter.string(from: date)
     }
 }

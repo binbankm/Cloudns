@@ -127,16 +127,15 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
     
     func deleteRecord(at offsets: IndexSet) {
         let recordsToDelete = offsets.map { records[$0] }
+        let idsToDelete = recordsToDelete.map { $0.id }
         
         HapticManager.notification(.warning)
-        
         records.remove(atOffsets: offsets)
+        self.totalCount = max(0, self.totalCount - idsToDelete.count)
         
         Task {
             do {
-                let idsToDelete = recordsToDelete.map { $0.id }
                 try await self.dnsService.batchDNSRecords(zoneId: self.zoneId, deletes: idsToDelete)
-                self.totalCount = max(0, self.totalCount - idsToDelete.count)
             } catch {
                 self.errorMessage = "Failed to batch delete records: \(error.localizedDescription)"
                 await self.fetchRecords(isRefresh: true)

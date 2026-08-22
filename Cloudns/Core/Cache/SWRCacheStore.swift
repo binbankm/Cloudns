@@ -53,7 +53,7 @@ public actor SWRCacheStore {
         NotificationCenter.default.addObserver(
             forName: UIApplication.didReceiveMemoryWarningNotification,
             object: nil,
-            queue: nil
+            queue: .main
         ) { [weak holder] _ in
             holder?.cache.removeAllObjects()
         }
@@ -61,7 +61,8 @@ public actor SWRCacheStore {
     
     /// 构建包含当前账户邮箱的多租户隔离 Cache Key
     public static func accountScopedKey(_ baseKey: String) -> String {
-        let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? "default"
+        let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
+            .flatMap { $0.isEmpty ? nil : $0 } ?? "default"
         return "\(activeEmail)_\(baseKey)"
     }
     
@@ -152,6 +153,15 @@ public actor SWRCacheStore {
         
         let fileURL = diskFileURL(for: key)
         try? data.write(to: fileURL, options: .atomic)
+    }
+    
+    /// 仅写入内存高速缓存，不落盘（适用于高频、短效图表如 Sparkline，避免频繁磁盘 I/O）
+    public func setMemoryOnly<T: Codable & Sendable>(_ value: T, forKey key: String, ttl: TimeInterval? = nil) {
+        let envelope = CacheEnvelope(value: value, timestamp: Date(), ttl: ttl)
+        guard let data = try? encoder.encode(envelope) else { return }
+        
+        let nsKey = key as NSString
+        memoryCache.setObject(data as NSData, forKey: nsKey, cost: data.count)
     }
     
     /// 删除指定缓存 Key

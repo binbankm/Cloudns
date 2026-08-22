@@ -10,9 +10,9 @@ struct SettingsView: View {
     
     @State private var showingLogoutAlert = false
     @State private var showingClearCacheAlert = false
-    @StateObject private var accountManager = AccountManager.shared
-    @StateObject private var cacheManager = CacheManager.shared
-    @StateObject private var iconManager = AppIconManager.shared
+    @ObservedObject private var accountManager = AccountManager.shared
+    @ObservedObject private var cacheManager = CacheManager.shared
+    @ObservedObject private var iconManager = AppIconManager.shared
     
     var body: some View {
         NavigationStack {

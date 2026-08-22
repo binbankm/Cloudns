@@ -126,6 +126,25 @@ public struct Zone: Codable, Identifiable, Equatable, Sendable {
         case account
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "active"
+        self.paused = try container.decodeIfPresent(Bool.self, forKey: .paused) ?? false
+        self.type = try container.decodeIfPresent(String.self, forKey: .type)
+        self.plan = try container.decodeIfPresent(ZonePlan.self, forKey: .plan)
+        self.developmentMode = try container.decodeIfPresent(Int.self, forKey: .developmentMode)
+        self.nameServers = try container.decodeIfPresent([String].self, forKey: .nameServers)
+        self.originalNameServers = try container.decodeIfPresent([String].self, forKey: .originalNameServers)
+        self.originalRegistrar = try container.decodeIfPresent(String.self, forKey: .originalRegistrar)
+        self.originalDnshost = try container.decodeIfPresent(String.self, forKey: .originalDnshost)
+        self.modifiedOn = try container.decodeIfPresent(String.self, forKey: .modifiedOn)
+        self.createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
+        self.activatedOn = try container.decodeIfPresent(String.self, forKey: .activatedOn)
+        self.account = try container.decodeIfPresent(ZoneAccount.self, forKey: .account)
+    }
+    
     /// HIG 骨架屏专用占位数据
     public static let placeholders: [Zone] = (0..<6).map { idx in
         Zone(

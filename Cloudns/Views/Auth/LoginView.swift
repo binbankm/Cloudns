@@ -172,8 +172,14 @@ struct LoginView: View {
                                         .textInputAutocapitalization(.never)
                                         .autocorrectionDisabled()
                                         .focused($focusedField, equals: .apiKey)
-                                        .submitLabel(.done)
+                                        .submitLabel(.go)
                                         .disabled(viewModel.isLoading)
+                                        .onSubmit {
+                                            focusedField = nil
+                                            Task {
+                                                await viewModel.login(onSuccess: onLoginSuccess)
+                                            }
+                                        }
                                 } else {
                                     SecureField("Enter Global API Key", text: $viewModel.apiKey)
                                         .textContentType(.password)
@@ -181,8 +187,14 @@ struct LoginView: View {
                                         .textInputAutocapitalization(.never)
                                         .autocorrectionDisabled()
                                         .focused($focusedField, equals: .apiKey)
-                                        .submitLabel(.done)
+                                        .submitLabel(.go)
                                         .disabled(viewModel.isLoading)
+                                        .onSubmit {
+                                            focusedField = nil
+                                            Task {
+                                                await viewModel.login(onSuccess: onLoginSuccess)
+                                            }
+                                        }
                                 }
                                 
                                 Button {

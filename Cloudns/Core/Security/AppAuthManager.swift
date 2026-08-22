@@ -11,6 +11,8 @@ final class AppAuthManager: ObservableObject {
     @Published var isAuthenticating = false
     @Published var biometryType: LABiometryType = .none
     
+    @Published var isDeviceAuthAvailable: Bool = true
+    
     private var isInBackground = false
     
     private init() {
@@ -20,6 +22,7 @@ final class AppAuthManager: ObservableObject {
     func checkBiometry() {
         let context = LAContext()
         var error: NSError?
+        self.isDeviceAuthAvailable = context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             self.biometryType = context.biometryType
         } else {
@@ -40,21 +43,24 @@ final class AppAuthManager: ObservableObject {
         context.localizedCancelTitle = String(localized: "Cancel")
         var error: NSError?
         
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            do {
-                let success = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
-                if success {
-                    HapticManager.notification(.success)
-                } else {
-                    HapticManager.notification(.warning)
-                }
-                return success
-            } catch {
+        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            self.isDeviceAuthAvailable = false
+            HapticManager.notification(.error)
+            return false
+        }
+        
+        self.isDeviceAuthAvailable = true
+        do {
+            let success = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
+            if success {
+                HapticManager.notification(.success)
+            } else {
                 HapticManager.notification(.warning)
-                return false
             }
-        } else {
-            return true
+            return success
+        } catch {
+            HapticManager.notification(.warning)
+            return false
         }
     }
     

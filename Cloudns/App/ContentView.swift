@@ -12,10 +12,11 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var selectedTab = 0
     @State private var tabViewResetId = UUID()
-    @StateObject private var authManager = AppAuthManager.shared
+    @ObservedObject private var authManager = AppAuthManager.shared
+    @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.scenePhase) private var scenePhase
     
-    @StateObject private var router = DeepLinkRouter.shared
+    @ObservedObject private var router = DeepLinkRouter.shared
     
     var currentLocale: Locale {
         if appLanguage == "system" {
@@ -61,9 +62,28 @@ struct ContentView: View {
                     tabViewResetId = UUID()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                    router.activeDestination = nil
                     tabViewResetId = UUID()
                 }
                 .cloudnsSensorySelection(trigger: selectedTab)
+                .overlay(alignment: .top) {
+                    if !networkMonitor.isConnected {
+                        HStack(spacing: 6) {
+                            Image(systemName: "wifi.slash")
+                                .font(.caption.weight(.bold))
+                            Text("Offline Mode · Showing Cached Data")
+                                .font(.caption.weight(.medium))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(Color.orange.opacity(0.92)))
+                        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
+                        .padding(.top, 4)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
                 .overlay {
                     if isAppLockEnabled {
                         let shouldMask = !authManager.isUnlocked || scenePhase != .active

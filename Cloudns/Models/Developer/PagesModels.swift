@@ -22,6 +22,19 @@ public struct PagesProject: Codable, Identifiable, Equatable, Sendable {
         case deploymentConfigs = "deployment_configs"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Pages Project"
+        self.subdomain = try container.decodeIfPresent(String.self, forKey: .subdomain)
+        self.domains = try container.decodeIfPresent([String].self, forKey: .domains)
+        self.productionBranch = try container.decodeIfPresent(String.self, forKey: .productionBranch)
+        self.createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
+        self.buildConfig = try container.decodeIfPresent(PagesBuildConfig.self, forKey: .buildConfig)
+        self.source = try container.decodeIfPresent(PagesProjectSource.self, forKey: .source)
+        self.deploymentConfigs = try container.decodeIfPresent(PagesDeploymentConfigs.self, forKey: .deploymentConfigs)
+    }
+    
     public init(id: String, name: String, subdomain: String? = "pages.dev", domains: [String]? = nil, productionBranch: String? = "main") {
         self.id = id
         self.name = name

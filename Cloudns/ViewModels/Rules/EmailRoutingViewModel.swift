@@ -139,11 +139,19 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
     }
     
     func deleteRule(at offsets: IndexSet) {
-        for index in offsets {
-            let rule = rules[index]
-            Task {
-                await deleteRule(ruleId: rule.id)
+        let rulesToDelete = offsets.map { rules[$0] }
+        rules.remove(atOffsets: offsets)
+        Task {
+            for rule in rulesToDelete {
+                do {
+                    try await emailService.deleteEmailRoutingRule(zoneId: zoneId, ruleId: rule.id)
+                } catch {
+                    self.errorMessage = error.localizedDescription
+                    await self.fetchData()
+                    break
+                }
             }
+            ToastManager.shared.showSuccess("Email Rule Deleted")
         }
     }
 }

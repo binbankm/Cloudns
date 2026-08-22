@@ -30,6 +30,7 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
     @Published var kvNamespaces: [KVNamespace] = []
     @Published var d1Databases: [D1Database] = []
     @Published var tunnels: [CFTunnel] = []
+    private var cancellables = Set<AnyCancellable>()
     
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
@@ -48,6 +49,15 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
         self.d1Service = d1Service
         self.tunnelService = tunnelService
         super.init()
+        
+        NotificationCenter.default.publisher(for: .developerResourceMutated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.fetchOverview(isRefresh: true)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     var activeTunnelCount: Int {
@@ -55,6 +65,8 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
     }
     
     func resetState() {
+        self.accounts = []
+        self.selectedAccount = nil
         self.workers = []
         self.pagesProjects = []
         self.r2Buckets = []
@@ -82,58 +94,59 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
             }
         }
         
-        // 2. 确保已解析出当前账户
-        if selectedAccount == nil || accounts.isEmpty || isRefresh {
-            if let fetchedAccounts = try? await zoneService.getAccounts(), !fetchedAccounts.isEmpty {
-                self.accounts = fetchedAccounts
-                let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
-                self.selectedAccount = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
-            } else if let fetchedZones = try? await zoneService.getZones().0, let zoneAccount = fetchedZones.first?.account {
-                // Fallback: 如果 getAccounts() 无权限（如单域名 Token），从 Zones 自动提取关联的 Account
-                self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
+        // 2. 确保已解析出当前账户并获取最新资源
+        await executeLoadingTask(clearError: true) {
+            if self.selectedAccount == nil || self.accounts.isEmpty || isRefresh {
+                if let fetchedAccounts = try? await self.zoneService.getAccounts(), !fetchedAccounts.isEmpty {
+                    self.accounts = fetchedAccounts
+                    let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+                    self.selectedAccount = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
+                } else if let fetchedZones = try? await self.zoneService.getZones().0, let zoneAccount = fetchedZones.first?.account {
+                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
+                }
             }
-        }
-        
-        guard let accountId = selectedAccount?.id, !accountId.isEmpty else {
-            return
-        }
-        
-        // 3. [Revalidate] 并发静默拉取开发者各项资源最新数据
-        async let fetchWorkers = (try? await workerService.getWorkers(accountId: accountId)) ?? []
-        async let fetchPages = (try? await pagesService.getPagesProjects(accountId: accountId)) ?? []
-        async let fetchR2 = (try? await r2Service.getR2Buckets(accountId: accountId)) ?? []
-        async let fetchKV = (try? await kvService.getKVNamespaces(accountId: accountId)) ?? []
-        async let fetchD1 = (try? await d1Service.getD1Databases(accountId: accountId)) ?? []
-        async let fetchTunnels = (try? await tunnelService.getTunnels(accountId: accountId)) ?? []
-        
-        let (w, p, r, k, d, t) = await (fetchWorkers, fetchPages, fetchR2, fetchKV, fetchD1, fetchTunnels)
-        
-        self.workers = w
-        self.pagesProjects = p
-        self.r2Buckets = r
-        self.kvNamespaces = k
-        self.d1Databases = d
-        self.tunnels = t
-        self.hasFetchedData = true
-        self.lastFetchTime = Date()
-        
-        // 4. 持久化最新非空快照
-        let snapshot = DeveloperHubSnapshot(
-            workers: w,
-            pagesProjects: p,
-            r2Buckets: r,
-            kvNamespaces: k,
-            d1Databases: d,
-            tunnels: t
-        )
-        await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
-        
-        // 5. 自动同步首个 Worker 和 Pages 到桌面小组件
-        if let firstWorker = w.first {
-            WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: accountId)
-        }
-        if let firstPage = p.first {
-            WidgetDataStore.shared.syncPagesWithAnalytics(project: firstPage, accountId: accountId)
+            
+            guard let accountId = self.selectedAccount?.id, !accountId.isEmpty else {
+                return
+            }
+            
+            // 3. 并发静默拉取开发者各项资源最新数据
+            async let fetchWorkers = (try? await self.workerService.getWorkers(accountId: accountId)) ?? []
+            async let fetchPages = (try? await self.pagesService.getPagesProjects(accountId: accountId)) ?? []
+            async let fetchR2 = (try? await self.r2Service.getR2Buckets(accountId: accountId)) ?? []
+            async let fetchKV = (try? await self.kvService.getKVNamespaces(accountId: accountId)) ?? []
+            async let fetchD1 = (try? await self.d1Service.getD1Databases(accountId: accountId)) ?? []
+            async let fetchTunnels = (try? await self.tunnelService.getTunnels(accountId: accountId)) ?? []
+            
+            let (w, p, r, k, d, t) = await (fetchWorkers, fetchPages, fetchR2, fetchKV, fetchD1, fetchTunnels)
+            
+            self.workers = w
+            self.pagesProjects = p
+            self.r2Buckets = r
+            self.kvNamespaces = k
+            self.d1Databases = d
+            self.tunnels = t
+            self.hasFetchedData = true
+            self.lastFetchTime = Date()
+            
+            // 4. 持久化最新快照
+            let snapshot = DeveloperHubSnapshot(
+                workers: w,
+                pagesProjects: p,
+                r2Buckets: r,
+                kvNamespaces: k,
+                d1Databases: d,
+                tunnels: t
+            )
+            await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
+            
+            // 5. 自动同步首个 Worker 和 Pages 到桌面小组件
+            if let firstWorker = w.first {
+                WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: accountId)
+            }
+            if let firstPage = p.first {
+                WidgetDataStore.shared.syncPagesWithAnalytics(project: firstPage, accountId: accountId)
+            }
         }
     }
 }

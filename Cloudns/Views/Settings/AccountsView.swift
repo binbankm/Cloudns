@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AccountsView: View {
-    @StateObject private var accountManager = AccountManager.shared
+    @ObservedObject private var accountManager = AccountManager.shared
     @State private var isShowingAddAccount = false
     @Environment(\.dismiss) private var dismiss
     

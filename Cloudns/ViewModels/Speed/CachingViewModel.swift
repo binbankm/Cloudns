@@ -22,21 +22,14 @@ class CachingViewModel: BaseLoadableViewModel {
     }
     
     func fetchSettings(zoneId: String) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let res = try await cachingService.getCachingSettings(zoneId: zoneId)
+        await executeLoadingTask {
+            let res = try await self.cachingService.getCachingSettings(zoneId: zoneId)
             self.cacheLevel = res.cacheLevel
             self.browserCacheTTL = res.browserTTL
             self.alwaysOnline = res.alwaysOnline
             self.developmentMode = res.devMode
             self.hasFetchedData = true
-        } catch {
-            self.errorMessage = "Failed to fetch caching settings: \(error.localizedDescription)"
         }
-        
-        isLoading = false
     }
     
     func purgeCacheEverything(zoneId: String) async {
@@ -168,8 +161,9 @@ class CachingViewModel: BaseLoadableViewModel {
         self.developmentMode = isOn
         do {
             try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             ToastManager.shared.showSuccess("Development Mode", message: isOn ? "Enabled (3 hours)" : "Disabled")
-            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
         } catch {
             self.developmentMode = prev
             self.errorMessage = error.localizedDescription

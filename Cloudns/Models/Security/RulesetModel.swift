@@ -30,6 +30,21 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
     let ratelimit: RateLimitConfig?
     let action_parameters: ActionParameters?
     
+    enum CodingKeys: String, CodingKey {
+        case id, action, expression, description, enabled, ratelimit, action_parameters
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.action = try container.decodeIfPresent(String.self, forKey: .action) ?? "block"
+        self.expression = try container.decodeIfPresent(String.self, forKey: .expression) ?? ""
+        self.description = try container.decodeIfPresent(String.self, forKey: .description)
+        self.enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? true
+        self.ratelimit = try container.decodeIfPresent(RateLimitConfig.self, forKey: .ratelimit)
+        self.action_parameters = try container.decodeIfPresent(ActionParameters.self, forKey: .action_parameters)
+    }
+    
     init(
         id: String,
         action: String = "block",

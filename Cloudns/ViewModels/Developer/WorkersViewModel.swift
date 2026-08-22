@@ -54,12 +54,18 @@ class WorkersViewModel: BaseLoadableViewModel {
     
     func createWorker(name: String, code: String) async throws {
         try await workerService.uploadWorkerScript(accountId: accountId, scriptName: name, code: code, isModule: false)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
     
     func deleteWorker(name: String) async {
         do {
             try await workerService.deleteWorker(accountId: accountId, scriptName: name)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+            NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
             ToastManager.shared.showSuccess("Worker Deleted", message: "\(name) removed.")
             await fetchData()
         } catch {
@@ -69,12 +75,18 @@ class WorkersViewModel: BaseLoadableViewModel {
 
     func createPagesProject(name: String, branch: String) async throws {
         _ = try await pagesService.createPagesProject(accountId: accountId, name: name, productionBranch: branch)
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+        await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+        NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
     
     func deletePagesProject(name: String) async {
         do {
             try await pagesService.deletePagesProject(accountId: accountId, projectName: name)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
+            NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
             ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(name) removed.")
             await fetchData()
         } catch {

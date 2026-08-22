@@ -54,9 +54,16 @@ class WorkerTailViewModel: BaseLoadableViewModel {
         }
     }
     
-    func startStream() async {
+    func clearLogs() {
+        self.events = []
+    }
+    
+    func startStream(clearPrevious: Bool = true) async {
         guard !isStreaming else { return }
         errorMessage = nil
+        if clearPrevious {
+            self.events = []
+        }
         isStreaming = true
         isTaskCancelled = false
         
@@ -84,6 +91,9 @@ class WorkerTailViewModel: BaseLoadableViewModel {
     private func startReceiveLoop(for task: URLSessionWebSocketTask) {
         receiveTask?.cancel()
         receiveTask = Task { [weak self] in
+            var buffer: [TailTraceItem] = []
+            var lastFlush = Date()
+            
             while !Task.isCancelled {
                 guard let self = self, self.isStreaming, !self.isTaskCancelled else { break }
                 do {
@@ -99,9 +109,22 @@ class WorkerTailViewModel: BaseLoadableViewModel {
                     }
                     
                     if let d = data, let item = try? JSONDecoder().decode(TailTraceItem.self, from: d) {
-                        self.events.insert(item, at: 0)
-                        if self.events.count > 500 {
-                            self.events.removeLast()
+                        buffer.insert(item, at: 0)
+                    }
+                    
+                    let now = Date()
+                    if buffer.count >= 20 || now.timeIntervalSince(lastFlush) >= 0.15 {
+                        if !buffer.isEmpty {
+                            let batch = buffer
+                            buffer.removeAll(keepingCapacity: true)
+                            lastFlush = now
+                            await MainActor.run {
+                                var merged = batch + self.events
+                                if merged.count > 500 {
+                                    merged = Array(merged.prefix(500))
+                                }
+                                self.events = merged
+                            }
                         }
                     }
                 } catch {
@@ -129,9 +152,5 @@ class WorkerTailViewModel: BaseLoadableViewModel {
             }
             currentSessionId = nil
         }
-    }
-    
-    func clearLogs() {
-        events.removeAll()
     }
 }

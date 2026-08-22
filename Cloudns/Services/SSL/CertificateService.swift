@@ -178,7 +178,10 @@ final class CertificateService: CertificateServiceProtocol {
             let enabled: Bool?
         }
         let (setting, _): (UniversalSSLSettingResult?, ResultInfo?) = try await client.performRequest(request)
-        return setting?.enabled ?? true
+        guard let enabled = setting?.enabled else {
+            throw APIError.decodingError("Universal SSL settings unavailable in response")
+        }
+        return enabled
     }
     
     func updateUniversalSSL(zoneId: String, enabled: Bool) async throws {

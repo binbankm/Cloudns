@@ -10,8 +10,9 @@ struct R2UploadObjectSheetView: View {
     @State private var objectKey = ""
     @State private var uploadMode = 0 // 0: Text, 1: File
     @State private var textContent = ""
-    @State private var selectedFileData: Data?
+    @State private var selectedFileURL: URL?
     @State private var selectedFileName: String?
+    @State private var selectedFileSize: Int64 = 0
     @State private var showingFileImporter = false
     @State private var isUploading = false
     @State private var errorMessage: String?
@@ -22,7 +23,7 @@ struct R2UploadObjectSheetView: View {
         if uploadMode == 0 {
             return !textContent.isEmpty
         } else {
-            return selectedFileData != nil
+            return selectedFileURL != nil
         }
     }
     
@@ -56,14 +57,14 @@ struct R2UploadObjectSheetView: View {
                     }
                 } else {
                     Section(header: Text("Select File")) {
-                        if let name = selectedFileName, let data = selectedFileData {
+                        if let name = selectedFileName, selectedFileURL != nil {
                             HStack {
                                 Image(systemName: "doc.fill")
                                     .foregroundStyle(.blue)
                                     .accessibilityHidden(true)
                                 VStack(alignment: .leading) {
                                     Text(name).font(.body)
-                                    Text(formatBytes(data.count)).font(.caption).foregroundStyle(.secondary)
+                                    Text(formatBytes(Int(selectedFileSize))).font(.caption).foregroundStyle(.secondary)
                                 }
                                 Spacer()
                                 Button("Change") {
@@ -94,15 +95,13 @@ struct R2UploadObjectSheetView: View {
             .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.item]) { result in
                 switch result {
                 case .success(let url):
-                    if url.startAccessingSecurityScopedResource() {
-                        defer { url.stopAccessingSecurityScopedResource() }
-                        if let data = try? Data(contentsOf: url) {
-                            selectedFileData = data
-                            selectedFileName = url.lastPathComponent
-                            if objectKey.isEmpty {
-                                objectKey = url.lastPathComponent
-                            }
-                        }
+                    let values = try? url.resourceValues(forKeys: [.fileSizeKey])
+                    let size = Int64(values?.fileSize ?? 0)
+                    selectedFileURL = url
+                    selectedFileName = url.lastPathComponent
+                    selectedFileSize = size
+                    if objectKey.isEmpty {
+                        objectKey = url.lastPathComponent
                     }
                 case .failure(let err):
                     errorMessage = err.localizedDescription
@@ -120,13 +119,16 @@ struct R2UploadObjectSheetView: View {
                             errorMessage = nil
                             do {
                                 let key = objectKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                                let uploadData: Data
                                 if uploadMode == 0 {
-                                    uploadData = textContent.data(using: .utf8) ?? Data()
-                                } else {
-                                    uploadData = selectedFileData ?? Data()
+                                    let uploadData = textContent.data(using: .utf8) ?? Data()
+                                    try await viewModel.uploadObject(key: key, data: uploadData)
+                                } else if let fileURL = selectedFileURL {
+                                    let accessGranted = fileURL.startAccessingSecurityScopedResource()
+                                    defer {
+                                        if accessGranted { fileURL.stopAccessingSecurityScopedResource() }
+                                    }
+                                    try await viewModel.uploadObjectFromFile(key: key, fileURL: fileURL)
                                 }
-                                try await viewModel.uploadObject(key: key, data: uploadData)
                                 HapticManager.impact(.medium)
                                 ToastManager.shared.showSuccess("Object Uploaded", message: key)
                                 dismiss()

@@ -12,6 +12,13 @@ public struct KVNamespace: Codable, Identifiable, Equatable, Sendable {
         case supportsUrlEncoding = "supports_url_encoding"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.title = try container.decodeIfPresent(String.self, forKey: .title) ?? "Namespace"
+        self.supportsUrlEncoding = try container.decodeIfPresent(Bool.self, forKey: .supportsUrlEncoding)
+    }
+    
     public init(id: String, title: String, supportsUrlEncoding: Bool? = true) {
         self.id = id
         self.title = title

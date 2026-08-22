@@ -17,21 +17,14 @@ class SecurityViewModel: BaseLoadableViewModel {
     }
     
     func fetchSettings(zoneId: String) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let res = try await securityService.getSecuritySettings(zoneId: zoneId)
+        await executeLoadingTask {
+            let res = try await self.securityService.getSecuritySettings(zoneId: zoneId)
             self.securityLevel = res.level
             self.challengeTTL = res.challengeTTL
             self.browserCheck = res.browserCheck
             self.botFightMode = res.botFightMode
             self.hasFetchedData = true
-        } catch {
-            self.errorMessage = "Failed to fetch security settings: \(error.localizedDescription)"
         }
-        
-        isLoading = false
     }
     
     func updateSecurityLevel(zoneId: String, level: String) async {
@@ -40,6 +33,8 @@ class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateSecurityLevel(zoneId: zoneId, level: level)
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
+            NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
             ToastManager.shared.showSuccess("Security Level", message: "Updated to \(level.capitalized)")
         } catch {
             self.securityLevel = previous
