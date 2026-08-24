@@ -20,27 +20,35 @@ struct ZonesListView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    skeletonSection
-                } else if !displayedZones.isEmpty {
-                    zonesSection
+            VStack(spacing: 0) {
+                CloudnsSearchBar(
+                    text: $searchText,
+                    prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+                .background(Color(.systemGroupedBackground))
+                
+                List {
+                    if !viewModel.hasFetchedData && viewModel.isLoading {
+                        skeletonSection
+                    } else if !displayedZones.isEmpty {
+                        zonesSection
+                    }
                 }
+                .listStyle(.insetGrouped)
+                .scrollDismissesKeyboard(.interactively)
+                .centerConstrainedWidth(maxWidth: 840)
             }
-            .listStyle(.insetGrouped)
-            .centerConstrainedWidth(maxWidth: 840)
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("My Domains")
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
-            )
             .refreshable {
                 await viewModel.fetchZones(isRefresh: true)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.addZoneError = nil
                         showAddZoneSheet = true

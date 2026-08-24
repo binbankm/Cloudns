@@ -78,6 +78,7 @@ struct AccountsView: View {
                     isShowingAddAccount = false
                     ToastManager.shared.showSuccess("Account Added")
                 })
+                .presentationDragIndicator(.visible)
             }
             .toastContainer()
         }

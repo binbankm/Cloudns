@@ -2,7 +2,8 @@ import Foundation
 
 // MARK: - RecentZonesManager
 
-public final class RecentZonesManager: @unchecked Sendable {
+@MainActor
+public final class RecentZonesManager {
     public static let shared = RecentZonesManager()
     
     private let maxHistoryCount = 10

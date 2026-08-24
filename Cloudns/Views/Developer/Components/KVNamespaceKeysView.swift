@@ -18,13 +18,23 @@ struct KVNamespaceKeysView: View {
     
     var filteredKeys: [KVKey] {
         if searchKey.isEmpty { return viewModel.keys }
-        return viewModel.keys.filter { $0.name.localizedCaseInsensitiveContains(searchKey) }
+        return viewModel.keys.filter { $0.name.localizedStandardContains(searchKey) }
     }
     
     var body: some View {
-        List {
-            // MARK: - Namespace Metadata (Hidden during search)
-            if searchKey.isEmpty {
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchKey,
+                prompt: "Search Keys"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                // MARK: - Namespace Metadata (Hidden during search)
+                if searchKey.isEmpty {
                 Section(header: Text("Namespace Information")) {
                     HStack {
                         Text("Namespace Name")
@@ -126,14 +136,15 @@ struct KVNamespaceKeysView: View {
         }
         .listStyle(.insetGrouped)
         .centerConstrainedWidth(maxWidth: 840)
+    }
+    .background(Color(.systemGroupedBackground))
         .navigationTitle(namespace.title)
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchKey, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Keys")
         .refreshable {
             await viewModel.fetchKeys()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddSheet = true
                 } label: {

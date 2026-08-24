@@ -2,12 +2,16 @@ import Foundation
 import Security
 
 protocol KeychainHelperProtocol: Sendable {
-    func save(_ data: Data, service: String, account: String)
+    @discardableResult
+    func save(_ data: Data, service: String, account: String) -> OSStatus
     func read(service: String, account: String) -> Data?
     func readAll(service: String) -> [String: String]
-    func delete(service: String, account: String)
-    func deleteAll(service: String)
-    func saveString(_ string: String, service: String, account: String)
+    @discardableResult
+    func delete(service: String, account: String) -> OSStatus
+    @discardableResult
+    func deleteAll(service: String) -> OSStatus
+    @discardableResult
+    func saveString(_ string: String, service: String, account: String) -> OSStatus
     func readString(service: String, account: String) -> String?
 }
 
@@ -16,7 +20,8 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
     
     init() {}
     
-    func save(_ data: Data, service: String, account: String) {
+    @discardableResult
+    func save(_ data: Data, service: String, account: String) -> OSStatus {
         let query = [
             kSecValueData: data,
             kSecAttrService: service,
@@ -30,7 +35,7 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
         
         // Item already exists, thus update it
         if status == errSecDuplicateItem {
-            let query = [
+            let updateQuery = [
                 kSecAttrService: service,
                 kSecAttrAccount: account,
                 kSecClass: kSecClassGenericPassword
@@ -41,8 +46,9 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
                 kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
             ] as CFDictionary
             
-            SecItemUpdate(query, attributesToUpdate)
+            return SecItemUpdate(updateQuery, attributesToUpdate)
         }
+        return status
     }
     
     func read(service: String, account: String) -> Data? {
@@ -85,29 +91,32 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
         return accounts
     }
     
-    func delete(service: String, account: String) {
+    @discardableResult
+    func delete(service: String, account: String) -> OSStatus {
         let query = [
             kSecAttrService: service,
             kSecAttrAccount: account,
             kSecClass: kSecClassGenericPassword
         ] as CFDictionary
         
-        SecItemDelete(query)
+        return SecItemDelete(query)
     }
     
-    func deleteAll(service: String) {
+    @discardableResult
+    func deleteAll(service: String) -> OSStatus {
         let query = [
             kSecAttrService: service,
             kSecClass: kSecClassGenericPassword
         ] as CFDictionary
         
-        SecItemDelete(query)
+        return SecItemDelete(query)
     }
     
     // Convenience for Strings
-    func saveString(_ string: String, service: String, account: String) {
+    @discardableResult
+    func saveString(_ string: String, service: String, account: String) -> OSStatus {
         let data = Data(string.utf8)
-        save(data, service: service, account: account)
+        return save(data, service: service, account: account)
     }
     
     func readString(service: String, account: String) -> String? {

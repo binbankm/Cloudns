@@ -17,6 +17,15 @@ struct WorkerSecretsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Variables & Secrets"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             Picker("Type", selection: $viewModel.selectedTab) {
                 Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
                 Text(viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets").tag("secrets")
@@ -32,9 +41,8 @@ struct WorkerSecretsView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Variables & Secrets")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Variables & Secrets")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddSheet = true
                 } label: {

@@ -11,29 +11,41 @@ struct DurableObjectsView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(DurableObjectNamespace.placeholders) { placeholder in
-                        nsRow(placeholder)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Namespaces"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(DurableObjectNamespace.placeholders) { placeholder in
+                            nsRow(placeholder)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredNamespaces.isEmpty {
-                Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
-                    ForEach(viewModel.filteredNamespaces) { ns in
-                        NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
-                            nsRow(ns)
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredNamespaces.isEmpty {
+                    Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
+                        ForEach(viewModel.filteredNamespaces) { ns in
+                            NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
+                                nsRow(ns)
+                            }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Durable Objects")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Namespaces")
         .refreshable {
             await viewModel.fetchNamespaces()
         }

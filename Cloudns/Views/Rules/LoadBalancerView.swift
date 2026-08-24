@@ -15,27 +15,36 @@ struct LoadBalancerView: View {
     
     private var displayedLoadBalancers: [LoadBalancer] {
         if searchText.isEmpty { return viewModel.loadBalancers }
-        return viewModel.loadBalancers.filter { ($0.name ?? "").localizedCaseInsensitiveContains(searchText) }
+        return viewModel.loadBalancers.filter { ($0.name ?? "").localizedStandardContains(searchText) }
     }
     
     private var displayedPools: [LBPool] {
         if searchText.isEmpty { return viewModel.pools }
         return viewModel.pools.filter {
-            ($0.name ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText)
+            ($0.name ?? "").localizedStandardContains(searchText) ||
+            ($0.description ?? "").localizedStandardContains(searchText)
         }
     }
     
     private var displayedMonitors: [LBMonitor] {
         if searchText.isEmpty { return viewModel.monitors }
         return viewModel.monitors.filter {
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.path ?? "").localizedCaseInsensitiveContains(searchText)
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            ($0.path ?? "").localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Load Balancers, Pools, Monitors"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             Picker("Section", selection: $selectedTab) {
                 Text("Load Balancers").tag(0)
                 Text("Pools").tag(1)
@@ -52,7 +61,6 @@ struct LoadBalancerView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Load Balancers, Pools, Monitors")
         .refreshable {
             await viewModel.fetchData()
         }
@@ -62,7 +70,7 @@ struct LoadBalancerView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     showingAddSheet = true
                 }) {

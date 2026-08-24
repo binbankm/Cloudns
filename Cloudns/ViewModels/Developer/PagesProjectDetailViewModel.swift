@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class PagesProjectDetailViewModel: BaseLoadableViewModel {
+final class PagesProjectDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let project: PagesProject
     private let pagesService: PagesServiceProtocol

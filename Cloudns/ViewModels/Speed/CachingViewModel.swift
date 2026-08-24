@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class CachingViewModel: BaseLoadableViewModel {
+final class CachingViewModel: BaseLoadableViewModel {
     @Published var cacheLevel: String = "basic"
     @Published var browserCacheTTL: Int = 14400
     @Published var alwaysOnline: Bool = false

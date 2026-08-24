@@ -18,6 +18,25 @@ struct ZoneHeaderCardView: View {
             : [Color(red: 0.72, green: 0.35, blue: 0.0), Color(red: 0.85, green: 0.20, blue: 0.15)]
     }
 
+    private var statusDisplayText: LocalizedStringKey {
+        switch zone.status.lowercased() {
+        case "active":
+            return "Active"
+        case "pending":
+            return "Pending"
+        case "initializing":
+            return "Initializing"
+        case "moved":
+            return "Moved"
+        case "deleted":
+            return "Deleted"
+        case "deactivated":
+            return "Deactivated"
+        default:
+            return LocalizedStringKey(zone.status.capitalized)
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // ── Top Row: Domain Name + Plan & Type Badges ──────────────────
@@ -58,7 +77,7 @@ struct ZoneHeaderCardView: View {
                 HStack(spacing: 3.5) {
                     Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .font(.caption2.weight(.semibold))
-                    Text(zone.status.capitalized)
+                    Text(statusDisplayText)
                         .font(.caption2.weight(.medium))
                         .lineLimit(1)
                 }

@@ -6,7 +6,7 @@ final class AuthenticatedRequestFactory: Sendable {
     static let shared = AuthenticatedRequestFactory()
     
     let baseURL = "https://api.cloudflare.com/client/v4"
-    let serviceName = "com.cloudflare.api"
+    let serviceName = AppStorageKey.keychainService
     
     private init() {}
     
@@ -20,6 +20,30 @@ final class AuthenticatedRequestFactory: Sendable {
     ) throws -> URLRequest {
         let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
         guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+            throw APIError.unauthorized
+        }
+        return try createExplicitAuthenticatedRequest(
+            email: email,
+            apiKey: apiKey,
+            path: path,
+            queryItems: queryItems,
+            method: method,
+            body: body,
+            contentType: contentType
+        )
+    }
+    
+    /// 构建显式指定凭证的 URLRequest（用于安全登录验证，无需提前写入 Keychain）
+    func createExplicitAuthenticatedRequest(
+        email: String,
+        apiKey: String,
+        path: String,
+        queryItems: [URLQueryItem]? = nil,
+        method: String = "GET",
+        body: Data? = nil,
+        contentType: String = "application/json"
+    ) throws -> URLRequest {
+        guard !email.isEmpty, !apiKey.isEmpty else {
             throw APIError.unauthorized
         }
         

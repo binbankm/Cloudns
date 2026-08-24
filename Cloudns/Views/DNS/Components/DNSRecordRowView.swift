@@ -48,6 +48,7 @@ struct DNSRecordRowView: View {
                             record.proxied == true ? .proxied("Proxied") : .dnsOnly("DNS Only"),
                             isCompact: true
                         )
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: record.proxied)
                     }
                     .buttonStyle(.plain)
                 } else {

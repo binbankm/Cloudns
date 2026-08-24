@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class TurnstileViewModel: BaseLoadableViewModel {
+final class TurnstileViewModel: BaseLoadableViewModel {
     let accountId: String
     private let turnstileService: TurnstileServiceProtocol
     
@@ -18,7 +18,7 @@ class TurnstileViewModel: BaseLoadableViewModel {
     
     var filteredWidgets: [TurnstileWidget] {
         if searchText.isEmpty { return widgets }
-        return widgets.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return widgets.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     func fetchWidgets() async {

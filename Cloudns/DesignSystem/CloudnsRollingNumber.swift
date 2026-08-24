@@ -23,15 +23,15 @@ public struct CloudnsRollingNumber: View {
     public var body: some View {
         if #available(iOS 17.0, *) {
             Text(value)
-                .font(font.weight(weight))
+                .font(font.monospacedDigit().weight(weight))
                 .foregroundStyle(color)
                 .contentTransition(.numericText(value: 1.0))
-                .animation(.snappy(duration: 0.35), value: value)
+                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: value)
         } else {
             Text(value)
-                .font(font.weight(weight))
+                .font(font.monospacedDigit().weight(weight))
                 .foregroundStyle(color)
-                .animation(.easeInOut(duration: 0.25), value: value)
+                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: value)
         }
     }
 }

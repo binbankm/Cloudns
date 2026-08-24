@@ -133,28 +133,41 @@ public struct ZoneRowSparklineView: View {
         self.cached = cached
     }
     
+    @Environment(\.redactionReasons) private var redactionReasons
+    
+    private var isRedacted: Bool {
+        redactionReasons.contains(.placeholder)
+    }
+    
     public var body: some View {
-        let points = cached?.points ?? []
-        let total = cached?.totalRequests ?? 0
-        
-        HStack(spacing: 5) {
-            ZoneTrafficSparklineView(
-                data: points,
-                lineColor: sparklineColor(total: total),
-                lineWidth: 1.5
-            )
-            .frame(width: 44, height: 22)
+        if isRedacted {
+            Capsule()
+                .fill(Color(.tertiarySystemFill))
+                .frame(width: 48, height: 16)
+                .accessibilityHidden(true)
+        } else {
+            let points = cached?.points ?? []
+            let total = cached?.totalRequests ?? 0
             
-            if total > 0 {
-                Text(formatMetric(total))
-                    .font(.system(.caption2, design: .rounded, weight: .bold))
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
+            HStack(spacing: 5) {
+                ZoneTrafficSparklineView(
+                    data: points,
+                    lineColor: sparklineColor(total: total),
+                    lineWidth: 1.5
+                )
+                .frame(width: 44, height: 22)
+                
+                if total > 0 {
+                    Text(formatMetric(total))
+                        .font(.system(.caption2, design: .rounded, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
             }
+            .accessibilityHidden(true)
         }
-        .accessibilityHidden(true)
     }
     
     private func sparklineColor(total: Int) -> Color {

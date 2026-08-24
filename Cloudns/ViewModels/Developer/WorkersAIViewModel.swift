@@ -17,7 +17,7 @@ public struct AIChatMessageItem: Identifiable, Equatable {
 }
 
 @MainActor
-class WorkersAIViewModel: BaseLoadableViewModel {
+final class WorkersAIViewModel: BaseLoadableViewModel {
     let accountId: String
     private let aiService: AIServiceProtocol
     
@@ -38,9 +38,9 @@ class WorkersAIViewModel: BaseLoadableViewModel {
     var filteredModels: [AIModel] {
         if searchText.isEmpty { return models }
         return models.filter {
-            $0.shortName.localizedCaseInsensitiveContains(searchText) ||
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            $0.taskName.localizedCaseInsensitiveContains(searchText)
+            $0.shortName.localizedStandardContains(searchText) ||
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            $0.taskName.localizedStandardContains(searchText)
         }
     }
     

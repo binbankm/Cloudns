@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class SpeedSettingsViewModel: BaseLoadableViewModel {
+final class SpeedSettingsViewModel: BaseLoadableViewModel {
     // Speed Settings
     @Published var brotli: Bool = false
     @Published var rocketLoader: Bool = false

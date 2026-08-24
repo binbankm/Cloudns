@@ -70,7 +70,7 @@ struct AddGatewayRuleSheetView: View {
                 
                 // MARK: - 2. Quick Templates
                 Section(header: Text("Expression Templates")) {
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    ScrollView(.horizontal) {
                         HStack(spacing: 8) {
                             ForEach(expressionTemplates, id: \.name) { t in
                                 Button {
@@ -91,8 +91,9 @@ struct AddGatewayRuleSheetView: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, 4)
                     }
+                    .scrollIndicators(.hidden)
                 }
                 
                 // MARK: - 3. Traffic Expression

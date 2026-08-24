@@ -14,65 +14,78 @@ struct AccessAppsView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AccessApp.placeholders) { placeholder in
-                        appRow(placeholder)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Applications"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(AccessApp.placeholders) { placeholder in
+                            appRow(placeholder)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredApps.isEmpty {
-                Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
-                    ForEach(viewModel.filteredApps) { app in
-                        NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
-                            appRow(app)
-                        }
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = app.domain
-                                HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Domain copied")
-                            } label: {
-                                Label("Copy Domain", systemImage: "doc.on.doc")
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredApps.isEmpty {
+                    Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
+                        ForEach(viewModel.filteredApps) { app in
+                            NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
+                                appRow(app)
                             }
-                            
-                            Button {
-                                UIPasteboard.general.string = app.name
-                                HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Name copied")
-                            } label: {
-                                Label("Copy App Name", systemImage: "doc.on.doc")
+                            .contentShape(Rectangle())
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = app.domain
+                                    HapticManager.notification(.success)
+                                    ToastManager.shared.showCopied("Domain copied")
+                                } label: {
+                                    Label("Copy Domain", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    UIPasteboard.general.string = app.name
+                                    HapticManager.notification(.success)
+                                    ToastManager.shared.showCopied("Name copied")
+                                } label: {
+                                    Label("Copy App Name", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    appToDelete = app
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete Application", systemImage: "trash")
+                                }
                             }
-                            
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                appToDelete = app
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete Application", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                appToDelete = app
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    appToDelete = app
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Access Applications")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddSheet = true
                 } label: {
@@ -84,7 +97,6 @@ struct AccessAppsView: View {
         .sheet(isPresented: $showingAddSheet) {
             AddAccessAppSheetView(viewModel: viewModel)
         }
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Applications")
         .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
             Button("Delete '\(app.name)'", role: .destructive) {
                 Task { await viewModel.deleteApp(id: app.id) }

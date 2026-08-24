@@ -2,167 +2,220 @@ import SwiftUI
 
 struct WhoisToolView: View {
     @StateObject private var viewModel = WhoisViewModel()
+    @FocusState private var isFieldFocused: Bool
     
     let presets = ["cloudflare.com", "apple.com", "github.com", "google.com"]
     
     var body: some View {
-        List {
-            // MARK: - Query Input
-            Section(header: Text("WHOIS & RDAP Lookup"), footer: Text("Queries global IANA RDAP directory over encrypted HTTPS (no account needed).")) {
-                HStack(spacing: 8) {
-                    Image(systemName: "globe")
-                        .foregroundStyle(.teal)
-                    
-                    TextField("example.com", text: $viewModel.domainInput)
-                        .keyboardType(.URL)
-                        .font(.body.monospacedDigit())
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.search)
-                        .onSubmit {
-                            Task { await viewModel.performLookup() }
-                        }
-                    
-                    if !viewModel.domainInput.isEmpty {
-                        Button {
-                            viewModel.domainInput = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    
-                    Button {
-                        Task { await viewModel.performLookup() }
-                    } label: {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        } else {
-                            Text("Query")
-                                .fontWeight(.semibold)
-                        }
-                    }
-                    .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
-                }
-                
-                // Quick Presets
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(presets, id: \.self) { preset in
-                            Button {
-                                viewModel.domainInput = preset
-                                Task { await viewModel.performLookup() }
-                            } label: {
-                                Text(preset)
-                                    .font(.caption.monospacedDigit())
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
-                                    .background(Color(UIColor.tertiarySystemFill))
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
+        ZStack {
+            Color(.systemGroupedBackground).ignoresSafeArea()
             
-            if viewModel.isLoading && viewModel.info == nil {
-                whoisDetailsView(info: WhoisInfo.placeholder)
-                    .skeletonLoading(true)
-            } else if let error = viewModel.errorMessage {
-                Section {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                        Text(error)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 1. Query & Presets Card
+                    queryCard
+                    
+                    if viewModel.isLoading && viewModel.info == nil {
+                        loadingSkeletonView
+                    } else if let info = viewModel.info {
+                        // 2. Registration Hero Card
+                        registrationCard(info: info)
+                        
+                        // 3. Domain Statuses Card
+                        if !info.statuses.isEmpty {
+                            statusesCard(info: info)
+                        }
+                        
+                        // 4. Nameservers Card
+                        if !info.nameservers.isEmpty {
+                            nameserversCard(info: info)
+                        }
+                    } else if let error = viewModel.errorMessage {
+                        errorCard(message: error)
                     }
-                    .padding(.vertical, 4)
                 }
-            } else if let info = viewModel.info {
-                whoisDetailsView(info: info)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .centerConstrainedWidth(maxWidth: 840)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .refreshable {
+                if !viewModel.domainInput.isEmpty {
+                    HapticManager.impact(.light)
+                    await viewModel.performLookup()
+                }
             }
         }
-        .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
-        .navigationTitle("WHOIS")
+        .navigationTitle("WHOIS & RDAP")
         .navigationBarTitleDisplayMode(.inline)
     }
     
+    // MARK: - 1. Query Card
+    private var queryCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.title3)
+                    .foregroundStyle(.teal)
+                    .accessibilityHidden(true)
+                
+                TextField("example.com", text: $viewModel.domainInput)
+                    .keyboardType(.URL)
+                    .font(.body.monospacedDigit())
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($isFieldFocused)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        performLookup()
+                    }
+                
+                if !viewModel.domainInput.isEmpty {
+                    Button {
+                        viewModel.domainInput = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("Clear input")
+                }
+            }
+            .padding(12)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            
+            // Quick Presets
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(presets, id: \.self) { preset in
+                        Button {
+                            viewModel.domainInput = preset
+                            performLookup()
+                        } label: {
+                            Text(preset)
+                                .font(.caption.weight(.medium).monospacedDigit())
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.teal.opacity(0.10))
+                                .foregroundStyle(.teal)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+            
+            Button {
+                performLookup()
+            } label: {
+                HStack(spacing: 6) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "globe")
+                    }
+                    Text(viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory")
+                        .font(.body.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.teal)
+            .controlSize(.regular)
+            .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    private func performLookup() {
+        isFieldFocused = false
+        HapticManager.impact(.light)
+        Task { await viewModel.performLookup() }
+    }
+    
+    // MARK: - 2. Registration Card
     @ViewBuilder
-    private func whoisDetailsView(info: WhoisInfo) -> some View {
-        Section(header: Text("Registration Information")) {
+    private func registrationCard(info: WhoisInfo) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Domain Name")
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Domain Registration")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(info.domain)
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.primary)
+                }
+                
                 Spacer()
-                Text(info.domain)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-            }
-            
-            if let reg = info.registrar {
-                HStack {
-                    Text("Registrar")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(reg)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .multilineTextAlignment(.trailing)
+                
+                if let reg = info.registrar {
+                    CloudnsBadge(.active(reg), isCompact: true)
                 }
             }
             
-            if let created = info.created {
-                HStack {
-                    Text("Created Date")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(formatDate(created))
-                        .font(.body.monospacedDigit())
-                        .foregroundStyle(.primary)
-                }
-            }
+            Divider()
             
-            if let updated = info.updated {
-                HStack {
-                    Text("Updated Date")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(formatDate(updated))
-                        .font(.body.monospacedDigit())
-                        .foregroundStyle(.primary)
+            VStack(spacing: 10) {
+                if let created = info.created {
+                    infoRow(title: "Created Date", value: formatDate(created))
                 }
-            }
-            
-            if let expires = info.expires {
-                HStack {
-                    Text("Expiration Date")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(formatDate(expires))
-                            .font(.body.monospacedDigit())
-                            .foregroundStyle(.primary)
-                        
-                        let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
-                        Text(days > 0 ? "\(days) days remaining" : "Expired")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(days > 30 ? .green : .red)
+                if let updated = info.updated {
+                    infoRow(title: "Updated Date", value: formatDate(updated))
+                }
+                if let expires = info.expires {
+                    HStack {
+                        Text("Expiration Date")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(formatDate(expires))
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.primary)
+                            
+                            let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
+                            Text(days > 0 ? "\(days) days remaining" : "Expired")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(days > 30 ? .green : .red)
+                        }
                     }
                 }
             }
         }
-        
-        // MARK: - Domain Statuses
-        if !info.statuses.isEmpty {
-            Section(header: Text("Domain Statuses (\(info.statuses.count))")) {
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    @ViewBuilder
+    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.primary)
+        }
+    }
+    
+    // MARK: - 3. Statuses Card
+    @ViewBuilder
+    private func statusesCard(info: WhoisInfo) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Registry Statuses (\(info.statuses.count))")
+                .font(.headline)
+                .foregroundStyle(.primary)
+            
+            Divider()
+            
+            VStack(alignment: .leading, spacing: 8) {
                 ForEach(info.statuses, id: \.self) { status in
                     HStack(spacing: 8) {
                         Circle()
@@ -172,14 +225,24 @@ struct WhoisToolView: View {
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.primary)
                     }
-                    .padding(.vertical, 2)
                 }
             }
         }
-        
-        // MARK: - Nameservers
-        if !info.nameservers.isEmpty {
-            Section(header: Text("Authoritative Nameservers (\(info.nameservers.count))")) {
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 4. Nameservers Card
+    @ViewBuilder
+    private func nameserversCard(info: WhoisInfo) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Authoritative Nameservers (\(info.nameservers.count))")
+                .font(.headline)
+                .foregroundStyle(.primary)
+            
+            Divider()
+            
+            VStack(spacing: 8) {
                 ForEach(info.nameservers, id: \.self) { ns in
                     HStack {
                         Image(systemName: "server.rack")
@@ -197,14 +260,52 @@ struct WhoisToolView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.blue)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Copy \(ns.lowercased())")
                     }
                     .padding(.vertical, 2)
                 }
             }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - Error Card
+    @ViewBuilder
+    private func errorCard(message: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title3)
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Lookup Failed")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - Skeleton View
+    private var loadingSkeletonView: some View {
+        VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Domain Registration")
+                    .font(.caption)
+                Text("example.com")
+                    .font(.title3.weight(.bold))
+                Divider()
+                Text("Created Date")
+                Text("Expiration Date")
+            }
+            .padding(16)
+            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .skeletonLoading(true)
         }
     }
     

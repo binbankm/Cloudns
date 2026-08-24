@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class LoginViewModel: BaseLoadableViewModel {
+final class LoginViewModel: BaseLoadableViewModel {
     @Published var email: String = ""
     @Published var apiKey: String = ""
     
@@ -29,28 +29,25 @@ class LoginViewModel: BaseLoadableViewModel {
         
         isLoading = true
         
-        // Save temporarily to validate
-        let previousActive = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
-        UserDefaults.standard.set(trimmedEmail, forKey: AppStorageKey.activeAccountEmail)
-        KeychainHelper.standard.saveString(trimmedKey, service: AppStorageKey.keychainService, account: trimmedEmail)
-        
         do {
-            // Validate credentials by attempting to fetch zones
-            _ = try await zoneService.getZones(page: 1, perPage: 1, name: nil, status: nil)
+            // Validate credentials by attempting to fetch zones with explicit credentials
+            let request = try AuthenticatedRequestFactory.shared.createExplicitAuthenticatedRequest(
+                email: trimmedEmail,
+                apiKey: trimmedKey,
+                path: "zones",
+                queryItems: [
+                    URLQueryItem(name: "page", value: "1"),
+                    URLQueryItem(name: "per_page", value: "1")
+                ]
+            )
+            let (_, _): ([Zone]?, ResultInfo?) = try await HTTPNetworkClient.shared.performRequest(request)
             
-            // If successful, permanently add to AccountManager
+            // If validated successfully, permanently add to AccountManager
             AccountManager.shared.addAccount(email: trimmedEmail, apiKey: trimmedKey)
             hasFetchedData = true
             onSuccess?()
         } catch {
-            // If failed, remove from keychain and rollback active email
-            KeychainHelper.standard.delete(service: AppStorageKey.keychainService, account: trimmedEmail)
-            if let prev = previousActive {
-                UserDefaults.standard.set(prev, forKey: AppStorageKey.activeAccountEmail)
-            } else {
-                UserDefaults.standard.removeObject(forKey: AppStorageKey.activeAccountEmail)
-            }
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
         
         isLoading = false

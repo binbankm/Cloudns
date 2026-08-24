@@ -23,12 +23,12 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
     
     var filteredVariables: [WorkerBinding] {
         if searchText.isEmpty { return plainVariables }
-        return plainVariables.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.text?.localizedCaseInsensitiveContains(searchText) ?? false) }
+        return plainVariables.filter { $0.name.localizedStandardContains(searchText) || ($0.text?.localizedStandardContains(searchText) ?? false) }
     }
     
     var filteredSecrets: [WorkerSecret] {
         if searchText.isEmpty { return secrets }
-        return secrets.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return secrets.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     var resourceBindings: [WorkerBinding] {

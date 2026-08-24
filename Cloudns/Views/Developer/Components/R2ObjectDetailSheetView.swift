@@ -73,7 +73,7 @@ struct R2ObjectDetailSheetView: View {
             .navigationTitle("Object Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
             }

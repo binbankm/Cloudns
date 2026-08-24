@@ -16,48 +16,60 @@ struct WorkerDeploymentsView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(WorkerDeployment.placeholders) { placeholder in
-                        deploymentRow(placeholder, isLatest: placeholder.number == 4)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Deployments"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(WorkerDeployment.placeholders) { placeholder in
+                            deploymentRow(placeholder, isLatest: placeholder.number == 4)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredDeployments.isEmpty {
-                Section(header: Text("Deployments (\(viewModel.deployments.count))"), footer: Text("Roll back to any previous deployment to instantly restore Worker code and configuration.")) {
-                    ForEach(Array(viewModel.filteredDeployments.enumerated()), id: \.element.id) { index, dep in
-                        deploymentRow(dep, isLatest: index == 0)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                if index != 0 {
-                                    Button {
-                                        HapticManager.impact(.medium)
-                                        deploymentToRollback = dep
-                                        showingRollbackAlert = true
-                                    } label: {
-                                        Label("Rollback", systemImage: "arrow.uturn.backward")
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredDeployments.isEmpty {
+                    Section(header: Text("Deployments (\(viewModel.deployments.count))"), footer: Text("Roll back to any previous deployment to instantly restore Worker code and configuration.")) {
+                        ForEach(Array(viewModel.filteredDeployments.enumerated()), id: \.element.id) { index, dep in
+                            deploymentRow(dep, isLatest: index == 0)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    if index != 0 {
+                                        Button {
+                                            HapticManager.impact(.medium)
+                                            deploymentToRollback = dep
+                                            showingRollbackAlert = true
+                                        } label: {
+                                            Label("Rollback", systemImage: "arrow.counterclockwise")
+                                        }
+                                        .tint(.orange)
                                     }
-                                    .tint(.orange)
+                                    
+                                    Button {
+                                        UIPasteboard.general.string = dep.id
+                                        HapticManager.notification(.success)
+                                        ToastManager.shared.showCopied("Deployment ID copied")
+                                    } label: {
+                                        Label("Copy ID", systemImage: "doc.on.doc")
+                                    }
+                                    .tint(.blue)
                                 }
-                                
-                                Button {
-                                    UIPasteboard.general.string = dep.id
-                                    HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Deployment ID copied")
-                                } label: {
-                                    Label("Copy ID", systemImage: "doc.on.doc")
-                                }
-                                .tint(.blue)
-                            }
+                        }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Deployments")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Deployments")
         .refreshable {
             await viewModel.fetchDeployments()
         }

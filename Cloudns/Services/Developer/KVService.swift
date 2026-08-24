@@ -70,10 +70,7 @@ final class KVService: KVServiceProtocol {
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)")
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.invalidResponse
-        }
+        let data = try await client.performDataRequest(request)
         return String(data: data, encoding: .utf8) ?? ""
     }
     

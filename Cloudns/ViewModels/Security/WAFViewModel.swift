@@ -70,7 +70,7 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
-            ToastManager.shared.showSuccess("Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription

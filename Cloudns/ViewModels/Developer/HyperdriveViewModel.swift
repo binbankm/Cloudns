@@ -18,7 +18,7 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
     
     var filteredConfigs: [HyperdriveConfig] {
         if searchText.isEmpty { return configs }
-        return configs.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.origin?.host ?? "").localizedCaseInsensitiveContains(searchText) }
+        return configs.filter { $0.name.localizedStandardContains(searchText) || ($0.origin?.host ?? "").localizedStandardContains(searchText) }
     }
     
     func fetchConfigs() async {
@@ -42,7 +42,7 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
     func deleteConfig(id: String) async {
         do {
             try await hyperdriveService.deleteHyperdriveConfig(accountId: accountId, configId: id)
-            ToastManager.shared.showSuccess("Hyperdrive Deleted", message: "")
+            ToastManager.shared.showSuccess("Hyperdrive Deleted")
             await fetchConfigs()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

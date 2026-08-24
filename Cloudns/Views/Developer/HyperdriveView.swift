@@ -14,40 +14,52 @@ struct HyperdriveView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(HyperdriveConfig.placeholders) { placeholder in
-                        configRow(placeholder)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredConfigs.isEmpty {
-                Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
-                    ForEach(viewModel.filteredConfigs) { config in
-                        NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
-                            configRow(config)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Hyperdrive"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(HyperdriveConfig.placeholders) { placeholder in
+                            configRow(placeholder)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                configToDelete = config
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                    }
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredConfigs.isEmpty {
+                    Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
+                        ForEach(viewModel.filteredConfigs) { config in
+                            NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
+                                configRow(config)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    configToDelete = config
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Hyperdrive")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Hyperdrive")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingCreateSheet = true
                 } label: {

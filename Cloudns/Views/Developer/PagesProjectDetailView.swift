@@ -21,7 +21,7 @@ struct PagesProjectDetailView: View {
             .navigationTitle(project.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
                             Link(destination: url) {

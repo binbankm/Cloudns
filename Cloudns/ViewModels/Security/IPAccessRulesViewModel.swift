@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class IPAccessRulesViewModel: BaseLoadableViewModel {
+final class IPAccessRulesViewModel: BaseLoadableViewModel {
     @Published var rules: [IPAccessRule] = []
     @Published var isCreating: Bool = false
     
@@ -61,7 +61,7 @@ class IPAccessRulesViewModel: BaseLoadableViewModel {
         do {
             try await securityService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             self.rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("IP Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("IP Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription

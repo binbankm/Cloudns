@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class CacheRulesViewModel: BaseLoadableViewModel {
+final class CacheRulesViewModel: BaseLoadableViewModel {
     let zoneId: String
     private let wafService: WAFRulesServiceProtocol
     
@@ -75,7 +75,7 @@ class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription

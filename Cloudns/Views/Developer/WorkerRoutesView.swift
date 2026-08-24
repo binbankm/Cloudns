@@ -18,7 +18,7 @@ struct WorkerRoutesView: View {
             .navigationTitle("Domains & Routes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAttachSheet = true
                     } label: {

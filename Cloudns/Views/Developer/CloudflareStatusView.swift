@@ -63,6 +63,15 @@ struct CloudflareStatusView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             // Segmented Picker Header (Standard pattern across app)
             Picker("Category", selection: $selectedTab) {
                 Text(viewModel.hasFetchedData ? "Issues (\(issuesComponents.count))" : "Issues").tag(StatusFilterTab.issues)
@@ -80,13 +89,8 @@ struct CloudflareStatusView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
-        )
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 if let url = URL(string: "https://www.cloudflarestatus.com") {
                     Link(destination: url) {
                         Image(systemName: "safari")

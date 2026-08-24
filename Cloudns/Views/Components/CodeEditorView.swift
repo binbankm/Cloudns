@@ -37,7 +37,7 @@ struct CodeEditorView: UIViewRepresentable {
         Coordinator(self)
     }
     
-    class Coordinator: NSObject, UITextViewDelegate {
+    final class Coordinator: NSObject, UITextViewDelegate {
         var parent: CodeEditorView
         
         init(_ parent: CodeEditorView) {

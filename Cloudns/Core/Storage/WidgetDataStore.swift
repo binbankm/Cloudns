@@ -5,7 +5,8 @@ import WidgetKit
 
 // MARK: - WidgetDataStore
 
-public final class WidgetDataStore: @unchecked Sendable {
+@MainActor
+public final class WidgetDataStore {
     public static let shared = WidgetDataStore()
     
     public static let appGroupIdentifier = "group.com.lbyan.Cloudns"
@@ -322,12 +323,10 @@ public final class WidgetDataStore: @unchecked Sendable {
     
     // MARK: - Reload Trigger
     
-    private let reloadLock = NSLock()
     private var widgetReloadTask: Task<Void, Never>?
     
     public func notifyWidgetsToReload() {
         #if canImport(WidgetKit)
-        reloadLock.lock()
         widgetReloadTask?.cancel()
         widgetReloadTask = Task {
             try? await Task.sleep(nanoseconds: 500_000_000)
@@ -338,7 +337,6 @@ public final class WidgetDataStore: @unchecked Sendable {
             WidgetCenter.shared.reloadTimelines(ofKind: "SystemStatusWidget")
             WidgetCenter.shared.reloadTimelines(ofKind: "QuickActionsWidget")
         }
-        reloadLock.unlock()
         #endif
     }
     

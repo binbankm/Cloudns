@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class TunnelsViewModel: BaseLoadableViewModel {
+final class TunnelsViewModel: BaseLoadableViewModel {
     let accountId: String
     private let tunnelService: TunnelServiceProtocol
     
@@ -18,7 +18,7 @@ class TunnelsViewModel: BaseLoadableViewModel {
     
     var filteredTunnels: [CFTunnel] {
         if searchText.isEmpty { return tunnels }
-        return tunnels.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return tunnels.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     func fetchTunnels() async {

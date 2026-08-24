@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class SecurityEventsViewModel: BaseLoadableViewModel {
+final class SecurityEventsViewModel: BaseLoadableViewModel {
     @Published var events: [SecurityEvent] = []
     
     private let securityService: SecuritySettingsServiceProtocol

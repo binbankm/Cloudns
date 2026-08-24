@@ -9,7 +9,7 @@ nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
 }
 
 @MainActor
-class AnalyticsViewModel: BaseLoadableViewModel {
+final class AnalyticsViewModel: BaseLoadableViewModel {
     @Published var dataPoints: [AnalyticsDataPoint] = []
     @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var loadedDays: Int = 30
@@ -50,11 +50,7 @@ class AnalyticsViewModel: BaseLoadableViewModel {
     }
     
     func formatBytes(_ bytes: Int) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .binary
-        formatter.allowsNonnumericFormatting = false
-        return formatter.string(fromByteCount: Int64(bytes))
+        ByteCountFormatters.format(Int64(bytes))
     }
     
     private func cacheKey(zoneTag: String, days: Int) -> String {

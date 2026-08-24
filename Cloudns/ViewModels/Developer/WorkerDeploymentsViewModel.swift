@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class WorkerDeploymentsViewModel: BaseLoadableViewModel {
+final class WorkerDeploymentsViewModel: BaseLoadableViewModel {
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
@@ -22,10 +22,10 @@ class WorkerDeploymentsViewModel: BaseLoadableViewModel {
     var filteredDeployments: [WorkerDeployment] {
         if searchText.isEmpty { return deployments }
         return deployments.filter {
-            ($0.number.map { "\($0)" } ?? "").contains(searchText) ||
-            ($0.annotations?.message ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.authorEmail ?? "").localizedCaseInsensitiveContains(searchText) ||
-            $0.displaySource.localizedCaseInsensitiveContains(searchText)
+            ($0.number.map { "\($0)" } ?? "").localizedStandardContains(searchText) ||
+            ($0.annotations?.message ?? "").localizedStandardContains(searchText) ||
+            ($0.authorEmail ?? "").localizedStandardContains(searchText) ||
+            $0.displaySource.localizedStandardContains(searchText)
         }
     }
     

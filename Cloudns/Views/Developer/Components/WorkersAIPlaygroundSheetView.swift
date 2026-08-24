@@ -35,11 +35,11 @@ struct WorkersAIPlaygroundSheetView: View {
             .navigationTitle(model.shortName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button("Close") { dismiss() }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     if !viewModel.chatMessages.isEmpty {
                         Button(role: .destructive) {
                             HapticManager.impact(.medium)

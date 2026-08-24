@@ -13,43 +13,55 @@ struct R2BucketsView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(R2Bucket.placeholders) { placeholderBucket in
-                        R2BucketRowView(bucket: placeholderBucket)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredBuckets.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredBuckets) { bucket in
-                        NavigationLink {
-                            R2BucketDetailView(accountId: accountId, bucket: bucket)
-                        } label: {
-                            R2BucketRowView(bucket: bucket)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search R2 Buckets"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(R2Bucket.placeholders) { placeholderBucket in
+                            R2BucketRowView(bucket: placeholderBucket)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                bucketToDelete = bucket
-                                showingDeleteAlert = true
+                    }
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredBuckets.isEmpty {
+                    Section {
+                        ForEach(viewModel.filteredBuckets) { bucket in
+                            NavigationLink {
+                                R2BucketDetailView(accountId: accountId, bucket: bucket)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                R2BucketRowView(bucket: bucket)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    bucketToDelete = bucket
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("R2 Object Storage")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search R2 Buckets")
         .refreshable { await viewModel.fetchBuckets() }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Create R2 Bucket")
             }

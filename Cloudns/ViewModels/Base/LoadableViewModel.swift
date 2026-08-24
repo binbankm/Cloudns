@@ -69,7 +69,7 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         onFresh: @MainActor @Sendable @escaping (T) -> Void
     ) async {
         let initialEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
-        let scopedKey = "\(initialEmail)_\(cacheKey)"
+        let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
         // 1. [Stale] 0ms 内存/磁盘直出
         if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: targetType) {
@@ -100,6 +100,8 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
             self.lastFetchTime = Date()
             self.errorMessage = nil
             await SWRCacheStore.shared.set(fresh, forKey: scopedKey)
+        } catch is CancellationError {
+            // Task was cancelled by SwiftUI lifecycle or manual cancellation; do not treat as an error
         } catch {
             let currentEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
             if currentEmail == initialEmail && !self.hasFetchedData {

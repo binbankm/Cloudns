@@ -18,9 +18,8 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
     private init() {}
     
     func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/phases/http_request_dynamic_redirect/entrypoint")
-        let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
-        guard let rules = ruleset?.rules else { return [] }
+        let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect")
+        guard let rules = rs?.rules else { return [] }
         return rules.compactMap { (r: WAFRule) -> RedirectRuleItem? in
             guard let ap = r.action_parameters else { return nil }
             return RedirectRuleItem(

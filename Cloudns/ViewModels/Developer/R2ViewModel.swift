@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class R2ViewModel: BaseLoadableViewModel {
+final class R2ViewModel: BaseLoadableViewModel {
     let accountId: String
     private let r2Service: R2ServiceProtocol
     
@@ -18,7 +18,7 @@ class R2ViewModel: BaseLoadableViewModel {
     
     var filteredBuckets: [R2Bucket] {
         if searchText.isEmpty { return buckets }
-        return buckets.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return buckets.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     func fetchBuckets() async {

@@ -17,6 +17,15 @@ struct WorkersListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             Picker("Type", selection: $viewModel.selectedSegment) {
                 Text(viewModel.hasFetchedData ? "Workers (\(viewModel.workers.count))" : "Workers").tag(0)
                 Text(viewModel.hasFetchedData ? "Pages (\(viewModel.pages.count))" : "Pages").tag(1)
@@ -32,9 +41,8 @@ struct WorkersListView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Workers & Pages")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if viewModel.selectedSegment == 0 {
                         showingCreateWorkerSheet = true

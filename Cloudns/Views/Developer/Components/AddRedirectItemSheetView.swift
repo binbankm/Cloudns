@@ -68,7 +68,7 @@ struct AddRedirectItemSheetView: View {
                             )
                             do {
                                 _ = try await BulkRedirectService.shared.createRedirectListItems(accountId: accountId, listId: listId, items: [item])
-                                ToastManager.shared.showSuccess("Item Added", message: "")
+                                ToastManager.shared.showSuccess("Item Added")
                                 onAdded()
                                 dismiss()
                             } catch {

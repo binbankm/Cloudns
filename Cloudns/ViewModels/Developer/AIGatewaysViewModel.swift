@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class AIGatewaysViewModel: BaseLoadableViewModel {
+final class AIGatewaysViewModel: BaseLoadableViewModel {
     let accountId: String
     private let aiService: AIServiceProtocol
     
@@ -18,7 +18,7 @@ class AIGatewaysViewModel: BaseLoadableViewModel {
     
     var filteredGateways: [AIGateway] {
         if searchText.isEmpty { return gateways }
-        return gateways.filter { ($0.name ?? $0.id).localizedCaseInsensitiveContains(searchText) }
+        return gateways.filter { ($0.name ?? $0.id).localizedStandardContains(searchText) }
     }
     
     func fetchGateways() async {

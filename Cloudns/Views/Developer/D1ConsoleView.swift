@@ -86,7 +86,7 @@ struct D1ConsoleView: View {
             // MARK: - SQL Query Editor
             Section(header: Text("SQL Query Console")) {
                 // Presets
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     HStack(spacing: 8) {
                         ForEach(viewModel.sqlPresets, id: \.name) { preset in
                             Button {
@@ -105,6 +105,7 @@ struct D1ConsoleView: View {
                     }
                     .padding(.vertical, 2)
                 }
+                .scrollIndicators(.hidden)
                 
                 TextEditor(text: $viewModel.sqlInput)
                     .font(.body.monospacedDigit())

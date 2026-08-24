@@ -10,39 +10,51 @@ struct RateLimitingRulesView: View {
     private var displayedRules: [WAFRule] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            $0.expression.localizedCaseInsensitiveContains(searchText) ||
-            $0.action.localizedCaseInsensitiveContains(searchText)
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            $0.expression.localizedStandardContains(searchText) ||
+            $0.action.localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(WAFRule.placeholders) { placeholderRule in
-                        WAFRuleCardView(rule: placeholderRule, onToggle: {})
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Rate Limiting Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(WAFRule.placeholders) { placeholderRule in
+                            WAFRuleCardView(rule: placeholderRule, onToggle: {})
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !displayedRules.isEmpty {
-                Section {
-                    ForEach(displayedRules) { rule in
-                        WAFRuleCardView(rule: rule, onToggle: {
-                            HapticManager.impact(.light)
-                            Task {
-                                await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                            }
-                        })
+                    .skeletonLoading(true)
+                } else if !displayedRules.isEmpty {
+                    Section {
+                        ForEach(displayedRules) { rule in
+                            WAFRuleCardView(rule: rule, onToggle: {
+                                HapticManager.impact(.light)
+                                Task {
+                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                    ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                }
+                            })
+                        }
+                        .onDelete(perform: deleteRules)
                     }
-                    .onDelete(perform: deleteRules)
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Rate Limiting Rules")
+        .background(Color(.systemGroupedBackground))
         .refreshable {
             await viewModel.fetchRateLimitingRules(zoneId: zoneId)
         }
@@ -80,7 +92,7 @@ struct RateLimitingRulesView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     showingAddSheet = true
                 }) {

@@ -123,7 +123,7 @@ struct PagesBindingsView: View {
         .navigationTitle("Bindings & Variables")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button {
                         showingAddVariableSheet = true

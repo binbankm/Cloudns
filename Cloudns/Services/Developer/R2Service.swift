@@ -154,9 +154,12 @@ final class R2Service: R2ServiceProtocol {
     func uploadR2ObjectFromFile(accountId: String, bucketName: String, objectKey: String, fileURL: URL, contentType: String = "application/octet-stream") async throws {
         let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "PUT", contentType: contentType)
-        let (_, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+        let (data, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
+        guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
+        }
+        guard (200...299).contains(http.statusCode) else {
+            throw APIError.fromCloudflareResponse(data: data, statusCode: http.statusCode, defaultMessage: "Failed to upload file (HTTP \(http.statusCode))")
         }
     }
     

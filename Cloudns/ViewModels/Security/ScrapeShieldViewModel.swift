@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class ScrapeShieldViewModel: BaseLoadableViewModel {
+final class ScrapeShieldViewModel: BaseLoadableViewModel {
     @Published var emailObfuscation: String = "off"
     @Published var serverSideExcludes: String = "off"
     @Published var hotlinkProtection: String = "off"

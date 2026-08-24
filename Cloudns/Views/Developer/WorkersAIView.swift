@@ -11,36 +11,48 @@ struct WorkersAIView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIModel.placeholders) { placeholder in
-                        modelRow(placeholder)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search AI Models"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(AIModel.placeholders) { placeholder in
+                            modelRow(placeholder)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredModels.isEmpty {
-                ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
-                    if let list = viewModel.groupedModels[taskName], !list.isEmpty {
-                        Section(header: Text(taskName)) {
-                            ForEach(list) { model in
-                                Button {
-                                    HapticManager.impact(.light)
-                                    selectedModelForPlayground = model
-                                } label: {
-                                    modelRow(model)
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredModels.isEmpty {
+                    ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
+                        if let list = viewModel.groupedModels[taskName], !list.isEmpty {
+                            Section(header: Text(taskName)) {
+                                ForEach(list) { model in
+                                    Button {
+                                        HapticManager.impact(.light)
+                                        selectedModelForPlayground = model
+                                    } label: {
+                                        modelRow(model)
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Workers AI")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search AI Models")
         .sheet(item: $selectedModelForPlayground) { model in
             WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
         }

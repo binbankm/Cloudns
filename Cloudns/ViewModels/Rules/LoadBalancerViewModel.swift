@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class LoadBalancerViewModel: BaseLoadableViewModel {
+final class LoadBalancerViewModel: BaseLoadableViewModel {
     let zoneId: String
     private let lbService: LoadBalancerServiceProtocol
     private let zoneService: ZoneServiceProtocol
@@ -74,7 +74,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             try await lbService.deleteLoadBalancer(zoneId: zoneId, lbId: id)
-            ToastManager.shared.showSuccess("Load Balancer Deleted", message: "")
+            ToastManager.shared.showSuccess("Load Balancer Deleted")
             await fetchData()
         } catch {
             errorMessage = error.localizedDescription
@@ -104,7 +104,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             try await lbService.deleteLBPool(accountId: accountId, poolId: poolId)
-            ToastManager.shared.showSuccess("Pool Deleted", message: "")
+            ToastManager.shared.showSuccess("Pool Deleted")
             await fetchData()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
@@ -133,7 +133,7 @@ class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             try await lbService.deleteLBMonitor(accountId: accountId, monitorId: monitorId)
-            ToastManager.shared.showSuccess("Monitor Deleted", message: "")
+            ToastManager.shared.showSuccess("Monitor Deleted")
             await fetchData()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

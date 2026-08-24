@@ -13,40 +13,52 @@ struct AIGatewayView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIGateway.placeholders) { placeholder in
-                        gatewayRow(placeholder)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredGateways.isEmpty {
-                Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
-                    ForEach(viewModel.filteredGateways) { gw in
-                        NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
-                            gatewayRow(gw)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Gateways"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(AIGateway.placeholders) { placeholder in
+                            gatewayRow(placeholder)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                gatewayToDelete = gw
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                    }
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredGateways.isEmpty {
+                    Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
+                        ForEach(viewModel.filteredGateways) { gw in
+                            NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
+                                gatewayRow(gw)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    gatewayToDelete = gw
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("AI Gateway")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Gateways")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingCreateSheet = true
                 } label: {

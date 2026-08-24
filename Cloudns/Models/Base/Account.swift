@@ -1,6 +1,6 @@
 import Foundation
 
-struct Account: Codable, Identifiable {
+struct Account: Codable, Identifiable, Sendable {
     let id: String
     let name: String
 }

@@ -21,7 +21,7 @@ struct TunnelDetailView: View {
             .navigationTitle(tunnel.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAddIngressSheet = true
                     } label: {

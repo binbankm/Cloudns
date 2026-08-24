@@ -128,7 +128,7 @@ public struct Zone: Codable, Identifiable, Equatable, Sendable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.id = try container.decode(String.self, forKey: .id)
         self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "active"
         self.paused = try container.decodeIfPresent(Bool.self, forKey: .paused) ?? false

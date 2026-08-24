@@ -15,42 +15,53 @@ struct R2BucketDetailView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.objects.isEmpty {
-                // MARK: - Bucket Info
-                Section(header: Text("Bucket Information")) {
-                    HStack {
-                        Text("Created")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        if let created = bucket.creationDate {
-                            Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
-                                .font(.body.monospacedDigit())
-                        }
-                    }
-                    
-                    if let loc = bucket.location {
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Objects in Bucket"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.objects.isEmpty {
+                    // MARK: - Bucket Info
+                    Section(header: Text("Bucket Information")) {
                         HStack {
-                            Text("Location")
+                            Text("Created")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(loc.uppercased())
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
+                            if let created = bucket.creationDate {
+                                Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
+                                    .font(.body.monospacedDigit())
+                            }
+                        }
+                        
+                        if let loc = bucket.location {
+                            HStack {
+                                Text("Location")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Text(loc.uppercased())
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
                 
                 // MARK: - Objects
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
+                    Section(header: Text("Objects")) {
                         ForEach(R2Object.placeholders) { placeholder in
                             R2ObjectRowView(object: placeholder)
                         }
                     }
                     .skeletonLoading(true)
                 } else if !viewModel.filteredObjects.isEmpty {
-                    Section(header: Text("Objects (\(viewModel.objects.count))")) {
+                    Section(header: Text("Objects (\(viewModel.filteredObjects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in
                             Button {
                                 selectedObject = obj
@@ -77,17 +88,18 @@ struct R2BucketDetailView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle(bucket.name)
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Objects in Bucket")
         .refreshable {
             await viewModel.fetchObjects()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 12) {
                     NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
                         Image(systemName: "gearshape")
@@ -108,6 +120,8 @@ struct R2BucketDetailView: View {
         }
         .sheet(item: $selectedObject) { obj in
             R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .overlay {
             if viewModel.hasFetchedData {

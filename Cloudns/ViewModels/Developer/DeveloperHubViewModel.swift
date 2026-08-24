@@ -12,7 +12,7 @@ struct DeveloperHubSnapshot: Codable, Sendable {
 }
 
 @MainActor
-class DeveloperHubViewModel: BaseLoadableViewModel {
+final class DeveloperHubViewModel: BaseLoadableViewModel {
     private let zoneService: ZoneServiceProtocol
     private let workerService: WorkerServiceProtocol
     private let pagesService: PagesServiceProtocol
@@ -83,15 +83,13 @@ class DeveloperHubViewModel: BaseLoadableViewModel {
         
         // 1. [Stale] 0ms 尝试从缓存瞬间加载旧数据
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DeveloperHubSnapshot.self) {
-            await MainActor.run {
-                self.workers = cached.workers
-                self.pagesProjects = cached.pagesProjects
-                self.r2Buckets = cached.r2Buckets
-                self.kvNamespaces = cached.kvNamespaces
-                self.d1Databases = cached.d1Databases
-                self.tunnels = cached.tunnels
-                self.hasFetchedData = true
-            }
+            self.workers = cached.workers
+            self.pagesProjects = cached.pagesProjects
+            self.r2Buckets = cached.r2Buckets
+            self.kvNamespaces = cached.kvNamespaces
+            self.d1Databases = cached.d1Databases
+            self.tunnels = cached.tunnels
+            self.hasFetchedData = true
         }
         
         // 2. 确保已解析出当前账户并获取最新资源

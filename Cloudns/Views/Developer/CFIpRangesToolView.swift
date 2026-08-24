@@ -151,6 +151,8 @@ struct CFIpRangesToolView: View {
                     }
                 }
             }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .task {
             if viewModel.ipv4List.isEmpty {

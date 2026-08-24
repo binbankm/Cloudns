@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class DevToolsViewModel: BaseLoadableViewModel {
+final class DevToolsViewModel: BaseLoadableViewModel {
     private let devToolsService: DevToolsServiceProtocol
     
     // MARK: - DNS Dig & Benchmark

@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class D1ConsoleViewModel: BaseLoadableViewModel {
+final class D1ConsoleViewModel: BaseLoadableViewModel {
     let accountId: String
     let database: D1Database
     private let d1Service: D1ServiceProtocol
@@ -48,7 +48,7 @@ class D1ConsoleViewModel: BaseLoadableViewModel {
         
         do {
             self.queryResult = try await d1Service.executeD1Query(accountId: accountId, databaseId: database.uuid, sql: trimmed)
-            if trimmed.localizedCaseInsensitiveContains("CREATE TABLE") || trimmed.localizedCaseInsensitiveContains("DROP TABLE") {
+            if trimmed.localizedStandardContains("CREATE TABLE") || trimmed.localizedStandardContains("DROP TABLE") {
                 await fetchTables()
             }
         } catch {

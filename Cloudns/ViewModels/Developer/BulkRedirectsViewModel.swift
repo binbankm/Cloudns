@@ -18,7 +18,7 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     
     var filteredLists: [RedirectList] {
         if searchText.isEmpty { return lists }
-        return lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return lists.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     func fetchLists() async {
@@ -42,7 +42,7 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     func deleteList(id: String) async {
         do {
             try await bulkRedirectService.deleteRedirectList(accountId: accountId, listId: id)
-            ToastManager.shared.showSuccess("List Deleted", message: "")
+            ToastManager.shared.showSuccess("List Deleted")
             await fetchLists()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

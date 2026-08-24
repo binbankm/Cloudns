@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class AuditLogsViewModel: BaseLoadableViewModel {
+final class AuditLogsViewModel: BaseLoadableViewModel {
     let accountId: String
     private let zoneService: ZoneServiceProtocol
     
@@ -20,17 +20,17 @@ class AuditLogsViewModel: BaseLoadableViewModel {
         if searchText.isEmpty { return logs }
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return logs.filter {
-            $0.displayActionKey.localizedCaseInsensitiveContains(query) ||
-            $0.friendlyResourceTypeKey.localizedCaseInsensitiveContains(query) ||
-            ($0.action?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.action?.info?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.actor?.email?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.actor?.ip?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.resource?.type?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.resource?.id?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.zone?.name?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.metadata?["zone_name"]?.stringValue?.localizedCaseInsensitiveContains(query) ?? false) ||
-            ($0.metadata?["script_name"]?.stringValue?.localizedCaseInsensitiveContains(query) ?? false)
+            $0.displayActionKey.localizedStandardContains(query) ||
+            $0.friendlyResourceTypeKey.localizedStandardContains(query) ||
+            ($0.action?.type?.localizedStandardContains(query) ?? false) ||
+            ($0.action?.info?.localizedStandardContains(query) ?? false) ||
+            ($0.actor?.email?.localizedStandardContains(query) ?? false) ||
+            ($0.actor?.ip?.localizedStandardContains(query) ?? false) ||
+            ($0.resource?.type?.localizedStandardContains(query) ?? false) ||
+            ($0.resource?.id?.localizedStandardContains(query) ?? false) ||
+            ($0.zone?.name?.localizedStandardContains(query) ?? false) ||
+            ($0.metadata?["zone_name"]?.stringValue?.localizedStandardContains(query) ?? false) ||
+            ($0.metadata?["script_name"]?.stringValue?.localizedStandardContains(query) ?? false)
         }
     }
     

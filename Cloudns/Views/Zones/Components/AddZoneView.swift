@@ -82,7 +82,7 @@ struct AddZoneView: View {
                 .navigationTitle("Setup Nameservers")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") {
                             isPresented = false
                         }
@@ -127,12 +127,12 @@ struct AddZoneView: View {
                 .navigationTitle("Add Domain")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {
                             isPresented = false
                         }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button("Add") {
                             submitDomain()
                         }

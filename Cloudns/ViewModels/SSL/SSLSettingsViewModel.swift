@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class SSLSettingsViewModel: BaseLoadableViewModel {
+final class SSLSettingsViewModel: BaseLoadableViewModel {
     @Published var sslMode: String = "off"
     @Published var alwaysUseHTTPS: Bool = false
     @Published var automaticHTTPSRewrites: Bool = false

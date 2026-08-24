@@ -10,7 +10,7 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
-    @State private var selectedTab = 0
+    @State private var selectedTab: AppTab = .dashboard
     @State private var tabViewResetId = UUID()
     @ObservedObject private var authManager = AppAuthManager.shared
     @ObservedObject private var networkMonitor = NetworkMonitor.shared
@@ -35,27 +35,27 @@ struct ContentView: View {
                 TabView(selection: $selectedTab) {
                     DashboardView()
                         .tabItem {
-                            Label("Dashboard", systemImage: selectedTab == 0 ? "square.grid.2x2.fill" : "square.grid.2x2")
+                            Label("Dashboard", systemImage: selectedTab == .dashboard ? "square.grid.2x2.fill" : "square.grid.2x2")
                         }
-                        .tag(0)
+                        .tag(AppTab.dashboard)
                     
                     ZonesListView()
                         .tabItem {
-                            Label("Domains", systemImage: selectedTab == 1 ? "globe.americas.fill" : "globe")
+                            Label("Domains", systemImage: selectedTab == .domains ? "globe.asia.australia.fill" : "globe.asia.australia")
                         }
-                        .tag(1)
+                        .tag(AppTab.domains)
                     
                     DeveloperHubView()
                         .tabItem {
-                            Label("Developer", systemImage: selectedTab == 2 ? "cpu.fill" : "cpu")
+                            Label("Developer", systemImage: selectedTab == .developer ? "cpu.fill" : "cpu")
                         }
-                        .tag(2)
+                        .tag(AppTab.developer)
                     
                     SettingsView()
                         .tabItem {
-                            Label("Settings", systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
+                            Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
                         }
-                        .tag(3)
+                        .tag(AppTab.settings)
                 }
                 .id(tabViewResetId)
                 .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in

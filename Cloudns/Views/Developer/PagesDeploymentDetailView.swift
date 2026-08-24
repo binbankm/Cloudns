@@ -171,7 +171,7 @@ struct PagesDeploymentDetailView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } else {
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    ScrollView(.horizontal) {
                         VStack(alignment: .leading, spacing: 2) {
                             ForEach(viewModel.logs) { log in
                                 Text(log.line)
@@ -183,6 +183,7 @@ struct PagesDeploymentDetailView: View {
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
+                    .scrollIndicators(.hidden)
                 }
             }
         }

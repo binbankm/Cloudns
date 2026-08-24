@@ -20,7 +20,7 @@ struct WorkerTriggersView: View {
             .navigationTitle("Cron Triggers")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAddCronSheet = true
                     } label: {

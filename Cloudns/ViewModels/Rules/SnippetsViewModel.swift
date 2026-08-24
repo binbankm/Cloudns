@@ -65,7 +65,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async -> Bool {
         do {
             try await snippetService.deleteSnippetRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId)
-            ToastManager.shared.showSuccess("Rule Removed", message: "")
+            ToastManager.shared.showSuccess("Rule Removed")
             await fetchSnippets(zoneId: zoneId)
             return true
         } catch {

@@ -15,45 +15,57 @@ struct PagesDeploymentsListView: View {
             return viewModel.deployments
         }
         return viewModel.deployments.filter { dep in
-            (dep.environment ?? "").localizedCaseInsensitiveContains(searchText) ||
-            (dep.latestStage?.status ?? "").localizedCaseInsensitiveContains(searchText) ||
-            (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedCaseInsensitiveContains(searchText) ||
-            (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedCaseInsensitiveContains(searchText) ||
-            (dep.id).localizedCaseInsensitiveContains(searchText)
+            (dep.environment ?? "").localizedStandardContains(searchText) ||
+            (dep.latestStage?.status ?? "").localizedStandardContains(searchText) ||
+            (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedStandardContains(searchText) ||
+            (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedStandardContains(searchText) ||
+            (dep.id).localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(PagesDeployment.placeholders) { dep in
-                        deploymentRow(dep)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !filteredDeployments.isEmpty {
-                Section(
-                    header: Text("Deployments (\(filteredDeployments.count))"),
-                    footer: Text("Tap any deployment to view build logs, stage status, and environment variables.")
-                ) {
-                    ForEach(filteredDeployments) { dep in
-                        Button {
-                            HapticManager.impact(.light)
-                            selectedDeployment = dep
-                        } label: {
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Deployments"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(PagesDeployment.placeholders) { dep in
                             deploymentRow(dep)
                         }
-                        .buttonStyle(.plain)
+                    }
+                    .skeletonLoading(true)
+                } else if !filteredDeployments.isEmpty {
+                    Section(
+                        header: Text("Deployments (\(filteredDeployments.count))"),
+                        footer: Text("Tap any deployment to view build logs, stage status, and environment variables.")
+                    ) {
+                        ForEach(filteredDeployments) { dep in
+                            Button {
+                                HapticManager.impact(.light)
+                                selectedDeployment = dep
+                            } label: {
+                                deploymentRow(dep)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Deployments History")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Deployments")
         .refreshable {
             await viewModel.fetchProjectDetails()
         }

@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class CFIpRangesViewModel: BaseLoadableViewModel {
+final class CFIpRangesViewModel: BaseLoadableViewModel {
     private let devToolsService: DevToolsServiceProtocol
     
     @Published var ipv4List: [String] = []
@@ -18,12 +18,12 @@ class CFIpRangesViewModel: BaseLoadableViewModel {
     
     var filteredIPv4: [String] {
         if searchText.isEmpty { return ipv4List }
-        return ipv4List.filter { $0.contains(searchText) }
+        return ipv4List.filter { $0.localizedStandardContains(searchText) }
     }
     
     var filteredIPv6: [String] {
         if searchText.isEmpty { return ipv6List }
-        return ipv6List.filter { $0.localizedCaseInsensitiveContains(searchText) }
+        return ipv6List.filter { $0.localizedStandardContains(searchText) }
     }
     
     func fetchIPRanges() async {

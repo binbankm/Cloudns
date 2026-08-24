@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class EmailRoutingViewModel: BaseLoadableViewModel {
+final class EmailRoutingViewModel: BaseLoadableViewModel {
     let zoneId: String
     private let emailService: EmailRoutingServiceProtocol
     private let zoneService: ZoneServiceProtocol
@@ -91,7 +91,7 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteDestinationAddress(accountId: accId, addressId: addressId)
             destinations.removeAll { $0.id == addressId }
-            ToastManager.shared.showSuccess("Destination Removed", message: "")
+            ToastManager.shared.showSuccess("Destination Removed")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
@@ -130,7 +130,7 @@ class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteEmailRoutingRule(zoneId: zoneId, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Email Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Email Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription

@@ -239,7 +239,7 @@ struct DNSPresetsSheetView: View {
             .navigationTitle("DNS Presets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") {
                         dismiss()
                     }
@@ -334,7 +334,7 @@ struct DNSPresetsSheetView: View {
             .navigationTitle(group.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         selectedGroup = nil
                     }

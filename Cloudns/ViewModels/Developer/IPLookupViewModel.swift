@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class IPLookupViewModel: BaseLoadableViewModel {
+final class IPLookupViewModel: BaseLoadableViewModel {
     private let devToolsService: DevToolsServiceProtocol
     
     @Published var ipInput: String = ""

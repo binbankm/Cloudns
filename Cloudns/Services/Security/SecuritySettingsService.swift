@@ -25,6 +25,7 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
+    private let wafRulesService = WAFRulesService.shared
     
     private init() {}
     
@@ -153,9 +154,8 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     // MARK: - WAF Rulesets
     
     func getWAFRules(zoneId: String) async throws -> [WAFRule] {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/phases/http_request_firewall_custom/entrypoint")
-        let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
-        return ruleset?.rules ?? []
+        let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_firewall_custom")
+        return rs?.rules ?? []
     }
     
     func updateWAFRules(zoneId: String, rules: [WAFRule]) async throws -> [WAFRule] {

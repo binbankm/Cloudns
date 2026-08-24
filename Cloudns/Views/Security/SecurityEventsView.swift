@@ -9,34 +9,46 @@ struct SecurityEventsView: View {
     private var displayedEvents: [SecurityEvent] {
         if searchText.isEmpty { return viewModel.events }
         return viewModel.events.filter {
-            $0.clientIP.localizedCaseInsensitiveContains(searchText) ||
-            $0.clientCountryName.localizedCaseInsensitiveContains(searchText) ||
-            $0.action.localizedCaseInsensitiveContains(searchText) ||
-            $0.host.localizedCaseInsensitiveContains(searchText) ||
-            ($0.clientAsn ?? "").localizedCaseInsensitiveContains(searchText)
+            $0.clientIP.localizedStandardContains(searchText) ||
+            $0.clientCountryName.localizedStandardContains(searchText) ||
+            $0.action.localizedStandardContains(searchText) ||
+            $0.host.localizedStandardContains(searchText) ||
+            ($0.clientAsn ?? "").localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(SecurityEvent.placeholders) { placeholderEvent in
-                        SecurityEventCardView(event: placeholderEvent)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search IP, Country or Action"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(SecurityEvent.placeholders) { placeholderEvent in
+                            SecurityEventCardView(event: placeholderEvent)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !displayedEvents.isEmpty {
-                Section {
-                    ForEach(displayedEvents) { event in
-                        SecurityEventCardView(event: event)
+                    .skeletonLoading(true)
+                } else if !displayedEvents.isEmpty {
+                    Section {
+                        ForEach(displayedEvents) { event in
+                            SecurityEventCardView(event: event)
+                        }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search IP, Country or Action")
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {

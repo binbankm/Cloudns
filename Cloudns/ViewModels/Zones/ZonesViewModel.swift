@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class ZonesViewModel: BaseLoadableViewModel {
+final class ZonesViewModel: BaseLoadableViewModel {
     @Published var zones: [Zone] = []
     @Published var sparklines: [String: ZoneSparklineCache] = [:]
     @Published var canLoadMore: Bool = false
@@ -22,7 +22,7 @@ class ZonesViewModel: BaseLoadableViewModel {
         if trimmed.isEmpty {
             return zones
         } else {
-            return zones.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+            return zones.filter { $0.name.localizedStandardContains(trimmed) }
         }
     }
     
@@ -36,46 +36,46 @@ class ZonesViewModel: BaseLoadableViewModel {
     }
     
     func fetchZones(isRefresh: Bool = false) async {
-        if !isRefresh && hasFetchedData && !isStale {
-            return
+        if isRefresh {
+            currentPage = 1
+            canLoadMore = false
         }
         
-        if isRefresh || !hasFetchedData {
-            currentPage = 1
-            await executeSWR(
-                cacheKey: "cloudflare_zones_list",
-                targetType: [Zone].self,
-                onCached: { cachedZones in
-                    self.zones = cachedZones
-                    self.totalCount = cachedZones.count
-                    self.fetchBatchSparklines(for: cachedZones)
-                    self.syncFirstZoneToWidget(zones: cachedZones)
-                },
-                fetcher: { [zoneService] in
-                    let (fetchedZones, _) = try await zoneService.getZones(page: 1, perPage: 50, name: nil, status: nil)
-                    return fetchedZones
-                },
-                onFresh: { latestZones in
-                    self.zones = latestZones
-                    self.totalCount = latestZones.count
-                    self.canLoadMore = latestZones.count >= 50
-                    self.currentPage = latestZones.count >= 50 ? 2 : 1
-                    self.fetchBatchSparklines(for: latestZones)
-                    self.syncFirstZoneToWidget(zones: latestZones)
-                }
-            )
-        } else {
-            // 分页加载下一页
-            guard canLoadMore else { return }
+        await executeSWR(
+            cacheKey: "cloudflare_zones_list",
+            targetType: [Zone].self,
+            onCached: { cachedZones in
+                self.zones = cachedZones
+                self.totalCount = cachedZones.count
+                self.fetchBatchSparklines(for: cachedZones)
+            },
+            fetcher: {
+                let (fetchedZones, _) = try await self.zoneService.getZones(page: 1, perPage: 50, name: nil, status: nil)
+                return fetchedZones
+            },
+            onFresh: { freshZones in
+                self.zones = freshZones
+                self.totalCount = freshZones.count
+                self.fetchBatchSparklines(for: freshZones)
+                self.currentPage = 2
+                self.canLoadMore = freshZones.count >= 50
+            }
+        )
+    }
+    
+    func loadMoreZones() async {
+        guard canLoadMore && !isLoading else { return }
+        
+        await executeLoadingTask(clearError: false) {
             do {
                 let (fetchedZones, resultInfo) = try await self.zoneService.getZones(page: currentPage, perPage: 50, name: nil, status: nil)
                 self.zones.append(contentsOf: fetchedZones)
                 self.fetchBatchSparklines(for: fetchedZones)
                 if let info = resultInfo, info.page < info.totalPages {
-                    canLoadMore = true
-                    currentPage += 1
+                    self.canLoadMore = true
+                    self.currentPage += 1
                 } else {
-                    canLoadMore = false
+                    self.canLoadMore = false
                 }
             } catch {
                 self.errorMessage = error.localizedDescription
@@ -91,23 +91,23 @@ class ZonesViewModel: BaseLoadableViewModel {
         Task { [weak self] in
             guard let self = self else { return }
             // 1. 优先读取已有的 SWR 本地缓存，极速呈现
+            var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeZoneIds {
-                if let cached = await SWRCacheStore.shared.get(forKey: "zone_sparkline_\(id)", as: ZoneSparklineCache.self) {
-                    await MainActor.run {
-                        self.sparklines[id] = cached
-                    }
+                let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
+                if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneSparklineCache.self) {
+                    cachedMap[id] = cached
                 }
+            }
+            if !cachedMap.isEmpty {
+                self.sparklines.merge(cachedMap) { _, new in new }
             }
             
             // 2. 单次聚合请求拉取全部域名的最新 24 小时点位
             if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeZoneIds) {
-                await MainActor.run {
-                    for (id, cache) in batchMap {
-                        self.sparklines[id] = cache
-                    }
-                }
+                self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
-                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: "zone_sparkline_\(id)")
+                    let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
+                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: scopedKey)
                 }
             }
         }
@@ -144,13 +144,12 @@ class ZonesViewModel: BaseLoadableViewModel {
     func deleteZone(zoneId: String) async {
         isDeleting = true
         errorMessage = nil
-        let impact = UINotificationFeedbackGenerator()
-        impact.notificationOccurred(.warning)
+        HapticManager.notification(.warning)
         do {
             _ = try await zoneService.deleteZone(zoneId: zoneId)
             RecentZonesManager.shared.removeZone(zoneId: zoneId)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
-            await SWRCacheStore.shared.remove(forKey: "zone_sparkline_\(zoneId)")
+            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_sparkline_\(zoneId)"))
             
             // Remove locally
             if let index = zones.firstIndex(where: { $0.id == zoneId }) {

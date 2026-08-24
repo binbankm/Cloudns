@@ -16,6 +16,15 @@ struct WorkerTailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search logs & URLs"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.secondarySystemGroupedBackground))
+            
             // Top Toolbar: Status & Filters
             filterBar
                 .padding(.horizontal)
@@ -42,15 +51,15 @@ struct WorkerTailView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .scrollDismissesKeyboard(.interactively)
                     .centerConstrainedWidth(maxWidth: 840)
                 }
             }
         }
         .navigationTitle("Live Tail Logs")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search logs & URLs")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 12) {
                     Button {
                         HapticManager.impact(.light)
@@ -84,6 +93,8 @@ struct WorkerTailView: View {
         }
         .sheet(item: $selectedEvent) { event in
             TailEventDetailSheetView(event: event)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
     

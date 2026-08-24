@@ -23,7 +23,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         guard !zoneTags.isEmpty else { return [:] }
         let targetTags = Array(zoneTags.prefix(30))
         let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
-        let dateString = DateFormatters.iso8601.string(from: pastDate)
+        let dateString = DateFormatters.formatISO8601(pastDate)
         
         var querySubfields = ""
         for (index, tag) in targetTags.enumerated() {
@@ -87,7 +87,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         
         if days == 1 {
             let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
-            let dateString = DateFormatters.iso8601.string(from: pastDate)
+            let dateString = DateFormatters.formatISO8601(pastDate)
             
             query = """
             query {
@@ -180,8 +180,8 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         } else {
             pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         }
-        let startDateString = DateFormatters.iso8601.string(from: pastDate)
-        let endDateString = DateFormatters.iso8601.string(from: Date())
+        let startDateString = DateFormatters.formatISO8601(pastDate)
+        let endDateString = DateFormatters.formatISO8601(Date())
         
         let dimension = (days == 1) ? "datetimeHour" : "date"
         let orderBy = (days == 1) ? "datetimeHour_ASC" : "date_ASC"
@@ -278,8 +278,8 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         } else {
             pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         }
-        let startDateString = DateFormatters.iso8601.string(from: pastDate)
-        let endDateString = DateFormatters.iso8601.string(from: Date())
+        let startDateString = DateFormatters.formatISO8601(pastDate)
+        let endDateString = DateFormatters.formatISO8601(Date())
         
         let dimension = (days == 1) ? "datetimeHour" : "date"
         let orderBy = (days == 1) ? "datetimeHour_ASC" : "date_ASC"

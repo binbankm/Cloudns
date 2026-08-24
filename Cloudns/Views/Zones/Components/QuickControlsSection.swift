@@ -127,9 +127,7 @@ struct QuickControlsSection: View {
             Task {
                 guard !updatingPause else { return }
                 if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
-                    await MainActor.run {
-                        self.isPaused = zd.paused
-                    }
+                    self.isPaused = zd.paused
                 }
             }
         }
@@ -138,37 +136,21 @@ struct QuickControlsSection: View {
     // MARK: - Fetch
 
     private func fetchInitialStates() async {
-        async let fetchSec: () = {
-            if let sec = try? await SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId) {
-                await MainActor.run {
-                    if !updatingAttack {
-                        self.isUnderAttack = (sec.level == "under_attack")
-                    }
-                }
-            }
-        }()
+        async let fetchSec = try? SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId)
+        async let fetchCache = try? SpeedAndNetworkService.shared.getCachingSettings(zoneId: zoneId)
+        async let fetchZone = try? ZoneService.shared.getZoneDetails(zoneId: zoneId)
         
-        async let fetchCache: () = {
-            if let cache = try? await SpeedAndNetworkService.shared.getCachingSettings(zoneId: zoneId) {
-                await MainActor.run {
-                    if !updatingDev {
-                        self.isDevMode = cache.devMode
-                    }
-                }
-            }
-        }()
+        let (secResult, cacheResult, zdResult) = await (fetchSec, fetchCache, fetchZone)
         
-        async let fetchZone: () = {
-            if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
-                await MainActor.run {
-                    if !updatingPause {
-                        self.isPaused = zd.paused
-                    }
-                }
-            }
-        }()
-        
-        _ = await (fetchSec, fetchCache, fetchZone)
+        if let sec = secResult, !updatingAttack {
+            self.isUnderAttack = (sec.level == "under_attack")
+        }
+        if let cache = cacheResult, !updatingDev {
+            self.isDevMode = cache.devMode
+        }
+        if let zd = zdResult, !updatingPause {
+            self.isPaused = zd.paused
+        }
         hasFetchedData = true
     }
 

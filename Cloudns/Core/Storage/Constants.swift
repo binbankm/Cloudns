@@ -20,12 +20,12 @@ public enum AppStorageKey: Sendable {
 // MARK: - Type-Safe Notifications
 
 public extension Notification.Name {
-    nonisolated static let zoneDeleted = Notification.Name("ZoneDeleted")
-    nonisolated static let zoneCreated = Notification.Name("ZoneCreated")
-    nonisolated static let zoneUpdated = Notification.Name("ZoneUpdated")
-    nonisolated static let developerResourceMutated = Notification.Name("DeveloperResourceMutated")
-    nonisolated static let recentZonesDidUpdate = Notification.Name("RecentZonesDidUpdate")
-    nonisolated static let accountSwitched = Notification.Name("AccountSwitched")
-    nonisolated static let appWillEnterForeground = Notification.Name("AppWillEnterForeground")
-    nonisolated static let localCachePurged = Notification.Name("LocalCachePurged")
+    nonisolated static let zoneDeleted = Notification.Name("com.cloudns.zoneDeleted")
+    nonisolated static let zoneCreated = Notification.Name("com.cloudns.zoneCreated")
+    nonisolated static let zoneUpdated = Notification.Name("com.cloudns.zoneUpdated")
+    nonisolated static let developerResourceMutated = Notification.Name("com.cloudns.developerResourceMutated")
+    nonisolated static let recentZonesDidUpdate = Notification.Name("com.cloudns.recentZonesDidUpdate")
+    nonisolated static let accountSwitched = Notification.Name("com.cloudns.accountSwitched")
+    nonisolated static let appWillEnterForeground = Notification.Name("com.cloudns.appWillEnterForeground")
+    nonisolated static let localCachePurged = Notification.Name("com.cloudns.localCachePurged")
 }

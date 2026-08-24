@@ -100,7 +100,7 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
             } else {
                 try await certService.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
             }
-            ToastManager.shared.showSuccess("Certificate Removed", message: "")
+            ToastManager.shared.showSuccess("Certificate Removed")
             await fetchCertificates(zoneId: zoneId)
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

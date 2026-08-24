@@ -61,7 +61,7 @@ struct WorkerBindingsView: View {
         .navigationTitle("Bindings & Variables")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if selectedTab == "resources" {
                         showingAttachResourceSheet = true
@@ -129,49 +129,54 @@ struct WorkerBindingsView: View {
     
     @ViewBuilder
     private var contentList: some View {
-        List {
-            if selectedTab == "resources" {
-                resourcesSection
-            } else {
-                variablesSection
-                secretsSection
+        if selectedTab == "resources" && resourceBindings.isEmpty && secretsViewModel.hasFetchedData {
+            ScrollView {
+                EmptyStateView(
+                    icon: "shippingbox.fill",
+                    title: "No Resource Bindings",
+                    message: "Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker.",
+                    iconColor: .orange,
+                    actionTitle: "Bind First Resource",
+                    action: {
+                        HapticManager.impact(.light)
+                        showingAttachResourceSheet = true
+                    }
+                )
+                .padding(.top, 40)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if selectedTab == "variables" && secretsViewModel.plainVariables.isEmpty && secretsViewModel.secrets.isEmpty && secretsViewModel.hasFetchedData {
+            ScrollView {
+                EmptyStateView(
+                    icon: "slider.horizontal.3",
+                    title: "No Environment Variables",
+                    message: "Configure plaintext variables and encrypted secrets accessible in your Worker code.",
+                    iconColor: .orange,
+                    actionTitle: "Add Variable or Secret",
+                    action: {
+                        HapticManager.impact(.light)
+                        showingAddSheet = true
+                    }
+                )
+                .padding(.top, 40)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            List {
+                if selectedTab == "resources" {
+                    resourcesSection
+                } else {
+                    variablesSection
+                    secretsSection
+                }
+            }
+            .listStyle(.insetGrouped)
         }
-        .listStyle(.insetGrouped)
     }
     
     // MARK: - Resources Section (Categorized)
     @ViewBuilder
     private var resourcesSection: some View {
-        if resourceBindings.isEmpty {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: "shippingbox.fill")
-                        .font(.system(size: 36))
-                        .foregroundStyle(.secondary.opacity(0.6))
-                        .padding(.top, 8)
-                    Text("No Resource Bindings")
-                        .font(.headline)
-                    Text("Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    Button {
-                        showingAttachResourceSheet = true
-                    } label: {
-                        Label("Bind First Resource", systemImage: "plus.circle.fill")
-                            .font(.subheadline.weight(.semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
-                    .padding(.bottom, 6)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-            }
-        } else {
             // KV Namespaces
             if !kvBindings.isEmpty {
                 Section(header: Text("KV Namespaces (\(kvBindings.count))")) {
@@ -225,7 +230,6 @@ struct WorkerBindingsView: View {
                     }
                 }
             }
-        }
     }
     
     @ViewBuilder

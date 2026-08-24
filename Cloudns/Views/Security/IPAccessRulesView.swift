@@ -10,44 +10,56 @@ struct IPAccessRulesView: View {
     private var displayedRules: [IPAccessRule] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            $0.configuration.value.localizedCaseInsensitiveContains(searchText) ||
-            $0.configuration.target.localizedCaseInsensitiveContains(searchText) ||
-            $0.mode.localizedCaseInsensitiveContains(searchText) ||
-            ($0.notes ?? "").localizedCaseInsensitiveContains(searchText)
+            $0.configuration.value.localizedStandardContains(searchText) ||
+            $0.configuration.target.localizedStandardContains(searchText) ||
+            $0.mode.localizedStandardContains(searchText) ||
+            ($0.notes ?? "").localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(IPAccessRule.placeholders) { placeholderRule in
-                        IPAccessRuleRowView(rule: placeholderRule)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search IP Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(IPAccessRule.placeholders) { placeholderRule in
+                            IPAccessRuleRowView(rule: placeholderRule)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !displayedRules.isEmpty {
-                Section {
-                    ForEach(displayedRules) { rule in
-                        IPAccessRuleRowView(rule: rule)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    Task {
-                                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                        ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
+                    .skeletonLoading(true)
+                } else if !displayedRules.isEmpty {
+                    Section {
+                        ForEach(displayedRules) { rule in
+                            IPAccessRuleRowView(rule: rule)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task {
+                                            await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                                            ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
+                                        }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
                                 }
-                            }
+                        }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search IP Rules")
+        .background(Color(.systemGroupedBackground))
         .refreshable {
             await viewModel.fetchRules(zoneId: zoneId)
         }
@@ -85,7 +97,7 @@ struct IPAccessRulesView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     showingAddRule = true
                 }) {

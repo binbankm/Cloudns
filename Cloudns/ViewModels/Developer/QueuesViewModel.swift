@@ -18,7 +18,7 @@ final class QueuesViewModel: BaseLoadableViewModel {
     
     var filteredQueues: [CFQueue] {
         if searchText.isEmpty { return queues }
-        return queues.filter { $0.queueName.localizedCaseInsensitiveContains(searchText) }
+        return queues.filter { $0.queueName.localizedStandardContains(searchText) }
     }
     
     func fetchQueues() async {
@@ -42,7 +42,7 @@ final class QueuesViewModel: BaseLoadableViewModel {
     func deleteQueue(queueId: String) async {
         do {
             try await queueService.deleteQueue(accountId: accountId, queueId: queueId)
-            ToastManager.shared.showSuccess("Queue Deleted", message: "")
+            ToastManager.shared.showSuccess("Queue Deleted")
             await fetchQueues()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

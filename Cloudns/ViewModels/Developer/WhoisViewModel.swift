@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class WhoisViewModel: BaseLoadableViewModel {
+final class WhoisViewModel: BaseLoadableViewModel {
     @Published var domainInput = ""
     @Published var info: WhoisInfo?
     

@@ -41,7 +41,7 @@ struct DashboardView: View {
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         HapticManager.impact(.light)
                         showingAccountSheet = true
@@ -126,11 +126,15 @@ struct DashboardView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Copy Account ID")
                 }
             }
         }
-        .padding(12)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
     }
     
     // MARK: - 2. Resources Overview Cards Grid (114pt Symmetrical)
@@ -194,8 +198,8 @@ struct DashboardView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 10) {
                     NavigationLink(destination: CFTraceToolView()) {
                         QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                     }
@@ -217,17 +221,19 @@ struct DashboardView: View {
                     .buttonStyle(PlainButtonStyle())
                     
                     NavigationLink(destination: WhoisToolView()) {
-                        QuickDeckButton(icon: "person.text.rectangle.fill", color: .teal, title: "WHOIS")
+                        QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "RDAP / WHOIS")
                     }
                     .buttonStyle(PlainButtonStyle())
                     
-                    NavigationLink(destination: WorkersAIView(accountId: viewModel.selectedAccount?.id ?? "")) {
-                        QuickDeckButton(icon: "sparkles", color: .orange, title: "Workers AI")
+                    NavigationLink(destination: CIDRCalculatorView()) {
+                        QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .orange, title: "CIDR Calc")
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
-                .padding(.horizontal, 2)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 4)
             }
+            .scrollIndicators(.hidden)
         }
     }
     
@@ -258,7 +264,7 @@ struct DashboardView: View {
                     ForEach(Zone.placeholders.prefix(3)) { placeholderZone in
                         HStack(spacing: 10) {
                             Circle()
-                                .fill(Color.blue.opacity(0.10))
+                                .fill(Color(.tertiarySystemFill))
                                 .frame(width: 32, height: 32)
                             
                             VStack(alignment: .leading, spacing: 2) {

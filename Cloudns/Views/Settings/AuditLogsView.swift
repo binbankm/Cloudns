@@ -12,33 +12,45 @@ struct AuditLogsView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AuditLog.placeholders) { placeholderLog in
-                        AuditLogRowView(log: placeholderLog)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredLogs.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredLogs) { log in
-                        Button {
-                            selectedLog = log
-                            HapticManager.impact(.light)
-                        } label: {
-                            AuditLogRowView(log: log)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Logs"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(AuditLog.placeholders) { placeholderLog in
+                            AuditLogRowView(log: placeholderLog)
                         }
-                        .buttonStyle(.plain)
+                    }
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredLogs.isEmpty {
+                    Section {
+                        ForEach(viewModel.filteredLogs) { log in
+                            Button {
+                                selectedLog = log
+                                HapticManager.impact(.light)
+                            } label: {
+                                AuditLogRowView(log: log)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Audit Logs")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search actions, domains, or users")
         .id(appLanguage)
         .refreshable {
             await viewModel.fetchLogs()
@@ -47,6 +59,8 @@ struct AuditLogsView: View {
             NavigationStack {
                 AuditLogDetailSheetView(log: log)
             }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .overlay {
             if viewModel.hasFetchedData {

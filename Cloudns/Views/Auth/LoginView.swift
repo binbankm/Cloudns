@@ -38,7 +38,7 @@ struct LoginView: View {
             }
             .ignoresSafeArea()
             
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(spacing: 20) {
                     Spacer(minLength: 16)
                     
@@ -182,7 +182,7 @@ struct LoginView: View {
                                         }
                                 } else {
                                     SecureField("Enter Global API Key", text: $viewModel.apiKey)
-                                        .textContentType(.password)
+                                        .textContentType(.none)
                                         .keyboardType(.asciiCapable)
                                         .textInputAutocapitalization(.never)
                                         .autocorrectionDisabled()
@@ -312,6 +312,7 @@ struct LoginView: View {
                 }
                 .centerConstrainedWidth(maxWidth: 480)
             }
+            .scrollIndicators(.hidden)
             .contentShape(Rectangle())
             .onTapGesture {
                 focusedField = nil

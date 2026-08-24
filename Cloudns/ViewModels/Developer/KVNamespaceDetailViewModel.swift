@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class KVNamespaceDetailViewModel: BaseLoadableViewModel {
+final class KVNamespaceDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let namespace: KVNamespace
     private let kvService: KVServiceProtocol

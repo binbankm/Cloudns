@@ -36,6 +36,15 @@ final class DevToolsService: DevToolsServiceProtocol {
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
+    private let diagnosticSession: URLSession = {
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 10.0
+        config.timeoutIntervalForResource = 15.0
+        config.waitsForConnectivity = false
+        config.httpMaximumConnectionsPerHost = 6
+        return URLSession(configuration: config)
+    }()
+    
     private init() {}
     
     // MARK: - DNS-over-HTTPS (DoH) Lookup
@@ -62,7 +71,7 @@ final class DevToolsService: DevToolsServiceProtocol {
         request.timeoutInterval = 8.0
         
         let startTime = CFAbsoluteTimeGetCurrent()
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await diagnosticSession.data(for: request)
         let latency = (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -180,7 +189,7 @@ final class DevToolsService: DevToolsServiceProtocol {
                     
                     let start = CFAbsoluteTimeGetCurrent()
                     do {
-                        let (data, response) = try await URLSession.shared.data(for: req)
+                        let (data, response) = try await self.diagnosticSession.data(for: req)
                         let latency = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
                         
                         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -297,7 +306,7 @@ final class DevToolsService: DevToolsServiceProtocol {
                     
                     let start = CFAbsoluteTimeGetCurrent()
                     do {
-                        let (data, _) = try await URLSession.shared.data(for: req)
+                        let (data, _) = try await self.diagnosticSession.data(for: req)
                         let latency = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
                         
                         struct AnsItem: Codable {
@@ -372,7 +381,7 @@ final class DevToolsService: DevToolsServiceProtocol {
             
             let start = CFAbsoluteTimeGetCurrent()
             do {
-                let (_, response) = try await URLSession.shared.data(for: req)
+                let (_, response) = try await self.diagnosticSession.data(for: req)
                 let duration = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
                 if let http = response as? HTTPURLResponse {
                     serverHeader = http.value(forHTTPHeaderField: "server") ?? "Server"
@@ -609,7 +618,7 @@ final class DevToolsService: DevToolsServiceProtocol {
         
         var request = URLRequest(url: url)
         request.timeoutInterval = 8.0
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await diagnosticSession.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             return IPLookupResult.placeholder
         }
@@ -682,11 +691,12 @@ final class DevToolsService: DevToolsServiceProtocol {
         guard let url = URL(string: "https://\(host)/cdn-cgi/trace") else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.timeoutInterval = 8.0
-        let (data, _) = try await URLSession.shared.data(for: request)
-        guard let str = String(data: data, encoding: .utf8) else { throw APIError.invalidResponse }
-        
+        let (data, _) = try await diagnosticSession.data(for: request)
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw APIError.invalidResponse
+        }
         var items: [HTTPHeaderItem] = []
-        let lines = str.components(separatedBy: .newlines)
+        let lines = text.components(separatedBy: .newlines)
         for line in lines {
             let parts = line.split(separator: "=", maxSplits: 1).map(String.init)
             if parts.count == 2 {
@@ -701,8 +711,10 @@ final class DevToolsService: DevToolsServiceProtocol {
             throw APIError.invalidURL
         }
         var request = URLRequest(url: url)
-        request.timeoutInterval = 10.0
-        let (data, response) = try await URLSession.shared.data(for: request)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 8.0
+        
+        let (data, response) = try await diagnosticSession.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw APIError.invalidResponse
         }

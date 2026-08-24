@@ -35,7 +35,7 @@ public struct CloudnsCardModifier: ViewModifier {
     }
     
     public func body(content: Content) -> some View {
-        content
+        let base = content
             .padding(padding)
             .background(backgroundView)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -51,17 +51,25 @@ public struct CloudnsCardModifier: ViewModifier {
             )
             .scaleEffect(isPressed && isClickable ? 0.98 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
+
+        if isClickable {
+            base
+                .accessibilityAddTraits(.isButton)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in isPressed = true }
+                        .onEnded { _ in isPressed = false }
+                )
+        } else {
+            base
+        }
     }
     
     @ViewBuilder
     private var backgroundView: some View {
         switch style {
         case .frosted:
-            if colorScheme == .dark {
-                Color(.secondarySystemGroupedBackground)
-            } else {
-                Color(.secondarySystemGroupedBackground)
-            }
+            Color(.secondarySystemGroupedBackground)
         case .grouped:
             Color(.secondarySystemGroupedBackground)
         case .brandGlow(let accent):

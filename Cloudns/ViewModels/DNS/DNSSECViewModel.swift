@@ -3,7 +3,7 @@ import Combine
 import SwiftUI
 
 @MainActor
-class DNSSECViewModel: BaseLoadableViewModel {
+final class DNSSECViewModel: BaseLoadableViewModel {
     @Published var dnssec: DNSSEC?
     
     private let zoneId: String

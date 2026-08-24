@@ -17,15 +17,24 @@ struct TransformRulesView: View {
     private var displayedRules: [WAFRule] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            $0.expression.localizedCaseInsensitiveContains(searchText)
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            $0.expression.localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Transform Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             Picker("Phase", selection: $viewModel.selectedPhase) {
-                Text("URL Rewrite").tag("http_request_transform")
+                Text("Rewrite URL").tag("http_request_transform")
                 Text("Request Headers").tag("http_request_late_transform")
                 Text("Response Headers").tag("http_response_headers_transform")
             }
@@ -40,12 +49,11 @@ struct TransformRulesView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Transform Rules")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Transform Rules")
         .refreshable {
             await viewModel.fetchTransformRules()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     showingAddSheet = true
                 }) {

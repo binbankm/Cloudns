@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class TunnelDetailViewModel: BaseLoadableViewModel {
+final class TunnelDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let tunnel: CFTunnel
     private let tunnelService: TunnelServiceProtocol
@@ -62,7 +62,7 @@ class TunnelDetailViewModel: BaseLoadableViewModel {
         do {
             try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
             self.ingressRules = updated
-            ToastManager.shared.showSuccess("Ingress Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Ingress Rule Deleted")
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }

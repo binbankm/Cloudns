@@ -14,85 +14,97 @@ struct SnippetsListView: View {
     
     private var displayedSnippets: [SnippetItem] {
         if searchText.isEmpty { return viewModel.snippets }
-        return viewModel.snippets.filter { $0.snippet_name.localizedCaseInsensitiveContains(searchText) }
+        return viewModel.snippets.filter { $0.snippet_name.localizedStandardContains(searchText) }
     }
     
     private var displayedRules: [WAFRule] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            $0.expression.localizedCaseInsensitiveContains(searchText)
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            $0.expression.localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Edge Snippets")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Snippets & Rules")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            editingSnippet = nil
-                            showingEditorSheet = true
-                        } label: {
-                            Label("New Snippet Script", systemImage: "curlybraces")
-                        }
-                        
-                        Button {
-                            showingBindSheet = true
-                        } label: {
-                            Label("Add Trigger Rule", systemImage: "arrow.triangle.branch")
-                        }
-                        .disabled(viewModel.snippets.isEmpty)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Snippets & Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            contentView
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Edge Snippets")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        editingSnippet = nil
+                        showingEditorSheet = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label("New Snippet Script", systemImage: "curlybraces")
                     }
-                    .accessibilityLabel("Add Snippet or Trigger Rule")
+                    
+                    Button {
+                        showingBindSheet = true
+                    } label: {
+                        Label("Add Trigger Rule", systemImage: "arrow.triangle.branch")
+                    }
+                    .disabled(viewModel.snippets.isEmpty)
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Snippet or Trigger Rule")
+            }
+        }
+        .sheet(isPresented: $showingEditorSheet) {
+            SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingBindSheet) {
+            BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
+            Button("Delete '\(snip.snippet_name)'", role: .destructive) {
+                Task {
+                    _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
                 }
             }
-            .sheet(isPresented: $showingEditorSheet) {
-                SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
-            }
-            .sheet(isPresented: $showingBindSheet) {
-                BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
-            }
-            .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
-                Button("Delete '\(snip.snippet_name)'", role: .destructive) {
+            Button("Cancel", role: .cancel) {}
+        } message: { snip in
+            Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
+        }
+        .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                if let rId = viewModel.rulesetId {
                     Task {
-                        _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
+                        _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
                     }
                 }
-                Button("Cancel", role: .cancel) {}
-            } message: { snip in
-                Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
             }
-            .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                    if let rId = viewModel.rulesetId {
-                        Task {
-                            _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { rule in
-                Text("Are you sure you want to delete trigger rule '\(rule.description ?? rule.id)'?")
-            }
-            .refreshable {
+            Button("Cancel", role: .cancel) {}
+        } message: { rule in
+            Text("Are you sure you want to delete trigger rule '\(rule.description ?? rule.id)'?")
+        }
+        .refreshable {
+            await viewModel.fetchSnippets(zoneId: zoneId)
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchSnippets(zoneId: zoneId)
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchSnippets(zoneId: zoneId)
-                }
-            }
+        }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
+            
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 Section {
                     ForEach(SnippetItem.placeholders) { placeholderSnippet in

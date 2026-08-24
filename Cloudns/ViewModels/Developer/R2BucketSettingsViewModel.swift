@@ -84,7 +84,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
                 try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             }
             HapticManager.impact(.medium)
-            ToastManager.shared.showSuccess("CORS Rule Removed", message: "")
+            ToastManager.shared.showSuccess("CORS Rule Removed")
             await fetchSettings()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

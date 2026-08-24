@@ -18,7 +18,7 @@ final class DurableObjectsViewModel: BaseLoadableViewModel {
     
     var filteredNamespaces: [DurableObjectNamespace] {
         if searchText.isEmpty { return namespaces }
-        return namespaces.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) || ($0.script ?? "").localizedCaseInsensitiveContains(searchText) }
+        return namespaces.filter { $0.displayName.localizedStandardContains(searchText) || ($0.script ?? "").localizedStandardContains(searchText) }
     }
     
     func fetchNamespaces() async {

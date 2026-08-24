@@ -14,7 +14,7 @@ struct PagesDomainsView: View {
             .navigationTitle("Custom Domains")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAddDomainSheet = true
                     } label: {

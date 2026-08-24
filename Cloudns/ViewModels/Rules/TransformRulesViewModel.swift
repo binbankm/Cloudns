@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class TransformRulesViewModel: BaseLoadableViewModel {
+final class TransformRulesViewModel: BaseLoadableViewModel {
     let zoneId: String
     private let wafService: WAFRulesServiceProtocol
     
@@ -79,7 +79,7 @@ class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription

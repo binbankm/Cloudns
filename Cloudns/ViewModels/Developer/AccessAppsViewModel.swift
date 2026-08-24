@@ -24,7 +24,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
     
     var filteredApps: [AccessApp] {
         if searchText.isEmpty { return apps }
-        return apps.filter { $0.name.localizedCaseInsensitiveContains(searchText) || $0.domain.localizedCaseInsensitiveContains(searchText) }
+        return apps.filter { $0.name.localizedStandardContains(searchText) || $0.domain.localizedStandardContains(searchText) }
     }
     
     private func resolveTargetAccountId() async -> String {
@@ -69,7 +69,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
                 self.apps.removeAll { $0.id == id }
             }
             try await accessService.deleteAccessApp(accountId: targetId, appId: id)
-            ToastManager.shared.showSuccess("Access App Deleted", message: "")
+            ToastManager.shared.showSuccess("Access App Deleted")
             await fetchApps()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

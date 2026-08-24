@@ -35,13 +35,19 @@ public struct EmptyStateView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            // Icon
-            Image(systemName: icon)
-                .font(.largeTitle)
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(iconColor ?? .secondary)
-                .accessibilityHidden(true)
-                .padding(.bottom, 16)
+            // Icon with Apple-style soft circular badge
+            ZStack {
+                Circle()
+                    .fill((iconColor ?? .orange).opacity(0.12))
+                    .frame(width: 64, height: 64)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 28, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(iconColor ?? .orange)
+            }
+            .accessibilityHidden(true)
+            .padding(.bottom, 18)
             
             // Title
             Text(title)
@@ -62,28 +68,40 @@ public struct EmptyStateView: View {
             // Actions
             if let actionTitle = actionTitle, let action = action {
                 VStack(spacing: 12) {
-                    Button(action: action) {
+                    Button {
+                        HapticManager.impact(.light)
+                        action()
+                    } label: {
                         Text(actionTitle)
-                            .font(.body.weight(.medium))
-                            .frame(minWidth: 120)
+                            .font(.body.weight(.semibold))
+                            .padding(.horizontal, 8)
+                            .frame(minWidth: 130, minHeight: 24)
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(iconColor ?? .orange)
                     .controlSize(.regular)
                     
                     if let secondaryTitle = secondaryActionTitle, let secondaryAction = secondaryAction {
-                        Button(action: secondaryAction) {
+                        Button {
+                            HapticManager.selection()
+                            secondaryAction()
+                        } label: {
                             Text(secondaryTitle)
                                 .font(.subheadline)
                         }
                         .buttonStyle(.borderless)
                     }
                 }
-                .padding(.top, 20)
+                .padding(.top, 22)
             }
         }
         .padding(.vertical, 32)
         .padding(.horizontal, 16)
-        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .scale(scale: 0.96)),
+            removal: .opacity
+        ))
     }
 }
 

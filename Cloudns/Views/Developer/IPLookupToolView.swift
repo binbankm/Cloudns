@@ -5,196 +5,278 @@ struct IPLookupToolView: View {
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {
-        List {
-            // Target IP Input
-            Section(header: Text("Target IP Address or Hostname")) {
-                HStack {
-                    Image(systemName: "location.circle")
-                        .foregroundStyle(.teal)
-                        .accessibilityHidden(true)
-                    
-                    TextField("e.g. 1.1.1.1 or 104.21.45.12", text: $viewModel.ipInput)
-                        .keyboardType(.numbersAndPunctuation)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .focused($isFieldFocused)
-                        .submitLabel(.search)
-                        .onSubmit {
-                            Task { await viewModel.queryIP() }
-                        }
-                    
-                    if !viewModel.ipInput.isEmpty {
-                        Button {
-                            viewModel.ipInput = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                
-                Button {
-                    isFieldFocused = false
-                    HapticManager.impact(.light)
-                    Task { await viewModel.queryIP() }
-                } label: {
-                    HStack {
-                        Spacer()
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .padding(.trailing, 4)
-                        } else {
-                            Image(systemName: "location.fill")
-                        }
-                        Text("Lookup IP Geolocation & ASN")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.teal)
-                        Spacer()
-                    }
-                }
-                .disabled(viewModel.ipInput.isEmpty || viewModel.isLoading)
-            }
+        ZStack {
+            Color(.systemGroupedBackground).ignoresSafeArea()
             
-            if viewModel.isLoading && viewModel.lookupResult == nil {
-                ipDetailsSection(result: IPLookupResult.placeholder)
-                    .skeletonLoading(true)
-            } else if let result = viewModel.lookupResult {
-                ipDetailsSection(result: result)
-            } else if let error = viewModel.errorMessage {
-                Section {
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 1. Input Card
+                    inputCard
+                    
+                    if viewModel.isLoading && viewModel.lookupResult == nil {
+                        loadingSkeletonView
+                    } else if let result = viewModel.lookupResult {
+                        // 2. Identification Hero Card
+                        identificationCard(result: result)
+                        
+                        // 3. ASN Card
+                        asnCard(result: result)
+                        
+                        // 4. Geolocation Card
+                        geoCard(result: result)
+                    } else if let error = viewModel.errorMessage {
+                        errorCard(message: error)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .centerConstrainedWidth(maxWidth: 840)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .refreshable {
+                if !viewModel.ipInput.isEmpty {
+                    HapticManager.impact(.light)
+                    await viewModel.queryIP()
                 }
             }
         }
-        .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("IP & ASN Lookup")
         .navigationBarTitleDisplayMode(.inline)
     }
     
-    @ViewBuilder
-    private func ipDetailsSection(result: IPLookupResult) -> some View {
-        // 1. IP & Cloud Provider Identification
-        Section(header: Text("Network Identification")) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(result.countryFlag)
-                        .font(.title)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(result.ip)
-                            .font(.title3.weight(.bold).monospacedDigit())
-                            .foregroundStyle(.primary)
-                        
-                        if let city = result.city, let country = result.country {
-                            Text("\(city), \(country)")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+    // MARK: - 1. Input Card
+    private var inputCard: some View {
+        VStack(spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "location.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.teal)
+                    .accessibilityHidden(true)
+                
+                TextField("e.g. 1.1.1.1 or 104.21.45.12", text: $viewModel.ipInput)
+                    .keyboardType(.numbersAndPunctuation)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($isFieldFocused)
+                    .font(.body.monospacedDigit())
+                    .submitLabel(.search)
+                    .onSubmit {
+                        performQuery()
                     }
-                    
-                    Spacer()
-                    
+                
+                if !viewModel.ipInput.isEmpty {
                     Button {
-                        UIPasteboard.general.string = result.ip
-                        HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("IP copied to clipboard")
+                        viewModel.ipInput = ""
                     } label: {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundStyle(.teal)
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear input")
+                }
+            }
+            .padding(12)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            
+            Button {
+                performQuery()
+            } label: {
+                HStack(spacing: 6) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "location.fill")
+                    }
+                    Text(viewModel.isLoading ? "Querying BGP & Geo..." : "Lookup IP Geolocation & ASN")
+                        .font(.body.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.teal)
+            .controlSize(.regular)
+            .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    private func performQuery() {
+        isFieldFocused = false
+        HapticManager.impact(.light)
+        Task { await viewModel.queryIP() }
+    }
+    
+    // MARK: - 2. Identification Card
+    @ViewBuilder
+    private func identificationCard(result: IPLookupResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(result.countryFlag)
+                    .font(.system(size: 36))
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(result.ip)
+                        .font(.title3.weight(.bold).monospacedDigit())
+                        .foregroundStyle(.primary)
+                    
+                    if let city = result.city, let country = result.country {
+                        Text("\(city), \(country)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 
-                if let cloud = result.cloudProvider {
-                    HStack {
-                        Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
-                            .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
-                        Text(cloud)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                Spacer()
+                
+                Button {
+                    UIPasteboard.general.string = result.ip
+                    HapticManager.notification(.success)
+                    ToastManager.shared.showCopied("IP copied")
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.body)
+                        .foregroundStyle(.teal)
+                }
+            }
+            
+            if let cloud = result.cloudProvider {
+                Divider()
+                HStack {
+                    Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
+                        .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                    Text(cloud)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                    Spacer()
+                    if result.isCloudflareAnycast {
+                        CloudnsBadge(.active("Cloudflare Edge"), isCompact: true)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color(.tertiarySystemFill))
-                    .clipShape(Capsule())
-                }
-            }
-            .padding(.vertical, 4)
-        }
-        
-        // 2. ASN & BGP Route Details
-        Section(header: Text("BGP Autonomous System (ASN)")) {
-            if let asn = result.asn {
-                HStack {
-                    Text("ASN Number")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    CloudnsBadge(.active(asn), isCompact: true)
-                }
-            }
-            
-            if let org = result.org {
-                HStack {
-                    Text("ISP / Organization")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(org)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
-                        .multilineTextAlignment(.trailing)
                 }
             }
         }
-        
-        // 3. Geolocation & Coordinates
-        Section(header: Text("Geographical Location")) {
-            if let country = result.country {
-                HStack {
-                    Text("Country / Region")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text("\(result.countryFlag) \(country)")
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
-                }
-            }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 3. ASN Card
+    @ViewBuilder
+    private func asnCard(result: IPLookupResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Autonomous System (ASN)")
+                .font(.headline)
+                .foregroundStyle(.primary)
             
-            if let region = result.region {
-                HStack {
-                    Text("State / Province")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(region)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
-                }
-            }
+            Divider()
             
-            if let tz = result.timezone {
-                HStack {
-                    Text("Timezone")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(tz)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
+            VStack(spacing: 10) {
+                if let asn = result.asn {
+                    HStack {
+                        Text("ASN Number")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        CloudnsBadge(.active(asn), isCompact: true)
+                    }
+                }
+                if let org = result.org {
+                    HStack {
+                        Text("ISP / Organization")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(org)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
             }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 4. Geolocation Card
+    @ViewBuilder
+    private func geoCard(result: IPLookupResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Geographical Location")
+                .font(.headline)
+                .foregroundStyle(.primary)
             
-            if let lat = result.latitude, let lon = result.longitude {
-                HStack {
-                    Text("Coordinates (Lat / Lon)")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(String(format: "%.4f, %.4f", lat, lon))
-                        .font(.subheadline.monospacedDigit())
-                        .foregroundStyle(.primary)
+            Divider()
+            
+            VStack(spacing: 10) {
+                if let country = result.country {
+                    geoRow(title: "Country / Region", value: "\(result.countryFlag) \(country)")
+                }
+                if let region = result.region {
+                    geoRow(title: "State / Province", value: region)
+                }
+                if let tz = result.timezone {
+                    geoRow(title: "Timezone", value: tz)
+                }
+                if let lat = result.latitude, let lon = result.longitude {
+                    geoRow(title: "Coordinates (Lat/Lon)", value: String(format: "%.4f, %.4f", lat, lon), isMono: true)
                 }
             }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    @ViewBuilder
+    private func geoRow(title: LocalizedStringKey, value: String, isMono: Bool = false) -> some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .font(isMono ? .subheadline.monospacedDigit() : .subheadline)
+                .foregroundStyle(.primary)
+        }
+    }
+    
+    // MARK: - Error Card
+    @ViewBuilder
+    private func errorCard(message: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title3)
+                .foregroundStyle(.red)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Lookup Failed")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - Skeleton View
+    private var loadingSkeletonView: some View {
+        VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Circle().frame(width: 36, height: 36)
+                    VStack(alignment: .leading) {
+                        Text("1.1.1.1").font(.title3.weight(.bold))
+                        Text("San Francisco, United States")
+                    }
+                }
+            }
+            .padding(16)
+            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .skeletonLoading(true)
         }
     }
 }

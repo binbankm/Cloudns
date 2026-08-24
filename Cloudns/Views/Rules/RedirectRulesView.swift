@@ -11,48 +11,59 @@ struct RedirectRulesView: View {
     private var displayedRules: [RedirectRuleItem] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            ($0.description ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.expression ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.targetUrl ?? "").localizedCaseInsensitiveContains(searchText)
+            ($0.description ?? "").localizedStandardContains(searchText) ||
+            ($0.expression ?? "").localizedStandardContains(searchText) ||
+            ($0.targetUrl ?? "").localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        contentView
-            .navigationTitle("Redirect Rules")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Redirect Rules")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add Redirect Rule")
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Redirect Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            contentView
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Redirect Rules")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Redirect Rule")
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                Task {
+                    await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
                 }
             }
-            .sheet(isPresented: $showingAddSheet) {
-                AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
-            }
-            .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                    Task {
-                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
-                    }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { rule in
-                Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
-            }
-            .refreshable {
+            Button("Cancel", role: .cancel) {}
+        } message: { rule in
+            Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
+        }
+        .refreshable {
+            await viewModel.fetchRules(zoneId: zoneId)
+        }
+        .task {
+            if !viewModel.hasFetchedData {
                 await viewModel.fetchRules(zoneId: zoneId)
             }
-            .task {
-                if !viewModel.hasFetchedData {
-                    await viewModel.fetchRules(zoneId: zoneId)
-                }
-            }
+        }
     }
     
     @ViewBuilder
@@ -83,6 +94,7 @@ struct RedirectRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData {

@@ -15,13 +15,9 @@ struct DeveloperHubView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color(.systemGroupedBackground).ignoresSafeArea()
-                
-                contentView
-            }
-            .navigationTitle("Developer Hub")
-            .navigationBarTitleDisplayMode(.inline)
+            contentView
+                .navigationTitle("Developer Hub")
+                .navigationBarTitleDisplayMode(.inline)
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
                 Task { await viewModel.fetchOverview(isRefresh: true) }

@@ -14,15 +14,25 @@ struct GatewayRulesView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(GatewayRule.placeholders) { placeholder in
-                        ruleRow(placeholder)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(GatewayRule.placeholders) { placeholder in
+                            ruleRow(placeholder)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredRules.isEmpty {
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
@@ -68,11 +78,14 @@ struct GatewayRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
+    }
+    .background(Color(.systemGroupedBackground))
         .navigationTitle("Gateway Rules")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddSheet = true
                 } label: {
@@ -84,7 +97,6 @@ struct GatewayRulesView: View {
         .sheet(isPresented: $showingAddSheet) {
             AddGatewayRuleSheetView(viewModel: viewModel)
         }
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Rules")
         .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name)'", role: .destructive) {
                 Task { await viewModel.deleteRule(id: rule.id) }

@@ -26,49 +26,57 @@ struct DNSRecordsView: View {
     }
     
     var displayRecords: [DNSRecord] {
-        viewModel.records
+        viewModel.filteredRecords
     }
     
     var body: some View {
-        List(selection: $multiSelection) {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(DNSRecord.placeholders) { placeholderRecord in
-                        DNSRecordRowView(record: placeholderRecord)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchQuery,
+                prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List(selection: $multiSelection) {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(DNSRecord.placeholders) { placeholderRecord in
+                            DNSRecordRowView(record: placeholderRecord)
+                        }
+                    }
+                    .skeletonLoading(true)
+                } else if !displayRecords.isEmpty {
+                    recordsSections
+
+                    if viewModel.canLoadMore && viewModel.hasFetchedData {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
+                            .onAppear {
+                                Task {
+                                    await viewModel.fetchRecords()
+                                }
+                            }
                     }
                 }
-                .skeletonLoading(true)
-            } else if !displayRecords.isEmpty {
-                recordsSections
-
-                if viewModel.canLoadMore && viewModel.hasFetchedData {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                        .onAppear {
-                            Task {
-                                await viewModel.fetchRecords()
-                            }
-                        }
-                }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("DNS Records")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(
-            text: $viewModel.searchQuery,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
-        )
         .refreshable {
             await viewModel.fetchRecords(isRefresh: true)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 trailingToolbar
             }
             
@@ -93,6 +101,8 @@ struct DNSRecordsView: View {
                 records: viewModel.records,
                 viewModel: viewModel
             )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingPresetsSheet) {
             DNSPresetsSheetView(
@@ -100,6 +110,8 @@ struct DNSRecordsView: View {
                 zoneId: zoneId,
                 viewModel: viewModel
             )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .fileImporter(
             isPresented: $showingImporter,

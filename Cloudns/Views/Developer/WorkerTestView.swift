@@ -63,7 +63,7 @@ struct WorkerTestView: View {
                 .padding(.vertical, 2)
                 
                 // Quick Path Shortcuts
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     HStack(spacing: 8) {
                         quickPathButton("/")
                         quickPathButton("/api")
@@ -72,6 +72,7 @@ struct WorkerTestView: View {
                     }
                     .padding(.vertical, 2)
                 }
+                .scrollIndicators(.hidden)
             } header: {
                 Text("Request Configuration")
             }
@@ -204,7 +205,7 @@ struct WorkerTestView: View {
         .navigationTitle("Test Dispatch")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button {
                         let curl = generateCurlCommand()

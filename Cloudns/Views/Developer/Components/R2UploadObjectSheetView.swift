@@ -147,8 +147,6 @@ struct R2UploadObjectSheetView: View {
     }
     
     private func formatBytes(_ bytes: Int) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
+        ByteCountFormatters.format(Int64(bytes))
     }
 }

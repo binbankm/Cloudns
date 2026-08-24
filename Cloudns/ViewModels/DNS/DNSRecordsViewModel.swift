@@ -1,10 +1,9 @@
 import Foundation
 import Combine
 import SwiftUI
-import UIKit
 
 @MainActor
-class DNSRecordsViewModel: BaseLoadableViewModel {
+final class DNSRecordsViewModel: BaseLoadableViewModel {
     @Published var records: [DNSRecord] = []
     @Published var totalCount: Int = 0
     
@@ -12,6 +11,19 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
     
     @Published var searchQuery: String = ""
     @Published var sortOption: String = "name"
+    
+    var filteredRecords: [DNSRecord] {
+        let trimmed = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return records
+        }
+        return records.filter { record in
+            record.name.localizedStandardContains(trimmed) ||
+            (record.content ?? "").localizedStandardContains(trimmed) ||
+            record.type.localizedStandardContains(trimmed) ||
+            (record.comment ?? "").localizedStandardContains(trimmed)
+        }
+    }
     
     private var cancellables = Set<AnyCancellable>()
     private var searchTask: Task<Void, Never>?
@@ -30,19 +42,6 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
         self.dnsService = dnsService
         super.init()
         
-        $searchQuery
-            .dropFirst()
-            .debounce(for: .milliseconds(400), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                self.searchTask?.cancel()
-                self.searchTask = Task {
-                    await self.fetchRecords(isRefresh: true)
-                }
-            }
-            .store(in: &cancellables)
-            
         $sortOption
             .dropFirst()
             .removeDuplicates()
@@ -64,24 +63,16 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
         guard !isLoading else { return }
         if !isRefresh && !canLoadMore && !records.isEmpty { return }
         
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let (newRecords, resultInfo) = try await dnsService.getDNSRecords(
-                zoneId: zoneId,
-                page: currentPage,
+        await executeLoadingTask(clearError: isRefresh) {
+            let (newRecords, resultInfo) = try await self.dnsService.getDNSRecords(
+                zoneId: self.zoneId,
+                page: self.currentPage,
                 perPage: 50,
-                search: searchQuery.isEmpty ? nil : searchQuery,
+                search: nil,
                 type: nil,
-                order: sortOption,
-                direction: sortOption == "name" ? "asc" : "desc"
+                order: self.sortOption,
+                direction: self.sortOption == "name" ? "asc" : "desc"
             )
-            
-            guard !Task.isCancelled else {
-                isLoading = false
-                return
-            }
             
             if isRefresh {
                 self.records = newRecords
@@ -97,15 +88,7 @@ class DNSRecordsViewModel: BaseLoadableViewModel {
                 self.currentPage += 1
             }
             self.hasFetchedData = true
-        } catch {
-            guard !Task.isCancelled else {
-                isLoading = false
-                return
-            }
-            self.errorMessage = "Failed to fetch DNS records: \(error.localizedDescription)"
         }
-        
-        isLoading = false
     }
     
     func deleteRecords(withIds ids: Set<String>) {

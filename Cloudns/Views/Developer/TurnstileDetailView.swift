@@ -163,12 +163,13 @@ struct TurnstileDetailView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    ScrollView(.horizontal) {
                         Text(snippetCode)
                             .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
                             .padding(.vertical, 4)
                     }
+                    .scrollIndicators(.hidden)
                     
                     Button {
                         UIPasteboard.general.string = snippetCode

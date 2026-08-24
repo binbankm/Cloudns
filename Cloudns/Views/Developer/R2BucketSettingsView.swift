@@ -107,7 +107,7 @@ struct R2BucketSettingsView: View {
             AddCORSRuleSheetView(viewModel: viewModel)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddCORSSheet = true
                 } label: {

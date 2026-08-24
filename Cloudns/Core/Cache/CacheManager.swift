@@ -89,9 +89,6 @@ public final class CacheManager: ObservableObject {
     
     public nonisolated static func formatBytes(_ bytes: Int64) -> String {
         if bytes <= 0 { return "0 KB" }
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useKB, .useMB, .useGB]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: bytes)
+        return ByteCountFormatters.format(bytes)
     }
 }

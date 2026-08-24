@@ -632,6 +632,7 @@ struct DataSyncAndSecurityTests {
     }
     
     @Test("RecentZonesManager removeZone functionality")
+    @MainActor
     func testRecentZonesManagerRemove() {
         let manager = RecentZonesManager.shared
         manager.recordVisit(zoneId: "test_zone_1")
@@ -689,6 +690,7 @@ struct DataSyncAndSecurityTests {
 struct SecurityAndMultiTenantTests {
     
     @Test("WidgetDataStore active account switching isolation")
+    @MainActor
     func testWidgetDataStoreAccountIsolation() {
         let store = WidgetDataStore.shared
         
@@ -714,7 +716,7 @@ struct SecurityAndMultiTenantTests {
     @MainActor
     func testStrictDeepLinkParsing() {
         let router = DeepLinkRouter.shared
-        var currentTab = 0
+        var currentTab: AppTab = .domains
         let binding = Binding(get: { currentTab }, set: { currentTab = $0 })
         
         // Query param or substring containing 'worker' should NOT route to worker

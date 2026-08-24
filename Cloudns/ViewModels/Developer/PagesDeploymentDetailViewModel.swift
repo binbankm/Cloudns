@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
+final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let projectName: String
     let deployment: PagesDeployment

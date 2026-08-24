@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class WorkerTailViewModel: BaseLoadableViewModel {
+final class WorkerTailViewModel: BaseLoadableViewModel {
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
@@ -35,18 +35,18 @@ class WorkerTailViewModel: BaseLoadableViewModel {
         
         if searchText.isEmpty { return list }
         return list.filter { item in
-            if let url = item.event?.request?.url, url.localizedCaseInsensitiveContains(searchText) { return true }
+            if let url = item.event?.request?.url, url.localizedStandardContains(searchText) { return true }
             if let logs = item.logs {
                 for log in logs {
                     if let msgs = log.message {
-                        for m in msgs where m.displayText.localizedCaseInsensitiveContains(searchText) {
+                        for m in msgs where m.displayText.localizedStandardContains(searchText) {
                             return true
                         }
                     }
                 }
             }
             if let exceptions = item.exceptions {
-                for ex in exceptions where ex.message?.localizedCaseInsensitiveContains(searchText) == true {
+                for ex in exceptions where ex.message?.localizedStandardContains(searchText) == true {
                     return true
                 }
             }

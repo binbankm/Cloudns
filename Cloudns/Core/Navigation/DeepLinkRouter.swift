@@ -2,6 +2,15 @@ import Foundation
 import SwiftUI
 import Combine
 
+// MARK: - AppTab Definition
+
+public enum AppTab: Int, CaseIterable, Sendable {
+    case dashboard = 0
+    case domains = 1
+    case developer = 2
+    case settings = 3
+}
+
 // MARK: - DeepLinkDestination
 
 public enum DeepLinkDestination: Identifiable, Equatable, Sendable {
@@ -36,7 +45,7 @@ public final class DeepLinkRouter: ObservableObject {
     
     private init() {}
     
-    public func handle(url: URL, currentTab: Binding<Int>) {
+    public func handle(url: URL, currentTab: Binding<AppTab>) {
         guard url.scheme == "cloudns" else { return }
         HapticManager.selection()
         
@@ -53,28 +62,28 @@ public final class DeepLinkRouter: ObservableObject {
             case "trace": newDestination = .trace
             case "status": newDestination = .status
             case "ipranges": newDestination = .ipranges
-            default: currentTab.wrappedValue = 2
+            default: currentTab.wrappedValue = .developer
             }
         } else if host == "zone" || host == "zones" {
             if let id = targetId, !id.isEmpty, id != "placeholder-zone-id", id != "placeholder" {
                 newDestination = .zone(id: id)
             } else {
-                currentTab.wrappedValue = 1
+                currentTab.wrappedValue = .domains
             }
         } else if host == "worker" || host == "workers" {
             if let id = targetId, !id.isEmpty, id != "placeholder-worker", id != "placeholder" {
                 newDestination = .worker(id: id)
             } else {
-                currentTab.wrappedValue = 2
+                currentTab.wrappedValue = .developer
             }
         } else if host == "pages" || host == "page" {
             if let id = targetId, !id.isEmpty, id != "placeholder-pages", id != "placeholder" {
                 newDestination = .pages(id: id)
             } else {
-                currentTab.wrappedValue = 2
+                currentTab.wrappedValue = .developer
             }
         } else if host == "developer" {
-            currentTab.wrappedValue = 2
+            currentTab.wrappedValue = .developer
         } else if host == "status" {
             newDestination = .status
         } else if host == "dig" {
@@ -88,5 +97,13 @@ public final class DeepLinkRouter: ObservableObject {
         if let dest = newDestination {
             self.activeDestination = dest
         }
+    }
+    
+    public func handle(url: URL, currentTab: Binding<Int>) {
+        let binding = Binding<AppTab>(
+            get: { AppTab(rawValue: currentTab.wrappedValue) ?? .dashboard },
+            set: { currentTab.wrappedValue = $0.rawValue }
+        )
+        handle(url: url, currentTab: binding)
     }
 }

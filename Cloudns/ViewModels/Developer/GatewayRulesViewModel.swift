@@ -24,7 +24,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
     
     var filteredRules: [GatewayRule] {
         if searchText.isEmpty { return rules }
-        return rules.filter { $0.name.localizedCaseInsensitiveContains(searchText) || ($0.action).localizedCaseInsensitiveContains(searchText) }
+        return rules.filter { $0.name.localizedStandardContains(searchText) || ($0.action).localizedStandardContains(searchText) }
     }
     
     private func resolveTargetAccountId() async -> String {
@@ -76,7 +76,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
                 self.rules.removeAll { $0.id == id }
             }
             try await gatewayService.deleteGatewayRule(accountId: targetId, ruleId: id)
-            ToastManager.shared.showSuccess("Gateway Rule Deleted", message: "")
+            ToastManager.shared.showSuccess("Gateway Rule Deleted")
             await fetchRules()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

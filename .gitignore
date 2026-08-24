@@ -39,3 +39,7 @@ Icon\r
 .tmp/
 .gemini/
 .claude/
+.agents/
+
+
+skills-lock.json

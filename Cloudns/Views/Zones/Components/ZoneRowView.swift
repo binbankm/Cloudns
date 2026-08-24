@@ -22,20 +22,28 @@ struct ZoneRowView: View {
         return palette[hash % palette.count]
     }
     
+    @Environment(\.redactionReasons) private var redactionReasons
+    
+    private var isRedacted: Bool {
+        redactionReasons.contains(.placeholder)
+    }
+    
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             // Leading Initial Avatar with Deterministic Color Hashing
             ZStack {
                 Circle()
-                    .fill(avatarColor.opacity(0.14))
+                    .fill(isRedacted ? Color(.tertiarySystemFill) : avatarColor.opacity(0.14))
                     .frame(width: 38, height: 38)
-                Text(initialChar)
-                    .font(.system(.body, design: .rounded, weight: .semibold))
-                    .foregroundStyle(avatarColor)
+                if !isRedacted {
+                    Text(initialChar)
+                        .font(.system(.body, design: .rounded, weight: .semibold))
+                        .foregroundStyle(avatarColor)
+                }
             }
             .accessibilityHidden(true)
             
-            // Domain Info & Status Badges
+            // Domain Info
             VStack(alignment: .leading, spacing: 3) {
                 Text(zone.name)
                     .font(.body)
@@ -43,32 +51,27 @@ struct ZoneRowView: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                HStack(spacing: 5) {
-                    CloudnsBadge(
-                        zone.status.lowercased() == "active" ? .active("Active") : .warning(zone.status.capitalized),
-                        isCompact: true
-                    )
-                    
-                    CloudnsBadge(.plan(zone.planTier), isCompact: true)
-                    
-                    if zone.paused {
-                        Text("Paused")
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Color.red.opacity(0.15))
-                            .foregroundStyle(.red)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    }
-                    
-                    if (zone.developmentMode ?? 0) > 0 {
-                        Text("Dev Mode")
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Color.orange.opacity(0.15))
-                            .foregroundStyle(.orange)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                if zone.paused || (zone.developmentMode ?? 0) > 0 {
+                    HStack(spacing: 5) {
+                        if zone.paused {
+                            Text("Paused")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1.5)
+                                .background(Color.red.opacity(0.15))
+                                .foregroundStyle(.red)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+                        
+                        if (zone.developmentMode ?? 0) > 0 {
+                            Text("Dev Mode")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1.5)
+                                .background(Color.orange.opacity(0.15))
+                                .foregroundStyle(.orange)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
                     }
                 }
             }

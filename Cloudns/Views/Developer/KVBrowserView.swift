@@ -4,6 +4,7 @@ struct KVBrowserView: View {
     let accountId: String
     @StateObject private var viewModel: KVViewModel
     
+    @State private var searchText = ""
     @State private var showingCreateKVSheet = false
     @State private var showingCreateD1Sheet = false
     @State private var namespaceToDelete: KVNamespace?
@@ -16,11 +17,36 @@ struct KVBrowserView: View {
         _viewModel = StateObject(wrappedValue: KVViewModel(accountId: accountId))
     }
     
+    private var filteredNamespaces: [KVNamespace] {
+        if searchText.isEmpty { return viewModel.namespaces }
+        return viewModel.namespaces.filter {
+            $0.title.localizedStandardContains(searchText) ||
+            $0.id.localizedStandardContains(searchText)
+        }
+    }
+    
+    private var filteredDatabases: [D1Database] {
+        if searchText.isEmpty { return viewModel.d1Databases }
+        return viewModel.d1Databases.filter {
+            $0.name.localizedStandardContains(searchText) ||
+            $0.uuid.localizedStandardContains(searchText)
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
             Picker("Storage", selection: $viewModel.selectedSegment) {
-                Text("KV Namespaces (\(viewModel.namespaces.count))").tag(0)
-                Text("D1 Databases (\(viewModel.d1Databases.count))").tag(1)
+                Text(viewModel.hasFetchedData ? "KV Namespaces (\(viewModel.namespaces.count))" : "KV Namespaces").tag(0)
+                Text(viewModel.hasFetchedData ? "D1 Databases (\(viewModel.d1Databases.count))" : "D1 Databases").tag(1)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
@@ -34,7 +60,7 @@ struct KVBrowserView: View {
         .navigationTitle("KV & D1")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if viewModel.selectedSegment == 0 {
                         showingCreateKVSheet = true
@@ -110,9 +136,9 @@ struct KVBrowserView: View {
                 }
                 .skeletonLoading(true)
             } else if viewModel.selectedSegment == 0 {
-                if !viewModel.namespaces.isEmpty {
+                if !filteredNamespaces.isEmpty {
                     Section {
-                        ForEach(viewModel.namespaces) { ns in
+                        ForEach(filteredNamespaces) { ns in
                             NavigationLink {
                                 KVNamespaceKeysView(accountId: accountId, namespace: ns)
                             } label: {
@@ -131,9 +157,9 @@ struct KVBrowserView: View {
                     }
                 }
             } else {
-                if !viewModel.d1Databases.isEmpty {
+                if !filteredDatabases.isEmpty {
                     Section {
-                        ForEach(viewModel.d1Databases) { db in
+                        ForEach(filteredDatabases) { db in
                             NavigationLink {
                                 D1ConsoleView(accountId: accountId, database: db)
                             } label: {
@@ -181,6 +207,13 @@ struct KVBrowserView: View {
                             message: "You haven't created any Cloudflare D1 SQL databases in this account yet.",
                             actionTitle: "Create Database",
                             action: { showingCreateD1Sheet = true }
+                        )
+                    )
+                } else if !searchText.isEmpty && ((viewModel.selectedSegment == 0 && filteredNamespaces.isEmpty) || (viewModel.selectedSegment == 1 && filteredDatabases.isEmpty)) {
+                    StateOverlayView(
+                        state: .search(
+                            query: searchText,
+                            clearAction: { searchText = "" }
                         )
                     )
                 }

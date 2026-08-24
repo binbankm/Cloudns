@@ -108,8 +108,7 @@ public final class AppIconManager: ObservableObject {
             self.storedIconId = icon.rawValue
             HapticManager.notification(.success)
         } catch {
-            print("Failed to change app icon: \(error.localizedDescription)")
-            // Fallback sync
+            ToastManager.shared.showError("Icon Error", message: error.localizedDescription)
             self.syncCurrentIcon()
         }
     }

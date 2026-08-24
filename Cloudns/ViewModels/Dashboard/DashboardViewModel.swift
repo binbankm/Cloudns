@@ -154,20 +154,18 @@ final class DashboardViewModel: BaseLoadableViewModel {
         
         // 1. [Stale] 0ms 尝试从缓存预加载
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DashboardSnapshot.self) {
-            await MainActor.run {
-                self.zones = cached.zones
-                self.workers = cached.workers
-                self.pages = cached.pages
-                self.tunnels = cached.tunnels
-                self.kvCount = cached.kvCount
-                self.r2Count = cached.r2Count
-                self.d1Count = cached.d1Count
-                self.hasFetchedData = true
-                self.refreshRecentZones()
-                self.syncTopZoneToWidget()
-                self.syncTopWorkerToWidget()
-                self.syncTopPagesToWidget()
-            }
+            self.zones = cached.zones
+            self.workers = cached.workers
+            self.pages = cached.pages
+            self.tunnels = cached.tunnels
+            self.kvCount = cached.kvCount
+            self.r2Count = cached.r2Count
+            self.d1Count = cached.d1Count
+            self.hasFetchedData = true
+            self.refreshRecentZones()
+            self.syncTopZoneToWidget()
+            self.syncTopWorkerToWidget()
+            self.syncTopPagesToWidget()
         }
         
         // 2. [Revalidate / Refresh] 统一执行前台/后台实时拉取
@@ -236,23 +234,23 @@ final class DashboardViewModel: BaseLoadableViewModel {
         
         Task {
             // 1. 优先读取已有的 SWR 本地缓存
+            var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeRecentIds {
-                if let cached = await SWRCacheStore.shared.get(forKey: "zone_sparkline_\(id)", as: ZoneSparklineCache.self) {
-                    await MainActor.run {
-                        self.sparklines[id] = cached
-                    }
+                let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
+                if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneSparklineCache.self) {
+                    cachedMap[id] = cached
                 }
+            }
+            if !cachedMap.isEmpty {
+                self.sparklines.merge(cachedMap) { _, new in new }
             }
             
             // 2. 批量拉取实时 24h 流量点位
             if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeRecentIds) {
-                await MainActor.run {
-                    for (id, cache) in batchMap {
-                        self.sparklines[id] = cache
-                    }
-                }
+                self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
-                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: "zone_sparkline_\(id)")
+                    let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
+                    await SWRCacheStore.shared.setMemoryOnly(cache, forKey: scopedKey)
                 }
             }
         }

@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class CFTraceViewModel: BaseLoadableViewModel {
+final class CFTraceViewModel: BaseLoadableViewModel {
     private let devToolsService: DevToolsServiceProtocol
     
     @Published var host: String = "www.cloudflare.com"

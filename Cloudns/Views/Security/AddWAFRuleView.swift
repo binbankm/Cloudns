@@ -99,7 +99,7 @@ struct AddWAFRuleView: View {
                 
                 // Quick Presets
                 Section(header: Text("Quick Security Presets")) {
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    ScrollView(.horizontal) {
                         HStack(spacing: 8) {
                             presetButton("Shield WordPress") {
                                 ruleName = "Protect WordPress Admin & XML-RPC"
@@ -116,20 +116,21 @@ struct AddWAFRuleView: View {
                                 operatorType = "contains"
                                 value = "sqlmap"
                                 action = "block"
-                                rawExpression = "(http.user_agent contains \"sqlmap\" or http.user_agent contains \"nikto\" or http.user_agent contains \"masscan\")"
+                                rawExpression = "(http.user_agent contains \"sqlmap\" or http.user_agent contains \"nikto\" or http.user_agent contains \"nmap\")"
                             }
                             
-                            presetButton("High Threat Score") {
-                                ruleName = "Challenge High Threat Visitors"
-                                field = "cf.threat_score"
-                                operatorType = "gt"
-                                value = "30"
+                            presetButton("Challenge Foreign Traffic") {
+                                ruleName = "Challenge Non-Domestic Visitors"
+                                field = "ip.geoip.country"
+                                operatorType = "ne"
+                                value = "US"
                                 action = "managed_challenge"
-                                rawExpression = "(cf.threat_score gt 30)"
+                                rawExpression = "(ip.geoip.country ne \"US\")"
                             }
                         }
                         .padding(.vertical, 2)
                     }
+                    .scrollIndicators(.hidden)
                 }
                 
                 if editorMode == 0 {

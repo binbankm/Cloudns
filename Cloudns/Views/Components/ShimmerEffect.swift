@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// A ViewModifier that adds a smooth, industry-standard shimmering light-sweep animation to any view.
+/// A ViewModifier that adds a smooth, Apple HIG standard pulsing shimmer animation to placeholder loading views.
 public struct ShimmerEffect: ViewModifier {
-    @State private var phase: CGFloat = -1.0
+    @State private var isPulsing: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     public init() {}
@@ -13,32 +13,13 @@ public struct ShimmerEffect: ViewModifier {
                 .opacity(0.8)
         } else {
             content
-                .overlay(
-                    GeometryReader { geometry in
-                        let width = geometry.size.width
-                        LinearGradient(
-                            gradient: Gradient(stops: [
-                                .init(color: .clear, location: 0.0),
-                                .init(color: Color.white.opacity(0.35), location: 0.45),
-                                .init(color: Color.white.opacity(0.6), location: 0.5),
-                                .init(color: Color.white.opacity(0.35), location: 0.55),
-                                .init(color: .clear, location: 1.0)
-                            ]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: max(width * 2.0, 150))
-                        .offset(x: -width + (width * 2.5 * phase))
-                        .blendMode(.screen)
-                        .animation(
-                            Animation.linear(duration: 1.5).repeatForever(autoreverses: false),
-                            value: phase
-                        )
-                    }
-                    .mask(content)
+                .opacity(isPulsing ? 0.45 : 0.95)
+                .animation(
+                    Animation.easeInOut(duration: 0.85).repeatForever(autoreverses: true),
+                    value: isPulsing
                 )
                 .onAppear {
-                    phase = 1.0
+                    isPulsing = true
                 }
         }
     }

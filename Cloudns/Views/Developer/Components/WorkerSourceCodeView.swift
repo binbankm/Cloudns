@@ -63,7 +63,7 @@ struct WorkerSourceCodeView: View {
         VStack(spacing: 0) {
             // 1. Top Tab Bar: Modules (if multi-module)
             if activeModules.count > 1 {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     HStack(spacing: 8) {
                         ForEach(activeModules) { mod in
                             Button {
@@ -95,6 +95,7 @@ struct WorkerSourceCodeView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                 }
+                .scrollIndicators(.hidden)
                 .background(Color(.systemGroupedBackground))
                 Divider()
             }
@@ -123,7 +124,7 @@ struct WorkerSourceCodeView: View {
         .navigationTitle(selectedModuleName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 ShareLink(
                     item: editableCode,
                     subject: Text(selectedModuleName),
@@ -365,9 +366,6 @@ struct WorkerSourceCodeView: View {
     }
     
     private func formatBytes(_ bytes: Int) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
+        ByteCountFormatters.format(Int64(bytes))
     }
 }

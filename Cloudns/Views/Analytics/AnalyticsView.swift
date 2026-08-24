@@ -520,7 +520,7 @@ struct AnalyticsView: View {
                             endPoint: .bottom
                         )
                     )
-                    .cornerRadius(4)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
                 
                 if let selected = selectedBandwidthPoint {

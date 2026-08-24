@@ -120,7 +120,7 @@ struct D1TableView: View {
         .navigationTitle(tableName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     editorContext = .insert
                 } label: {

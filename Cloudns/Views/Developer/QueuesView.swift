@@ -16,48 +16,60 @@ struct QueuesView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(CFQueue.placeholders) { placeholderQueue in
-                        queueRow(placeholderQueue)
-                    }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredQueues.isEmpty {
-                Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
-                    ForEach(viewModel.filteredQueues) { queue in
-                        NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
-                            queueRow(queue)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Queues"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(CFQueue.placeholders) { placeholderQueue in
+                            queueRow(placeholderQueue)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                HapticManager.impact(.medium)
-                                queueToDelete = queue
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                    }
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredQueues.isEmpty {
+                    Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
+                        ForEach(viewModel.filteredQueues) { queue in
+                            NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
+                                queueRow(queue)
                             }
-                            Button {
-                                HapticManager.impact(.light)
-                                queueToPurge = queue
-                                showingPurgeAlert = true
-                            } label: {
-                                Label("Purge", systemImage: "xmark.bin")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    queueToDelete = queue
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                Button {
+                                    HapticManager.impact(.light)
+                                    queueToPurge = queue
+                                    showingPurgeAlert = true
+                                } label: {
+                                    Label("Purge", systemImage: "xmark.bin")
+                                }
+                                .tint(.orange)
                             }
-                            .tint(.orange)
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Queues")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingCreateSheet = true
                 } label: {

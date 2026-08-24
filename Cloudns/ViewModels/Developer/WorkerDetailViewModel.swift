@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class WorkerDetailViewModel: BaseLoadableViewModel {
+final class WorkerDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     @Published var worker: WorkerScript
     private let workerService: WorkerServiceProtocol

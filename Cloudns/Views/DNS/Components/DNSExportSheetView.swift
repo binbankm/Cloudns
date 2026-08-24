@@ -130,7 +130,7 @@ struct DNSExportSheetView: View {
             .navigationTitle("Export DNS Records")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }

@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class SecurityViewModel: BaseLoadableViewModel {
+final class SecurityViewModel: BaseLoadableViewModel {
     @Published var securityLevel: String = "medium"
     @Published var challengeTTL: Int = 1800
     @Published var browserCheck: Bool = true

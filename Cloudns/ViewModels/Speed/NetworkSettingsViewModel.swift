@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class NetworkSettingsViewModel: BaseLoadableViewModel {
+final class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var ipv6: Bool = false
     @Published var websockets: Bool = false
     @Published var http2: Bool = false

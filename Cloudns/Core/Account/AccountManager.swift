@@ -3,12 +3,13 @@ import SwiftUI
 import Combine
 
 @MainActor
-class AccountManager: ObservableObject {
+final class AccountManager: ObservableObject {
     static let shared = AccountManager()
     
     @Published var accountEmails: [String] = []
     
     /// Backward-compatibility accessor for account list without exposing keys in memory
+    @available(*, deprecated, renamed: "accountEmails")
     public var accounts: [String: String] {
         var dict: [String: String] = [:]
         for email in accountEmails {
@@ -20,7 +21,7 @@ class AccountManager: ObservableObject {
     @AppStorage(AppStorageKey.activeAccountEmail) var activeEmail: String = ""
     @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
     
-    private let serviceName = "com.cloudflare.api"
+    private let serviceName = AppStorageKey.keychainService
     
     private init() {
         handleFirstLaunchAfterInstallIfNeeded()

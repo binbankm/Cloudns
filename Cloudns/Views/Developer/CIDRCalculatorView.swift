@@ -15,106 +15,188 @@ struct CIDRCalculatorView: View {
     ]
     
     var body: some View {
-        List {
-            // Input & Presets
-            Section(header: Text("CIDR Notation Input")) {
-                HStack {
-                    Image(systemName: "number.square.fill")
-                        .foregroundStyle(.blue)
-                        .accessibilityHidden(true)
-                    
-                    TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
-                        .keyboardType(.numbersAndPunctuation)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .focused($isFieldFocused)
-                        .onChange(of: viewModel.cidrInput) { _ in
-                            viewModel.calculateSubnet()
-                        }
-                    
-                    if !viewModel.cidrInput.isEmpty {
-                        Button {
-                            viewModel.cidrInput = ""
-                            viewModel.calculateSubnet()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(presetCIDRs, id: \.self) { preset in
-                            Button {
-                                viewModel.cidrInput = preset
-                                viewModel.calculateSubnet()
-                                HapticManager.selection()
-                            } label: {
-                                Text(preset)
-                                    .font(.caption2.monospaced())
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(viewModel.cidrInput == preset ? Color.blue : Color(.tertiarySystemFill))
-                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : .primary)
-                                    .clipShape(Capsule())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
+        ZStack {
+            Color(.systemGroupedBackground).ignoresSafeArea()
             
-            if let result = viewModel.subnetResult {
-                // 1. Network Address & Range
-                Section(header: Text("Subnet & Host Range")) {
-                    calcRow(label: "Network Address", value: result.networkAddress)
-                    calcRow(label: "Broadcast Address", value: result.broadcastAddress)
-                    calcRow(label: "Usable Host Range", value: result.usableHostRange)
-                    calcRow(label: "Total Usable Hosts", value: result.totalUsableHosts, isHighlight: true)
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 1. Input Card
+                    inputCard
+                    
+                    if let result = viewModel.subnetResult {
+                        // 2. Subnet Range Hero Card
+                        rangeCard(result: result)
+                        
+                        // 3. Properties Card
+                        propertiesCard(result: result)
+                        
+                        // 4. Binary Bitmask Card
+                        bitmaskCard(result: result)
+                    } else if let error = viewModel.subnetError {
+                        errorCard(message: error)
+                    }
                 }
-                
-                // 2. Netmask & Class
-                Section(header: Text("Masks & Properties")) {
-                    calcRow(label: "Subnet Netmask", value: result.netmask)
-                    calcRow(label: "Wildcard Mask", value: result.wildcardMask)
-                    calcRow(label: "Prefix Length", value: "/\(result.prefixLength)")
-                    calcRow(label: "IP Class / Type", value: result.ipClass)
-                }
-                
-                // 3. Binary Bitmask
-                Section(header: Text("Binary Bitmask Representation")) {
-                    Text(result.binaryMask)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.blue)
-                        .padding(.vertical, 2)
-                        .textSelection(.enabled)
-                }
-            } else if let error = viewModel.subnetError {
-                Section {
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
-                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .centerConstrainedWidth(maxWidth: 840)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
-        .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Subnet & CIDR Calculator")
         .navigationBarTitleDisplayMode(.inline)
     }
     
+    // MARK: - 1. Input Card
+    private var inputCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "number.square.fill")
+                    .font(.title3)
+                    .foregroundStyle(.blue)
+                    .accessibilityHidden(true)
+                
+                TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
+                    .keyboardType(.numbersAndPunctuation)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($isFieldFocused)
+                    .font(.body.monospacedDigit())
+                    .onChange(of: viewModel.cidrInput) { _ in
+                        viewModel.calculateSubnet()
+                    }
+                
+                if !viewModel.cidrInput.isEmpty {
+                    Button {
+                        viewModel.cidrInput = ""
+                        viewModel.calculateSubnet()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("Clear input")
+                }
+            }
+            .padding(12)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            
+            // Quick Presets
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(presetCIDRs, id: \.self) { preset in
+                        Button {
+                            viewModel.cidrInput = preset
+                            viewModel.calculateSubnet()
+                            HapticManager.selection()
+                        } label: {
+                            Text(preset)
+                                .font(.caption.weight(.medium).monospacedDigit())
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.10))
+                                .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 2. Range Card
     @ViewBuilder
-    private func calcRow(label: LocalizedStringKey, value: String, isHighlight: Bool = false) -> some View {
+    private func rangeCard(result: SubnetCalculationResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Subnet & Host Range")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                CloudnsBadge(.active("\(result.totalUsableHosts) Hosts"), isCompact: true)
+            }
+            
+            Divider()
+            
+            VStack(spacing: 10) {
+                calcRow(label: "Network Address", value: result.networkAddress)
+                calcRow(label: "Broadcast Address", value: result.broadcastAddress)
+                calcRow(label: "Usable Host Range", value: result.usableHostRange)
+            }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 3. Properties Card
+    @ViewBuilder
+    private func propertiesCard(result: SubnetCalculationResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Masks & Network Properties")
+                .font(.headline)
+                .foregroundStyle(.primary)
+            
+            Divider()
+            
+            VStack(spacing: 10) {
+                calcRow(label: "Subnet Netmask", value: result.netmask)
+                calcRow(label: "Wildcard Mask", value: result.wildcardMask)
+                calcRow(label: "Prefix Length", value: "/\(result.prefixLength)")
+                calcRow(label: "IP Class / Type", value: result.ipClass)
+            }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    // MARK: - 4. Bitmask Card
+    @ViewBuilder
+    private func bitmaskCard(result: SubnetCalculationResult) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Binary Bitmask")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Button {
+                    UIPasteboard.general.string = result.binaryMask
+                    HapticManager.notification(.success)
+                    ToastManager.shared.showCopied("Binary mask copied")
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                }
+            }
+            
+            Divider()
+            
+            Text(result.binaryMask)
+                .font(.caption.monospaced())
+                .foregroundStyle(.blue)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.blue.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .textSelection(.enabled)
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
+    }
+    
+    @ViewBuilder
+    private func calcRow(label: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(label)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(value)
-                .font(isHighlight ? .subheadline.weight(.bold).monospaced() : .subheadline.monospaced())
-                .foregroundStyle(isHighlight ? .green : .primary)
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.primary)
             
             Button {
                 UIPasteboard.general.string = value
@@ -127,5 +209,25 @@ struct CIDRCalculatorView: View {
             }
             .buttonStyle(.plain)
         }
+    }
+    
+    // MARK: - Error Card
+    @ViewBuilder
+    private func errorCard(message: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title3)
+                .foregroundStyle(.red)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Calculation Error")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
 }

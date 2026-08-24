@@ -117,7 +117,7 @@ struct KVValueSheetView: View {
             .navigationTitle("KV Value Inspector")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundStyle(.purple)
                 }

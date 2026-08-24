@@ -18,16 +18,26 @@ struct EmailRoutingView: View {
     private var displayedRules: [EmailRoutingRule] {
         if searchText.isEmpty { return viewModel.rules }
         return viewModel.rules.filter {
-            ($0.name ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.matchAddress ?? "").localizedCaseInsensitiveContains(searchText) ||
-            ($0.forwardTo ?? "").localizedCaseInsensitiveContains(searchText)
+            ($0.name ?? "").localizedStandardContains(searchText) ||
+            ($0.matchAddress ?? "").localizedStandardContains(searchText) ||
+            ($0.forwardTo ?? "").localizedStandardContains(searchText)
         }
     }
     
     var body: some View {
-        List {
-            // MARK: - Master Toggle
-            Section(
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $searchText,
+                prompt: "Search Email Rules"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                // MARK: - Master Toggle
+                Section(
                 header: Text("Status"),
                 footer: Text("When enabled, Cloudflare receives incoming emails for your domain and forwards them according to your routing rules.")
             ) {
@@ -184,8 +194,10 @@ struct EmailRoutingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Email Rules")
+    }
+    .background(Color(.systemGroupedBackground))
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
@@ -193,6 +205,16 @@ struct EmailRoutingView: View {
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
+                        )
+                    )
+                } else if viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
+                    StateOverlayView(
+                        state: .empty(
+                            icon: "envelope.badge.shield.half.filled",
+                            title: "No Email Routing Rules",
+                            message: "Create custom email addresses and forward incoming mail to your personal inboxes.",
+                            actionTitle: "Add Rule",
+                            action: { showingAddRuleSheet = true }
                         )
                     )
                 } else if !searchText.isEmpty && displayedRules.isEmpty {

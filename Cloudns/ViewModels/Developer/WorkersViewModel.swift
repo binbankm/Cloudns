@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class WorkersViewModel: BaseLoadableViewModel {
+final class WorkersViewModel: BaseLoadableViewModel {
     let accountId: String
     private let workerService: WorkerServiceProtocol
     private let pagesService: PagesServiceProtocol
@@ -26,12 +26,12 @@ class WorkersViewModel: BaseLoadableViewModel {
     
     var filteredWorkers: [WorkerScript] {
         if searchText.isEmpty { return workers }
-        return workers.filter { $0.id.localizedCaseInsensitiveContains(searchText) }
+        return workers.filter { $0.id.localizedStandardContains(searchText) }
     }
     
     var filteredPages: [PagesProject] {
         if searchText.isEmpty { return pages }
-        return pages.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        return pages.filter { $0.name.localizedStandardContains(searchText) }
     }
     
     func fetchData() async {

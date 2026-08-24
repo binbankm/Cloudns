@@ -16,15 +16,18 @@ public struct StateOverlayView: View {
     }
     
     public var body: some View {
-        Group {
-            switch state {
-            case .search(let query, let clearAction):
-                searchView(query: query, clearAction: clearAction)
-            case .error(let title, let message, let retryAction):
-                errorView(title: title, message: message, retryAction: retryAction)
-            case .empty(let icon, let title, let message, let actionTitle, let action):
-                emptyView(icon: icon, title: title, message: message, actionTitle: actionTitle, action: action)
+        ZStack(alignment: .center) {
+            Group {
+                switch state {
+                case .search(let query, let clearAction):
+                    searchView(query: query, clearAction: clearAction)
+                case .error(let title, let message, let retryAction):
+                    errorView(title: title, message: message, retryAction: retryAction)
+                case .empty(let icon, let title, let message, let actionTitle, let action):
+                    emptyView(icon: icon, title: title, message: message, actionTitle: actionTitle, action: action)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -33,8 +36,10 @@ public struct StateOverlayView: View {
     private func searchView(query: String, clearAction: (() -> Void)?) -> some View {
         if #available(iOS 17.0, *) {
             ContentUnavailableView.search(text: query)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
             EmptyStateView.search(query: query, action: clearAction)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
     
@@ -53,8 +58,10 @@ public struct StateOverlayView: View {
                         .buttonStyle(.bordered)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
             EmptyStateView.error(title: title, message: message, retryAction: retryAction)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
     
@@ -71,6 +78,7 @@ public struct StateOverlayView: View {
                         .buttonStyle(.borderedProminent)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
             EmptyStateView(
                 icon: icon,
@@ -79,6 +87,7 @@ public struct StateOverlayView: View {
                 actionTitle: actionTitle,
                 action: action
             )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 }

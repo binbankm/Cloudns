@@ -19,15 +19,9 @@ final class AlertingViewModel: BaseLoadableViewModel {
     
     func fetchData() async {
         await executeLoadingTask {
-            async let fetchTypes: [AlertingAvailableType] = {
-                (try? await self.alertingService.listAvailableAlertTypes(accountId: self.accountId)) ?? []
-            }()
-            async let fetchPol: [AlertingPolicy] = {
-                (try? await self.alertingService.listAlertingPolicies(accountId: self.accountId)) ?? []
-            }()
-            async let fetchHooks: [AlertingWebhookDestination] = {
-                (try? await self.alertingService.listAlertingWebhooks(accountId: self.accountId)) ?? []
-            }()
+            async let fetchTypes = (try? self.alertingService.listAvailableAlertTypes(accountId: self.accountId)) ?? []
+            async let fetchPol = (try? self.alertingService.listAlertingPolicies(accountId: self.accountId)) ?? []
+            async let fetchHooks = (try? self.alertingService.listAlertingWebhooks(accountId: self.accountId)) ?? []
             
             let (types, pols, hooks) = await (fetchTypes, fetchPol, fetchHooks)
             self.availableTypes = types
@@ -39,7 +33,7 @@ final class AlertingViewModel: BaseLoadableViewModel {
     func deletePolicy(id: String) async {
         do {
             try await alertingService.deleteAlertingPolicy(accountId: accountId, policyId: id)
-            ToastManager.shared.showSuccess("Policy Deleted", message: "")
+            ToastManager.shared.showSuccess("Policy Deleted")
             await fetchData()
         } catch {
             ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)

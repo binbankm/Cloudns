@@ -11,34 +11,46 @@ struct TunnelsListView: View {
     }
     
     var body: some View {
-        List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(CFTunnel.placeholders) { placeholderTunnel in
-                        TunnelRowView(tunnel: placeholderTunnel)
+        VStack(spacing: 0) {
+            CloudnsSearchBar(
+                text: $viewModel.searchText,
+                prompt: "Search Tunnels"
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(Color(.systemGroupedBackground))
+            
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    Section {
+                        ForEach(CFTunnel.placeholders) { placeholderTunnel in
+                            TunnelRowView(tunnel: placeholderTunnel)
+                        }
                     }
-                }
-                .skeletonLoading(true)
-            } else if !viewModel.filteredTunnels.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredTunnels) { tunnel in
-                        NavigationLink {
-                            TunnelDetailView(accountId: accountId, tunnel: tunnel)
-                        } label: {
-                            TunnelRowView(tunnel: tunnel)
+                    .skeletonLoading(true)
+                } else if !viewModel.filteredTunnels.isEmpty {
+                    Section {
+                        ForEach(viewModel.filteredTunnels) { tunnel in
+                            NavigationLink {
+                                TunnelDetailView(accountId: accountId, tunnel: tunnel)
+                            } label: {
+                                TunnelRowView(tunnel: tunnel)
+                            }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .centerConstrainedWidth(maxWidth: 840)
         }
-        .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Cloudflare Tunnels")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Tunnels")
         .refreshable { await viewModel.fetchTunnels() }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingCreateTunnelSheet = true
                 } label: { Image(systemName: "plus") }
