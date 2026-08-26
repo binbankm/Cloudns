@@ -26,9 +26,12 @@ public struct PagesAnalyticsView: View {
     
     private var chartXRange: ClosedRange<Date> {
         if let first = viewModel.dataPoints.first?.date,
-           let last = viewModel.dataPoints.last?.date,
-           first < last {
-            return first...last
+           let last = viewModel.dataPoints.last?.date {
+            if first < last {
+                return first...last
+            } else if first == last {
+                return first.addingTimeInterval(-1800)...last.addingTimeInterval(1800)
+            }
         }
         let now = Date()
         return now...now.addingTimeInterval(3600)
@@ -89,7 +92,7 @@ public struct PagesAnalyticsView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        // 2. 4 Key Metrics Cards Grid
+                        // 2. 4 Key Metrics Cards Grid (Non-lazy Grid for rock-solid stability)
                         metricsGrid
                         
                         // 3. Pages Functions Invocations 折线图 (Line & Area Chart)
@@ -163,38 +166,42 @@ public struct PagesAnalyticsView: View {
     
     // MARK: - 2. Key Metrics Grid
     private var metricsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            metricCard(
-                title: "Functions Invocations",
-                value: formatNumber(viewModel.totalRequests),
-                icon: "bolt.horizontal.fill",
-                color: .blue,
-                badge: "\(formatNumber(viewModel.totalSubrequests)) Subrequests"
-            )
+        Grid(horizontalSpacing: 12, verticalSpacing: 12) {
+            GridRow {
+                metricCard(
+                    title: "Functions Invocations",
+                    value: formatNumber(viewModel.totalRequests),
+                    icon: "bolt.horizontal.fill",
+                    color: .blue,
+                    badge: "\(formatNumber(viewModel.totalSubrequests)) Subrequests"
+                )
+                
+                metricCard(
+                    title: "Functions Errors",
+                    value: formatNumber(viewModel.totalErrors),
+                    icon: "exclamationmark.triangle.fill",
+                    color: viewModel.totalErrors > 0 ? .red : .green,
+                    badge: "\(String(format: "%.1f%%", viewModel.errorRatePercentage)) Error Rate"
+                )
+            }
             
-            metricCard(
-                title: "Functions Errors",
-                value: formatNumber(viewModel.totalErrors),
-                icon: "exclamationmark.triangle.fill",
-                color: viewModel.totalErrors > 0 ? .red : .green,
-                badge: "\(String(format: "%.1f%%", viewModel.errorRatePercentage)) Error Rate"
-            )
-            
-            metricCard(
-                title: "Deploy Success Rate",
-                value: String(format: "%.0f%%", viewModel.deploymentSuccessRate),
-                icon: "checkmark.seal.fill",
-                color: .green,
-                badge: "\(viewModel.deployments.count) Total Deploys"
-            )
-            
-            metricCard(
-                title: "Active Domains",
-                value: "\(viewModel.customDomainsCount)",
-                icon: "globe",
-                color: .purple,
-                badge: "Custom Domains"
-            )
+            GridRow {
+                metricCard(
+                    title: "Deploy Success Rate",
+                    value: String(format: "%.0f%%", viewModel.deploymentSuccessRate),
+                    icon: "checkmark.seal.fill",
+                    color: .green,
+                    badge: "\(viewModel.deployments.count) Total Deploys"
+                )
+                
+                metricCard(
+                    title: "Active Domains",
+                    value: "\(viewModel.customDomainsCount)",
+                    icon: "globe",
+                    color: .purple,
+                    badge: "Custom Domains"
+                )
+            }
         }
     }
     
@@ -247,7 +254,7 @@ public struct PagesAnalyticsView: View {
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
         return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
@@ -258,29 +265,18 @@ public struct PagesAnalyticsView: View {
                             .foregroundStyle(.secondary)
                     }
                     
-                    if let selected = selectedPoint {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(formatNumber(selected.requests))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("requests")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                            
-                            if selected.errors > 0 {
-                                Text("(\(selected.errors) errors)")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.red)
-                            }
-                        }
-                    } else {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(formatNumber(viewModel.totalRequests))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("total")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
+                        Text(formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
+                            .font(.system(.title, design: .rounded).weight(.bold))
+                            .foregroundStyle(.primary)
+                        Text(selectedPoint != nil ? "requests" : "total")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        
+                        if let selected = selectedPoint, selected.errors > 0 {
+                            Text("(\(selected.errors) errors)")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -307,6 +303,7 @@ public struct PagesAnalyticsView: View {
                         .foregroundStyle(.tertiary)
                 }
             }
+            .frame(minHeight: 48)
             
             Chart {
                 ForEach(viewModel.dataPoints) { pt in
@@ -334,10 +331,11 @@ public struct PagesAnalyticsView: View {
                     if pt.errors > 0 {
                         BarMark(
                             x: .value("Time", pt.date),
-                            y: .value("Errors", pt.errors)
+                            y: .value("Errors", pt.errors),
+                            width: .fixed(6)
                         )
                         .foregroundStyle(Color.red.opacity(0.85))
-                        .cornerRadius(3)
+                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                     }
                 }
                 
@@ -438,7 +436,7 @@ public struct PagesAnalyticsView: View {
         let yUpper = max(2.0, maxCpu * 1.18)
         
         return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Image(systemName: "bolt.fill")
@@ -517,6 +515,7 @@ public struct PagesAnalyticsView: View {
                     }
                 }
             }
+            .frame(minHeight: 48)
             
             Chart {
                 ForEach(viewModel.dataPoints) { pt in

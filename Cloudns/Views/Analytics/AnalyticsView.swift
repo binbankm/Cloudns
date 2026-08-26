@@ -39,6 +39,8 @@ struct AnalyticsView: View {
             let end = dateFromString(last.dimensions.datetime ?? last.dimensions.date ?? "")
             if start < end {
                 return start...end
+            } else if start == end {
+                return start.addingTimeInterval(-1800)...end.addingTimeInterval(1800)
             }
         }
         let now = Date()
@@ -104,7 +106,7 @@ struct AnalyticsView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        // 2. 4 Key Metrics Cards Grid
+                        // 2. 4 Key Metrics Cards Grid (Non-lazy Grid for rock-solid stability)
                         metricsGrid
                         
                         // 3. Requests 折线图 (Line Chart with Luminous Aurora & Interactive Scrubbing)
@@ -184,38 +186,42 @@ struct AnalyticsView: View {
     
     // MARK: - 2. Key Metrics Grid
     private var metricsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            metricCard(
-                title: "Total Requests",
-                value: formatNumber(viewModel.totalRequests),
-                icon: "globe",
-                color: .blue,
-                badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Transferred"
-            )
+        Grid(horizontalSpacing: 12, verticalSpacing: 12) {
+            GridRow {
+                metricCard(
+                    title: "Total Requests",
+                    value: formatNumber(viewModel.totalRequests),
+                    icon: "globe",
+                    color: .blue,
+                    badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Transferred"
+                )
+                
+                metricCard(
+                    title: "Cached Requests",
+                    value: formatNumber(viewModel.totalCachedRequests),
+                    icon: "bolt.fill",
+                    color: .orange,
+                    badge: "\(String(format: "%.1f%%", viewModel.cachedRatio * 100)) Cache Rate"
+                )
+            }
             
-            metricCard(
-                title: "Cached Requests",
-                value: formatNumber(viewModel.totalCachedRequests),
-                icon: "bolt.fill",
-                color: .orange,
-                badge: "\(String(format: "%.1f%%", viewModel.cachedRatio * 100)) Cache Rate"
-            )
-            
-            metricCard(
-                title: "Cache Hit Ratio",
-                value: String(format: "%.1f%%", viewModel.cachedRatio * 100),
-                icon: "chart.pie.fill",
-                color: .green,
-                badge: "Edge Served"
-            )
-            
-            metricCard(
-                title: "Data Transferred",
-                value: viewModel.formatBytes(viewModel.totalBandwidthBytes),
-                icon: "arrow.up.arrow.down",
-                color: .purple,
-                badge: "\(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes)) Saved by Cache"
-            )
+            GridRow {
+                metricCard(
+                    title: "Cache Hit Ratio",
+                    value: String(format: "%.1f%%", viewModel.cachedRatio * 100),
+                    icon: "chart.pie.fill",
+                    color: .green,
+                    badge: "Edge Served"
+                )
+                
+                metricCard(
+                    title: "Data Transferred",
+                    value: viewModel.formatBytes(viewModel.totalBandwidthBytes),
+                    icon: "arrow.up.arrow.down",
+                    color: .purple,
+                    badge: "\(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes)) Saved by Cache"
+                )
+            }
         }
     }
     
@@ -268,7 +274,7 @@ struct AnalyticsView: View {
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
         return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
@@ -279,24 +285,13 @@ struct AnalyticsView: View {
                             .foregroundStyle(.secondary)
                     }
                     
-                    if let selected = selectedPoint {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(formatNumber(selected.sum.requests))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("requests")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                        }
-                    } else {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(formatNumber(viewModel.totalRequests))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("total")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                        }
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
+                        Text(formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
+                            .font(.system(.title, design: .rounded).weight(.bold))
+                            .foregroundStyle(.primary)
+                        Text(selectedPoint != nil ? "requests" : "total")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
@@ -322,6 +317,7 @@ struct AnalyticsView: View {
                         .foregroundStyle(.tertiary)
                 }
             }
+            .frame(minHeight: 48)
             
             Chart {
                 ForEach(viewModel.dataPoints) { point in
@@ -447,7 +443,7 @@ struct AnalyticsView: View {
         let yUpper = max(1024.0, Double(maxBytes) * 1.18)
         
         return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Image(systemName: "chart.bar.fill")
@@ -458,24 +454,13 @@ struct AnalyticsView: View {
                             .foregroundStyle(.secondary)
                     }
                     
-                    if let selected = selectedBandwidthPoint {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(viewModel.formatBytes(selected.sum.bytes))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("transferred")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                        }
-                    } else {
-                        HStack(alignment: .lastTextBaseline, spacing: 6) {
-                            Text(viewModel.formatBytes(viewModel.totalBandwidthBytes))
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundStyle(.primary)
-                            Text("total")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                        }
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
+                        Text(viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
+                            .font(.system(.title, design: .rounded).weight(.bold))
+                            .foregroundStyle(.primary)
+                        Text(selectedBandwidthPoint != nil ? "transferred" : "total")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
@@ -501,6 +486,7 @@ struct AnalyticsView: View {
                         .foregroundStyle(.tertiary)
                 }
             }
+            .frame(minHeight: 48)
             
             Chart {
                 ForEach(viewModel.dataPoints) { point in
@@ -509,7 +495,8 @@ struct AnalyticsView: View {
                     
                     BarMark(
                         x: .value("Date", ptDate),
-                        y: .value("Bytes", point.sum.bytes)
+                        y: .value("Bytes", point.sum.bytes),
+                        width: .fixed(8)
                     )
                     .foregroundStyle(
                         LinearGradient(
