@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ZoneRowView
 
 struct ZoneRowView: View {
+    // MARK: - Properties
     let zone: Zone
     let sparkline: ZoneSparklineCache?
     
@@ -28,6 +29,7 @@ struct ZoneRowView: View {
         redactionReasons.contains(.placeholder)
     }
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             // Leading Initial Avatar with Deterministic Color Hashing

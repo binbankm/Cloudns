@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkerRoutesView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     let fallbackRoutes: [String]
@@ -13,6 +14,7 @@ struct WorkerRoutesView: View {
     @State private var domainToDelete: WorkerCustomDomain?
     @State private var showingDeleteAlert = false
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle("Domains & Routes")
@@ -59,6 +61,7 @@ struct WorkerRoutesView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             // MARK: - Custom Domains
@@ -160,6 +163,7 @@ struct WorkerRoutesView: View {
         .padding(.vertical, 3)
     }
     
+    // MARK: - Actions
     private func fetchDomains() async {
         isLoading = true
         errorMessage = nil

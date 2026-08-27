@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddRedirectRuleSheetView
 
 struct AddRedirectRuleSheetView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: RedirectRulesViewModel
     @Environment(\.dismiss) private var dismiss
@@ -15,6 +16,7 @@ struct AddRedirectRuleSheetView: View {
     @State private var isCreating = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

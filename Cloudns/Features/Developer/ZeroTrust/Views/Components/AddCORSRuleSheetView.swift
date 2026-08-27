@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddCORSRuleSheetView
 
 struct AddCORSRuleSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: R2BucketSettingsViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -14,6 +15,7 @@ struct AddCORSRuleSheetView: View {
     
     let allMethods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

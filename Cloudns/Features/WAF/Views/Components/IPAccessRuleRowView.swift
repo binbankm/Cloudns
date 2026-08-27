@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - IPAccessRuleRowView
 
 struct IPAccessRuleRowView: View {
+    // MARK: - Properties
     let rule: IPAccessRule
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -34,6 +36,7 @@ struct IPAccessRuleRowView: View {
         .padding(.vertical, 4)
     }
     
+    // MARK: - Actions
     private func colorForMode(_ mode: String) -> Color {
         switch mode {
         case "block": return .red

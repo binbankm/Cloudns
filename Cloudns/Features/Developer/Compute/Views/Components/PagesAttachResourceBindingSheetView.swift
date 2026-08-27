@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - PagesAttachResourceBindingSheetView
 
 struct PagesAttachResourceBindingSheetView: View {
+    // MARK: - Properties
     let accountId: String
     let projectName: String
     let initialEnvironment: String
@@ -60,6 +61,7 @@ struct PagesAttachResourceBindingSheetView: View {
         _environment = State(initialValue: environment)
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -148,6 +150,7 @@ struct PagesAttachResourceBindingSheetView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var resourceSelector: some View {
         switch bindingType {
         case "kv_namespace":
@@ -244,6 +247,7 @@ struct PagesAttachResourceBindingSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func defaultBindingName(for type: String) -> String {
         switch type {
         case "kv_namespace": return "MY_KV"

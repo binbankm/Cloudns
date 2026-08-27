@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct R2BucketsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: R2ViewModel
     @State private var showingCreateSheet = false
@@ -12,6 +13,7 @@ struct R2BucketsView: View {
         _viewModel = StateObject(wrappedValue: R2ViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

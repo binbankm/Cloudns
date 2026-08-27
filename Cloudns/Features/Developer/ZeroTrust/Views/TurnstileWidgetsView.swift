@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TurnstileWidgetsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: TurnstileViewModel
     @State private var showingCreateSheet = false
@@ -12,6 +13,7 @@ struct TurnstileWidgetsView: View {
         _viewModel = StateObject(wrappedValue: TurnstileViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

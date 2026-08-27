@@ -3,10 +3,12 @@ import SwiftUI
 // MARK: - HyperdriveDetailView
 
 struct HyperdriveDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let config: HyperdriveConfig
     @ObservedObject var viewModel: HyperdriveViewModel
     
+    // MARK: - Body
     var body: some View {
         List {
             Section(header: Text("Accelerator Overview")) {

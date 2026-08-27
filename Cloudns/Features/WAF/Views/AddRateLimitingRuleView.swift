@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddRateLimitingRuleView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: RateLimitingViewModel
     @Environment(\.dismiss) private var dismiss
@@ -42,6 +43,7 @@ struct AddRateLimitingRuleView: View {
         (86400, "1 day")
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -130,6 +132,7 @@ struct AddRateLimitingRuleView: View {
         }
     }
     
+    // MARK: - Actions
     private func submitRule() async {
         guard let requestCount = Int(requests) else { return }
         isSubmitting = true

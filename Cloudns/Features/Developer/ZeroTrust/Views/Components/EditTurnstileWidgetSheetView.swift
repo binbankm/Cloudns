@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - EditTurnstileWidgetSheetView
 
 struct EditTurnstileWidgetSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: TurnstileViewModel
     let widget: TurnstileWidget
     var onUpdated: (TurnstileWidget) -> Void
@@ -28,6 +29,7 @@ struct EditTurnstileWidgetSheetView: View {
         _selectedMode = State(initialValue: widget.mode ?? "managed")
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -81,6 +83,7 @@ struct EditTurnstileWidgetSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func submit() {
         let name = widgetName.trimmingCharacters(in: .whitespacesAndNewlines)
         let domains = domainsText

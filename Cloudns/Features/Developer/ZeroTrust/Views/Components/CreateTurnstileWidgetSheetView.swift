@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - CreateTurnstileWidgetSheetView
 
 struct CreateTurnstileWidgetSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: TurnstileViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -17,6 +18,7 @@ struct CreateTurnstileWidgetSheetView: View {
         ("invisible", "Invisible", "Verification is completely hidden in the background without UI elements.")
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -71,6 +73,7 @@ struct CreateTurnstileWidgetSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func submit() {
         let name = widgetName.trimmingCharacters(in: .whitespacesAndNewlines)
         let domains = domainsText

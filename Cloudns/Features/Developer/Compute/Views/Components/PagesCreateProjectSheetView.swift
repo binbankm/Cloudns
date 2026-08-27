@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - PagesCreateProjectSheetView
 
 struct PagesCreateProjectSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: WorkersViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -11,6 +12,7 @@ struct PagesCreateProjectSheetView: View {
     @State private var isCreating = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

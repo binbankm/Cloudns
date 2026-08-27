@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - DNSRecordRowView
 
 struct DNSRecordRowView: View {
+    // MARK: - Properties
     let record: DNSRecord
     var onToggleProxy: (() -> Void)?
     
@@ -17,6 +18,7 @@ struct DNSRecordRowView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 10) {

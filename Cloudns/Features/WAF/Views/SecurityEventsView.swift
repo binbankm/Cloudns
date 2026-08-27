@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SecurityEventsView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = SecurityEventsViewModel()
@@ -17,6 +18,7 @@ struct SecurityEventsView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

@@ -1,10 +1,12 @@
 import SwiftUI
 
 struct DNSDigToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var queryMode = 0 // 0: Single (1.1.1.1), 1: Benchmark
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -319,6 +321,7 @@ struct DNSDigToolView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func startQuery() {
         Task {
             if queryMode == 0 {

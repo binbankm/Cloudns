@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkerSecretsView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     @StateObject private var viewModel: WorkerSecretsViewModel
@@ -15,6 +16,7 @@ struct WorkerSecretsView: View {
         _viewModel = StateObject(wrappedValue: WorkerSecretsViewModel(accountId: accountId, scriptName: scriptName))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -87,6 +89,7 @@ struct WorkerSecretsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentList: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {

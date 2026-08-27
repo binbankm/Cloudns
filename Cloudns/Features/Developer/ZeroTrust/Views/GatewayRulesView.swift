@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct GatewayRulesView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: GatewayRulesViewModel
     @State private var ruleToDelete: GatewayRule?
@@ -13,6 +14,7 @@ struct GatewayRulesView: View {
         _viewModel = StateObject(wrappedValue: GatewayRulesViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -145,6 +147,7 @@ struct GatewayRulesView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func ruleRow(_ rule: GatewayRule) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "shield.lefthalf.filled")
@@ -175,6 +178,7 @@ struct GatewayRulesView: View {
         .padding(.vertical, 2)
     }
     
+    // MARK: - Actions
     private func ruleActionColor(_ action: String) -> Color {
         switch action.lowercased() {
         case "block": return .red

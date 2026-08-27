@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - DashboardMetricCardView (Compact & Non-wrapping)
 
 struct DashboardMetricCardView: View {
+    // MARK: - Properties
     let icon: String
     let iconColor: Color
     let title: LocalizedStringKey
@@ -26,6 +27,7 @@ struct DashboardMetricCardView: View {
         self.badge = badge
     }
     
+    // MARK: - Body
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 1. Top Bar: Left Icon + Right Tag Badge

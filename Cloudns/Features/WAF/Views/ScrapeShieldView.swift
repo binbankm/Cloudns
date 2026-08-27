@@ -1,10 +1,12 @@
 import SwiftUI
 
 struct ScrapeShieldView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = ScrapeShieldViewModel()
     
+    // MARK: - Body
     var body: some View {
         List {
             Section {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WAFCustomRulesView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = WAFViewModel()
@@ -16,6 +17,7 @@ struct WAFCustomRulesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -111,6 +113,7 @@ struct WAFCustomRulesView: View {
         }
     }
     
+    // MARK: - Actions
     private func deleteRules(at offsets: IndexSet) {
         HapticManager.impact(.medium)
         for index in offsets {

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - DurableObjectNamespaceDetailView
 
 struct DurableObjectNamespaceDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let namespace: DurableObjectNamespace
     
@@ -11,6 +12,7 @@ struct DurableObjectNamespaceDetailView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         List {
             Section(header: Text("Namespace Details")) {
@@ -78,6 +80,7 @@ struct DurableObjectNamespaceDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func instanceRow(_ obj: DurableObjectInstance) -> some View {
         HStack {
             Image(systemName: "circle.circle.fill")
@@ -98,6 +101,7 @@ struct DurableObjectNamespaceDetailView: View {
         .padding(.vertical, 2)
     }
     
+    // MARK: - Actions
     private func fetchObjects() async {
         isLoading = true
         errorMessage = nil

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - KVAddKeySheetView
 
 struct KVAddKeySheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: KVNamespaceDetailViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -12,6 +13,7 @@ struct KVAddKeySheetView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

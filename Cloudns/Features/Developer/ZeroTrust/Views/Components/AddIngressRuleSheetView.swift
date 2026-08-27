@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddIngressRuleSheetView
 
 struct AddIngressRuleSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: TunnelDetailViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -12,6 +13,7 @@ struct AddIngressRuleSheetView: View {
     @State private var isSaving = false
     @FocusState private var focusedField: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

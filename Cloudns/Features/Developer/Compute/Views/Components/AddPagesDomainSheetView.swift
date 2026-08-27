@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Add Pages Domain Sheet
 
 struct AddPagesDomainSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: PagesProjectDetailViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -10,6 +11,7 @@ struct AddPagesDomainSheetView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct RulesHubView: View {
+    // MARK: - Properties
     let zoneId: String
 
+    // MARK: - Body
     var body: some View {
         List {
             Section {

@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct IPLookupToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = IPLookupViewModel()
     @FocusState private var isFieldFocused: Bool
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -104,6 +106,7 @@ struct IPLookupToolView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performQuery() {
         isFieldFocused = false
         HapticManager.impact(.light)

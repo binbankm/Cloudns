@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddCacheRuleView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: CacheRulesViewModel
     @Environment(\.dismiss) private var dismiss
@@ -17,6 +18,7 @@ struct AddCacheRuleView: View {
     @State private var isSubmitting = false
     @FocusState private var focusedField: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -125,6 +127,7 @@ struct AddCacheRuleView: View {
         }
     }
     
+    // MARK: - Actions
     private func submitRule() async {
         isSubmitting = true
         

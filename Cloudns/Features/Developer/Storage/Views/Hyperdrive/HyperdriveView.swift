@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct HyperdriveView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: HyperdriveViewModel
     @State private var showingCreateSheet = false
@@ -13,6 +14,7 @@ struct HyperdriveView: View {
         _viewModel = StateObject(wrappedValue: HyperdriveViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -118,6 +120,7 @@ struct HyperdriveView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func configRow(_ config: HyperdriveConfig) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "bolt.horizontal.fill")

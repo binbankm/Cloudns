@@ -3,12 +3,14 @@ import SwiftUI
 // MARK: - CreateBulkRedirectListSheetView
 
 struct CreateBulkRedirectListSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: BulkRedirectsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var description = ""
     @State private var isSubmitting = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

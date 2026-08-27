@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct DurableObjectsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: DurableObjectsViewModel
     
@@ -10,6 +11,7 @@ struct DurableObjectsView: View {
         _viewModel = StateObject(wrappedValue: DurableObjectsViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -86,6 +88,7 @@ struct DurableObjectsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "cube.fill")

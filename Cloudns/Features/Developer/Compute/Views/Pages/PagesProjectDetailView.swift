@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PagesProjectDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let project: PagesProject
     @StateObject private var viewModel: PagesProjectDetailViewModel
@@ -16,6 +17,7 @@ struct PagesProjectDetailView: View {
         _viewModel = StateObject(wrappedValue: PagesProjectDetailViewModel(accountId: accountId, project: project))
     }
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle(project.name)
@@ -98,6 +100,7 @@ struct PagesProjectDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             // MARK: - Hero & Project Overview Card

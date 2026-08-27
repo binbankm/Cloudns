@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - BindSnippetRuleSheetView
 
 struct BindSnippetRuleSheetView: View {
+    // MARK: - Properties
     let zoneId: String
     let snippets: [SnippetItem]
     @ObservedObject var viewModel: SnippetsViewModel
@@ -14,6 +15,7 @@ struct BindSnippetRuleSheetView: View {
     @State private var isBinding = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddGatewayRuleSheetView
 
 struct AddGatewayRuleSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: GatewayRulesViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -35,6 +36,7 @@ struct AddGatewayRuleSheetView: View {
         ("Block High Risk TLDs", "dns", "block", "dns.fqdn in {\".zip\" \".mov\" \".xyz\"}")
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -140,6 +142,7 @@ struct AddGatewayRuleSheetView: View {
         !trafficExpression.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    // MARK: - Actions
     private func saveRule() async {
         let cleanName = ruleName.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanTraffic = trafficExpression.trimmingCharacters(in: .whitespacesAndNewlines)

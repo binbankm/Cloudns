@@ -94,10 +94,12 @@ struct DevToolsHubView: View {
         }
     }
     
+    // MARK: - Properties
     private let edgeTools: [DiagnosticToolType] = [.cfTrace, .dnsDig, .httpHeader, .certInspect]
     private let globalProbingTools: [DiagnosticToolType] = [.dnsPropagation, .edgeLatency]
     private let ipRoutingTools: [DiagnosticToolType] = [.ipLookup, .whois, .cfIpRanges, .cidrCalc]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {
@@ -158,6 +160,7 @@ struct DevToolsHubView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func toolRow(_ tool: DiagnosticToolType) -> some View {
         NavigationLink {
             tool.destinationView

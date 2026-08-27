@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct WhoisToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = WhoisViewModel()
     @FocusState private var isFieldFocused: Bool
     
     let presets = ["cloudflare.com", "apple.com", "github.com", "google.com"]
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -132,6 +134,7 @@ struct WhoisToolView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performLookup() {
         isFieldFocused = false
         HapticManager.impact(.light)

@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - SecurityEventCardView
 
 struct SecurityEventCardView: View {
+    // MARK: - Properties
     let event: SecurityEvent
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -65,6 +67,7 @@ struct SecurityEventCardView: View {
         .padding(.vertical, 4)
     }
     
+    // MARK: - Actions
     private func actionDisplayName(_ action: String) -> String {
         switch action {
         case "block": return "BLOCK"

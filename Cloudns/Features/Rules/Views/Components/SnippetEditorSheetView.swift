@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - SnippetEditorSheetView
 
 struct SnippetEditorSheetView: View {
+    // MARK: - Properties
     let zoneId: String
     let existingSnippet: SnippetItem?
     @ObservedObject var viewModel: SnippetsViewModel
@@ -20,6 +21,7 @@ struct SnippetEditorSheetView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

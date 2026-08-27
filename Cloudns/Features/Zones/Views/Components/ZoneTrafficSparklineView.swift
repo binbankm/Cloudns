@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ZoneTrafficSparklineView
 
 public struct ZoneTrafficSparklineView: View {
+    // MARK: - Properties
     let data: [Double]
     let lineColor: Color
     let lineWidth: CGFloat
@@ -20,6 +21,7 @@ public struct ZoneTrafficSparklineView: View {
         self.showGradientFill = showGradientFill
     }
     
+    // MARK: - Body
     public var body: some View {
         GeometryReader { proxy in
             let width = max(1, proxy.size.width)
@@ -72,6 +74,7 @@ public struct ZoneTrafficSparklineView: View {
         }
     }
     
+    // MARK: - Actions
     private func normalizedPoints(for values: [Double], in size: CGSize) -> [CGPoint] {
         guard values.count > 1 else { return [] }
         

@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - DNS Answer Row View
 
 struct DNSAnswerRowView: View {
+    // MARK: - Properties
     let item: DNSAnswerItem
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
             Text(item.typeName)

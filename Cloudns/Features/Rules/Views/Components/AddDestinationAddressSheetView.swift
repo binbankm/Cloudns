@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddDestinationAddressSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: EmailRoutingViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -13,6 +14,7 @@ struct AddDestinationAddressSheetView: View {
         return email.range(of: pattern, options: .regularExpression) != nil
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -59,6 +61,7 @@ struct AddDestinationAddressSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func submit() {
         let target = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !target.isEmpty else { return }

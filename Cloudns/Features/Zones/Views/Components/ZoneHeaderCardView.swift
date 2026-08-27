@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ZoneHeaderCardView
 
 struct ZoneHeaderCardView: View {
+    // MARK: - Properties
     let zone: Zone
     @State private var showingPurgeAlert = false
     @State private var isPurging = false
@@ -37,6 +38,7 @@ struct ZoneHeaderCardView: View {
         }
     }
 
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // ── Top Row: Domain Name + Plan & Type Badges ──────────────────
@@ -203,6 +205,7 @@ struct ZoneHeaderCardView: View {
         }
     }
     
+    // MARK: - Actions
     private func performQuickPurge() async {
         isPurging = true
         HapticManager.impact(.heavy)

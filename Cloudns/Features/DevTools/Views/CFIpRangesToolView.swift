@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CFIpRangesToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = CFIpRangesViewModel()
     @State private var testIpInput = ""
     @State private var testResult: String?
@@ -9,6 +10,7 @@ struct CFIpRangesToolView: View {
     
     private let exportFormats = ["Nginx", "Apache", "UFW", "Caddy", "iptables", "JSON"]
     
+    // MARK: - Body
     var body: some View {
         List {
             // 1. IP Range Tester
@@ -175,6 +177,7 @@ struct CFIpRangesToolView: View {
         HapticManager.notification(.warning)
     }
     
+    // MARK: - Actions
     private func ipMatchesCIDR(ip: String, cidr: String) -> Bool {
         if ip == cidr || ip.hasPrefix(cidr.split(separator: "/").first.map(String.init) ?? "xxx") {
             return true

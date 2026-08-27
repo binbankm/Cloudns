@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ZoneDetailView
 
 struct ZoneDetailView: View {
+    // MARK: - Properties
     let initialZone: Zone
     @State private var zone: Zone
     @Environment(\.dismiss) private var dismiss
@@ -12,6 +13,7 @@ struct ZoneDetailView: View {
         self._zone = State(initialValue: zone)
     }
 
+    // MARK: - Body
     var body: some View {
         List {
             // ── Header Card ──────────────────────────────────────────────
@@ -216,6 +218,7 @@ struct ZoneDetailView: View {
         }
     }
     
+    // MARK: - Actions
     private func refreshZoneDetails() async {
         do {
             let updated = try await ZoneService.shared.getZoneDetails(zoneId: initialZone.id)

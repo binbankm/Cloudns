@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct NetworkCenterView: View {
+    // MARK: - Properties
     let zoneId: String
     let zoneName: String
     
     @StateObject private var viewModel = NetworkSettingsViewModel()
     
+    // MARK: - Body
     var body: some View {
         List {
             // Network Graphic Header

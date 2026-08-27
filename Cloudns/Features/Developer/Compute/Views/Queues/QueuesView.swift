@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct QueuesView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: QueuesViewModel
     @State private var showingCreateSheet = false
@@ -15,6 +16,7 @@ struct QueuesView: View {
         _viewModel = StateObject(wrappedValue: QueuesViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -137,6 +139,7 @@ struct QueuesView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func queueRow(_ queue: CFQueue) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "tray.2.fill")

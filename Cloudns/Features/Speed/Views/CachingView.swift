@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CachingView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = CachingViewModel()
@@ -8,6 +9,7 @@ struct CachingView: View {
     @State private var purgeType = "url" // "url", "host", "prefix", "tag"
     @State private var purgeInputText = ""
 
+    // MARK: - Body
     var body: some View {
         List {
             if viewModel.hasFetchedData {

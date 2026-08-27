@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AuditLogsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: AuditLogsViewModel
     @State private var selectedLog: AuditLog?
@@ -11,6 +12,7 @@ struct AuditLogsView: View {
         _viewModel = StateObject(wrappedValue: AuditLogsViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

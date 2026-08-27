@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct BulkRedirectListsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: BulkRedirectsViewModel
     @State private var showingCreateSheet = false
@@ -13,6 +14,7 @@ struct BulkRedirectListsView: View {
         _viewModel = StateObject(wrappedValue: BulkRedirectsViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -119,6 +121,7 @@ struct BulkRedirectListsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func listRow(_ list: RedirectList) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "arrow.triangle.swap")

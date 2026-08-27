@@ -3,9 +3,11 @@ import SwiftUI
 // MARK: - Tail Event Detail Sheet
 
 struct TailEventDetailSheetView: View {
+    // MARK: - Properties
     let event: TailTraceItem
     @Environment(\.dismiss) private var dismiss
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {

@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct SecuritySettingsView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = SecurityViewModel()
     @State private var showUnderAttackAlert = false
     
+    // MARK: - Body
     var body: some View {
         List {
             if viewModel.hasFetchedData {

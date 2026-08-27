@@ -2,10 +2,12 @@ import SwiftUI
 import Combine
 
 struct DashboardView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DashboardViewModel()
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var showingAccountSheet = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {

@@ -3,11 +3,13 @@ import SwiftUI
 // MARK: - KVValueSheetView
 
 struct KVValueSheetView: View {
+    // MARK: - Properties
     let keyName: String
     let valueText: String
     let isLoading: Bool
     @Environment(\.dismiss) private var dismiss
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ScrollView {

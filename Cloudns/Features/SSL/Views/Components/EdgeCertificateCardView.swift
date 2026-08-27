@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - EdgeCertificateCardView
 
 struct EdgeCertificateCardView: View {
+    // MARK: - Properties
     let certificate: EdgeCertificateModel
     
     var iconName: String {
@@ -23,6 +24,7 @@ struct EdgeCertificateCardView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -109,6 +111,7 @@ struct EdgeCertificateCardView: View {
         .padding(.vertical, 4)
     }
     
+    // MARK: - Actions
     private func formatDate(_ dateString: String) -> String {
         if dateString == "N/A" { return dateString }
         return DateFormatters.formatISO8601ToDisplay(dateString, style: DateFormatters.dateOnly)

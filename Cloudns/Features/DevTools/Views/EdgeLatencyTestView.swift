@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct EdgeLatencyTestView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
     @FocusState private var isFieldFocused: Bool
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -107,6 +109,7 @@ struct EdgeLatencyTestView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performTest() {
         isFieldFocused = false
         HapticManager.impact(.light)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LoginView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = LoginViewModel()
     
     // Manage keyboard focus
@@ -13,6 +14,7 @@ struct LoginView: View {
     
     var onLoginSuccess: (() -> Void)?
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             // 1. Ambient Aurora Background
@@ -332,6 +334,7 @@ struct LoginView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     LoginView()
 }

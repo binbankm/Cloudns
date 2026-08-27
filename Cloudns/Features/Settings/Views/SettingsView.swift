@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @AppStorage(AppStorageKey.hapticsEnabled) private var hapticsEnabled = true
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
+    // MARK: - Properties
     @Environment(\.openURL) private var openURL
     
     @State private var showingLogoutAlert = false
@@ -14,6 +15,7 @@ struct SettingsView: View {
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {

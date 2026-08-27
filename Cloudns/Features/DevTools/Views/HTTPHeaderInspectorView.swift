@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HTTPHeaderInspectorView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var headerSearchText = ""
@@ -12,6 +13,7 @@ struct HTTPHeaderInspectorView: View {
         return res.headers.filter { $0.key.lowercased().contains(query) || $0.value.lowercased().contains(query) }
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -116,6 +118,7 @@ struct HTTPHeaderInspectorView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performInspect() {
         isFieldFocused = false
         HapticManager.impact(.light)

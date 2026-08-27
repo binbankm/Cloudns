@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EmailRoutingView: View {
+    // MARK: - Properties
     let zoneId: String
     let zoneName: String
     
@@ -24,6 +25,7 @@ struct EmailRoutingView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -246,6 +248,7 @@ struct EmailRoutingView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func ruleRow(_ rule: EmailRoutingRule) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {

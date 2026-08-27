@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddRedirectItemSheetView
 
 struct AddRedirectItemSheetView: View {
+    // MARK: - Properties
     let accountId: String
     let listId: String
     let onAdded: () -> Void
@@ -15,6 +16,7 @@ struct AddRedirectItemSheetView: View {
     @State private var subpathMatching = false
     @State private var isSubmitting = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

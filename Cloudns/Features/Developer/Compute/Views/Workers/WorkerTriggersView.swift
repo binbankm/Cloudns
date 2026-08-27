@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkerTriggersView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     
@@ -15,6 +16,7 @@ struct WorkerTriggersView: View {
         _viewModel = StateObject(wrappedValue: WorkerTriggersViewModel(accountId: accountId, scriptName: scriptName))
     }
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle("Cron Triggers")
@@ -58,6 +60,7 @@ struct WorkerTriggersView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -137,6 +140,7 @@ struct WorkerTriggersView: View {
         .padding(.vertical, 4)
     }
     
+    // MARK: - Actions
     private func humanReadableCron(_ cron: String) -> String {
         switch cron.trimmingCharacters(in: .whitespaces) {
         case "*/1 * * * *", "* * * * *": return "Every minute"

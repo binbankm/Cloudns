@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CacheRulesView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel: CacheRulesViewModel
@@ -20,6 +21,7 @@ struct CacheRulesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

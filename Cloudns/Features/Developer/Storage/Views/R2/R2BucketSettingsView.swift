@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct R2BucketSettingsView: View {
+    // MARK: - Properties
     let accountId: String
     let bucketName: String
     @StateObject private var viewModel: R2BucketSettingsViewModel
@@ -13,6 +14,7 @@ struct R2BucketSettingsView: View {
         _viewModel = StateObject(wrappedValue: R2BucketSettingsViewModel(accountId: accountId, bucketName: bucketName))
     }
     
+    // MARK: - Body
     var body: some View {
         List {
             if viewModel.hasFetchedData {
@@ -127,6 +129,7 @@ struct R2BucketSettingsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func customDomainRow(_ domain: R2CustomDomain) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "globe")

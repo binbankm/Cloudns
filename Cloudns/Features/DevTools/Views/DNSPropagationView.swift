@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct DNSPropagationView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
     @FocusState private var isFieldFocused: Bool
     
+    // MARK: - Body
     var body: some View {
         List {
             // Target Domain Input
@@ -167,6 +169,7 @@ struct DNSPropagationView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func nodeStatusBadge(_ status: DNSPropagationNode.NodeStatus) -> some View {
         switch status {
         case .resolved:

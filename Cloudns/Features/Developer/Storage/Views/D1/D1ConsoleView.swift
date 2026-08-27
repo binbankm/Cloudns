@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct D1ConsoleView: View {
+    // MARK: - Properties
     let accountId: String
     let database: D1Database
     @StateObject private var viewModel: D1ConsoleViewModel
@@ -12,6 +13,7 @@ struct D1ConsoleView: View {
         _viewModel = StateObject(wrappedValue: D1ConsoleViewModel(accountId: accountId, database: database))
     }
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - DB Summary

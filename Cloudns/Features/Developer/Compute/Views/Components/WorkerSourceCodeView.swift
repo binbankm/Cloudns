@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 // MARK: - WorkerSourceCodeView
 
 struct WorkerSourceCodeView: View {
+    // MARK: - Properties
     @ObservedObject var parentViewModel: WorkerDetailViewModel
     let scriptName: String
     let modules: [WorkerModuleItem]

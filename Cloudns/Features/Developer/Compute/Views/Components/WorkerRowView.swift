@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - WorkerRowView
 
 struct WorkerRowView: View {
+    // MARK: - Properties
     let worker: WorkerScript
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             ZStack {

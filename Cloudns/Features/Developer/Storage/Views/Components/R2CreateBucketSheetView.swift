@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - R2CreateBucketSheetView
 
 struct R2CreateBucketSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: R2ViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -49,6 +50,7 @@ struct R2CreateBucketSheetView: View {
         return nil
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

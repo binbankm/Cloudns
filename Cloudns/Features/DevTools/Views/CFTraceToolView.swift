@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct CFTraceToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = CFTraceViewModel()
     @FocusState private var isFieldFocused: Bool
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -130,6 +132,7 @@ struct CFTraceToolView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performTrace() {
         isFieldFocused = false
         HapticManager.impact(.light)

@@ -3,9 +3,11 @@ import SwiftUI
 // MARK: - CacheRuleCardView
 
 struct CacheRuleCardView: View {
+    // MARK: - Properties
     let rule: WAFRule
     let onToggle: () -> Void
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {

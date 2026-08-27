@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - PagesAddVariableSheetView
 
 struct PagesAddVariableSheetView: View {
+    // MARK: - Properties
     let accountId: String
     let projectName: String
     let environment: String
@@ -40,6 +41,7 @@ struct PagesAddVariableSheetView: View {
         _isSecret = State(initialValue: initialIsSecret)
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -113,6 +115,7 @@ struct PagesAddVariableSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func saveVariable() async {
         let cleanName = varName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanName.isEmpty else { return }

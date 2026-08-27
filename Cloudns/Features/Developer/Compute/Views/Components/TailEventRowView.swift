@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Tail Event Row
 
 struct TailEventRowView: View {
+    // MARK: - Properties
     let item: TailTraceItem
     
     var isOk: Bool { item.outcome == "ok" }
@@ -11,6 +12,7 @@ struct TailEventRowView: View {
         return DateFormatters.formatTimestampMs(Double(ts))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
@@ -97,6 +99,7 @@ struct TailEventRowView: View {
         .padding(.vertical, 4)
     }
     
+    // MARK: - Actions
     private func methodColor(_ method: String) -> Color {
         switch method.uppercased() {
         case "GET": return .blue

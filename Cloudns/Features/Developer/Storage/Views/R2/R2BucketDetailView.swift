@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct R2BucketDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let bucket: R2Bucket
     @StateObject private var viewModel: R2BucketDetailViewModel
@@ -14,6 +15,7 @@ struct R2BucketDetailView: View {
         _viewModel = StateObject(wrappedValue: R2BucketDetailViewModel(accountId: accountId, bucket: bucket))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

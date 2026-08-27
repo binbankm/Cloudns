@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - SettingsRowView
 
 struct SettingsRowView: View {
+    // MARK: - Properties
     let icon: String
     let color: Color
     let title: LocalizedStringKey
@@ -13,6 +14,7 @@ struct SettingsRowView: View {
         self.title = title
     }
     
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)

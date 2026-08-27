@@ -3,12 +3,14 @@ import SwiftUI
 // MARK: - TunnelRowView
 
 struct TunnelRowView: View {
+    // MARK: - Properties
     let tunnel: CFTunnel
     
     var isHealthy: Bool {
         tunnel.isHealthy
     }
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "network")

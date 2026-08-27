@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkerTestView: View {
+    // MARK: - Properties
     let scriptName: String
     let initialRoute: String?
     @StateObject private var viewModel: WorkerTesterViewModel
@@ -12,6 +13,7 @@ struct WorkerTestView: View {
         _viewModel = StateObject(wrappedValue: WorkerTesterViewModel(scriptName: scriptName, initialRoute: initialRoute))
     }
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - Target URL & Method
@@ -233,6 +235,7 @@ struct WorkerTestView: View {
         }
     }
     
+    // MARK: - Actions
     private func generateCurlCommand() -> String {
         var parts: [String] = ["curl -X \(viewModel.selectedMethod) \"\(viewModel.targetUrl)\""]
         if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
@@ -262,6 +265,7 @@ struct WorkerTestView: View {
         """
     }
     
+    // MARK: - Private Views
     private func quickPathButton(_ path: String) -> some View {
         Button {
             HapticManager.impact(.light)

@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 // MARK: - DNSExportSheetView
 
 struct DNSExportSheetView: View {
+    // MARK: - Properties
     let zoneName: String
     let zoneId: String
     let records: [DNSRecord]
@@ -16,6 +17,7 @@ struct DNSExportSheetView: View {
     @State private var showingFileExporter = false
     @State private var showingShareSheet = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -163,6 +165,7 @@ struct DNSExportSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func loadExportContent() async {
         isLoading = true
         do {

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddIPAccessRuleView
 
 struct AddIPAccessRuleView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: IPAccessRulesViewModel
     @Binding var isPresented: Bool
@@ -15,6 +16,7 @@ struct AddIPAccessRuleView: View {
     enum Field { case value, notes }
     @FocusState private var focusedField: Field?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

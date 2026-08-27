@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 struct FeedbackView: View {
+    // MARK: - Properties
     @StateObject private var accountManager = AccountManager.shared
     @State private var feedbackText = ""
     @Environment(\.dismiss) private var dismiss
@@ -33,6 +34,7 @@ struct FeedbackView: View {
         """
     }
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section(header: Text("Feedback & Issue Description")) {

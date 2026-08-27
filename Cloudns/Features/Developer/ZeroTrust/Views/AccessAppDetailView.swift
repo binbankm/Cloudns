@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AccessAppDetailView
 
 struct AccessAppDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let app: AccessApp
     @State private var policies: [AccessPolicy] = []
@@ -11,6 +12,7 @@ struct AccessAppDetailView: View {
     
     private let accessService = AccessService.shared
     
+    // MARK: - Body
     var body: some View {
         List {
             Section(header: Text("Application Details")) {
@@ -83,6 +85,7 @@ struct AccessAppDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func policyRow(_ p: AccessPolicy) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -101,6 +104,7 @@ struct AccessAppDetailView: View {
         }
     }
     
+    // MARK: - Actions
     private func fetchPolicies() async {
         isLoadingPolicies = true
         errorMessage = nil

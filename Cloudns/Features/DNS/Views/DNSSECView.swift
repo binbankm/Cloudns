@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DNSSECView: View {
+    // MARK: - Properties
     let zoneId: String
     let zoneName: String
     
@@ -12,6 +13,7 @@ struct DNSSECView: View {
         _viewModel = StateObject(wrappedValue: DNSSECViewModel(zoneId: zoneId))
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -56,6 +58,7 @@ struct DNSSECView: View {
     
     // MARK: - 1. Hero Status Card
     @ViewBuilder
+    // MARK: - Private Views
     private func statusCard(_ dnssec: DNSSEC) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 12) {
@@ -229,6 +232,7 @@ struct DNSSECView: View {
         }
     }
     
+    // MARK: - Actions
     private func statusColor(for status: String) -> Color {
         switch status {
         case "active": return .green

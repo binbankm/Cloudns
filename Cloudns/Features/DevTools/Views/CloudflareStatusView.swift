@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - CloudflareStatusView
 
 struct CloudflareStatusView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = CloudflareStatusViewModel()
     @State private var selectedTab: StatusFilterTab = .issues
     @State private var searchText: String = ""
@@ -61,6 +62,7 @@ struct CloudflareStatusView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -117,6 +119,7 @@ struct CloudflareStatusView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {

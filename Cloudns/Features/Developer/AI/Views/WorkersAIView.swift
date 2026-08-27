@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkersAIView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: WorkersAIViewModel
     @State private var selectedModelForPlayground: AIModel?
@@ -10,6 +11,7 @@ struct WorkersAIView: View {
         _viewModel = StateObject(wrappedValue: WorkersAIViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -96,6 +98,7 @@ struct WorkersAIView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func modelRow(_ model: AIModel) -> some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "sparkles")

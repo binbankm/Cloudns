@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TunnelsListView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: TunnelsViewModel
     @State private var showingCreateTunnelSheet = false
@@ -10,6 +11,7 @@ struct TunnelsListView: View {
         _viewModel = StateObject(wrappedValue: TunnelsViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

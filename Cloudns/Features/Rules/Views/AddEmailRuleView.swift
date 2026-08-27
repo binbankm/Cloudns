@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddEmailRuleView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: EmailRoutingViewModel
     let zoneName: String
     @Environment(\.dismiss) private var dismiss
@@ -15,6 +16,7 @@ struct AddEmailRuleView: View {
         self.zoneName = zoneName
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -86,6 +88,7 @@ struct AddEmailRuleView: View {
         }
     }
     
+    // MARK: - Actions
     private func submitRule() async {
         isSubmitting = true
         

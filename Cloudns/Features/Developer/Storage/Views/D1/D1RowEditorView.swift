@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - D1RowEditorView
 
 struct D1RowEditorView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: D1TableViewModel
     let existingRow: [String: String]?
 
@@ -32,6 +33,7 @@ struct D1RowEditorView: View {
         _fieldValues = State(initialValue: map)
     }
 
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -129,6 +131,7 @@ struct D1RowEditorView: View {
         }
     }
 
+    // MARK: - Actions
     private func saveRow() {
         guard !isSaving else { return }
         isSaving = true

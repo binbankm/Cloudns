@@ -3,11 +3,13 @@ import SwiftUI
 // MARK: - CreateQueueSheetView
 
 struct CreateQueueSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: QueuesViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var queueName = ""
     @State private var isSubmitting = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - WorkerEditVariableSheetView
 
 struct WorkerEditVariableSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: WorkerSecretsViewModel
     let variable: WorkerBinding
     @Environment(\.dismiss) private var dismiss
@@ -17,6 +18,7 @@ struct WorkerEditVariableSheetView: View {
         _variableValue = State(initialValue: variable.text ?? "")
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -60,6 +62,7 @@ struct WorkerEditVariableSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func save() {
         isSaving = true
         errorMessage = nil

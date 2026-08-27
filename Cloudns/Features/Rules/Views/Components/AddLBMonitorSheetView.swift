@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddLBMonitorSheetView
 
 struct AddLBMonitorSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -16,6 +17,7 @@ struct AddLBMonitorSheetView: View {
     
     let monitorTypes = ["http", "https", "tcp", "udp_icmp", "icmp_ping"]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

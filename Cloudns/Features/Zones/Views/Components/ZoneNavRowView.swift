@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ZoneNavRowView
 
 struct ZoneNavRowView<Destination: View>: View {
+    // MARK: - Properties
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     let icon: String
@@ -26,6 +27,7 @@ struct ZoneNavRowView<Destination: View>: View {
         self.destination = destination
     }
 
+    // MARK: - Body
     var body: some View {
         NavigationLink(destination: destination) {
             HStack(spacing: 14) {

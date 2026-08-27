@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - CreateHyperdriveSheetView
 
 struct CreateHyperdriveSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: HyperdriveViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -15,6 +16,7 @@ struct CreateHyperdriveSheetView: View {
     @State private var scheme = "postgres"
     @State private var isSubmitting = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

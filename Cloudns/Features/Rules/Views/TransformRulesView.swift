@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TransformRulesView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel: TransformRulesViewModel
@@ -22,6 +23,7 @@ struct TransformRulesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -83,6 +85,7 @@ struct TransformRulesView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentList: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -153,6 +156,7 @@ struct TransformRulesView: View {
         }
     }
     
+    // MARK: - Actions
     private func phaseTitle(for phase: String) -> String {
         switch phase {
         case "http_request_transform": return "URL Rewrite"

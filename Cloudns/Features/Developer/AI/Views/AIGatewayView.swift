@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AIGatewayView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: AIGatewaysViewModel
     @State private var showingCreateSheet = false
@@ -12,6 +13,7 @@ struct AIGatewayView: View {
         _viewModel = StateObject(wrappedValue: AIGatewaysViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -127,6 +129,7 @@ struct AIGatewayView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func gatewayRow(_ gw: AIGateway) -> some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "brain.head.profile")

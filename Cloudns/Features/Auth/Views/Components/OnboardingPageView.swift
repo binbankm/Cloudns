@@ -3,12 +3,14 @@ import SwiftUI
 // MARK: - OnboardingPageView (Luminous Glassmorphism)
 
 struct OnboardingPageView: View {
+    // MARK: - Properties
     let icon: String
     let title: LocalizedStringKey
     let description: LocalizedStringKey
     let color: Color
     let badgeText: LocalizedStringKey
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 20)

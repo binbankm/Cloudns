@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddZoneView
 
 struct AddZoneView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: ZonesViewModel
     @Binding var isPresented: Bool
     @State private var domainName = ""
@@ -14,6 +15,7 @@ struct AddZoneView: View {
         self._isPresented = isPresented
     }
     
+    // MARK: - Body
     var body: some View {
         if let zone = createdZone {
             NavigationStack {
@@ -162,6 +164,7 @@ struct AddZoneView: View {
         }
     }
     
+    // MARK: - Actions
     private func submitDomain() {
         Task {
             isSubmitting = true

@@ -3,12 +3,14 @@ import SwiftUI
 // MARK: - CreateTunnelSheetView
 
 struct CreateTunnelSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: TunnelsViewModel
     @Environment(\.dismiss) private var dismiss
     
     @State private var tunnelName = ""
     @State private var isCreating = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

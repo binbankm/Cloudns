@@ -113,6 +113,7 @@ struct ZonesListView: View {
     
     // MARK: - Subviews
     
+    // MARK: - Private Views
     private var skeletonSection: some View {
         Section {
             ForEach(Zone.placeholders) { placeholderZone in

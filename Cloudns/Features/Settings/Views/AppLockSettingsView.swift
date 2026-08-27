@@ -4,6 +4,7 @@ import LocalAuthentication
 struct AppLockSettingsView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.autoLockTimeout) private var autoLockTimeout = 0
+    // MARK: - Properties
     @ObservedObject private var authManager = AppAuthManager.shared
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
@@ -15,6 +16,7 @@ struct AppLockSettingsView: View {
         ("After 30 minutes", 1800)
     ]
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - Biometric Requirement Toggle
@@ -80,6 +82,7 @@ struct AppLockSettingsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var toggleLabel: some View {
         switch authManager.biometryType {
         case .faceID:
@@ -104,6 +107,7 @@ struct AppLockSettingsView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     NavigationStack {
         AppLockSettingsView()

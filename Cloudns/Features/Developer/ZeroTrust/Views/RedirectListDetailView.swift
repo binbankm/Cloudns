@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - RedirectListDetailView
 
 struct RedirectListDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let list: RedirectList
     @State private var items: [RedirectListItem] = []
@@ -19,6 +20,7 @@ struct RedirectListDetailView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -105,6 +107,7 @@ struct RedirectListDetailView: View {
         }
     }
     
+    // MARK: - Actions
     private func fetchItems() async {
         isLoading = true
         do {
@@ -126,6 +129,7 @@ struct RedirectListDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {

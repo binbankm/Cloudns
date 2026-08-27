@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CIDRCalculatorView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
     @FocusState private var isFieldFocused: Bool
     
@@ -14,6 +15,7 @@ struct CIDRCalculatorView: View {
         "2606:4700::/32"
     ]
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()

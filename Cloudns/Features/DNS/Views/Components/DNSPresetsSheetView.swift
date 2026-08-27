@@ -151,6 +151,7 @@ enum DNSPresetLibrary {
 // MARK: - DNSPresetsSheetView
 
 struct DNSPresetsSheetView: View {
+    // MARK: - Properties
     let zoneName: String
     let zoneId: String
     @ObservedObject var viewModel: DNSRecordsViewModel
@@ -168,6 +169,7 @@ struct DNSPresetsSheetView: View {
         Array(Set(presets.map { $0.category })).sorted()
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {
@@ -252,6 +254,7 @@ struct DNSPresetsSheetView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func presetDetailSheet(for group: DNSPresetGroup) -> some View {
         NavigationStack {
             List {
@@ -343,6 +346,7 @@ struct DNSPresetsSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func applyPreset(group: DNSPresetGroup) async {
         isApplying = true
         HapticManager.impact(.medium)

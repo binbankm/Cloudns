@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - WorkersAIPlaygroundSheetView
 
 struct WorkersAIPlaygroundSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: WorkersAIViewModel
     let model: AIModel
     @Environment(\.dismiss) private var dismiss
@@ -15,6 +16,7 @@ struct WorkersAIPlaygroundSheetView: View {
         "Compare SQL (D1) and Key-Value (KV) storage"
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -57,6 +59,7 @@ struct WorkersAIPlaygroundSheetView: View {
     
     // MARK: - Header Bar
     
+    // MARK: - Private Views
     private var modelHeaderBar: some View {
         HStack(spacing: 10) {
             Image(systemName: "sparkles")

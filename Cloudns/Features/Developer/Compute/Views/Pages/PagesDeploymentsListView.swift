@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - PagesDeploymentsListView
 
 struct PagesDeploymentsListView: View {
+    // MARK: - Properties
     let accountId: String
     let projectName: String
     @ObservedObject var viewModel: PagesProjectDetailViewModel
@@ -23,6 +24,7 @@ struct PagesDeploymentsListView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -109,6 +111,7 @@ struct PagesDeploymentsListView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func deploymentRow(_ dep: PagesDeployment) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DeveloperHubView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = DeveloperHubViewModel()
     
     /// Safe accountId – always resolved from a validated Account object.
@@ -13,6 +14,7 @@ struct DeveloperHubView: View {
         !(viewModel.selectedAccount?.id ?? "").isEmpty
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             contentView
@@ -38,6 +40,7 @@ struct DeveloperHubView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             // Header Account Card

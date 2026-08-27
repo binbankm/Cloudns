@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - KVNamespaceKeysView
 
 struct KVNamespaceKeysView: View {
+    // MARK: - Properties
     let accountId: String
     let namespace: KVNamespace
     @StateObject private var viewModel: KVNamespaceDetailViewModel
@@ -21,6 +22,7 @@ struct KVNamespaceKeysView: View {
         return viewModel.keys.filter { $0.name.localizedStandardContains(searchKey) }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -200,6 +202,7 @@ struct KVNamespaceKeysView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func keyRow(_ key: KVKey) -> some View {
         HStack(alignment: .center, spacing: 12) {
             Image(systemName: "key.horizontal.fill")
@@ -247,6 +250,7 @@ struct KVNamespaceKeysView: View {
         .contentShape(Rectangle())
     }
     
+    // MARK: - Actions
     private func formatExpiration(_ timestamp: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         return DateFormatters.mediumDateTime.string(from: date)

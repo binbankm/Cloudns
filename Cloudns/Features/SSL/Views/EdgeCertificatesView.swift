@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EdgeCertificatesView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = EdgeCertificatesViewModel()
@@ -15,6 +16,7 @@ struct EdgeCertificatesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddLBPoolSheetView
 
 struct AddLBPoolSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -13,6 +14,7 @@ struct AddLBPoolSheetView: View {
     @State private var originWeight = 1.0
     @State private var isSaving = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

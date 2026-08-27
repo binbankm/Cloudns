@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PagesDeploymentDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let projectName: String
     let deployment: PagesDeployment
@@ -22,6 +23,7 @@ struct PagesDeploymentDetailView: View {
     
     var isSuccess: Bool { deployment.latestStage?.status == "success" }
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - Overview

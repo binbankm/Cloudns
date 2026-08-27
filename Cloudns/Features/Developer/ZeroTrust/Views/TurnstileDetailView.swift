@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TurnstileDetailView: View {
+    // MARK: - Properties
     @State var widget: TurnstileWidget
     var viewModel: TurnstileViewModel?
     
@@ -19,6 +20,7 @@ struct TurnstileDetailView: View {
         _currentSecret = State(initialValue: widget.secret)
     }
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - Keys & Overview
@@ -207,6 +209,7 @@ struct TurnstileDetailView: View {
         }
     }
     
+    // MARK: - Actions
     private func rotateSecret(invalidateImmediately: Bool) {
         guard let vm = viewModel else { return }
         isRotatingSecret = true

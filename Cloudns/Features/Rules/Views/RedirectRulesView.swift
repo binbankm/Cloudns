@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RedirectRulesView: View {
+    // MARK: - Properties
     let zoneId: String
     @StateObject private var viewModel = RedirectRulesViewModel()
     @State private var showingAddSheet = false
@@ -17,6 +18,7 @@ struct RedirectRulesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -67,6 +69,7 @@ struct RedirectRulesView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {

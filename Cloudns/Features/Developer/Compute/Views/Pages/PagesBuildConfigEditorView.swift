@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PagesBuildConfigEditorView: View {
+    // MARK: - Properties
     let accountId: String
     let project: PagesProject
     @ObservedObject var parentViewModel: PagesProjectDetailViewModel
@@ -25,6 +26,7 @@ struct PagesBuildConfigEditorView: View {
         _productionBranch = State(initialValue: project.productionBranch ?? "main")
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

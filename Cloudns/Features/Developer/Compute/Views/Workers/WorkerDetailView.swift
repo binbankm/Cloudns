@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct WorkerDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let worker: WorkerScript
     @StateObject private var viewModel: WorkerDetailViewModel
@@ -12,6 +13,7 @@ struct WorkerDetailView: View {
         _viewModel = StateObject(wrappedValue: WorkerDetailViewModel(accountId: accountId, worker: worker))
     }
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle(worker.id)
@@ -30,6 +32,7 @@ struct WorkerDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             // MARK: - Hero & Script Overview Card
@@ -349,6 +352,7 @@ struct WorkerDetailView: View {
             .centerConstrainedWidth(maxWidth: 840)
     }
     
+    // MARK: - Actions
     private func formatBytes(_ bytes: Int) -> String {
         if bytes < 1024 {
             return "\(bytes) B"

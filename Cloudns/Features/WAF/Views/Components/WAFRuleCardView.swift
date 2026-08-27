@@ -3,9 +3,11 @@ import SwiftUI
 // MARK: - WAFRuleCardView
 
 struct WAFRuleCardView: View {
+    // MARK: - Properties
     let rule: WAFRule
     let onToggle: () -> Void
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -50,6 +52,7 @@ struct WAFRuleCardView: View {
         .padding(.vertical, 8)
     }
     
+    // MARK: - Actions
     private func actionDisplayName(_ action: String) -> String {
         switch action {
         case "block": return "BLOCK"

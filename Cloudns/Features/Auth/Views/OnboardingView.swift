@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    // MARK: - Properties
     @State private var currentPage = 0
     
     private let totalPages = 4
@@ -15,6 +16,7 @@ struct OnboardingView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             // 1. Dynamic Ambient Aurora Glow Background
@@ -175,6 +177,7 @@ struct OnboardingView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     OnboardingView()
 }

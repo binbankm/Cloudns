@@ -2,6 +2,7 @@ import SwiftUI
 import Network
 
 struct DNSRecordFormView: View {
+    // MARK: - Properties
     @Environment(\.dismiss) var dismiss
     
     let viewModel: DNSRecordsViewModel
@@ -85,6 +86,7 @@ struct DNSRecordFormView: View {
         return type == "A" || type == "AAAA" || type == "CNAME" || type == "HTTPS" || type == "SVCB"
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -308,6 +310,7 @@ struct DNSRecordFormView: View {
         }
     }
     
+    // MARK: - Actions
     private func saveRecord() async {
         if type == "A" {
             if IPv4Address(content) == nil {

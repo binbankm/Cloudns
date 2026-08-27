@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddWAFRuleView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: WAFViewModel
     @Environment(\.dismiss) private var dismiss
@@ -78,6 +79,7 @@ struct AddWAFRuleView: View {
         return operatorsForString
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -256,6 +258,7 @@ struct AddWAFRuleView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func presetButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
             HapticManager.impact(.light)
@@ -300,6 +303,7 @@ struct AddWAFRuleView: View {
         }
     }
     
+    // MARK: - Actions
     private func submitRule() async {
         isSubmitting = true
         let expression = finalEffectiveExpression

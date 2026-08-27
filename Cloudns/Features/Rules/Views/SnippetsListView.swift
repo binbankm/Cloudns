@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SnippetsListView: View {
+    // MARK: - Properties
     let zoneId: String
     @StateObject private var viewModel = SnippetsViewModel()
     @State private var showingEditorSheet = false
@@ -25,6 +26,7 @@ struct SnippetsListView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -102,6 +104,7 @@ struct SnippetsListView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             

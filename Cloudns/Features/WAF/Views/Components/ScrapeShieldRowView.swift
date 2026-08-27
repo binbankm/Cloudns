@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ScrapeShieldRowView
 
 struct ScrapeShieldRowView: View {
+    // MARK: - Properties
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     let icon: String
@@ -10,6 +11,7 @@ struct ScrapeShieldRowView: View {
     @Binding var isOn: Bool
     let isLoading: Bool
     
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 16) {
             ZStack {

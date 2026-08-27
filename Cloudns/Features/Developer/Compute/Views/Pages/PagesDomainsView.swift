@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PagesDomainsView: View {
+    // MARK: - Properties
     let accountId: String
     let projectName: String
     @ObservedObject var viewModel: PagesProjectDetailViewModel
@@ -9,6 +10,7 @@ struct PagesDomainsView: View {
     @State private var domainToDelete: PagesDomain?
     @State private var showingDeleteAlert = false
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle("Custom Domains")
@@ -47,6 +49,7 @@ struct PagesDomainsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {

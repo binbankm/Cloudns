@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LoadBalancerView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel: LoadBalancerViewModel
@@ -34,6 +35,7 @@ struct LoadBalancerView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -91,6 +93,7 @@ struct LoadBalancerView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentList: some View {
         List {
             if selectedTab == 0 {

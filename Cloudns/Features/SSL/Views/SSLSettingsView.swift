@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct SSLSettingsView: View {
+    // MARK: - Properties
     let zoneId: String
     @StateObject private var viewModel = SSLSettingsViewModel()
     
+    // MARK: - Body
     var body: some View {
         Form {
             if viewModel.hasFetchedData {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct IPAccessRulesView: View {
+    // MARK: - Properties
     let zoneId: String
     
     @StateObject private var viewModel = IPAccessRulesViewModel()
@@ -17,6 +18,7 @@ struct IPAccessRulesView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(

@@ -2,8 +2,10 @@ import SwiftUI
 import LocalAuthentication
 
 struct AppLockView: View {
+    // MARK: - Properties
     @ObservedObject private var authManager = AppAuthManager.shared
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             // Clean native privacy material
@@ -42,6 +44,7 @@ struct AppLockView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     AppLockView()
 }

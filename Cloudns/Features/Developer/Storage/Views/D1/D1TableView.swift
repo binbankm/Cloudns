@@ -5,6 +5,7 @@ import Combine
 // MARK: - D1TableView
 
 struct D1TableView: View {
+    // MARK: - Properties
     let accountId: String
     let databaseId: String
     let tableName: String
@@ -22,6 +23,7 @@ struct D1TableView: View {
         _viewModel = StateObject(wrappedValue: D1TableViewModel(accountId: accountId, databaseId: databaseId, tableName: tableName))
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()

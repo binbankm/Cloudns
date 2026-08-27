@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - DeveloperHubRowView
 
 struct DeveloperHubRowView: View {
+    // MARK: - Properties
     let icon: String
     let iconColor: Color
     let title: LocalizedStringKey
@@ -23,6 +24,7 @@ struct DeveloperHubRowView: View {
         self.badge = badge
     }
     
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: icon)

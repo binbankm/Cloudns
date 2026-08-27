@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddTransformRuleView: View {
+    // MARK: - Properties
     let zoneId: String
     let initialPhase: String
     @ObservedObject var viewModel: TransformRulesViewModel
@@ -29,6 +30,7 @@ struct AddTransformRuleView: View {
         _phase = State(initialValue: initialPhase)
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -149,6 +151,7 @@ struct AddTransformRuleView: View {
         return false
     }
     
+    // MARK: - Actions
     private func submitRule() async {
         isSubmitting = true
         

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - KVCreateNamespaceSheetView
 
 struct KVCreateNamespaceSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: KVViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -10,6 +11,7 @@ struct KVCreateNamespaceSheetView: View {
     @State private var isCreating = false
     @State private var errorMessage: String?
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {

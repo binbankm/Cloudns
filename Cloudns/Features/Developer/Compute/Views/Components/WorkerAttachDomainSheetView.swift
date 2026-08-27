@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - WorkerAttachDomainSheetView
 
 struct WorkerAttachDomainSheetView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     let onAttached: () -> Void
@@ -54,6 +55,7 @@ struct WorkerAttachDomainSheetView: View {
         return !selectedZoneId.isEmpty && !computedHostname.isEmpty
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -167,6 +169,7 @@ struct WorkerAttachDomainSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func loadZones() async {
         isLoadingZones = true
         do {

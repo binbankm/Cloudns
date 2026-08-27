@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TunnelDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let tunnel: CFTunnel
     @StateObject private var viewModel: TunnelDetailViewModel
@@ -16,6 +17,7 @@ struct TunnelDetailView: View {
         _viewModel = StateObject(wrappedValue: TunnelDetailViewModel(accountId: accountId, tunnel: tunnel))
     }
     
+    // MARK: - Body
     var body: some View {
         contentView
             .navigationTitle(tunnel.name)
@@ -56,6 +58,7 @@ struct TunnelDetailView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             // MARK: - Overview

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkerTailView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     
@@ -14,6 +15,7 @@ struct WorkerTailView: View {
         _viewModel = StateObject(wrappedValue: WorkerTailViewModel(accountId: accountId, scriptName: scriptName))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -98,6 +100,7 @@ struct WorkerTailView: View {
         }
     }
     
+    // MARK: - Private Views
     private var filterBar: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {

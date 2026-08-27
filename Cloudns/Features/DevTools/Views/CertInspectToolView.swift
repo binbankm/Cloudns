@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct CertInspectToolView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = SSLCertInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -107,6 +109,7 @@ struct CertInspectToolView: View {
         .cloudnsCard(style: .frosted, cornerRadius: 16)
     }
     
+    // MARK: - Actions
     private func performInspect() {
         isFieldFocused = false
         HapticManager.impact(.light)

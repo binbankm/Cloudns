@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct KVBrowserView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: KVViewModel
     
@@ -33,6 +34,7 @@ struct KVBrowserView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -120,6 +122,7 @@ struct KVBrowserView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentView: some View {
         List {
             if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -289,6 +292,7 @@ struct KVBrowserView: View {
         .padding(.vertical, 3)
     }
     
+    // MARK: - Actions
     private func formatBytes(_ bytes: Int) -> String {
         let b = Double(bytes)
         if b < 1024 { return "\(bytes) B" }

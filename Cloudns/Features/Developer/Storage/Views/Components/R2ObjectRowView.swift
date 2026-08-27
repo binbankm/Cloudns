@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - R2ObjectRowView
 
 struct R2ObjectRowView: View {
+    // MARK: - Properties
     let object: R2Object
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: fileIcon(for: object.key))
@@ -49,6 +51,7 @@ struct R2ObjectRowView: View {
         }
     }
     
+    // MARK: - Actions
     private func fileIcon(for key: String) -> String {
         let lower = key.lowercased()
         if lower.hasSuffix(".png") || lower.hasSuffix(".jpg") || lower.hasSuffix(".jpeg") || lower.hasSuffix(".webp") || lower.hasSuffix(".svg") {

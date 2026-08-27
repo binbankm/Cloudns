@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - WorkerDeploymentsView
 
 struct WorkerDeploymentsView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     @StateObject private var viewModel: WorkerDeploymentsViewModel
@@ -15,6 +16,7 @@ struct WorkerDeploymentsView: View {
         _viewModel = StateObject(wrappedValue: WorkerDeploymentsViewModel(accountId: accountId, scriptName: scriptName))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -133,6 +135,7 @@ struct WorkerDeploymentsView: View {
     // MARK: - Row Subview
     
     @ViewBuilder
+    // MARK: - Private Views
     private func deploymentRow(_ dep: WorkerDeployment, isLatest: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 8) {

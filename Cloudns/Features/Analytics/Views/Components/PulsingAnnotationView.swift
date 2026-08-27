@@ -31,6 +31,7 @@ struct MapAnnotationItem: Identifiable, Sendable {
 // MARK: - PulsingAnnotationView
 
 struct PulsingAnnotationView: View {
+    // MARK: - Properties
     let item: MapAnnotationItem
     let isSelected: Bool
     @State private var isPulsing = false
@@ -49,6 +50,7 @@ struct PulsingAnnotationView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             Circle()

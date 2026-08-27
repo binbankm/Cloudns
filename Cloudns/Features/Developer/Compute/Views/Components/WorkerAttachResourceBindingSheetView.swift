@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - WorkerAttachResourceBindingSheetView
 
 struct WorkerAttachResourceBindingSheetView: View {
+    // MARK: - Properties
     let accountId: String
     @ObservedObject var viewModel: WorkerSecretsViewModel
     @Environment(\.dismiss) private var dismiss
@@ -38,6 +39,7 @@ struct WorkerAttachResourceBindingSheetView: View {
         ("service", "Service Binding", "network", .teal)
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -123,6 +125,7 @@ struct WorkerAttachResourceBindingSheetView: View {
     
     // MARK: - Resource Selector View
     @ViewBuilder
+    // MARK: - Private Views
     private var resourceSelector: some View {
         switch bindingType {
         case "kv_namespace":

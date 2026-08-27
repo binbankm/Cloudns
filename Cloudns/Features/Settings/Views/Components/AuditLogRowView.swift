@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - AuditLogRowView
 
 struct AuditLogRowView: View {
+    // MARK: - Properties
     let log: AuditLog
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {

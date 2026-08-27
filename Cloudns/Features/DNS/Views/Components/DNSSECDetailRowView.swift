@@ -3,10 +3,12 @@ import SwiftUI
 // MARK: - DNSSECDetailRowView
 
 struct DNSSECDetailRowView: View {
+    // MARK: - Properties
     let title: String
     let value: String?
     var isLast: Bool = false
     
+    // MARK: - Body
     var body: some View {
         if let validValue = value, !validValue.isEmpty {
             HStack(alignment: .center, spacing: 12) {

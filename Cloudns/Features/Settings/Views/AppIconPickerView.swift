@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct AppIconPickerView: View {
+    // MARK: - Properties
     @StateObject private var iconManager = AppIconManager.shared
     
+    // MARK: - Body
     var body: some View {
         List {
             Section {
@@ -77,6 +79,7 @@ struct AppIconPickerView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     NavigationStack {
         AppIconPickerView()

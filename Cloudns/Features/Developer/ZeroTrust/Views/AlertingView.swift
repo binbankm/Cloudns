@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct AlertingView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: AlertingViewModel
     @State private var selectedTab = "policies"
@@ -11,6 +12,7 @@ struct AlertingView: View {
         _viewModel = StateObject(wrappedValue: AlertingViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             Picker("Category", selection: $selectedTab) {
@@ -40,6 +42,7 @@ struct AlertingView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var contentList: some View {
         List {
             if selectedTab == "policies" {

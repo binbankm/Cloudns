@@ -3,10 +3,12 @@ import SwiftUI
 // MARK: - AuditLogDetailSheetView
 
 struct AuditLogDetailSheetView: View {
+    // MARK: - Properties
     let log: AuditLog
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - 1. Status & Header
@@ -184,6 +186,7 @@ struct AuditLogDetailSheetView: View {
         return nil
     }
     
+    // MARK: - Private Views
     private func detailRow(label: LocalizedStringKey, value: String, isCopyable: Bool = false) -> some View {
         HStack {
             Text(label)

@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 struct AccessAppsView: View {
+    // MARK: - Properties
     let accountId: String
     @StateObject private var viewModel: AccessAppsViewModel
     @State private var appToDelete: AccessApp?
@@ -13,6 +14,7 @@ struct AccessAppsView: View {
         _viewModel = StateObject(wrappedValue: AccessAppsViewModel(accountId: accountId))
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -145,6 +147,7 @@ struct AccessAppsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private func appRow(_ app: AccessApp) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "lock.shield.fill")

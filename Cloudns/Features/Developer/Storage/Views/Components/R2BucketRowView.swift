@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - R2BucketRowView
 
 struct R2BucketRowView: View {
+    // MARK: - Properties
     let bucket: R2Bucket
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "externaldrive.fill")

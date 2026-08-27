@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 // MARK: - R2UploadObjectSheetView
 
 struct R2UploadObjectSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: R2BucketDetailViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -27,6 +28,7 @@ struct R2UploadObjectSheetView: View {
         }
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -146,6 +148,7 @@ struct R2UploadObjectSheetView: View {
         }
     }
     
+    // MARK: - Actions
     private func formatBytes(_ bytes: Int) -> String {
         ByteCountFormatters.format(Int64(bytes))
     }

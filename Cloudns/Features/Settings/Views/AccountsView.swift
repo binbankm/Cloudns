@@ -1,10 +1,12 @@
 import SwiftUI
 
 struct AccountsView: View {
+    // MARK: - Properties
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var isShowingAddAccount = false
     @Environment(\.dismiss) private var dismiss
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {
@@ -84,6 +86,7 @@ struct AccountsView: View {
         }
     }
     
+    // MARK: - Actions
     private func deleteAccount(at offsets: IndexSet) {
         let emails = accountManager.accountEmails
         HapticManager.impact(.medium)

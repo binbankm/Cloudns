@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AdvancedZoneSettingsView: View {
+    // MARK: - Properties
     let zoneId: String
     let zoneName: String
     
@@ -18,6 +19,7 @@ struct AdvancedZoneSettingsView: View {
     
     @Environment(\.dismiss) var dismiss
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section(
@@ -102,6 +104,7 @@ struct AdvancedZoneSettingsView: View {
         }
     }
     
+    // MARK: - Actions
     private func updatePauseStatus(paused: Bool) async {
         do {
             try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)

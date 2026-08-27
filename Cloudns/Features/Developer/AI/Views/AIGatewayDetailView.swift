@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AIGatewayDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let gateway: AIGateway
     
@@ -19,6 +20,7 @@ struct AIGatewayDetailView: View {
         "https://gateway.ai.cloudflare.com/v1/\(accountId)/\(gateway.id)/\(selectedProvider)"
     }
     
+    // MARK: - Body
     var body: some View {
         List {
             // MARK: - Overview

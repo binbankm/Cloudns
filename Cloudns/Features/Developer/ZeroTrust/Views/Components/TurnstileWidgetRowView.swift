@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - TurnstileWidgetRowView
 
 struct TurnstileWidgetRowView: View {
+    // MARK: - Properties
     let widget: TurnstileWidget
     
+    // MARK: - Body
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             Image(systemName: "checkmark.shield.fill")

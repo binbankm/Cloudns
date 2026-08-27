@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddLoadBalancerView: View {
+    // MARK: - Properties
     let zoneId: String
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
@@ -38,6 +39,7 @@ struct AddLoadBalancerView: View {
         return true
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -165,6 +167,7 @@ struct AddLoadBalancerView: View {
         }
     }
     
+    // MARK: - Actions
     private func save() {
         isSubmitting = true
         

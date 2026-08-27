@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - AddAccessAppSheetView
 
 struct AddAccessAppSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: AccessAppsViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -31,6 +32,7 @@ struct AddAccessAppSheetView: View {
         ("30d", "30 Days")
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
@@ -110,6 +112,7 @@ struct AddAccessAppSheetView: View {
         !appDomain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    // MARK: - Actions
     private func saveApp() async {
         let cleanName = appName.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanDomain = appDomain.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()

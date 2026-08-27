@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 // MARK: - DNSRecordsView
 
 struct DNSRecordsView: View {
+    // MARK: - Properties
     let zoneId: String
     let zoneName: String
     
@@ -29,6 +30,7 @@ struct DNSRecordsView: View {
         viewModel.filteredRecords
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
             CloudnsSearchBar(
@@ -176,6 +178,7 @@ struct DNSRecordsView: View {
     }
     
     @ViewBuilder
+    // MARK: - Private Views
     private var recordsSections: some View {
         if viewModel.sortOption == "type" {
             let groupedRecords = Dictionary(grouping: displayRecords, by: { $0.type })

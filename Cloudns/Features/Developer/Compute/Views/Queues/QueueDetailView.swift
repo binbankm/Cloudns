@@ -3,10 +3,12 @@ import SwiftUI
 // MARK: - QueueDetailView
 
 struct QueueDetailView: View {
+    // MARK: - Properties
     let accountId: String
     let queue: CFQueue
     @ObservedObject var viewModel: QueuesViewModel
     
+    // MARK: - Body
     var body: some View {
         List {
             Section(header: Text("Queue Overview")) {

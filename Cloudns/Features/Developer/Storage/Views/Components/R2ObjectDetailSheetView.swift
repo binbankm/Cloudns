@@ -3,11 +3,13 @@ import SwiftUI
 // MARK: - R2ObjectDetailSheetView
 
 struct R2ObjectDetailSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: R2BucketDetailViewModel
     let object: R2Object
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteAlert = false
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             List {

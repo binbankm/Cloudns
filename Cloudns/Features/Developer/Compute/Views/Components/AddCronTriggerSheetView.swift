@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Add Cron Trigger Sheet
 
 struct AddCronTriggerSheetView: View {
+    // MARK: - Properties
     @ObservedObject var viewModel: WorkerTriggersViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -26,6 +27,7 @@ struct AddCronTriggerSheetView: View {
         CronPreset(name: "Monthly on 1st", expr: "0 0 1 * *")
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
