@@ -248,14 +248,14 @@ public struct CloudnsToastBannerView: View {
         .padding(.vertical, 10)
         .frame(maxWidth: 420)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: CloudnsRadius.xxl, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: CloudnsRadius.xxl, style: .continuous)
                         .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxl, style: .continuous))
         .shadow(color: Color.black.opacity(0.12), radius: 16, x: 0, y: 6)
         .padding(.horizontal, 16)
         .scaleEffect(isPressing ? 0.98 : 1.0)

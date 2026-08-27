@@ -29,7 +29,7 @@ struct DNSRecordRowView: View {
                     .padding(.vertical, 3)
                     .background(recordTypeColor.opacity(0.14))
                     .foregroundStyle(recordTypeColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs, style: .continuous))
                 
                 // Record Name
                 Text(record.name)

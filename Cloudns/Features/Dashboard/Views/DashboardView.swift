@@ -134,7 +134,7 @@ struct DashboardView: View {
         }
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous)
                 .fill(Color(UIColor.secondarySystemGroupedBackground))
         )
     }

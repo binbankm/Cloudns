@@ -213,7 +213,7 @@ struct WorkerSourceCodeView: View {
                         .font(.caption.weight(.semibold))
                         .frame(width: 28, height: 26)
                         .background(Color(.tertiarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 .buttonStyle(.plain)
                 .disabled(fontSize <= 10.0)
@@ -228,7 +228,7 @@ struct WorkerSourceCodeView: View {
                         .font(.caption.weight(.semibold))
                         .frame(width: 28, height: 26)
                         .background(Color(.tertiarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 .buttonStyle(.plain)
                 .disabled(fontSize >= 20.0)
@@ -251,7 +251,7 @@ struct WorkerSourceCodeView: View {
                 .padding(.vertical, 4)
                 .background(wrapLines ? Color.orange.opacity(0.12) : Color(.tertiarySystemFill))
                 .foregroundStyle(wrapLines ? Color.orange : Color.secondary)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
             }
             .buttonStyle(.plain)
             
@@ -272,7 +272,7 @@ struct WorkerSourceCodeView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(isActive ? Color(.systemBackground) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 .buttonStyle(.plain)
                 
@@ -289,13 +289,13 @@ struct WorkerSourceCodeView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(isActive ? Color(.systemBackground) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 .buttonStyle(.plain)
             }
             .padding(2)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
             
             if isEditingMode {
                 Button {
@@ -315,7 +315,7 @@ struct WorkerSourceCodeView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                 }
                 .buttonStyle(.plain)
                 .disabled(isDeploying || editableCode.isEmpty)

@@ -121,7 +121,7 @@ struct DNSSECView: View {
             }
             .padding(10)
             .background(Color.blue.opacity(0.06))
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
         }
         .padding(16)
         .cloudnsCard(style: .frosted, cornerRadius: 16)

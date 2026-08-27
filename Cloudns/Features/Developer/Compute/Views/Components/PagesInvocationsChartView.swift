@@ -50,7 +50,7 @@ struct PagesInvocationsChartView: View {
                             width: .fixed(6)
                         )
                         .foregroundStyle(Color.red.opacity(0.85))
-                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs, style: .continuous))
                     }
                 }
                 

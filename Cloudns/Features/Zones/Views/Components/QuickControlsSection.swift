@@ -28,7 +28,7 @@ struct QuickControlsSection: View {
                     .foregroundStyle(isUnderAttack ? .white : .red)
                     .frame(width: 32, height: 32)
                     .background(isUnderAttack ? Color.red : Color.red.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Under Attack Mode")
@@ -61,7 +61,7 @@ struct QuickControlsSection: View {
                     .foregroundStyle(isDevMode ? .white : .orange)
                     .frame(width: 32, height: 32)
                     .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 1) {
@@ -95,7 +95,7 @@ struct QuickControlsSection: View {
                     .foregroundStyle(isPaused ? .white : .gray)
                     .frame(width: 32, height: 32)
                     .background(isPaused ? Color.gray : Color.gray.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 1) {

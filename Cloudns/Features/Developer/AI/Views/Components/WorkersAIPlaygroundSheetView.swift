@@ -67,7 +67,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 28, height: 28)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
             
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -81,7 +81,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.vertical, 1)
                         .background(Color.purple.opacity(0.12))
                         .foregroundStyle(.purple)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 
                 Text(model.modelPath)
@@ -187,7 +187,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
                     }
                     .buttonStyle(.plain)
                 }
@@ -212,7 +212,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(Color.purple)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
                 }
             }
         } else {
@@ -233,7 +233,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
                     
                     if !message.isError {
                         HStack(spacing: 12) {
@@ -283,7 +283,7 @@ struct WorkersAIPlaygroundSheetView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color(UIColor.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
             
             Spacer()
         }
@@ -298,10 +298,10 @@ struct WorkersAIPlaygroundSheetView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .lineLimit(1...5)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .padding(.horizontal, CloudnsSpacing.mdSmall)
+                .padding(.vertical, CloudnsSpacing.sm)
+                .background(CloudnsColor.tertiaryGroupedBackground)
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xl))
                 .focused($isInputFocused)
                 .disabled(viewModel.isSendingMessage)
                 .submitLabel(.send)

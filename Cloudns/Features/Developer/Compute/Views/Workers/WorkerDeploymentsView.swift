@@ -147,7 +147,7 @@ struct WorkerDeploymentsView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
                         .background(isLatest ? Color.green : Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                 }
                 
                 if isLatest {
@@ -163,7 +163,7 @@ struct WorkerDeploymentsView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color(.secondarySystemFill))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
             
             // Message or Description

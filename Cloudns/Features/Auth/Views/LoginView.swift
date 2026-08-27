@@ -133,7 +133,7 @@ struct LoginView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
-                            .background(Color(.tertiarySystemGroupedBackground))
+                            .background(CloudnsColor.tertiaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
                                 RoundedRectangle(cornerRadius: CloudnsRadius.md)
@@ -211,7 +211,7 @@ struct LoginView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
-                            .background(Color(.tertiarySystemGroupedBackground))
+                            .background(CloudnsColor.tertiaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
                                 RoundedRectangle(cornerRadius: CloudnsRadius.md)
@@ -232,7 +232,7 @@ struct LoginView: View {
                             .padding(10)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.red.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
                             .onAppear {
                                 HapticManager.notification(.error)
                             }

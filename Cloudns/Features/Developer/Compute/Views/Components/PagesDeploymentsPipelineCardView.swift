@@ -43,8 +43,8 @@ struct PagesDeploymentsPipelineCardView: View {
                     .tint(.purple)
                 }
                 .padding(12)
-                .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .background(CloudnsColor.tertiaryGroupedBackground)
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
                 
                 // Preview Bar
                 VStack(alignment: .leading, spacing: 6) {
@@ -64,8 +64,8 @@ struct PagesDeploymentsPipelineCardView: View {
                     .tint(.blue)
                 }
                 .padding(12)
-                .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .background(CloudnsColor.tertiaryGroupedBackground)
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
             }
         }
         .padding(16)

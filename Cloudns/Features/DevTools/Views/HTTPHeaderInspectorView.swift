@@ -83,7 +83,7 @@ struct HTTPHeaderInspectorView: View {
             }
             .padding(12)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             Picker("HTTP Method", selection: $viewModel.httpMethod) {
                 ForEach(viewModel.httpMethods, id: \.self) { method in
@@ -262,7 +262,7 @@ struct HTTPHeaderInspectorView: View {
             }
             .padding(8)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
             
             Divider()
             

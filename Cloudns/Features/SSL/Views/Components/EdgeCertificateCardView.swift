@@ -36,7 +36,7 @@ struct EdgeCertificateCardView: View {
                         .accessibilityHidden(true)
                 }
                 .frame(width: 28, height: 28)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                 
                 Text(certificate.type.capitalized)
                     .font(.body.weight(.medium))

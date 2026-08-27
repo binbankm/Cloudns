@@ -283,7 +283,7 @@ struct WorkerTestView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
         }
     }
 }

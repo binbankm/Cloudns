@@ -290,7 +290,7 @@ struct DeveloperHubView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 4)

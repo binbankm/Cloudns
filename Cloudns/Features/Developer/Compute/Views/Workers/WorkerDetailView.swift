@@ -50,7 +50,7 @@ struct WorkerDetailView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
                             .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
                             .accessibilityHidden(true)
                         

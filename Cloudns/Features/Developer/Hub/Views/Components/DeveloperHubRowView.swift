@@ -32,7 +32,7 @@ struct DeveloperHubRowView: View {
                 .foregroundStyle(iconColor)
                 .frame(width: 32, height: 32)
                 .background(iconColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {

@@ -135,7 +135,7 @@ struct CachingView: View {
                         .padding()
                         .background(Color.red)
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)

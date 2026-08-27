@@ -55,7 +55,7 @@ public struct CloudnsSearchBar: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(Color(.tertiarySystemFill))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
         .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
     }
 }

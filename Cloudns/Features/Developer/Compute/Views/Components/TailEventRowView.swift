@@ -24,7 +24,7 @@ struct TailEventRowView: View {
                         .padding(.vertical, 2)
                         .background(methodColor(method).opacity(0.15))
                         .foregroundStyle(methodColor(method))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 } else if let cron = item.event?.cron {
                     Label(cron, systemImage: "clock")
                         .font(.caption.monospaced())
@@ -73,7 +73,7 @@ struct TailEventRowView: View {
                 }
                 .padding(8)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
             }
             
             // Exceptions preview
@@ -92,7 +92,7 @@ struct TailEventRowView: View {
                     .padding(6)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.red.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                 }
             }
         }

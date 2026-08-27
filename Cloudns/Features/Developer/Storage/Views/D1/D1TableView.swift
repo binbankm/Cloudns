@@ -228,7 +228,7 @@ struct D1TableView: View {
                     }
                     .padding(14)
                     .background(CloudnsColor.secondaryGroupedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
                     .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
                 }
             }
@@ -270,7 +270,7 @@ struct D1TableView: View {
                         .padding(.vertical, 10)
                     }
                 }
-                .background(Color(.tertiarySystemGroupedBackground))
+                .background(CloudnsColor.tertiaryGroupedBackground)
                 
                 Divider()
                 

@@ -26,7 +26,7 @@ struct TransformRuleCardView: View {
                 .foregroundStyle(.secondary)
                 .padding(6)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 .lineLimit(2)
             
             if let uri = rule.action_parameters?.uri {

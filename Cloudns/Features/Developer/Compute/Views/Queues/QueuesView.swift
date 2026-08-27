@@ -171,7 +171,7 @@ struct QueuesView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.orange.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
         }
         .padding(.vertical, 2)

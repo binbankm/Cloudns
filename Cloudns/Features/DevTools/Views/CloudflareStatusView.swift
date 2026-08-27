@@ -269,7 +269,7 @@ struct CloudflareStatusView: View {
         }
         .padding(16)
         .background(bgColor.gradient)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
         .shadow(color: bgColor.opacity(0.25), radius: 6, x: 0, y: 3)
         .padding(.horizontal)
         .padding(.top, 4)

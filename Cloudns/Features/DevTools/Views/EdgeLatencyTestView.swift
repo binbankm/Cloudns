@@ -78,7 +78,7 @@ struct EdgeLatencyTestView: View {
             }
             .padding(12)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
                 .font(.subheadline)

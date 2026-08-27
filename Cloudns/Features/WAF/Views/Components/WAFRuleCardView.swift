@@ -44,8 +44,8 @@ struct WAFRuleCardView: View {
                     .foregroundStyle(.primary)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .background(CloudnsColor.tertiaryGroupedBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                     .textSelection(.enabled)
             }
         }

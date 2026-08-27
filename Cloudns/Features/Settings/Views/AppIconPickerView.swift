@@ -22,10 +22,10 @@ struct AppIconPickerView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 60, height: 60)
-                                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
                                     .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                        RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous)
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             }

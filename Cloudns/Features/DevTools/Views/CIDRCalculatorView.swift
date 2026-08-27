@@ -80,7 +80,7 @@ struct CIDRCalculatorView: View {
             }
             .padding(12)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             // Quick Presets
             ScrollView(.horizontal) {
@@ -182,7 +182,7 @@ struct CIDRCalculatorView: View {
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.blue.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 .textSelection(.enabled)
         }
         .padding(16)

@@ -22,7 +22,7 @@ struct SettingsRowView: View {
                 .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
                 .background(color)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs, style: .continuous))
                 .accessibilityHidden(true)
             
             Text(title)

@@ -72,7 +72,7 @@ struct D1ConsoleView: View {
                                         .accessibilityHidden(true)
                                 }
                                 .frame(width: 32, height: 32)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                                 
                                 Text(tableName)
                                     .font(.body.weight(.medium))
@@ -101,7 +101,7 @@ struct D1ConsoleView: View {
                                     .padding(.vertical, 5)
                                     .background(Color(.secondarySystemFill))
                                     .foregroundStyle(.purple)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                             }
                         }
                     }

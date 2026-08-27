@@ -128,7 +128,7 @@ struct PagesDeploymentsListView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         .foregroundStyle(.primary)
                 }
                 

@@ -56,7 +56,7 @@ struct DNSExportSheetView: View {
                             }
                             .padding(14)
                             .background(CloudnsColor.secondaryGroupedBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
                             
                             // Action Buttons Strip
                             HStack(spacing: 10) {
@@ -71,7 +71,7 @@ struct DNSExportSheetView: View {
                                         .padding(.vertical, 10)
                                         .background(Color.blue)
                                         .foregroundStyle(.white)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                                 }
                                 
                                 Button {
@@ -84,7 +84,7 @@ struct DNSExportSheetView: View {
                                         .padding(.vertical, 10)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                                 }
                                 
                                 Button {
@@ -97,7 +97,7 @@ struct DNSExportSheetView: View {
                                         .padding(.vertical, 10)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                                 }
                             }
                             
@@ -116,10 +116,10 @@ struct DNSExportSheetView: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .frame(minHeight: 280)
-                                .background(Color(.tertiarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                .background(CloudnsColor.tertiaryGroupedBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous)
                                         .stroke(Color(.separator), lineWidth: 0.5)
                                 )
                             }

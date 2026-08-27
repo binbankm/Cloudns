@@ -295,7 +295,7 @@ struct WorkerSecretsView: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 2)
                 .background(Color.green.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
         }
         .padding(.vertical, 3)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {

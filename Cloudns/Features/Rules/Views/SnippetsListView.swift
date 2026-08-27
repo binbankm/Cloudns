@@ -252,7 +252,7 @@ struct SnippetsListView: View {
                     .padding(.vertical, 2)
                     .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
                     .foregroundStyle(isEnabled ? .green : .secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
             
             if let snipName = rule.action_parameters?.snippet_name {

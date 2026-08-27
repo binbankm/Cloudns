@@ -62,7 +62,7 @@ struct ZoneRowView: View {
                                 .padding(.vertical, 1.5)
                                 .background(Color.red.opacity(0.15))
                                 .foregroundStyle(.red)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         }
                         
                         if (zone.developmentMode ?? 0) > 0 {
@@ -72,7 +72,7 @@ struct ZoneRowView: View {
                                 .padding(.vertical, 1.5)
                                 .background(Color.orange.opacity(0.15))
                                 .foregroundStyle(.orange)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         }
                     }
                 }

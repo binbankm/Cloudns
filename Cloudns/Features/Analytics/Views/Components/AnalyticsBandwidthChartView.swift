@@ -39,7 +39,7 @@ struct AnalyticsBandwidthChartView: View {
                             endPoint: .bottom
                         )
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs, style: .continuous))
                 }
                 
                 if let selected = selectedBandwidthPoint {

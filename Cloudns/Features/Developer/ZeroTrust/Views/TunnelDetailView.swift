@@ -247,7 +247,7 @@ struct TunnelDetailView: View {
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                                 }
                                 
                                 if let ip = conn.originIp {

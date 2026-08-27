@@ -158,7 +158,7 @@ struct PagesDeploymentDetailView: View {
                 if viewModel.isLoadingLogs {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(0..<4, id: \.self) { idx in
-                            RoundedRectangle(cornerRadius: 3)
+                            RoundedRectangle(cornerRadius: CloudnsRadius.xs)
                                 .fill(Color.secondary.opacity(0.25))
                                 .frame(height: 10)
                                 .frame(maxWidth: idx == 3 ? 180 : .infinity)

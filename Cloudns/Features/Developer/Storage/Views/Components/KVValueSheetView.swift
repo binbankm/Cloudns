@@ -46,7 +46,7 @@ struct KVValueSheetView: View {
                                 .foregroundStyle(.purple)
                                 .padding(8)
                                 .background(Color.purple.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Copy Key Name")

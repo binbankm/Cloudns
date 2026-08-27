@@ -104,7 +104,7 @@ struct CFTraceToolView: View {
             }
             .padding(12)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             Button {
                 performTrace()

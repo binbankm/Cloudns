@@ -198,7 +198,7 @@ struct DNSPresetsSheetView: View {
                             } label: {
                                 HStack(spacing: 12) {
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous)
                                             .fill(preset.iconColor.opacity(0.14))
                                             .frame(width: 36, height: 36)
                                         Image(systemName: preset.icon)
@@ -284,7 +284,7 @@ struct DNSPresetsSheetView: View {
                                     .padding(.vertical, 2)
                                     .background(Color.blue.opacity(0.12))
                                     .foregroundStyle(.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                                 
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
                                     .font(.system(.subheadline, design: .monospaced).weight(.medium))

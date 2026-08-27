@@ -175,7 +175,7 @@ struct ZoneHeaderCardView: View {
                             .foregroundStyle(.white.opacity(0.85))
                             .padding(5)
                             .background(.white.opacity(0.16))
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                     }
                     .buttonStyle(.plain)
                 }
@@ -189,7 +189,7 @@ struct ZoneHeaderCardView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .shadow(color: Color.green.opacity(0.20), radius: 10, x: 0, y: 4)

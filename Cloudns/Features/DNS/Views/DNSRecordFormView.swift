@@ -302,7 +302,7 @@ struct DNSRecordFormView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
                     }
                 }
             }
