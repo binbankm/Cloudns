@@ -3,6 +3,7 @@ import SwiftUI
 struct IPLookupToolView: View {
     // MARK: - Properties
     @StateObject private var viewModel = IPLookupViewModel()
+    @ObservedObject private var historyManager = DevToolsHistoryManager.shared
     @FocusState private var isFieldFocused: Bool
     
     // MARK: - Body
@@ -76,9 +77,20 @@ struct IPLookupToolView: View {
                     .accessibilityLabel("Clear input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
+            
+            QueryHistoryChipsView(
+                history: historyManager.ipHistory,
+                onSelect: { ip in
+                    viewModel.ipInput = ip
+                    performQuery()
+                },
+                onClear: {
+                    historyManager.clearHistory(for: .ipLookup)
+                }
+            )
             
             Button {
                 performQuery()
@@ -102,15 +114,19 @@ struct IPLookupToolView: View {
             .controlSize(.regular)
             .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted, cornerRadius: CloudnsRadius.lg)
     }
     
     // MARK: - Actions
     private func performQuery() {
         isFieldFocused = false
+        guard !viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        historyManager.recordQuery(viewModel.ipInput, for: .ipLookup)
         HapticManager.impact(.light)
-        Task { await viewModel.queryIP() }
+        Task {
+            await viewModel.queryIP()
+        }
     }
     
     // MARK: - 2. Identification Card

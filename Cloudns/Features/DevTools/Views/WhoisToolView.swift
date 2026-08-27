@@ -3,6 +3,7 @@ import SwiftUI
 struct WhoisToolView: View {
     // MARK: - Properties
     @StateObject private var viewModel = WhoisViewModel()
+    @ObservedObject private var historyManager = DevToolsHistoryManager.shared
     @FocusState private var isFieldFocused: Bool
     
     let presets = ["cloudflare.com", "apple.com", "github.com", "google.com"]
@@ -82,13 +83,24 @@ struct WhoisToolView: View {
                     .accessibilityLabel("Clear input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
+            
+            QueryHistoryChipsView(
+                history: historyManager.whoisHistory,
+                onSelect: { domain in
+                    viewModel.domainInput = domain
+                    performLookup()
+                },
+                onClear: {
+                    historyManager.clearHistory(for: .whois)
+                }
+            )
             
             // Quick Presets
             ScrollView(.horizontal) {
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     ForEach(presets, id: \.self) { preset in
                         Button {
                             viewModel.domainInput = preset
@@ -130,15 +142,19 @@ struct WhoisToolView: View {
             .controlSize(.regular)
             .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted, cornerRadius: CloudnsRadius.lg)
     }
     
     // MARK: - Actions
     private func performLookup() {
         isFieldFocused = false
+        guard !viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        historyManager.recordQuery(viewModel.domainInput, for: .whois)
         HapticManager.impact(.light)
-        Task { await viewModel.performLookup() }
+        Task {
+            await viewModel.performLookup()
+        }
     }
     
     // MARK: - 2. Registration Card

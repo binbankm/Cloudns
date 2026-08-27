@@ -499,3 +499,39 @@ public struct SubnetCalculationResult: Equatable, Sendable {
         self.ipClass = ipClass
     }
 }
+
+// MARK: - Edge Quick Check Model
+
+public struct EdgeQuickCheckResult: Equatable, Sendable {
+    public let colo: String
+    public let cityName: String
+    public let countryCode: String
+    public let clientIp: String
+    public let rttMs: Double
+    public let httpVersion: String
+    public let tlsVersion: String
+    public let warpActive: Bool
+    public let timestamp: Date
+    
+    public init(
+        colo: String,
+        cityName: String,
+        countryCode: String,
+        clientIp: String,
+        rttMs: Double,
+        httpVersion: String,
+        tlsVersion: String,
+        warpActive: Bool,
+        timestamp: Date = Date()
+    ) {
+        self.colo = colo
+        self.cityName = cityName
+        self.countryCode = countryCode
+        self.clientIp = clientIp
+        self.rttMs = rttMs
+        self.httpVersion = httpVersion
+        self.tlsVersion = tlsVersion
+        self.warpActive = warpActive
+        self.timestamp = timestamp
+    }
+}

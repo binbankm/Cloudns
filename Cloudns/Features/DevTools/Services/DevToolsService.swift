@@ -12,6 +12,7 @@ protocol DevToolsServiceProtocol: Sendable {
     func lookupIP(target: String) async throws -> IPLookupResult
     func getCloudflareIPs() async throws -> ([String], [String])
     func getCFTrace(host: String) async throws -> [HTTPHeaderItem]
+    func performEdgeQuickCheck() async throws -> EdgeQuickCheckResult
     func fetchCloudflareStatus() async throws -> CFStatusSummary
     func calculateSubnet(cidr: String) -> SubnetCalculationResult?
 }
@@ -705,6 +706,53 @@ final class DevToolsService: DevToolsServiceProtocol {
             }
         }
         return items
+    }
+    
+    // MARK: - Edge Quick Check API
+    
+    func performEdgeQuickCheck() async throws -> EdgeQuickCheckResult {
+        guard let url = URL(string: "https://1.1.1.1/cdn-cgi/trace") else {
+            throw APIError.invalidURL
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 6.0
+        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        
+        let start = CFAbsoluteTimeGetCurrent()
+        let (data, _) = try await diagnosticSession.data(for: request)
+        let rtt = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
+        
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw APIError.invalidResponse
+        }
+        
+        var dict: [String: String] = [:]
+        for line in text.components(separatedBy: .newlines) {
+            let parts = line.split(separator: "=", maxSplits: 1).map(String.init)
+            if parts.count == 2 {
+                dict[parts[0]] = parts[1]
+            }
+        }
+        
+        let colo = dict["colo"] ?? "N/A"
+        let pop = CloudflarePoPDatabase.city(for: colo)
+        let cityName = pop?.city ?? "Anycast Edge"
+        let country = dict["loc"] ?? pop?.country ?? "US"
+        let ip = dict["ip"] ?? "Unknown IP"
+        let httpVer = dict["http"] ?? "HTTP/2"
+        let tlsVer = dict["tls"] ?? "TLS 1.3"
+        let warp = (dict["warp"] ?? "off") == "on"
+        
+        return EdgeQuickCheckResult(
+            colo: colo,
+            cityName: cityName,
+            countryCode: country,
+            clientIp: ip,
+            rttMs: rtt,
+            httpVersion: httpVer,
+            tlsVersion: tlsVer,
+            warpActive: warp
+        )
     }
     
     func fetchCloudflareStatus() async throws -> CFStatusSummary {

@@ -3,6 +3,7 @@ import SwiftUI
 struct DNSDigToolView: View {
     // MARK: - Properties
     @StateObject private var viewModel = DevToolsViewModel()
+    @ObservedObject private var historyManager = DevToolsHistoryManager.shared
     @FocusState private var isFieldFocused: Bool
     @State private var queryMode = 0 // 0: Single (1.1.1.1), 1: Benchmark
     
@@ -110,9 +111,20 @@ struct DNSDigToolView: View {
                     .accessibilityLabel("Clear input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
+            
+            QueryHistoryChipsView(
+                history: historyManager.dnsHistory,
+                onSelect: { domain in
+                    viewModel.domainInput = domain
+                    startQuery()
+                },
+                onClear: {
+                    historyManager.clearHistory(for: .dnsDig)
+                }
+            )
             
             if queryMode == 0 {
                 HStack {
@@ -323,6 +335,8 @@ struct DNSDigToolView: View {
     
     // MARK: - Actions
     private func startQuery() {
+        guard !viewModel.domainInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        historyManager.recordQuery(viewModel.domainInput, for: .dnsDig)
         Task {
             if queryMode == 0 {
                 await viewModel.queryDNS()

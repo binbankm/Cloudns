@@ -103,6 +103,14 @@ struct DevToolsHubView: View {
     var body: some View {
         NavigationStack {
             List {
+                // MARK: - Edge Quick Check
+                Section {
+                    EdgeQuickCheckCardView()
+                }
+                .listRowInsets(EdgeInsets(top: CloudnsSpacing.sm, leading: CloudnsSpacing.md, bottom: CloudnsSpacing.sm, trailing: CloudnsSpacing.md))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                
                 // MARK: - Edge Diagnostics
                 Section(header: Text("Edge & Network Diagnostics (\(edgeTools.count))")) {
                     ForEach(edgeTools) { tool in
