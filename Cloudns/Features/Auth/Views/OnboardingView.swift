@@ -165,7 +165,7 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
                     .padding(.horizontal, 24)

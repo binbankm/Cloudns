@@ -23,12 +23,12 @@ struct AlertingView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Notification Alerts")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

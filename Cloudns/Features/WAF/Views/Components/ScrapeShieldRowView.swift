@@ -21,7 +21,7 @@ struct ScrapeShieldRowView: View {
                     .font(.body)
             }
             .frame(width: 36, height: 36)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

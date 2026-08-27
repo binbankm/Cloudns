@@ -36,11 +36,11 @@ struct SnippetsListView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentView
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Edge Snippets")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -199,7 +199,7 @@ struct SnippetsListView: View {
                         .accessibilityHidden(true)
                 }
                 .frame(width: 36, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(snip.snippet_name)

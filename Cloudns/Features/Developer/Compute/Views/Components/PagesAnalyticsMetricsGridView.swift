@@ -99,8 +99,8 @@ struct PagesAnalyticsMetricsGridView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
     
     // MARK: - Helpers

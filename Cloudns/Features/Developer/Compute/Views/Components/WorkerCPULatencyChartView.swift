@@ -96,8 +96,8 @@ struct WorkerCPULatencyChartView: View {
             }
         }
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
     
     // MARK: - Private Views

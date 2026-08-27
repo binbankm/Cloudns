@@ -23,7 +23,7 @@ struct R2BucketsView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -58,7 +58,7 @@ struct R2BucketsView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("R2 Object Storage")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable { await viewModel.fetchBuckets() }

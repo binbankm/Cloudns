@@ -16,7 +16,7 @@ struct DNSSECView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 16) {

@@ -55,7 +55,7 @@ public struct WorkerAnalyticsView: View {
             
             contentBody
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Worker Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -97,8 +97,8 @@ public struct WorkerAnalyticsView: View {
             }
         }
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
     
     @ViewBuilder

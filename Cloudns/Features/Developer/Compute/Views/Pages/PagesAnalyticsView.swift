@@ -55,7 +55,7 @@ public struct PagesAnalyticsView: View {
             
             contentBody
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Pages Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -97,8 +97,8 @@ public struct PagesAnalyticsView: View {
             }
         }
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
     
     @ViewBuilder

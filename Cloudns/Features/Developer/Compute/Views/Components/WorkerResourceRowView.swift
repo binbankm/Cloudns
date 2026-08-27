@@ -15,7 +15,7 @@ struct WorkerResourceRowView: View {
                 .foregroundStyle(WorkerBindingHelper.color(for: binding.type))
                 .frame(width: 32, height: 32)
                 .background(WorkerBindingHelper.color(for: binding.type).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

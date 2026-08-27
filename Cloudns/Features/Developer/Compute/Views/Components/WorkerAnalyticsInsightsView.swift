@@ -38,7 +38,7 @@ struct WorkerAnalyticsInsightsView: View {
             }
         }
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
 }

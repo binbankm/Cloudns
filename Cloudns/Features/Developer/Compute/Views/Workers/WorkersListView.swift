@@ -26,7 +26,7 @@ struct WorkersListView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             Picker("Type", selection: $viewModel.selectedSegment) {
                 Text(viewModel.hasFetchedData ? "Workers (\(viewModel.workers.count))" : "Workers").tag(0)
@@ -35,12 +35,12 @@ struct WorkersListView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentView
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Workers & Pages")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -213,7 +213,7 @@ struct WorkersListView: View {
                 .foregroundStyle(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

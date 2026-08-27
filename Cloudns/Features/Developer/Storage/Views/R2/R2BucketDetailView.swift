@@ -25,7 +25,7 @@ struct R2BucketDetailView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 if !viewModel.objects.isEmpty {
@@ -94,7 +94,7 @@ struct R2BucketDetailView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle(bucket.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

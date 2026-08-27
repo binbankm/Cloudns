@@ -166,7 +166,7 @@ struct PagesDeploymentDetailView: View {
                     }
                     .padding(10)
                     .background(Color.black.opacity(0.85))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     .skeletonLoading(true)
                 } else if viewModel.logs.isEmpty {
                     Text("No build logs available for this deployment.")
@@ -183,7 +183,7 @@ struct PagesDeploymentDetailView: View {
                         }
                         .padding(8)
                         .background(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     }
                     .scrollIndicators(.hidden)
                 }

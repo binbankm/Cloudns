@@ -21,7 +21,7 @@ struct KVValueSheetView: View {
                             .foregroundStyle(.purple)
                             .frame(width: 36, height: 36)
                             .background(Color.purple.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             .accessibilityHidden(true)
                         
                         VStack(alignment: .leading, spacing: 2) {
@@ -52,8 +52,8 @@ struct KVValueSheetView: View {
                         .accessibilityLabel("Copy Key Name")
                     }
                     .padding(12)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(CloudnsColor.secondaryGroupedBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                     
                     // 2. Value Content Box
                     if isLoading {
@@ -107,15 +107,15 @@ struct KVValueSheetView: View {
                                 .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(14)
-                                .background(Color(.secondarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .background(CloudnsColor.secondaryGroupedBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                                 .textSelection(.enabled)
                         }
                     }
                 }
                 .padding(16)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             .navigationTitle("KV Value Inspector")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

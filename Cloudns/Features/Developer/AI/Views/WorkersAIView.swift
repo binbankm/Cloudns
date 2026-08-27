@@ -21,7 +21,7 @@ struct WorkersAIView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -52,7 +52,7 @@ struct WorkersAIView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Workers AI")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedModelForPlayground) { model in
@@ -106,7 +106,7 @@ struct WorkersAIView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 32, height: 32)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {

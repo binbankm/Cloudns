@@ -44,7 +44,7 @@ struct OnboardingPageView: View {
                 
                 // Frosted Glass Core Base
                 Circle()
-                    .fill(Color(.secondarySystemGroupedBackground).opacity(0.85))
+                    .fill(CloudnsColor.secondaryGroupedBackground.opacity(0.85))
                     .frame(width: 140, height: 140)
                     .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
                 

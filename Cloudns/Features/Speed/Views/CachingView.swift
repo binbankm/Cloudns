@@ -94,7 +94,7 @@ struct CachingView: View {
                         }
                         .padding(.vertical, 10)
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     }
                     .buttonStyle(.plain)
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
@@ -142,7 +142,7 @@ struct CachingView: View {
                 }
                 .padding(.vertical, 4)
             }
-            .listRowBackground(Color(.secondarySystemGroupedBackground))
+            .listRowBackground(CloudnsColor.secondaryGroupedBackground)
             
             // Cache Level
             Section(header: Text("Cache Level")) {

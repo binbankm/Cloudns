@@ -31,7 +31,7 @@ struct CacheRulesView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -66,7 +66,7 @@ struct CacheRulesView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .refreshable {
             await viewModel.fetchCacheRules()
         }

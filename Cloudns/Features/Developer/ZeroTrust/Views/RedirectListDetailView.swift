@@ -30,7 +30,7 @@ struct RedirectListDetailView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 Section(header: Text("List Metadata")) {
@@ -81,7 +81,7 @@ struct RedirectListDetailView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle(list.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

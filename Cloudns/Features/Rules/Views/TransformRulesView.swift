@@ -33,7 +33,7 @@ struct TransformRulesView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             Picker("Phase", selection: $viewModel.selectedPhase) {
                 Text("Rewrite URL").tag("http_request_transform")
@@ -43,12 +43,12 @@ struct TransformRulesView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Transform Rules")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

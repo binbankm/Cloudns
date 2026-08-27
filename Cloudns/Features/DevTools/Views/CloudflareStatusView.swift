@@ -72,7 +72,7 @@ struct CloudflareStatusView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             // Segmented Picker Header (Standard pattern across app)
             Picker("Category", selection: $selectedTab) {
@@ -83,12 +83,12 @@ struct CloudflareStatusView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentView
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

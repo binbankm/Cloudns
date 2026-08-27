@@ -86,7 +86,7 @@ struct AddGatewayRuleSheetView: View {
                                         .font(.caption.weight(.medium))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
-                                        .background(Color(.secondarySystemGroupedBackground))
+                                        .background(CloudnsColor.secondaryGroupedBackground)
                                         .clipShape(Capsule())
                                         .overlay(Capsule().stroke(Color(.separator), lineWidth: 0.8))
                                 }

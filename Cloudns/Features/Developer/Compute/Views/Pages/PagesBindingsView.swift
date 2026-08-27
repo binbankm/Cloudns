@@ -112,7 +112,7 @@ struct PagesBindingsView: View {
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Bindings & Variables")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -169,7 +169,7 @@ struct PagesBindingsView: View {
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .onChange(of: selectedEnv) { _ in
             HapticManager.impact(.light)
         }

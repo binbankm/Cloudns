@@ -35,7 +35,7 @@ struct EmailRoutingView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 // MARK: - Master Toggle
@@ -199,7 +199,7 @@ struct EmailRoutingView: View {
         .scrollDismissesKeyboard(.interactively)
         .centerConstrainedWidth(maxWidth: 840)
     }
-    .background(Color(.systemGroupedBackground))
+    .background(CloudnsColor.groupedBackground)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {

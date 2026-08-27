@@ -26,7 +26,7 @@ struct D1TableView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            CloudnsColor.groupedBackground.ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Table stats & Display Mode Bar
@@ -52,7 +52,7 @@ struct D1TableView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Color(.secondarySystemGroupedBackground))
+                .background(CloudnsColor.secondaryGroupedBackground)
                 
                 Divider()
                 
@@ -113,7 +113,7 @@ struct D1TableView: View {
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 10)
-                    .background(Color(.secondarySystemGroupedBackground))
+                    .background(CloudnsColor.secondaryGroupedBackground)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -227,7 +227,7 @@ struct D1TableView: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(.secondarySystemGroupedBackground))
+                    .background(CloudnsColor.secondaryGroupedBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
                 }
@@ -301,7 +301,7 @@ struct D1TableView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .background(index % 2 == 0 ? Color(.systemBackground) : Color(.secondarySystemGroupedBackground).opacity(0.5))
+                    .background(index % 2 == 0 ? Color(.systemBackground) : CloudnsColor.secondaryGroupedBackground.opacity(0.5))
                     .contextMenu {
                         Button {
                             editorContext = .edit(row: row)

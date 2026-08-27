@@ -28,11 +28,11 @@ struct RedirectRulesView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentView
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Redirect Rules")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

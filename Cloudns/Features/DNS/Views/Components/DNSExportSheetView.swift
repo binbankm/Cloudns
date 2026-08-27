@@ -55,7 +55,7 @@ struct DNSExportSheetView: View {
                                     .foregroundStyle(.secondary)
                             }
                             .padding(14)
-                            .background(Color(.secondarySystemGroupedBackground))
+                            .background(CloudnsColor.secondaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             
                             // Action Buttons Strip
@@ -128,7 +128,7 @@ struct DNSExportSheetView: View {
                     }
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             .navigationTitle("Export DNS Records")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

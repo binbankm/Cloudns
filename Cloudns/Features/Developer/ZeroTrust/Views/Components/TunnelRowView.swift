@@ -18,7 +18,7 @@ struct TunnelRowView: View {
                 .foregroundStyle(isHealthy ? .green : .red)
                 .frame(width: 32, height: 32)
                 .background((isHealthy ? Color.green : Color.red).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

@@ -26,7 +26,7 @@ struct WorkerSecretsView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             Picker("Type", selection: $viewModel.selectedTab) {
                 Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
@@ -35,12 +35,12 @@ struct WorkerSecretsView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Variables & Secrets")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -194,7 +194,7 @@ struct WorkerSecretsView: View {
                 .foregroundStyle(.blue)
                 .frame(width: 30, height: 30)
                 .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -272,7 +272,7 @@ struct WorkerSecretsView: View {
                 .foregroundStyle(.orange)
                 .frame(width: 30, height: 30)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {

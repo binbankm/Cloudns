@@ -69,12 +69,12 @@ public struct CloudnsCardModifier: ViewModifier {
     private var backgroundView: some View {
         switch style {
         case .frosted:
-            Color(.secondarySystemGroupedBackground)
+            CloudnsColor.secondaryGroupedBackground
         case .grouped:
-            Color(.secondarySystemGroupedBackground)
+            CloudnsColor.secondaryGroupedBackground
         case .brandGlow(let accent):
             ZStack {
-                Color(.secondarySystemGroupedBackground)
+                CloudnsColor.secondaryGroupedBackground
                 RadialGradient(
                     gradient: Gradient(colors: [accent.opacity(colorScheme == .dark ? 0.15 : 0.08), Color.clear]),
                     center: .topLeading,

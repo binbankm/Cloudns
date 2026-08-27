@@ -33,11 +33,11 @@ struct AnalyticsCountryDistributionView: View {
             
             trafficMapView
                 .frame(height: 260)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
         }
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
     
     // MARK: - Private Views
@@ -108,7 +108,7 @@ struct AnalyticsCountryDistributionView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color(.systemBackground).opacity(0.95))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
         .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
         .padding(.horizontal, 24)
         .padding(.bottom, 12)

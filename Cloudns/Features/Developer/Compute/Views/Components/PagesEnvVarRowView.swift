@@ -17,7 +17,7 @@ struct PagesEnvVarRowView: View {
                 .foregroundStyle(value.isSecret ? .orange : .blue)
                 .frame(width: 32, height: 32)
                 .background((value.isSecret ? Color.orange : Color.blue).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

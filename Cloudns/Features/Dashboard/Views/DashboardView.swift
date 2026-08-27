@@ -11,7 +11,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemGroupedBackground).ignoresSafeArea()
+                CloudnsColor.groupedBackground.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 14) {

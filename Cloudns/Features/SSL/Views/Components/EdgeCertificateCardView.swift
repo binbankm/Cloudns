@@ -105,8 +105,8 @@ struct EdgeCertificateCardView: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(CloudnsColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
         .padding(.vertical, 4)
     }

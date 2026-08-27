@@ -26,7 +26,7 @@ struct WorkerDeploymentsView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             List {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -69,7 +69,7 @@ struct WorkerDeploymentsView: View {
             .scrollDismissesKeyboard(.interactively)
             .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Deployments")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

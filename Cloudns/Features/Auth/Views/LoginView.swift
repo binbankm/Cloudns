@@ -18,7 +18,7 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             // 1. Ambient Aurora Background
-            Color(.systemGroupedBackground)
+            CloudnsColor.groupedBackground
                 .ignoresSafeArea()
             
             GeometryReader { proxy in
@@ -60,7 +60,7 @@ struct LoginView: View {
                                 .blur(radius: 12)
                             
                             Circle()
-                                .fill(Color(.secondarySystemGroupedBackground))
+                                .fill(CloudnsColor.secondaryGroupedBackground)
                                 .frame(width: 76, height: 76)
                                 .shadow(color: Color.orange.opacity(0.2), radius: 14, x: 0, y: 6)
                                 .overlay(
@@ -134,9 +134,9 @@ struct LoginView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: CloudnsRadius.md)
                                     .stroke(focusedField == .email ? Color.orange : Color.clear, lineWidth: 1.5)
                             )
                         }
@@ -212,9 +212,9 @@ struct LoginView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: CloudnsRadius.md)
                                     .stroke(focusedField == .apiKey ? Color.orange : Color.clear, lineWidth: 1.5)
                             )
                         }
@@ -274,7 +274,7 @@ struct LoginView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isButtonDisabled)

@@ -135,7 +135,7 @@ struct DevToolsHubView: View {
                                 .foregroundStyle(Color.orange)
                                 .frame(width: 32, height: 32)
                                 .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Cloudflare System Status")
@@ -171,7 +171,7 @@ struct DevToolsHubView: View {
                     .foregroundStyle(tool.iconColor)
                     .frame(width: 32, height: 32)
                     .background(tool.iconColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(tool.title))

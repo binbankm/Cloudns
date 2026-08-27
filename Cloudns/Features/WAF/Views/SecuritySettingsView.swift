@@ -60,7 +60,7 @@ struct SecuritySettingsView: View {
                     }
                     .padding(.vertical, 8)
                 }
-                .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : Color(.secondarySystemGroupedBackground))
+                .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : CloudnsColor.secondaryGroupedBackground)
             
             // General Security Settings
             Section(header: Text("General Security")) {

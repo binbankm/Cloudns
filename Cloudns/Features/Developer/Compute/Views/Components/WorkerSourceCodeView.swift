@@ -84,9 +84,9 @@ struct WorkerSourceCodeView: View {
                                 .padding(.vertical, 6)
                                 .background(selectedModuleName == mod.name ? Color.orange.opacity(0.15) : Color(.tertiarySystemFill))
                                 .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.primary)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
+                                    RoundedRectangle(cornerRadius: CloudnsRadius.sm)
                                         .stroke(selectedModuleName == mod.name ? Color.orange.opacity(0.3) : Color.clear, lineWidth: 1)
                                 )
                             }
@@ -97,7 +97,7 @@ struct WorkerSourceCodeView: View {
                     .padding(.vertical, 8)
                 }
                 .scrollIndicators(.hidden)
-                .background(Color(.systemGroupedBackground))
+                .background(CloudnsColor.groupedBackground)
                 Divider()
             }
             
@@ -115,7 +115,7 @@ struct WorkerSourceCodeView: View {
                 isDarkMode: colorScheme == .dark
             )
             .id("\(selectedModuleName)-\(wrapLines)-\(fontSize)")
-            .background(Color(.secondarySystemGroupedBackground))
+            .background(CloudnsColor.secondaryGroupedBackground)
             
             Divider()
             
@@ -323,7 +323,7 @@ struct WorkerSourceCodeView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(CloudnsColor.secondaryGroupedBackground)
     }
     
     // MARK: - Status Bar
@@ -363,7 +363,7 @@ struct WorkerSourceCodeView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
     }
     
     private func formatBytes(_ bytes: Int) -> String {

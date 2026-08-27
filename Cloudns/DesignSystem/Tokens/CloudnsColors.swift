@@ -18,6 +18,9 @@ public enum CloudnsColor {
     // MARK: - Surfaces & Backgrounds
     public static let groupedBackground = Color(UIColor.systemGroupedBackground)
     public static let secondaryGroupedBackground = Color(UIColor.secondarySystemGroupedBackground)
+    public static let tertiaryGroupedBackground = Color(UIColor.tertiarySystemGroupedBackground)
     public static let cardBackground = Color(UIColor.secondarySystemGroupedBackground)
+    public static let chipBackground = Color(UIColor.tertiarySystemFill)
     public static let separator = Color(UIColor.separator)
+    public static let opaqueSeparator = Color(UIColor.opaqueSeparator)
 }

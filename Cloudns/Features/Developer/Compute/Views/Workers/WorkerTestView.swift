@@ -146,8 +146,8 @@ struct WorkerTestView: View {
                                 .padding(10)
                                 .textSelection(.enabled)
                         }
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .background(CloudnsColor.secondaryGroupedBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     } header: {
                         HStack {
                             Text("Response Payload")

@@ -107,7 +107,7 @@ struct WorkerRoutesView: View {
                                 .foregroundStyle(.blue)
                                 .frame(width: 30, height: 30)
                                 .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             
                             Text(route)
@@ -143,7 +143,7 @@ struct WorkerRoutesView: View {
                 .foregroundStyle(.orange)
                 .frame(width: 30, height: 30)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {

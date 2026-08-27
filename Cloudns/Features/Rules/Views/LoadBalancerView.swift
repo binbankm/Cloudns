@@ -45,7 +45,7 @@ struct LoadBalancerView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             Picker("Section", selection: $selectedTab) {
                 Text("Load Balancers").tag(0)
@@ -55,12 +55,12 @@ struct LoadBalancerView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(CloudnsColor.groupedBackground)
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

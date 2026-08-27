@@ -25,13 +25,13 @@ struct WorkerTailView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color(.secondarySystemGroupedBackground))
+            .background(CloudnsColor.secondaryGroupedBackground)
             
             // Top Toolbar: Status & Filters
             filterBar
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(Color(.secondarySystemGroupedBackground))
+                .background(CloudnsColor.secondaryGroupedBackground)
             
             Divider()
             
@@ -156,6 +156,6 @@ struct WorkerTailView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
+        .background(CloudnsColor.groupedBackground)
     }
 }

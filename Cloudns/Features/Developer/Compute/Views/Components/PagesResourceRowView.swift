@@ -17,7 +17,7 @@ struct PagesResourceRowView: View {
                 .foregroundStyle(themeColor)
                 .frame(width: 32, height: 32)
                 .background(themeColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

@@ -273,7 +273,7 @@ struct AddWAFRuleView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color(.secondarySystemGroupedBackground))
+            .background(CloudnsColor.secondaryGroupedBackground)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(Color.orange.opacity(0.25), lineWidth: 0.5))
         }
