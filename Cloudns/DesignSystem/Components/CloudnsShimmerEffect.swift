@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A ViewModifier that adds a smooth, Apple HIG standard pulsing shimmer animation to placeholder loading views.
-public struct ShimmerEffect: ViewModifier {
+public struct CloudnsShimmerEffect: ViewModifier {
     @State private var isPulsing: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
@@ -52,7 +52,7 @@ public extension View {
     @ViewBuilder
     func shimmering(active: Bool = true) -> some View {
         if active {
-            modifier(ShimmerEffect())
+            modifier(CloudnsShimmerEffect())
         } else {
             self
         }
@@ -69,3 +69,6 @@ public extension View {
             .disabled(isLoading)
     }
 }
+
+// MARK: - Typealias Backward Compatibility
+public typealias ShimmerEffect = CloudnsShimmerEffect

@@ -1,16 +1,16 @@
 import SwiftUI
 import UIKit
 
-// MARK: - CodeEditorView
-struct CodeEditorView: UIViewRepresentable {
+// MARK: - CloudnsCodeEditorView
+struct CloudnsCodeEditorView: UIViewRepresentable {
     @Binding var text: String
     var isEditable: Bool = false
     var wrapLines: Bool = true
     var fontSize: CGFloat = 13.0
     var isDarkMode: Bool = true
     
-    func makeUIView(context: Context) -> CodeContainerUIView {
-        let container = CodeContainerUIView()
+    func makeUIView(context: Context) -> CloudnsCodeContainerUIView {
+        let container = CloudnsCodeContainerUIView()
         container.update(
             text: text,
             isEditable: isEditable,
@@ -22,7 +22,7 @@ struct CodeEditorView: UIViewRepresentable {
         return container
     }
     
-    func updateUIView(_ uiView: CodeContainerUIView, context: Context) {
+    func updateUIView(_ uiView: CloudnsCodeContainerUIView, context: Context) {
         uiView.update(
             text: text,
             isEditable: isEditable,
@@ -38,9 +38,9 @@ struct CodeEditorView: UIViewRepresentable {
     }
     
     final class Coordinator: NSObject, UITextViewDelegate {
-        var parent: CodeEditorView
+        var parent: CloudnsCodeEditorView
         
-        init(_ parent: CodeEditorView) {
+        init(_ parent: CloudnsCodeEditorView) {
             self.parent = parent
         }
         
@@ -52,8 +52,8 @@ struct CodeEditorView: UIViewRepresentable {
     }
 }
 
-// MARK: - CodeContainerUIView (Line Numbers + Highlighting TextView)
-final class CodeContainerUIView: UIView {
+// MARK: - CloudnsCodeContainerUIView (Line Numbers + Highlighting TextView)
+final class CloudnsCodeContainerUIView: UIView {
     private let lineNumbersTextView = UITextView()
     private let codeTextView = UITextView()
     private let separatorView = UIView()
@@ -196,3 +196,7 @@ final class CodeContainerUIView: UIView {
         lineNumbersTextView.contentOffset = CGPoint(x: 0, y: codeTextView.contentOffset.y)
     }
 }
+
+// MARK: - Backward Compatibility Typealiases
+typealias CodeEditorView = CloudnsCodeEditorView
+typealias CodeContainerUIView = CloudnsCodeContainerUIView

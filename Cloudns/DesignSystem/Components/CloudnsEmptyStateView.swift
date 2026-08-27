@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A native-styled empty state view matching Apple HIG and ContentUnavailableView design patterns.
-public struct EmptyStateView: View {
+public struct CloudnsEmptyStateView: View {
     public let icon: String
     public let title: LocalizedStringKey
     public let message: LocalizedStringKey
@@ -106,7 +106,7 @@ public struct EmptyStateView: View {
 }
 
 // MARK: - Native Presets
-public extension EmptyStateView {
+public extension CloudnsEmptyStateView {
     /// Standard empty list state
     static func noData(
         icon: String = "tray",
@@ -114,8 +114,8 @@ public extension EmptyStateView {
         message: LocalizedStringKey = "Nothing to display here yet.",
         actionTitle: LocalizedStringKey? = nil,
         action: (() -> Void)? = nil
-    ) -> EmptyStateView {
-        EmptyStateView(
+    ) -> CloudnsEmptyStateView {
+        CloudnsEmptyStateView(
             icon: icon,
             title: title,
             message: message,
@@ -128,8 +128,8 @@ public extension EmptyStateView {
     static func search(
         query: String = "",
         action: (() -> Void)? = nil
-    ) -> EmptyStateView {
-        EmptyStateView(
+    ) -> CloudnsEmptyStateView {
+        CloudnsEmptyStateView(
             icon: "magnifyingglass",
             title: "No Results",
             message: query.isEmpty ? "No items match your search." : "No results found for \"\(query)\". Check spelling or try a different term.",
@@ -143,8 +143,8 @@ public extension EmptyStateView {
         title: LocalizedStringKey = "Unable to Load",
         message: LocalizedStringKey,
         retryAction: (() -> Void)? = nil
-    ) -> EmptyStateView {
-        EmptyStateView(
+    ) -> CloudnsEmptyStateView {
+        CloudnsEmptyStateView(
             icon: "exclamationmark.triangle",
             title: title,
             message: message,
@@ -157,8 +157,8 @@ public extension EmptyStateView {
     /// Offline / Network error state
     static func offline(
         retryAction: (() -> Void)? = nil
-    ) -> EmptyStateView {
-        EmptyStateView(
+    ) -> CloudnsEmptyStateView {
+        CloudnsEmptyStateView(
             icon: "wifi.slash",
             title: "No Internet Connection",
             message: "Please check your network settings and try again.",
@@ -168,3 +168,6 @@ public extension EmptyStateView {
         )
     }
 }
+
+// MARK: - Typealias Backward Compatibility
+public typealias EmptyStateView = CloudnsEmptyStateView

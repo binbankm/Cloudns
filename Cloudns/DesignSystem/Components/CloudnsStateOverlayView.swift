@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Modern Universal State Overlay (iOS 16 & iOS 17+ Progressive Enhancement)
 
-public struct StateOverlayView: View {
+public struct CloudnsStateOverlayView: View {
     public enum StateType {
         case empty(icon: String, title: LocalizedStringKey, message: LocalizedStringKey, actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil)
         case search(query: String, clearAction: (() -> Void)? = nil)
@@ -38,7 +38,7 @@ public struct StateOverlayView: View {
             ContentUnavailableView.search(text: query)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
-            EmptyStateView.search(query: query, action: clearAction)
+            CloudnsEmptyStateView.search(query: query, action: clearAction)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
@@ -60,7 +60,7 @@ public struct StateOverlayView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
-            EmptyStateView.error(title: title, message: message, retryAction: retryAction)
+            CloudnsEmptyStateView.error(title: title, message: message, retryAction: retryAction)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
@@ -80,7 +80,7 @@ public struct StateOverlayView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
-            EmptyStateView(
+            CloudnsEmptyStateView(
                 icon: icon,
                 title: title,
                 message: message,
@@ -91,3 +91,6 @@ public struct StateOverlayView: View {
         }
     }
 }
+
+// MARK: - Typealias Backward Compatibility
+public typealias StateOverlayView = CloudnsStateOverlayView

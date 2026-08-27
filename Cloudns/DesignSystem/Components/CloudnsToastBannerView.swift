@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 
 // MARK: - Toast Type Definition
-public enum ToastType: Equatable {
+public enum CloudnsToastType: Equatable {
     case success
     case error
     case warning
@@ -70,11 +70,11 @@ public enum ToastType: Equatable {
 }
 
 // MARK: - Toast Item Model
-public struct ToastItem: Identifiable, Equatable {
+public struct CloudnsToastItem: Identifiable, Equatable {
     public let id: UUID
     public let title: String
     public let message: String?
-    public let type: ToastType
+    public let type: CloudnsToastType
     public let duration: Double
     public let createdAt: Date
     
@@ -82,7 +82,7 @@ public struct ToastItem: Identifiable, Equatable {
         id: UUID = UUID(),
         title: String,
         message: String? = nil,
-        type: ToastType = .info,
+        type: CloudnsToastType = .info,
         duration: Double = 2.5,
         createdAt: Date = Date()
     ) {
@@ -94,17 +94,17 @@ public struct ToastItem: Identifiable, Equatable {
         self.createdAt = createdAt
     }
     
-    public static func == (lhs: ToastItem, rhs: ToastItem) -> Bool {
+    public static func == (lhs: CloudnsToastItem, rhs: CloudnsToastItem) -> Bool {
         lhs.id == rhs.id
     }
 }
 
 // MARK: - Toast Manager
 @MainActor
-public final class ToastManager: ObservableObject {
-    public static let shared = ToastManager()
+public final class CloudnsToastManager: ObservableObject {
+    public static let shared = CloudnsToastManager()
     
-    @Published public var currentToast: ToastItem?
+    @Published public var currentToast: CloudnsToastItem?
     
     private var dismissTask: Task<Void, Never>?
     private var isPaused = false
@@ -116,7 +116,7 @@ public final class ToastManager: ObservableObject {
     public func show(
         title: String,
         message: String? = nil,
-        type: ToastType = .info,
+        type: CloudnsToastType = .info,
         duration: Double = 2.5
     ) {
         let now = Date()
@@ -141,7 +141,7 @@ public final class ToastManager: ObservableObject {
         type.playHaptic()
         
         withAnimation(.spring(response: 0.38, dampingFraction: 0.78, blendDuration: 0)) {
-            self.currentToast = ToastItem(
+            self.currentToast = CloudnsToastItem(
                 title: cleanTitle,
                 message: cleanMessage,
                 type: type,
@@ -206,8 +206,8 @@ public final class ToastManager: ObservableObject {
 }
 
 // MARK: - Floating Dynamic Island Banner View
-public struct ToastBannerView: View {
-    let item: ToastItem
+public struct CloudnsToastBannerView: View {
+    let item: CloudnsToastItem
     let onDismiss: () -> Void
     
     @State private var dragOffset: CGFloat = 0
@@ -264,7 +264,7 @@ public struct ToastBannerView: View {
         .gesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { value in
-                    ToastManager.shared.pause()
+                    CloudnsToastManager.shared.pause()
                     if value.translation.height < 0 {
                         dragOffset = value.translation.height
                     } else {
@@ -279,7 +279,7 @@ public struct ToastBannerView: View {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                             dragOffset = 0
                         }
-                        ToastManager.shared.resume()
+                        CloudnsToastManager.shared.resume()
                     }
                 }
         )
@@ -289,9 +289,9 @@ public struct ToastBannerView: View {
         .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
             isPressing = pressing
             if pressing {
-                ToastManager.shared.pause()
+                CloudnsToastManager.shared.pause()
             } else {
-                ToastManager.shared.resume()
+                CloudnsToastManager.shared.resume()
             }
         }, perform: {})
         .accessibilityElement(children: .combine)
@@ -302,15 +302,15 @@ public struct ToastBannerView: View {
 }
 
 // MARK: - View Container & Modifier
-public struct ToastContainerModifier: ViewModifier {
-    @ObservedObject private var manager = ToastManager.shared
+public struct CloudnsToastContainerModifier: ViewModifier {
+    @ObservedObject private var manager = CloudnsToastManager.shared
     
     public func body(content: Content) -> some View {
         ZStack(alignment: .top) {
             content
             
             if let toast = manager.currentToast {
-                ToastBannerView(item: toast) {
+                CloudnsToastBannerView(item: toast) {
                     manager.dismiss()
                 }
                 .transition(
@@ -333,27 +333,13 @@ public struct ToastContainerModifier: ViewModifier {
 public extension View {
     /// Attaches the native toast notification banner container to the view hierarchy.
     func toastContainer() -> some View {
-        self.modifier(ToastContainerModifier())
+        self.modifier(CloudnsToastContainerModifier())
     }
 }
 
-#Preview("Toast Previews") {
-    VStack(spacing: 20) {
-        ToastBannerView(
-            item: ToastItem(title: "Copied to clipboard", message: "192.0.2.1 was copied", type: .copied),
-            onDismiss: {}
-        )
-        
-        ToastBannerView(
-            item: ToastItem(title: "DNS Record Saved", message: "Record A -> 1.1.1.1 created successfully", type: .success),
-            onDismiss: {}
-        )
-        
-        ToastBannerView(
-            item: ToastItem(title: "Purge Cache Failed", message: "API error code 10000", type: .error),
-            onDismiss: {}
-        )
-    }
-    .padding()
-    .background(Color(UIColor.systemGroupedBackground))
-}
+// MARK: - Backward Compatibility Typealiases
+public typealias ToastType = CloudnsToastType
+public typealias ToastItem = CloudnsToastItem
+public typealias ToastManager = CloudnsToastManager
+public typealias ToastBannerView = CloudnsToastBannerView
+public typealias ToastContainerModifier = CloudnsToastContainerModifier
