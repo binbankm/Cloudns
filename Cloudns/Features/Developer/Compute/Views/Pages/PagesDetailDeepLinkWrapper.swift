@@ -16,13 +16,8 @@ struct PagesDetailDeepLinkWrapper: View {
             if let project = loadedProject, !accountId.isEmpty {
                 PagesProjectDetailView(accountId: accountId, project: project)
             } else if isLoading {
-                VStack(spacing: CloudnsSpacing.md) {
-                    ProgressView()
-                        .scaleEffect(1.2)
-                    Text("Loading Pages Project...")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                PagesProjectDetailView(accountId: "account-placeholder", project: PagesProject(id: projectId, name: projectId.isEmpty ? "pages-project" : projectId))
+                    .skeletonLoading(true)
             } else {
                 VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")

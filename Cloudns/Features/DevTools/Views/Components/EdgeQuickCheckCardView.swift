@@ -90,16 +90,20 @@ struct EdgeQuickCheckCardView: View {
     }
     
     private var loadingView: some View {
-        HStack(spacing: CloudnsSpacing.mdSmall) {
-            ProgressView()
-                .controlSize(.small)
-            
-            Text("Probing nearest Cloudflare Anycast node & latency...")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, CloudnsSpacing.xs)
+        resultView(
+            EdgeQuickCheckResult(
+                colo: "SJC",
+                cityName: "San Jose",
+                countryCode: "US",
+                clientIp: "198.51.100.42",
+                rttMs: 24.0,
+                httpVersion: "HTTP/3",
+                tlsVersion: "TLSv1.3",
+                warpActive: false,
+                timestamp: Date()
+            )
+        )
+        .skeletonLoading(true)
     }
     
     private func errorView(_ error: String) -> some View {

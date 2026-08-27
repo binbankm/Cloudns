@@ -15,13 +15,8 @@ struct ZoneDetailDeepLinkWrapper: View {
             if let zone = loadedZone {
                 ZoneDetailView(zone: zone)
             } else if isLoading {
-                VStack(spacing: CloudnsSpacing.md) {
-                    ProgressView()
-                        .scaleEffect(1.2)
-                    Text("Loading Domain Details...")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                ZoneDetailView(zone: Zone(id: zoneId, name: "cloudflare-domain.com", status: "active", paused: false, plan: ZonePlan(name: "Enterprise")))
+                    .skeletonLoading(true)
             } else {
                 VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")

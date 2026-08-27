@@ -232,6 +232,7 @@
         }
       }
     },
+    ", %@, ": {},
     ": ": {
       "localizations": {
         "ar": {
@@ -3454,82 +3455,6 @@
         }
       }
     },
-    "%@, %@, %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %@"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@، %@، %@"
-          }
-        }
-      }
-    },
     "%@, status %@": {
       "localizations": {
         "ar": {
@@ -3685,19 +3610,37 @@
     },
     "%@.zone": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@.zone"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@.zone"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
           }
         },
-        "zh-Hant": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@.zone"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
@@ -3715,25 +3658,7 @@
             "value": "%@.zone"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@.zone"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@.zone"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@.zone"
-          }
-        },
-        "it": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
@@ -3745,13 +3670,13 @@
             "value": "%@.zone"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "%@.zone"
@@ -5004,6 +4929,12 @@
             "value": "%lld Tage verbleibend"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Days Remaining"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5056,12 +4987,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "剩餘 %lld 天"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld Days Remaining"
           }
         }
       }
@@ -5605,22 +5530,40 @@
     },
     "%lld lines": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld سطر"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Zeilen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld lines"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 行"
+            "value": "%lld líneas"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 行"
+            "value": "%lld lignes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld righe"
           }
         },
         "ja": {
@@ -5635,28 +5578,10 @@
             "value": "%lld줄"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld Zeilen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld lignes"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld líneas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld righe"
+            "value": "%lld linhas"
           }
         },
         "ru": {
@@ -5665,16 +5590,16 @@
             "value": "%lld строк"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld linhas"
+            "value": "%lld 行"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld سطر"
+            "value": "%lld 行"
           }
         }
       }
@@ -7993,6 +7918,12 @@
             "value": "±2.1 ms"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "±2.1 ms"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8042,12 +7973,6 @@
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "±2.1 ms"
-          }
-        },
-        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "±2.1 ms"
@@ -9144,6 +9069,12 @@
             "value": "1.1.1.1"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.1.1.1"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9193,12 +9124,6 @@
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1.1.1.1"
-          }
-        },
-        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "1.1.1.1"
@@ -10757,6 +10682,12 @@
             "value": "24.5 ms"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24.5 ms"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10806,12 +10737,6 @@
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "24.5 ms"
-          }
-        },
-        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "24.5 ms"
@@ -11601,6 +11526,12 @@
             "value": "90 Tage verbleibend"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90 Days Remaining"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11653,12 +11584,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "剩餘 90 天"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "90 Days Remaining"
           }
         }
       }
@@ -11906,6 +11831,12 @@
             "value": "200 OK"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200 OK"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11955,12 +11886,6 @@
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "200 OK"
-          }
-        },
-        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "200 OK"
@@ -19207,6 +19132,12 @@
             "value": "Fügen Sie diese Einträge bei Ihrem Domain-Registrar (GoDaddy, Namecheap usw.) hinzu"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add these records to your domain registrar (GoDaddy, Namecheap, etc.)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -19259,12 +19190,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "請將這些記錄新增至您的網域名稱註冊商（如 GoDaddy、Namecheap 等）"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add these records to your domain registrar (GoDaddy, Namecheap, etc.)"
           }
         }
       }
@@ -22885,22 +22810,40 @@
     },
     "All Tools": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جميع الأدوات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Werkzeuge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "All Tools"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部工具"
+            "value": "Todas las herramientas"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部工具"
+            "value": "Tous les outils"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti gli strumenti"
           }
         },
         "ja": {
@@ -22915,28 +22858,10 @@
             "value": "모든 도구"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Werkzeuge"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tous les outils"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Todas las herramientas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tutti gli strumenti"
+            "value": "Todas as ferramentas"
           }
         },
         "ru": {
@@ -22945,16 +22870,16 @@
             "value": "Все инструменты"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as ferramentas"
+            "value": "全部工具"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "جميع الأدوات"
+            "value": "全部工具"
           }
         }
       }
@@ -24423,22 +24348,40 @@
     },
     "Anycast Edge PoP Node": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عقدة Anycast Edge PoP"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anycast Edge PoP-Knoten"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Anycast Edge PoP Node"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anycast 边缘 PoP 节点"
+            "value": "Nodo PoP Edge Anycast"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anycast 邊緣 PoP 節點"
+            "value": "Nœud PoP Edge Anycast"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nodo PoP Edge Anycast"
           }
         },
         "ja": {
@@ -24453,28 +24396,10 @@
             "value": "Anycast 엣지 PoP 노드"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anycast Edge PoP-Knoten"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nœud PoP Edge Anycast"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nodo PoP Edge Anycast"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nodo PoP Edge Anycast"
+            "value": "Nó PoP Edge Anycast"
           }
         },
         "ru": {
@@ -24483,16 +24408,16 @@
             "value": "Узел Anycast Edge PoP"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nó PoP Edge Anycast"
+            "value": "Anycast 边缘 PoP 节点"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "عقدة Anycast Edge PoP"
+            "value": "Anycast 邊緣 PoP 節點"
           }
         }
       }
@@ -31729,6 +31654,12 @@
             "value": "Resolver-Benchmark"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benchmark Resolvers"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -31782,12 +31713,6 @@
             "state": "translated",
             "value": "解析器基準測試"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benchmark Resolvers"
-          }
         }
       }
     },
@@ -31803,6 +31728,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Globale Resolver werden getestet..."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benchmarking Global Resolvers..."
           }
         },
         "es": {
@@ -31857,12 +31788,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在對全球公共解析器進行基準測試..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benchmarking Global Resolvers..."
           }
         }
       }
@@ -31958,6 +31883,12 @@
             "value": "Binäre Bitmaske"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Binary Bitmask"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -32010,12 +31941,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "二進位遮罩"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Binary Bitmask"
           }
         }
       }
@@ -37415,6 +37340,12 @@
             "value": "Berechnungsfehler"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculation Error"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -37467,12 +37398,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "計算錯誤"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Calculation Error"
           }
         }
       }
@@ -38336,6 +38261,12 @@
             "value": "Zertifikatsketten-Hierarchie"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificate Chain Hierarchy"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -38388,12 +38319,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "憑證鏈階層結構"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Certificate Chain Hierarchy"
           }
         }
       }
@@ -38489,6 +38414,12 @@
             "value": "Zertifikatsketten-Hierarchie (%lld)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificate Chain Hierarchy (%lld)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -38541,12 +38472,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "憑證鏈階層結構 (%lld)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Certificate Chain Hierarchy (%lld)"
           }
         }
       }
@@ -38796,6 +38721,12 @@
             "value": "Zertifikatsgültigkeit"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificate Validity"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -38848,12 +38779,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "憑證有效期限"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Certificate Validity"
           }
         }
       }
@@ -39487,6 +39412,12 @@
             "value": "Ausländischen Datenverkehr prüfen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Challenge Foreign Traffic"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -39539,12 +39470,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "質問境外流量"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Challenge Foreign Traffic"
           }
         }
       }
@@ -40563,6 +40488,12 @@
             "value": "CIDR-Rechner"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR Calc"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -40615,12 +40546,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "CIDR 計算器"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CIDR Calc"
           }
         }
       }
@@ -41178,6 +41103,12 @@
             "value": "Domain-Eingabe löschen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear domain input"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -41231,12 +41162,6 @@
             "state": "translated",
             "value": "清除網域名稱輸入"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear domain input"
-          }
         }
       }
     },
@@ -41252,6 +41177,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Host löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear host"
           }
         },
         "es": {
@@ -41306,12 +41237,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "清除主機名稱"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear host"
           }
         }
       }
@@ -41626,22 +41551,40 @@
     },
     "Clear search history": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسح سجل البحث"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suchverlauf löschen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Clear search history"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除搜索历史"
+            "value": "Borrar historial"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除搜尋記錄"
+            "value": "Effacer l'historique"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancella cronologia"
           }
         },
         "ja": {
@@ -41656,28 +41599,10 @@
             "value": "검색 기록 지우기"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suchverlauf löschen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Effacer l'historique"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Borrar historial"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancella cronologia"
+            "value": "Limpar histórico"
           }
         },
         "ru": {
@@ -41686,16 +41611,16 @@
             "value": "Очистить историю"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpar histórico"
+            "value": "清除搜索历史"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "مسح سجل البحث"
+            "value": "清除搜尋記錄"
           }
         }
       }
@@ -41712,6 +41637,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suchtext löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search text"
           }
         },
         "es": {
@@ -41766,12 +41697,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "清除搜尋內容"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear search text"
           }
         }
       }
@@ -42479,6 +42404,12 @@
             "value": "Cloudflare 1.1.1.1 Anycast-Engine"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 1.1.1.1 Anycast Engine"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -42531,12 +42462,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cloudflare 1.1.1.1 Anycast 引擎"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cloudflare 1.1.1.1 Anycast Engine"
           }
         }
       }
@@ -43476,6 +43401,12 @@
             "value": "Cloudflare Inc ECC CA-3"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Inc ECC CA-3"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -43525,12 +43456,6 @@
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cloudflare Inc ECC CA-3"
-          }
-        },
-        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Cloudflare Inc ECC CA-3"
@@ -47239,6 +47164,12 @@
             "value": "Komprimierung"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compression"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -47291,12 +47222,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "響應壓縮"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compression"
           }
         }
       }
@@ -48161,6 +48086,12 @@
             "value": "Konfigurieren Sie Klartext-Variablen und verschlüsselte Secrets für Ihren Worker-Code."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure plaintext variables and encrypted secrets accessible in your Worker code."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -48213,12 +48144,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "設定可在 Worker 程式碼中直接存取的純文字環境變數與加密密鑰。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configure plaintext variables and encrypted secrets accessible in your Worker code."
           }
         }
       }
@@ -49545,6 +49470,12 @@
             "value": "Verbindung zum Edge-Knoten..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting Edge..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -49597,12 +49528,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在連線邊緣節點..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting Edge..."
           }
         }
       }
@@ -50389,6 +50314,12 @@
             "value": "Koordinaten (Breite/Länge)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates (Lat/Lon)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -50441,12 +50372,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "地理座標 (經度/緯度)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coordinates (Lat/Lon)"
           }
         }
       }
@@ -50696,6 +50621,12 @@
             "value": "Konto-ID kopieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Account ID"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -50748,12 +50679,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "複製帳戶 ID"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy Account ID"
           }
         }
       }
@@ -50837,22 +50762,40 @@
     },
     "Copy all build logs": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ جميع سجلات البناء"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Build-Protokolle kopieren"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Copy all build logs"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "复制全部构建日志"
+            "value": "Copiar todos los registros de compilación"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "複製全部構建日誌"
+            "value": "Copier tous les logs de build"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia tutti i log di compilazione"
           }
         },
         "ja": {
@@ -50867,28 +50810,10 @@
             "value": "모든 빌드 로그 복사"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Build-Protokolle kopieren"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copier tous les logs de build"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copiar todos los registros de compilación"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copia tutti i log di compilazione"
+            "value": "Copiar todos os registros de compilação"
           }
         },
         "ru": {
@@ -50897,16 +50822,16 @@
             "value": "Копировать все логи сборки"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar todos os registros de compilação"
+            "value": "复制全部构建日志"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "نسخ جميع سجلات البناء"
+            "value": "複製全部構建日誌"
           }
         }
       }
@@ -53148,6 +53073,12 @@
             "value": "RFC-Ausgabe kopieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy RFC Output"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -53200,12 +53131,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "複製 RFC 輸出"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy RFC Output"
           }
         }
       }
@@ -53594,22 +53519,40 @@
     },
     "Copy Target ID": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ معرف الهدف"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel-ID kopieren"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Copy Target ID"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "复制目标 ID"
+            "value": "Copiar ID de destino"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "複製目標 ID"
+            "value": "Copier l'ID cible"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia ID destinazione"
           }
         },
         "ja": {
@@ -53624,28 +53567,10 @@
             "value": "대상 ID 복사"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ziel-ID kopieren"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copier l'ID cible"
-          }
-        },
-        "es": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Copiar ID de destino"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copia ID destinazione"
           }
         },
         "ru": {
@@ -53654,16 +53579,16 @@
             "value": "Копировать ID цели"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar ID de destino"
+            "value": "复制目标 ID"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "نسخ معرف الهدف"
+            "value": "複製目標 ID"
           }
         }
       }
@@ -55676,6 +55601,12 @@
             "value": "Erstellen Sie benutzerdefinierte E-Mail-Adressen und leiten Sie eingehende E-Mails weiter."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create custom email addresses and forward incoming mail to your personal inboxes."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -55729,12 +55660,6 @@
             "state": "translated",
             "value": "建立自訂電子郵件地址並將收到的郵件無縫轉發至您的個人收件匣。"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create custom email addresses and forward incoming mail to your personal inboxes."
-          }
         }
       }
     },
@@ -55750,6 +55675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erstellen Sie benutzerdefinierte Firewall-Regeln zum Schutz vor schädlichem Datenverkehr."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create custom firewall rules to protect your web application from malicious traffic."
           }
         },
         "es": {
@@ -55804,12 +55735,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "建立自訂防火牆規則，保護 Web 應用程式免受惡意網路流量侵害。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create custom firewall rules to protect your web application from malicious traffic."
           }
         }
       }
@@ -58292,6 +58217,12 @@
             "value": "DNS-Antworten kryptografisch signieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cryptographically sign DNS lookup responses"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -58344,12 +58275,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用密碼學簽章驗證 DNS 查詢回應"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cryptographically sign DNS lookup responses"
           }
         }
       }
@@ -62521,6 +62446,12 @@
             "value": "Deaktiviert"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deactivated"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -62573,12 +62504,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "已停用"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deactivated"
           }
         }
       }
@@ -67888,22 +67813,40 @@
     },
     "Detect nearest Anycast PoP, RTT latency & HTTP/3 support.": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الكشف عن أقرب نقطة Anycast PoP وزمن الوصول RTT ودعم HTTP/3."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erkennt den nächsten Anycast PoP, die RTT-Latenz und HTTP/3-Unterstützung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Detect nearest Anycast PoP, RTT latency & HTTP/3 support."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "检测最近的 Anycast PoP、往返延迟 (RTT) 及 HTTP/3 支持。"
+            "value": "Detecta el PoP Anycast más cercano, latencia RTT y soporte HTTP/3."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "檢測最近的 Anycast PoP、來回延遲 (RTT) 及 HTTP/3 支援。"
+            "value": "Détecte le PoP Anycast le plus proche, la latence RTT et le support HTTP/3."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rileva il PoP Anycast più vicino, la latenza RTT e il supporto HTTP/3."
           }
         },
         "ja": {
@@ -67918,28 +67861,10 @@
             "value": "가장 가까운 Anycast PoP, RTT 지연 시간 및 HTTP/3 지원을 감지합니다."
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erkennt den nächsten Anycast PoP, die RTT-Latenz und HTTP/3-Unterstützung."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Détecte le PoP Anycast le plus proche, la latence RTT et le support HTTP/3."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detecta el PoP Anycast más cercano, latencia RTT y soporte HTTP/3."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rileva il PoP Anycast più vicino, la latenza RTT e il supporto HTTP/3."
+            "value": "Detecta o PoP Anycast mais próximo, latência RTT e suporte HTTP/3."
           }
         },
         "ru": {
@@ -67948,16 +67873,16 @@
             "value": "Определение ближайшего узла Anycast PoP, задержки RTT и поддержки HTTP/3."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Detecta o PoP Anycast mais próximo, latência RTT e suporte HTTP/3."
+            "value": "检测最近的 Anycast PoP、往返延迟 (RTT) 及 HTTP/3 支持。"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "الكشف عن أقرب نقطة Anycast PoP وزمن الوصول RTT ودعم HTTP/3."
+            "value": "檢測最近的 Anycast PoP、來回延遲 (RTT) 及 HTTP/3 支援。"
           }
         }
       }
@@ -68343,82 +68268,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "開發模式"
-          }
-        }
-      }
-    },
-    "Tools": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tools"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工具"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工具"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開発者ツール"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "개발자 도구"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entwickler-Tools"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Outils de dev"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Herramientas de desarrollo"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strumenti di sviluppo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Инструменты разработчика"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ferramentas de desenvolvedor"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "أدوات المطور"
           }
         }
       }
@@ -69657,22 +69506,40 @@
     },
     "Disable word wrap": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعطيل التفاف النص"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeilenumbruch deaktivieren"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Disable word wrap"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭自动换行"
+            "value": "Desactivar ajuste de línea"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "關閉自動換行"
+            "value": "Désactiver le retour à la ligne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattiva a capo automatico"
           }
         },
         "ja": {
@@ -69687,28 +69554,10 @@
             "value": "줄 바꿈 비활성화"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeilenumbruch deaktivieren"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Désactiver le retour à la ligne"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desactivar ajuste de línea"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disattiva a capo automatico"
+            "value": "Desativar quebra de linha"
           }
         },
         "ru": {
@@ -69717,16 +69566,16 @@
             "value": "Отключить перенос строк"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desativar quebra de linha"
+            "value": "关闭自动换行"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تعطيل التفاف النص"
+            "value": "關閉自動換行"
           }
         }
       }
@@ -71592,6 +71441,12 @@
             "value": "DNSSEC ist aktiviert"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC is Enabled"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -71645,12 +71500,6 @@
             "state": "translated",
             "value": "DNSSEC 已啟用"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DNSSEC is Enabled"
-          }
         }
       }
     },
@@ -71666,6 +71515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "DNSSEC-Schutz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Protection"
           }
         },
         "es": {
@@ -71720,12 +71575,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "DNSSEC 安全防護"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DNSSEC Protection"
           }
         }
       }
@@ -73360,6 +73209,12 @@
             "value": "Domain-Registrierung"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Registration"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -73412,12 +73267,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "網域名稱註冊資訊"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Domain Registration"
           }
         }
       }
@@ -74436,6 +74285,12 @@
             "value": "DS-Eintrags-Konfiguration"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DS Record Configuration"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -74488,12 +74343,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "DS 記錄設定"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DS Record Configuration"
           }
         }
       }
@@ -75885,22 +75734,40 @@
     },
     "Edge & Network Diagnostics (%lld)": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تشخيص الحافة والشبكة (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge- & Netzwerkdiagnose (%lld)"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Edge & Network Diagnostics (%lld)"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "边缘与网络诊断 (%lld)"
+            "value": "Diagnósticos de Edge y Red (%lld)"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "邊緣與網路診斷 (%lld)"
+            "value": "Diagnostics Edge & Réseau (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostica Edge e Rete (%lld)"
           }
         },
         "ja": {
@@ -75915,28 +75782,10 @@
             "value": "엣지 및 네트워크 진단 (%lld)"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge- & Netzwerkdiagnose (%lld)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diagnostics Edge & Réseau (%lld)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diagnósticos de Edge y Red (%lld)"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diagnostica Edge e Rete (%lld)"
+            "value": "Diagnósticos de Edge e Rede (%lld)"
           }
         },
         "ru": {
@@ -75945,16 +75794,16 @@
             "value": "Диагностика Edge и сети (%lld)"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnósticos de Edge e Rede (%lld)"
+            "value": "边缘与网络诊断 (%lld)"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشخيص الحافة والشبكة (%lld)"
+            "value": "邊緣與網路診斷 (%lld)"
           }
         }
       }
@@ -76432,6 +76281,12 @@
             "value": "Edge-Latenztest"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge Latency Test"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -76484,12 +76339,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "邊緣延遲測試"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edge Latency Test"
           }
         }
       }
@@ -76958,22 +76807,40 @@
     },
     "Edge Quick Check": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فحص سريع للحافة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge-Schnellprüfung"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Edge Quick Check"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "边缘节点快速检测"
+            "value": "Comprobación rápida de Edge"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "邊緣節點快速檢測"
+            "value": "Vérification rapide Edge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controllo rapido Edge"
           }
         },
         "ja": {
@@ -76988,28 +76855,10 @@
             "value": "엣지 빠른 검사"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge-Schnellprüfung"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vérification rapide Edge"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprobación rápida de Edge"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controllo rapido Edge"
+            "value": "Verificação rápida Edge"
           }
         },
         "ru": {
@@ -77018,16 +76867,16 @@
             "value": "Быстрая проверка Edge"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verificação rápida Edge"
+            "value": "边缘节点快速检测"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "فحص سريع للحافة"
+            "value": "邊緣節點快速檢測"
           }
         }
       }
@@ -77044,6 +76893,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edge-Antwort-Übersicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge Response Summary"
           }
         },
         "es": {
@@ -77098,12 +76953,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "邊緣響應摘要"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edge Response Summary"
           }
         }
       }
@@ -77430,6 +77279,12 @@
             "value": "Edge-TTFB"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge TTFB"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -77482,12 +77337,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "邊緣首字節時間 (TTFB)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edge TTFB"
           }
         }
       }
@@ -79815,6 +79664,12 @@
             "value": "DNSSEC-Status aktivieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable DNSSEC Status"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -79867,12 +79722,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "啟用 DNSSEC 狀態"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable DNSSEC Status"
           }
         }
       }
@@ -80494,22 +80343,40 @@
     },
     "Enable word wrap": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تفعيل التفاف النص"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeilenumbruch aktivieren"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Enable word wrap"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启自动换行"
+            "value": "Activar ajuste de línea"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "開啟自動換行"
+            "value": "Activer le retour à la ligne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva a capo automatico"
           }
         },
         "ja": {
@@ -80524,28 +80391,10 @@
             "value": "줄 바꿈 활성화"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeilenumbruch aktivieren"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activer le retour à la ligne"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activar ajuste de línea"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Attiva a capo automatico"
+            "value": "Ativar quebra de linha"
           }
         },
         "ru": {
@@ -80554,16 +80403,16 @@
             "value": "Включить перенос строк"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ativar quebra de linha"
+            "value": "开启自动换行"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تفعيل التفاف النص"
+            "value": "開啟自動換行"
           }
         }
       }
@@ -81415,22 +81264,40 @@
     },
     "End": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "النهاية"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ende"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "End"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "底部"
+            "value": "Fin"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "底部"
+            "value": "Fin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine"
           }
         },
         "ja": {
@@ -81445,28 +81312,10 @@
             "value": "끝"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ende"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fin"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fin"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fine"
+            "value": "Fim"
           }
         },
         "ru": {
@@ -81475,16 +81324,16 @@
             "value": "Конец"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fim"
+            "value": "底部"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "النهاية"
+            "value": "底部"
           }
         }
       }
@@ -85115,6 +84964,12 @@
             "value": "example.com oder Hostname"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "example.com or hostname"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -85167,12 +85022,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "example.com 或主機名稱"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "example.com or hostname"
           }
         }
       }
@@ -86881,6 +86730,12 @@
             "value": "Trace exportieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Trace"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -86933,12 +86788,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "匯出 Trace 診斷資料"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Export Trace"
           }
         }
       }
@@ -89266,6 +89115,12 @@
             "value": "Header filtern..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter headers..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -89319,33 +89174,45 @@
             "state": "translated",
             "value": "篩選標頭..."
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filter headers..."
-          }
         }
       }
     },
     "Filter records or lines...": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تصفية السجلات أو الأسطر..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einträge oder Zeilen filtern..."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Filter records or lines..."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "过滤记录或行内容..."
+            "value": "Filtrar registros o líneas..."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "過濾記錄或行內容..."
+            "value": "Filtrer les enregistrements ou lignes..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtra record o righe..."
           }
         },
         "ja": {
@@ -89360,28 +89227,10 @@
             "value": "레코드 또는 라인 필터링..."
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einträge oder Zeilen filtern..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filtrer les enregistrements ou lignes..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filtrar registros o líneas..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filtra record o righe..."
+            "value": "Filtrar registros ou linhas..."
           }
         },
         "ru": {
@@ -89390,16 +89239,16 @@
             "value": "Фильтр записей или строк..."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filtrar registros ou linhas..."
+            "value": "过滤记录或行内容..."
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تصفية السجلات أو الأسطر..."
+            "value": "過濾記錄或行內容..."
           }
         }
       }
@@ -89791,22 +89640,40 @@
     },
     "First Packet RTT": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "زمن وصول الحزمة الأولى RTT"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erster Paket-RTT"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "First Packet RTT"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "首包往返延迟 (RTT)"
+            "value": "RTT de primer paquete"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "首包來回延遲 (RTT)"
+            "value": "RTT du premier paquet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTT primo pacchetto"
           }
         },
         "ja": {
@@ -89821,28 +89688,10 @@
             "value": "첫 번째 패킷 RTT"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erster Paket-RTT"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RTT du premier paquet"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RTT de primer paquete"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RTT primo pacchetto"
+            "value": "RTT do primeiro pacote"
           }
         },
         "ru": {
@@ -89851,16 +89700,16 @@
             "value": "RTT первого пакета"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "RTT do primeiro pacote"
+            "value": "首包往返延迟 (RTT)"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "زمن وصول الحزمة الأولى RTT"
+            "value": "首包來回延遲 (RTT)"
           }
         }
       }
@@ -97410,6 +97259,12 @@
             "value": "HTTP-Protokoll"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP Protocol"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -97462,12 +97317,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "HTTP 協議版本"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HTTP Protocol"
           }
         }
       }
@@ -100945,6 +100794,12 @@
             "value": "Wird initialisiert"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Initializing"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -100997,12 +100852,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "初始化中"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Initializing"
           }
         }
       }
@@ -101394,22 +101243,40 @@
     },
     "Inspect Edge Connectivity": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فحص اتصال الحافة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge-Konnektivität prüfen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Inspect Edge Connectivity"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "检查边缘连通性"
+            "value": "Inspeccionar conectividad Edge"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "檢查邊緣連通性"
+            "value": "Inspecter la connectivité Edge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ispeziona connettività Edge"
           }
         },
         "ja": {
@@ -101424,28 +101291,10 @@
             "value": "엣지 연결 상태 검사"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge-Konnektivität prüfen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecter la connectivité Edge"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspeccionar conectividad Edge"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ispeziona connettività Edge"
+            "value": "Inspecionar conectividade Edge"
           }
         },
         "ru": {
@@ -101454,16 +101303,16 @@
             "value": "Проверить подключение Edge"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inspecionar conectividade Edge"
+            "value": "检查边缘连通性"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "فحص اتصال الحافة"
+            "value": "檢查邊緣連通性"
           }
         }
       }
@@ -101866,6 +101715,12 @@
             "value": "TLS-Handshake wird überprüft..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inspecting Handshake..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -101919,12 +101774,6 @@
             "state": "translated",
             "value": "正在檢測 TLS 握手..."
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecting Handshake..."
-          }
         }
       }
     },
@@ -101940,6 +101789,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Überprüfung fehlgeschlagen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inspection Failed"
           }
         },
         "es": {
@@ -101994,12 +101849,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "檢測失敗"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspection Failed"
           }
         }
       }
@@ -102480,6 +102329,12 @@
             "value": "Zwischenzertifizierungsstelle (Intermediate CA)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intermediate CA"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -102532,12 +102387,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "中繼憑證授權單位 (Intermediate CA)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Intermediate CA"
           }
         }
       }
@@ -107080,22 +106929,40 @@
     },
     "Jump to latest logs at bottom": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الانتقال إلى أحدث السجلات في الأسفل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu den neuesten Protokollen springen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Jump to latest logs at bottom"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "跳转至底部最新日志"
+            "value": "Ir a los registros más recientes al final"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "跳轉至底部最新日誌"
+            "value": "Aller aux derniers logs en bas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vai agli ultimi log in fondo"
           }
         },
         "ja": {
@@ -107110,28 +106977,10 @@
             "value": "하단 최신 로그로 이동"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zu den neuesten Protokollen springen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aller aux derniers logs en bas"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ir a los registros más recientes al final"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vai agli ultimi log in fondo"
+            "value": "Ir para os registros mais recentes"
           }
         },
         "ru": {
@@ -107140,38 +106989,56 @@
             "value": "Перейти к последним логам внизу"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ir para os registros mais recentes"
+            "value": "跳转至底部最新日志"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "الانتقال إلى أحدث السجلات في الأسفل"
+            "value": "跳轉至底部最新日誌"
           }
         }
       }
     },
     "Jump to top of logs": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الانتقال إلى أعلى السجلات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Anfang der Protokolle springen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Jump to top of logs"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "回到日志顶部"
+            "value": "Ir al principio de los registros"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "回到日誌頂部"
+            "value": "Aller en haut des logs"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vai all'inizio dei log"
           }
         },
         "ja": {
@@ -107186,28 +107053,10 @@
             "value": "로그 상단으로 이동"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zum Anfang der Protokolle springen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aller en haut des logs"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ir al principio de los registros"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vai all'inizio dei log"
+            "value": "Ir para o início dos registros"
           }
         },
         "ru": {
@@ -107216,16 +107065,16 @@
             "value": "Перейти в начало логов"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ir para o início dos registros"
+            "value": "回到日志顶部"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "الانتقال إلى أعلى السجلات"
+            "value": "回到日誌頂部"
           }
         }
       }
@@ -107398,6 +107247,12 @@
             "value": "Schlüsselalgorithmus"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key Algorithm"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -107450,12 +107305,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "金鑰簽章演算法"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Key Algorithm"
           }
         }
       }
@@ -110010,6 +109859,12 @@
             "value": "Endbenutzer- / Server-Zertifikat"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaf / Server Certificate"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -110062,12 +109917,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "分葉憑證 / 伺服器憑證"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leaf / Server Certificate"
           }
         }
       }
@@ -111764,82 +111613,6 @@
         }
       }
     },
-    "Loading Domain Details...": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "جارٍ تحميل تفاصيل المجال..."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Domaindetails werden geladen..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading Domain Details..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargando detalles del dominio..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement des détails du domaine..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caricamento dei dettagli del dominio..."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ドメインの詳細を読み込んでいます..."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "도메인 세부정보 로드 중..."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Carregando detalhes do domínio..."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загрузка сведений о домене..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在加载域名详情..."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在加載網域名稱詳情..."
-          }
-        }
-      }
-    },
     "Loading domains...": {
       "extractionState": "manual",
       "localizations": {
@@ -112067,82 +111840,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加載記錄…"
-          }
-        }
-      }
-    },
-    "Loading Pages Project...": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "جارٍ تحميل مشروع Pages..."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pages-Projekt wird geladen..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading Pages Project..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargando proyecto Pages..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement du projet Pages..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caricamento progetto Pages..."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pagesプロジェクトを読み込み中..."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pages 프로젝트 로드 중..."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Carregando Projeto Pages..."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загрузка проекта Pages..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在加载 Pages 项目..."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在載入 Pages 專案..."
           }
         }
       }
@@ -112681,82 +112378,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加載 WAF 規則..."
-          }
-        }
-      }
-    },
-    "Loading Worker Details...": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "جارٍ تحميل تفاصيل Worker..."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Worker-Details werden geladen..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading Worker Details..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargando detalles de Worker..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement des détails de Worker..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caricamento dettagli Worker..."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Workerの詳細を読み込み中..."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Worker 세부 정보 로드 중..."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Carregando Detalhes do Worker..."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загрузка сведений о Worker..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在加载 Worker 详情..."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在載入 Worker 詳情..."
           }
         }
       }
@@ -116081,6 +115702,12 @@
             "value": "Masken & Netzwerkeigenschaften"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masks & Network Properties"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -116133,12 +115760,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "子網路遮罩與網路屬性"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masks & Network Properties"
           }
         }
       }
@@ -120000,6 +119621,12 @@
             "value": "Verschoben"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moved"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -120052,12 +119679,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "已轉移"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moved"
           }
         }
       }
@@ -127842,6 +127463,12 @@
             "value": "Keine DNS-Einträge für diese Abfrage gefunden."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No DNS records found for this query."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -127894,12 +127521,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "未查詢到符合條件的 DNS 記錄。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No DNS records found for this query."
           }
         }
       }
@@ -128763,6 +128384,12 @@
             "value": "Keine E-Mail-Routing-Regeln"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Email Routing Rules"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -128815,12 +128442,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "暫無郵件路由規則"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Email Routing Rules"
           }
         }
       }
@@ -129145,6 +128766,12 @@
             "value": "Keine Umgebungsvariablen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Environment Variables"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -129197,12 +128824,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "暫無環境變數"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Environment Variables"
           }
         }
       }
@@ -130361,22 +129982,40 @@
     },
     "No logs match the filter criteria.": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد سجلات تطابق معايير التصفية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Protokolle entsprechen den Filterkriterien."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "No logs match the filter criteria."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配筛选条件的日志。"
+            "value": "Ningún registro coincide con los criterios del filtro."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有符合篩選條件的日誌。"
+            "value": "Aucun log ne correspond aux critères de filtre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun log corrisponde ai criteri di filtro."
           }
         },
         "ja": {
@@ -130391,28 +130030,10 @@
             "value": "필터 조건과 일치하는 로그가 없습니다."
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Protokolle entsprechen den Filterkriterien."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun log ne correspond aux critères de filtre."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ningún registro coincide con los criterios del filtro."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun log corrisponde ai criteri di filtro."
+            "value": "Nenhum registro corresponde aos critérios de filtro."
           }
         },
         "ru": {
@@ -130421,16 +130042,16 @@
             "value": "Нет логов, соответствующих критериям фильтра."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum registro corresponde aos critérios de filtro."
+            "value": "没有匹配筛选条件的日志。"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا توجد سجلات تطابق معايير التصفية."
+            "value": "沒有符合篩選條件的日誌。"
           }
         }
       }
@@ -131207,22 +130828,40 @@
     },
     "No Pages Functions invocations recorded for %@ in the selected range.": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يتم تسجيل أي استدعاءات لـ Pages Functions لـ %@ في النطاق المحدد."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Pages Functions-Aufrufe für %@ im ausgewählten Zeitraum erfasst."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "No Pages Functions invocations recorded for %@ in the selected range."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "在选定时间范围内未记录到 %@ 的 Pages Functions 调用。"
+            "value": "No se registraron invocaciones de Pages Functions para %@ en el rango seleccionado."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "在選定時間範圍內未記錄到 %@ 的 Pages Functions 調用。"
+            "value": "Aucune invocation de Pages Functions enregistrée pour %@ dans la plage sélectionnée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna chiamata Pages Functions registrata per %@ nell'intervallo selezionato."
           }
         },
         "ja": {
@@ -131237,28 +130876,10 @@
             "value": "선택한 기간 동안 %@에 대한 Pages Functions 호출이 기록되지 않았습니다."
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Pages Functions-Aufrufe für %@ im ausgewählten Zeitraum erfasst."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucune invocation de Pages Functions enregistrée pour %@ dans la plage sélectionnée."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se registraron invocaciones de Pages Functions para %@ en el rango seleccionado."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessuna chiamata Pages Functions registrata per %@ nell'intervallo selezionato."
+            "value": "Nenhuma chamada de Pages Functions registrada para %@ no período selecionado."
           }
         },
         "ru": {
@@ -131267,16 +130888,16 @@
             "value": "Нет вызовов Pages Functions для %@ за выбранный период."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma chamada de Pages Functions registrada para %@ no período selecionado."
+            "value": "在选定时间范围内未记录到 %@ 的 Pages Functions 调用。"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يتم تسجيل أي استدعاءات لـ Pages Functions لـ %@ في النطاق المحدد."
+            "value": "在選定時間範圍內未記錄到 %@ 的 Pages Functions 調用。"
           }
         }
       }
@@ -132908,6 +132529,12 @@
             "value": "Keine Weiterleitungselemente passend zu '%@'"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No redirect items matching '%@'"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -132960,12 +132587,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "未找到符合 '%@' 的重定向規則項目"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No redirect items matching '%@'"
           }
         }
       }
@@ -134444,6 +134065,12 @@
             "value": "Keine benutzerdefinierten WAF-Regeln"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No WAF Custom Rules"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -134496,12 +134123,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "暫無 WAF 自訂規則"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No WAF Custom Rules"
           }
         }
       }
@@ -134892,22 +134513,40 @@
     },
     "No Wrap": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بدون التفاف"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Umbruch"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "No Wrap"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "不折行"
+            "value": "Sin ajuste"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "不折行"
+            "value": "Pas de retour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun a capo"
           }
         },
         "ja": {
@@ -134922,28 +134561,10 @@
             "value": "줄 바꿈 안 함"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein Umbruch"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pas de retour"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin ajuste"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun a capo"
+            "value": "Sem quebra"
           }
         },
         "ru": {
@@ -134952,16 +134573,16 @@
             "value": "Без переноса"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem quebra"
+            "value": "不折行"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "بدون التفاف"
+            "value": "不折行"
           }
         }
       }
@@ -146110,22 +145731,40 @@
     },
     "Preview Mode": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وضع المعاينة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschaumodus"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Preview Mode"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "预览模式"
+            "value": "Modo de vista previa"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "預覽模式"
+            "value": "Mode aperçu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modalità anteprima"
           }
         },
         "ja": {
@@ -146140,28 +145779,10 @@
             "value": "미리보기 모드"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vorschaumodus"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mode aperçu"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modo de vista previa"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modalità anteprima"
+            "value": "Modo de visualização"
           }
         },
         "ru": {
@@ -146170,16 +145791,16 @@
             "value": "Режим предпросмотра"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modo de visualização"
+            "value": "预览模式"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "وضع المعاينة"
+            "value": "預覽模式"
           }
         }
       }
@@ -147561,82 +147182,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "探測中"
-          }
-        }
-      }
-    },
-    "Probing nearest Cloudflare Anycast node & latency...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Probing nearest Cloudflare Anycast node & latency..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在探测最近的 Cloudflare Anycast 节点与延迟..."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在探測最近的 Cloudflare Anycast 節點與延遲..."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最寄りのCloudflare Anycastノードとレイテンシを測定中..."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "가장 가까운 Cloudflare Anycast 노드 및 지연 시간을 측정하는 중..."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nächster Cloudflare Anycast-Knoten und Latenz werden ermittelt..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Test du nœud Anycast Cloudflare le plus proche et de la latence..."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprobando el nodo Anycast de Cloudflare más cercano y latencia..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rilevamento del nodo Anycast Cloudflare più vicino e latenza..."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Определение ближайшего узла Cloudflare Anycast и задержки..."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Testando o nó Anycast do Cloudflare mais próximo e a latência..."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "جارٍ فحص أقرب عقدة Cloudflare Anycast وزمن الوصول..."
           }
         }
       }
@@ -149578,6 +149123,12 @@
             "value": "Schützt Ihre Domain vor DNS-Cache-Poisoning und Man-in-the-Middle-Angriffen durch Signaturprüfung beim Registrar."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -149630,12 +149181,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "透過在註冊商處驗證密碼學簽章，防止網域名稱遭受 DNS 快取投毒與中間人偽造攻擊。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar."
           }
         }
       }
@@ -152883,6 +152428,12 @@
             "value": "Abfrage fehlgeschlagen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Query Failed"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -152935,12 +152486,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "查詢失敗"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Query Failed"
           }
         }
       }
@@ -153343,6 +152888,12 @@
             "value": "WHOIS-Verzeichnis abfragen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Query WHOIS Directory"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -153395,12 +152946,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "查詢 WHOIS 目錄"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Query WHOIS Directory"
           }
         }
       }
@@ -153571,6 +153116,12 @@
             "value": "BGP-Routing & Standort werden abgefragt..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Querying BGP & Geo..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -153624,12 +153175,6 @@
             "state": "translated",
             "value": "正在查詢 BGP 路由與地理位置..."
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Querying BGP & Geo..."
-          }
         }
       }
     },
@@ -153645,6 +153190,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "RDAP-Daten werden abgefragt..."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Querying RDAP..."
           }
         },
         "es": {
@@ -153699,12 +153250,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在查詢 RDAP 註冊資料..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Querying RDAP..."
           }
         }
       }
@@ -156413,6 +155958,12 @@
             "value": "RDAP / WHOIS"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RDAP / WHOIS"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -156465,12 +156016,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "RDAP / WHOIS 協議"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RDAP / WHOIS"
           }
         }
       }
@@ -157093,22 +156638,40 @@
     },
     "Recent Queries": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاستعلامات الأخيرة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte Abfragen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Recent Queries"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近查询"
+            "value": "Consultas recientes"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近查詢"
+            "value": "Requêtes récentes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Query recenti"
           }
         },
         "ja": {
@@ -157123,28 +156686,10 @@
             "value": "최근 쿼리"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Letzte Abfragen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Requêtes récentes"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Consultas recientes"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Query recenti"
+            "value": "Consultas recentes"
           }
         },
         "ru": {
@@ -157153,38 +156698,56 @@
             "value": "Недавние запросы"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Consultas recentes"
+            "value": "最近查询"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "الاستعلامات الأخيرة"
+            "value": "最近查詢"
           }
         }
       }
     },
     "Recheck": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة الفحص"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut prüfen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Recheck"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新检测"
+            "value": "Volver a comprobar"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新檢測"
+            "value": "Revérifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricontrolla"
           }
         },
         "ja": {
@@ -157199,28 +156762,10 @@
             "value": "다시 확인"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erneut prüfen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revérifier"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver a comprobar"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ricontrolla"
+            "value": "Verificar novamente"
           }
         },
         "ru": {
@@ -157229,38 +156774,56 @@
             "value": "Перепроверить"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verificar novamente"
+            "value": "重新检测"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة الفحص"
+            "value": "重新檢測"
           }
         }
       }
     },
     "Recheck Edge Connection": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة فحص اتصال الحافة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge-Verbindung erneut prüfen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Recheck Edge Connection"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新检测边缘连接"
+            "value": "Volver a verificar conexión Edge"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新檢測邊緣連線"
+            "value": "Revérifier la connexion Edge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricontrolla connessione Edge"
           }
         },
         "ja": {
@@ -157275,28 +156838,10 @@
             "value": "엣지 연결 다시 확인"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge-Verbindung erneut prüfen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revérifier la connexion Edge"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver a verificar conexión Edge"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ricontrolla connessione Edge"
+            "value": "Verificar conexão Edge novamente"
           }
         },
         "ru": {
@@ -157305,16 +156850,16 @@
             "value": "Повторить проверку подключения Edge"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verificar conexão Edge novamente"
+            "value": "重新检测边缘连接"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة فحص اتصال الحافة"
+            "value": "重新檢測邊緣連線"
           }
         }
       }
@@ -159334,6 +158879,12 @@
             "value": "Registry-Status (%lld)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registry Statuses (%lld)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -159386,12 +158937,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "註冊局狀態碼 (%lld)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Registry Statuses (%lld)"
           }
         }
       }
@@ -164640,6 +164185,12 @@
             "value": "URL umschreiben"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rewrite URL"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -164692,12 +164243,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "重寫 URL"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rewrite URL"
           }
         }
       }
@@ -165791,6 +165336,12 @@
             "value": "Stammzertifizierungsstelle (Root CA)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Root Authority"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -165843,12 +165394,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "根憑證授權單位 (Root CA)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Root Authority"
           }
         }
       }
@@ -166329,6 +165874,12 @@
             "value": "Runde %lld"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Round %lld"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -166382,12 +165933,6 @@
             "state": "translated",
             "value": "第 %lld 輪"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Round %lld"
-          }
         }
       }
     },
@@ -166403,6 +165948,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aufschlüsselung nach Runden (%lld)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Round-by-Round Breakdown (%lld)"
           }
         },
         "es": {
@@ -166457,12 +166008,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "逐輪測試明細 (%lld)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Round-by-Round Breakdown (%lld)"
           }
         }
       }
@@ -169314,22 +168859,40 @@
     },
     "Run Edge Quick Check": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تشغيل الفحص السريع للحافة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge-Schnellprüfung ausführen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Run Edge Quick Check"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "运行边缘快速检测"
+            "value": "Ejecutar comprobación rápida de Edge"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "執行邊緣快速檢測"
+            "value": "Lancer le test rapide Edge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui controllo rapido Edge"
           }
         },
         "ja": {
@@ -169344,28 +168907,10 @@
             "value": "엣지 빠른 검사 실행"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge-Schnellprüfung ausführen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lancer le test rapide Edge"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ejecutar comprobación rápida de Edge"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esegui controllo rapido Edge"
+            "value": "Executar verificação rápida Edge"
           }
         },
         "ru": {
@@ -169374,16 +168919,16 @@
             "value": "Запустить быструю проверку Edge"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Executar verificação rápida Edge"
+            "value": "运行边缘快速检测"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشغيل الفحص السريع للحافة"
+            "value": "執行邊緣快速檢測"
           }
         }
       }
@@ -169621,22 +169166,40 @@
     },
     "Run Test": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تشغيل الاختبار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test ausführen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Run Test"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "运行测试"
+            "value": "Ejecutar prueba"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "執行測試"
+            "value": "Exécuter le test"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui test"
           }
         },
         "ja": {
@@ -169651,28 +169214,10 @@
             "value": "테스트 실행"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Test ausführen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exécuter le test"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ejecutar prueba"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esegui test"
+            "value": "Executar teste"
           }
         },
         "ru": {
@@ -169681,16 +169226,16 @@
             "value": "Запустить тест"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Executar teste"
+            "value": "运行测试"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشغيل الاختبار"
+            "value": "執行測試"
           }
         }
       }
@@ -169940,6 +169485,12 @@
             "value": "San Francisco (SFO)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "San Francisco (SFO)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -169993,12 +169544,6 @@
             "state": "translated",
             "value": "舊金山 (SFO)"
           }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "San Francisco (SFO)"
-          }
         }
       }
     },
@@ -170014,6 +169559,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "San Francisco, Vereinigte Staaten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "San Francisco, United States"
           }
         },
         "es": {
@@ -170068,12 +169619,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "舊金山，美國"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "San Francisco, United States"
           }
         }
       }
@@ -171539,22 +171084,40 @@
     },
     "Search %@": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بحث في %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ durchsuchen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Search %@"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索 %@"
+            "value": "Buscar %@"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜尋 %@"
+            "value": "Rechercher %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca %@"
           }
         },
         "ja": {
@@ -171569,28 +171132,10 @@
             "value": "%@ 검색"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ durchsuchen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechercher %@"
-          }
-        },
-        "es": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Buscar %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca %@"
           }
         },
         "ru": {
@@ -171599,16 +171144,16 @@
             "value": "Поиск %@"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar %@"
+            "value": "搜索 %@"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "بحث في %@"
+            "value": "搜尋 %@"
           }
         }
       }
@@ -172318,6 +171863,12 @@
             "value": "D1-Datenbanken durchsuchen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search D1 Databases"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -172370,12 +171921,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋 D1 資料庫"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search D1 Databases"
           }
         }
       }
@@ -173237,6 +172782,12 @@
             "value": "KV-Namespaces durchsuchen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search KV Namespaces"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -173289,12 +172840,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋 KV 命名空間"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search KV Namespaces"
           }
         }
       }
@@ -173466,6 +173011,12 @@
             "value": "Protokolle durchsuchen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Logs"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -173518,12 +173069,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋日誌"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search Logs"
           }
         }
       }
@@ -173607,22 +173152,40 @@
     },
     "Search logs...": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بحث في السجلات..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protokolle durchsuchen..."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Search logs..."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索日志..."
+            "value": "Buscar registros..."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜尋日誌..."
+            "value": "Rechercher dans les logs..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca nei log..."
           }
         },
         "ja": {
@@ -173637,28 +173200,10 @@
             "value": "로그 검색..."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protokolle durchsuchen..."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechercher dans les logs..."
-          }
-        },
-        "es": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Buscar registros..."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca nei log..."
           }
         },
         "ru": {
@@ -173667,16 +173212,16 @@
             "value": "Поиск в логах..."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar registros..."
+            "value": "搜索日志..."
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "بحث في السجلات..."
+            "value": "搜尋日誌..."
           }
         }
       }
@@ -174233,6 +173778,12 @@
             "value": "Weiterleitungselemente durchsuchen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Redirect Items"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -174285,12 +173836,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋重定向規則項目"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search Redirect Items"
           }
         }
       }
@@ -175151,6 +174696,12 @@
             "value": "Suchen..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -175203,12 +174754,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search..."
           }
         }
       }
@@ -179225,6 +178770,12 @@
             "value": "Server-Banner"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server Banner"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -179277,12 +178828,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "伺服器標識 (Server Header)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Server Banner"
           }
         }
       }
@@ -184897,22 +184442,40 @@
     },
     "Standard RFC 1035 zone file format compatible with Cloudflare, BIND, Route 53, and standard DNS servers.": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تنسيق ملف المنطقة القياسي RFC 1035 المتوافق مع Cloudflare و BIND و Route 53 وخوادم DNS القياسية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard-RFC 1035-Zonendateiformat, kompatibel mit Cloudflare, BIND, Route 53 und Standard-DNS-Servern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Standard RFC 1035 zone file format compatible with Cloudflare, BIND, Route 53, and standard DNS servers."
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "标准 RFC 1035 Zone 文件格式，兼容 Cloudflare、BIND、Route 53 及通用 DNS 服务器。"
+            "value": "Formato de archivo de zona estándar RFC 1035 compatible con Cloudflare, BIND, Route 53 y servidores DNS estándar."
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "標準 RFC 1035 Zone 檔案格式，相容 Cloudflare、BIND、Route 53 及標準 DNS 伺服器。"
+            "value": "Format de fichier de zone standard RFC 1035 compatible avec Cloudflare, BIND, Route 53 et les serveurs DNS standard."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formato file di zona standard RFC 1035 compatibile con Cloudflare, BIND, Route 53 e server DNS standard."
           }
         },
         "ja": {
@@ -184927,28 +184490,10 @@
             "value": "Cloudflare, BIND, Route 53 및 표준 DNS 서버와 호환되는 표준 RFC 1035 영역 파일 형식입니다."
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standard-RFC 1035-Zonendateiformat, kompatibel mit Cloudflare, BIND, Route 53 und Standard-DNS-Servern."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Format de fichier de zone standard RFC 1035 compatible avec Cloudflare, BIND, Route 53 et les serveurs DNS standard."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formato de archivo de zona estándar RFC 1035 compatible con Cloudflare, BIND, Route 53 y servidores DNS estándar."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formato file di zona standard RFC 1035 compatibile con Cloudflare, BIND, Route 53 e server DNS standard."
+            "value": "Formato de arquivo de zona padrão RFC 1035 compatível com Cloudflare, BIND, Route 53 e servidores DNS padrão."
           }
         },
         "ru": {
@@ -184957,16 +184502,16 @@
             "value": "Стандартный формат файлов зон RFC 1035, совместимый с Cloudflare, BIND, Route 53 и стандартными DNS-серверами."
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Formato de arquivo de zona padrão RFC 1035 compatível com Cloudflare, BIND, Route 53 e servidores DNS padrão."
+            "value": "标准 RFC 1035 Zone 文件格式，兼容 Cloudflare、BIND、Route 53 及通用 DNS 服务器。"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "تنسيق ملف المنطقة القياسي RFC 1035 المتوافق مع Cloudflare و BIND و Route 53 وخوادم DNS القياسية."
+            "value": "標準 RFC 1035 Zone 檔案格式，相容 Cloudflare、BIND、Route 53 及標準 DNS 伺服器。"
           }
         }
       }
@@ -184983,6 +184528,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Latenz- & Jitter-Benchmark starten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Latency & Jitter Benchmark"
           }
         },
         "es": {
@@ -185037,12 +184588,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "開始延遲與抖動基準測試"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start Latency & Jitter Benchmark"
           }
         }
       }
@@ -186829,6 +186374,12 @@
             "value": "Subject Alternative Names / SAN (%lld)"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subject Alternative Names (%lld)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -186881,12 +186432,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "主體替代名稱 / SAN (%lld)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subject Alternative Names (%lld)"
           }
         }
       }
@@ -190746,6 +190291,12 @@
             "value": "Test fehlgeschlagen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test Failed"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -190798,12 +190349,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "測試失敗"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Test Failed"
           }
         }
       }
@@ -191130,6 +190675,12 @@
             "value": "Fortlaufende Pings werden getestet..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testing Consecutive Pings..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -191182,12 +190733,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在執行多輪連續 Ping 探測..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Testing Consecutive Pings..."
           }
         }
       }
@@ -193665,6 +193210,12 @@
             "value": "TLS-Version"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TLS Version"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -193717,12 +193268,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "TLS 協議版本"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TLS Version"
           }
         }
       }
@@ -193876,6 +193421,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "切换自動换行"
+          }
+        }
+      }
+    },
+    "Tools": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أدوات المطور"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwickler-Tools"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas de desarrollo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outils de dev"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strumenti di sviluppo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開発者ツール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개발자 도구"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferramentas de desenvolvedor"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструменты разработчика"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具"
           }
         }
       }
@@ -194739,6 +194360,12 @@
             "value": "Trace fehlgeschlagen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trace Failed"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -194791,12 +194418,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trace 探測失敗"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trace Failed"
           }
         }
       }
@@ -195046,6 +194667,12 @@
             "value": "Edge-PoP wird verfolgt..."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracing Edge PoP..."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -195098,12 +194725,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在路由追蹤邊緣 PoP 資料中心..."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tracing Edge PoP..."
           }
         }
       }
@@ -198967,6 +198588,12 @@
             "value": "Vereinigte Staaten"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "United States"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -199019,12 +198646,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "美國"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "United States"
           }
         }
       }
@@ -202428,6 +202049,12 @@
             "value": "Gültig ab"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valid From"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -202480,12 +202107,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "生效起始時間"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Valid From"
           }
         }
       }
@@ -205344,6 +204965,12 @@
             "value": "Unformatierte RFC 1035-Ausgabe anzeigen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Raw RFC 1035 Output"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -205396,12 +205023,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "檢視原始 RFC 1035 輸出"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View Raw RFC 1035 Output"
           }
         }
       }
@@ -206343,6 +205964,12 @@
             "value": "WARP-Status"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WARP Status"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -206395,12 +206022,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "WARP 連線狀態"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WARP Status"
           }
         }
       }
@@ -207650,6 +207271,12 @@
             "value": "WHOIS & RDAP"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WHOIS & RDAP"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -207702,12 +207329,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "WHOIS 與 RDAP 查詢"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WHOIS & RDAP"
           }
         }
       }
@@ -210632,22 +210253,40 @@
     },
     "Wrap On": {
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التفاف مفعّل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umbruch an"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Wrap On"
           }
         },
-        "zh-Hans": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "已折行"
+            "value": "Ajuste activado"
           }
         },
-        "zh-Hant": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "已折行"
+            "value": "Retour activé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A capo attivo"
           }
         },
         "ja": {
@@ -210662,28 +210301,10 @@
             "value": "줄 바꿈 켜짐"
           }
         },
-        "de": {
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Umbruch an"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retour activé"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste activado"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A capo attivo"
+            "value": "Quebra ativada"
           }
         },
         "ru": {
@@ -210692,16 +210313,16 @@
             "value": "Перенос вкл"
           }
         },
-        "pt-BR": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quebra ativada"
+            "value": "已折行"
           }
         },
-        "ar": {
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "التفاف مفعّل"
+            "value": "已折行"
           }
         }
       }
@@ -210873,6 +210494,12 @@
             "value": "www.cloudflare.com oder eigene Domain"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "www.cloudflare.com or custom domain"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -210925,12 +210552,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "www.cloudflare.com 或自訂網域名稱"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "www.cloudflare.com or custom domain"
           }
         }
       }
