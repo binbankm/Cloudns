@@ -1,8 +1,9 @@
 import SwiftUI
 
-// MARK: - Professional WorkerBindingsView
+// MARK: - WorkerBindingsView
 
 struct WorkerBindingsView: View {
+    // MARK: - Properties
     let accountId: String
     let scriptName: String
     let bindings: [WorkerBinding]
@@ -17,42 +18,41 @@ struct WorkerBindingsView: View {
     @State private var showingDeleteAlert = false
     @State private var showingUnbindAlert = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, scriptName: String, bindings: [WorkerBinding]) {
         self.accountId = accountId
         self.scriptName = scriptName
         self.bindings = bindings
-        _secretsViewModel = StateObject(wrappedValue: WorkerSecretsViewModel(accountId: accountId, scriptName: scriptName))
+        _secretsViewModel = StateObject(
+            wrappedValue: WorkerSecretsViewModel(accountId: accountId, scriptName: scriptName)
+        )
     }
     
+    // MARK: - Computed Properties
     private var resourceBindings: [WorkerBinding] {
-        secretsViewModel.hasFetchedData ? secretsViewModel.resourceBindings : bindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
+        if secretsViewModel.hasFetchedData {
+            return secretsViewModel.resourceBindings
+        }
+        return bindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
     }
     
     private var totalVariablesAndSecretsCount: Int {
         secretsViewModel.plainVariables.count + secretsViewModel.secrets.count
     }
     
-    // Grouped Resources
     private var kvBindings: [WorkerBinding] { resourceBindings.filter { $0.type == "kv_namespace" } }
     private var d1Bindings: [WorkerBinding] { resourceBindings.filter { $0.type == "d1" } }
     private var r2Bindings: [WorkerBinding] { resourceBindings.filter { $0.type == "r2_bucket" } }
     private var queueBindings: [WorkerBinding] { resourceBindings.filter { $0.type == "queue" } }
     private var aiBindings: [WorkerBinding] { resourceBindings.filter { $0.type == "ai" } }
-    private var otherBindings: [WorkerBinding] { resourceBindings.filter { !["kv_namespace", "d1", "r2_bucket", "queue", "ai"].contains($0.type) } }
+    private var otherBindings: [WorkerBinding] {
+        resourceBindings.filter { !["kv_namespace", "d1", "r2_bucket", "queue", "ai"].contains($0.type) }
+    }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            Picker("Category", selection: $selectedTab) {
-                Text("Resources (\(resourceBindings.count))").tag("resources")
-                Text("Variables & Secrets (\(totalVariablesAndSecretsCount))").tag("variables")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
-            .onChange(of: selectedTab) { _ in
-                HapticManager.impact(.light)
-            }
+            tabSelector
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
@@ -62,16 +62,7 @@ struct WorkerBindingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if selectedTab == "resources" {
-                        showingAttachResourceSheet = true
-                    } else {
-                        showingAddSheet = true
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel(selectedTab == "resources" ? "Attach Resource" : "Add Variable or Secret")
+                addButton
             }
         }
         .sheet(isPresented: $showingAttachResourceSheet) {
@@ -80,38 +71,30 @@ struct WorkerBindingsView: View {
         .sheet(isPresented: $showingAddSheet) {
             WorkerAddVariableOrSecretSheetView(viewModel: secretsViewModel)
         }
-        .sheet(item: $variableToEdit) { v in
-            WorkerEditVariableSheetView(viewModel: secretsViewModel, variable: v)
+        .sheet(item: $variableToEdit) { variable in
+            WorkerEditVariableSheetView(viewModel: secretsViewModel, variable: variable)
         }
-        .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: bindingToDelete) { binding in
+        .confirmationDialog(
+            "Unbind Resource",
+            isPresented: $showingUnbindAlert,
+            titleVisibility: .visible,
+            presenting: bindingToDelete
+        ) { binding in
             Button("Unbind '\(binding.name)'", role: .destructive) {
-                Task {
-                    do {
-                        try await secretsViewModel.deleteResourceBinding(name: binding.name)
-                        CloudnsToastManager.shared.showSuccess("Resource Unbound", message: binding.name)
-                    } catch {
-                        CloudnsToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
-                    }
-                }
+                unbindResource(binding)
             }
             Button("Cancel", role: .cancel) {}
         } message: { binding in
             Text("Are you sure you want to unbind resource '\(binding.name)' from Worker '\(scriptName)'?")
         }
-        .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
+        .confirmationDialog(
+            "Delete Item",
+            isPresented: $showingDeleteAlert,
+            titleVisibility: .visible,
+            presenting: itemToDelete
+        ) { item in
             Button("Delete '\(item.name)'", role: .destructive) {
-                Task {
-                    do {
-                        if item.isSecret {
-                            try await secretsViewModel.deleteSecret(name: item.name)
-                        } else {
-                            try await secretsViewModel.deletePlainVariable(name: item.name)
-                        }
-                        CloudnsToastManager.shared.showSuccess("Deleted", message: item.name)
-                    } catch {
-                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
-                    }
-                }
+                deleteItem(item)
             }
             Button("Cancel", role: .cancel) {}
         } message: { item in
@@ -127,40 +110,40 @@ struct WorkerBindingsView: View {
         }
     }
     
+    // MARK: - Private Views
+    private var tabSelector: some View {
+        Picker("Category", selection: $selectedTab) {
+            Text("Resources (\(resourceBindings.count))").tag("resources")
+            Text("Variables & Secrets (\(totalVariablesAndSecretsCount))").tag("variables")
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(.systemGroupedBackground))
+        .onChange(of: selectedTab) { _ in
+            HapticManager.impact(.light)
+        }
+    }
+    
+    private var addButton: some View {
+        Button {
+            if selectedTab == "resources" {
+                showingAttachResourceSheet = true
+            } else {
+                showingAddSheet = true
+            }
+        } label: {
+            Image(systemName: "plus")
+        }
+        .accessibilityLabel(selectedTab == "resources" ? "Attach Resource" : "Add Variable or Secret")
+    }
+    
     @ViewBuilder
     private var contentList: some View {
         if selectedTab == "resources" && resourceBindings.isEmpty && secretsViewModel.hasFetchedData {
-            ScrollView {
-                CloudnsEmptyStateView(
-                    icon: "shippingbox.fill",
-                    title: "No Resource Bindings",
-                    message: "Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker.",
-                    iconColor: .orange,
-                    actionTitle: "Bind First Resource",
-                    action: {
-                        HapticManager.impact(.light)
-                        showingAttachResourceSheet = true
-                    }
-                )
-                .padding(.top, 40)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            emptyResourcesView
         } else if selectedTab == "variables" && secretsViewModel.plainVariables.isEmpty && secretsViewModel.secrets.isEmpty && secretsViewModel.hasFetchedData {
-            ScrollView {
-                CloudnsEmptyStateView(
-                    icon: "slider.horizontal.3",
-                    title: "No Environment Variables",
-                    message: "Configure plaintext variables and encrypted secrets accessible in your Worker code.",
-                    iconColor: .orange,
-                    actionTitle: "Add Variable or Secret",
-                    action: {
-                        HapticManager.impact(.light)
-                        showingAddSheet = true
-                    }
-                )
-                .padding(.top, 40)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            emptyVariablesView
         } else {
             List {
                 if selectedTab == "resources" {
@@ -174,133 +157,111 @@ struct WorkerBindingsView: View {
         }
     }
     
-    // MARK: - Resources Section (Categorized)
+    private var emptyResourcesView: some View {
+        ScrollView {
+            CloudnsEmptyStateView(
+                icon: "shippingbox.fill",
+                title: "No Resource Bindings",
+                message: "Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker.",
+                iconColor: .orange,
+                actionTitle: "Bind First Resource",
+                action: {
+                    HapticManager.impact(.light)
+                    showingAttachResourceSheet = true
+                }
+            )
+            .padding(.top, 40)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var emptyVariablesView: some View {
+        ScrollView {
+            CloudnsEmptyStateView(
+                icon: "slider.horizontal.3",
+                title: "No Environment Variables",
+                message: "Configure plaintext variables and encrypted secrets accessible in your Worker code.",
+                iconColor: .orange,
+                actionTitle: "Add Variable or Secret",
+                action: {
+                    HapticManager.impact(.light)
+                    showingAddSheet = true
+                }
+            )
+            .padding(.top, 40)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
     @ViewBuilder
     private var resourcesSection: some View {
-            // KV Namespaces
-            if !kvBindings.isEmpty {
-                Section(header: Text("KV Namespaces (\(kvBindings.count))")) {
-                    ForEach(kvBindings) { binding in
-                        resourceRow(binding)
+        if !kvBindings.isEmpty {
+            Section(header: Text("KV Namespaces (\(kvBindings.count))")) {
+                ForEach(kvBindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
                     }
                 }
-            }
-            
-            // D1 Databases
-            if !d1Bindings.isEmpty {
-                Section(header: Text("D1 Databases (\(d1Bindings.count))")) {
-                    ForEach(d1Bindings) { binding in
-                        resourceRow(binding)
-                    }
-                }
-            }
-            
-            // R2 Buckets
-            if !r2Bindings.isEmpty {
-                Section(header: Text("R2 Buckets (\(r2Bindings.count))")) {
-                    ForEach(r2Bindings) { binding in
-                        resourceRow(binding)
-                    }
-                }
-            }
-            
-            // Queues
-            if !queueBindings.isEmpty {
-                Section(header: Text("Message Queues (\(queueBindings.count))")) {
-                    ForEach(queueBindings) { binding in
-                        resourceRow(binding)
-                    }
-                }
-            }
-            
-            // AI Bindings
-            if !aiBindings.isEmpty {
-                Section(header: Text("Workers AI (\(aiBindings.count))")) {
-                    ForEach(aiBindings) { binding in
-                        resourceRow(binding)
-                    }
-                }
-            }
-            
-            // Other Services / Hyperdrive
-            if !otherBindings.isEmpty {
-                Section(header: Text("Services & Other Bindings (\(otherBindings.count))")) {
-                    ForEach(otherBindings) { binding in
-                        resourceRow(binding)
-                    }
-                }
-            }
-    }
-    
-    @ViewBuilder
-    private func resourceRow(_ binding: WorkerBinding) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: bindingIcon(for: binding.type))
-                .font(.body)
-                .foregroundStyle(bindingColor(for: binding.type))
-                .frame(width: 32, height: 32)
-                .background(bindingColor(for: binding.type).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .accessibilityHidden(true)
-            
-            VStack(alignment: .leading, spacing: 3) {
-                Text(binding.name)
-                    .font(.body.monospaced().weight(.semibold))
-                    .foregroundStyle(.primary)
-                
-                if let extra = binding.namespaceId ?? binding.bucketName ?? binding.databaseId ?? binding.service ?? binding.queueName {
-                    Text(extra)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
-            }
-            
-            Spacer()
-            
-            CloudnsBadge(.custom(color: bindingColor(for: binding.type), text: bindingBadgeTitle(for: binding.type)), isCompact: true)
-        }
-        .padding(.vertical, 3)
-        .contentShape(Rectangle())
-        .contextMenu {
-            Button {
-                UIPasteboard.general.string = binding.name
-                HapticManager.notification(.success)
-                CloudnsToastManager.shared.showCopied("Binding variable copied")
-            } label: {
-                Label("Copy Variable Name", systemImage: "doc.on.doc")
-            }
-            
-            if let extra = binding.namespaceId ?? binding.bucketName ?? binding.databaseId {
-                Button {
-                    UIPasteboard.general.string = extra
-                    HapticManager.notification(.success)
-                    CloudnsToastManager.shared.showCopied("Target ID copied")
-                } label: {
-                    Label("Copy Target Resource ID", systemImage: "number")
-                }
-            }
-            
-            Button(role: .destructive) {
-                bindingToDelete = binding
-                showingUnbindAlert = true
-            } label: {
-                Label("Unbind Resource", systemImage: "trash")
             }
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                bindingToDelete = binding
-                showingUnbindAlert = true
-            } label: {
-                Label("Unbind", systemImage: "trash")
+        
+        if !d1Bindings.isEmpty {
+            Section(header: Text("D1 Databases (\(d1Bindings.count))")) {
+                ForEach(d1Bindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+        
+        if !r2Bindings.isEmpty {
+            Section(header: Text("R2 Buckets (\(r2Bindings.count))")) {
+                ForEach(r2Bindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+        
+        if !queueBindings.isEmpty {
+            Section(header: Text("Message Queues (\(queueBindings.count))")) {
+                ForEach(queueBindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+        
+        if !aiBindings.isEmpty {
+            Section(header: Text("Workers AI (\(aiBindings.count))")) {
+                ForEach(aiBindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+        
+        if !otherBindings.isEmpty {
+            Section(header: Text("Services & Other Bindings (\(otherBindings.count))")) {
+                ForEach(otherBindings) { binding in
+                    WorkerResourceRowView(binding: binding) {
+                        bindingToDelete = binding
+                        showingUnbindAlert = true
+                    }
+                }
             }
         }
     }
     
-    // MARK: - Variables Section (Plaintext)
-    @ViewBuilder
     private var variablesSection: some View {
         Section(
             header: Text("Plaintext Variables (\(secretsViewModel.plainVariables.count))"),
@@ -329,87 +290,21 @@ struct WorkerBindingsView: View {
                 .padding(.vertical, 2)
             } else {
                 ForEach(secretsViewModel.plainVariables) { variable in
-                    HStack(spacing: 12) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                            .frame(width: 32, height: 32)
-                            .background(Color.blue.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .accessibilityHidden(true)
-                        
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(variable.name)
-                                .font(.body.monospaced().weight(.semibold))
-                                .foregroundStyle(.primary)
-                            
-                            if let text = variable.text, !text.isEmpty {
-                                Text(text)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        CloudnsBadge(.custom(color: .blue, text: "VARIABLE"), isCompact: true)
-                        
-                        Button {
+                    WorkerVariableRowView(
+                        variable: variable,
+                        onEdit: {
                             variableToEdit = variable
-                        } label: {
-                            Image(systemName: "pencil")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.vertical, 2)
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        if let val = variable.text {
-                            Button {
-                                UIPasteboard.general.string = val
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Value copied")
-                            } label: {
-                                Label("Copy Value", systemImage: "doc.on.doc")
-                            }
-                        }
-                        Button {
-                            UIPasteboard.general.string = variable.name
-                            HapticManager.notification(.success)
-                            CloudnsToastManager.shared.showCopied("Key copied")
-                        } label: {
-                            Label("Copy Variable Name", systemImage: "doc.on.doc")
-                        }
-                        Button {
-                            variableToEdit = variable
-                        } label: {
-                            Label("Edit Variable", systemImage: "pencil")
-                        }
-                        Button(role: .destructive) {
+                        },
+                        onDelete: {
                             itemToDelete = (name: variable.name, isSecret: false)
                             showingDeleteAlert = true
-                        } label: {
-                            Label("Delete Variable", systemImage: "trash")
                         }
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            itemToDelete = (name: variable.name, isSecret: false)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+                    )
                 }
             }
         }
     }
     
-    // MARK: - Secrets Section (Encrypted)
-    @ViewBuilder
     private var secretsSection: some View {
         Section(
             header: Text("Encrypted Secrets (\(secretsViewModel.secrets.count))"),
@@ -438,97 +333,42 @@ struct WorkerBindingsView: View {
                 .padding(.vertical, 2)
             } else {
                 ForEach(secretsViewModel.secrets) { secret in
-                    HStack(spacing: 12) {
-                        Image(systemName: "key.fill")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                            .frame(width: 32, height: 32)
-                            .background(Color.orange.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .accessibilityHidden(true)
-                        
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(secret.name)
-                                .font(.body.monospaced().weight(.semibold))
-                                .foregroundStyle(.primary)
-                            
-                            Text("•••••••••••• (Encrypted)")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        CloudnsBadge(.proxied("SECRET"), isCompact: true)
-                    }
-                    .padding(.vertical, 2)
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button {
-                            UIPasteboard.general.string = secret.name
-                            HapticManager.notification(.success)
-                            CloudnsToastManager.shared.showCopied("Secret name copied")
-                        } label: {
-                            Label("Copy Secret Name", systemImage: "doc.on.doc")
-                        }
-                        Button(role: .destructive) {
+                    WorkerSecretRowView(
+                        secret: secret,
+                        onDelete: {
                             itemToDelete = (name: secret.name, isSecret: true)
                             showingDeleteAlert = true
-                        } label: {
-                            Label("Delete Secret", systemImage: "trash")
                         }
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            itemToDelete = (name: secret.name, isSecret: true)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+                    )
                 }
             }
         }
     }
     
-    private func bindingIcon(for type: String) -> String {
-        switch type.lowercased() {
-        case "kv_namespace": return "key.fill"
-        case "r2_bucket": return "externaldrive.fill"
-        case "d1": return "cylinder.split.1x2.fill"
-        case "queue": return "tray.2.fill"
-        case "service": return "network"
-        case "durable_object_namespace": return "cube.fill"
-        case "hyperdrive": return "bolt.horizontal.fill"
-        case "ai": return "brain.head.profile"
-        default: return "shippingbox.fill"
+    // MARK: - Actions
+    private func unbindResource(_ binding: WorkerBinding) {
+        Task {
+            do {
+                try await secretsViewModel.deleteResourceBinding(name: binding.name)
+                CloudnsToastManager.shared.showSuccess("Resource Unbound", message: binding.name)
+            } catch {
+                CloudnsToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
+            }
         }
     }
     
-    private func bindingBadgeTitle(for type: String) -> String {
-        switch type.lowercased() {
-        case "kv_namespace": return "KV"
-        case "r2_bucket": return "R2"
-        case "d1": return "D1"
-        case "queue": return "QUEUE"
-        case "service": return "SERVICE"
-        case "ai": return "AI"
-        case "hyperdrive": return "HYPERDRIVE"
-        default: return type.uppercased()
-        }
-    }
-    
-    private func bindingColor(for type: String) -> Color {
-        switch type.lowercased() {
-        case "kv_namespace": return .purple
-        case "r2_bucket": return .blue
-        case "d1": return .indigo
-        case "queue": return .purple
-        case "service": return .teal
-        case "durable_object_namespace": return .cyan
-        case "hyperdrive": return .green
-        case "ai": return .pink
-        default: return .orange
+    private func deleteItem(_ item: (name: String, isSecret: Bool)) {
+        Task {
+            do {
+                if item.isSecret {
+                    try await secretsViewModel.deleteSecret(name: item.name)
+                } else {
+                    try await secretsViewModel.deletePlainVariable(name: item.name)
+                }
+                CloudnsToastManager.shared.showSuccess("Deleted", message: item.name)
+            } catch {
+                CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            }
         }
     }
 }

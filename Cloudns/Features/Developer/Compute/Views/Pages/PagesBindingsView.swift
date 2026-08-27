@@ -1,8 +1,17 @@
 import SwiftUI
 
-// MARK: - Professional PagesBindingsView
+// MARK: - EditVarWrapper Helper
+
+private struct EditVarWrapper: Identifiable {
+    var id: String { name }
+    let name: String
+    let value: PagesEnvVarValue
+}
+
+// MARK: - PagesBindingsView
 
 struct PagesBindingsView: View {
+    // MARK: - Properties
     let accountId: String
     let project: PagesProject
     @State private var selectedEnv = "production" // "production" | "preview"
@@ -34,6 +43,7 @@ struct PagesBindingsView: View {
     @State private var showingUnbindAlert = false
     @State private var isDeleting = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, project: PagesProject) {
         self.accountId = accountId
         self.project = project
@@ -53,6 +63,7 @@ struct PagesBindingsView: View {
         _previewAI = State(initialValue: project.deploymentConfigs?.preview?.aiBindings ?? [:])
     }
     
+    // MARK: - Computed Properties
     private var currentEnvVars: [String: PagesEnvVarValue] {
         selectedEnv == "production" ? productionEnvVars : previewEnvVars
     }
@@ -81,14 +92,6 @@ struct PagesBindingsView: View {
         selectedEnv == "production" ? productionAI : previewAI
     }
     
-    private var currentStorageResourcesCount: Int {
-        currentKV.count + currentD1.count + currentR2.count + currentAI.count
-    }
-    
-    private var totalBindingsCount: Int {
-        currentEnvVars.count + currentStorageResourcesCount
-    }
-    
     private var currentConfig: PagesEnvConfig? {
         selectedEnv == "production" ? project.deploymentConfigs?.production : project.deploymentConfigs?.preview
     }
@@ -101,20 +104,10 @@ struct PagesBindingsView: View {
         previewEnvVars.count + previewKV.count + previewD1.count + previewR2.count + previewAI.count
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // Environment Segmented Switcher
-            Picker("Environment", selection: $selectedEnv) {
-                Text("Production (\(productionTotalCount))").tag("production")
-                Text("Preview (\(previewTotalCount))").tag("preview")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
-            .onChange(of: selectedEnv) { _ in
-                HapticManager.impact(.light)
-            }
+            environmentPicker
             
             contentList
                 .centerConstrainedWidth(maxWidth: 840)
@@ -124,82 +117,27 @@ struct PagesBindingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        showingAddVariableSheet = true
-                    } label: {
-                        Label("Add Environment Variable", systemImage: "slider.horizontal.3")
-                    }
-                    
-                    Button {
-                        showingAttachResourceSheet = true
-                    } label: {
-                        Label("Attach Resource (KV / D1 / R2 / AI)", systemImage: "link.badge.plus")
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Variable or Resource")
+                addMenu
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
-            PagesAddVariableSheetView(
-                accountId: accountId,
-                projectName: project.name,
-                environment: selectedEnv,
-                existingEnvVars: currentEnvVars
-            ) { updated in
-                if selectedEnv == "production" {
-                    productionEnvVars = updated
-                } else {
-                    previewEnvVars = updated
-                }
-            }
+            addVariableSheet
         }
         .sheet(isPresented: $showingAttachResourceSheet) {
-            PagesAttachResourceBindingSheetView(
-                accountId: accountId,
-                projectName: project.name,
-                environment: selectedEnv,
-                existingKV: currentKV,
-                existingD1: currentD1,
-                existingR2: currentR2,
-                existingAI: currentAI
-            ) { env, kv, d1, r2, ai in
-                if env == "production" {
-                    productionKV = kv
-                    productionD1 = d1
-                    productionR2 = r2
-                    productionAI = ai
-                } else {
-                    previewKV = kv
-                    previewD1 = d1
-                    previewR2 = r2
-                    previewAI = ai
-                }
-            }
+            attachResourceSheet
         }
         .sheet(item: Binding(
             get: { variableToEdit.map { EditVarWrapper(name: $0.name, value: $0.value) } },
             set: { variableToEdit = $0.map { ($0.name, $0.value) } }
         )) { wrapper in
-            PagesAddVariableSheetView(
-                accountId: accountId,
-                projectName: project.name,
-                environment: selectedEnv,
-                existingEnvVars: currentEnvVars,
-                initialName: wrapper.name,
-                initialValue: wrapper.value.value ?? "",
-                initialIsSecret: wrapper.value.isSecret
-            ) { updated in
-                if selectedEnv == "production" {
-                    productionEnvVars = updated
-                } else {
-                    previewEnvVars = updated
-                }
-            }
+            editVariableSheet(for: wrapper)
         }
-        .confirmationDialog("Delete Variable", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: varNameToDelete) { varName in
+        .confirmationDialog(
+            "Delete Variable",
+            isPresented: $showingDeleteAlert,
+            titleVisibility: .visible,
+            presenting: varNameToDelete
+        ) { varName in
             Button("Delete '\(varName)'", role: .destructive) {
                 Task { await deleteVariable(name: varName) }
             }
@@ -207,7 +145,12 @@ struct PagesBindingsView: View {
         } message: { varName in
             Text("Are you sure you want to delete environment variable '\(varName)' from \(selectedEnv.capitalized)?")
         }
-        .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: resourceToUnbind) { res in
+        .confirmationDialog(
+            "Unbind Resource",
+            isPresented: $showingUnbindAlert,
+            titleVisibility: .visible,
+            presenting: resourceToUnbind
+        ) { res in
             Button("Unbind '\(res.name)'", role: .destructive) {
                 Task { await unbindResource(name: res.name, type: res.type) }
             }
@@ -217,417 +160,272 @@ struct PagesBindingsView: View {
         }
     }
     
-    @ViewBuilder
+    // MARK: - Private Views
+    private var environmentPicker: some View {
+        Picker("Environment", selection: $selectedEnv) {
+            Text("Production (\(productionTotalCount))").tag("production")
+            Text("Preview (\(previewTotalCount))").tag("preview")
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(.systemGroupedBackground))
+        .onChange(of: selectedEnv) { _ in
+            HapticManager.impact(.light)
+        }
+    }
+    
+    private var addMenu: some View {
+        Menu {
+            Button {
+                showingAddVariableSheet = true
+            } label: {
+                Label("Add Environment Variable", systemImage: "slider.horizontal.3")
+            }
+            
+            Button {
+                showingAttachResourceSheet = true
+            } label: {
+                Label("Attach Resource (KV / D1 / R2 / AI)", systemImage: "link.badge.plus")
+            }
+        } label: {
+            Image(systemName: "plus")
+        }
+        .accessibilityLabel("Add Variable or Resource")
+    }
+    
     private var contentList: some View {
         List {
-            // MARK: - 1. Plaintext Variables
-            Section(
-                header: Text("Plaintext Variables (\(plainVariables.count))"),
-                footer: Text("Plaintext variables are accessible in Pages Functions via context.env.VAR_NAME.")
-            ) {
-                if plainVariables.isEmpty {
-                    HStack {
-                        Image(systemName: "slider.horizontal.3")
-                            .foregroundStyle(.secondary)
-                        Text("No plaintext variables configured for \(selectedEnv.capitalized).")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                } else {
-                    ForEach(Array(plainVariables.keys.sorted()), id: \.self) { key in
-                        if let item = plainVariables[key] {
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "slider.horizontal.3")
-                                    .font(.body)
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.blue.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    .accessibilityHidden(true)
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(key)
-                                        .font(.body.monospaced().weight(.semibold))
-                                        .foregroundStyle(.primary)
-                                    
-                                    if let val = item.value, !val.isEmpty {
-                                        Text(val)
-                                            .font(.caption.monospaced())
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(2)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                CloudnsBadge(.custom(color: .blue, text: "VARIABLE"), isCompact: true)
-                                
-                                Button {
-                                    variableToEdit = (name: key, value: item)
-                                } label: {
-                                    Image(systemName: "pencil")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.vertical, 2)
-                            .contentShape(Rectangle())
-                            .contextMenu {
-                                if let val = item.value {
-                                    Button {
-                                        UIPasteboard.general.string = val
-                                        HapticManager.notification(.success)
-                                        CloudnsToastManager.shared.showCopied("Value copied")
-                                    } label: {
-                                        Label("Copy Value", systemImage: "doc.on.doc")
-                                    }
-                                }
-                                Button {
-                                    UIPasteboard.general.string = key
-                                    HapticManager.notification(.success)
-                                    CloudnsToastManager.shared.showCopied("Key name copied")
-                                } label: {
-                                    Label("Copy Key Name", systemImage: "doc.on.doc")
-                                }
-                                Button {
-                                    variableToEdit = (name: key, value: item)
-                                } label: {
-                                    Label("Edit Variable", systemImage: "pencil")
-                                }
-                                Button(role: .destructive) {
-                                    varNameToDelete = key
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete Variable", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    varNameToDelete = key
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 2. Encrypted Secrets
-            Section(
-                header: Text("Encrypted Secrets (\(secretVariables.count))"),
-                footer: Text("Secrets are encrypted at rest and never exposed in cleartext.")
-            ) {
-                if secretVariables.isEmpty {
-                    HStack {
-                        Image(systemName: "key.fill")
-                            .foregroundStyle(.secondary)
-                        Text("No encrypted secrets configured for \(selectedEnv.capitalized).")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                } else {
-                    ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
-                        HStack(alignment: .center, spacing: 12) {
-                            Image(systemName: "key.fill")
-                                .font(.body)
-                                .foregroundStyle(.orange)
-                                .frame(width: 32, height: 32)
-                                .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                
-                                Text("•••••••••••• (Encrypted Secret)")
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            CloudnsBadge(.proxied("SECRET"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Secret name copied")
-                            } label: {
-                                Label("Copy Secret Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                varNameToDelete = key
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete Secret", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                varNameToDelete = key
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 3. KV Namespaces
-            if !currentKV.isEmpty {
-                Section(header: Text("KV Namespaces (\(currentKV.count))")) {
-                    ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            Image(systemName: "key.fill")
-                                .font(.body)
-                                .foregroundStyle(.purple)
-                                .frame(width: 32, height: 32)
-                                .background(Color.purple.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                if let ns = currentKV[key]?.namespaceId {
-                                    Text(ns)
-                                        .font(.caption2.monospaced())
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                }
-                            }
-                            Spacer()
-                            CloudnsBadge(.custom(color: .purple, text: "KV"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Binding name copied")
-                            } label: {
-                                Label("Copy Binding Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "kv")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind KV Namespace", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "kv")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 4. D1 Databases
-            if !currentD1.isEmpty {
-                Section(header: Text("D1 Databases (\(currentD1.count))")) {
-                    ForEach(Array(currentD1.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            Image(systemName: "cylinder.split.1x2.fill")
-                                .font(.body)
-                                .foregroundStyle(.indigo)
-                                .frame(width: 32, height: 32)
-                                .background(Color.indigo.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                if let id = currentD1[key]?.id {
-                                    Text(id)
-                                        .font(.caption2.monospaced())
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                }
-                            }
-                            Spacer()
-                            CloudnsBadge(.custom(color: .indigo, text: "D1"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Binding name copied")
-                            } label: {
-                                Label("Copy Binding Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "d1")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind D1 Database", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "d1")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 5. R2 Buckets
-            if !currentR2.isEmpty {
-                Section(header: Text("R2 Buckets (\(currentR2.count))")) {
-                    ForEach(Array(currentR2.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            Image(systemName: "externaldrive.fill")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                if let bucket = currentR2[key]?.name {
-                                    Text(bucket)
-                                        .font(.caption2.monospaced())
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                }
-                            }
-                            Spacer()
-                            CloudnsBadge(.custom(color: .blue, text: "R2"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Binding name copied")
-                            } label: {
-                                Label("Copy Binding Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "r2")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind R2 Bucket", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "r2")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 6. AI Models
-            if !currentAI.isEmpty {
-                Section(header: Text("Workers AI (\(currentAI.count))")) {
-                    ForEach(Array(currentAI.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            Image(systemName: "brain.head.profile")
-                                .font(.body)
-                                .foregroundStyle(.pink)
-                                .frame(width: 32, height: 32)
-                                .background(Color.pink.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
-                            
-                            Text(key)
-                                .font(.body.monospaced().weight(.semibold))
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            CloudnsBadge(.custom(color: .pink, text: "AI"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                HapticManager.notification(.success)
-                                CloudnsToastManager.shared.showCopied("Binding name copied")
-                            } label: {
-                                Label("Copy Binding Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "ai")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind AI Binding", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                resourceToUnbind = (name: key, type: "ai")
-                                showingUnbindAlert = true
-                            } label: {
-                                Label("Unbind", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 7. Compatibility Settings
-            Section(header: Text("Compatibility Settings")) {
-                HStack {
-                    Text("Compatibility Date")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(currentConfig?.compatibilityDate ?? "Default")
-                        .font(.body.monospacedDigit())
-                }
-                
-                if let flags = currentConfig?.compatibilityFlags, !flags.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Compatibility Flags")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(flags.joined(separator: ", "))
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.primary)
-                    }
-                }
-            }
+            variablesSection
+            secretsSection
+            kvSection
+            d1Section
+            r2Section
+            aiSection
+            compatibilitySection
         }
         .listStyle(.insetGrouped)
     }
     
+    private var variablesSection: some View {
+        Section(
+            header: Text("Plaintext Variables (\(plainVariables.count))"),
+            footer: Text("Plaintext variables are accessible in Pages Functions via context.env.VAR_NAME.")
+        ) {
+            if plainVariables.isEmpty {
+                HStack {
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundStyle(.secondary)
+                    Text("No plaintext variables configured for \(selectedEnv.capitalized).")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 2)
+            } else {
+                ForEach(Array(plainVariables.keys.sorted()), id: \.self) { key in
+                    if let item = plainVariables[key] {
+                        PagesEnvVarRowView(
+                            name: key,
+                            value: item,
+                            onEdit: {
+                                variableToEdit = (name: key, value: item)
+                            },
+                            onDelete: {
+                                varNameToDelete = key
+                                showingDeleteAlert = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private var secretsSection: some View {
+        Section(
+            header: Text("Encrypted Secrets (\(secretVariables.count))"),
+            footer: Text("Secrets are encrypted at rest and never exposed in cleartext.")
+        ) {
+            if secretVariables.isEmpty {
+                HStack {
+                    Image(systemName: "key.fill")
+                        .foregroundStyle(.secondary)
+                    Text("No encrypted secrets configured for \(selectedEnv.capitalized).")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 2)
+            } else {
+                ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
+                    if let item = secretVariables[key] {
+                        PagesEnvVarRowView(
+                            name: key,
+                            value: item,
+                            onEdit: {},
+                            onDelete: {
+                                varNameToDelete = key
+                                showingDeleteAlert = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var kvSection: some View {
+        if !currentKV.isEmpty {
+            Section(header: Text("KV Namespaces (\(currentKV.count))")) {
+                ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
+                    PagesResourceRowView(
+                        name: key,
+                        targetId: currentKV[key]?.namespaceId,
+                        type: "kv"
+                    ) {
+                        resourceToUnbind = (name: key, type: "kv")
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var d1Section: some View {
+        if !currentD1.isEmpty {
+            Section(header: Text("D1 Databases (\(currentD1.count))")) {
+                ForEach(Array(currentD1.keys.sorted()), id: \.self) { key in
+                    PagesResourceRowView(
+                        name: key,
+                        targetId: currentD1[key]?.id,
+                        type: "d1"
+                    ) {
+                        resourceToUnbind = (name: key, type: "d1")
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var r2Section: some View {
+        if !currentR2.isEmpty {
+            Section(header: Text("R2 Buckets (\(currentR2.count))")) {
+                ForEach(Array(currentR2.keys.sorted()), id: \.self) { key in
+                    PagesResourceRowView(
+                        name: key,
+                        targetId: currentR2[key]?.name,
+                        type: "r2"
+                    ) {
+                        resourceToUnbind = (name: key, type: "r2")
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var aiSection: some View {
+        if !currentAI.isEmpty {
+            Section(header: Text("Workers AI (\(currentAI.count))")) {
+                ForEach(Array(currentAI.keys.sorted()), id: \.self) { key in
+                    PagesResourceRowView(
+                        name: key,
+                        targetId: nil,
+                        type: "ai"
+                    ) {
+                        resourceToUnbind = (name: key, type: "ai")
+                        showingUnbindAlert = true
+                    }
+                }
+            }
+        }
+    }
+    
+    private var compatibilitySection: some View {
+        Section(header: Text("Compatibility Settings")) {
+            HStack {
+                Text("Compatibility Date")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(currentConfig?.compatibilityDate ?? "Default")
+                    .font(.body.monospacedDigit())
+            }
+            
+            if let flags = currentConfig?.compatibilityFlags, !flags.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Compatibility Flags")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(flags.joined(separator: ", "))
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.primary)
+                }
+            }
+        }
+    }
+    
+    private var addVariableSheet: some View {
+        PagesAddVariableSheetView(
+            accountId: accountId,
+            projectName: project.name,
+            environment: selectedEnv,
+            existingEnvVars: currentEnvVars
+        ) { updated in
+            if selectedEnv == "production" {
+                productionEnvVars = updated
+            } else {
+                previewEnvVars = updated
+            }
+        }
+    }
+    
+    private var attachResourceSheet: some View {
+        PagesAttachResourceBindingSheetView(
+            accountId: accountId,
+            projectName: project.name,
+            environment: selectedEnv,
+            existingKV: currentKV,
+            existingD1: currentD1,
+            existingR2: currentR2,
+            existingAI: currentAI
+        ) { env, kv, d1, r2, ai in
+            if env == "production" {
+                productionKV = kv
+                productionD1 = d1
+                productionR2 = r2
+                productionAI = ai
+            } else {
+                previewKV = kv
+                previewD1 = d1
+                previewR2 = r2
+                previewAI = ai
+            }
+        }
+    }
+    
+    private func editVariableSheet(for wrapper: EditVarWrapper) -> some View {
+        PagesAddVariableSheetView(
+            accountId: accountId,
+            projectName: project.name,
+            environment: selectedEnv,
+            existingEnvVars: currentEnvVars,
+            initialName: wrapper.name,
+            initialValue: wrapper.value.value ?? "",
+            initialIsSecret: wrapper.value.isSecret
+        ) { updated in
+            if selectedEnv == "production" {
+                productionEnvVars = updated
+            } else {
+                previewEnvVars = updated
+            }
+        }
+    }
+    
+    // MARK: - Actions
     private func deleteVariable(name: String) async {
         isDeleting = true
         var updated = currentEnvVars
@@ -702,12 +500,4 @@ struct PagesBindingsView: View {
         }
         isDeleting = false
     }
-}
-
-// MARK: - EditVarWrapper Helper
-
-private struct EditVarWrapper: Identifiable {
-    var id: String { name }
-    let name: String
-    let value: PagesEnvVarValue
 }
