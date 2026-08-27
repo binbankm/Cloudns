@@ -153,7 +153,7 @@ struct WorkersListView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty && viewModel.pages.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
@@ -161,7 +161,7 @@ struct WorkersListView: View {
                     )
                 } else if viewModel.selectedSegment == 0 {
                     if viewModel.workers.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .empty(
                                 icon: "bolt.badge.clock",
                                 title: "No Workers Found",
@@ -171,7 +171,7 @@ struct WorkersListView: View {
                             )
                         )
                     } else if viewModel.filteredWorkers.isEmpty && !viewModel.searchText.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .search(
                                 query: viewModel.searchText,
                                 clearAction: { viewModel.searchText = "" }
@@ -180,7 +180,7 @@ struct WorkersListView: View {
                     }
                 } else {
                     if viewModel.pages.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .empty(
                                 icon: "macwindow",
                                 title: "No Pages Projects Found",
@@ -190,7 +190,7 @@ struct WorkersListView: View {
                             )
                         )
                     } else if viewModel.filteredPages.isEmpty && !viewModel.searchText.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .search(
                                 query: viewModel.searchText,
                                 clearAction: { viewModel.searchText = "" }

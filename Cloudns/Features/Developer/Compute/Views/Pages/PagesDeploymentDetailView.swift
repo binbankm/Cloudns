@@ -118,10 +118,10 @@ struct PagesDeploymentDetailView: View {
                         isActionRunning = true
                         do {
                             try await parentViewModel.retryDeployment(id: deployment.id)
-                            ToastManager.shared.showSuccess("Deployment Retried", message: "Build queued")
+                            CloudnsToastManager.shared.showSuccess("Deployment Retried", message: "Build queued")
                             dismiss()
                         } catch {
-                            ToastManager.shared.showError("Retry Failed", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Retry Failed", message: error.localizedDescription)
                         }
                         isActionRunning = false
                     }
@@ -206,10 +206,10 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = true
                     do {
                         try await parentViewModel.rollbackDeployment(id: deployment.id)
-                        ToastManager.shared.showSuccess("Rolled Back", message: "Promoted to production")
+                        CloudnsToastManager.shared.showSuccess("Rolled Back", message: "Promoted to production")
                         dismiss()
                     } catch {
-                        ToastManager.shared.showError("Rollback Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Rollback Failed", message: error.localizedDescription)
                     }
                     isActionRunning = false
                 }
@@ -224,10 +224,10 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = true
                     do {
                         try await parentViewModel.deleteDeployment(id: deployment.id)
-                        ToastManager.shared.showSuccess("Deployment Deleted", message: deployment.id)
+                        CloudnsToastManager.shared.showSuccess("Deployment Deleted", message: deployment.id)
                         dismiss()
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                     isActionRunning = false
                 }

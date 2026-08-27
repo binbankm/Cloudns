@@ -147,7 +147,7 @@ struct WorkerAttachDomainSheetView: View {
                                     hostname: computedHostname,
                                     zoneId: computedZoneId
                                 )
-                                ToastManager.shared.showSuccess("Domain Attached", message: computedHostname)
+                                CloudnsToastManager.shared.showSuccess("Domain Attached", message: computedHostname)
                                 onAttached()
                                 dismiss()
                             } catch {

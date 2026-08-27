@@ -77,7 +77,7 @@ struct AnalyticsView: View {
                     VStack {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            StateOverlayView(
+                            CloudnsStateOverlayView(
                                 state: .error(
                                     message: LocalizedStringKey(errorMessage),
                                     retryAction: {
@@ -86,7 +86,7 @@ struct AnalyticsView: View {
                                 )
                             )
                         } else {
-                            StateOverlayView(
+                            CloudnsStateOverlayView(
                                 state: .empty(
                                     icon: "chart.xyaxis.line",
                                     title: "No Traffic Data",

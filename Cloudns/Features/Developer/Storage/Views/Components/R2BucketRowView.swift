@@ -44,7 +44,7 @@ struct R2BucketRowView: View {
             Button {
                 UIPasteboard.general.string = bucket.name
                 HapticManager.impact(.light)
-                ToastManager.shared.showCopied("Bucket name copied")
+                CloudnsToastManager.shared.showCopied("Bucket name copied")
             } label: {
                 Label("Copy Bucket Name", systemImage: "doc.on.doc")
             }

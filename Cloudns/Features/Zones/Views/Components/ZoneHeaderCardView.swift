@@ -166,7 +166,7 @@ struct ZoneHeaderCardView: View {
                     
                     Button {
                         UIPasteboard.general.string = nsArray.joined(separator: "\n")
-                        ToastManager.shared.showCopied("Nameservers copied to clipboard")
+                        CloudnsToastManager.shared.showCopied("Nameservers copied to clipboard")
                     } label: {
                         Image(systemName: "doc.on.doc.fill")
                             .font(.caption2)
@@ -209,10 +209,10 @@ struct ZoneHeaderCardView: View {
         do {
             try await ZoneService.shared.purgeCache(zoneId: zone.id)
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
+            CloudnsToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
         } catch {
             HapticManager.notification(.error)
-            ToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
         }
         isPurging = false
     }

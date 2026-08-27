@@ -153,7 +153,7 @@ struct WorkerTestView: View {
                             Button {
                                 UIPasteboard.general.string = body
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Response body copied")
+                                CloudnsToastManager.shared.showCopied("Response body copied")
                             } label: {
                                 Label("Copy", systemImage: "doc.on.doc")
                                     .font(.caption)
@@ -211,7 +211,7 @@ struct WorkerTestView: View {
                         let curl = generateCurlCommand()
                         UIPasteboard.general.string = curl
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("cURL command copied")
+                        CloudnsToastManager.shared.showCopied("cURL command copied")
                     } label: {
                         Label("Copy as cURL", systemImage: "terminal")
                     }
@@ -220,7 +220,7 @@ struct WorkerTestView: View {
                         let fetchCode = generateFetchCode()
                         UIPasteboard.general.string = fetchCode
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Fetch (TS) code copied")
+                        CloudnsToastManager.shared.showCopied("Fetch (TS) code copied")
                     } label: {
                         Label("Copy as Fetch (TS)", systemImage: "chevron.left.forwardslash.chevron.right")
                     }

@@ -44,13 +44,13 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
             
             // Insert at the top
             self.rules.insert(newRule, at: 0)
-            ToastManager.shared.showSuccess("IP Rule Added", message: "\(value) (\(mode.uppercased()))")
+            CloudnsToastManager.shared.showSuccess("IP Rule Added", message: "\(value) (\(mode.uppercased()))")
             HapticManager.notification(.success)
             isCreating = false
             return true
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to Add IP Rule", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Failed to Add IP Rule", message: error.localizedDescription)
             HapticManager.notification(.error)
             isCreating = false
             return false
@@ -61,11 +61,11 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
         do {
             try await securityService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             self.rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("IP Rule Deleted")
+            CloudnsToastManager.shared.showSuccess("IP Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

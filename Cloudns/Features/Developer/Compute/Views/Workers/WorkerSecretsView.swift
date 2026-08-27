@@ -66,9 +66,9 @@ struct WorkerSecretsView: View {
                         } else {
                             try await viewModel.deletePlainVariable(name: item.name)
                         }
-                        ToastManager.shared.showSuccess("Deleted", message: item.name)
+                        CloudnsToastManager.shared.showSuccess("Deleted", message: item.name)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -118,7 +118,7 @@ struct WorkerSecretsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -128,7 +128,7 @@ struct WorkerSecretsView: View {
                     )
                 } else if viewModel.selectedTab == "variables" {
                     if viewModel.plainVariables.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .empty(
                                 icon: "slider.horizontal.3",
                                 title: "No Plaintext Variables",
@@ -138,7 +138,7 @@ struct WorkerSecretsView: View {
                             )
                         )
                     } else if viewModel.filteredVariables.isEmpty && !viewModel.searchText.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .search(
                                 query: viewModel.searchText,
                                 clearAction: { viewModel.searchText = "" }
@@ -147,7 +147,7 @@ struct WorkerSecretsView: View {
                     }
                 } else {
                     if viewModel.secrets.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .empty(
                                 icon: "key.fill",
                                 title: "No Encrypted Secrets",
@@ -157,7 +157,7 @@ struct WorkerSecretsView: View {
                             )
                         )
                     } else if viewModel.filteredSecrets.isEmpty && !viewModel.searchText.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .search(
                                 query: viewModel.searchText,
                                 clearAction: { viewModel.searchText = "" }
@@ -234,7 +234,7 @@ struct WorkerSecretsView: View {
                 Button {
                     UIPasteboard.general.string = val
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Variable value copied")
+                    CloudnsToastManager.shared.showCopied("Variable value copied")
                 } label: {
                     Label("Copy Value", systemImage: "doc.on.doc")
                 }
@@ -308,7 +308,7 @@ struct WorkerSecretsView: View {
             Button {
                 UIPasteboard.general.string = secret.name
                 HapticManager.notification(.success)
-                ToastManager.shared.showCopied("Secret name copied")
+                CloudnsToastManager.shared.showCopied("Secret name copied")
             } label: {
                 Label("Copy Name", systemImage: "doc.on.doc")
             }

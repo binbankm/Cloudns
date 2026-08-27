@@ -160,7 +160,7 @@ struct ZonesListView: View {
     private var emptyStateOverlay: some View {
         if viewModel.hasFetchedData {
             if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: {
@@ -169,7 +169,7 @@ struct ZonesListView: View {
                     )
                 )
             } else if viewModel.zones.isEmpty {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .empty(
                         icon: "globe",
                         title: "No Domains Found",
@@ -179,7 +179,7 @@ struct ZonesListView: View {
                     )
                 )
             } else if displayedZones.isEmpty && !searchText.isEmpty {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .search(
                         query: searchText,
                         clearAction: { searchText = "" }

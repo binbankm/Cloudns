@@ -84,14 +84,14 @@ struct HyperdriveView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchConfigs() } }
                         )
                     )
                 } else if viewModel.configs.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "bolt.horizontal.fill",
                             title: "No Hyperdrive Configs",
@@ -101,7 +101,7 @@ struct HyperdriveView: View {
                         )
                     )
                 } else if viewModel.filteredConfigs.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

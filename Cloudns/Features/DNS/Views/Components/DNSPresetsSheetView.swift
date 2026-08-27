@@ -374,10 +374,10 @@ struct DNSPresetsSheetView: View {
         
         if successCount > 0 {
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Preset Applied", message: "Added \(successCount) DNS records for \(group.title).")
+            CloudnsToastManager.shared.showSuccess("Preset Applied", message: "Added \(successCount) DNS records for \(group.title).")
             dismiss()
         } else {
-            ToastManager.shared.showError("Failed to Apply Preset", message: "Please check your network connection.")
+            CloudnsToastManager.shared.showError("Failed to Apply Preset", message: "Please check your network connection.")
         }
     }
 }

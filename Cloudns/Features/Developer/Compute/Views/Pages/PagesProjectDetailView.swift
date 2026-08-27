@@ -60,10 +60,10 @@ struct PagesProjectDetailView: View {
                     Task {
                         do {
                             try await PagesService.shared.deletePagesProject(accountId: accountId, projectName: project.name)
-                            ToastManager.shared.showSuccess("Pages Project Deleted", message: project.name)
+                            CloudnsToastManager.shared.showSuccess("Pages Project Deleted", message: project.name)
                             dismiss()
                         } catch {
-                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                         }
                     }
                 }
@@ -159,7 +159,7 @@ struct PagesProjectDetailView: View {
                             Button {
                                 UIPasteboard.general.string = "https://\(sub)"
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showSuccess("URL Copied", message: "https://\(sub)")
+                                CloudnsToastManager.shared.showSuccess("URL Copied", message: "https://\(sub)")
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)

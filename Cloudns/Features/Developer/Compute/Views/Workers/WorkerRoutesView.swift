@@ -38,10 +38,10 @@ struct WorkerRoutesView: View {
                     Task {
                         do {
                             try await WorkerService.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
-                            ToastManager.shared.showSuccess("Domain Detached", message: dom.hostname)
+                            CloudnsToastManager.shared.showSuccess("Domain Detached", message: dom.hostname)
                             await fetchDomains()
                         } catch {
-                            ToastManager.shared.showError("Detach Failed", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Detach Failed", message: error.localizedDescription)
                         }
                     }
                 }
@@ -121,7 +121,7 @@ struct WorkerRoutesView: View {
         .overlay {
             if hasFetchedData {
                 if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await fetchDomains() } }

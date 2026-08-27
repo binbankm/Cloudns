@@ -46,7 +46,7 @@ struct AddPagesDomainSheetView: View {
                                 let trimmed = domainName.trimmingCharacters(in: .whitespacesAndNewlines)
                                 try await viewModel.addDomain(name: trimmed)
                                 HapticManager.impact(.medium)
-                                ToastManager.shared.showSuccess("Domain Added", message: trimmed)
+                                CloudnsToastManager.shared.showSuccess("Domain Added", message: trimmed)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

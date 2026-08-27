@@ -42,7 +42,7 @@ struct R2ObjectRowView: View {
             Button {
                 UIPasteboard.general.string = object.key
                 HapticManager.notification(.success)
-                ToastManager.shared.showCopied("Object key copied")
+                CloudnsToastManager.shared.showCopied("Object key copied")
             } label: {
                 Label("Copy Object Key", systemImage: "doc.on.doc")
             }

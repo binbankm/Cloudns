@@ -75,7 +75,7 @@ struct EdgeCertificatesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -84,7 +84,7 @@ struct EdgeCertificatesView: View {
                         )
                     )
                 } else if viewModel.certificates.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "lock.shield",
                             title: "No Edge Certificates",
@@ -92,7 +92,7 @@ struct EdgeCertificatesView: View {
                         )
                     )
                 } else if displayedCertificates.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

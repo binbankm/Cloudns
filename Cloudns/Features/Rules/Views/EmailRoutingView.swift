@@ -201,14 +201,14 @@ struct EmailRoutingView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
                         )
                     )
                 } else if viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "envelope.badge.shield.half.filled",
                             title: "No Email Routing Rules",
@@ -218,7 +218,7 @@ struct EmailRoutingView: View {
                         )
                     )
                 } else if !searchText.isEmpty && displayedRules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

@@ -99,7 +99,7 @@ struct RedirectRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -108,7 +108,7 @@ struct RedirectRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "arrow.triangle.swap",
                             title: "No Redirect Rules",
@@ -118,7 +118,7 @@ struct RedirectRulesView: View {
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

@@ -376,10 +376,10 @@ struct DNSRecordFormView: View {
         do {
             if let existingRecord = existingRecord {
                 try await viewModel.updateRecord(recordId: existingRecord.id, payload: payload)
-                ToastManager.shared.showSuccess("DNS Record Updated", message: "\(name) (\(type))")
+                CloudnsToastManager.shared.showSuccess("DNS Record Updated", message: "\(name) (\(type))")
             } else {
                 try await viewModel.addRecord(payload: payload)
-                ToastManager.shared.showSuccess("DNS Record Created", message: "\(name) (\(type))")
+                CloudnsToastManager.shared.showSuccess("DNS Record Created", message: "\(name) (\(type))")
             }
             dismiss()
         } catch {

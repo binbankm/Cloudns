@@ -128,7 +128,7 @@ struct AddAccessAppSheetView: View {
                 sessionDuration: sessionDuration
             )
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Access App Created", message: cleanName)
+            CloudnsToastManager.shared.showSuccess("Access App Created", message: cleanName)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

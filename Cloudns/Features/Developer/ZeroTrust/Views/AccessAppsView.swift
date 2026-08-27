@@ -43,7 +43,7 @@ struct AccessAppsView: View {
                                 Button {
                                     UIPasteboard.general.string = app.domain
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Domain copied")
+                                    CloudnsToastManager.shared.showCopied("Domain copied")
                                 } label: {
                                     Label("Copy Domain", systemImage: "doc.on.doc")
                                 }
@@ -51,7 +51,7 @@ struct AccessAppsView: View {
                                 Button {
                                     UIPasteboard.general.string = app.name
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Name copied")
+                                    CloudnsToastManager.shared.showCopied("Name copied")
                                 } label: {
                                     Label("Copy App Name", systemImage: "doc.on.doc")
                                 }
@@ -111,14 +111,14 @@ struct AccessAppsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchApps() } }
                         )
                     )
                 } else if viewModel.apps.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "lock.shield.fill",
                             title: "No Access Applications",
@@ -128,7 +128,7 @@ struct AccessAppsView: View {
                         )
                     )
                 } else if viewModel.filteredApps.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

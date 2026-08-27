@@ -77,7 +77,7 @@ struct AIGatewayDetailView: View {
                     Button {
                         UIPasteboard.general.string = universalEndpoint
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Endpoint URL copied")
+                        CloudnsToastManager.shared.showCopied("Endpoint URL copied")
                     } label: {
                         HStack {
                             Image(systemName: "doc.on.doc")
@@ -115,7 +115,7 @@ struct AIGatewayDetailView: View {
                     Button {
                         UIPasteboard.general.string = codeSnippet
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Code snippet copied")
+                        CloudnsToastManager.shared.showCopied("Code snippet copied")
                     } label: {
                         Label("Copy Code", systemImage: "doc.on.doc")
                             .font(.caption.weight(.semibold))

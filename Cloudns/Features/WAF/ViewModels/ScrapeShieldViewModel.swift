@@ -44,10 +44,10 @@ final class ScrapeShieldViewModel: BaseLoadableViewModel {
     func updateSetting(zoneId: String, settingId: String, value: String) async {
         do {
             try await securityService.updateScrapeShieldSetting(zoneId: zoneId, settingId: settingId, value: value)
-            ToastManager.shared.showSuccess("Setting Updated")
+            CloudnsToastManager.shared.showSuccess("Setting Updated")
         } catch {
             self.errorMessage = "Update failed: \(error.localizedDescription)"
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

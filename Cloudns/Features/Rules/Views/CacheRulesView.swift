@@ -54,7 +54,7 @@ struct CacheRulesView: View {
                             for index in indexSet {
                                 let rule = displayedRules[index]
                                 viewModel.deleteRule(at: IndexSet(integer: index))
-                                ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
+                                CloudnsToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
                             }
                         })
                     }
@@ -73,7 +73,7 @@ struct CacheRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -82,7 +82,7 @@ struct CacheRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "bolt.badge.clock",
                             title: "No Cache Rules",
@@ -92,7 +92,7 @@ struct CacheRulesView: View {
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

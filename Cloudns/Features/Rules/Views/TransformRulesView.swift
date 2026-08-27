@@ -103,7 +103,7 @@ struct TransformRulesView: View {
                             HapticManager.impact(.light)
                             Task {
                                 await viewModel.toggleRule(rule: rule)
-                                ToastManager.shared.showSuccess("Rule Status Updated", message: rule.description ?? "Rule")
+                                CloudnsToastManager.shared.showSuccess("Rule Status Updated", message: rule.description ?? "Rule")
                             }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -123,7 +123,7 @@ struct TransformRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -132,7 +132,7 @@ struct TransformRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "arrow.triangle.2.circlepath",
                             title: "No \(phaseTitle(for: viewModel.selectedPhase)) Rules",
@@ -142,7 +142,7 @@ struct TransformRulesView: View {
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

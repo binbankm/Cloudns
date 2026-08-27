@@ -96,10 +96,10 @@ struct EditTurnstileWidgetSheetView: View {
                 let updated = TurnstileWidget(sitekey: widget.sitekey, name: name, mode: selectedMode, domains: domains.isEmpty ? ["*"] : domains, secret: widget.secret, createdOn: widget.createdOn, modifiedOn: widget.modifiedOn)
                 onUpdated(updated)
                 HapticManager.impact(.medium)
-                ToastManager.shared.showSuccess("Widget Updated", message: name)
+                CloudnsToastManager.shared.showSuccess("Widget Updated", message: name)
                 dismiss()
             } catch {
-                ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+                CloudnsToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             }
             isSubmitting = false
         }

@@ -290,7 +290,7 @@ struct SettingsView: View {
                     Task {
                         await cacheManager.clearAllCaches()
                         HapticManager.notification(.success)
-                        ToastManager.shared.showSuccess("Cache Cleared", message: "All local caches and temporary storage purged")
+                        CloudnsToastManager.shared.showSuccess("Cache Cleared", message: "All local caches and temporary storage purged")
                     }
                 }
             } message: {

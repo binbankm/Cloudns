@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - ContentView
+// MARK: - RootView
 
-struct ContentView: View {
+struct RootView: View {
     // MARK: - Properties
     
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
@@ -161,8 +161,10 @@ struct ContentView: View {
     }
 }
 
+typealias ContentView = RootView
+
 // MARK: - Preview
 
 #Preview {
-    ContentView()
+    RootView()
 }

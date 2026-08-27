@@ -163,10 +163,10 @@ struct QuickControlsSection: View {
                 zoneId: zoneId,
                 level: on ? "under_attack" : "medium"
             )
-            ToastManager.shared.showSuccess("Under Attack Mode", message: on ? "Enabled (5s challenge active)" : "Disabled")
+            CloudnsToastManager.shared.showSuccess("Under Attack Mode", message: on ? "Enabled (5s challenge active)" : "Disabled")
         } catch {
             isUnderAttack = !on
-            ToastManager.shared.showError("Failed to update Under Attack Mode")
+            CloudnsToastManager.shared.showError("Failed to update Under Attack Mode")
         }
         updatingAttack = false
     }
@@ -179,10 +179,10 @@ struct QuickControlsSection: View {
                 isOn: on
             )
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-            ToastManager.shared.showSuccess("Development Mode", message: on ? "Enabled (Cache bypassed for 3h)" : "Disabled")
+            CloudnsToastManager.shared.showSuccess("Development Mode", message: on ? "Enabled (Cache bypassed for 3h)" : "Disabled")
         } catch {
             isDevMode = !on
-            ToastManager.shared.showError("Failed to update Development Mode")
+            CloudnsToastManager.shared.showError("Failed to update Development Mode")
         }
         updatingDev = false
     }
@@ -192,10 +192,10 @@ struct QuickControlsSection: View {
         do {
             try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: on)
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-            ToastManager.shared.showSuccess("Zone Status", message: on ? "Domain paused on Cloudflare" : "Domain active on Cloudflare")
+            CloudnsToastManager.shared.showSuccess("Zone Status", message: on ? "Domain paused on Cloudflare" : "Domain active on Cloudflare")
         } catch {
             isPaused = !on
-            ToastManager.shared.showError("Failed to update Zone Status")
+            CloudnsToastManager.shared.showError("Failed to update Zone Status")
         }
         updatingPause = false
     }

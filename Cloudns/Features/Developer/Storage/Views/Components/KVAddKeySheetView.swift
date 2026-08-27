@@ -57,7 +57,7 @@ struct KVAddKeySheetView: View {
                             do {
                                 let ttl = Int(expirationTtl)
                                 try await viewModel.saveKey(key: key.trimmingCharacters(in: .whitespacesAndNewlines), value: value, ttl: ttl)
-                                ToastManager.shared.showSuccess("Key Saved", message: key)
+                                CloudnsToastManager.shared.showSuccess("Key Saved", message: key)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

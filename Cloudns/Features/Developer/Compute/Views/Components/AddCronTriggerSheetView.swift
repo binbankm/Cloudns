@@ -85,7 +85,7 @@ struct AddCronTriggerSheetView: View {
                             do {
                                 try await viewModel.addSchedule(cron: cronExpression)
                                 HapticManager.impact(.medium)
-                                ToastManager.shared.showSuccess("Cron Trigger Added", message: cronExpression)
+                                CloudnsToastManager.shared.showSuccess("Cron Trigger Added", message: cronExpression)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

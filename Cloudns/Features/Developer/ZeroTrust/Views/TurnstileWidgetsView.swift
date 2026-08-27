@@ -75,9 +75,9 @@ struct TurnstileWidgetsView: View {
                 Task {
                     do {
                         try await viewModel.deleteWidget(sitekey: widget.sitekey)
-                        ToastManager.shared.showSuccess("Widget Deleted", message: widget.name)
+                        CloudnsToastManager.shared.showSuccess("Widget Deleted", message: widget.name)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -91,7 +91,7 @@ struct TurnstileWidgetsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -100,7 +100,7 @@ struct TurnstileWidgetsView: View {
                         )
                     )
                 } else if viewModel.widgets.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "checkmark.shield.fill",
                             title: "No Turnstile Widgets",
@@ -110,7 +110,7 @@ struct TurnstileWidgetsView: View {
                         )
                     )
                 } else if viewModel.filteredWidgets.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

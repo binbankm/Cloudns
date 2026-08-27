@@ -58,7 +58,7 @@ struct D1TableView: View {
                     cardsView
                         .skeletonLoading(true)
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.loadTable() } }
@@ -66,7 +66,7 @@ struct D1TableView: View {
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if viewModel.rows.isEmpty && viewModel.hasFetchedData {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "tablecells",
                             title: "Empty Table",

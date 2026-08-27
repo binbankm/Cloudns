@@ -43,7 +43,7 @@ struct KVCreateNamespaceSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createNamespace(title: title.trimmingCharacters(in: .whitespacesAndNewlines))
-                                ToastManager.shared.showSuccess("Namespace Created", message: title)
+                                CloudnsToastManager.shared.showSuccess("Namespace Created", message: title)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

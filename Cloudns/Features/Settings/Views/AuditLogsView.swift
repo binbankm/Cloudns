@@ -65,14 +65,14 @@ struct AuditLogsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchLogs() } }
                         )
                     )
                 } else if viewModel.logs.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "list.clipboard.fill",
                             title: "No Audit Logs",
@@ -80,7 +80,7 @@ struct AuditLogsView: View {
                         )
                     )
                 } else if viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

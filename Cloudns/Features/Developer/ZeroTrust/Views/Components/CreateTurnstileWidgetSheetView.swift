@@ -84,10 +84,10 @@ struct CreateTurnstileWidgetSheetView: View {
             do {
                 _ = try await viewModel.createWidget(name: name, domains: domains.isEmpty ? ["*"] : domains, mode: selectedMode)
                 HapticManager.impact(.medium)
-                ToastManager.shared.showSuccess("Widget Created", message: name)
+                CloudnsToastManager.shared.showSuccess("Widget Created", message: name)
                 dismiss()
             } catch {
-                ToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
+                CloudnsToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
             }
             isSubmitting = false
         }

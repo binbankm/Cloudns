@@ -144,7 +144,7 @@ struct CFIpRangesToolView: View {
                         Button {
                             UIPasteboard.general.string = generateExportCode()
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Firewall rules copied")
+                            CloudnsToastManager.shared.showCopied("Firewall rules copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                         }
@@ -249,6 +249,6 @@ struct CFIpRangesToolView: View {
     private func copyList(_ list: [String], title: String) {
         UIPasteboard.general.string = list.joined(separator: "\n")
         HapticManager.notification(.success)
-        ToastManager.shared.showCopied("\(title) copied")
+        CloudnsToastManager.shared.showCopied("\(title) copied")
     }
 }

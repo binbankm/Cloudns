@@ -175,7 +175,7 @@ struct SecuritySettingsView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }

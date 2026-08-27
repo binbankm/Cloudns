@@ -132,7 +132,7 @@ struct PagesAddVariableSheetView: View {
                 envVars: updated
             )
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Variable Saved", message: "\(cleanName) (\(environment.capitalized))")
+            CloudnsToastManager.shared.showSuccess("Variable Saved", message: "\(cleanName) (\(environment.capitalized))")
             onSaved(updated)
             dismiss()
         } catch {

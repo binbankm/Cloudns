@@ -106,7 +106,7 @@ struct AdvancedZoneSettingsView: View {
         do {
             try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-            ToastManager.shared.showSuccess(paused ? "Site Paused" : "Site Resumed")
+            CloudnsToastManager.shared.showSuccess(paused ? "Site Paused" : "Site Resumed")
         } catch {
             self.errorMessage = error.localizedDescription
             self.isPaused = !paused

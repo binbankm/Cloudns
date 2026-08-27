@@ -42,7 +42,7 @@ struct RateLimitingRulesView: View {
                                 HapticManager.impact(.light)
                                 Task {
                                     await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                    ToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                                    CloudnsToastManager.shared.showSuccess("Rate Limiting Rule Updated", message: "\(rule.description ?? "Rule") status updated")
                                 }
                             })
                         }
@@ -63,7 +63,7 @@ struct RateLimitingRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -72,7 +72,7 @@ struct RateLimitingRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "speedometer",
                             title: "No Rate Limiting Rules",
@@ -82,7 +82,7 @@ struct RateLimitingRulesView: View {
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }
@@ -117,7 +117,7 @@ struct RateLimitingRulesView: View {
             let rule = viewModel.rules[index]
             Task {
                 await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                ToastManager.shared.showSuccess("Rate Limiting Rule Deleted", message: rule.description ?? "")
+                CloudnsToastManager.shared.showSuccess("Rate Limiting Rule Deleted", message: rule.description ?? "")
             }
         }
     }

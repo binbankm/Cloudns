@@ -66,10 +66,10 @@ final class WorkersViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
             NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
-            ToastManager.shared.showSuccess("Worker Deleted", message: "\(name) removed.")
+            CloudnsToastManager.shared.showSuccess("Worker Deleted", message: "\(name) removed.")
             await fetchData()
         } catch {
-            ToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Failed to delete worker", message: error.localizedDescription)
         }
     }
 
@@ -87,10 +87,10 @@ final class WorkersViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
             NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
-            ToastManager.shared.showSuccess("Pages Project Deleted", message: "\(name) removed.")
+            CloudnsToastManager.shared.showSuccess("Pages Project Deleted", message: "\(name) removed.")
             await fetchData()
         } catch {
-            ToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Failed to delete Pages project", message: error.localizedDescription)
         }
     }
 }

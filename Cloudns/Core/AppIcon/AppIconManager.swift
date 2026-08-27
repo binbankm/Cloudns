@@ -95,7 +95,7 @@ public final class AppIconManager: ObservableObject {
         guard currentIcon != icon else { return }
         
         guard UIApplication.shared.supportsAlternateIcons else {
-            ToastManager.shared.showError("Not Supported", message: "Alternate icons are not supported on this device")
+            CloudnsToastManager.shared.showError("Not Supported", message: "Alternate icons are not supported on this device")
             return
         }
         
@@ -108,7 +108,7 @@ public final class AppIconManager: ObservableObject {
             self.storedIconId = icon.rawValue
             HapticManager.notification(.success)
         } catch {
-            ToastManager.shared.showError("Icon Error", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Icon Error", message: error.localizedDescription)
             self.syncCurrentIcon()
         }
     }

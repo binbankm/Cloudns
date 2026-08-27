@@ -110,7 +110,7 @@ struct LoadBalancerView: View {
                                         HapticManager.impact(.medium)
                                         Task {
                                             await viewModel.deleteLoadBalancer(id: lb.id)
-                                            ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
+                                            CloudnsToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -175,14 +175,14 @@ struct LoadBalancerView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
                         )
                     )
                 } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "arrow.triangle.branch",
                             title: "No Load Balancers",
@@ -192,7 +192,7 @@ struct LoadBalancerView: View {
                         )
                     )
                 } else if selectedTab == 1 && viewModel.pools.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "server.rack",
                             title: "No Origin Pools",
@@ -202,7 +202,7 @@ struct LoadBalancerView: View {
                         )
                     )
                 } else if selectedTab == 2 && viewModel.monitors.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "waveform.path.ecg",
                             title: "No Health Monitors",
@@ -212,7 +212,7 @@ struct LoadBalancerView: View {
                         )
                     )
                 } else if !searchText.isEmpty && ((selectedTab == 0 && displayedLoadBalancers.isEmpty) || (selectedTab == 1 && displayedPools.isEmpty) || (selectedTab == 2 && displayedMonitors.isEmpty)) {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

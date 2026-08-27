@@ -35,9 +35,9 @@ struct PagesDomainsView: View {
                     Task {
                         do {
                             try await viewModel.deleteDomain(name: dom.name)
-                            ToastManager.shared.showSuccess("Domain Deleted", message: dom.name)
+                            CloudnsToastManager.shared.showSuccess("Domain Deleted", message: dom.name)
                         } catch {
-                            ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
                         }
                     }
                 }
@@ -77,7 +77,7 @@ struct PagesDomainsView: View {
         .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData && viewModel.domains.isEmpty {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .empty(
                         icon: "globe",
                         title: "No Custom Domains",

@@ -164,7 +164,7 @@ struct CIDRCalculatorView: View {
                 Button {
                     UIPasteboard.general.string = result.binaryMask
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Binary mask copied")
+                    CloudnsToastManager.shared.showCopied("Binary mask copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
@@ -201,7 +201,7 @@ struct CIDRCalculatorView: View {
             Button {
                 UIPasteboard.general.string = value
                 HapticManager.notification(.success)
-                ToastManager.shared.showCopied("Value copied")
+                CloudnsToastManager.shared.showCopied("Value copied")
             } label: {
                 Image(systemName: "doc.on.doc")
                     .font(.caption2)

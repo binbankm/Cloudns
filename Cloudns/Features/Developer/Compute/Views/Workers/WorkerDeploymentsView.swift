@@ -53,7 +53,7 @@ struct WorkerDeploymentsView: View {
                                     Button {
                                         UIPasteboard.general.string = dep.id
                                         HapticManager.notification(.success)
-                                        ToastManager.shared.showCopied("Deployment ID copied")
+                                        CloudnsToastManager.shared.showCopied("Deployment ID copied")
                                     } label: {
                                         Label("Copy ID", systemImage: "doc.on.doc")
                                     }
@@ -84,9 +84,9 @@ struct WorkerDeploymentsView: View {
                 Task {
                     let success = await viewModel.rollback(deployment: dep)
                     if success {
-                        ToastManager.shared.showSuccess("Rollback Succeeded", message: "Worker restored to Version #\(dep.number ?? 1)")
+                        CloudnsToastManager.shared.showSuccess("Rollback Succeeded", message: "Worker restored to Version #\(dep.number ?? 1)")
                     } else {
-                        ToastManager.shared.showError("Rollback Failed", message: viewModel.errorMessage ?? "Unknown error")
+                        CloudnsToastManager.shared.showError("Rollback Failed", message: viewModel.errorMessage ?? "Unknown error")
                     }
                 }
             }
@@ -97,14 +97,14 @@ struct WorkerDeploymentsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.deployments.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchDeployments() } }
                         )
                     )
                 } else if viewModel.deployments.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "clock.arrow.circlepath",
                             title: "No Deployments",
@@ -114,7 +114,7 @@ struct WorkerDeploymentsView: View {
                         )
                     )
                 } else if viewModel.filteredDeployments.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

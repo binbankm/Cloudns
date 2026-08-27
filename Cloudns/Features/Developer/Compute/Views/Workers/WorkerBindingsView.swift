@@ -88,9 +88,9 @@ struct WorkerBindingsView: View {
                 Task {
                     do {
                         try await secretsViewModel.deleteResourceBinding(name: binding.name)
-                        ToastManager.shared.showSuccess("Resource Unbound", message: binding.name)
+                        CloudnsToastManager.shared.showSuccess("Resource Unbound", message: binding.name)
                     } catch {
-                        ToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -107,9 +107,9 @@ struct WorkerBindingsView: View {
                         } else {
                             try await secretsViewModel.deletePlainVariable(name: item.name)
                         }
-                        ToastManager.shared.showSuccess("Deleted", message: item.name)
+                        CloudnsToastManager.shared.showSuccess("Deleted", message: item.name)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -131,7 +131,7 @@ struct WorkerBindingsView: View {
     private var contentList: some View {
         if selectedTab == "resources" && resourceBindings.isEmpty && secretsViewModel.hasFetchedData {
             ScrollView {
-                EmptyStateView(
+                CloudnsEmptyStateView(
                     icon: "shippingbox.fill",
                     title: "No Resource Bindings",
                     message: "Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker.",
@@ -147,7 +147,7 @@ struct WorkerBindingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if selectedTab == "variables" && secretsViewModel.plainVariables.isEmpty && secretsViewModel.secrets.isEmpty && secretsViewModel.hasFetchedData {
             ScrollView {
-                EmptyStateView(
+                CloudnsEmptyStateView(
                     icon: "slider.horizontal.3",
                     title: "No Environment Variables",
                     message: "Configure plaintext variables and encrypted secrets accessible in your Worker code.",
@@ -267,7 +267,7 @@ struct WorkerBindingsView: View {
             Button {
                 UIPasteboard.general.string = binding.name
                 HapticManager.notification(.success)
-                ToastManager.shared.showCopied("Binding variable copied")
+                CloudnsToastManager.shared.showCopied("Binding variable copied")
             } label: {
                 Label("Copy Variable Name", systemImage: "doc.on.doc")
             }
@@ -276,7 +276,7 @@ struct WorkerBindingsView: View {
                 Button {
                     UIPasteboard.general.string = extra
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Target ID copied")
+                    CloudnsToastManager.shared.showCopied("Target ID copied")
                 } label: {
                     Label("Copy Target Resource ID", systemImage: "number")
                 }
@@ -371,7 +371,7 @@ struct WorkerBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = val
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Value copied")
+                                CloudnsToastManager.shared.showCopied("Value copied")
                             } label: {
                                 Label("Copy Value", systemImage: "doc.on.doc")
                             }
@@ -379,7 +379,7 @@ struct WorkerBindingsView: View {
                         Button {
                             UIPasteboard.general.string = variable.name
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Key copied")
+                            CloudnsToastManager.shared.showCopied("Key copied")
                         } label: {
                             Label("Copy Variable Name", systemImage: "doc.on.doc")
                         }
@@ -467,7 +467,7 @@ struct WorkerBindingsView: View {
                         Button {
                             UIPasteboard.general.string = secret.name
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Secret name copied")
+                            CloudnsToastManager.shared.showCopied("Secret name copied")
                         } label: {
                             Label("Copy Secret Name", systemImage: "doc.on.doc")
                         }

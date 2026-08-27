@@ -61,7 +61,7 @@ struct DNSExportSheetView: View {
                                 Button {
                                     UIPasteboard.general.string = exportedContent
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Zone file copied to clipboard")
+                                    CloudnsToastManager.shared.showCopied("Zone file copied to clipboard")
                                 } label: {
                                     Label("Copy", systemImage: "doc.on.doc")
                                         .font(.subheadline.weight(.medium))
@@ -148,9 +148,9 @@ struct DNSExportSheetView: View {
             ) { result in
                 switch result {
                 case .success:
-                    ToastManager.shared.showSuccess("Saved", message: "\(zoneName).zone")
+                    CloudnsToastManager.shared.showSuccess("Saved", message: "\(zoneName).zone")
                 case .failure(let error):
-                    ToastManager.shared.showError("Save Failed", message: error.localizedDescription)
+                    CloudnsToastManager.shared.showError("Save Failed", message: error.localizedDescription)
                 }
             }
             .sheet(isPresented: $showingShareSheet) {

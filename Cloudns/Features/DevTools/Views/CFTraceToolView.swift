@@ -204,7 +204,7 @@ struct CFTraceToolView: View {
                         Button {
                             UIPasteboard.general.string = ip
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("IP copied")
+                            CloudnsToastManager.shared.showCopied("IP copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
@@ -347,13 +347,13 @@ struct CFTraceToolView: View {
         let text = viewModel.traceFields.map { "\($0.key)=\($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
         HapticManager.notification(.success)
-        ToastManager.shared.showCopied("Raw trace copied")
+        CloudnsToastManager.shared.showCopied("Raw trace copied")
     }
     
     private func copyCurlCommand() {
         let cmd = "curl -sL https://\(viewModel.host)/cdn-cgi/trace"
         UIPasteboard.general.string = cmd
         HapticManager.notification(.success)
-        ToastManager.shared.showCopied("cURL command copied")
+        CloudnsToastManager.shared.showCopied("cURL command copied")
     }
 }

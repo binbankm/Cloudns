@@ -82,7 +82,7 @@ struct FeedbackView: View {
                 Button {
                     UIPasteboard.general.string = diagnosticSummary
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Diagnostics copied")
+                    CloudnsToastManager.shared.showCopied("Diagnostics copied")
                 } label: {
                     HStack {
                         Image(systemName: "doc.on.doc")

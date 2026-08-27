@@ -45,7 +45,7 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
-            ToastManager.shared.showSuccess("Cache Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
+            CloudnsToastManager.shared.showSuccess("Cache Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert
@@ -54,7 +54,7 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
                 rules[index] = updatedRule
             }
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -75,11 +75,11 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Rule Deleted")
+            CloudnsToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -114,11 +114,11 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("Cache Rule Created", message: description.isEmpty ? "Rule added" : description)
+            CloudnsToastManager.shared.showSuccess("Cache Rule Created", message: description.isEmpty ? "Rule added" : description)
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

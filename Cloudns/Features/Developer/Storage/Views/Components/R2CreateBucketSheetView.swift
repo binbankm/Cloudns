@@ -103,7 +103,7 @@ struct R2CreateBucketSheetView: View {
                             do {
                                 let locHint = selectedLocation == "auto" ? nil : selectedLocation
                                 try await viewModel.createBucket(name: normalizedBucketName, locationHint: locHint)
-                                ToastManager.shared.showSuccess("R2 Storage", message: "Bucket created successfully")
+                                CloudnsToastManager.shared.showSuccess("R2 Storage", message: "Bucket created successfully")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

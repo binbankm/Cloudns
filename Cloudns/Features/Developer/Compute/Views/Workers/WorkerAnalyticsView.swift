@@ -63,7 +63,7 @@ public struct WorkerAnalyticsView: View {
                     VStack {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            StateOverlayView(
+                            CloudnsStateOverlayView(
                                 state: .error(
                                     message: LocalizedStringKey(errorMessage),
                                     retryAction: {
@@ -72,7 +72,7 @@ public struct WorkerAnalyticsView: View {
                                 )
                             )
                         } else {
-                            StateOverlayView(
+                            CloudnsStateOverlayView(
                                 state: .empty(
                                     icon: "chart.xyaxis.line",
                                     title: "No Invocations Data",

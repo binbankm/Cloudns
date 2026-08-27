@@ -125,7 +125,7 @@ struct DNSRecordsView: View {
                     fileURL.stopAccessingSecurityScopedResource()
                 }
             case .failure(let error):
-                ToastManager.shared.showError("Import Failed", message: error.localizedDescription)
+                CloudnsToastManager.shared.showError("Import Failed", message: error.localizedDescription)
             }
         }
         .onChange(of: editMode?.wrappedValue) { _ in
@@ -140,7 +140,7 @@ struct DNSRecordsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -149,7 +149,7 @@ struct DNSRecordsView: View {
                         )
                     )
                 } else if viewModel.records.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "server.rack",
                             title: "No DNS Records",
@@ -159,7 +159,7 @@ struct DNSRecordsView: View {
                         )
                     )
                 } else if displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchQuery,
                             clearAction: { viewModel.searchQuery = "" }
@@ -284,9 +284,9 @@ struct DNSRecordsView: View {
                 Task {
                     do {
                         try await viewModel.deleteRecord(recordId: record.id)
-                        ToastManager.shared.showSuccess("DNS Record Deleted", message: "\(record.name) (\(record.type))")
+                        CloudnsToastManager.shared.showSuccess("DNS Record Deleted", message: "\(record.name) (\(record.type))")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete record", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Failed to delete record", message: error.localizedDescription)
                     }
                 }
             } label: {
@@ -304,7 +304,7 @@ struct DNSRecordsView: View {
             Button {
                 UIPasteboard.general.string = record.content ?? record.name
                 HapticManager.impact(.light)
-                ToastManager.shared.showCopied("Record content copied")
+                CloudnsToastManager.shared.showCopied("Record content copied")
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }

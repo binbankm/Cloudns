@@ -54,7 +54,7 @@ struct SecurityEventsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -63,7 +63,7 @@ struct SecurityEventsView: View {
                         )
                     )
                 } else if viewModel.events.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "checkmark.shield",
                             title: "No Security Events",
@@ -71,7 +71,7 @@ struct SecurityEventsView: View {
                         )
                     )
                 } else if displayedEvents.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

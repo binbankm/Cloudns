@@ -31,7 +31,7 @@ struct DNSAnswerRowView: View {
             Button {
                 UIPasteboard.general.string = item.data
                 HapticManager.notification(.success)
-                ToastManager.shared.showCopied("Record content copied")
+                CloudnsToastManager.shared.showCopied("Record content copied")
             } label: {
                 Image(systemName: "doc.on.doc")
                     .font(.caption)

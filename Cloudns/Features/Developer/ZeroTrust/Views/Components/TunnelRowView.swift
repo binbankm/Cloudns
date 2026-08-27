@@ -50,7 +50,7 @@ struct TunnelRowView: View {
             Button {
                 UIPasteboard.general.string = tunnel.id
                 HapticManager.impact(.light)
-                ToastManager.shared.showCopied("Tunnel ID copied")
+                CloudnsToastManager.shared.showCopied("Tunnel ID copied")
             } label: {
                 Label("Copy Tunnel UUID", systemImage: "doc.on.doc")
             }

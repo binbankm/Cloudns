@@ -108,7 +108,7 @@ struct TunnelDetailView: View {
                             let cmd = "cloudflared tunnel run --token \(token)"
                             UIPasteboard.general.string = cmd
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Install command copied")
+                            CloudnsToastManager.shared.showCopied("Install command copied")
                         } label: {
                             HStack {
                                 Image(systemName: "terminal")

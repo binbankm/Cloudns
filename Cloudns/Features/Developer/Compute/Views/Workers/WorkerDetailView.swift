@@ -109,7 +109,7 @@ struct WorkerDetailView: View {
                                     Button {
                                         UIPasteboard.general.string = urlStr
                                         HapticManager.notification(.success)
-                                        ToastManager.shared.showSuccess("URL Copied", message: urlStr)
+                                        CloudnsToastManager.shared.showSuccess("URL Copied", message: urlStr)
                                     } label: {
                                         Image(systemName: "doc.on.doc")
                                             .font(.caption)

@@ -72,14 +72,14 @@ struct PagesDeploymentsListView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.deployments.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchProjectDetails() } }
                         )
                     )
                 } else if viewModel.deployments.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "clock.arrow.circlepath",
                             title: "No Deployments",
@@ -87,7 +87,7 @@ struct PagesDeploymentsListView: View {
                         )
                     )
                 } else if filteredDeployments.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

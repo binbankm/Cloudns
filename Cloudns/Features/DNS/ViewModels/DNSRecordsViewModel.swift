@@ -168,7 +168,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
                 records[idx] = updatedRecord
             }
-            ToastManager.shared.showSuccess(
+            CloudnsToastManager.shared.showSuccess(
                 newProxied ? "CDN Proxy Enabled" : "DNS Only Enabled",
                 message: "\(record.name) (\(record.type))"
             )
@@ -179,7 +179,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 rollback.proxied = currentProxied
                 records[idx] = rollback
             }
-            ToastManager.shared.showError("Failed to update proxy status", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Failed to update proxy status", message: error.localizedDescription)
         }
     }
     

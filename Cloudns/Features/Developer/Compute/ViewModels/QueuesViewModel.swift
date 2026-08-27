@@ -30,11 +30,11 @@ final class QueuesViewModel: BaseLoadableViewModel {
     func createQueue(name: String) async -> Bool {
         do {
             _ = try await queueService.createQueue(accountId: accountId, name: name)
-            ToastManager.shared.showSuccess("Queue Created", message: name)
+            CloudnsToastManager.shared.showSuccess("Queue Created", message: name)
             await fetchQueues()
             return true
         } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -42,19 +42,19 @@ final class QueuesViewModel: BaseLoadableViewModel {
     func deleteQueue(queueId: String) async {
         do {
             try await queueService.deleteQueue(accountId: accountId, queueId: queueId)
-            ToastManager.shared.showSuccess("Queue Deleted")
+            CloudnsToastManager.shared.showSuccess("Queue Deleted")
             await fetchQueues()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
     func purgeQueue(queueId: String) async {
         do {
             try await queueService.purgeQueue(accountId: accountId, queueId: queueId)
-            ToastManager.shared.showSuccess("Queue Purged", message: "All messages deleted.")
+            CloudnsToastManager.shared.showSuccess("Queue Purged", message: "All messages deleted.")
         } catch {
-            ToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Purge Failed", message: error.localizedDescription)
         }
     }
 }

@@ -27,7 +27,7 @@ struct DNSSECDetailRowView: View {
                     HapticManager.notification(.success)
                     let localizedTitle = NSLocalizedString(title, comment: "")
                     let copyFormat = NSLocalizedString("%@ copied", comment: "")
-                    ToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
+                    CloudnsToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .foregroundStyle(.blue)

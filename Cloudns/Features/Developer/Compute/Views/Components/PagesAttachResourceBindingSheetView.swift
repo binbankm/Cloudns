@@ -311,7 +311,7 @@ struct PagesAttachResourceBindingSheetView: View {
                 aiBindings: updatedAI
             )
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Resource Bound", message: "\(cleanName) (\(environment.capitalized))")
+            CloudnsToastManager.shared.showSuccess("Resource Bound", message: "\(cleanName) (\(environment.capitalized))")
             onSaved(environment, updatedKV, updatedD1, updatedR2, updatedAI)
             dismiss()
         } catch {

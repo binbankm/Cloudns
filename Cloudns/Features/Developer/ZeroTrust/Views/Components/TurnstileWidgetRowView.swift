@@ -39,7 +39,7 @@ struct TurnstileWidgetRowView: View {
             Button {
                 UIPasteboard.general.string = widget.sitekey
                 HapticManager.impact(.light)
-                ToastManager.shared.showCopied("Sitekey copied")
+                CloudnsToastManager.shared.showCopied("Sitekey copied")
             } label: {
                 Label("Copy Sitekey", systemImage: "doc.on.doc")
             }

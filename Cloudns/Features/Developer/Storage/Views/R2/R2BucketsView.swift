@@ -72,9 +72,9 @@ struct R2BucketsView: View {
                 Task {
                     do {
                         try await viewModel.deleteBucket(bucketName: bucket.name)
-                        ToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
+                        CloudnsToastManager.shared.showSuccess("Bucket Deleted", message: bucket.name)
                     } catch {
-                        ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
                     }
                 }
             }
@@ -85,14 +85,14 @@ struct R2BucketsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchBuckets() } }
                         )
                     )
                 } else if viewModel.buckets.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "externaldrive.badge.icloud",
                             title: "No R2 Buckets",
@@ -102,7 +102,7 @@ struct R2BucketsView: View {
                         )
                     )
                 } else if viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

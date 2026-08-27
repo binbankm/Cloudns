@@ -276,7 +276,7 @@ struct HTTPHeaderInspectorView: View {
                             Button {
                                 UIPasteboard.general.string = "\(header.key): \(header.value)"
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Header copied")
+                                CloudnsToastManager.shared.showCopied("Header copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption2)
@@ -357,6 +357,6 @@ struct HTTPHeaderInspectorView: View {
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
         HapticManager.notification(.success)
-        ToastManager.shared.showCopied("All headers copied")
+        CloudnsToastManager.shared.showCopied("All headers copied")
     }
 }

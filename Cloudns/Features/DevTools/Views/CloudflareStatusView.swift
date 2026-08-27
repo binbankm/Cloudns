@@ -160,7 +160,7 @@ struct CloudflareStatusView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.summary == nil {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchStatus() } }
@@ -168,14 +168,14 @@ struct CloudflareStatusView: View {
                     )
                 } else if displayedComponents.isEmpty {
                     if !searchText.isEmpty {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .search(
                                 query: searchText,
                                 clearAction: { searchText = "" }
                             )
                         )
                     } else if selectedTab == .issues {
-                        StateOverlayView(
+                        CloudnsStateOverlayView(
                             state: .empty(
                                 icon: "checkmark.seal.fill",
                                 title: "All Systems Operational",

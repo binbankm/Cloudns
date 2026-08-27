@@ -256,7 +256,7 @@ struct WhoisToolView: View {
                         Button {
                             UIPasteboard.general.string = ns.lowercased()
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("\(ns.lowercased()) copied")
+                            CloudnsToastManager.shared.showCopied("\(ns.lowercased()) copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)

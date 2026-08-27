@@ -120,7 +120,7 @@ struct PagesBuildConfigEditorView: View {
                                     productionBranch: productionBranch.isEmpty ? nil : productionBranch
                                 )
                                 HapticManager.impact(.medium)
-                                ToastManager.shared.showSuccess("Build Config Saved", message: project.name)
+                                CloudnsToastManager.shared.showSuccess("Build Config Saved", message: project.name)
                                 await parentViewModel.fetchProjectDetails()
                                 dismiss()
                             } catch {

@@ -39,11 +39,11 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         do {
             try await r2Service.setR2ManagedDomain(accountId: accountId, bucketName: bucketName, enabled: enabled)
             HapticManager.impact(.light)
-            ToastManager.shared.showSuccess("Managed Domain Updated", message: enabled ? "r2.dev access enabled" : "r2.dev access disabled")
+            CloudnsToastManager.shared.showSuccess("Managed Domain Updated", message: enabled ? "r2.dev access enabled" : "r2.dev access disabled")
             await fetchSettings()
         } catch {
             isManagedDomainEnabled = !enabled
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -51,10 +51,10 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         do {
             try await r2Service.deleteR2CustomDomain(accountId: accountId, bucketName: bucketName, domain: domain)
             HapticManager.impact(.medium)
-            ToastManager.shared.showSuccess("Domain Removed", message: domain)
+            CloudnsToastManager.shared.showSuccess("Domain Removed", message: domain)
             await fetchSettings()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -64,11 +64,11 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         do {
             try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             HapticManager.impact(.medium)
-            ToastManager.shared.showSuccess("CORS Rule Added", message: rule.allowedOrigins.joined(separator: ", "))
+            CloudnsToastManager.shared.showSuccess("CORS Rule Added", message: rule.allowedOrigins.joined(separator: ", "))
             await fetchSettings()
             return true
         } catch {
-            ToastManager.shared.showError("Save Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Save Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -84,10 +84,10 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
                 try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             }
             HapticManager.impact(.medium)
-            ToastManager.shared.showSuccess("CORS Rule Removed")
+            CloudnsToastManager.shared.showSuccess("CORS Rule Removed")
             await fetchSettings()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

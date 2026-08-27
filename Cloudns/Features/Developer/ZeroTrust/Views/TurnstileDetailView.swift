@@ -52,7 +52,7 @@ struct TurnstileDetailView: View {
                         Button {
                             UIPasteboard.general.string = widget.sitekey
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Sitekey copied")
+                            CloudnsToastManager.shared.showCopied("Sitekey copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
@@ -77,7 +77,7 @@ struct TurnstileDetailView: View {
                             Button {
                                 UIPasteboard.general.string = secret
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Secret Key copied")
+                                CloudnsToastManager.shared.showCopied("Secret Key copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
@@ -174,7 +174,7 @@ struct TurnstileDetailView: View {
                     Button {
                         UIPasteboard.general.string = snippetCode
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Code copied")
+                        CloudnsToastManager.shared.showCopied("Code copied")
                     } label: {
                         Label("Copy Code Snippet", systemImage: "doc.on.doc")
                             .font(.caption.weight(.semibold))
@@ -215,9 +215,9 @@ struct TurnstileDetailView: View {
                 let newSecret = try await vm.rotateSecret(sitekey: widget.sitekey, invalidateImmediately: invalidateImmediately)
                 self.currentSecret = newSecret
                 HapticManager.impact(.medium)
-                ToastManager.shared.showSuccess("Secret Rotated", message: "New secret key generated")
+                CloudnsToastManager.shared.showSuccess("Secret Rotated", message: "New secret key generated")
             } catch {
-                ToastManager.shared.showError("Rotation Failed", message: error.localizedDescription)
+                CloudnsToastManager.shared.showError("Rotation Failed", message: error.localizedDescription)
             }
             isRotatingSecret = false
         }

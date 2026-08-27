@@ -130,7 +130,7 @@ struct R2UploadObjectSheetView: View {
                                     try await viewModel.uploadObjectFromFile(key: key, fileURL: fileURL)
                                 }
                                 HapticManager.impact(.medium)
-                                ToastManager.shared.showSuccess("Object Uploaded", message: key)
+                                CloudnsToastManager.shared.showSuccess("Object Uploaded", message: key)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

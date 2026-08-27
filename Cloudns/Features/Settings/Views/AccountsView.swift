@@ -14,7 +14,7 @@ struct AccountsView: View {
                             HapticManager.impact(.light)
                             withAnimation {
                                 accountManager.switchAccount(to: email)
-                                ToastManager.shared.showSuccess("Switched Account", message: email)
+                                CloudnsToastManager.shared.showSuccess("Switched Account", message: email)
                             }
                         }) {
                             HStack {
@@ -76,7 +76,7 @@ struct AccountsView: View {
             .sheet(isPresented: $isShowingAddAccount) {
                 LoginView(onLoginSuccess: {
                     isShowingAddAccount = false
-                    ToastManager.shared.showSuccess("Account Added")
+                    CloudnsToastManager.shared.showSuccess("Account Added")
                 })
                 .presentationDragIndicator(.visible)
             }
@@ -91,7 +91,7 @@ struct AccountsView: View {
             for index in offsets {
                 let email = emails[index]
                 accountManager.removeAccount(email: email)
-                ToastManager.shared.showSuccess("Account Removed", message: email)
+                CloudnsToastManager.shared.showSuccess("Account Removed", message: email)
             }
         }
     }

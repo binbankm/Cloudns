@@ -34,10 +34,10 @@ final class TunnelsViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
             NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
-            ToastManager.shared.showSuccess("Tunnel Created", message: name)
+            CloudnsToastManager.shared.showSuccess("Tunnel Created", message: name)
             return true
         } catch {
-            ToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
             return false
         }
     }

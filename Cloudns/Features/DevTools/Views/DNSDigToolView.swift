@@ -58,7 +58,7 @@ struct DNSDigToolView: View {
                             Button {
                                 UIPasteboard.general.string = result.rawResponseRFC
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("BIND Output copied")
+                                CloudnsToastManager.shared.showCopied("BIND Output copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
                             }

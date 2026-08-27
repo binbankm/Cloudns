@@ -56,7 +56,7 @@ struct R2ObjectDetailSheetView: View {
                     Button {
                         UIPasteboard.general.string = object.key
                         HapticManager.notification(.success)
-                        ToastManager.shared.showCopied("Object key copied")
+                        CloudnsToastManager.shared.showCopied("Object key copied")
                     } label: {
                         Label("Copy Key", systemImage: "doc.on.doc")
                     }
@@ -82,10 +82,10 @@ struct R2ObjectDetailSheetView: View {
                     Task {
                         do {
                             try await viewModel.deleteObject(key: object.key)
-                            ToastManager.shared.showSuccess("Object Deleted", message: object.key)
+                            CloudnsToastManager.shared.showSuccess("Object Deleted", message: object.key)
                             dismiss()
                         } catch {
-                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                         }
                     }
                 }

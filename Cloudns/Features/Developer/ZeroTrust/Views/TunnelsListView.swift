@@ -63,7 +63,7 @@ struct TunnelsListView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -72,7 +72,7 @@ struct TunnelsListView: View {
                         )
                     )
                 } else if viewModel.tunnels.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "network.badge.shield.half.filled",
                             title: "No Tunnels Configured",
@@ -82,7 +82,7 @@ struct TunnelsListView: View {
                         )
                     )
                 } else if viewModel.filteredTunnels.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

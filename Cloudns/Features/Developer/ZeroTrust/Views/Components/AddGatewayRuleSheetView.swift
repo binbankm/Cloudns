@@ -157,7 +157,7 @@ struct AddGatewayRuleSheetView: View {
                 filters: [filterType]
             )
             HapticManager.notification(.success)
-            ToastManager.shared.showSuccess("Gateway Rule Created", message: cleanName)
+            CloudnsToastManager.shared.showSuccess("Gateway Rule Created", message: cleanName)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

@@ -39,7 +39,7 @@ struct DNSSECView: View {
         }
         .overlay {
             if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
-                StateOverlayView(
+                CloudnsStateOverlayView(
                     state: .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchDNSSEC() } }
@@ -153,7 +153,7 @@ struct DNSSECView: View {
                     """
                     UIPasteboard.general.string = fullConfig
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("All DS fields copied")
+                    CloudnsToastManager.shared.showCopied("All DS fields copied")
                 } label: {
                     Label("Copy All", systemImage: "doc.on.doc")
                         .font(.caption.weight(.semibold))

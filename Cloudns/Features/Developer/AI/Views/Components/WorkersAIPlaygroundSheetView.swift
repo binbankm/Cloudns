@@ -237,7 +237,7 @@ struct WorkersAIPlaygroundSheetView: View {
                             Button {
                                 UIPasteboard.general.string = message.content
                                 HapticManager.impact(.light)
-                                ToastManager.shared.showCopied("Response copied")
+                                CloudnsToastManager.shared.showCopied("Response copied")
                             } label: {
                                 HStack(spacing: 4) {
                                     Image(systemName: "doc.on.doc")

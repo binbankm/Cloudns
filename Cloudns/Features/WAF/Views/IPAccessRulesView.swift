@@ -45,7 +45,7 @@ struct IPAccessRulesView: View {
                                         HapticManager.impact(.medium)
                                         Task {
                                             await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                            ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
+                                            CloudnsToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -68,7 +68,7 @@ struct IPAccessRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -77,7 +77,7 @@ struct IPAccessRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "network.badge.shield.half.filled",
                             title: "No IP Access Rules",
@@ -87,7 +87,7 @@ struct IPAccessRulesView: View {
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

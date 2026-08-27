@@ -91,7 +91,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                     viewModel.selectedTab = "variables"
                 }
                 HapticManager.impact(.medium)
-                ToastManager.shared.showSuccess("Saved", message: name)
+                CloudnsToastManager.shared.showSuccess("Saved", message: name)
                 dismiss()
             } catch {
                 errorMessage = error.localizedDescription

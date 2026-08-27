@@ -84,9 +84,9 @@ struct KVBrowserView: View {
                 Task {
                     do {
                         try await viewModel.deleteNamespace(namespaceId: ns.id)
-                        ToastManager.shared.showSuccess("KV Namespace Deleted", message: ns.title)
+                        CloudnsToastManager.shared.showSuccess("KV Namespace Deleted", message: ns.title)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -99,9 +99,9 @@ struct KVBrowserView: View {
                 Task {
                     do {
                         try await viewModel.deleteDatabase(databaseId: db.uuid)
-                        ToastManager.shared.showSuccess("D1 Database Deleted", message: db.name)
+                        CloudnsToastManager.shared.showSuccess("D1 Database Deleted", message: db.name)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -183,14 +183,14 @@ struct KVBrowserView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchData() } }
                         )
                     )
                 } else if viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "key.fill",
                             title: "No KV Namespaces",
@@ -200,7 +200,7 @@ struct KVBrowserView: View {
                         )
                     )
                 } else if viewModel.selectedSegment == 1 && viewModel.d1Databases.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "cylinder.split.1x2.fill",
                             title: "No D1 Databases",
@@ -210,7 +210,7 @@ struct KVBrowserView: View {
                         )
                     )
                 } else if !searchText.isEmpty && ((viewModel.selectedSegment == 0 && filteredNamespaces.isEmpty) || (viewModel.selectedSegment == 1 && filteredDatabases.isEmpty)) {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

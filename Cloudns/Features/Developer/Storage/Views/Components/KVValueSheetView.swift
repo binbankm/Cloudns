@@ -37,7 +37,7 @@ struct KVValueSheetView: View {
                         Button {
                             UIPasteboard.general.string = keyName
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("Key name copied")
+                            CloudnsToastManager.shared.showCopied("Key name copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
@@ -84,7 +84,7 @@ struct KVValueSheetView: View {
                                 Button {
                                     UIPasteboard.general.string = valueText
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Value copied")
+                                    CloudnsToastManager.shared.showCopied("Value copied")
                                 } label: {
                                     HStack(spacing: 4) {
                                         Image(systemName: "doc.on.doc")

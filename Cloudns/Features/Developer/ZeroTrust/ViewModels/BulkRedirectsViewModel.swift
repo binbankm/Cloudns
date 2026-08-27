@@ -30,11 +30,11 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     func createList(name: String, description: String?) async -> Bool {
         do {
             _ = try await bulkRedirectService.createRedirectList(accountId: accountId, name: name, description: description)
-            ToastManager.shared.showSuccess("List Created", message: name)
+            CloudnsToastManager.shared.showSuccess("List Created", message: name)
             await fetchLists()
             return true
         } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -42,10 +42,10 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
     func deleteList(id: String) async {
         do {
             try await bulkRedirectService.deleteRedirectList(accountId: accountId, listId: id)
-            ToastManager.shared.showSuccess("List Deleted")
+            CloudnsToastManager.shared.showSuccess("List Deleted")
             await fetchLists()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

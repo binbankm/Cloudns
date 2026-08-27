@@ -108,7 +108,7 @@ struct AlertingView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if selectedTab == "policies" && viewModel.policies.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "bell.badge.slash",
                             title: "No Policies",
@@ -116,7 +116,7 @@ struct AlertingView: View {
                         )
                     )
                 } else if selectedTab == "webhooks" && viewModel.webhooks.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "bell.badge",
                             title: "No Webhooks",

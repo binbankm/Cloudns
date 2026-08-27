@@ -148,7 +148,7 @@ struct SnippetsListView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -157,7 +157,7 @@ struct SnippetsListView: View {
                         )
                     )
                 } else if viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "curlybraces",
                             title: "No Edge Snippets",
@@ -170,7 +170,7 @@ struct SnippetsListView: View {
                         )
                     )
                 } else if !searchText.isEmpty && displayedSnippets.isEmpty && displayedRules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchText,
                             clearAction: { searchText = "" }

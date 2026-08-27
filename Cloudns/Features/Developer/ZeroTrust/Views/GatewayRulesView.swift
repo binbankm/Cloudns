@@ -41,7 +41,7 @@ struct GatewayRulesView: View {
                                 Button {
                                     UIPasteboard.general.string = rule.name
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Rule name copied")
+                                    CloudnsToastManager.shared.showCopied("Rule name copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "doc.on.doc")
                                 }
@@ -50,7 +50,7 @@ struct GatewayRulesView: View {
                                     Button {
                                         UIPasteboard.general.string = traffic
                                         HapticManager.notification(.success)
-                                        ToastManager.shared.showCopied("Traffic expression copied")
+                                        CloudnsToastManager.shared.showCopied("Traffic expression copied")
                                     } label: {
                                         Label("Copy Traffic Expression", systemImage: "doc.on.doc")
                                     }
@@ -111,14 +111,14 @@ struct GatewayRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchRules() } }
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "shield.lefthalf.filled",
                             title: "No Gateway Rules",
@@ -128,7 +128,7 @@ struct GatewayRulesView: View {
                         )
                     )
                 } else if viewModel.filteredRules.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

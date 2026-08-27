@@ -75,9 +75,9 @@ struct R2BucketDetailView: View {
                                     Task {
                                         do {
                                             try await viewModel.deleteObject(key: obj.key)
-                                            ToastManager.shared.showSuccess("Object Deleted", message: obj.key)
+                                            CloudnsToastManager.shared.showSuccess("Object Deleted", message: obj.key)
                                         } catch {
-                                            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                                         }
                                     }
                                 } label: {
@@ -126,7 +126,7 @@ struct R2BucketDetailView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -135,7 +135,7 @@ struct R2BucketDetailView: View {
                         )
                     )
                 } else if viewModel.objects.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "externaldrive.badge.icloud",
                             title: "No Objects in Bucket",
@@ -145,7 +145,7 @@ struct R2BucketDetailView: View {
                         )
                     )
                 } else if viewModel.filteredObjects.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

@@ -33,10 +33,10 @@ final class AlertingViewModel: BaseLoadableViewModel {
     func deletePolicy(id: String) async {
         do {
             try await alertingService.deleteAlertingPolicy(accountId: accountId, policyId: id)
-            ToastManager.shared.showSuccess("Policy Deleted")
+            CloudnsToastManager.shared.showSuccess("Policy Deleted")
             await fetchData()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

@@ -85,14 +85,14 @@ struct BulkRedirectListsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchLists() } }
                         )
                     )
                 } else if viewModel.lists.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "arrow.triangle.swap",
                             title: "No Bulk Redirect Lists",
@@ -102,7 +102,7 @@ struct BulkRedirectListsView: View {
                         )
                     )
                 } else if viewModel.filteredLists.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

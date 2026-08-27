@@ -130,7 +130,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     
     func deleteRow(rowid: String) async -> Bool {
         guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
-            ToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
+            CloudnsToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
             return false
         }
         let quotedTable = quoteIdentifier(tableName)
@@ -141,11 +141,11 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: databaseId,
                 sql: sql
             )
-            ToastManager.shared.showSuccess("Row Deleted", message: "rowid: \(rowid)")
+            CloudnsToastManager.shared.showSuccess("Row Deleted", message: "rowid: \(rowid)")
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: APIError.formatCloudflareError(error.localizedDescription))
+            CloudnsToastManager.shared.showError("Delete Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }
@@ -173,18 +173,18 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: databaseId,
                 sql: sql
             )
-            ToastManager.shared.showSuccess("Row Inserted", message: "Added 1 row to \(tableName)")
+            CloudnsToastManager.shared.showSuccess("Row Inserted", message: "Added 1 row to \(tableName)")
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Insert Failed", message: APIError.formatCloudflareError(error.localizedDescription))
+            CloudnsToastManager.shared.showError("Insert Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }
     
     func updateRow(rowid: String, values: [String: String]) async -> Bool {
         guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
-            ToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
+            CloudnsToastManager.shared.showError("Invalid row ID", message: "rowid must be numeric.")
             return false
         }
         let setClauses = values.map { (k, v) -> String in
@@ -201,11 +201,11 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: databaseId,
                 sql: sql
             )
-            ToastManager.shared.showSuccess("Row Updated", message: "Saved changes to rowid: \(rowid)")
+            CloudnsToastManager.shared.showSuccess("Row Updated", message: "Saved changes to rowid: \(rowid)")
             await loadTable()
             return true
         } catch {
-            ToastManager.shared.showError("Update Failed", message: APIError.formatCloudflareError(error.localizedDescription))
+            CloudnsToastManager.shared.showError("Update Failed", message: APIError.formatCloudflareError(error.localizedDescription))
             return false
         }
     }

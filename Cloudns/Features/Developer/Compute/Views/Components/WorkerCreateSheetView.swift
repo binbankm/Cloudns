@@ -29,7 +29,7 @@ struct WorkerCreateSheetView: View {
                 }
                 
                 Section(header: Text("Initial Code (ES Module)")) {
-                    CodeEditorView(text: $code)
+                    CloudnsCodeEditorView(text: $code)
                         .frame(minHeight: 180)
                 }
                 

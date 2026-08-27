@@ -119,7 +119,7 @@ struct DashboardView: View {
                     Button {
                         UIPasteboard.general.string = accountId
                         HapticManager.impact(.light)
-                        ToastManager.shared.showCopied("Account ID copied")
+                        CloudnsToastManager.shared.showCopied("Account ID copied")
                     } label: {
                         Image(systemName: "doc.on.doc")
                             .font(.caption2)

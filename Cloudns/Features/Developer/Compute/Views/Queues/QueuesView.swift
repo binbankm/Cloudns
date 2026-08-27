@@ -103,14 +103,14 @@ struct QueuesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchQueues() } }
                         )
                     )
                 } else if viewModel.queues.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "tray.2.fill",
                             title: "No Queues",
@@ -120,7 +120,7 @@ struct QueuesView: View {
                         )
                     )
                 } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

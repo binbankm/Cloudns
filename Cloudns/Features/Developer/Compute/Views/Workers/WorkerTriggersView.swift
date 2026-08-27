@@ -46,9 +46,9 @@ struct WorkerTriggersView: View {
                     Task {
                         do {
                             try await viewModel.deleteSchedule(cron: cron.cron)
-                            ToastManager.shared.showSuccess("Cron Trigger Deleted", message: cron.cron)
+                            CloudnsToastManager.shared.showSuccess("Cron Trigger Deleted", message: cron.cron)
                         } catch {
-                            ToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
+                            CloudnsToastManager.shared.showError("Failed to delete", message: error.localizedDescription)
                         }
                     }
                 }
@@ -92,14 +92,14 @@ struct WorkerTriggersView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchSchedules() } }
                         )
                     )
                 } else if viewModel.schedules.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "clock.badge.exclamationmark",
                             title: "No Cron Triggers",

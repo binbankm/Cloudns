@@ -67,7 +67,7 @@ struct WorkerEditVariableSheetView: View {
             do {
                 try await viewModel.savePlainVariable(name: variable.name, value: variableValue)
                 HapticManager.impact(.medium)
-                ToastManager.shared.showSuccess("Updated", message: variable.name)
+                CloudnsToastManager.shared.showSuccess("Updated", message: variable.name)
                 dismiss()
             } catch {
                 errorMessage = error.localizedDescription

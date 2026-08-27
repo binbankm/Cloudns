@@ -75,9 +75,9 @@ struct AIGatewayView: View {
                 Task {
                     do {
                         try await viewModel.deleteGateway(id: gw.id)
-                        ToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
+                        CloudnsToastManager.shared.showSuccess("Gateway Deleted", message: gw.id)
                     } catch {
-                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                     }
                 }
             }
@@ -91,7 +91,7 @@ struct AIGatewayView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
@@ -100,7 +100,7 @@ struct AIGatewayView: View {
                         )
                     )
                 } else if viewModel.gateways.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "brain.head.profile",
                             title: "No AI Gateways",
@@ -110,7 +110,7 @@ struct AIGatewayView: View {
                         )
                     )
                 } else if viewModel.filteredGateways.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

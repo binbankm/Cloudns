@@ -287,7 +287,7 @@ struct CertInspectToolView: View {
                         Button {
                             UIPasteboard.general.string = san
                             HapticManager.notification(.success)
-                            ToastManager.shared.showCopied("SAN copied")
+                            CloudnsToastManager.shared.showCopied("SAN copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)

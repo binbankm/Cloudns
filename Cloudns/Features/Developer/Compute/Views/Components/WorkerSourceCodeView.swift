@@ -106,7 +106,7 @@ struct WorkerSourceCodeView: View {
             Divider()
             
             // 3. Native Syntax-Highlighted Code View
-            CodeEditorView(
+            CloudnsCodeEditorView(
                 text: $editableCode,
                 isEditable: isEditingMode,
                 wrapLines: wrapLines,
@@ -137,7 +137,7 @@ struct WorkerSourceCodeView: View {
                 Button {
                     UIPasteboard.general.string = editableCode
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Source code copied")
+                    CloudnsToastManager.shared.showCopied("Source code copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.subheadline)
@@ -183,10 +183,10 @@ struct WorkerSourceCodeView: View {
                         
                         try await parentViewModel.deployScript(code: editableCode, isModule: resolvedIsModule)
                         HapticManager.notification(.success)
-                        ToastManager.shared.showSuccess("Script Deployed", message: "Worker updated successfully")
+                        CloudnsToastManager.shared.showSuccess("Script Deployed", message: "Worker updated successfully")
                         isEditingMode = false
                     } catch {
-                        ToastManager.shared.showError("Deploy Failed", message: error.localizedDescription)
+                        CloudnsToastManager.shared.showError("Deploy Failed", message: error.localizedDescription)
                     }
                     isDeploying = false
                 }

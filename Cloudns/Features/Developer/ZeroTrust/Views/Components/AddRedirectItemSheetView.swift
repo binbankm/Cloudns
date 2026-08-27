@@ -68,11 +68,11 @@ struct AddRedirectItemSheetView: View {
                             )
                             do {
                                 _ = try await BulkRedirectService.shared.createRedirectListItems(accountId: accountId, listId: listId, items: [item])
-                                ToastManager.shared.showSuccess("Item Added")
+                                CloudnsToastManager.shared.showSuccess("Item Added")
                                 onAdded()
                                 dismiss()
                             } catch {
-                                ToastManager.shared.showError("Add Failed", message: error.localizedDescription)
+                                CloudnsToastManager.shared.showError("Add Failed", message: error.localizedDescription)
                             }
                             isSubmitting = false
                         }

@@ -135,7 +135,7 @@ struct IPLookupToolView: View {
                 Button {
                     UIPasteboard.general.string = result.ip
                     HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("IP copied")
+                    CloudnsToastManager.shared.showCopied("IP copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.body)

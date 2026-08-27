@@ -43,7 +43,7 @@ struct AIGatewayCreateSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createGateway(id: gatewayId.trimmingCharacters(in: .whitespaces))
-                                ToastManager.shared.showSuccess("AI Gateway", message: "Gateway created successfully")
+                                CloudnsToastManager.shared.showSuccess("AI Gateway", message: "Gateway created successfully")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

@@ -56,7 +56,7 @@ struct KVNamespaceKeysView: View {
                         Button {
                             UIPasteboard.general.string = namespace.id
                             HapticManager.impact(.light)
-                            ToastManager.shared.showCopied("Namespace ID copied")
+                            CloudnsToastManager.shared.showCopied("Namespace ID copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption2)
@@ -96,7 +96,7 @@ struct KVNamespaceKeysView: View {
                             Button {
                                 UIPasteboard.general.string = key.name
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Key name copied")
+                                CloudnsToastManager.shared.showCopied("Key name copied")
                             } label: {
                                 Label("Copy Key Name", systemImage: "doc.on.doc")
                             }
@@ -106,9 +106,9 @@ struct KVNamespaceKeysView: View {
                                 Task {
                                     do {
                                         try await viewModel.deleteKey(key: key.name)
-                                        ToastManager.shared.showSuccess("Key Deleted", message: key.name)
+                                        CloudnsToastManager.shared.showSuccess("Key Deleted", message: key.name)
                                     } catch {
-                                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                                     }
                                 }
                             } label: {
@@ -121,9 +121,9 @@ struct KVNamespaceKeysView: View {
                                 Task {
                                     do {
                                         try await viewModel.deleteKey(key: key.name)
-                                        ToastManager.shared.showSuccess("Key Deleted", message: key.name)
+                                        CloudnsToastManager.shared.showSuccess("Key Deleted", message: key.name)
                                     } catch {
-                                        ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+                                        CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
                                     }
                                 }
                             } label: {
@@ -166,14 +166,14 @@ struct KVNamespaceKeysView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.keys.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: { Task { await viewModel.fetchKeys() } }
                         )
                     )
                 } else if viewModel.keys.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "key.horizontal.fill",
                             title: "Empty Namespace",
@@ -183,7 +183,7 @@ struct KVNamespaceKeysView: View {
                         )
                     )
                 } else if filteredKeys.isEmpty && !searchKey.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: searchKey,
                             clearAction: { searchKey = "" }

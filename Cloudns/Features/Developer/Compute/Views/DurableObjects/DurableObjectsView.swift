@@ -52,14 +52,14 @@ struct DurableObjectsView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .error(
                             message: LocalizedStringKey(err),
                             retryAction: { Task { await viewModel.fetchNamespaces() } }
                         )
                     )
                 } else if viewModel.namespaces.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .empty(
                             icon: "cube.fill",
                             title: "No Durable Objects",
@@ -69,7 +69,7 @@ struct DurableObjectsView: View {
                         )
                     )
                 } else if viewModel.filteredNamespaces.isEmpty && !viewModel.searchText.isEmpty {
-                    StateOverlayView(
+                    CloudnsStateOverlayView(
                         state: .search(
                             query: viewModel.searchText,
                             clearAction: { viewModel.searchText = "" }

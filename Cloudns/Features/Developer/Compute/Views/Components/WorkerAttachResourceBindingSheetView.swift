@@ -335,7 +335,7 @@ struct WorkerAttachResourceBindingSheetView: View {
         
         do {
             try await viewModel.saveResourceBinding(binding: binding)
-            ToastManager.shared.showSuccess("Resource Bound", message: cleanName)
+            CloudnsToastManager.shared.showSuccess("Resource Bound", message: cleanName)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

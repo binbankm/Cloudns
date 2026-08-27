@@ -35,7 +35,7 @@ struct AddZoneView: View {
                                 Spacer()
                                 Button {
                                     UIPasteboard.general.string = ns
-                                    ToastManager.shared.showCopied("Nameserver copied")
+                                    CloudnsToastManager.shared.showCopied("Nameserver copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
                                         .foregroundStyle(.blue)
@@ -47,7 +47,7 @@ struct AddZoneView: View {
 
                         Button {
                             UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                            ToastManager.shared.showCopied("All nameservers copied")
+                            CloudnsToastManager.shared.showCopied("All nameservers copied")
                         } label: {
                             Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
                                 .font(.subheadline)

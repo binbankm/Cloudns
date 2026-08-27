@@ -43,7 +43,7 @@ struct D1CreateDatabaseSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createDatabase(name: name.trimmingCharacters(in: .whitespacesAndNewlines))
-                                ToastManager.shared.showSuccess("Database Created", message: name)
+                                CloudnsToastManager.shared.showSuccess("Database Created", message: name)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

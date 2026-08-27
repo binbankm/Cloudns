@@ -118,10 +118,10 @@ struct RedirectListDetailView: View {
     private func deleteItem(id: String) async {
         do {
             _ = try await BulkRedirectService.shared.deleteRedirectListItems(accountId: accountId, listId: list.id, itemIds: [id])
-            ToastManager.shared.showSuccess("Item Deleted")
+            CloudnsToastManager.shared.showSuccess("Item Deleted")
             await fetchItems()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     

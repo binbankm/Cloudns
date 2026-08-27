@@ -279,7 +279,7 @@ struct PagesBindingsView: View {
                                     Button {
                                         UIPasteboard.general.string = val
                                         HapticManager.notification(.success)
-                                        ToastManager.shared.showCopied("Value copied")
+                                        CloudnsToastManager.shared.showCopied("Value copied")
                                     } label: {
                                         Label("Copy Value", systemImage: "doc.on.doc")
                                     }
@@ -287,7 +287,7 @@ struct PagesBindingsView: View {
                                 Button {
                                     UIPasteboard.general.string = key
                                     HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Key name copied")
+                                    CloudnsToastManager.shared.showCopied("Key name copied")
                                 } label: {
                                     Label("Copy Key Name", systemImage: "doc.on.doc")
                                 }
@@ -361,7 +361,7 @@ struct PagesBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = key
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Secret name copied")
+                                CloudnsToastManager.shared.showCopied("Secret name copied")
                             } label: {
                                 Label("Copy Secret Name", systemImage: "doc.on.doc")
                             }
@@ -418,7 +418,7 @@ struct PagesBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = key
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Binding name copied")
+                                CloudnsToastManager.shared.showCopied("Binding name copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -475,7 +475,7 @@ struct PagesBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = key
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Binding name copied")
+                                CloudnsToastManager.shared.showCopied("Binding name copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -532,7 +532,7 @@ struct PagesBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = key
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Binding name copied")
+                                CloudnsToastManager.shared.showCopied("Binding name copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -580,7 +580,7 @@ struct PagesBindingsView: View {
                             Button {
                                 UIPasteboard.general.string = key
                                 HapticManager.notification(.success)
-                                ToastManager.shared.showCopied("Binding name copied")
+                                CloudnsToastManager.shared.showCopied("Binding name copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -648,10 +648,10 @@ struct PagesBindingsView: View {
                 environment: selectedEnv,
                 envVars: updated
             )
-            ToastManager.shared.showSuccess("Variable Deleted", message: name)
+            CloudnsToastManager.shared.showSuccess("Variable Deleted", message: name)
             HapticManager.notification(.success)
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
         isDeleting = false
     }
@@ -695,10 +695,10 @@ struct PagesBindingsView: View {
                 r2Buckets: updatedR2,
                 aiBindings: updatedAI
             )
-            ToastManager.shared.showSuccess("Resource Unbound", message: name)
+            CloudnsToastManager.shared.showSuccess("Resource Unbound", message: name)
             HapticManager.notification(.success)
         } catch {
-            ToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
+            CloudnsToastManager.shared.showError("Unbind Failed", message: error.localizedDescription)
         }
         isDeleting = false
     }
