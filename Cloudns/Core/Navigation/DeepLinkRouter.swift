@@ -8,7 +8,8 @@ public enum AppTab: Int, CaseIterable, Sendable {
     case dashboard = 0
     case domains = 1
     case developer = 2
-    case settings = 3
+    case devtools = 3
+    case settings = 4
 }
 
 // MARK: - DeepLinkDestination
@@ -55,14 +56,14 @@ public final class DeepLinkRouter: ObservableObject {
         
         var newDestination: DeepLinkDestination?
         
-        if host == "tools" {
+        if host == "tools" || host == "devtools" {
             let toolName = pathComponents.first?.lowercased() ?? ""
             switch toolName {
             case "dig": newDestination = .dig
             case "trace": newDestination = .trace
             case "status": newDestination = .status
             case "ipranges": newDestination = .ipranges
-            default: currentTab.wrappedValue = .developer
+            default: currentTab.wrappedValue = .devtools
             }
         } else if host == "zone" || host == "zones" {
             if let id = targetId, !id.isEmpty, id != "placeholder-zone-id", id != "placeholder" {
@@ -84,6 +85,8 @@ public final class DeepLinkRouter: ObservableObject {
             }
         } else if host == "developer" {
             currentTab.wrappedValue = .developer
+        } else if host == "devtools" {
+            currentTab.wrappedValue = .devtools
         } else if host == "status" {
             newDestination = .status
         } else if host == "dig" {

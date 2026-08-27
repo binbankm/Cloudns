@@ -235,20 +235,6 @@ struct DeveloperHubView: View {
                     }
                     .disabled(!isAccountReady)
                 }
-                
-                // MARK: - Dev Diagnostics (Option A: Consolidated)
-                Section(header: Text("Diagnostics & Tools")) {
-                    NavigationLink {
-                        NetworkDiagnosticsListView()
-                    } label: {
-                        DeveloperHubRowView(
-                            icon: "wrench.and.screwdriver.fill",
-                            iconColor: .indigo,
-                            title: "Network & Security Diagnostics",
-                            subtitle: "Trace · DNS Dig · HTTP · SSL · WHOIS · IP"
-                        )
-                    }
-                }
             }
             .listStyle(.insetGrouped)
             .centerConstrainedWidth(maxWidth: 840)

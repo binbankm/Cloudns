@@ -51,6 +51,12 @@ struct ContentView: View {
                         }
                         .tag(AppTab.developer)
                     
+                    DevToolsHubView()
+                        .tabItem {
+                            Label("Dev Tools", systemImage: selectedTab == .devtools ? "wrench.and.screwdriver.fill" : "wrench.and.screwdriver")
+                        }
+                        .tag(AppTab.devtools)
+                    
                     SettingsView()
                         .tabItem {
                             Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
@@ -68,45 +74,13 @@ struct ContentView: View {
                 .cloudnsSensorySelection(trigger: selectedTab)
                 .overlay(alignment: .top) {
                     if !networkMonitor.isConnected {
-                        HStack(spacing: 6) {
-                            Image(systemName: "wifi.slash")
-                                .font(.caption.weight(.bold))
-                            Text("Offline Mode · Showing Cached Data")
-                                .font(.caption.weight(.medium))
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .background(Capsule().fill(Color.orange.opacity(0.92)))
-                        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
-                        .padding(.top, 4)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        NetworkStatusBannerView()
                     }
                 }
                 .animation(.spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
                 .overlay {
                     if isAppLockEnabled {
-                        let shouldMask = !authManager.isUnlocked || scenePhase != .active
-                        
-                        ZStack {
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                                .ignoresSafeArea()
-                            
-                            Image(systemName: "lock.shield.fill")
-                                .font(.largeTitle)
-                                .foregroundStyle(.secondary.opacity(0.6))
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if !authManager.isUnlocked {
-                                HapticManager.impact(.light)
-                                authManager.authenticate()
-                            }
-                        }
-                        .opacity(shouldMask ? 1 : 0)
-                        .allowsHitTesting(!authManager.isUnlocked && scenePhase == .active)
-                        .animation(.easeInOut(duration: 0.15), value: shouldMask)
+                        AppLockOverlayView(authManager: authManager, scenePhase: scenePhase)
                     }
                 }
             } else {
