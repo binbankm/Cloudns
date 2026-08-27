@@ -49,7 +49,7 @@ struct WorkerDeploymentsView: View {
                                         } label: {
                                             Label("Rollback", systemImage: "arrow.counterclockwise")
                                         }
-                                        .tint(.orange)
+                                        .tint(CloudnsColor.brandAccent)
                                     }
                                     
                                     Button {
@@ -59,7 +59,7 @@ struct WorkerDeploymentsView: View {
                                     } label: {
                                         Label("Copy ID", systemImage: "doc.on.doc")
                                     }
-                                    .tint(.blue)
+                                    .tint(CloudnsColor.brand)
                                 }
                         }
                     }
@@ -146,7 +146,7 @@ struct WorkerDeploymentsView: View {
                         .foregroundStyle(isLatest ? .white : .primary)
                         .padding(.horizontal, CloudnsSpacing.sm)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(isLatest ? Color.green : Color(.secondarySystemFill))
+                        .background(isLatest ? CloudnsColor.success : Color(.secondarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
                 

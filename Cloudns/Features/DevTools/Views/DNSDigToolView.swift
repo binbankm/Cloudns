@@ -87,7 +87,7 @@ struct DNSDigToolView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "globe")
                     .font(.title3)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                     .accessibilityHidden(true)
                 
                 TextField("e.g. example.com", text: $viewModel.domainInput)
@@ -282,7 +282,7 @@ struct DNSDigToolView: View {
                                 } else {
                                     Text("Timeout")
                                         .font(.caption)
-                                        .foregroundStyle(.red)
+                                        .foregroundStyle(CloudnsColor.danger)
                                 }
                             }
                             
@@ -308,7 +308,7 @@ struct DNSDigToolView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Query Failed")
                     .font(.headline)

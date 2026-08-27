@@ -26,7 +26,7 @@ struct AppIconPickerView: View {
                                     .cloudnsShadow(.card)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous)
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                            .stroke(CloudnsColor.glassBorder, lineWidth: 1)
                                     )
                             }
                             
@@ -52,7 +52,7 @@ struct AppIconPickerView: View {
                             if iconManager.currentIcon == option {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                     .accessibilityHidden(true)
                             }
                         }

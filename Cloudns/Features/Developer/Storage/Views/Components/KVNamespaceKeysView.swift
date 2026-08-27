@@ -62,7 +62,7 @@ struct KVNamespaceKeysView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption2)
-                                .foregroundStyle(.purple)
+                                .foregroundStyle(CloudnsColor.ai)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Copy Namespace ID")
@@ -207,9 +207,9 @@ struct KVNamespaceKeysView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "key.horizontal.fill")
                 .font(.subheadline)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

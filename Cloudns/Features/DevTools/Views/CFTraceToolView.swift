@@ -78,7 +78,7 @@ struct CFTraceToolView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "network")
                     .font(.title3)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                     .accessibilityHidden(true)
                 
                 TextField("www.cloudflare.com or custom domain", text: $viewModel.host)
@@ -201,7 +201,7 @@ struct CFTraceToolView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                         }
                     }
                 }
@@ -272,7 +272,7 @@ struct CFTraceToolView: View {
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                 }
             }
             
@@ -304,7 +304,7 @@ struct CFTraceToolView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Trace Failed")
                     .font(.headline)

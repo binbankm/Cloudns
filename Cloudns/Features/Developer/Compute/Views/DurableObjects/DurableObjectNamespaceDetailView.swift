@@ -55,7 +55,7 @@ struct DurableObjectNamespaceDetailView: View {
                 } else if let err = errorMessage, objects.isEmpty {
                     Text(err)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(CloudnsColor.danger)
                 } else if objects.isEmpty {
                     Text("No active instances discovered in this namespace.")
                         .font(.subheadline)

@@ -257,7 +257,7 @@ struct IPLookupToolView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Lookup Failed")
                     .font(.headline)

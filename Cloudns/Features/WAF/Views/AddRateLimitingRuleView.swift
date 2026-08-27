@@ -120,7 +120,7 @@ struct AddRateLimitingRuleView: View {
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).ignoresSafeArea()
+                        CloudnsColor.scrim.ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))

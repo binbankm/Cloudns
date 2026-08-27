@@ -94,7 +94,7 @@ struct TunnelDetailView: View {
                 Section(header: Text("Connector Token")) {
                     HStack {
                         Image(systemName: "terminal")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                         Text("cloudflared tunnel run --token ••••••••••••••••••••••••")
                             .font(.caption.monospaced())
                         Spacer()
@@ -115,7 +115,7 @@ struct TunnelDetailView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "terminal")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .accessibilityHidden(true)
                                 Text(isTokenRevealed ? "cloudflared tunnel run --token \(token)" : "cloudflared tunnel run --token ••••••••")
                                     .font(.caption.monospaced())
@@ -124,7 +124,7 @@ struct TunnelDetailView: View {
                                 Spacer()
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .accessibilityHidden(true)
                             }
                         }
@@ -165,13 +165,13 @@ struct TunnelDetailView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Image(systemName: "globe")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                 Text("app\(idx + 1).example.com")
                                     .font(.body.weight(.medium))
                             }
                             HStack {
                                 Image(systemName: "arrow.right.circle.fill")
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(CloudnsColor.success)
                                 Text("http://localhost:\(8080 + idx)")
                                     .font(.caption.monospaced())
                             }
@@ -190,7 +190,7 @@ struct TunnelDetailView: View {
                                 HStack {
                                     Image(systemName: "globe")
                                         .font(.caption)
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(CloudnsColor.brand)
                                         .accessibilityHidden(true)
                                     Text(host)
                                         .font(.body.weight(.medium))
@@ -211,7 +211,7 @@ struct TunnelDetailView: View {
                                 HStack {
                                     Image(systemName: "arrow.right.circle.fill")
                                         .font(.caption2)
-                                        .foregroundStyle(.green)
+                                        .foregroundStyle(CloudnsColor.success)
                                         .accessibilityHidden(true)
                                     Text(svc)
                                         .font(.caption.monospacedDigit())
@@ -245,8 +245,8 @@ struct TunnelDetailView: View {
                                         .font(.caption.monospacedDigit())
                                         .padding(.horizontal, CloudnsSpacing.sm)
                                         .padding(.vertical, CloudnsSpacing.xxs)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
+                                        .background(CloudnsColor.brandMuted)
+                                        .foregroundStyle(CloudnsColor.brand)
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                                 }
                                 

@@ -39,6 +39,8 @@ public enum CloudnsSize {
     public static let controlHeightSmall: CGFloat = 32
     /// 标准输入框 / 按钮高度 (40pt)
     public static let controlHeightRegular: CGFloat = 40
+    /// 标准输入框 / 按钮高度别名 (40pt)
+    public static let controlHeight: CGFloat = 40
     /// 大型主操作按钮 / 登录输入框高度 (48pt)
     public static let controlHeightLarge: CGFloat = 48
 }

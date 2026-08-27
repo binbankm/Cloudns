@@ -15,7 +15,7 @@ struct NetworkCenterView: View {
                 VStack(spacing: CloudnsSpacing.mdSmall) {
                     Image(systemName: "network")
                         .font(.largeTitle)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                         .padding(.top, CloudnsSpacing.smMd)
                         .accessibilityHidden(true)
                     
@@ -38,7 +38,7 @@ struct NetworkCenterView: View {
                     Section {
                         HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                                 .accessibilityHidden(true)
                             Text(errorMessage)
                                 .foregroundStyle(.primary)
@@ -114,7 +114,7 @@ struct NetworkCenterView: View {
                                 .font(.body)
                             Image(systemName: "bolt.horizontal.fill")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                                 .accessibilityHidden(true)
                         }
                         Text("Accelerate HTTP requests by using QUIC, which provides encryption and performance improvements compared to TCP and TLS.")

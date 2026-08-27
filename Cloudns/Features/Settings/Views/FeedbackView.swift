@@ -91,7 +91,7 @@ struct FeedbackView: View {
                         Text("Copy Diagnostic Info")
                     }
                     .font(.subheadline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                 }
             }
             
@@ -109,7 +109,7 @@ struct FeedbackView: View {
                             .fontWeight(.semibold)
                         Spacer()
                     }
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                 }
             }
         }

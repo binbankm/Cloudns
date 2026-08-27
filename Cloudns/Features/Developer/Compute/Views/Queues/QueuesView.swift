@@ -57,7 +57,7 @@ struct QueuesView: View {
                                 } label: {
                                     Label("Purge", systemImage: "xmark.bin")
                                 }
-                                .tint(.orange)
+                                .tint(CloudnsColor.brandAccent)
                             }
                         }
                     }
@@ -146,7 +146,7 @@ struct QueuesView: View {
                 .foregroundStyle(.pink)
                 .font(.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.pink.opacity(0.12))
+                .background(CloudnsColor.queuesMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
@@ -167,10 +167,10 @@ struct QueuesView: View {
             if queue.settings?.deliveryPaused == true {
                 Text("Paused")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                     .padding(.horizontal, CloudnsSpacing.sm)
                     .padding(.vertical, CloudnsSpacing.xxs)
-                    .background(Color.orange.opacity(0.12))
+                    .background(CloudnsColor.warningMuted)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
         }

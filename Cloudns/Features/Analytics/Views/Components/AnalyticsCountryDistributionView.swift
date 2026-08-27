@@ -45,7 +45,7 @@ struct AnalyticsCountryDistributionView: View {
         HStack {
             Image(systemName: "map.fill")
                 .font(.subheadline)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
             Text("Traffic by Country / Region")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.primary)

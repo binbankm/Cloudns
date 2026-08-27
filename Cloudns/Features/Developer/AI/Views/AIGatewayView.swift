@@ -136,7 +136,7 @@ struct AIGatewayView: View {
                 .font(.body)
                 .foregroundStyle(.pink)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.pink.opacity(0.12))
+                .background(CloudnsColor.queuesMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
 

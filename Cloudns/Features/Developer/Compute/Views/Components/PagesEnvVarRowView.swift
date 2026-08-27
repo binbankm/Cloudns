@@ -16,7 +16,7 @@ struct PagesEnvVarRowView: View {
                 .font(.body)
                 .foregroundStyle(value.isSecret ? .orange : .blue)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background((value.isSecret ? Color.orange : Color.blue).opacity(0.12))
+                .background((value.isSecret ? CloudnsColor.brandAccent : CloudnsColor.brand).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

@@ -84,10 +84,10 @@ struct DNSRecordRowView: View {
                     ForEach(tags, id: \.self) { tag in
                         Text("#\(tag)")
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .padding(.horizontal, CloudnsSpacing.xs)
                             .padding(.vertical, CloudnsSpacing.xxs)
-                            .background(Color.purple.opacity(0.1))
+                            .background(CloudnsColor.ai.opacity(0.1))
                             .clipShape(Capsule())
                     }
                 }

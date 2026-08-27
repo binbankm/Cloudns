@@ -61,7 +61,7 @@ struct SecurityEventCardView: View {
                     .foregroundStyle(.secondary)
                 Text(event.host)
                     .font(.footnote.monospacedDigit())
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
             }
         }
         .padding(.vertical, CloudnsSpacing.xs)

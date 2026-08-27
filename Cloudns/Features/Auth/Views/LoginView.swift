@@ -26,13 +26,13 @@ struct LoginView: View {
                 
                 ZStack {
                     Circle()
-                        .fill(Color.orange.opacity(0.12))
+                        .fill(CloudnsColor.warningMuted)
                         .frame(width: w * 0.85, height: w * 0.85)
                         .blur(radius: 60)
                         .offset(x: -w * 0.2, y: -w * 0.35)
                     
                     Circle()
-                        .fill(Color.blue.opacity(0.08))
+                        .fill(CloudnsColor.brand.opacity(0.08))
                         .frame(width: w * 0.75, height: w * 0.75)
                         .blur(radius: 65)
                         .offset(x: w * 0.3, y: w * 0.5)
@@ -50,7 +50,7 @@ struct LoginView: View {
                             Circle()
                                 .fill(
                                     RadialGradient(
-                                        colors: [Color.orange.opacity(0.3), Color.orange.opacity(0.0)],
+                                        colors: [CloudnsColor.brandAccent.opacity(0.3), CloudnsColor.brandAccent.opacity(0.0)],
                                         center: .center,
                                         startRadius: 10,
                                         endRadius: 55
@@ -65,7 +65,7 @@ struct LoginView: View {
                                 .cloudnsShadow(.brand(color: CloudnsColor.brandAccent, radius: 14, y: 6))
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.orange.opacity(0.25), lineWidth: 1.5)
+                                        .stroke(CloudnsColor.brandAccent.opacity(0.25), lineWidth: 1.5)
                                 )
                             
                             Image(systemName: "cloud.fill")
@@ -137,7 +137,7 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
                                 RoundedRectangle(cornerRadius: CloudnsRadius.md)
-                                    .stroke(focusedField == .email ? Color.orange : Color.clear, lineWidth: 1.5)
+                                    .stroke(focusedField == .email ? CloudnsColor.brandAccent : Color.clear, lineWidth: 1.5)
                             )
                         }
                         
@@ -158,7 +158,7 @@ struct LoginView: View {
                                         }
                                     }
                                     .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                 }
                             }
                             
@@ -215,7 +215,7 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
                                 RoundedRectangle(cornerRadius: CloudnsRadius.md)
-                                    .stroke(focusedField == .apiKey ? Color.orange : Color.clear, lineWidth: 1.5)
+                                    .stroke(focusedField == .apiKey ? CloudnsColor.brandAccent : Color.clear, lineWidth: 1.5)
                             )
                         }
                         
@@ -223,15 +223,15 @@ struct LoginView: View {
                         if let errorMessage = viewModel.errorMessage {
                             HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(CloudnsColor.danger)
                                 Text(LocalizedStringKey(errorMessage))
                                     .font(.caption.weight(.medium))
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(CloudnsColor.danger)
                                     .multilineTextAlignment(.leading)
                             }
                             .padding(CloudnsSpacing.smMd)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.red.opacity(0.1))
+                            .background(CloudnsColor.danger.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                             .onAppear {
                                 HapticManager.notification(.error)
@@ -273,7 +273,7 @@ struct LoginView: View {
                                 Text("Where to find your Global API Key?")
                                     .font(.caption.weight(.medium))
                             }
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         }
                         
                         // Apple Keychain Security Seal

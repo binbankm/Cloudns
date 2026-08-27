@@ -65,9 +65,9 @@ struct D1ConsoleView: View {
                         NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
                             HStack(spacing: CloudnsSpacing.mdSmall) {
                                 ZStack {
-                                    Color.purple.opacity(0.12)
+                                    CloudnsColor.aiMuted
                                     Image(systemName: "tablecells")
-                                        .foregroundStyle(.purple)
+                                        .foregroundStyle(CloudnsColor.ai)
                                         .font(.body)
                                         .accessibilityHidden(true)
                                 }
@@ -100,7 +100,7 @@ struct D1ConsoleView: View {
                                     .padding(.horizontal, CloudnsSpacing.smMd)
                                     .padding(.vertical, CloudnsSpacing.xs)
                                     .background(Color(.secondarySystemFill))
-                                    .foregroundStyle(.purple)
+                                    .foregroundStyle(CloudnsColor.ai)
                                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             }
                         }
@@ -132,7 +132,7 @@ struct D1ConsoleView: View {
                         }
                         Text("Execute SQL")
                             .font(.body.weight(.medium))
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                         Spacer()
                     }
                 }
@@ -176,7 +176,7 @@ struct D1ConsoleView: View {
                 Section {
                     Text(error)
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(CloudnsColor.danger)
                 }
             }
         }

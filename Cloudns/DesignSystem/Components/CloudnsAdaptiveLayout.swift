@@ -1,11 +1,10 @@
 import SwiftUI
 
-// MARK: - Adaptive Grid Helpers
-
+/// Cloudns 响应式与自适应布局组件 (严格支持 iPhone、iPad 与分屏显示)
 public extension GridItem {
     /// 标准响应式卡片网格布局：iPhone 自动 2 列，iPad / 横屏大屏自动 3~4 列
     static var cloudnsAdaptiveMetrics: [GridItem] {
-        [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)]
+        [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: CloudnsSpacing.mdSmall)]
     }
 }
 

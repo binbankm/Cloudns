@@ -16,7 +16,7 @@ struct EdgeQuickCheckCardView: View {
             HStack {
                 Label("Edge Quick Check", systemImage: "bolt.horizontal.circle.fill")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                 
                 Spacer()
                 
@@ -28,7 +28,7 @@ struct EdgeQuickCheckCardView: View {
                         if isLoading {
                             ProgressView()
                                 .controlSize(.mini)
-                                .tint(.orange)
+                                .tint(CloudnsColor.brandAccent)
                         } else {
                             Image(systemName: result == nil ? "play.fill" : "arrow.clockwise")
                                 .font(.caption2.weight(.semibold))
@@ -38,8 +38,8 @@ struct EdgeQuickCheckCardView: View {
                     }
                     .padding(.horizontal, CloudnsSpacing.sm)
                     .padding(.vertical, CloudnsSpacing.xs)
-                    .background(Color.orange.opacity(0.12))
-                    .foregroundStyle(.orange)
+                    .background(CloudnsColor.warningMuted)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                     .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -105,7 +105,7 @@ struct EdgeQuickCheckCardView: View {
     private func errorView(_ error: String) -> some View {
         HStack(spacing: CloudnsSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
                 .font(.subheadline)
             
             Text(error)
@@ -132,8 +132,8 @@ struct EdgeQuickCheckCardView: View {
                             .font(.caption2.weight(.bold).monospaced())
                             .padding(.horizontal, CloudnsSpacing.sm)
                             .padding(.vertical, CloudnsSpacing.xxs)
-                            .background(Color.orange.opacity(0.15))
-                            .foregroundStyle(.orange)
+                            .background(CloudnsColor.warningMuted)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                     }
                     

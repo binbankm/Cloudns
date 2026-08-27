@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Cloudns Rolling Number View
-
+/// Cloudns 高性能数字翻牌滚动动画组件 (支持 iOS 17+ 原生硬件加速)
 public struct CloudnsRollingNumber: View {
     let value: String
     let font: Font
@@ -10,9 +9,9 @@ public struct CloudnsRollingNumber: View {
     
     public init(
         value: String,
-        font: Font = .title2,
+        font: Font = CloudnsTypography.title2,
         weight: Font.Weight = .bold,
-        color: Color = .primary
+        color: Color = CloudnsColor.textPrimary
     ) {
         self.value = value
         self.font = font
@@ -26,12 +25,12 @@ public struct CloudnsRollingNumber: View {
                 .font(font.monospacedDigit().weight(weight))
                 .foregroundStyle(color)
                 .contentTransition(.numericText(value: 1.0))
-                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: value)
+                .animation(CloudnsAnimation.snappy, value: value)
         } else {
             Text(value)
                 .font(font.monospacedDigit().weight(weight))
                 .foregroundStyle(color)
-                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: value)
+                .animation(CloudnsAnimation.snappy, value: value)
         }
     }
 }

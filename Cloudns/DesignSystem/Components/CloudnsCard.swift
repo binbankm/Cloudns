@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Cloudns Card Style
-
+/// Cloudns 标准卡片视觉风格
 public enum CloudnsCardStyle {
     /// 现代毛玻璃晶体质感 (Apple ultraThinMaterial + 0.5pt 高光微描边)
     case frosted
@@ -11,8 +10,7 @@ public enum CloudnsCardStyle {
     case brandGlow(accent: Color)
 }
 
-// MARK: - Cloudns Card Size
-
+/// Cloudns 卡片尺寸与内边距层级
 public enum CloudnsCardSize {
     /// 紧凑卡片 (列表子项、迷你指标卡，12pt 圆角)
     case compact
@@ -32,11 +30,26 @@ public enum CloudnsCardSize {
     public var padding: EdgeInsets {
         switch self {
         case .compact:
-            return EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12)
+            return EdgeInsets(
+                top: CloudnsSpacing.smMd,
+                leading: CloudnsSpacing.mdSmall,
+                bottom: CloudnsSpacing.smMd,
+                trailing: CloudnsSpacing.mdSmall
+            )
         case .standard:
-            return EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
+            return EdgeInsets(
+                top: CloudnsSpacing.md,
+                leading: CloudnsSpacing.mdMedium,
+                bottom: CloudnsSpacing.md,
+                trailing: CloudnsSpacing.mdMedium
+            )
         case .hero:
-            return EdgeInsets(top: 18, leading: 20, bottom: 18, trailing: 20)
+            return EdgeInsets(
+                top: CloudnsSpacing.mdLarge,
+                leading: CloudnsSpacing.mdLarge,
+                bottom: CloudnsSpacing.mdLarge,
+                trailing: CloudnsSpacing.mdLarge
+            )
         }
     }
 }
@@ -166,7 +179,7 @@ public extension View {
     func cloudnsCard(
         style: CloudnsCardStyle = .frosted,
         cornerRadius: CGFloat,
-        padding: EdgeInsets = EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16),
+        padding: EdgeInsets = .cloudnsCard,
         isClickable: Bool = false
     ) -> some View {
         self.modifier(CloudnsCardModifier(

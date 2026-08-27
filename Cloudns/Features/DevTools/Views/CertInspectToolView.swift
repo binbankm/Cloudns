@@ -54,8 +54,8 @@ struct CertInspectToolView: View {
         VStack(spacing: CloudnsSpacing.mdMedium) {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "lock.shield.fill")
-                    .font(.title3)
-                    .foregroundStyle(.green)
+                    .font(CloudnsTypography.title3)
+                    .foregroundStyle(CloudnsColor.success)
                     .accessibilityHidden(true)
                 
                 TextField("example.com or hostname", text: $viewModel.domainInput)
@@ -177,21 +177,21 @@ struct CertInspectToolView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         ZStack {
                             Circle()
-                                .fill((index == 0 ? Color.green : Color.blue).opacity(0.12))
+                                .fill((index == 0 ? CloudnsColor.success : CloudnsColor.brand).opacity(0.12))
                                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                             Image(systemName: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"))
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(index == 0 ? .green : .blue)
+                                .font(CloudnsTypography.caption.weight(.semibold))
+                                .foregroundStyle(index == 0 ? CloudnsColor.success : CloudnsColor.brand)
                         }
                         
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text(name)
-                                .font(.subheadline.weight(.semibold))
+                                .font(CloudnsTypography.subheadline.weight(.semibold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
                             Text(index == 0 ? "Leaf / Server Certificate" : (index == details.chainNames.count - 1 ? "Root Authority" : "Intermediate CA"))
-                                .font(.caption2)
+                                .font(CloudnsTypography.caption2)
                                 .foregroundStyle(.secondary)
                         }
                         
@@ -209,7 +209,7 @@ struct CertInspectToolView: View {
     private func cryptoCard(details: SSLCertDetails) -> some View {
         VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Cryptographic Parameters")
-                .font(.headline)
+                .font(CloudnsTypography.headline)
                 .foregroundStyle(.primary)
             
             Divider()
@@ -237,14 +237,14 @@ struct CertInspectToolView: View {
     private func cryptoRow(title: LocalizedStringKey, value: String, isMono: Bool = false, isBadge: Bool = false) -> some View {
         HStack {
             Text(title)
-                .font(.subheadline)
+                .font(CloudnsTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             if isBadge {
                 CloudnsBadge(.active(value), isCompact: true)
             } else {
                 Text(value)
-                    .font(isMono ? .caption.monospaced() : .subheadline)
+                    .font(isMono ? CloudnsTypography.code : CloudnsTypography.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
             }
@@ -284,7 +284,7 @@ struct CertInspectToolView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                     }
                     .padding(.vertical, CloudnsSpacing.xxs)
@@ -301,7 +301,7 @@ struct CertInspectToolView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Inspection Failed")
                     .font(.headline)

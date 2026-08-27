@@ -17,7 +17,7 @@ struct TunnelRowView: View {
                 .font(.body)
                 .foregroundStyle(isHealthy ? .green : .red)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background((isHealthy ? Color.green : Color.red).opacity(0.12))
+                .background((isHealthy ? CloudnsColor.success : CloudnsColor.danger).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Plan Tier Enum
-
+/// 订阅与套餐层级枚举
 public enum PlanTier: String, Codable, Sendable {
     case free = "free"
     case pro = "pro"
@@ -22,35 +21,47 @@ public enum PlanTier: String, Codable, Sendable {
     }
 }
 
-// MARK: - Cloudns Badge Type
-
+/// 语义徽章与胶囊标签类型
 public enum CloudnsBadgeType {
     /// Cloudflare 经典橙色 CDN 代理加速 (带小云朵 ☁️)
     case proxied(String = "Proxied")
     /// 仅 DNS 回源解析 (带灰色小云朵 ☁️)
     case dnsOnly(String = "DNS Only")
-    /// 运行健康 (带绿色呼吸灯 🟢)
+    /// 正常运行 / 生效中状态 (绿色呼吸灯)
     case active(String = "Active")
-    /// 服务降级 / 告警 (带黄色警示灯 🟡)
-    case warning(String = "Warning")
-    /// 拦截 / 错误 (带红色指示灯 🔴)
-    case error(String = "Error")
-    /// 官方套餐计划徽标 (FREE / PRO / BUSINESS / ENTERPRISE / PAID / ADD-ON)
-    case plan(PlanTier)
-    /// 自定义徽标
+    /// 警告 / 降级 / 待确认状态 (橙色呼吸灯)
+    case warning(String = "Pending")
+    /// 危险 / 失败 / 拦截状态 (红色呼吸灯)
+    case danger(String = "Error")
+    /// 暂停 / 禁用状态 (灰色)
+    case paused(String = "Paused")
+    /// 自定义文本与颜色药丸
     case custom(color: Color, text: String, icon: String? = nil)
+    /// 会员/计划级别标签 (Free/Pro/Business/Enterprise)
+    case tier(PlanTier)
     
     public static var proxied: CloudnsBadgeType { .proxied() }
     public static var dnsOnly: CloudnsBadgeType { .dnsOnly() }
     public static var active: CloudnsBadgeType { .active() }
     public static var warning: CloudnsBadgeType { .warning() }
-    public static var error: CloudnsBadgeType { .error() }
-    public static var free: CloudnsBadgeType { .plan(.free) }
-    public static var pro: CloudnsBadgeType { .plan(.pro) }
-    public static var business: CloudnsBadgeType { .plan(.business) }
-    public static var enterprise: CloudnsBadgeType { .plan(.enterprise) }
-    public static var paid: CloudnsBadgeType { .plan(.paid) }
-    public static var addOn: CloudnsBadgeType { .plan(.addOn) }
+    public static var danger: CloudnsBadgeType { .danger() }
+    public static var error: CloudnsBadgeType { .danger() }
+    public static func error(_ text: String) -> CloudnsBadgeType { .danger(text) }
+    public static var paused: CloudnsBadgeType { .paused() }
+    public static var free: CloudnsBadgeType { .tier(.free) }
+    public static var pro: CloudnsBadgeType { .tier(.pro) }
+    public static var business: CloudnsBadgeType { .tier(.business) }
+    public static var enterprise: CloudnsBadgeType { .tier(.enterprise) }
+    public static var paid: CloudnsBadgeType { .tier(.paid) }
+    public static var addOn: CloudnsBadgeType { .tier(.addOn) }
+    
+    public static func plan(_ tier: PlanTier) -> CloudnsBadgeType {
+        .tier(tier)
+    }
+    
+    public static func custom(_ text: String, color: Color, icon: String? = nil) -> CloudnsBadgeType {
+        .custom(color: color, text: text, icon: icon)
+    }
 }
 
 // MARK: - Cloudns Badge View
@@ -112,9 +123,13 @@ public struct CloudnsBadge: View {
                 Circle()
                     .fill(CloudnsColor.warning)
                     .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
-            case .error:
+            case .danger:
                 Circle()
                     .fill(CloudnsColor.danger)
+                    .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
+            case .paused:
+                Circle()
+                    .fill(CloudnsColor.dnsOnly)
                     .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
             case .custom(_, _, let icon):
                 if let icon = icon {
@@ -122,7 +137,7 @@ public struct CloudnsBadge: View {
                         .font(isCompact ? .caption2 : .caption)
                         .foregroundStyle(badgeColor)
                 }
-            case .plan(let tier):
+            case .tier(let tier):
                 switch tier {
                 case .free:
                     Image(systemName: "checkmark.circle.fill")
@@ -159,31 +174,33 @@ public struct CloudnsBadge: View {
         }
         switch type {
         case .proxied:
-            return Color.orange
+            return CloudnsColor.brandAccent
         case .dnsOnly:
-            return Color.secondary
+            return CloudnsColor.dnsOnly
         case .active:
-            return Color.green
+            return CloudnsColor.success
         case .warning:
-            return Color.orange
-        case .error:
-            return Color.red
+            return CloudnsColor.warning
+        case .danger:
+            return CloudnsColor.danger
+        case .paused:
+            return CloudnsColor.dnsOnly
         case .custom(let color, _, _):
             return color
-        case .plan(let tier):
+        case .tier(let tier):
             switch tier {
             case .free:
-                return Color.teal
+                return CloudnsColor.security
             case .pro:
-                return Color.blue
+                return CloudnsColor.brand
             case .business:
-                return Color.orange
+                return CloudnsColor.brandAccent
             case .enterprise:
-                return Color.purple
+                return CloudnsColor.ai
             case .paid:
-                return Color.indigo
+                return CloudnsColor.brandDark
             case .addOn:
-                return Color.cyan
+                return CloudnsColor.database
             }
         }
     }
@@ -198,11 +215,13 @@ public struct CloudnsBadge: View {
             return text
         case .warning(let text):
             return text
-        case .error(let text):
+        case .danger(let text):
+            return text
+        case .paused(let text):
             return text
         case .custom(_, let text, _):
             return text
-        case .plan(let tier):
+        case .tier(let tier):
             return tier.title
         }
     }

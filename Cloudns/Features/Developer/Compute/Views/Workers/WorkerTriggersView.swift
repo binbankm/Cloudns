@@ -121,7 +121,7 @@ struct WorkerTriggersView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "clock.arrow.2.circlepath")
                 .font(.title3)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: 32)
                 .accessibilityHidden(true)
             

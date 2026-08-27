@@ -51,7 +51,7 @@ struct EmailRoutingView: View {
                 )) {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "envelope.badge.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("Email Routing")
@@ -166,18 +166,18 @@ struct EmailRoutingView: View {
                             if dest.isVerified {
                                 HStack(spacing: CloudnsSpacing.xs) {
                                     Image(systemName: "checkmark.seal.fill")
-                                        .foregroundStyle(.green)
+                                        .foregroundStyle(CloudnsColor.success)
                                     Text("Verified")
                                         .font(.caption2)
-                                        .foregroundStyle(.green)
+                                        .foregroundStyle(CloudnsColor.success)
                                 }
                             } else {
                                 HStack(spacing: CloudnsSpacing.xs) {
                                     Image(systemName: "clock.badge.exclamationmark")
-                                        .foregroundStyle(.orange)
+                                        .foregroundStyle(CloudnsColor.brandAccent)
                                     Text("Pending")
                                         .font(.caption2)
-                                        .foregroundStyle(.orange)
+                                        .foregroundStyle(CloudnsColor.brandAccent)
                                 }
                             }
                         }
@@ -271,15 +271,15 @@ struct EmailRoutingView: View {
                         .font(.caption2)
                         .padding(.horizontal, CloudnsSpacing.sm)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(Color.green.opacity(0.2))
-                        .foregroundStyle(.green)
+                        .background(CloudnsColor.success.opacity(0.2))
+                        .foregroundStyle(CloudnsColor.success)
                         .clipShape(Capsule())
                 } else {
                     Text("Disabled")
                         .font(.caption2)
                         .padding(.horizontal, CloudnsSpacing.sm)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(Color.gray.opacity(0.2))
+                        .background(CloudnsColor.dnsOnly.opacity(0.2))
                         .foregroundStyle(.secondary)
                         .clipShape(Capsule())
                 }

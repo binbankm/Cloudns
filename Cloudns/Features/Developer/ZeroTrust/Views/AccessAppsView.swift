@@ -151,10 +151,10 @@ struct AccessAppsView: View {
     private func appRow(_ app: AccessApp) -> some View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "lock.shield.fill")
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .font(.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

@@ -11,10 +11,10 @@ struct DNSAnswerRowView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Text(item.typeName)
                 .font(.caption.weight(.bold))
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xxs)
-                .background(Color.blue.opacity(0.12))
+                .background(CloudnsColor.brandMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             
             VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {

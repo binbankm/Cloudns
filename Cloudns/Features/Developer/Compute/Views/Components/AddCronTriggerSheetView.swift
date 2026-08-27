@@ -68,7 +68,7 @@ struct AddCronTriggerSheetView: View {
                     Section {
                         Text(error)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

@@ -132,37 +132,10 @@ struct DevToolsHubView: View {
                     }
                 }
                 
-                // MARK: - Cloudflare Status
-                Section(header: Text("Platform Status")) {
-                    NavigationLink {
-                        CloudflareStatusView()
-                    } label: {
-                        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.body)
-                                .foregroundStyle(Color.orange)
-                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                                .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
-                            
-                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
-                                Text("Cloudflare System Status")
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-                                
-                                Text("Real-time incident & degradation monitor")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .padding(.vertical, CloudnsSpacing.xs)
-                    }
-                }
             }
             .listStyle(.insetGrouped)
             .centerConstrainedWidth(maxWidth: 840)
-            .navigationTitle("Dev Tools")
+            .navigationTitle("Tools")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -177,7 +150,7 @@ struct DevToolsHubView: View {
                 Image(systemName: tool.icon)
                     .font(.body)
                     .foregroundStyle(tool.iconColor)
-                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
+                    .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                     .background(tool.iconColor.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 

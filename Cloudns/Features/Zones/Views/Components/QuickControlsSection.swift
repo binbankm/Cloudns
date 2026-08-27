@@ -27,7 +27,7 @@ struct QuickControlsSection: View {
                     .font(.body)
                     .foregroundStyle(isUnderAttack ? .white : .red)
                     .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                    .background(isUnderAttack ? Color.red : Color.red.opacity(0.12))
+                    .background(isUnderAttack ? CloudnsColor.danger : CloudnsColor.dangerMuted)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 1) {
@@ -60,7 +60,7 @@ struct QuickControlsSection: View {
                     .font(.body)
                     .foregroundStyle(isDevMode ? .white : .orange)
                     .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                    .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
+                    .background(isDevMode ? CloudnsColor.brandAccent : CloudnsColor.warningMuted)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
 
@@ -94,7 +94,7 @@ struct QuickControlsSection: View {
                     .font(.body)
                     .foregroundStyle(isPaused ? .white : .gray)
                     .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                    .background(isPaused ? Color.gray : Color.gray.opacity(0.12))
+                    .background(isPaused ? CloudnsColor.dnsOnly : CloudnsColor.dnsOnly.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
 

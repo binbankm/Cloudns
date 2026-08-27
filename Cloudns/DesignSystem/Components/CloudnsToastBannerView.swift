@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-// MARK: - Toast Type Definition
+/// Cloudns 悬浮 Toast 消息提示类型
 public enum CloudnsToastType: Equatable {
     case success
     case error
@@ -27,30 +27,30 @@ public enum CloudnsToastType: Equatable {
     public var iconColor: Color {
         switch self {
         case .success:
-            return .green
+            return CloudnsColor.success
         case .error:
-            return .red
+            return CloudnsColor.danger
         case .warning:
-            return .orange
+            return CloudnsColor.warning
         case .info:
-            return .blue
+            return CloudnsColor.info
         case .copied:
-            return .blue
+            return CloudnsColor.brand
         }
     }
     
     public var badgeBgColor: Color {
         switch self {
         case .success:
-            return Color.green.opacity(0.15)
+            return CloudnsColor.successMuted
         case .error:
-            return Color.red.opacity(0.15)
+            return CloudnsColor.dangerMuted
         case .warning:
-            return Color.orange.opacity(0.15)
+            return CloudnsColor.warningMuted
         case .info:
-            return Color.blue.opacity(0.15)
+            return CloudnsColor.infoMuted
         case .copied:
-            return Color.blue.opacity(0.15)
+            return CloudnsColor.brandMuted
         }
     }
     

@@ -38,7 +38,7 @@ struct R2BucketSettingsView: View {
                             Spacer()
                             Text("https://\(domain)")
                                 .font(.caption.monospaced())
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                     }
                 }
@@ -134,7 +134,7 @@ struct R2BucketSettingsView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "globe")
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .frame(width: 28)
                 .accessibilityHidden(true)
             

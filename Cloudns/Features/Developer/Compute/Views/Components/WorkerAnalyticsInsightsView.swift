@@ -13,7 +13,7 @@ struct WorkerAnalyticsInsightsView: View {
         VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Worker Performance Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
             
             HStack {
                 Text("Subrequest Ratio")

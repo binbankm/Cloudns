@@ -69,7 +69,7 @@ public struct WorkerAnalyticsView: View {
     private var headerBar: some View {
         HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "curlybraces.square.fill")
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .font(.title3)
             
             Text(scriptName)

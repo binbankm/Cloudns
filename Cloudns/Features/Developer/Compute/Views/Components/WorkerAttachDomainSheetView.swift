@@ -112,7 +112,7 @@ struct WorkerAttachDomainSheetView: View {
                     Section(header: Text("Target Hostname Preview")) {
                         HStack {
                             Image(systemName: "globe")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                                 .accessibilityHidden(true)
                             Text(computedHostname)
                                 .font(.body.monospaced())
@@ -125,7 +125,7 @@ struct WorkerAttachDomainSheetView: View {
                     Section {
                         Text(err)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

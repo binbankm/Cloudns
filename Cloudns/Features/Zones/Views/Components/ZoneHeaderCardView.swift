@@ -97,7 +97,7 @@ struct ZoneHeaderCardView: View {
                         .lineLimit(1)
                         .padding(.horizontal, CloudnsSpacing.sm)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(Color.red.opacity(0.70))
+                        .background(CloudnsColor.danger.opacity(0.70))
                         .clipShape(Capsule())
                         .fixedSize(horizontal: true, vertical: true)
                 }
@@ -109,7 +109,7 @@ struct ZoneHeaderCardView: View {
                         .lineLimit(1)
                         .padding(.horizontal, CloudnsSpacing.sm)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(Color.orange.opacity(0.85))
+                        .background(CloudnsColor.brandAccent.opacity(0.85))
                         .clipShape(Capsule())
                         .fixedSize(horizontal: true, vertical: true)
                 }

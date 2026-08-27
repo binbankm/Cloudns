@@ -60,9 +60,9 @@ struct SettingsView: View {
                         HStack(spacing: CloudnsSpacing.mdMedium) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                                 .font(.body)
-                                .foregroundStyle(.green)
-                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                                .background(Color.green.opacity(0.12))
+                                .foregroundStyle(CloudnsColor.success)
+                                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
+                                .background(CloudnsColor.successMuted)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             
@@ -82,9 +82,9 @@ struct SettingsView: View {
                         HStack(spacing: CloudnsSpacing.mdMedium) {
                             Image(systemName: "list.bullet.rectangle.portrait.fill")
                                 .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                                .background(Color.blue.opacity(0.12))
+                                .foregroundStyle(CloudnsColor.brand)
+                                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
+                                .background(CloudnsColor.brandMuted)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             

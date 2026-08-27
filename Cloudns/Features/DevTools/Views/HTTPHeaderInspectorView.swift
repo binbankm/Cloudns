@@ -57,7 +57,7 @@ struct HTTPHeaderInspectorView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "link")
                     .font(.title3)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                     .accessibilityHidden(true)
                 
                 TextField("https://example.com", text: $viewModel.httpUrlInput)
@@ -196,7 +196,7 @@ struct HTTPHeaderInspectorView: View {
                     Spacer()
                     Text(String(format: "%.1f ms", result.ttfbMs))
                         .font(.subheadline.weight(.semibold).monospacedDigit())
-                        .foregroundStyle(.green)
+                        .foregroundStyle(CloudnsColor.success)
                 }
                 
                 HStack {
@@ -262,7 +262,7 @@ struct HTTPHeaderInspectorView: View {
                         HStack {
                             Text(header.key)
                                 .font(.caption.weight(.bold).monospaced())
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                             
                             Spacer()
                             
@@ -318,7 +318,7 @@ struct HTTPHeaderInspectorView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Inspection Failed")
                     .font(.headline)

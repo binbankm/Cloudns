@@ -75,19 +75,19 @@ struct WorkerSourceCodeView: View {
                                 HStack(spacing: 5) {
                                     Image(systemName: mod.isMain ? "star.fill" : "doc.text")
                                         .font(.caption2)
-                                        .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.secondary)
+                                        .foregroundStyle(selectedModuleName == mod.name ? CloudnsColor.brandAccent : Color.secondary)
                                         .accessibilityHidden(true)
                                     Text(mod.name)
                                         .font(.subheadline.weight(selectedModuleName == mod.name ? .semibold : .regular))
                                 }
                                 .padding(.horizontal, CloudnsSpacing.mdSmall)
                                 .padding(.vertical, CloudnsSpacing.sm)
-                                .background(selectedModuleName == mod.name ? Color.orange.opacity(0.15) : Color(.tertiarySystemFill))
-                                .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.primary)
+                                .background(selectedModuleName == mod.name ? CloudnsColor.warningMuted : Color(.tertiarySystemFill))
+                                .foregroundStyle(selectedModuleName == mod.name ? CloudnsColor.brandAccent : Color.primary)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: CloudnsRadius.sm)
-                                        .stroke(selectedModuleName == mod.name ? Color.orange.opacity(0.3) : Color.clear, lineWidth: 1)
+                                        .stroke(selectedModuleName == mod.name ? CloudnsColor.brandAccent.opacity(0.3) : Color.clear, lineWidth: 1)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -249,8 +249,8 @@ struct WorkerSourceCodeView: View {
                 }
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(wrapLines ? Color.orange.opacity(0.12) : Color(.tertiarySystemFill))
-                .foregroundStyle(wrapLines ? Color.orange : Color.secondary)
+                .background(wrapLines ? CloudnsColor.warningMuted : Color(.tertiarySystemFill))
+                .foregroundStyle(wrapLines ? CloudnsColor.brandAccent : Color.secondary)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             }
             .buttonStyle(.plain)
@@ -314,7 +314,7 @@ struct WorkerSourceCodeView: View {
                     .foregroundStyle(Color.white)
                     .padding(.horizontal, CloudnsSpacing.smMd)
                     .padding(.vertical, CloudnsSpacing.xs)
-                    .background(Color.blue)
+                    .background(CloudnsColor.brand)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
                 .buttonStyle(.plain)
@@ -332,7 +332,7 @@ struct WorkerSourceCodeView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             HStack(spacing: CloudnsSpacing.xs) {
                 Circle()
-                    .fill(isESMModule ? Color.purple : Color.orange)
+                    .fill(isESMModule ? CloudnsColor.ai : CloudnsColor.brandAccent)
                     .frame(width: 6, height: 6)
                 Text(isESMModule ? "ES Module" : "Service Worker")
                     .font(.caption2.weight(.medium))

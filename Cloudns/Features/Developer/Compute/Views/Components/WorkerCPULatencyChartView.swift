@@ -27,7 +27,7 @@ struct WorkerCPULatencyChartView: View {
                         x: .value("Time", pt.date),
                         y: .value("CPU P50", pt.cpuP50)
                     )
-                    .foregroundStyle(Color.cyan)
+                    .foregroundStyle(CloudnsColor.database)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                     
@@ -35,14 +35,14 @@ struct WorkerCPULatencyChartView: View {
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
                     )
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [4, 3]))
                     .interpolationMethod(.monotone)
                 }
                 
                 if let selected = selectedCpuPoint {
                     RuleMark(x: .value("Time", selected.date))
-                        .foregroundStyle(Color.cyan.opacity(0.6))
+                        .foregroundStyle(CloudnsColor.database.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -53,8 +53,8 @@ struct WorkerCPULatencyChartView: View {
                         Circle()
                             .fill(Color.white)
                             .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
-                            .overlay(Circle().stroke(Color.cyan, lineWidth: 2))
-                            .shadow(color: Color.cyan, radius: 4)
+                            .overlay(Circle().stroke(CloudnsColor.database, lineWidth: 2))
+                            .shadow(color: CloudnsColor.database, radius: 4)
                     }
                 }
             }
@@ -127,7 +127,7 @@ struct WorkerCPULatencyChartView: View {
                         
                         Text(String(format: "%.2f ms", selected.cpuP99))
                             .font(.system(.title3, design: .rounded).weight(.semibold))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         Text("P99")
                             .font(.caption.weight(.bold))
                             .foregroundStyle(.secondary)
@@ -146,7 +146,7 @@ struct WorkerCPULatencyChartView: View {
                         
                         Text(String(format: "%.2f ms", maxCpuP99))
                             .font(.system(.title3, design: .rounded).weight(.semibold))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         Text("max P99")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
@@ -160,7 +160,7 @@ struct WorkerCPULatencyChartView: View {
                 let dateStr = formattedPointDate(selected)
                 HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
-                        .fill(Color.cyan)
+                        .fill(CloudnsColor.database)
                         .frame(width: 6, height: 6)
                     Text(dateStr)
                         .font(.caption2.monospacedDigit().weight(.semibold))
@@ -168,7 +168,7 @@ struct WorkerCPULatencyChartView: View {
                 }
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(Color.cyan.opacity(0.12))
+                .background(CloudnsColor.databaseMuted)
                 .clipShape(Capsule())
             } else {
                 HStack(spacing: CloudnsSpacing.sm) {
@@ -177,7 +177,7 @@ struct WorkerCPULatencyChartView: View {
                         .foregroundStyle(.cyan)
                     Label("P99", systemImage: "circle.fill")
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(CloudnsColor.brandAccent)
                 }
             }
         }

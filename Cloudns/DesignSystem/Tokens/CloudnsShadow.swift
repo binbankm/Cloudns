@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Cloudns Shadow Level
-
+/// Cloudns 全局阴影层级规范 Token (严格支持深浅色模式自动深度适配)
 public enum CloudnsShadowLevel {
     /// 极软微阴影 (小图标背景、Chip、微列表浮动，radius: 3, y: 1)
     case soft

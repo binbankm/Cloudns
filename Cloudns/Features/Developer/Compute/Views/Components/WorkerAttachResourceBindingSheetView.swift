@@ -92,7 +92,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                     Section {
                         Text(err)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }
@@ -240,7 +240,7 @@ struct WorkerAttachResourceBindingSheetView: View {
         case "ai":
             HStack {
                 Image(systemName: "sparkles")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                 Text("Workers AI model execution binding.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

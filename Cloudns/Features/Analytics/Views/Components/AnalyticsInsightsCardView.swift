@@ -13,7 +13,7 @@ struct AnalyticsInsightsCardView: View {
         VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Edge Caching Savings", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
             
             HStack {
                 Text("Origin Bandwidth Saved")

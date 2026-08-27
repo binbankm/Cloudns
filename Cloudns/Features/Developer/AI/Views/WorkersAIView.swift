@@ -103,9 +103,9 @@ struct WorkersAIView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "sparkles")
                 .font(.body)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

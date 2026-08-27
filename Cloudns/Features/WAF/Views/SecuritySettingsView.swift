@@ -51,7 +51,7 @@ struct SecuritySettingsView: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
+                            .background(viewModel.securityLevel == "under_attack" ? Color.white : CloudnsColor.danger)
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                         }
@@ -60,7 +60,7 @@ struct SecuritySettingsView: View {
                     }
                     .padding(.vertical, CloudnsSpacing.sm)
                 }
-                .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : CloudnsColor.secondaryGroupedBackground)
+                .listRowBackground(viewModel.securityLevel == "under_attack" ? CloudnsColor.danger : CloudnsColor.secondaryGroupedBackground)
             
             // General Security Settings
             Section(header: Text("General Security")) {
@@ -147,7 +147,7 @@ struct SecuritySettingsView: View {
                                 .font(.body)
                             Image(systemName: "ant.fill")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                                 .accessibilityHidden(true)
                             CloudnsBadge(.free, isCompact: true)
                         }

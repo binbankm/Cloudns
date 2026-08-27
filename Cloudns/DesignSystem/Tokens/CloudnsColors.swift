@@ -39,6 +39,26 @@ public enum CloudnsColor {
     public static let infoMuted = Color.blue.opacity(0.14)
     /// 品牌色浅色背景底座 (14% 不透明度)
     public static let brandMuted = Color(red: 0.15, green: 0.45, blue: 0.95).opacity(0.14)
+    /// 品牌主强调色浅色背景底座 (Cloudflare 经典橙色 14% 不透明度)
+    public static let brandAccentMuted = Color.orange.opacity(0.14)
+    
+    // MARK: - Feature Domain Accents (用于各业务模块专属主题与图表)
+    /// AI 模块主题色 (Workers AI / Vectorize: 紫色)
+    public static let ai = Color.purple
+    /// AI 模块浅色底座 (14% 不透明度)
+    public static let aiMuted = Color.purple.opacity(0.14)
+    /// 数据库与缓存主题色 (D1 / Hyperdrive / KV: 青色)
+    public static let database = Color.cyan
+    /// 数据库浅色底座 (14% 不透明度)
+    public static let databaseMuted = Color.cyan.opacity(0.14)
+    /// 安全与零信任主题色 (Zero Trust / WAF / Whois: 青绿色)
+    public static let security = Color.teal
+    /// 安全模块浅色底座 (14% 不透明度)
+    public static let securityMuted = Color.teal.opacity(0.14)
+    /// 消息队列主题色 (Queues: 桃粉色)
+    public static let queues = Color.pink
+    /// 消息队列浅色底座 (14% 不透明度)
+    public static let queuesMuted = Color.pink.opacity(0.14)
     
     // MARK: - Surfaces & Backgrounds
     /// 页面大背景色 (系统分组背景色：iOS System Grouped Background)
@@ -51,6 +71,20 @@ public enum CloudnsColor {
     public static let cardBackground = Color(UIColor.secondarySystemGroupedBackground)
     /// Chip / 小标签灰色背景底色
     public static let chipBackground = Color(UIColor.tertiarySystemFill)
+    /// 黑曜石终端底色 (用于暗色模式下的日志与代码终端)
+    public static let terminalBackground = Color(red: 0.09, green: 0.10, blue: 0.12)
+    
+    // MARK: - Modal Overlays & Scrims
+    /// 标准模态遮罩 (35% 黑色背景遮罩)
+    public static let scrim = Color.black.opacity(0.35)
+    /// 轻量级局部遮罩 (15% 黑色遮罩，用于提交加载中 HUD)
+    public static let scrimSubtle = Color.black.opacity(0.15)
+    
+    // MARK: - Glass Outlines & Dividers
+    /// 玻璃卡片高光描边 (15% 白色半透明边框)
+    public static let glassBorder = Color.white.opacity(0.15)
+    /// 渐变卡片内置分割线 (25% 白色半透明分割线)
+    public static let glassDivider = Color.white.opacity(0.25)
     
     // MARK: - System Fills (HIG 4-tier Fill Hierarchy)
     /// 一级系统填充色 (主要容器或输入背景)
@@ -71,6 +105,10 @@ public enum CloudnsColor {
     public static let textTertiary = Color(UIColor.tertiaryLabel)
     /// 四级水印与微弱装饰文字 (系统 quaternaryLabel)
     public static let textQuaternary = Color(UIColor.quaternaryLabel)
+    /// 反色主要文本 (纯白，专用于深色/品牌彩色渐变卡片，避免浅色模式下变成黑色)
+    public static let textInverse = Color.white
+    /// 反色辅助文本 (85% 白色，专用于品牌渐变卡片副标题)
+    public static let textInverseMuted = Color.white.opacity(0.85)
     
     // MARK: - Separators & Outlines
     /// 标准列表分割线与描边 (系统 separator)

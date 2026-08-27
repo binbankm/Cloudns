@@ -62,7 +62,7 @@ struct R2UploadObjectSheetView: View {
                         if let name = selectedFileName, selectedFileURL != nil {
                             HStack {
                                 Image(systemName: "doc.fill")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .accessibilityHidden(true)
                                 VStack(alignment: .leading) {
                                     Text(name).font(.body)
@@ -88,7 +88,7 @@ struct R2UploadObjectSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

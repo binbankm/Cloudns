@@ -45,7 +45,7 @@ struct WorkerDetailView: View {
                             .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.orange, Color.orange.opacity(0.8)],
+                                    colors: [CloudnsColor.brandAccent, CloudnsColor.brandAccent.opacity(0.8)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -95,7 +95,7 @@ struct WorkerDetailView: View {
                                     } else {
                                         Text("Enabled (workers.dev)")
                                             .font(.caption.weight(.medium))
-                                            .foregroundStyle(.green)
+                                            .foregroundStyle(CloudnsColor.success)
                                     }
                                 } else {
                                     Text("Disabled")
@@ -148,7 +148,7 @@ struct WorkerDetailView: View {
                             Text("Total Size")
                         } icon: {
                             Image(systemName: "doc.zipper")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                         .foregroundStyle(.primary)
                         
@@ -166,7 +166,7 @@ struct WorkerDetailView: View {
                             Text("Compatibility Date")
                         } icon: {
                             Image(systemName: "calendar.badge.clock")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                         }
                         .foregroundStyle(.primary)
                         
@@ -184,7 +184,7 @@ struct WorkerDetailView: View {
                             Text("Last Modified")
                         } icon: {
                             Image(systemName: "clock.arrow.2.circlepath")
-                                .foregroundStyle(.purple)
+                                .foregroundStyle(CloudnsColor.ai)
                         }
                         .foregroundStyle(.primary)
                         
@@ -205,7 +205,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Analytics & Metrics")
@@ -225,7 +225,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "curlybraces")
                             .font(.body)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Source Code")
@@ -245,7 +245,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.body)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Deployments History")
@@ -260,7 +260,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "globe")
                             .font(.body)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Domains & Routes")
@@ -280,7 +280,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "slider.horizontal.3")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Bindings & Variables")
@@ -300,7 +300,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Cron Triggers")
@@ -320,7 +320,7 @@ struct WorkerDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "waveform.path.ecg")
                             .font(.body)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(CloudnsColor.success)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Real-Time Logs")
@@ -338,7 +338,7 @@ struct WorkerDetailView: View {
                         HStack(spacing: CloudnsSpacing.mdSmall) {
                             Image(systemName: "paperplane.fill")
                                 .font(.body)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                                 .frame(width: 24)
                                 .accessibilityHidden(true)
                             Text("Test Dispatch")

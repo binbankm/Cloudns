@@ -210,9 +210,9 @@ struct WorkersListView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "macwindow")
                 .font(.body)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.blue.opacity(0.12))
+                .background(CloudnsColor.brandMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

@@ -29,7 +29,7 @@ struct SnippetEditorSheetView: View {
                     HStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "info.circle.fill")
                             .font(.subheadline)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         Text("Cloudflare Snippets is available on Pro, Business, and Enterprise plans.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -56,7 +56,7 @@ struct SnippetEditorSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

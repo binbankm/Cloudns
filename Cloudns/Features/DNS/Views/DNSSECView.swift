@@ -112,7 +112,7 @@ struct DNSSECView: View {
             HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
                 Image(systemName: "info.circle.fill")
                     .font(.caption)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                     .padding(.top, CloudnsSpacing.xxs)
                 Text("Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar.")
                     .font(.caption)
@@ -120,7 +120,7 @@ struct DNSSECView: View {
                     .lineSpacing(2)
             }
             .padding(CloudnsSpacing.smMd)
-            .background(Color.blue.opacity(0.06))
+            .background(CloudnsColor.brand.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg, style: .continuous))
         }
         .padding(CloudnsSpacing.md)

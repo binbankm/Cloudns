@@ -154,7 +154,7 @@ struct GatewayRulesView: View {
                 .foregroundStyle(.teal)
                 .font(.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.teal.opacity(0.12))
+                .background(CloudnsColor.securityMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

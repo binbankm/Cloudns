@@ -14,7 +14,7 @@ struct PagesDeploymentsPipelineCardView: View {
             HStack {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.subheadline)
-                    .foregroundStyle(.purple)
+                    .foregroundStyle(CloudnsColor.ai)
                 Text("Deployments Pipeline")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
@@ -28,7 +28,7 @@ struct PagesDeploymentsPipelineCardView: View {
                 // Production Bar
                 VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
-                        Circle().fill(Color.purple).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
+                        Circle().fill(CloudnsColor.ai).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                         Text("Production")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -40,7 +40,7 @@ struct PagesDeploymentsPipelineCardView: View {
                         value: Double(productionDeploymentsCount),
                         total: max(1, Double(totalDeploymentsCount))
                     )
-                    .tint(.purple)
+                    .tint(CloudnsColor.brand)
                 }
                 .padding(CloudnsSpacing.mdSmall)
                 .background(CloudnsColor.tertiaryGroupedBackground)
@@ -49,7 +49,7 @@ struct PagesDeploymentsPipelineCardView: View {
                 // Preview Bar
                 VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
-                        Circle().fill(Color.blue).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
+                        Circle().fill(CloudnsColor.brand).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                         Text("Preview")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -61,7 +61,7 @@ struct PagesDeploymentsPipelineCardView: View {
                         value: Double(previewDeploymentsCount),
                         total: max(1, Double(totalDeploymentsCount))
                     )
-                    .tint(.blue)
+                    .tint(CloudnsColor.brand)
                 }
                 .padding(CloudnsSpacing.mdSmall)
                 .background(CloudnsColor.tertiaryGroupedBackground)

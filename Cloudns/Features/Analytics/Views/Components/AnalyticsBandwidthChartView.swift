@@ -33,8 +33,8 @@ struct AnalyticsBandwidthChartView: View {
                     .foregroundStyle(
                         LinearGradient(
                             colors: isSelected
-                                ? [Color.purple.opacity(0.95), Color.purple]
-                                : [Color.purple.opacity(0.65), Color.purple.opacity(0.85)],
+                                ? [CloudnsColor.ai.opacity(0.95), CloudnsColor.ai]
+                                : [CloudnsColor.ai.opacity(0.65), CloudnsColor.ai.opacity(0.85)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -45,7 +45,7 @@ struct AnalyticsBandwidthChartView: View {
                 if let selected = selectedBandwidthPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
-                        .foregroundStyle(Color.purple.opacity(0.6))
+                        .foregroundStyle(CloudnsColor.ai.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                 }
             }
@@ -97,7 +97,7 @@ struct AnalyticsBandwidthChartView: View {
                 HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.bar.fill")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(CloudnsColor.ai)
                     Text("Bandwidth Usage")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -119,7 +119,7 @@ struct AnalyticsBandwidthChartView: View {
                 let dateStr = formattedPointDate(selected)
                 HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
-                        .fill(Color.purple)
+                        .fill(CloudnsColor.ai)
                         .frame(width: 6, height: 6)
                     Text(dateStr)
                         .font(.caption2.monospacedDigit().weight(.semibold))
@@ -127,7 +127,7 @@ struct AnalyticsBandwidthChartView: View {
                 }
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(Capsule())
             } else {
                 Text("Drag to Inspect")

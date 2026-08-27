@@ -14,7 +14,7 @@ struct PagesAnalyticsInsightsView: View {
         VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Pages Edge & Pipeline Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
             
             HStack {
                 Text("Subrequest Ratio")
@@ -47,7 +47,7 @@ struct PagesAnalyticsInsightsView: View {
                 Spacer()
                 (Text(verbatim: String(format: "%.1f%% ", deploymentSuccessRate)) + Text("Success Rate"))
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(CloudnsColor.success)
             }
         }
         .padding(CloudnsSpacing.mdMedium)

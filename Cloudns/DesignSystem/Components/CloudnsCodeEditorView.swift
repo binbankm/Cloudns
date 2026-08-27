@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-// MARK: - CloudnsCodeEditorView
+/// Cloudns 高性能 TextKit 原生代码编辑器与行号容器 (支持 JavaScript / TypeScript 语法高亮)
 struct CloudnsCodeEditorView: UIViewRepresentable {
     @Binding var text: String
     var isEditable: Bool = false

@@ -28,7 +28,7 @@ struct AddZoneView: View {
                         ForEach(zone.nameServers ?? [], id: \.self) { ns in
                             HStack {
                                 Image(systemName: "server.rack")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .frame(width: 28)
                                     .accessibilityHidden(true)
                                 Text(ns)
@@ -40,7 +40,7 @@ struct AddZoneView: View {
                                     CloudnsToastManager.shared.showCopied("Nameserver copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(CloudnsColor.brand)
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel("Copy nameserver \(ns)")
@@ -55,7 +55,7 @@ struct AddZoneView: View {
                                 .font(.subheadline)
                                 .frame(maxWidth: .infinity)
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                     }
 
                     // Instructions
@@ -116,7 +116,7 @@ struct AddZoneView: View {
                         Section {
                             HStack(spacing: CloudnsSpacing.smMd) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                     .accessibilityHidden(true)
                                 Text(error)
                                     .foregroundStyle(.primary)
@@ -145,7 +145,7 @@ struct AddZoneView: View {
                 .overlay {
                     if isSubmitting {
                         ZStack {
-                            Color.black.opacity(0.15).ignoresSafeArea()
+                            CloudnsColor.scrimSubtle.ignoresSafeArea()
                             VStack(spacing: CloudnsSpacing.mdSmall) {
                                 ProgressView()
                                     .controlSize(.large)

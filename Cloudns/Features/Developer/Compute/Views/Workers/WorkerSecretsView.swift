@@ -191,9 +191,9 @@ struct WorkerSecretsView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "slider.horizontal.3")
                 .font(.body)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
-                .background(Color.blue.opacity(0.12))
+                .background(CloudnsColor.brandMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
@@ -217,7 +217,7 @@ struct WorkerSecretsView: View {
             } label: {
                 Image(systemName: "pencil")
                     .font(.subheadline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
             }
             .buttonStyle(.borderless)
             .accessibilityLabel("Edit variable \(variable.name)")
@@ -269,9 +269,9 @@ struct WorkerSecretsView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "key.fill")
                 .font(.body)
-                .foregroundStyle(.orange)
+                .foregroundStyle(CloudnsColor.brandAccent)
                 .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
-                .background(Color.orange.opacity(0.12))
+                .background(CloudnsColor.warningMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
@@ -291,10 +291,10 @@ struct WorkerSecretsView: View {
             
             Text("ENCRYPTED")
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.green)
+                .foregroundStyle(CloudnsColor.success)
                 .padding(.horizontal, CloudnsSpacing.xs)
                 .padding(.vertical, CloudnsSpacing.xxs)
-                .background(Color.green.opacity(0.12))
+                .background(CloudnsColor.successMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
         }
         .padding(.vertical, CloudnsSpacing.xs)

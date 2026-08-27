@@ -157,7 +157,7 @@ struct DNSPropagationView: View {
                 Section {
                     Text(error)
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(CloudnsColor.danger)
                 }
             }
         }

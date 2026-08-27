@@ -229,9 +229,9 @@ struct KVBrowserView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "key.horizontal.fill")
                 .font(.body)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
@@ -256,9 +256,9 @@ struct KVBrowserView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "cylinder.split.1x2.fill")
                 .font(.body)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

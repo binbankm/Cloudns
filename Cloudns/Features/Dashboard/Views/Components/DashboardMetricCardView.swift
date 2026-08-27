@@ -87,6 +87,6 @@ struct DashboardMetricCardView: View {
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
         .cloudnsCard(style: .frosted, size: .compact)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(value), \(subtitle)")
+        .accessibilityLabel(Text(title) + Text(", \(value), ") + Text(subtitle))
     }
 }

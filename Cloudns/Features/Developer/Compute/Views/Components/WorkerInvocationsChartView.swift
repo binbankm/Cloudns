@@ -28,7 +28,7 @@ struct WorkerInvocationsChartView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.purple.opacity(0.32), Color.purple.opacity(0.01)],
+                            colors: [CloudnsColor.ai.opacity(0.32), CloudnsColor.ai.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -39,7 +39,7 @@ struct WorkerInvocationsChartView: View {
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
                     )
-                    .foregroundStyle(Color.purple)
+                    .foregroundStyle(CloudnsColor.ai)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                     
@@ -49,14 +49,14 @@ struct WorkerInvocationsChartView: View {
                             y: .value("Errors", pt.errors),
                             width: .fixed(6)
                         )
-                        .foregroundStyle(Color.red.opacity(0.85))
+                        .foregroundStyle(CloudnsColor.danger.opacity(0.85))
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs, style: .continuous))
                     }
                 }
                 
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
-                        .foregroundStyle(Color.purple.opacity(0.6))
+                        .foregroundStyle(CloudnsColor.ai.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -117,7 +117,7 @@ struct WorkerInvocationsChartView: View {
                 HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.xyaxis.line")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(CloudnsColor.ai)
                     Text("Invocations Traffic")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -134,7 +134,7 @@ struct WorkerInvocationsChartView: View {
                     if let selected = selectedPoint, selected.errors > 0 {
                         Text("(\(selected.errors) errors)")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }
@@ -145,7 +145,7 @@ struct WorkerInvocationsChartView: View {
                 let dateStr = formattedPointDate(selected)
                 HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
-                        .fill(Color.purple)
+                        .fill(CloudnsColor.ai)
                         .frame(width: 6, height: 6)
                     Text(dateStr)
                         .font(.caption2.monospacedDigit().weight(.semibold))
@@ -153,7 +153,7 @@ struct WorkerInvocationsChartView: View {
                 }
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(Capsule())
             } else {
                 Text("Drag to Inspect")
@@ -167,14 +167,14 @@ struct WorkerInvocationsChartView: View {
     private var selectedPointSymbol: some View {
         ZStack {
             Circle()
-                .fill(Color.purple.opacity(0.25))
+                .fill(CloudnsColor.ai.opacity(0.25))
                 .frame(width: CloudnsSize.iconSmall, height: CloudnsSize.iconSmall)
             Circle()
                 .fill(Color.white)
                 .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
-                .shadow(color: Color.purple, radius: 4)
+                .shadow(color: CloudnsColor.ai, radius: 4)
             Circle()
-                .stroke(Color.purple, lineWidth: 2)
+                .stroke(CloudnsColor.ai, lineWidth: 2)
                 .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
         }
     }

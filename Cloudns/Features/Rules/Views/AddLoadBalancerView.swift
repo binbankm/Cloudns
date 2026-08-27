@@ -47,7 +47,7 @@ struct AddLoadBalancerView: View {
                     HStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "info.circle.fill")
                             .font(.subheadline)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                         Text("Cloudflare Load Balancing is a paid add-on service. Make sure it is active on your Cloudflare account.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -114,7 +114,7 @@ struct AddLoadBalancerView: View {
                                     Spacer()
                                     if selectedPools.contains(pool.id) {
                                         Image(systemName: "checkmark")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(CloudnsColor.brand)
                                     }
                                 }
                             }
@@ -137,7 +137,7 @@ struct AddLoadBalancerView: View {
                 if let error = viewModel.errorMessage {
                     Section {
                         Text(error)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .font(.caption)
                     }
                 }

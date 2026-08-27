@@ -49,7 +49,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         } label: {
                             Image(systemName: "trash")
                                 .font(.subheadline)
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                         }
                     }
                 }
@@ -64,9 +64,9 @@ struct WorkersAIPlaygroundSheetView: View {
         HStack(spacing: CloudnsSpacing.smMd) {
             Image(systemName: "sparkles")
                 .font(.body)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             
             VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
@@ -79,8 +79,8 @@ struct WorkersAIPlaygroundSheetView: View {
                         .font(.caption2.weight(.medium))
                         .padding(.horizontal, CloudnsSpacing.xs)
                         .padding(.vertical, CloudnsSpacing.xxs)
-                        .background(Color.purple.opacity(0.12))
-                        .foregroundStyle(.purple)
+                        .background(CloudnsColor.aiMuted)
+                        .foregroundStyle(CloudnsColor.ai)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 
@@ -175,7 +175,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         HStack {
                             Image(systemName: "bubble.left.and.bubble.right")
                                 .font(.caption2)
-                                .foregroundStyle(.purple)
+                                .foregroundStyle(CloudnsColor.ai)
                             Text(prompt)
                                 .font(.subheadline)
                                 .foregroundStyle(.primary)
@@ -211,7 +211,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .textSelection(.enabled)
                         .padding(.horizontal, CloudnsSpacing.mdMedium)
                         .padding(.vertical, CloudnsSpacing.smMd)
-                        .background(Color.purple)
+                        .background(CloudnsColor.ai)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
                 }
             }
@@ -221,7 +221,7 @@ struct WorkersAIPlaygroundSheetView: View {
                     .font(.caption)
                     .foregroundStyle(message.isError ? .red : .purple)
                     .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
-                    .background((message.isError ? Color.red : Color.purple).opacity(0.12))
+                    .background((message.isError ? CloudnsColor.danger : CloudnsColor.ai).opacity(0.12))
                     .clipShape(Circle())
                     .padding(.top, CloudnsSpacing.xs)
                 
@@ -268,9 +268,9 @@ struct WorkersAIPlaygroundSheetView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "sparkles")
                 .font(.caption)
-                .foregroundStyle(.purple)
+                .foregroundStyle(CloudnsColor.ai)
                 .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
-                .background(Color.purple.opacity(0.12))
+                .background(CloudnsColor.aiMuted)
                 .clipShape(Circle())
             
             HStack(spacing: CloudnsSpacing.sm) {
@@ -325,8 +325,8 @@ struct WorkersAIPlaygroundSheetView: View {
                     .font(.title)
                     .foregroundStyle(
                         viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage
-                        ? Color.gray.opacity(0.4)
-                        : Color.purple
+                        ? CloudnsColor.dnsOnly.opacity(0.4)
+                        : CloudnsColor.ai
                     )
             }
             .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)

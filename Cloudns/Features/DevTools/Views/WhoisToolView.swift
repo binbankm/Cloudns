@@ -110,7 +110,7 @@ struct WhoisToolView: View {
                                 .font(.caption.weight(.medium).monospacedDigit())
                                 .padding(.horizontal, CloudnsSpacing.smMd)
                                 .padding(.vertical, CloudnsSpacing.xs)
-                                .background(Color.teal.opacity(0.10))
+                                .background(CloudnsColor.security.opacity(0.10))
                                 .foregroundStyle(.teal)
                                 .clipShape(Capsule())
                         }
@@ -228,7 +228,7 @@ struct WhoisToolView: View {
                 ForEach(info.statuses, id: \.self) { status in
                     HStack(spacing: CloudnsSpacing.sm) {
                         Circle()
-                            .fill(Color.teal)
+                            .fill(CloudnsColor.security)
                             .frame(width: 6, height: 6)
                         Text(status)
                             .font(.caption.monospacedDigit())
@@ -269,7 +269,7 @@ struct WhoisToolView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                     }
                     .padding(.vertical, CloudnsSpacing.xxs)
@@ -286,7 +286,7 @@ struct WhoisToolView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.orange)
+                .foregroundStyle(CloudnsColor.brandAccent)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Lookup Failed")
                     .font(.headline)

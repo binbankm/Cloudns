@@ -18,9 +18,9 @@ struct KVValueSheetView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "key.horizontal.fill")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
-                            .background(Color.purple.opacity(0.12))
+                            .background(CloudnsColor.aiMuted)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             .accessibilityHidden(true)
                         
@@ -43,9 +43,9 @@ struct KVValueSheetView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.purple)
+                                .foregroundStyle(CloudnsColor.ai)
                                 .padding(CloudnsSpacing.sm)
-                                .background(Color.purple.opacity(0.1))
+                                .background(CloudnsColor.ai.opacity(0.1))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
                         .buttonStyle(.plain)
@@ -96,7 +96,7 @@ struct KVValueSheetView: View {
                                     .foregroundStyle(.white)
                                     .padding(.horizontal, CloudnsSpacing.smMd)
                                     .padding(.vertical, CloudnsSpacing.xs)
-                                    .background(Color.purple)
+                                    .background(CloudnsColor.ai)
                                     .clipShape(Capsule())
                                 }
                                 .buttonStyle(.plain)
@@ -121,7 +121,7 @@ struct KVValueSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(CloudnsColor.ai)
                 }
             }
             .toastContainer()

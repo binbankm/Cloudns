@@ -78,7 +78,7 @@ struct R2CreateBucketSheetView: View {
                     Section {
                         Label(hint, systemImage: "info.circle")
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                     }
                 }
                 
@@ -86,7 +86,7 @@ struct R2CreateBucketSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

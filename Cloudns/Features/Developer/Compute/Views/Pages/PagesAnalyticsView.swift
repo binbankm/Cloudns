@@ -69,7 +69,7 @@ public struct PagesAnalyticsView: View {
     private var headerBar: some View {
         HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "globe.americas.fill")
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .font(.title3)
             
             Text(projectName)

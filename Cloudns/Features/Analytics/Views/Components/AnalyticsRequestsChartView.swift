@@ -29,7 +29,7 @@ struct AnalyticsRequestsChartView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
+                            colors: [CloudnsColor.brand.opacity(0.32), CloudnsColor.brand.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -40,7 +40,7 @@ struct AnalyticsRequestsChartView: View {
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
@@ -48,7 +48,7 @@ struct AnalyticsRequestsChartView: View {
                 if let selected = selectedPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
-                        .foregroundStyle(Color.blue.opacity(0.6))
+                        .foregroundStyle(CloudnsColor.brand.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -108,7 +108,7 @@ struct AnalyticsRequestsChartView: View {
                 HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.xyaxis.line")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                     Text("Requests Traffic")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -130,7 +130,7 @@ struct AnalyticsRequestsChartView: View {
                 let dateStr = formattedPointDate(selected)
                 HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
-                        .fill(Color.blue)
+                        .fill(CloudnsColor.brand)
                         .frame(width: 6, height: 6)
                     Text(dateStr)
                         .font(.caption2.monospacedDigit().weight(.semibold))
@@ -138,7 +138,7 @@ struct AnalyticsRequestsChartView: View {
                 }
                 .padding(.horizontal, CloudnsSpacing.sm)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(Color.blue.opacity(0.12))
+                .background(CloudnsColor.brandMuted)
                 .clipShape(Capsule())
             } else {
                 Text("Drag to Inspect")
@@ -152,14 +152,14 @@ struct AnalyticsRequestsChartView: View {
     private var selectedPointSymbol: some View {
         ZStack {
             Circle()
-                .fill(Color.blue.opacity(0.25))
+                .fill(CloudnsColor.brand.opacity(0.25))
                 .frame(width: CloudnsSize.iconSmall, height: CloudnsSize.iconSmall)
             Circle()
                 .fill(Color.white)
                 .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
-                .shadow(color: Color.blue, radius: 4)
+                .shadow(color: CloudnsColor.brand, radius: 4)
             Circle()
-                .stroke(Color.blue, lineWidth: 2)
+                .stroke(CloudnsColor.brand, lineWidth: 2)
                 .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
         }
     }

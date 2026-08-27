@@ -54,7 +54,7 @@ struct CIDRCalculatorView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "number.square.fill")
                     .font(.title3)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                     .accessibilityHidden(true)
                 
                 TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
@@ -95,7 +95,7 @@ struct CIDRCalculatorView: View {
                                 .font(.caption.weight(.medium).monospacedDigit())
                                 .padding(.horizontal, CloudnsSpacing.smMd)
                                 .padding(.vertical, CloudnsSpacing.xs)
-                                .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.10))
+                                .background(viewModel.cidrInput == preset ? CloudnsColor.brand : CloudnsColor.brand.opacity(0.10))
                                 .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
                                 .clipShape(Capsule())
                         }
@@ -170,7 +170,7 @@ struct CIDRCalculatorView: View {
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                 }
             }
             
@@ -178,10 +178,10 @@ struct CIDRCalculatorView: View {
             
             Text(result.binaryMask)
                 .font(.caption.monospaced())
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .padding(CloudnsSpacing.smMd)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.blue.opacity(0.06))
+                .background(CloudnsColor.brand.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 .textSelection(.enabled)
         }
@@ -219,7 +219,7 @@ struct CIDRCalculatorView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Calculation Error")
                     .font(.headline)

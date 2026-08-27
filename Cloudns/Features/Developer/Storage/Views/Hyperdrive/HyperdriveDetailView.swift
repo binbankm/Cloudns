@@ -82,7 +82,7 @@ struct HyperdriveDetailView: View {
                         Spacer()
                         Text(caching.disabled == true ? "Disabled" : "Enabled")
                             .font(.subheadline)
-                            .foregroundStyle(caching.disabled == true ? Color.secondary : Color.green)
+                            .foregroundStyle(caching.disabled == true ? Color.secondary : CloudnsColor.success)
                     }
                     
                     if let maxAge = caching.maxAge {

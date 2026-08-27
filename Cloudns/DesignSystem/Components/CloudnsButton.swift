@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Cloudns Button Style
-
+/// Cloudns 标准按钮外观样式
 public enum CloudnsButtonStyle {
     /// 主操作按钮 (品牌渐变背景 + 白色文字，全宽或自适应)
     case primary(color: Color = CloudnsColor.brandAccent)
@@ -12,24 +11,23 @@ public enum CloudnsButtonStyle {
     /// 轮廓描边按钮 (透明背景 + 细边框)
     case outlined(color: Color = CloudnsColor.brandAccent)
     /// 纯文本轻量按钮 (无背景)
-    case text(color: Color = .blue)
+    case text(color: Color = CloudnsColor.brand)
 }
 
-// MARK: - Cloudns Button Size
-
+/// Cloudns 按钮尺寸层级
 public enum CloudnsButtonSize {
     /// 大尺寸主按钮 (高度 48pt，适合表单底部提交或登录 CTA)
     case large
-    /// 标准中号按钮 (高度 40pt，符合 HIG 44pt 触控交互标准)
+    /// 标准中号按钮 (高度 40pt，符合 HIG 触控交互标准)
     case regular
     /// 紧凑小号按钮 (高度 32pt，适合列表内操作项或卡片内快捷操作)
     case small
     
     public var height: CGFloat {
         switch self {
-        case .large: return 48
-        case .regular: return 40
-        case .small: return 32
+        case .large: return CloudnsSize.controlHeightLarge
+        case .regular: return CloudnsSize.controlHeight
+        case .small: return CloudnsSize.controlHeightSmall
         }
     }
     
@@ -148,7 +146,7 @@ public struct CloudnsButton: View {
         case .secondary:
             CloudnsColor.chipBackground
         case .destructive:
-            Color.red.opacity(colorScheme == .dark ? 0.85 : 0.90)
+            CloudnsColor.danger.opacity(colorScheme == .dark ? 0.85 : 0.90)
         case .outlined:
             Color.clear
         case .text:

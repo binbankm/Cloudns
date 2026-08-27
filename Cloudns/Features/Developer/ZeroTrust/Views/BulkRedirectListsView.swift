@@ -125,10 +125,10 @@ struct BulkRedirectListsView: View {
     private func listRow(_ list: RedirectList) -> some View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "arrow.triangle.swap")
-                .foregroundStyle(.indigo)
-                .font(.title3)
+                .foregroundStyle(CloudnsColor.brandAccent)
+                .font(CloudnsTypography.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.indigo.opacity(0.12))
+                .background(CloudnsColor.brandAccentMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

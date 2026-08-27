@@ -215,7 +215,7 @@ struct AddWAFRuleView: View {
                 if let error = viewModel.errorMessage {
                     Section {
                         Text(error)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .font(.caption)
                     }
                 }
@@ -245,7 +245,7 @@ struct AddWAFRuleView: View {
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).ignoresSafeArea()
+                        CloudnsColor.scrim.ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
@@ -267,7 +267,7 @@ struct AddWAFRuleView: View {
             HStack(spacing: CloudnsSpacing.xs) {
                 Image(systemName: "sparkles")
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                 Text(title)
                     .font(.caption.weight(.medium))
             }
@@ -275,7 +275,7 @@ struct AddWAFRuleView: View {
             .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.secondaryGroupedBackground)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(Color.orange.opacity(0.25), lineWidth: 0.5))
+            .overlay(Capsule().stroke(CloudnsColor.brandAccent.opacity(0.25), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
     }

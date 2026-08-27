@@ -28,7 +28,7 @@ struct TailEventRowView: View {
                 } else if let cron = item.event?.cron {
                     Label(cron, systemImage: "clock")
                         .font(.caption.monospaced())
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(CloudnsColor.ai)
                 }
                 
                 // Outcome
@@ -68,7 +68,7 @@ struct TailEventRowView: View {
                     if logs.count > 3 {
                         Text("+ \(logs.count - 3) more log lines")
                             .font(.caption2)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                     }
                 }
                 .padding(CloudnsSpacing.sm)
@@ -82,16 +82,16 @@ struct TailEventRowView: View {
                     HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .accessibilityHidden(true)
                         Text(ex.message ?? ex.name ?? "Exception occurred")
                             .font(.caption.monospaced())
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .lineLimit(2)
                     }
                     .padding(CloudnsSpacing.sm)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.red.opacity(0.1))
+                    .background(CloudnsColor.danger.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
             }

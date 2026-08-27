@@ -113,7 +113,7 @@ struct PagesProjectDetailView: View {
                             .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.blue, Color.cyan],
+                                    colors: [CloudnsColor.brand, CloudnsColor.database],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -153,7 +153,7 @@ struct PagesProjectDetailView: View {
                                     .foregroundStyle(.secondary)
                                 Text("https://\(sub)")
                                     .font(.caption.monospaced())
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .lineLimit(1)
                             }
                             
@@ -198,7 +198,7 @@ struct PagesProjectDetailView: View {
                             Text("Production Branch")
                         } icon: {
                             Image(systemName: "arrow.triangle.branch")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                         .foregroundStyle(.primary)
                         Spacer()
@@ -214,7 +214,7 @@ struct PagesProjectDetailView: View {
                             Text("Repository")
                         } icon: {
                             Image(systemName: "folder")
-                                .foregroundStyle(.purple)
+                                .foregroundStyle(CloudnsColor.ai)
                         }
                         .foregroundStyle(.primary)
                         Spacer()
@@ -230,7 +230,7 @@ struct PagesProjectDetailView: View {
                             Text("Created Date")
                         } icon: {
                             Image(systemName: "calendar")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                         }
                         .foregroundStyle(.primary)
                         Spacer()
@@ -249,7 +249,7 @@ struct PagesProjectDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Analytics & Metrics")
@@ -264,7 +264,7 @@ struct PagesProjectDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.body)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Deployments History")
@@ -284,7 +284,7 @@ struct PagesProjectDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "globe")
                             .font(.body)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Custom Domains")
@@ -308,7 +308,7 @@ struct PagesProjectDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "slider.horizontal.3")
                             .font(.body)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Bindings & Variables")
@@ -323,7 +323,7 @@ struct PagesProjectDetailView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "gearshape")
                             .font(.body)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .frame(width: 24)
                             .accessibilityHidden(true)
                         Text("Build Configuration")

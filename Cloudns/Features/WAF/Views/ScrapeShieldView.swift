@@ -13,7 +13,7 @@ struct ScrapeShieldView: View {
                 VStack(spacing: CloudnsSpacing.mdSmall) {
                     Image(systemName: "eye.slash.fill")
                         .font(.largeTitle)
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(CloudnsColor.ai)
                         .padding(.top, CloudnsSpacing.smMd)
                         .accessibilityHidden(true)
                     
@@ -35,7 +35,7 @@ struct ScrapeShieldView: View {
                     VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                         Label("About Scrape Shield", systemImage: "info.circle")
                             .font(.subheadline)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(CloudnsColor.ai)
                         
                         Text("These protections help safeguard your content without impacting real visitors. Email obfuscation uses JavaScript to rewrite addresses, while hotlink protection blocks image requests from external domains.")
                             .font(.caption)

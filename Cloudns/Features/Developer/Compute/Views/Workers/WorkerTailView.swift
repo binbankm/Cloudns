@@ -105,7 +105,7 @@ struct WorkerTailView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             HStack(spacing: CloudnsSpacing.sm) {
                 Circle()
-                    .fill(viewModel.isStreaming ? Color.green : Color.red)
+                    .fill(viewModel.isStreaming ? CloudnsColor.success : CloudnsColor.danger)
                     .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
                     .font(.caption.weight(.medium))

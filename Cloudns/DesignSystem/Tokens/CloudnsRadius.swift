@@ -39,4 +39,3 @@ public extension View {
         self.clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     }
 }
-

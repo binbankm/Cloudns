@@ -118,7 +118,7 @@ struct PagesAttachResourceBindingSheetView: View {
                     Section {
                         Text(err)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

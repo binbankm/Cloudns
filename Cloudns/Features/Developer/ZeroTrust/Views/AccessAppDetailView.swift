@@ -63,7 +63,7 @@ struct AccessAppDetailView: View {
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(err)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(CloudnsColor.danger)
                 } else if policies.isEmpty {
                     Text("No policies assigned to this application.")
                         .font(.subheadline)

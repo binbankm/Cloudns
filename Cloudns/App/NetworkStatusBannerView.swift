@@ -12,7 +12,7 @@ struct NetworkStatusBannerView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, CloudnsSpacing.mdMedium)
         .padding(.vertical, CloudnsSpacing.sm)
-        .background(Capsule().fill(Color.orange.opacity(0.92)))
+        .background(Capsule().fill(CloudnsColor.brandAccent.opacity(0.92)))
         .cloudnsShadow(.card)
         .padding(.top, CloudnsSpacing.xs)
         .transition(.move(edge: .top).combined(with: .opacity))

@@ -53,7 +53,7 @@ struct RootView: View {
                     
                     DevToolsHubView()
                         .tabItem {
-                            Label("Dev Tools", systemImage: selectedTab == .devtools ? "wrench.and.screwdriver.fill" : "wrench.and.screwdriver")
+                            Label("Tools", systemImage: selectedTab == .devtools ? "terminal.fill" : "terminal")
                         }
                         .tag(AppTab.devtools)
                     

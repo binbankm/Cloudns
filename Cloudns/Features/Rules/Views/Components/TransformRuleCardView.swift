@@ -33,7 +33,7 @@ struct TransformRuleCardView: View {
                 if let path = uri.path?.value {
                     HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "link")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(CloudnsColor.brand)
                             .font(.caption2)
                             .accessibilityHidden(true)
                         Text("Rewrite Path -> \(path)")

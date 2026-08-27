@@ -261,7 +261,7 @@ struct DashboardView: View {
                             .font(CloudnsTypography.caption2.weight(.bold))
                     }
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                 }
             }
             .padding(.horizontal, CloudnsSpacing.xs)
@@ -311,11 +311,11 @@ struct DashboardView: View {
                             HStack(spacing: CloudnsSpacing.smMd) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.blue.opacity(0.12))
+                                        .fill(CloudnsColor.brandMuted)
                                         .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                                     Image(systemName: "globe")
                                         .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(CloudnsColor.brand)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
@@ -356,7 +356,7 @@ struct DashboardView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "checkmark.shield.fill")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(CloudnsColor.success)
                     .accessibilityHidden(true)
                 
                 VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {

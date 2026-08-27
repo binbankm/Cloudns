@@ -12,9 +12,9 @@ struct WorkerSecretRowView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "key.fill")
                 .font(.body)
-                .foregroundStyle(.orange)
+                .foregroundStyle(CloudnsColor.brandAccent)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.orange.opacity(0.12))
+                .background(CloudnsColor.warningMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

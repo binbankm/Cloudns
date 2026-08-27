@@ -67,7 +67,7 @@ struct D1RowEditorView: View {
                                     if col.isPrimaryKey {
                                         Image(systemName: "key.fill")
                                             .font(.caption2)
-                                            .foregroundStyle(.orange)
+                                            .foregroundStyle(CloudnsColor.brandAccent)
                                     }
                                     Spacer()
                                     Text(verbatim: col.type)
@@ -106,7 +106,7 @@ struct D1RowEditorView: View {
                     Section {
                         Text(verbatim: err)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }

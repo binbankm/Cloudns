@@ -34,7 +34,7 @@ struct AccountsView: View {
                                 
                                 if accountManager.activeEmail == email {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.orange)
+                                        .foregroundStyle(CloudnsColor.brandAccent)
                                         .font(.subheadline.weight(.semibold))
                                         .accessibilityHidden(true)
                                 }
@@ -53,10 +53,10 @@ struct AccountsView: View {
                     }) {
                         HStack {
                             Image(systemName: "plus.circle.fill")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                                 .accessibilityHidden(true)
                             Text("Add Another Account")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                             Spacer()
                         }
                         .contentShape(Rectangle())
@@ -72,7 +72,7 @@ struct AccountsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
                 }
             }
             .sheet(isPresented: $isShowingAddAccount) {

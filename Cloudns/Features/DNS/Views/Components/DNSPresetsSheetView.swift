@@ -177,7 +177,7 @@ struct DNSPresetsSheetView: View {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "wand.and.stars")
                             .font(.title2)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("1-Click DNS Presets")
                                 .font(.headline)
@@ -282,8 +282,8 @@ struct DNSPresetsSheetView: View {
                                     .font(.caption.monospacedDigit().weight(.bold))
                                     .padding(.horizontal, CloudnsSpacing.sm)
                                     .padding(.vertical, CloudnsSpacing.xxs)
-                                    .background(Color.blue.opacity(0.12))
-                                    .foregroundStyle(.blue)
+                                    .background(CloudnsColor.brandMuted)
+                                    .foregroundStyle(CloudnsColor.brand)
                                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                                 
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
@@ -330,7 +330,7 @@ struct DNSPresetsSheetView: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(isApplying)
-                    .listRowBackground(Color.blue)
+                    .listRowBackground(CloudnsColor.brand)
                 }
             }
             .listStyle(.insetGrouped)

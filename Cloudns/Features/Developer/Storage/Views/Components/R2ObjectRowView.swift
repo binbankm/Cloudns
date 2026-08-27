@@ -11,9 +11,9 @@ struct R2ObjectRowView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: fileIcon(for: object.key))
                 .font(.body)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.blue.opacity(0.12))
+                .background(CloudnsColor.brandMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

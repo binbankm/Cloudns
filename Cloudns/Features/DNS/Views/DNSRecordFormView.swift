@@ -268,7 +268,7 @@ struct DNSRecordFormView: View {
                 if let error = errorMessage {
                     Section {
                         Text(error)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .font(.caption)
                     }
                 }
@@ -298,7 +298,7 @@ struct DNSRecordFormView: View {
             .overlay {
                 if isSaving {
                     ZStack {
-                        Color.black.opacity(0.3).ignoresSafeArea()
+                        CloudnsColor.scrim.ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))

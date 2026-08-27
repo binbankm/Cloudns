@@ -36,7 +36,7 @@ struct AddEmailRuleView: View {
                 Section(header: Text("Destination"), footer: Text("The verified destination address where messages will be forwarded.")) {
                     if viewModel.destinations.isEmpty {
                         Text("No verified destinations available.")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in
@@ -76,7 +76,7 @@ struct AddEmailRuleView: View {
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).ignoresSafeArea()
+                        CloudnsColor.scrim.ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))

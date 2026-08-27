@@ -153,7 +153,7 @@ struct SSLSettingsView: View {
                     }
                     .padding(.vertical, CloudnsSpacing.xs)
                 }
-                .tint(.red)
+                .tint(CloudnsColor.danger)
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.hstsEnabled) { enabled in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
@@ -187,7 +187,7 @@ struct SSLSettingsView: View {
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                 } else {
                     Button("Save HSTS (Disable)") {
                         HapticManager.impact(.medium)
@@ -196,7 +196,7 @@ struct SSLSettingsView: View {
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(CloudnsColor.brand)
                 }
             }
         } else if viewModel.isLoading {

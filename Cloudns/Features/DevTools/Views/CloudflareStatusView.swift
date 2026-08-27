@@ -247,7 +247,7 @@ struct CloudflareStatusView: View {
     // MARK: - Overall Banner Card
     private func overallBanner(summary: CFStatusSummary) -> some View {
         let isOperational = summary.status?.indicator == "none"
-        let bgColor = isOperational ? Color.green : Color.orange
+        let bgColor = isOperational ? CloudnsColor.success : CloudnsColor.brandAccent
         
         return HStack(spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")

@@ -32,7 +32,7 @@ struct DNSSECDetailRowView: View {
                     CloudnsToastManager.shared.showCopied(String(format: copyFormat, localizedTitle))
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                 }
                 .accessibilityLabel("Copy \(title)")
             }

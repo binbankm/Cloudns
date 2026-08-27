@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Modern Universal State Overlay (iOS 16 & iOS 17+ Progressive Enhancement)
-
+/// Cloudns 全局通用状态遮罩组件 (针对 iOS 17+ ContentUnavailableView 与 iOS 16 自适应渐进增强)
 public struct CloudnsStateOverlayView: View {
     public enum StateType {
         case empty(icon: String, title: LocalizedStringKey, message: LocalizedStringKey, actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil)
@@ -49,7 +48,7 @@ public struct CloudnsStateOverlayView: View {
             ContentUnavailableView {
                 Label(title, systemImage: "exclamationmark.triangle")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
             } description: {
                 Text(message)
             } actions: {

@@ -177,7 +177,7 @@ struct D1TableView: View {
                             } label: {
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                             }
                             .buttonStyle(.plain)
                             
@@ -187,7 +187,7 @@ struct D1TableView: View {
                             } label: {
                                 Image(systemName: "trash.circle.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.red.opacity(0.85))
+                                    .foregroundStyle(CloudnsColor.danger)
                             }
                             .buttonStyle(.plain)
                         }
@@ -205,7 +205,7 @@ struct D1TableView: View {
                                         if col.isPrimaryKey {
                                             Image(systemName: "key.fill")
                                                 .font(.caption2)
-                                                .foregroundStyle(.orange)
+                                                .foregroundStyle(CloudnsColor.brandAccent)
                                         }
                                     }
                                     Text(col.type)
@@ -258,7 +258,7 @@ struct D1TableView: View {
                                 if col.isPrimaryKey {
                                     Image(systemName: "key.fill")
                                         .font(.caption2)
-                                        .foregroundStyle(.orange)
+                                        .foregroundStyle(CloudnsColor.brandAccent)
                                 }
                             }
                             Text(col.type)

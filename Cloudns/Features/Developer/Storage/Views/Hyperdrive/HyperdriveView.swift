@@ -124,10 +124,10 @@ struct HyperdriveView: View {
     private func configRow(_ config: HyperdriveConfig) -> some View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "bolt.horizontal.fill")
-                .foregroundStyle(.green)
+                .foregroundStyle(CloudnsColor.success)
                 .font(.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.green.opacity(0.12))
+                .background(CloudnsColor.successMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

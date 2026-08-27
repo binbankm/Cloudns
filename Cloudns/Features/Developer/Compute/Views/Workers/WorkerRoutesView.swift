@@ -104,9 +104,9 @@ struct WorkerRoutesView: View {
                         HStack {
                             Image(systemName: "arrow.triangle.swap")
                                 .font(.body)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                                 .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
-                                .background(Color.blue.opacity(0.12))
+                                .background(CloudnsColor.brandMuted)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             
@@ -140,9 +140,9 @@ struct WorkerRoutesView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "link")
                 .font(.body)
-                .foregroundStyle(.orange)
+                .foregroundStyle(CloudnsColor.brandAccent)
                 .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
-                .background(Color.orange.opacity(0.12))
+                .background(CloudnsColor.warningMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

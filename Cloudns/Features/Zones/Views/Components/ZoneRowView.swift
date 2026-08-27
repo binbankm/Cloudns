@@ -60,8 +60,8 @@ struct ZoneRowView: View {
                                 .font(.caption2.weight(.medium))
                                 .padding(.horizontal, CloudnsSpacing.xs)
                                 .padding(.vertical, CloudnsSpacing.xxs)
-                                .background(Color.red.opacity(0.15))
-                                .foregroundStyle(.red)
+                                .background(CloudnsColor.dangerMuted)
+                                .foregroundStyle(CloudnsColor.danger)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         }
                         
@@ -70,8 +70,8 @@ struct ZoneRowView: View {
                                 .font(.caption2.weight(.medium))
                                 .padding(.horizontal, CloudnsSpacing.xs)
                                 .padding(.vertical, CloudnsSpacing.xxs)
-                                .background(Color.orange.opacity(0.15))
-                                .foregroundStyle(.orange)
+                                .background(CloudnsColor.warningMuted)
+                                .foregroundStyle(CloudnsColor.brandAccent)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         }
                     }

@@ -11,11 +11,11 @@ struct WorkerRowView: View {
         HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             ZStack {
                 Circle()
-                    .fill(Color.orange.opacity(0.12))
+                    .fill(CloudnsColor.warningMuted)
                     .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 Image(systemName: "bolt.fill")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(CloudnsColor.brandAccent)
             }
             .accessibilityHidden(true)
             

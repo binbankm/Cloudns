@@ -254,24 +254,24 @@ struct DeveloperHubView: View {
             HStack {
                 VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Developer Suite")
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.white)
+                        .font(CloudnsTypography.title2)
+                        .foregroundStyle(CloudnsColor.textInverse)
                     
                     Text(viewModel.selectedAccount?.name ?? "Active Account")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.85))
+                        .font(CloudnsTypography.caption)
+                        .foregroundStyle(CloudnsColor.textInverseMuted)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "cpu.fill")
-                    .font(.title2)
-                    .foregroundStyle(.white.opacity(0.85))
+                    .font(CloudnsTypography.title2)
+                    .foregroundStyle(CloudnsColor.textInverseMuted)
                     .accessibilityHidden(true)
             }
             
             Divider()
-                .overlay(Color.white.opacity(0.25))
+                .overlay(CloudnsColor.textInverse.opacity(0.25))
             
             // Metrics grid
             HStack(spacing: CloudnsSpacing.mdSmall) {
@@ -300,8 +300,8 @@ struct DeveloperHubView: View {
         VStack(spacing: CloudnsSpacing.xxs) {
             CloudnsRollingNumber(value: value, font: .headline, weight: .bold, color: .white)
             Text(title)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
+                .font(CloudnsTypography.caption2)
+                .foregroundStyle(CloudnsColor.textInverseMuted)
         }
         .frame(maxWidth: .infinity)
     }

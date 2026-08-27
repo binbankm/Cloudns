@@ -57,7 +57,7 @@ struct QueueDetailView: View {
                     ForEach(producers) { p in
                         HStack {
                             Image(systemName: "arrow.up.right.circle.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                                 .accessibilityHidden(true)
                             Text(p.script ?? p.service ?? "Worker")
                                 .font(.body)
@@ -78,7 +78,7 @@ struct QueueDetailView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Image(systemName: "arrow.down.left.circle.fill")
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(CloudnsColor.success)
                                     .accessibilityHidden(true)
                                 Text(c.scriptName ?? c.service ?? "Worker")
                                     .font(.body.weight(.medium))

@@ -72,7 +72,7 @@ struct AIGatewayDetailView: View {
                 VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     Text(universalEndpoint)
                         .font(.caption.monospaced())
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(CloudnsColor.brand)
                         .lineLimit(2)
                         .padding(.vertical, CloudnsSpacing.xs)
                     

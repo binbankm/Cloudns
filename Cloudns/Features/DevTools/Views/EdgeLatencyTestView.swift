@@ -52,7 +52,7 @@ struct EdgeLatencyTestView: View {
             HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "speedometer")
                     .font(.title3)
-                    .foregroundStyle(.purple)
+                    .foregroundStyle(CloudnsColor.ai)
                     .accessibilityHidden(true)
                 
                 TextField("https://example.com", text: $viewModel.latencyHostInput)
@@ -215,7 +215,7 @@ struct EdgeLatencyTestView: View {
                         } else {
                             Text("Failed")
                                 .font(.subheadline.weight(.medium))
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                         }
                     }
                     .padding(.vertical, CloudnsSpacing.xxs)
@@ -232,7 +232,7 @@ struct EdgeLatencyTestView: View {
         HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(CloudnsColor.danger)
             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Test Failed")
                     .font(.headline)

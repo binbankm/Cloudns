@@ -192,9 +192,9 @@ struct SnippetsListView: View {
         } label: {
             HStack(spacing: CloudnsSpacing.mdMedium) {
                 ZStack {
-                    Color.orange.opacity(0.12)
+                    CloudnsColor.warningMuted
                     Image(systemName: "curlybraces")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(CloudnsColor.brandAccent)
                         .font(.body)
                         .accessibilityHidden(true)
                 }
@@ -250,7 +250,7 @@ struct SnippetsListView: View {
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, CloudnsSpacing.sm)
                     .padding(.vertical, CloudnsSpacing.xxs)
-                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
+                    .background((isEnabled ? CloudnsColor.success : CloudnsColor.dnsOnly).opacity(0.15))
                     .foregroundStyle(isEnabled ? .green : .secondary)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
@@ -259,11 +259,11 @@ struct SnippetsListView: View {
                 HStack(spacing: CloudnsSpacing.xs) {
                     Image(systemName: "curlybraces")
                         .font(.caption2)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(CloudnsColor.brandAccent)
                         .accessibilityHidden(true)
                     Text("Snippet: \(snipName)")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(CloudnsColor.brandAccent)
                 }
             }
             

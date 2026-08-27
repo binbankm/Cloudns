@@ -33,11 +33,11 @@ struct TailEventDetailSheetView: View {
                         ForEach(logs) { log in
                             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 Text(log.level?.uppercased() ?? "LOG")
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(.blue)
+                                    .font(CloudnsTypography.caption2.weight(.medium))
+                                    .foregroundStyle(CloudnsColor.brand)
                                 let msg = log.message?.map(\.displayText).joined(separator: " ") ?? ""
                                 Text(msg)
-                                    .font(.footnote.monospaced())
+                                    .font(CloudnsTypography.code)
                             }
                             .padding(.vertical, CloudnsSpacing.xxs)
                         }
@@ -49,10 +49,14 @@ struct TailEventDetailSheetView: View {
                         ForEach(exceptions) { ex in
                             VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 if let name = ex.name {
-                                    Text(name).font(.caption).foregroundStyle(.red)
+                                    Text(name)
+                                        .font(CloudnsTypography.caption)
+                                        .foregroundStyle(CloudnsColor.danger)
                                 }
                                 if let msg = ex.message {
-                                    Text(msg).font(.footnote.monospaced()).foregroundStyle(.red)
+                                    Text(msg)
+                                        .font(CloudnsTypography.code)
+                                        .foregroundStyle(CloudnsColor.danger)
                                 }
                             }
                             .padding(.vertical, CloudnsSpacing.xxs)

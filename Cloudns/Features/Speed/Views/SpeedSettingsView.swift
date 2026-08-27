@@ -14,7 +14,7 @@ struct SpeedSettingsView: View {
                     Section {
                         HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                                 .accessibilityHidden(true)
                             Text(errorMessage)
                                 .foregroundStyle(.primary)
@@ -35,7 +35,7 @@ struct SpeedSettingsView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "bolt.badge.sparkle")
-                                    .foregroundStyle(.purple)
+                                    .foregroundStyle(CloudnsColor.ai)
                                 Text("Speed Brain")
                                     .font(.body.weight(.medium))
                                 CloudnsBadge(.free, isCompact: true)
@@ -79,7 +79,7 @@ struct SpeedSettingsView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "network")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                 Text("Tiered Cache")
                                     .font(.body.weight(.medium))
                                 CloudnsBadge(.free, isCompact: true)
@@ -124,7 +124,7 @@ struct SpeedSettingsView: View {
                                     .font(.body)
                                 Image(systemName: "hare.fill")
                                     .font(.caption)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                     .accessibilityHidden(true)
                             }
                             Text("Improve paint times for pages containing heavy JavaScript.")

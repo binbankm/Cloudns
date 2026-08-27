@@ -98,7 +98,7 @@ struct PagesDomainsView: View {
         HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "globe")
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .frame(width: 28)
                 .accessibilityHidden(true)
 

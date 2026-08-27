@@ -95,7 +95,7 @@ struct DurableObjectsView: View {
                 .foregroundStyle(.cyan)
                 .font(.title3)
                 .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
-                .background(Color.cyan.opacity(0.12))
+                .background(CloudnsColor.databaseMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             

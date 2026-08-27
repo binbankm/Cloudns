@@ -69,13 +69,13 @@ struct AuditLogDetailSheetView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             Label("Previous Value (Before)", systemImage: "minus.circle.fill")
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                             Text(oldText)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                                 .padding(CloudnsSpacing.smMd)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.red.opacity(0.08))
+                                .background(CloudnsColor.danger.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
                         .padding(.vertical, CloudnsSpacing.xxs)
@@ -85,13 +85,13 @@ struct AuditLogDetailSheetView: View {
                         VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(.green)
+                                .foregroundStyle(CloudnsColor.success)
                             Text(newText)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                                 .padding(CloudnsSpacing.smMd)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.green.opacity(0.08))
+                                .background(CloudnsColor.success.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
                         .padding(.vertical, CloudnsSpacing.xxs)

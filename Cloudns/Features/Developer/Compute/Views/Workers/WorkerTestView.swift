@@ -40,7 +40,7 @@ struct WorkerTestView: View {
                     
                     HStack {
                         Image(systemName: "link")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .accessibilityHidden(true)
                         
                         TextField("https://...", text: $viewModel.targetUrl)
@@ -109,7 +109,7 @@ struct WorkerTestView: View {
                         }
                         Text("Send Test Request")
                             .font(.body.weight(.medium))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(CloudnsColor.brandAccent)
                         Spacer()
                     }
                 }
@@ -167,11 +167,11 @@ struct WorkerTestView: View {
                 Section {
                     HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .accessibilityHidden(true)
                         Text(err)
                             .font(.subheadline)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                     .padding(.vertical, CloudnsSpacing.xs)
                 } header: {
@@ -183,7 +183,7 @@ struct WorkerTestView: View {
                     VStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "bolt.horizontal.circle.fill")
                             .font(.largeTitle)
-                            .foregroundStyle(.orange.opacity(0.8))
+                            .foregroundStyle(CloudnsColor.brandAccent)
                             .accessibilityHidden(true)
                         
                         Text("Ready to Probe Worker")
@@ -279,10 +279,10 @@ struct WorkerTestView: View {
         } label: {
             Text(path)
                 .font(.caption2.monospacedDigit())
-                .foregroundStyle(.orange)
+                .foregroundStyle(CloudnsColor.brandAccent)
                 .padding(.horizontal, CloudnsSpacing.smMd)
                 .padding(.vertical, CloudnsSpacing.xs)
-                .background(Color.orange.opacity(0.12))
+                .background(CloudnsColor.warningMuted)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
         }
     }

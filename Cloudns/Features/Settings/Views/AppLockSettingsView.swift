@@ -63,7 +63,7 @@ struct AppLockSettingsView: View {
                                 if autoLockTimeout == option.seconds {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.title3)
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(CloudnsColor.brand)
                                 }
                             }
                             .contentShape(Rectangle())

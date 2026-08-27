@@ -58,7 +58,7 @@ struct TurnstileDetailView: View {
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(CloudnsColor.brand)
                         }
                     }
                 }
@@ -83,7 +83,7 @@ struct TurnstileDetailView: View {
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(CloudnsColor.brand)
                             }
                         }
                     }

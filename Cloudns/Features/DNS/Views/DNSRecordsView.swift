@@ -91,7 +91,7 @@ struct DNSRecordsView: View {
                         editMode?.wrappedValue = .inactive
                     } label: {
                         Text("Delete Selected (\(multiSelection.count))")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }
@@ -301,7 +301,7 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.orange)
+            .tint(CloudnsColor.brandAccent)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
@@ -311,7 +311,7 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }
-            .tint(.blue)
+            .tint(CloudnsColor.brand)
         }
     }
 }

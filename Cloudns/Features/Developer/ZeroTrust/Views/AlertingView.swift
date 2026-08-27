@@ -89,7 +89,7 @@ struct AlertingView: View {
                         ForEach(viewModel.webhooks) { h in
                             HStack {
                                 Image(systemName: "bell.badge.fill")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(CloudnsColor.brandAccent)
                                     .accessibilityHidden(true)
                                 VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                     Text(h.name ?? h.id)

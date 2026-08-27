@@ -79,7 +79,7 @@ struct AnalyticsView: View {
     private var headerBar: some View {
         HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "globe")
-                .foregroundStyle(.blue)
+                .foregroundStyle(CloudnsColor.brand)
                 .font(.title3)
             
             Text(zoneName)

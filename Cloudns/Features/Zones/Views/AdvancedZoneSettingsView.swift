@@ -45,7 +45,7 @@ struct AdvancedZoneSettingsView: View {
             }
             
             Section(
-                header: Text("Danger Zone").foregroundStyle(.red),
+                header: Text("Danger Zone").foregroundStyle(CloudnsColor.danger),
                 footer: Text("Removing this site will immediately delete all its configuration and data from Cloudflare. This action cannot be undone.")
             ) {
                 Button(action: {
@@ -58,7 +58,7 @@ struct AdvancedZoneSettingsView: View {
                             ProgressView()
                         } else {
                             Text("Remove Site from Cloudflare")
-                                .foregroundStyle(.red)
+                                .foregroundStyle(CloudnsColor.danger)
                                 .fontWeight(.bold)
                         }
                         Spacer()

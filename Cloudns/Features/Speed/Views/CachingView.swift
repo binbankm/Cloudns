@@ -93,7 +93,7 @@ struct CachingView: View {
                             Spacer()
                         }
                         .padding(.vertical, CloudnsSpacing.smMd)
-                        .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
+                        .background(purgeInputText.isEmpty ? CloudnsColor.dnsOnly : CloudnsColor.brand)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     }
                     .buttonStyle(.plain)
@@ -107,11 +107,11 @@ struct CachingView: View {
                 VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                             .accessibilityHidden(true)
                         Text("Purge Everything")
                             .font(.body.weight(.medium))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                     
                     Text("Purge everything from Cloudflare's cache. This will force Cloudflare to fetch a fresh version of your site from your origin server.")
@@ -133,7 +133,7 @@ struct CachingView: View {
                             Spacer()
                         }
                         .padding()
-                        .background(Color.red)
+                        .background(CloudnsColor.danger)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }

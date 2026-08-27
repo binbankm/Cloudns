@@ -26,7 +26,7 @@ struct ZoneDetailDeepLinkWrapper: View {
                 VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.largeTitle)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(CloudnsColor.brandAccent)
                     CloudnsButton("Close", style: .secondary) {
                         onDismiss()
                     }

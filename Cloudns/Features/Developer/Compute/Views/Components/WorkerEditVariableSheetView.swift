@@ -40,7 +40,7 @@ struct WorkerEditVariableSheetView: View {
                     Section {
                         Text(err)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(CloudnsColor.danger)
                     }
                 }
             }
