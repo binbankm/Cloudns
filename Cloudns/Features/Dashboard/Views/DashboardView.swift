@@ -229,6 +229,11 @@ struct DashboardView: View {
                         QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .orange, title: "CIDR Calc")
                     }
                     .buttonStyle(PlainButtonStyle())
+                    
+                    NavigationLink(destination: DevToolsHubView()) {
+                        QuickDeckButton(icon: "wrench.and.screwdriver.fill", color: .pink, title: "All Tools")
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 4)
