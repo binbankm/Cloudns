@@ -41,9 +41,9 @@ struct KVBrowserView: View {
                 text: $searchText,
                 prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             Picker("Storage", selection: $viewModel.selectedSegment) {
@@ -52,7 +52,7 @@ struct KVBrowserView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentView
@@ -226,11 +226,11 @@ struct KVBrowserView: View {
     
     @ViewBuilder
     private func kvRow(_ ns: KVNamespace) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "key.horizontal.fill")
                 .font(.body)
                 .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -246,24 +246,24 @@ struct KVBrowserView: View {
                     .lineLimit(1)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("KV Namespace \(ns.title), ID \(ns.id)")
     }
     
     @ViewBuilder
     private func d1Row(_ db: D1Database) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "cylinder.split.1x2.fill")
                 .font(.body)
                 .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(db.name)
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
@@ -273,7 +273,7 @@ struct KVBrowserView: View {
                     }
                 }
                 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(db.uuid)
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
@@ -289,7 +289,7 @@ struct KVBrowserView: View {
                 }
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

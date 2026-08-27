@@ -14,7 +14,7 @@ struct WhoisToolView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Query & Presets Card
                     queryCard
                     
@@ -37,8 +37,8 @@ struct WhoisToolView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -55,8 +55,8 @@ struct WhoisToolView: View {
     
     // MARK: - 1. Query Card
     private var queryCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "magnifyingglass")
                     .font(.title3)
                     .foregroundStyle(.teal)
@@ -108,8 +108,8 @@ struct WhoisToolView: View {
                         } label: {
                             Text(preset)
                                 .font(.caption.weight(.medium).monospacedDigit())
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
+                                .padding(.horizontal, CloudnsSpacing.smMd)
+                                .padding(.vertical, CloudnsSpacing.xs)
                                 .background(Color.teal.opacity(0.10))
                                 .foregroundStyle(.teal)
                                 .clipShape(Capsule())
@@ -120,30 +120,20 @@ struct WhoisToolView: View {
             }
             .scrollIndicators(.hidden)
             
-            Button {
+            CloudnsButton(
+                viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory",
+                icon: "globe",
+                style: .primary(color: .teal),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isLoading,
+                disabled: viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performLookup()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "globe")
-                    }
-                    Text(viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.teal)
-            .controlSize(.regular)
-            .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(CloudnsSpacing.md)
-        .cloudnsCard(style: .frosted, cornerRadius: CloudnsRadius.lg)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -160,9 +150,9 @@ struct WhoisToolView: View {
     // MARK: - 2. Registration Card
     @ViewBuilder
     private func registrationCard(info: WhoisInfo) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("Domain Registration")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -180,7 +170,7 @@ struct WhoisToolView: View {
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let created = info.created {
                     infoRow(title: "Created Date", value: formatDate(created))
                 }
@@ -193,7 +183,7 @@ struct WhoisToolView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Spacer()
-                        VStack(alignment: .trailing, spacing: 2) {
+                        VStack(alignment: .trailing, spacing: CloudnsSpacing.xxs) {
                             Text(formatDate(expires))
                                 .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.primary)
@@ -207,8 +197,8 @@ struct WhoisToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -227,16 +217,16 @@ struct WhoisToolView: View {
     // MARK: - 3. Statuses Card
     @ViewBuilder
     private func statusesCard(info: WhoisInfo) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Registry Statuses (\(info.statuses.count))")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                 ForEach(info.statuses, id: \.self) { status in
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         Circle()
                             .fill(Color.teal)
                             .frame(width: 6, height: 6)
@@ -247,21 +237,21 @@ struct WhoisToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 4. Nameservers Card
     @ViewBuilder
     private func nameserversCard(info: WhoisInfo) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Authoritative Nameservers (\(info.nameservers.count))")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 8) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 ForEach(info.nameservers, id: \.self) { ns in
                     HStack {
                         Image(systemName: "server.rack")
@@ -282,22 +272,22 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.blue)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Lookup Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -306,14 +296,14 @@ struct WhoisToolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Domain Registration")
                     .font(.caption)
                 Text("example.com")
@@ -322,8 +312,8 @@ struct WhoisToolView: View {
                 Text("Created Date")
                 Text("Expiration Date")
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

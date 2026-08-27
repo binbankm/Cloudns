@@ -219,7 +219,7 @@ public struct CloudnsToastBannerView: View {
             ZStack {
                 Circle()
                     .fill(item.type.badgeBgColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 
                 Image(systemName: item.type.iconName)
                     .font(.subheadline.weight(.semibold))
@@ -244,8 +244,8 @@ public struct CloudnsToastBannerView: View {
             
             Spacer(minLength: 8)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, CloudnsSpacing.mdMedium)
+        .padding(.vertical, CloudnsSpacing.smMd)
         .frame(maxWidth: 420)
         .background(
             RoundedRectangle(cornerRadius: CloudnsRadius.xxl, style: .continuous)
@@ -256,11 +256,11 @@ public struct CloudnsToastBannerView: View {
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxl, style: .continuous))
-        .shadow(color: Color.black.opacity(0.12), radius: 16, x: 0, y: 6)
-        .padding(.horizontal, 16)
+        .cloudnsShadow(.prominent)
+        .padding(.horizontal, CloudnsSpacing.md)
         .scaleEffect(isPressing ? 0.98 : 1.0)
         .offset(y: min(0, dragOffset))
-        .animation(.interactiveSpring(response: 0.28, dampingFraction: 0.8), value: isPressing)
+        .animation(CloudnsAnimation.interactiveSpring, value: isPressing)
         .gesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { value in
@@ -324,7 +324,7 @@ public struct CloudnsToastContainerModifier: ViewModifier {
                     )
                 )
                 .zIndex(99999)
-                .padding(.top, 4)
+                .padding(.top, CloudnsSpacing.xs)
             }
         }
     }

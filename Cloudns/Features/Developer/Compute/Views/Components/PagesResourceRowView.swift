@@ -11,11 +11,11 @@ struct PagesResourceRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: iconName)
                 .font(.body)
                 .foregroundStyle(themeColor)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(themeColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -38,7 +38,7 @@ struct PagesResourceRowView: View {
             
             CloudnsBadge(.custom(color: themeColor, text: badgeTitle), isCompact: true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
         .contentShape(Rectangle())
         .contextMenu {
             contextMenuItems

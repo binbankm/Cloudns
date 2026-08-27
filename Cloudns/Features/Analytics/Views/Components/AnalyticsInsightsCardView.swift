@@ -10,7 +10,7 @@ struct AnalyticsInsightsCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Edge Caching Savings", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.blue)
@@ -36,7 +36,7 @@ struct AnalyticsInsightsCardView: View {
                     .foregroundStyle(cachedRatio > 0.5 ? .green : .orange)
             }
         }
-        .padding(14)
+        .padding(CloudnsSpacing.mdMedium)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }

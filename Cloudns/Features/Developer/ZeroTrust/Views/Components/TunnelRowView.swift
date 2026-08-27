@@ -12,17 +12,17 @@ struct TunnelRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "network")
                 .font(.body)
                 .foregroundStyle(isHealthy ? .green : .red)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background((isHealthy ? Color.green : Color.red).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(tunnel.name)
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
@@ -47,7 +47,7 @@ struct TunnelRowView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contextMenu {
             Button {
                 UIPasteboard.general.string = tunnel.id

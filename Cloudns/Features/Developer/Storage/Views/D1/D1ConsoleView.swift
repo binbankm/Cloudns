@@ -52,7 +52,7 @@ struct D1ConsoleView: View {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
                     HStack {
                         ProgressView()
-                            .padding(.trailing, 6)
+                            .padding(.trailing, CloudnsSpacing.sm)
                         Text("Discovering tables...")
                             .foregroundStyle(.secondary)
                     }
@@ -63,7 +63,7 @@ struct D1ConsoleView: View {
                 } else {
                     ForEach(viewModel.tables, id: \.self) { tableName in
                         NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
-                            HStack(spacing: 12) {
+                            HStack(spacing: CloudnsSpacing.mdSmall) {
                                 ZStack {
                                     Color.purple.opacity(0.12)
                                     Image(systemName: "tablecells")
@@ -71,15 +71,15 @@ struct D1ConsoleView: View {
                                         .font(.body)
                                         .accessibilityHidden(true)
                                 }
-                                .frame(width: 32, height: 32)
-                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 
                                 Text(tableName)
                                     .font(.body.weight(.medium))
                                 
                                 Spacer()
                             }
-                            .padding(.vertical, 2)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                         }
                     }
                 }
@@ -89,7 +89,7 @@ struct D1ConsoleView: View {
             Section(header: Text("SQL Query Console")) {
                 // Presets
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         ForEach(viewModel.sqlPresets, id: \.name) { preset in
                             Button {
                                 HapticManager.impact(.light)
@@ -97,15 +97,15 @@ struct D1ConsoleView: View {
                             } label: {
                                 Text(preset.name)
                                     .font(.caption2.weight(.medium))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
+                                    .padding(.horizontal, CloudnsSpacing.smMd)
+                                    .padding(.vertical, CloudnsSpacing.xs)
                                     .background(Color(.secondarySystemFill))
                                     .foregroundStyle(.purple)
-                                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             }
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 .scrollIndicators(.hidden)
                 
@@ -126,7 +126,7 @@ struct D1ConsoleView: View {
                         Spacer()
                         if viewModel.isExecuting {
                             ProgressView()
-                                .padding(.trailing, 4)
+                                .padding(.trailing, CloudnsSpacing.xs)
                         } else {
                             Image(systemName: "play.fill")
                         }
@@ -152,7 +152,7 @@ struct D1ConsoleView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(result.rows.enumerated()), id: \.offset) { _, row in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 ForEach(result.columns, id: \.self) { col in
                                     HStack(alignment: .top) {
                                         Text(col)
@@ -168,7 +168,7 @@ struct D1ConsoleView: View {
                                     }
                                 }
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, CloudnsSpacing.xs)
                         }
                     }
                 }

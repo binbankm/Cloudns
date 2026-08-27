@@ -28,14 +28,14 @@ struct AnalyticsCountryDistributionView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             headerRow
             
             trafficMapView
                 .frame(height: 260)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -88,8 +88,8 @@ struct AnalyticsCountryDistributionView: View {
     }
     
     private func selectedCountryCard(for item: MapAnnotationItem) -> some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Country: \(item.countryCode)")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
@@ -105,13 +105,13 @@ struct AnalyticsCountryDistributionView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, CloudnsSpacing.md)
+        .padding(.vertical, CloudnsSpacing.mdSmall)
         .background(Color(.systemBackground).opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
-        .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
-        .padding(.horizontal, 24)
-        .padding(.bottom, 12)
+        .cloudnsShadow(.card)
+        .padding(.horizontal, CloudnsSpacing.lg)
+        .padding(.bottom, CloudnsSpacing.mdSmall)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
     

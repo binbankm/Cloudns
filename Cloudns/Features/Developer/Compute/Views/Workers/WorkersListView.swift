@@ -23,9 +23,9 @@ struct WorkersListView: View {
                 text: $viewModel.searchText,
                 prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             Picker("Type", selection: $viewModel.selectedSegment) {
@@ -34,7 +34,7 @@ struct WorkersListView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentView
@@ -207,11 +207,11 @@ struct WorkersListView: View {
     
     @ViewBuilder
     private func pagesRow(_ page: PagesProject) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "macwindow")
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -234,7 +234,7 @@ struct WorkersListView: View {
                 CloudnsBadge(.custom(color: .blue, text: branch, icon: "arrow.triangle.branch"), isCompact: true)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Pages project \(page.name), branch \(page.productionBranch ?? "main")")
     }

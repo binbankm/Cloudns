@@ -11,6 +11,36 @@ public enum CloudnsCardStyle {
     case brandGlow(accent: Color)
 }
 
+// MARK: - Cloudns Card Size
+
+public enum CloudnsCardSize {
+    /// 紧凑卡片 (列表子项、迷你指标卡，12pt 圆角)
+    case compact
+    /// 标准主内容卡片 (16pt 圆角，HIG 推荐标准)
+    case standard
+    /// 大尺寸卡片 / Hero 容器 (20pt 圆角)
+    case hero
+    
+    public var cornerRadius: CGFloat {
+        switch self {
+        case .compact: return CloudnsRadius.md
+        case .standard: return CloudnsRadius.lg
+        case .hero: return CloudnsRadius.xl
+        }
+    }
+    
+    public var padding: EdgeInsets {
+        switch self {
+        case .compact:
+            return EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12)
+        case .standard:
+            return EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
+        case .hero:
+            return EdgeInsets(top: 18, leading: 20, bottom: 18, trailing: 20)
+        }
+    }
+}
+
 // MARK: - Cloudns Card ViewModifier
 
 public struct CloudnsCardModifier: ViewModifier {
@@ -24,7 +54,19 @@ public struct CloudnsCardModifier: ViewModifier {
     
     public init(
         style: CloudnsCardStyle = .frosted,
-        cornerRadius: CGFloat = 16,
+        size: CloudnsCardSize = .standard,
+        padding: EdgeInsets? = nil,
+        isClickable: Bool = false
+    ) {
+        self.style = style
+        self.cornerRadius = size.cornerRadius
+        self.padding = padding ?? size.padding
+        self.isClickable = isClickable
+    }
+    
+    public init(
+        style: CloudnsCardStyle = .frosted,
+        cornerRadius: CGFloat = CloudnsRadius.lg,
         padding: EdgeInsets = EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16),
         isClickable: Bool = false
     ) {
@@ -105,10 +147,25 @@ public struct CloudnsCardModifier: ViewModifier {
 // MARK: - View Extension
 
 public extension View {
-    /// 应用 Apple HIG 标准的 Cloudns 现代卡片样式
+    /// 应用 Apple HIG 标准的 Cloudns 现代卡片样式 (语义尺寸版)
     func cloudnsCard(
         style: CloudnsCardStyle = .frosted,
-        cornerRadius: CGFloat = 16,
+        size: CloudnsCardSize = .standard,
+        padding: EdgeInsets? = nil,
+        isClickable: Bool = false
+    ) -> some View {
+        self.modifier(CloudnsCardModifier(
+            style: style,
+            size: size,
+            padding: padding,
+            isClickable: isClickable
+        ))
+    }
+    
+    /// 应用 Apple HIG 标准的 Cloudns 现代卡片样式 (自定义圆角/间距版)
+    func cloudnsCard(
+        style: CloudnsCardStyle = .frosted,
+        cornerRadius: CGFloat,
         padding: EdgeInsets = EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16),
         isClickable: Bool = false
     ) -> some View {

@@ -65,7 +65,7 @@ struct WorkerSourceCodeView: View {
             // 1. Top Tab Bar: Modules (if multi-module)
             if activeModules.count > 1 {
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         ForEach(activeModules) { mod in
                             Button {
                                 HapticManager.impact(.light)
@@ -80,8 +80,8 @@ struct WorkerSourceCodeView: View {
                                     Text(mod.name)
                                         .font(.subheadline.weight(selectedModuleName == mod.name ? .semibold : .regular))
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
+                                .padding(.horizontal, CloudnsSpacing.mdSmall)
+                                .padding(.vertical, CloudnsSpacing.sm)
                                 .background(selectedModuleName == mod.name ? Color.orange.opacity(0.15) : Color(.tertiarySystemFill))
                                 .foregroundStyle(selectedModuleName == mod.name ? Color.orange : Color.primary)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
@@ -93,8 +93,8 @@ struct WorkerSourceCodeView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, CloudnsSpacing.md)
+                    .padding(.vertical, CloudnsSpacing.sm)
                 }
                 .scrollIndicators(.hidden)
                 .background(CloudnsColor.groupedBackground)
@@ -200,9 +200,9 @@ struct WorkerSourceCodeView: View {
     // MARK: - Control Bar
     @ViewBuilder
     private var controlBar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             // Font Size Controls [A-] [A+]
-            HStack(spacing: 2) {
+            HStack(spacing: CloudnsSpacing.xxs) {
                 Button {
                     HapticManager.selection()
                     if fontSize > 10.0 {
@@ -241,17 +241,17 @@ struct WorkerSourceCodeView: View {
                     wrapLines.toggle()
                 }
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Image(systemName: wrapLines ? "text.word.spacing" : "arrow.left.and.right")
                         .font(.caption2)
                     Text(wrapLines ? "Wrap" : "Scroll")
                         .font(.caption2.weight(.medium))
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(wrapLines ? Color.orange.opacity(0.12) : Color(.tertiarySystemFill))
                 .foregroundStyle(wrapLines ? Color.orange : Color.secondary)
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             }
             .buttonStyle(.plain)
             
@@ -269,8 +269,8 @@ struct WorkerSourceCodeView: View {
                     Text("Read Only")
                         .font(.caption2.weight(isActive ? .semibold : .regular))
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, CloudnsSpacing.smMd)
+                        .padding(.vertical, CloudnsSpacing.xs)
                         .background(isActive ? Color(.systemBackground) : Color.clear)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
@@ -286,23 +286,23 @@ struct WorkerSourceCodeView: View {
                     Text("Edit")
                         .font(.caption2.weight(isActive ? .semibold : .regular))
                         .foregroundStyle(isActive ? Color.primary : Color.secondary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, CloudnsSpacing.smMd)
+                        .padding(.vertical, CloudnsSpacing.xs)
                         .background(isActive ? Color(.systemBackground) : Color.clear)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 }
                 .buttonStyle(.plain)
             }
-            .padding(2)
+            .padding(CloudnsSpacing.xxs)
             .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             
             if isEditingMode {
                 Button {
                     HapticManager.impact(.medium)
                     showingDeployAlert = true
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         if isDeploying {
                             ProgressView().scaleEffect(0.7)
                         } else {
@@ -312,25 +312,25 @@ struct WorkerSourceCodeView: View {
                     }
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, CloudnsSpacing.smMd)
+                    .padding(.vertical, CloudnsSpacing.xs)
                     .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
                 .buttonStyle(.plain)
                 .disabled(isDeploying || editableCode.isEmpty)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
+        .padding(.horizontal, CloudnsSpacing.mdMedium)
+        .padding(.vertical, CloudnsSpacing.sm)
         .background(CloudnsColor.secondaryGroupedBackground)
     }
     
     // MARK: - Status Bar
     @ViewBuilder
     private var statusBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 4) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
+            HStack(spacing: CloudnsSpacing.xs) {
                 Circle()
                     .fill(isESMModule ? Color.purple : Color.orange)
                     .frame(width: 6, height: 6)
@@ -361,8 +361,8 @@ struct WorkerSourceCodeView: View {
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
+        .padding(.horizontal, CloudnsSpacing.mdMedium)
+        .padding(.vertical, CloudnsSpacing.sm)
         .background(CloudnsColor.groupedBackground)
     }
     

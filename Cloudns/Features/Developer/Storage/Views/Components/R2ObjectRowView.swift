@@ -8,11 +8,11 @@ struct R2ObjectRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: fileIcon(for: object.key))
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -23,7 +23,7 @@ struct R2ObjectRowView: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                HStack(spacing: 10) {
+                HStack(spacing: CloudnsSpacing.smMd) {
                     Text(object.formattedSize)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -38,7 +38,7 @@ struct R2ObjectRowView: View {
             
             Spacer()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
         .contextMenu {
             Button {

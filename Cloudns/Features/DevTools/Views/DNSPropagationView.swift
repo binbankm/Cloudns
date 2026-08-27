@@ -65,7 +65,7 @@ struct DNSPropagationView: View {
                         Spacer()
                         if viewModel.isPropagationLoading {
                             ProgressView()
-                                .padding(.trailing, 4)
+                                .padding(.trailing, CloudnsSpacing.xs)
                         } else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
@@ -92,9 +92,9 @@ struct DNSPropagationView: View {
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
                 Section(header: Text("Global Status")) {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text("Propagation Score")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -112,13 +112,13 @@ struct DNSPropagationView: View {
                         ProgressView(value: Double(result.propagationPercent) / 100.0)
                             .tint(result.propagationPercent >= 100 ? .green : .orange)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 
                 // 2. Regional Nodes Breakdown
                 Section(header: Text("Regional Edge Resolvers (\(result.nodes.count))")) {
                     ForEach(result.nodes) { node in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Text(node.countryFlag)
                                     .font(.title3)
@@ -140,17 +140,17 @@ struct DNSPropagationView: View {
                                 Text(node.resolvedIPs.joined(separator: ", "))
                                     .font(.caption.monospaced())
                                     .foregroundStyle(.primary)
-                                    .padding(.leading, 32)
+                                    .padding(.leading, CloudnsSpacing.xl)
                             }
                             
                             if let lat = node.latencyMs {
                                 Text(String(format: "Latency: %.1f ms", lat))
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
-                                    .padding(.leading, 32)
+                                    .padding(.leading, CloudnsSpacing.xl)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                 }
             } else if let error = viewModel.propagationError {

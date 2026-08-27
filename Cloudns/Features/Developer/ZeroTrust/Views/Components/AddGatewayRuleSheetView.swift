@@ -52,7 +52,7 @@ struct AddGatewayRuleSheetView: View {
                             HStack {
                                 Circle()
                                     .fill(act.color)
-                                    .frame(width: 8, height: 8)
+                                    .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                                 Text(act.name)
                             }
                             .tag(act.id)
@@ -73,7 +73,7 @@ struct AddGatewayRuleSheetView: View {
                 // MARK: - 2. Quick Templates
                 Section(header: Text("Expression Templates")) {
                     ScrollView(.horizontal) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             ForEach(expressionTemplates, id: \.name) { t in
                                 Button {
                                     HapticManager.selection()
@@ -84,8 +84,8 @@ struct AddGatewayRuleSheetView: View {
                                 } label: {
                                     Text(t.name)
                                         .font(.caption.weight(.medium))
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, CloudnsSpacing.smMd)
+                                        .padding(.vertical, CloudnsSpacing.sm)
                                         .background(CloudnsColor.secondaryGroupedBackground)
                                         .clipShape(Capsule())
                                         .overlay(Capsule().stroke(Color(.separator), lineWidth: 0.8))
@@ -93,7 +93,7 @@ struct AddGatewayRuleSheetView: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                     .scrollIndicators(.hidden)
                 }

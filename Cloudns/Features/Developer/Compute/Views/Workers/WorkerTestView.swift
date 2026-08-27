@@ -33,7 +33,7 @@ struct WorkerTestView: View {
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     Text("Target URL")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -62,17 +62,17 @@ struct WorkerTestView: View {
                         }
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 
                 // Quick Path Shortcuts
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         quickPathButton("/")
                         quickPathButton("/api")
                         quickPathButton("/health")
                         quickPathButton("/json")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 .scrollIndicators(.hidden)
             } header: {
@@ -103,7 +103,7 @@ struct WorkerTestView: View {
                         Spacer()
                         if viewModel.isTesting {
                             ProgressView()
-                                .padding(.trailing, 4)
+                                .padding(.trailing, CloudnsSpacing.xs)
                         } else {
                             Image(systemName: "paperplane.fill")
                         }
@@ -143,7 +143,7 @@ struct WorkerTestView: View {
                         ScrollView(.horizontal, showsIndicators: true) {
                             Text(body)
                                 .font(.caption.monospacedDigit())
-                                .padding(10)
+                                .padding(CloudnsSpacing.smMd)
                                 .textSelection(.enabled)
                         }
                         .background(CloudnsColor.secondaryGroupedBackground)
@@ -165,7 +165,7 @@ struct WorkerTestView: View {
                 }
             } else if let err = viewModel.errorMessage {
                 Section {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
                             .accessibilityHidden(true)
@@ -173,14 +173,14 @@ struct WorkerTestView: View {
                             .font(.subheadline)
                             .foregroundStyle(.red)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 } header: {
                     Text("Error")
                 }
             } else {
                 // Ready Guide Banner
                 Section {
-                    VStack(spacing: 10) {
+                    VStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "bolt.horizontal.circle.fill")
                             .font(.largeTitle)
                             .foregroundStyle(.orange.opacity(0.8))
@@ -195,7 +195,7 @@ struct WorkerTestView: View {
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.vertical, 16)
+                    .padding(.vertical, CloudnsSpacing.md)
                     .frame(maxWidth: .infinity)
                 }
                 .listRowBackground(Color.clear)
@@ -280,10 +280,10 @@ struct WorkerTestView: View {
             Text(path)
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.orange)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.smMd)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
         }
     }
 }

@@ -22,12 +22,12 @@ struct SettingsView: View {
                 // MARK: - Profile Card Section
                 Section {
                     NavigationLink(destination: AccountsView()) {
-                        HStack(spacing: 16) {
+                        HStack(spacing: CloudnsSpacing.md) {
                             ZStack {
                                 Circle()
                                     .fill(LinearGradient(gradient: Gradient(colors: [.blue, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 54, height: 54)
-                                    .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
+                                    .frame(width: CloudnsSize.avatarLarge, height: CloudnsSize.avatarLarge)
+                                    .cloudnsShadow(.brand(color: CloudnsColor.brand, radius: 6, y: 3))
                                 
                                 Text(accountManager.activeEmail.prefix(1).uppercased())
                                     .font(.title2.weight(.bold))
@@ -36,7 +36,7 @@ struct SettingsView: View {
                             .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
-                                HStack(spacing: 6) {
+                                HStack(spacing: CloudnsSpacing.sm) {
                                     CloudnsBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
                                 }
                                 
@@ -50,23 +50,23 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                 }
                 
                 // MARK: - Cloudflare Operations & Status
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
-                        HStack(spacing: 14) {
+                        HStack(spacing: CloudnsSpacing.mdMedium) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                                 .font(.body)
                                 .foregroundStyle(.green)
-                                .frame(width: 32, height: 32)
+                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                                 .background(Color.green.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text("System Status")
                                     .font(.body)
                                     .foregroundStyle(.primary)
@@ -75,20 +75,20 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                     
                     NavigationLink(destination: AuditLogsView(accountId: "")) {
-                        HStack(spacing: 14) {
+                        HStack(spacing: CloudnsSpacing.mdMedium) {
                             Image(systemName: "list.bullet.rectangle.portrait.fill")
                                 .font(.body)
                                 .foregroundStyle(.blue)
-                                .frame(width: 32, height: 32)
+                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                                 .background(Color.blue.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text("Audit Logs")
                                     .font(.body)
                                     .foregroundStyle(.primary)
@@ -97,7 +97,7 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                 } header: {
                     Text("Cloudflare Services")

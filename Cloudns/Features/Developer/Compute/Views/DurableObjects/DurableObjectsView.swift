@@ -18,9 +18,9 @@ struct DurableObjectsView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Namespaces"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -90,11 +90,11 @@ struct DurableObjectsView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "cube.fill")
                 .foregroundStyle(.cyan)
                 .font(.title3)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.cyan.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -117,6 +117,6 @@ struct DurableObjectsView: View {
                 CloudnsBadge(.custom(color: .cyan, text: cls), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

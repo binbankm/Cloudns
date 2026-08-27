@@ -21,9 +21,9 @@ struct HyperdriveView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Hyperdrive"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -122,11 +122,11 @@ struct HyperdriveView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func configRow(_ config: HyperdriveConfig) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "bolt.horizontal.fill")
                 .foregroundStyle(.green)
                 .font(.title3)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.green.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -145,6 +145,6 @@ struct HyperdriveView: View {
             
             Spacer()
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

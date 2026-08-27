@@ -8,11 +8,11 @@ struct R2BucketRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "externaldrive.fill")
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -22,7 +22,7 @@ struct R2BucketRowView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: 10) {
+                HStack(spacing: CloudnsSpacing.smMd) {
                     if let loc = bucket.location, !loc.isEmpty {
                         Text(loc.uppercased())
                             .font(.caption)
@@ -41,7 +41,7 @@ struct R2BucketRowView: View {
             
             CloudnsBadge(.custom(color: .secondary, text: "S3 Compatible"), isCompact: true)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contextMenu {
             Button {
                 UIPasteboard.general.string = bucket.name

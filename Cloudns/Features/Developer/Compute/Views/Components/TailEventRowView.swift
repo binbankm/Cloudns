@@ -14,14 +14,14 @@ struct TailEventRowView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 // Method or Cron badge
                 if let method = item.event?.request?.method {
                     Text(method)
                         .font(.caption.monospaced().weight(.bold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(methodColor(method).opacity(0.15))
                         .foregroundStyle(methodColor(method))
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
@@ -53,7 +53,7 @@ struct TailEventRowView: View {
             if let logs = item.logs, !logs.isEmpty {
                 VStack(alignment: .leading, spacing: 3) {
                     ForEach(logs.prefix(3)) { log in
-                        HStack(alignment: .top, spacing: 6) {
+                        HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
                             Text(log.level?.uppercased() ?? "LOG")
                                 .font(.caption2.monospaced().weight(.bold))
                                 .foregroundStyle(logLevelColor(log.level))
@@ -71,15 +71,15 @@ struct TailEventRowView: View {
                             .foregroundStyle(.blue)
                     }
                 }
-                .padding(8)
+                .padding(CloudnsSpacing.sm)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             }
             
             // Exceptions preview
             if let exceptions = item.exceptions, !exceptions.isEmpty {
                 ForEach(exceptions) { ex in
-                    HStack(alignment: .top, spacing: 6) {
+                    HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.red)
@@ -89,14 +89,14 @@ struct TailEventRowView: View {
                             .foregroundStyle(.red)
                             .lineLimit(2)
                     }
-                    .padding(6)
+                    .padding(CloudnsSpacing.sm)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.red.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

@@ -134,15 +134,15 @@ struct NetworkDiagnosticsListView: View {
         NavigationLink {
             tool.destinationView
         } label: {
-            HStack(alignment: .center, spacing: 14) {
+            HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
                 Image(systemName: tool.icon)
                     .font(.body)
                     .foregroundStyle(tool.iconColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                     .background(tool.iconColor.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text(LocalizedStringKey(tool.title))
                         .font(.body)
                         .foregroundStyle(.primary)
@@ -153,7 +153,7 @@ struct NetworkDiagnosticsListView: View {
                         .lineLimit(2)
                 }
             }
-            .padding(.vertical, 3)
+            .padding(.vertical, CloudnsSpacing.xs)
         }
     }
 }

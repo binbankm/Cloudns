@@ -96,13 +96,13 @@ struct AddWAFRuleView: View {
                         Text("Raw Expression").tag(1)
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 // Quick Presets
                 Section(header: Text("Quick Security Presets")) {
                     ScrollView(.horizontal) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             presetButton("Shield WordPress") {
                                 ruleName = "Protect WordPress Admin & XML-RPC"
                                 field = "http.request.uri.path"
@@ -130,7 +130,7 @@ struct AddWAFRuleView: View {
                                 rawExpression = "(ip.geoip.country ne \"US\")"
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                     .scrollIndicators(.hidden)
                 }
@@ -249,7 +249,7 @@ struct AddWAFRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                 }
             )
@@ -264,15 +264,15 @@ struct AddWAFRuleView: View {
             HapticManager.impact(.light)
             action()
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: CloudnsSpacing.xs) {
                 Image(systemName: "sparkles")
                     .font(.caption2)
                     .foregroundStyle(.orange)
                 Text(title)
                     .font(.caption.weight(.medium))
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, CloudnsSpacing.smMd)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.secondaryGroupedBackground)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(Color.orange.opacity(0.25), lineWidth: 0.5))

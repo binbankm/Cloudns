@@ -20,9 +20,9 @@ struct R2BucketsView: View {
                 text: $viewModel.searchText,
                 prompt: "Search R2 Buckets"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {

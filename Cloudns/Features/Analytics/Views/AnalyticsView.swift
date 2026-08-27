@@ -54,9 +54,9 @@ struct AnalyticsView: View {
     public var body: some View {
         VStack(spacing: 0) {
             headerBar
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.top, CloudnsSpacing.mdSmall)
+                .padding(.bottom, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             
             contentBody
@@ -77,7 +77,7 @@ struct AnalyticsView: View {
     
     // MARK: - Private Views
     private var headerBar: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "globe")
                 .foregroundStyle(.blue)
                 .font(.title3)
@@ -88,7 +88,7 @@ struct AnalyticsView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             
-            Spacer(minLength: 4)
+            Spacer(minLength: CloudnsSpacing.xs)
             
             Picker("Range", selection: $timeRange) {
                 Text("24h").tag(1)
@@ -106,7 +106,7 @@ struct AnalyticsView: View {
                 }
             }
         }
-        .padding(14)
+        .padding(CloudnsSpacing.mdMedium)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -124,7 +124,7 @@ struct AnalyticsView: View {
     
     private var skeletonLoadingView: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: CloudnsSpacing.md) {
                 AnalyticsMetricsGridView(
                     totalRequests: 0,
                     totalCachedRequests: 0,
@@ -135,8 +135,8 @@ struct AnalyticsView: View {
                 )
                 .skeletonLoading(true)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 28)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.bottom, CloudnsSpacing.xl)
             .centerConstrainedWidth(maxWidth: 840)
         }
     }
@@ -166,7 +166,7 @@ struct AnalyticsView: View {
                 Spacer(minLength: 80)
             }
             .frame(minHeight: 450)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, CloudnsSpacing.md)
             .centerConstrainedWidth(maxWidth: 840)
         }
         .refreshable {
@@ -176,7 +176,7 @@ struct AnalyticsView: View {
     
     private var analyticsScrollView: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: CloudnsSpacing.md) {
                 AnalyticsMetricsGridView(
                     totalRequests: viewModel.totalRequests,
                     totalCachedRequests: viewModel.totalCachedRequests,
@@ -213,8 +213,8 @@ struct AnalyticsView: View {
                     formatBytes: viewModel.formatBytes
                 )
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 28)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.bottom, CloudnsSpacing.xl)
             .centerConstrainedWidth(maxWidth: 840)
             .opacity(viewModel.isLoading ? 0.6 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)

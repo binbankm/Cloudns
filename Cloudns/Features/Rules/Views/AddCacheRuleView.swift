@@ -119,7 +119,7 @@ struct AddCacheRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                 }
             )

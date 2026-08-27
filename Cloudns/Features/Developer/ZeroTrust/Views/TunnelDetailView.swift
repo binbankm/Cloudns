@@ -139,7 +139,7 @@ struct TunnelDetailView: View {
                             Image(systemName: isTokenRevealed ? "eye.slash" : "eye")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                                .frame(width: 28, height: 28)
+                                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                         }
                         .buttonStyle(.borderless)
                         .accessibilityLabel(isTokenRevealed ? "Hide token" : "Reveal token")
@@ -162,7 +162,7 @@ struct TunnelDetailView: View {
             ) {
                 if !viewModel.hasFetchedData {
                     ForEach(0..<2, id: \.self) { idx in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Image(systemName: "globe")
                                     .foregroundStyle(.blue)
@@ -176,7 +176,7 @@ struct TunnelDetailView: View {
                                     .font(.caption.monospaced())
                             }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                     .skeletonLoading(true)
                 } else if viewModel.ingressRules.isEmpty {
@@ -185,7 +185,7 @@ struct TunnelDetailView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             if let host = rule.hostname, !host.isEmpty {
                                 HStack {
                                     Image(systemName: "globe")
@@ -219,7 +219,7 @@ struct TunnelDetailView: View {
                                 }
                             }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, CloudnsSpacing.xs)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if rule.hostname != nil {
                                 Button(role: .destructive) {
@@ -238,13 +238,13 @@ struct TunnelDetailView: View {
             if let conns = tunnel.connections, !conns.isEmpty {
                 Section(header: Text("Active Connectors (\(conns.count))")) {
                     ForEach(conns) { conn in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 if let colo = conn.coloName {
                                     Text(colo.uppercased())
                                         .font(.caption.monospacedDigit())
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .padding(.horizontal, CloudnsSpacing.sm)
+                                        .padding(.vertical, CloudnsSpacing.xxs)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
@@ -271,7 +271,7 @@ struct TunnelDetailView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                 }
             }

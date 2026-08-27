@@ -131,7 +131,7 @@ struct R2BucketSettingsView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func customDomainRow(_ domain: R2CustomDomain) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "globe")
                 .font(.title3)
                 .foregroundStyle(.blue)
@@ -143,7 +143,7 @@ struct R2BucketSettingsView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     CloudnsBadge((domain.status?.lowercased() == "active") ? .active(domain.status?.capitalized ?? "Active") : .warning(domain.status?.capitalized ?? "Pending"), isCompact: true)
                     
                     if let zone = domain.zoneId {
@@ -156,12 +156,12 @@ struct R2BucketSettingsView: View {
             
             Spacer()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     @ViewBuilder
     private func corsRuleRow(_ rule: R2CORSRule) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text("Origins: \(rule.allowedOrigins.joined(separator: ", "))")
                     .font(.body.weight(.semibold))
@@ -185,6 +185,6 @@ struct R2BucketSettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

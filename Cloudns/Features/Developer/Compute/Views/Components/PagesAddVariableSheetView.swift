@@ -65,7 +65,7 @@ struct PagesAddVariableSheetView: View {
                         .submitLabel(.next)
                     
                     Toggle(isOn: $isSecret) {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("Encrypt as Secret")
                                 .font(.body)
                             Text("Secret values are encrypted at rest and cannot be viewed once saved.")

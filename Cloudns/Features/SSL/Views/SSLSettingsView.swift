@@ -29,14 +29,14 @@ struct SSLSettingsView: View {
                 
                 Section(header: Text("Edge Certificates"), footer: Text("Redirect all requests with scheme 'http' to 'https'. This applies to all http requests to the zone.")) {
                     Toggle(isOn: $viewModel.alwaysUseHTTPS) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Always Use HTTPS")
                             .font(.body)
                         Text("Redirect all HTTP requests to HTTPS.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.alwaysUseHTTPS) { newValue in
@@ -48,14 +48,14 @@ struct SSLSettingsView: View {
                 }
                 
                 Toggle(isOn: $viewModel.automaticHTTPSRewrites) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Automatic HTTPS Rewrites")
                             .font(.body)
                         Text("Automatically rewrite HTTP resources to HTTPS to avoid mixed content warnings.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.automaticHTTPSRewrites) { newValue in
@@ -84,14 +84,14 @@ struct SSLSettingsView: View {
                 }
                 
                 Toggle(isOn: $viewModel.tls13) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("TLS 1.3")
                             .font(.body)
                         Text("Enable the latest version of the TLS protocol for improved security and performance.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.tls13) { newValue in
@@ -103,14 +103,14 @@ struct SSLSettingsView: View {
                 }
                 
                 Toggle(isOn: $viewModel.opportunisticEncryption) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Opportunistic Encryption")
                             .font(.body)
                         Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.opportunisticEncryption) { newValue in
@@ -122,14 +122,14 @@ struct SSLSettingsView: View {
                 }
                 
                 Toggle(isOn: $viewModel.opportunisticOnion) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Opportunistic Onion")
                             .font(.body)
                         Text("Route Tor users through the Cloudflare Onion service to improve privacy.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.opportunisticOnion) { newValue in
@@ -143,7 +143,7 @@ struct SSLSettingsView: View {
             
             Section(header: Text("HSTS (Strict Transport Security)"), footer: Text("DANGER: Enabling HSTS will force browsers to connect via HTTPS only. If your origin server loses HTTPS support, your site will be inaccessible until the Max-Age expires.")) {
                 Toggle(isOn: $viewModel.hstsEnabled) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Enable HSTS")
                             .font(.body)
                             .foregroundStyle(viewModel.hstsEnabled ? .red : .primary)
@@ -151,7 +151,7 @@ struct SSLSettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 .tint(.red)
                 .disabled(!viewModel.hasFetchedData)
@@ -209,7 +209,7 @@ struct SSLSettingsView: View {
                 
                 Section(header: Text("Edge Certificates")) {
                     Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Always Use HTTPS")
                             Text("Redirect all HTTP requests to HTTPS.")
                         }
@@ -217,7 +217,7 @@ struct SSLSettingsView: View {
                     .skeletonLoading(true)
                     
                     Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Automatic HTTPS Rewrites")
                             Text("Automatically rewrite HTTP resources to HTTPS.")
                         }

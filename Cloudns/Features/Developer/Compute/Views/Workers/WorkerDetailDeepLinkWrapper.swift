@@ -16,7 +16,7 @@ struct WorkerDetailDeepLinkWrapper: View {
             if let worker = loadedWorker, !accountId.isEmpty {
                 WorkerDetailView(accountId: accountId, worker: worker)
             } else if isLoading {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     ProgressView()
                         .scaleEffect(1.2)
                     Text("Loading Worker Details...")
@@ -24,16 +24,13 @@ struct WorkerDetailDeepLinkWrapper: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.largeTitle)
                         .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load worker")
-                        .font(.headline)
-                    Button("Close") {
+                    CloudnsButton("Close", style: .secondary) {
                         onDismiss()
                     }
-                    .buttonStyle(.borderedProminent)
                 }
                 .padding()
             }

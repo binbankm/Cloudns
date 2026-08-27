@@ -15,8 +15,8 @@ struct ZoneHeaderCardView: View {
     private var isActive: Bool { zone.status == "active" }
     private var gradientColors: [Color] {
         isActive
-            ? [Color(red: 0.07, green: 0.54, blue: 0.31), Color(red: 0.15, green: 0.72, blue: 0.50)]
-            : [Color(red: 0.72, green: 0.35, blue: 0.0), Color(red: 0.85, green: 0.20, blue: 0.15)]
+            ? [CloudnsColor.success, CloudnsColor.success.opacity(0.8)]
+            : [CloudnsColor.warning, CloudnsColor.danger]
     }
 
     private var statusDisplayText: LocalizedStringKey {
@@ -40,16 +40,16 @@ struct ZoneHeaderCardView: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             // ── Top Row: Domain Name + Plan & Type Badges ──────────────────
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .center, spacing: CloudnsSpacing.sm) {
                 Text(zone.name)
                     .font(.title2.weight(.bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
 
-                Spacer(minLength: 4)
+                Spacer(minLength: CloudnsSpacing.xs)
 
                 HStack(spacing: 5) {
                     if let planName = zone.plan?.displayName {
@@ -57,8 +57,8 @@ struct ZoneHeaderCardView: View {
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.white)
                             .lineLimit(1)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2.5)
+                            .padding(.horizontal, CloudnsSpacing.sm)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                             .background(.white.opacity(0.22))
                             .clipShape(Capsule())
                     }
@@ -67,15 +67,15 @@ struct ZoneHeaderCardView: View {
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2.5)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.8))
                 }
                 .fixedSize(horizontal: true, vertical: true)
             }
 
             // ── Compact Status Badges & Quick Purge Row ────────────────────
-            HStack(spacing: 6) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 HStack(spacing: 3.5) {
                     Image(systemName: isActive ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .font(.caption2.weight(.semibold))
@@ -84,8 +84,8 @@ struct ZoneHeaderCardView: View {
                         .lineLimit(1)
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 2.5)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 .background(.white.opacity(0.22))
                 .clipShape(Capsule())
                 .fixedSize(horizontal: true, vertical: true)
@@ -95,8 +95,8 @@ struct ZoneHeaderCardView: View {
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 2.5)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color.red.opacity(0.70))
                         .clipShape(Capsule())
                         .fixedSize(horizontal: true, vertical: true)
@@ -107,8 +107,8 @@ struct ZoneHeaderCardView: View {
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 2.5)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color.orange.opacity(0.85))
                         .clipShape(Capsule())
                         .fixedSize(horizontal: true, vertical: true)
@@ -121,7 +121,7 @@ struct ZoneHeaderCardView: View {
                     HapticManager.impact(.medium)
                     showingPurgeAlert = true
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         if isPurging {
                             ProgressView()
                                 .tint(.white)
@@ -134,8 +134,8 @@ struct ZoneHeaderCardView: View {
                             .font(.caption2.weight(.semibold))
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3.5)
+                    .padding(.horizontal, CloudnsSpacing.sm)
+                    .padding(.vertical, CloudnsSpacing.xs)
                     .background(.white.opacity(0.25))
                     .clipShape(Capsule())
                 }
@@ -147,7 +147,7 @@ struct ZoneHeaderCardView: View {
             if let nsArray = zone.nameServers, !nsArray.isEmpty {
                 Divider().overlay(.white.opacity(0.25))
                 
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: .center, spacing: CloudnsSpacing.sm) {
                     Image(systemName: "server.rack")
                         .font(.caption2)
                         .foregroundStyle(.white.opacity(0.80))
@@ -173,7 +173,7 @@ struct ZoneHeaderCardView: View {
                         Image(systemName: "doc.on.doc.fill")
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.85))
-                            .padding(5)
+                            .padding(CloudnsSpacing.xs)
                             .background(.white.opacity(0.16))
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                     }
@@ -181,7 +181,7 @@ struct ZoneHeaderCardView: View {
                 }
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(
             LinearGradient(
                 colors: gradientColors,
@@ -190,9 +190,9 @@ struct ZoneHeaderCardView: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .shadow(color: Color.green.opacity(0.20), radius: 10, x: 0, y: 4)
+        .padding(.horizontal, CloudnsSpacing.md)
+        .padding(.vertical, CloudnsSpacing.sm)
+        .cloudnsShadow(.brand(color: CloudnsColor.success, radius: 10, y: 4))
         .alert("Purge Everything?", isPresented: $showingPurgeAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Purge All Files", role: .destructive) {

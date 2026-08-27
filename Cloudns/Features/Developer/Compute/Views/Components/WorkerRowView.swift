@@ -8,11 +8,11 @@ struct WorkerRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             ZStack {
                 Circle()
                     .fill(Color.orange.opacity(0.12))
-                    .frame(width: 34, height: 34)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 Image(systemName: "bolt.fill")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.orange)
@@ -24,7 +24,7 @@ struct WorkerRowView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     if let mod = worker.modifiedOn {
                         Text("Modified: \(DateFormatters.formatISO8601ToDisplay(mod, style: DateFormatters.dateOnly))")
                             .font(.caption2)
@@ -47,7 +47,7 @@ struct WorkerRowView: View {
                 CloudnsBadge(.custom(color: .secondary, text: usage.capitalized), isCompact: true)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Worker \(worker.id), usage model \(worker.usageModel ?? "standard")")
     }

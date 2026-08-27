@@ -8,20 +8,20 @@ struct AuditLogRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             ZStack {
                 Circle()
                     .fill(log.actionColor.opacity(0.12))
-                    .frame(width: 38, height: 38)
+                    .frame(width: CloudnsSize.avatarMedium, height: CloudnsSize.avatarMedium)
                 Image(systemName: log.actionIcon)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(log.actionColor)
             }
             .accessibilityHidden(true)
-            .padding(.top, 2)
+            .padding(.top, CloudnsSpacing.xxs)
             
             VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(LocalizedStringKey(log.displayActionKey))
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
@@ -29,8 +29,8 @@ struct AuditLogRowView: View {
                     Text(LocalizedStringKey(log.friendlyResourceTypeKey))
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                     
@@ -48,7 +48,7 @@ struct AuditLogRowView: View {
                 
                 log.secondaryContextView
                 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     if let email = log.actor?.email, !email.isEmpty {
                         Label(email, systemImage: "person.circle")
                             .font(.caption2)
@@ -79,9 +79,9 @@ struct AuditLogRowView: View {
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.tertiary)
-                .padding(.top, 4)
+                .padding(.top, CloudnsSpacing.xs)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
     }
 }

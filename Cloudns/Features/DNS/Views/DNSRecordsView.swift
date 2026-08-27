@@ -37,9 +37,9 @@ struct DNSRecordsView: View {
                 text: $viewModel.searchQuery,
                 prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List(selection: $multiSelection) {

@@ -32,9 +32,9 @@ struct EmailRoutingView: View {
                 text: $searchText,
                 prompt: "Search Email Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -49,11 +49,11 @@ struct EmailRoutingView: View {
                         Task { await viewModel.toggleEnabled(enabled) }
                     }
                 )) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "envelope.badge.fill")
                             .foregroundStyle(.orange)
                             .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("Email Routing")
                                 .font(.body.weight(.medium))
                             if let status = viewModel.settings?.status {
@@ -78,7 +78,7 @@ struct EmailRoutingView: View {
                         Task { await viewModel.toggleCatchAll(enabled: enabled) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                         Text("Catch-all Email")
                             .font(.body)
                         Text(viewModel.catchAllRule?.actionSummary ?? "Drop all unmatched emails")
@@ -112,7 +112,7 @@ struct EmailRoutingView: View {
                 } else if displayedRules.isEmpty {
                     Text("No custom routing rules configured.")
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                 } else {
                     ForEach(displayedRules) { rule in
                         ruleRow(rule)
@@ -149,11 +149,11 @@ struct EmailRoutingView: View {
                     Text("No destination addresses configured.")
                         .font(.body)
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                 } else {
                     ForEach(viewModel.destinations) { dest in
                         HStack {
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text(dest.email)
                                     .font(.body)
                                 if let created = dest.created {
@@ -164,7 +164,7 @@ struct EmailRoutingView: View {
                             }
                             Spacer()
                             if dest.isVerified {
-                                HStack(spacing: 4) {
+                                HStack(spacing: CloudnsSpacing.xs) {
                                     Image(systemName: "checkmark.seal.fill")
                                         .foregroundStyle(.green)
                                     Text("Verified")
@@ -172,7 +172,7 @@ struct EmailRoutingView: View {
                                         .foregroundStyle(.green)
                                 }
                             } else {
-                                HStack(spacing: 4) {
+                                HStack(spacing: CloudnsSpacing.xs) {
                                     Image(systemName: "clock.badge.exclamationmark")
                                         .foregroundStyle(.orange)
                                     Text("Pending")
@@ -250,7 +250,7 @@ struct EmailRoutingView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func ruleRow(_ rule: EmailRoutingRule) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
             HStack {
                 if let match = rule.matchAddress {
                     Text(match)
@@ -269,16 +269,16 @@ struct EmailRoutingView: View {
                 if rule.isEnabled {
                     Text("Active")
                         .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color.green.opacity(0.2))
                         .foregroundStyle(.green)
                         .clipShape(Capsule())
                 } else {
                     Text("Disabled")
                         .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color.gray.opacity(0.2))
                         .foregroundStyle(.secondary)
                         .clipShape(Capsule())
@@ -295,6 +295,6 @@ struct EmailRoutingView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

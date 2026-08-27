@@ -22,15 +22,15 @@ struct WorkerTailView: View {
                 text: $viewModel.searchText,
                 prompt: "Search logs & URLs"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.secondaryGroupedBackground)
             
             // Top Toolbar: Status & Filters
             filterBar
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.vertical, CloudnsSpacing.sm)
                 .background(CloudnsColor.secondaryGroupedBackground)
             
             Divider()
@@ -62,7 +62,7 @@ struct WorkerTailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 12) {
+                HStack(spacing: CloudnsSpacing.mdSmall) {
                     Button {
                         HapticManager.impact(.light)
                         viewModel.clearLogs()
@@ -102,11 +102,11 @@ struct WorkerTailView: View {
     
     // MARK: - Private Views
     private var filterBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 6) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 Circle()
                     .fill(viewModel.isStreaming ? Color.green : Color.red)
-                    .frame(width: 8, height: 8)
+                    .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.isStreaming ? .green : .secondary)
@@ -128,7 +128,7 @@ struct WorkerTailView: View {
     }
     
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: CloudnsSpacing.md) {
             Spacer()
             if viewModel.isStreaming {
                 ProgressView()
@@ -139,7 +139,7 @@ struct WorkerTailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, CloudnsSpacing.xl)
             } else {
                 Image(systemName: "pause.circle")
                     .font(.largeTitle)
@@ -147,11 +147,9 @@ struct WorkerTailView: View {
                     .accessibilityHidden(true)
                 Text("Log stream paused")
                     .font(.body.weight(.medium))
-                Button("Resume Stream") {
-                    HapticManager.impact(.light)
+                CloudnsButton("Resume Stream", icon: "play.fill", style: .primary(color: .orange), size: .regular) {
                     Task { await viewModel.startStream() }
                 }
-                .buttonStyle(.borderedProminent)
             }
             Spacer()
         }

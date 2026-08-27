@@ -20,7 +20,7 @@ struct AccountsView: View {
                             }
                         }) {
                             HStack {
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                     Text(email)
                                         .font(.body)
                                         .foregroundStyle(.primary)

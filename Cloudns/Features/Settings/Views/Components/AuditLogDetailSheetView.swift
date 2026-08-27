@@ -13,18 +13,18 @@ struct AuditLogDetailSheetView: View {
         List {
             // MARK: - 1. Status & Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: CloudnsSpacing.mdSmall) {
                     ZStack {
                         Circle()
                             .fill(log.actionColor.opacity(0.15))
-                            .frame(width: 56, height: 56)
+                            .frame(width: CloudnsSize.avatarLarge, height: CloudnsSize.avatarLarge)
                         Image(systemName: log.actionIcon)
                             .font(.title2.weight(.semibold))
                             .foregroundStyle(log.actionColor)
                     }
                     
-                    VStack(spacing: 4) {
-                        HStack(spacing: 4) {
+                    VStack(spacing: CloudnsSpacing.xs) {
+                        HStack(spacing: CloudnsSpacing.xs) {
                             Text(LocalizedStringKey(log.displayActionKey))
                             Text("•")
                             Text(LocalizedStringKey(log.friendlyResourceTypeKey))
@@ -43,7 +43,7 @@ struct AuditLogDetailSheetView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, CloudnsSpacing.sm)
                 .listRowBackground(Color.clear)
             }
             
@@ -66,35 +66,35 @@ struct AuditLogDetailSheetView: View {
             if hasChanges {
                 Section("Changes & Payload") {
                     if let oldText = formattedOldValue, !oldText.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             Label("Previous Value (Before)", systemImage: "minus.circle.fill")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.red)
                             Text(oldText)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(10)
+                                .padding(CloudnsSpacing.smMd)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.red.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                     
                     if let newText = formattedNewValue, !newText.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.green)
                             Text(newText)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(10)
+                                .padding(CloudnsSpacing.smMd)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.green.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                 }
             }
@@ -193,7 +193,7 @@ struct AuditLogDetailSheetView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            Spacer(minLength: 12)
+            Spacer(minLength: CloudnsSpacing.mdSmall)
             
             Text(value)
                 .font(.subheadline.monospacedDigit())

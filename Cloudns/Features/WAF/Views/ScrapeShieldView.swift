@@ -10,11 +10,11 @@ struct ScrapeShieldView: View {
     var body: some View {
         List {
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: CloudnsSpacing.mdSmall) {
                     Image(systemName: "eye.slash.fill")
                         .font(.largeTitle)
                         .foregroundStyle(.purple)
-                        .padding(.top, 10)
+                        .padding(.top, CloudnsSpacing.smMd)
                         .accessibilityHidden(true)
                     
                     Text("Scrape Shield")
@@ -32,7 +32,7 @@ struct ScrapeShieldView: View {
             
             if viewModel.hasFetchedData {
                 Section(footer: 
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                         Label("About Scrape Shield", systemImage: "info.circle")
                             .font(.subheadline)
                             .foregroundStyle(.purple)
@@ -41,7 +41,7 @@ struct ScrapeShieldView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, CloudnsSpacing.sm)
                 ) {
                     // Email Obfuscation
                     ScrapeShieldRowView(

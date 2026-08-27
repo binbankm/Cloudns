@@ -21,7 +21,7 @@ struct CIDRCalculatorView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Input Card
                     inputCard
                     
@@ -38,8 +38,8 @@ struct CIDRCalculatorView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -50,8 +50,8 @@ struct CIDRCalculatorView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "number.square.fill")
                     .font(.title3)
                     .foregroundStyle(.blue)
@@ -78,13 +78,13 @@ struct CIDRCalculatorView: View {
                     .accessibilityLabel("Clear input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             // Quick Presets
             ScrollView(.horizontal) {
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     ForEach(presetCIDRs, id: \.self) { preset in
                         Button {
                             viewModel.cidrInput = preset
@@ -93,8 +93,8 @@ struct CIDRCalculatorView: View {
                         } label: {
                             Text(preset)
                                 .font(.caption.weight(.medium).monospacedDigit())
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
+                                .padding(.horizontal, CloudnsSpacing.smMd)
+                                .padding(.vertical, CloudnsSpacing.xs)
                                 .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.10))
                                 .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
                                 .clipShape(Capsule())
@@ -105,14 +105,14 @@ struct CIDRCalculatorView: View {
             }
             .scrollIndicators(.hidden)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 2. Range Card
     @ViewBuilder
     private func rangeCard(result: SubnetCalculationResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text("Subnet & Host Range")
                     .font(.headline)
@@ -123,41 +123,41 @@ struct CIDRCalculatorView: View {
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 calcRow(label: "Network Address", value: result.networkAddress)
                 calcRow(label: "Broadcast Address", value: result.broadcastAddress)
                 calcRow(label: "Usable Host Range", value: result.usableHostRange)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. Properties Card
     @ViewBuilder
     private func propertiesCard(result: SubnetCalculationResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Masks & Network Properties")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 calcRow(label: "Subnet Netmask", value: result.netmask)
                 calcRow(label: "Wildcard Mask", value: result.wildcardMask)
                 calcRow(label: "Prefix Length", value: "/\(result.prefixLength)")
                 calcRow(label: "IP Class / Type", value: result.ipClass)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 4. Bitmask Card
     @ViewBuilder
     private func bitmaskCard(result: SubnetCalculationResult) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             HStack {
                 Text("Binary Bitmask")
                     .font(.headline)
@@ -179,14 +179,14 @@ struct CIDRCalculatorView: View {
             Text(result.binaryMask)
                 .font(.caption.monospaced())
                 .foregroundStyle(.blue)
-                .padding(10)
+                .padding(CloudnsSpacing.smMd)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.blue.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 .textSelection(.enabled)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -216,11 +216,11 @@ struct CIDRCalculatorView: View {
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Calculation Error")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -229,7 +229,7 @@ struct CIDRCalculatorView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
 }

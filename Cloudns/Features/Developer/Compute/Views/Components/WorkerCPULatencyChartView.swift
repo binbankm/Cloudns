@@ -18,7 +18,7 @@ struct WorkerCPULatencyChartView: View {
         let maxCpu = dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
         let yUpper = max(2.0, maxCpu * 1.18)
         
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             headerRow
             
             Chart {
@@ -52,7 +52,7 @@ struct WorkerCPULatencyChartView: View {
                     .symbol {
                         Circle()
                             .fill(Color.white)
-                            .frame(width: 8, height: 8)
+                            .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                             .overlay(Circle().stroke(Color.cyan, lineWidth: 2))
                             .shadow(color: Color.cyan, radius: 4)
                     }
@@ -95,7 +95,7 @@ struct WorkerCPULatencyChartView: View {
                 chartInteractionOverlay(proxy: proxy)
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -104,7 +104,7 @@ struct WorkerCPULatencyChartView: View {
     private var headerRow: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "bolt.fill")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(.cyan)
@@ -114,7 +114,7 @@ struct WorkerCPULatencyChartView: View {
                 }
                 
                 if let selected = selectedCpuPoint {
-                    HStack(alignment: .lastTextBaseline, spacing: 8) {
+                    HStack(alignment: .lastTextBaseline, spacing: CloudnsSpacing.sm) {
                         Text(String(format: "%.2f ms", selected.cpuP50))
                             .font(.system(.title, design: .rounded).weight(.bold))
                             .foregroundStyle(.cyan)
@@ -133,7 +133,7 @@ struct WorkerCPULatencyChartView: View {
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    HStack(alignment: .lastTextBaseline, spacing: 8) {
+                    HStack(alignment: .lastTextBaseline, spacing: CloudnsSpacing.sm) {
                         Text(String(format: "%.2f ms", avgCpuP50))
                             .font(.system(.title, design: .rounded).weight(.bold))
                             .foregroundStyle(.cyan)
@@ -158,7 +158,7 @@ struct WorkerCPULatencyChartView: View {
             
             if let selected = selectedCpuPoint {
                 let dateStr = formattedPointDate(selected)
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
                         .fill(Color.cyan)
                         .frame(width: 6, height: 6)
@@ -166,12 +166,12 @@ struct WorkerCPULatencyChartView: View {
                         .font(.caption2.monospacedDigit().weight(.semibold))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(Color.cyan.opacity(0.12))
                 .clipShape(Capsule())
             } else {
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Label("P50", systemImage: "circle.fill")
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.cyan)

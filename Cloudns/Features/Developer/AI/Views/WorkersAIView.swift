@@ -18,9 +18,9 @@ struct WorkersAIView: View {
                 text: $viewModel.searchText,
                 prompt: "Search AI Models"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -100,16 +100,16 @@ struct WorkersAIView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func modelRow(_ model: AIModel) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "sparkles")
                 .font(.body)
                 .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(model.shortName)
                     .font(.body)
                     .foregroundStyle(.primary)
@@ -134,6 +134,6 @@ struct WorkersAIView: View {
                 .foregroundStyle(Color(.tertiaryLabel))
                 .accessibilityHidden(true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

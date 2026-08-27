@@ -19,7 +19,7 @@ struct HTTPHeaderInspectorView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. URL & Method Config Card
                     inputCard
                     
@@ -35,8 +35,8 @@ struct HTTPHeaderInspectorView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -53,8 +53,8 @@ struct HTTPHeaderInspectorView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "link")
                     .font(.title3)
                     .foregroundStyle(.blue)
@@ -81,7 +81,7 @@ struct HTTPHeaderInspectorView: View {
                     .accessibilityLabel("Clear URL")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
@@ -92,30 +92,20 @@ struct HTTPHeaderInspectorView: View {
             }
             .pickerStyle(.segmented)
             
-            Button {
+            CloudnsButton(
+                viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response",
+                icon: "arrow.up.right.circle.fill",
+                style: .primary(color: .blue),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isHttpLoading,
+                disabled: viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performInspect()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isHttpLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "arrow.up.right.circle.fill")
-                    }
-                    Text(viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            .controlSize(.regular)
-            .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -128,14 +118,14 @@ struct HTTPHeaderInspectorView: View {
     // MARK: - 2. Edge Summary Card
     @ViewBuilder
     private func edgeSummaryCard(result: HTTPInspectionResult) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("Edge Response Summary")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         Text("\(result.statusCode)")
                             .font(.title2.weight(.bold).monospacedDigit())
                             .foregroundStyle(result.statusCode < 400 ? .green : .red)
@@ -154,7 +144,7 @@ struct HTTPHeaderInspectorView: View {
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let ray = result.cfRay {
                     let coloCode = ray.split(separator: "-").last.map(String.init) ?? ""
                     let popInfo = CloudflarePoPDatabase.shared.getPoP(code: coloCode)
@@ -220,14 +210,14 @@ struct HTTPHeaderInspectorView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. Headers Card
     @ViewBuilder
     private func headersCard(result: HTTPInspectionResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text("Response Headers (\(result.headers.count))")
                     .font(.headline)
@@ -244,7 +234,7 @@ struct HTTPHeaderInspectorView: View {
             }
             
             // Filter Search Bar
-            HStack(spacing: 8) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 Image(systemName: "magnifyingglass")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -260,13 +250,13 @@ struct HTTPHeaderInspectorView: View {
                     }
                 }
             }
-            .padding(8)
+            .padding(CloudnsSpacing.sm)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
             
             Divider()
             
-            VStack(spacing: 8) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 ForEach(filteredHeaders) { header in
                     VStack(alignment: .leading, spacing: 3) {
                         HStack {
@@ -293,12 +283,12 @@ struct HTTPHeaderInspectorView: View {
                             .foregroundStyle(.primary)
                             .textSelection(.enabled)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -325,11 +315,11 @@ struct HTTPHeaderInspectorView: View {
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Inspection Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -338,20 +328,20 @@ struct HTTPHeaderInspectorView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Edge Response Summary")
                     .font(.caption)
                 Text("200 OK").font(.title2.weight(.bold))
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

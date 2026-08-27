@@ -221,8 +221,8 @@ struct DNSRecordFormView: View {
                     
                     if isProxySupported {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                                HStack(spacing: CloudnsSpacing.sm) {
                                     Text("Proxy Status")
                                         .font(.body.weight(.medium))
                                     CloudnsBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
@@ -302,7 +302,7 @@ struct DNSRecordFormView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                 }
             }

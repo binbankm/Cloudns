@@ -3454,6 +3454,16 @@
         }
       }
     },
+    "%@, %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@"
+          }
+        }
+      }
+    },
     "%@, status %@" : {
       "localizations" : {
         "ar" : {
@@ -24078,6 +24088,9 @@
         }
       }
     },
+    "Anycast Edge PoP Node" : {
+
+    },
     "api" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -41139,6 +41152,9 @@
         }
       }
     },
+    "Clear search history" : {
+
+    },
     "Clear search text" : {
       "localizations" : {
         "ar" : {
@@ -52977,6 +52993,9 @@
           }
         }
       }
+    },
+    "Copy Target ID" : {
+
     },
     "Copy Target Resource ID" : {
       "localizations" : {
@@ -67172,6 +67191,9 @@
         }
       }
     },
+    "Detect nearest Anycast PoP, RTT latency & HTTP/3 support." : {
+
+    },
     "Detects and challenges known bots and crawlers. Recommended for most sites." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -75913,6 +75935,9 @@
           }
         }
       }
+    },
+    "Edge Quick Check" : {
+
     },
     "Edge Response Summary" : {
       "localizations" : {
@@ -88407,6 +88432,9 @@
         }
       }
     },
+    "First Packet RTT" : {
+
+    },
     "Flags" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -99921,6 +99949,9 @@
           }
         }
       }
+    },
+    "Inspect Edge Connectivity" : {
+
     },
     "Inspect Edge Response" : {
       "extractionState" : "manual",
@@ -127527,6 +127558,7 @@
       }
     },
     "No Functions invocations or deployments recorded for %@ in the selected time range." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -129448,6 +129480,7 @@
       }
     },
     "No Pages Data" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -129522,6 +129555,9 @@
           }
         }
       }
+    },
+    "No Pages Functions invocations recorded for %@ in the selected range." : {
+
     },
     "No Pages Projects" : {
       "extractionState" : "manual",
@@ -145646,6 +145682,9 @@
         }
       }
     },
+    "Probing nearest Cloudflare Anycast node & latency..." : {
+
+    },
     "Prod Branch" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -155062,6 +155101,15 @@
           }
         }
       }
+    },
+    "Recent Queries" : {
+
+    },
+    "Recheck" : {
+
+    },
+    "Recheck Edge Connection" : {
+
     },
     "Record content copied" : {
       "extractionState" : "manual",
@@ -167026,6 +167074,9 @@
         }
       }
     },
+    "Run Edge Quick Check" : {
+
+    },
     "Run Model Inference" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -167256,6 +167307,9 @@
           }
         }
       }
+    },
+    "Run Test" : {
+
     },
     "Run this command on your server or container to attach cloudflared to this tunnel." : {
       "extractionState" : "manual",
@@ -169086,6 +169140,9 @@
           }
         }
       }
+    },
+    "Search %@" : {
+
     },
     "Search %lld domains" : {
       "extractionState" : "manual",
@@ -195967,6 +196024,7 @@
       }
     },
     "Unbind AI Binding" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -196043,6 +196101,7 @@
       }
     },
     "Unbind D1 Database" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -196196,6 +196255,7 @@
       }
     },
     "Unbind KV Namespace" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -196272,6 +196332,7 @@
       }
     },
     "Unbind R2 Bucket" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

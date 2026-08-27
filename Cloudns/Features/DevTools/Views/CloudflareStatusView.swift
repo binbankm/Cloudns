@@ -69,9 +69,9 @@ struct CloudflareStatusView: View {
                 text: $searchText,
                 prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             // Segmented Picker Header (Standard pattern across app)
@@ -82,7 +82,7 @@ struct CloudflareStatusView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentView
@@ -194,13 +194,13 @@ struct CloudflareStatusView: View {
     // MARK: - Component Row View
     @ViewBuilder
     private func componentRow(_ comp: CFComponentItem) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Circle()
                 .fill(statusColor(comp.status))
-                .frame(width: 8, height: 8)
+                .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                 .shadow(color: statusColor(comp.status).opacity(comp.status.lowercased() == "operational" ? 0 : 0.4), radius: 2)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(comp.name)
                     .font(.body)
                     .foregroundStyle(.primary)
@@ -216,13 +216,13 @@ struct CloudflareStatusView: View {
             
             CloudnsBadge(badgeTypeForStatus(comp.status), isCompact: true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
     
     // MARK: - Incident Row View
     @ViewBuilder
     private func incidentRow(_ inc: CFIncidentItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(inc.name)
                     .font(.body.weight(.semibold))
@@ -232,7 +232,7 @@ struct CloudflareStatusView: View {
             }
             
             if let updated = inc.updatedAt {
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Image(systemName: "clock")
                         .font(.caption2)
                     Text("Updated: \(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))")
@@ -241,7 +241,7 @@ struct CloudflareStatusView: View {
                 .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Overall Banner Card
@@ -249,13 +249,13 @@ struct CloudflareStatusView: View {
         let isOperational = summary.status?.indicator == "none"
         let bgColor = isOperational ? Color.green : Color.orange
         
-        return HStack(spacing: 14) {
+        return HStack(spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .font(.title)
                 .foregroundStyle(.white)
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text(summary.status?.description ?? "All Systems Operational")
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
@@ -267,12 +267,12 @@ struct CloudflareStatusView: View {
             
             Spacer()
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(bgColor.gradient)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
-        .shadow(color: bgColor.opacity(0.25), radius: 6, x: 0, y: 3)
+        .cloudnsShadow(.brand(color: bgColor, radius: 6, y: 3))
         .padding(.horizontal)
-        .padding(.top, 4)
+        .padding(.top, CloudnsSpacing.xs)
     }
     
     // MARK: - Helpers

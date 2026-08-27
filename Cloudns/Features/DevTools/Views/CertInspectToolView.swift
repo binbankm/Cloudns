@@ -11,7 +11,7 @@ struct CertInspectToolView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Search / Input Card
                     inputCard
                     
@@ -33,8 +33,8 @@ struct CertInspectToolView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -51,8 +51,8 @@ struct CertInspectToolView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "lock.shield.fill")
                     .font(.title3)
                     .foregroundStyle(.green)
@@ -79,34 +79,24 @@ struct CertInspectToolView: View {
                     .accessibilityLabel("Clear domain input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
-            Button {
+            CloudnsButton(
+                viewModel.isLoading ? "Inspecting Handshake..." : "Inspect SSL/TLS Certificate",
+                icon: "checkmark.seal.fill",
+                style: .primary(color: .green),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isLoading,
+                disabled: viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performInspect()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "checkmark.seal.fill")
-                    }
-                    Text(viewModel.isLoading ? "Inspecting Handshake..." : "Inspect SSL/TLS Certificate")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.green)
-            .controlSize(.regular)
-            .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -119,9 +109,9 @@ struct CertInspectToolView: View {
     // MARK: - 2. Validity Hero Card
     @ViewBuilder
     private func validityCard(details: SSLCertDetails) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Certificate Validity")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -147,7 +137,7 @@ struct CertInspectToolView: View {
             Divider()
             
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("Valid From")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -158,7 +148,7 @@ struct CertInspectToolView: View {
                 
                 Spacer()
                 
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: CloudnsSpacing.xxs) {
                     Text("Valid Until")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -168,33 +158,33 @@ struct CertInspectToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. Chain Card
     @ViewBuilder
     private func chainCard(details: SSLCertDetails) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Certificate Chain Hierarchy (\(details.chainNames.count))")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 ForEach(Array(details.chainNames.enumerated()), id: \.offset) { index, name in
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         ZStack {
                             Circle()
                                 .fill((index == 0 ? Color.green : Color.blue).opacity(0.12))
-                                .frame(width: 32, height: 32)
+                                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                             Image(systemName: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(index == 0 ? .green : .blue)
                         }
                         
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text(name)
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(.primary)
@@ -210,21 +200,21 @@ struct CertInspectToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 4. Crypto Parameters Card
     @ViewBuilder
     private func cryptoCard(details: SSLCertDetails) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Cryptographic Parameters")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let proto = details.protocolNegotiated {
                     cryptoRow(title: "Negotiated Protocol", value: proto, isBadge: true)
                 }
@@ -239,8 +229,8 @@ struct CertInspectToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -264,7 +254,7 @@ struct CertInspectToolView: View {
     // MARK: - 5. SANs Card
     @ViewBuilder
     private func sansCard(details: SSLCertDetails) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text("Subject Alternative Names (\(details.sans.count))")
                     .font(.headline)
@@ -274,7 +264,7 @@ struct CertInspectToolView: View {
             
             Divider()
             
-            VStack(spacing: 8) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 ForEach(details.sans, id: \.self) { san in
                     HStack {
                         Image(systemName: "globe")
@@ -297,22 +287,22 @@ struct CertInspectToolView: View {
                                 .foregroundStyle(.blue)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Inspection Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -321,37 +311,37 @@ struct CertInspectToolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Certificate Validity")
                     .font(.caption)
                 Text("90 Days Remaining")
                     .font(.title2.weight(.bold))
                 ProgressView(value: 0.8)
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Certificate Chain Hierarchy")
                     .font(.headline)
                 Divider()
                 ForEach(0..<3, id: \.self) { _ in
                     HStack {
-                        Circle().frame(width: 32, height: 32)
+                        Circle().frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                         Text("Cloudflare Inc ECC CA-3")
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

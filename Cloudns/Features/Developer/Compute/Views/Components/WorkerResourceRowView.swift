@@ -9,11 +9,11 @@ struct WorkerResourceRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: WorkerBindingHelper.icon(for: binding.type))
                 .font(.body)
                 .foregroundStyle(WorkerBindingHelper.color(for: binding.type))
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(WorkerBindingHelper.color(for: binding.type).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -42,7 +42,7 @@ struct WorkerResourceRowView: View {
                 isCompact: true
             )
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
         .contextMenu {
             contextMenuItems

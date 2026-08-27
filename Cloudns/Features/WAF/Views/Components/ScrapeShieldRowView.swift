@@ -13,14 +13,14 @@ struct ScrapeShieldRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: CloudnsSpacing.md) {
             ZStack {
                 iconColor.opacity(0.15)
                 Image(systemName: icon)
                     .foregroundStyle(iconColor)
                     .font(.body)
             }
-            .frame(width: 36, height: 36)
+            .frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             .accessibilityHidden(true)
             
@@ -40,6 +40,6 @@ struct ScrapeShieldRowView: View {
                 .labelsHidden()
                 .disabled(isLoading)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, CloudnsSpacing.sm)
     }
 }

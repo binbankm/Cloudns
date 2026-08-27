@@ -10,7 +10,7 @@ struct PagesDeploymentsPipelineCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.subheadline)
@@ -24,11 +24,11 @@ struct PagesDeploymentsPipelineCardView: View {
                     .foregroundStyle(.secondary)
             }
             
-            HStack(spacing: 16) {
+            HStack(spacing: CloudnsSpacing.md) {
                 // Production Bar
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
-                        Circle().fill(Color.purple).frame(width: 8, height: 8)
+                        Circle().fill(Color.purple).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                         Text("Production")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -42,14 +42,14 @@ struct PagesDeploymentsPipelineCardView: View {
                     )
                     .tint(.purple)
                 }
-                .padding(12)
+                .padding(CloudnsSpacing.mdSmall)
                 .background(CloudnsColor.tertiaryGroupedBackground)
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                 
                 // Preview Bar
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
-                        Circle().fill(Color.blue).frame(width: 8, height: 8)
+                        Circle().fill(Color.blue).frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                         Text("Preview")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -63,12 +63,12 @@ struct PagesDeploymentsPipelineCardView: View {
                     )
                     .tint(.blue)
                 }
-                .padding(12)
+                .padding(CloudnsSpacing.mdSmall)
                 .background(CloudnsColor.tertiaryGroupedBackground)
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }

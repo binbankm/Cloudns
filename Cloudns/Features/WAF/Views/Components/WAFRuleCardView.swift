@@ -9,7 +9,7 @@ struct WAFRuleCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
                     .font(.body)
@@ -34,7 +34,7 @@ struct WAFRuleCardView: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Expression")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -42,14 +42,14 @@ struct WAFRuleCardView: View {
                 Text(rule.expression)
                     .font(.footnote.monospaced())
                     .foregroundStyle(.primary)
-                    .padding(8)
+                    .padding(CloudnsSpacing.sm)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(CloudnsColor.tertiaryGroupedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     .textSelection(.enabled)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, CloudnsSpacing.sm)
     }
     
     // MARK: - Actions

@@ -60,12 +60,12 @@ struct AnalyticsMetricsGridView: View {
         color: Color,
         badge: LocalizedStringKey
     ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
-                        .frame(width: 22, height: 22)
+                        .frame(width: CloudnsSize.iconMedium, height: CloudnsSize.iconMedium)
                     Image(systemName: icon)
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(color)
@@ -80,7 +80,7 @@ struct AnalyticsMetricsGridView: View {
                 Spacer()
             }
             
-            Spacer(minLength: 2)
+            Spacer(minLength: CloudnsSpacing.xxs)
             
             Text(value)
                 .font(.system(.title2, design: .rounded).weight(.bold))
@@ -88,7 +88,7 @@ struct AnalyticsMetricsGridView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
             
-            Spacer(minLength: 2)
+            Spacer(minLength: CloudnsSpacing.xxs)
             
             Text(badge)
                 .font(.caption2)
@@ -96,7 +96,7 @@ struct AnalyticsMetricsGridView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .padding(12)
+        .padding(CloudnsSpacing.mdSmall)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))

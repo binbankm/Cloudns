@@ -11,7 +11,7 @@ struct PagesAnalyticsInsightsView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Pages Edge & Pipeline Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
@@ -50,7 +50,7 @@ struct PagesAnalyticsInsightsView: View {
                     .foregroundStyle(.green)
             }
         }
-        .padding(14)
+        .padding(CloudnsSpacing.mdMedium)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }

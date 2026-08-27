@@ -16,7 +16,7 @@ struct PagesDetailDeepLinkWrapper: View {
             if let project = loadedProject, !accountId.isEmpty {
                 PagesProjectDetailView(accountId: accountId, project: project)
             } else if isLoading {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     ProgressView()
                         .scaleEffect(1.2)
                     Text("Loading Pages Project...")
@@ -24,16 +24,13 @@ struct PagesDetailDeepLinkWrapper: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.largeTitle)
                         .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load project")
-                        .font(.headline)
-                    Button("Close") {
+                    CloudnsButton("Close", style: .secondary) {
                         onDismiss()
                     }
-                    .buttonStyle(.borderedProminent)
                 }
                 .padding()
             }

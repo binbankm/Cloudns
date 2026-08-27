@@ -32,13 +32,13 @@ struct AppLockView: View {
                     Label("Tap to Unlock", systemImage: "lock.open.fill")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, CloudnsSpacing.md)
+                        .padding(.vertical, CloudnsSpacing.sm)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, 50)
+                .padding(.bottom, CloudnsSpacing.xxl)
             }
         }
     }

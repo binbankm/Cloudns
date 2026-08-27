@@ -105,7 +105,7 @@ struct WorkerRoutesView: View {
                             Image(systemName: "arrow.triangle.swap")
                                 .font(.body)
                                 .foregroundStyle(.blue)
-                                .frame(width: 30, height: 30)
+                                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                                 .background(Color.blue.opacity(0.12))
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                                 .accessibilityHidden(true)
@@ -114,7 +114,7 @@ struct WorkerRoutesView: View {
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                 }
             }
@@ -137,16 +137,16 @@ struct WorkerRoutesView: View {
     
     @ViewBuilder
     private func domainRow(_ dom: WorkerCustomDomain) -> some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "link")
                 .font(.body)
                 .foregroundStyle(.orange)
-                .frame(width: 30, height: 30)
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                 .background(Color.orange.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(dom.hostname)
                     .font(.body)
                     .foregroundStyle(.primary)
@@ -160,7 +160,7 @@ struct WorkerRoutesView: View {
             
             Spacer()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

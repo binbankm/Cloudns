@@ -250,9 +250,9 @@ struct DeveloperHubView: View {
     // MARK: - Account Header Card
     
     private var accountHeaderCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Developer Suite")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.white)
@@ -274,7 +274,7 @@ struct DeveloperHubView: View {
                 .overlay(Color.white.opacity(0.25))
             
             // Metrics grid
-            HStack(spacing: 12) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 metricItem(title: "Workers", value: "\(viewModel.workers.count)")
                 metricItem(title: "Pages", value: "\(viewModel.pagesProjects.count)")
                 metricItem(title: "R2", value: "\(viewModel.r2Buckets.count)")
@@ -282,22 +282,22 @@ struct DeveloperHubView: View {
             }
             .skeletonLoading(!viewModel.hasFetchedData)
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.15, green: 0.45, blue: 0.95), Color(red: 0.08, green: 0.30, blue: 0.75)],
+                colors: [CloudnsColor.brand, CloudnsColor.brandDark],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 4)
+        .padding(.horizontal, CloudnsSpacing.md)
+        .padding(.vertical, CloudnsSpacing.sm)
+        .cloudnsShadow(.brand(color: CloudnsColor.brand))
     }
     
     private func metricItem(title: LocalizedStringKey, value: String) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: CloudnsSpacing.xxs) {
             CloudnsRollingNumber(value: value, font: .headline, weight: .bold, color: .white)
             Text(title)
                 .font(.caption2)

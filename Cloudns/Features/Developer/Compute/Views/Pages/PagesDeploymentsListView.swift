@@ -31,9 +31,9 @@ struct PagesDeploymentsListView: View {
                 text: $searchText,
                 prompt: "Search Deployments"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -113,7 +113,7 @@ struct PagesDeploymentsListView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func deploymentRow(_ dep: PagesDeployment) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 CloudnsBadge(
                     (dep.latestStage?.status == "success") ? .active((dep.environment ?? "Production").capitalized) : .warning((dep.environment ?? "Preview").capitalized),
@@ -125,8 +125,8 @@ struct PagesDeploymentsListView: View {
                 if let trigger = dep.deploymentTrigger?.metadata?.commitHash {
                     Text(String(trigger.prefix(7)))
                         .font(.caption2.monospacedDigit())
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color(.secondarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                         .foregroundStyle(.primary)
@@ -151,7 +151,7 @@ struct PagesDeploymentsListView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
     }
 }

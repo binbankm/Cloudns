@@ -22,7 +22,7 @@ struct AlertingView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentList
@@ -71,7 +71,7 @@ struct AlertingView: View {
             } else if selectedTab == "available" {
                 Section(header: Text("Supported Alert Types (\(viewModel.availableTypes.count))")) {
                     ForEach(viewModel.availableTypes) { type in
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text(type.displayName ?? type.type)
                                 .font(.body.weight(.medium))
                             if let desc = type.description {
@@ -80,7 +80,7 @@ struct AlertingView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                 }
             } else {
@@ -91,7 +91,7 @@ struct AlertingView: View {
                                 Image(systemName: "bell.badge.fill")
                                     .foregroundStyle(.orange)
                                     .accessibilityHidden(true)
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                     Text(h.name ?? h.id)
                                         .font(.body)
                                     if let url = h.url {
@@ -133,7 +133,7 @@ struct AlertingView: View {
     
     @ViewBuilder
     private func policyRow(_ p: AlertingPolicy) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
             HStack {
                 Text(p.displayName)
                     .font(.body.weight(.medium))
@@ -154,6 +154,6 @@ struct AlertingView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

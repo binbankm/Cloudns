@@ -11,7 +11,7 @@ struct EdgeLatencyTestView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Input & Rounds Card
                     inputCard
                     
@@ -30,8 +30,8 @@ struct EdgeLatencyTestView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -48,8 +48,8 @@ struct EdgeLatencyTestView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "speedometer")
                     .font(.title3)
                     .foregroundStyle(.purple)
@@ -76,37 +76,27 @@ struct EdgeLatencyTestView: View {
                     .accessibilityLabel("Clear input")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
             Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
                 .font(.subheadline)
             
-            Button {
+            CloudnsButton(
+                viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark",
+                icon: "bolt.horizontal.fill",
+                style: .primary(color: .purple),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isLatencyLoading,
+                disabled: viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performTest()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLatencyLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "bolt.horizontal.fill")
-                    }
-                    Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.purple)
-            .controlSize(.regular)
-            .disabled(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -119,14 +109,14 @@ struct EdgeLatencyTestView: View {
     // MARK: - 2. Metrics Card
     @ViewBuilder
     private func metricsCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
             Text("Latency & Jitter Summary")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            HStack(spacing: 12) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 metricBox(title: "Avg Latency", value: String(format: "%.1f ms", result.avgMs), color: .green)
                 Spacer()
                 metricBox(title: "Min / Max", value: String(format: "%.0f / %.0f", result.minMs, result.maxMs), color: .blue)
@@ -146,13 +136,13 @@ struct EdgeLatencyTestView: View {
                     .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
     private func metricBox(title: LocalizedStringKey, value: String, color: Color) -> some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: CloudnsSpacing.xs) {
             Text(title)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.secondary)
@@ -166,14 +156,14 @@ struct EdgeLatencyTestView: View {
     // MARK: - 3. Protocol Card
     @ViewBuilder
     private func protocolCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Edge Protocol & Server")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 HStack {
                     Text("Protocol")
                         .font(.subheadline)
@@ -195,21 +185,21 @@ struct EdgeLatencyTestView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 4. Rounds Card
     @ViewBuilder
     private func roundsCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Round-by-Round Breakdown (\(result.pings.count))")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 8) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 ForEach(result.pings) { ping in
                     HStack {
                         Text("Round \(ping.id)")
@@ -228,22 +218,22 @@ struct EdgeLatencyTestView: View {
                                 .foregroundStyle(.red)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Test Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -252,14 +242,14 @@ struct EdgeLatencyTestView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Latency & Jitter Summary")
                     .font(.headline)
                 Divider()
@@ -269,8 +259,8 @@ struct EdgeLatencyTestView: View {
                     Text("±2.1 ms")
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

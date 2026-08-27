@@ -10,11 +10,11 @@ struct WorkerVariableRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "slider.horizontal.3")
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -43,7 +43,7 @@ struct WorkerVariableRowView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
         .contentShape(Rectangle())
         .contextMenu {
             contextMenuItems

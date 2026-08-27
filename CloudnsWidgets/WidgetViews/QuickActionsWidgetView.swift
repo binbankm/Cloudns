@@ -57,7 +57,7 @@ public struct QuickActionsWidgetView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(color.opacity(0.15))
-                        .frame(width: 42, height: 42)
+                        .frame(width: 44, height: 44)
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(color)

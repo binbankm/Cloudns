@@ -11,11 +11,11 @@ struct PagesEnvVarRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: value.isSecret ? "key.fill" : "slider.horizontal.3")
                 .font(.body)
                 .foregroundStyle(value.isSecret ? .orange : .blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background((value.isSecret ? Color.orange : Color.blue).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -52,7 +52,7 @@ struct PagesEnvVarRowView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
         .contentShape(Rectangle())
         .contextMenu {
             contextMenuItems

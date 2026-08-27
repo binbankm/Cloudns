@@ -174,11 +174,11 @@ struct DNSPresetsSheetView: View {
         NavigationStack {
             List {
                 Section {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "wand.and.stars")
                             .font(.title2)
                             .foregroundStyle(.orange)
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("1-Click DNS Presets")
                                 .font(.headline)
                             Text("Quickly configure enterprise email, web hosting, and security policies without typing record values.")
@@ -186,7 +186,7 @@ struct DNSPresetsSheetView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 
                 ForEach(categories, id: \.self) { category in
@@ -196,17 +196,17 @@ struct DNSPresetsSheetView: View {
                                 HapticManager.selection()
                                 selectedGroup = preset
                             } label: {
-                                HStack(spacing: 12) {
+                                HStack(spacing: CloudnsSpacing.mdSmall) {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous)
                                             .fill(preset.iconColor.opacity(0.14))
-                                            .frame(width: 36, height: 36)
+                                            .frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
                                         Image(systemName: preset.icon)
                                             .foregroundStyle(preset.iconColor)
                                             .font(.subheadline.weight(.semibold))
                                     }
                                     
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                         Text(preset.title)
                                             .font(.body.weight(.medium))
                                             .foregroundStyle(.primary)
@@ -221,8 +221,8 @@ struct DNSPresetsSheetView: View {
                                     Text("\(preset.items.count) records")
                                         .font(.caption2.weight(.medium))
                                         .foregroundStyle(.secondary)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .padding(.horizontal, CloudnsSpacing.sm)
+                                        .padding(.vertical, CloudnsSpacing.xxs)
                                         .background(Color(.tertiarySystemFill))
                                         .clipShape(Capsule())
                                     
@@ -259,8 +259,8 @@ struct DNSPresetsSheetView: View {
         NavigationStack {
             List {
                 Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
+                        HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: group.icon)
                                 .font(.title3)
                                 .foregroundStyle(group.iconColor)
@@ -271,17 +271,17 @@ struct DNSPresetsSheetView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                 }
                 
                 Section(header: Text("Records to Create (\(group.items.count))")) {
                     ForEach(group.items) { item in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Text(item.type)
                                     .font(.caption.monospacedDigit().weight(.bold))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
+                                    .padding(.horizontal, CloudnsSpacing.sm)
+                                    .padding(.vertical, CloudnsSpacing.xxs)
                                     .background(Color.blue.opacity(0.12))
                                     .foregroundStyle(.blue)
                                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
@@ -304,7 +304,7 @@ struct DNSPresetsSheetView: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                     }
                 }
                 
@@ -319,14 +319,14 @@ struct DNSPresetsSheetView: View {
                             if isApplying {
                                 ProgressView()
                                     .tint(.white)
-                                    .padding(.trailing, 6)
+                                    .padding(.trailing, CloudnsSpacing.sm)
                             }
                             Text(isApplying ? "Adding Records..." : "Apply Preset to \(zoneName)")
                                 .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     }
                     .buttonStyle(.plain)
                     .disabled(isApplying)

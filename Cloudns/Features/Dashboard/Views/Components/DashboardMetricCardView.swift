@@ -35,9 +35,9 @@ struct DashboardMetricCardView: View {
                 ZStack {
                     Circle()
                         .fill(iconColor.opacity(0.14))
-                        .frame(width: 26, height: 26)
+                        .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(CloudnsTypography.caption.weight(.semibold))
                         .foregroundStyle(iconColor)
                 }
                 .accessibilityHidden(true)
@@ -45,16 +45,16 @@ struct DashboardMetricCardView: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(CloudnsTypography.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, CloudnsSpacing.sm)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .background(Color(.tertiarySystemFill))
                     .clipShape(Capsule())
                     .lineLimit(1)
             }
             
-            Spacer(minLength: 4)
+            Spacer(minLength: CloudnsSpacing.xs)
             
             // 2. Middle Value: Large Bold Number
             CloudnsRollingNumber(
@@ -66,10 +66,10 @@ struct DashboardMetricCardView: View {
             .lineLimit(1)
             .minimumScaleFactor(0.80)
             
-            Spacer(minLength: 4)
+            Spacer(minLength: CloudnsSpacing.xs)
             
             // 3. Bottom Text Group: Title (Full width line) & Subtitle
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(title)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
@@ -83,8 +83,10 @@ struct DashboardMetricCardView: View {
                     .minimumScaleFactor(0.80)
             }
         }
-        .padding(11)
+        .padding(CloudnsSpacing.mdSmall)
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
+        .cloudnsCard(style: .frosted, size: .compact)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), \(value), \(subtitle)")
     }
 }

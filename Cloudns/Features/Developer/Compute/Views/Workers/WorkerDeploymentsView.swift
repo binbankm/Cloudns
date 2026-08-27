@@ -23,9 +23,9 @@ struct WorkerDeploymentsView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Deployments"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -137,17 +137,17 @@ struct WorkerDeploymentsView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func deploymentRow(_ dep: WorkerDeployment, isLatest: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
+            HStack(alignment: .center, spacing: CloudnsSpacing.sm) {
                 // Version Tag
                 if let num = dep.number {
                     Text("v\(num)")
                         .font(.subheadline.monospacedDigit().weight(.bold))
                         .foregroundStyle(isLatest ? .white : .primary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(isLatest ? Color.green : Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 }
                 
                 if isLatest {
@@ -160,8 +160,8 @@ struct WorkerDeploymentsView: View {
                 Text(dep.displaySource)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, CloudnsSpacing.sm)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .background(Color(.secondarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
@@ -175,9 +175,9 @@ struct WorkerDeploymentsView: View {
             }
             
             // Metadata Footer
-            HStack(spacing: 8) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 if let created = dep.createdOn {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "clock")
                             .font(.caption2)
                         Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.mediumDateTime))
@@ -196,6 +196,6 @@ struct WorkerDeploymentsView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

@@ -8,7 +8,7 @@ struct SecurityEventCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             HStack {
                 CloudnsBadge(.custom(color: colorForAction(event.action), text: actionDisplayName(event.action)), isCompact: true)
                 
@@ -20,12 +20,12 @@ struct SecurityEventCardView: View {
             }
             
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("IP Address")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Text(countryFlag(countryCode: event.clientCountryName))
                         Text(event.clientIP)
                             .font(.subheadline.monospacedDigit())
@@ -35,7 +35,7 @@ struct SecurityEventCardView: View {
                 Spacer()
                 
                 if let asn = event.clientAsn {
-                    VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .trailing, spacing: CloudnsSpacing.xs) {
                         Text("ASN")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -47,7 +47,7 @@ struct SecurityEventCardView: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Source / Engine")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -55,7 +55,7 @@ struct SecurityEventCardView: View {
                     .font(.footnote)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Target URL")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -64,7 +64,7 @@ struct SecurityEventCardView: View {
                     .foregroundStyle(.blue)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

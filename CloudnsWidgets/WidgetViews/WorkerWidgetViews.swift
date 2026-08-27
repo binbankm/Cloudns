@@ -68,7 +68,7 @@ public struct WorkerSmallWidgetView: View {
                 }
             }
         }
-        .padding(11)
+        .padding(12)
         .widgetURL(URL(string: "cloudns://developer/workers/\(snapshot.id)"))
     }
     

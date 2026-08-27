@@ -75,7 +75,7 @@ struct QueueDetailView: View {
             if let consumers = queue.consumers, !consumers.isEmpty {
                 Section(header: Text("Consumers (\(consumers.count))")) {
                     ForEach(consumers) { c in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             HStack {
                                 Image(systemName: "arrow.down.left.circle.fill")
                                     .foregroundStyle(.green)

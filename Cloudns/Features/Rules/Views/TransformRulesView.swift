@@ -30,9 +30,9 @@ struct TransformRulesView: View {
                 text: $searchText,
                 prompt: "Search Transform Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             Picker("Phase", selection: $viewModel.selectedPhase) {
@@ -42,7 +42,7 @@ struct TransformRulesView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentList

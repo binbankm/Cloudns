@@ -20,16 +20,16 @@ struct DNSRecordRowView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
+            HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
                 // Record Type Badge
                 Text(record.type)
                     .font(.caption.monospacedDigit().weight(.bold))
                     .frame(width: 48)
-                    .padding(.vertical, 3)
+                    .padding(.vertical, CloudnsSpacing.xs)
                     .background(recordTypeColor.opacity(0.14))
                     .foregroundStyle(recordTypeColor)
-                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 
                 // Record Name
                 Text(record.name)
@@ -76,25 +76,25 @@ struct DNSRecordRowView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
-                    .padding(.top, 2)
+                    .padding(.top, CloudnsSpacing.xxs)
             }
             
             if let tags = record.tags, !tags.isEmpty {
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     ForEach(tags, id: \.self) { tag in
                         Text("#\(tag)")
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(.purple)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
+                            .padding(.horizontal, CloudnsSpacing.xs)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                             .background(Color.purple.opacity(0.1))
                             .clipShape(Capsule())
                     }
                 }
-                .padding(.top, 1)
+                .padding(.top, CloudnsSpacing.xxs)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(record.type) record \(record.name), points to \(record.content ?? ""), \(record.proxied == true ? "Proxied" : "DNS Only")")

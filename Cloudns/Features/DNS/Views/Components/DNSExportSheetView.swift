@@ -22,7 +22,7 @@ struct DNSExportSheetView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 if isLoading {
-                    VStack(spacing: 16) {
+                    VStack(spacing: CloudnsSpacing.md) {
                         ProgressView()
                             .controlSize(.large)
                         Text("Generating BIND Zone File...")
@@ -32,9 +32,9 @@ struct DNSExportSheetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.md) {
                             // Header Information Card
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                                 HStack {
                                     Image(systemName: "doc.text.fill")
                                         .foregroundStyle(.blue)
@@ -43,8 +43,8 @@ struct DNSExportSheetView: View {
                                     Spacer()
                                     Text("\(records.count) Records")
                                         .font(.caption.weight(.semibold))
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 3)
+                                        .padding(.horizontal, CloudnsSpacing.sm)
+                                        .padding(.vertical, CloudnsSpacing.xs)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
                                         .clipShape(Capsule())
@@ -54,12 +54,12 @@ struct DNSExportSheetView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
-                            .padding(14)
+                            .padding(CloudnsSpacing.mdMedium)
                             .background(CloudnsColor.secondaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
                             
                             // Action Buttons Strip
-                            HStack(spacing: 10) {
+                            HStack(spacing: CloudnsSpacing.smMd) {
                                 Button {
                                     UIPasteboard.general.string = exportedContent
                                     HapticManager.notification(.success)
@@ -68,7 +68,7 @@ struct DNSExportSheetView: View {
                                     Label("Copy", systemImage: "doc.on.doc")
                                         .font(.subheadline.weight(.medium))
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
+                                        .padding(.vertical, CloudnsSpacing.smMd)
                                         .background(Color.blue)
                                         .foregroundStyle(.white)
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
@@ -81,7 +81,7 @@ struct DNSExportSheetView: View {
                                     Label("Share", systemImage: "square.and.arrow.up")
                                         .font(.subheadline.weight(.medium))
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
+                                        .padding(.vertical, CloudnsSpacing.smMd)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
@@ -94,7 +94,7 @@ struct DNSExportSheetView: View {
                                     Label("Save", systemImage: "folder")
                                         .font(.subheadline.weight(.medium))
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
+                                        .padding(.vertical, CloudnsSpacing.smMd)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
@@ -102,7 +102,7 @@ struct DNSExportSheetView: View {
                             }
                             
                             // Code Preview Box
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                                 Text("Preview")
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.secondary)
@@ -112,19 +112,19 @@ struct DNSExportSheetView: View {
                                     Text(exportedContent)
                                         .font(.system(.caption, design: .monospaced))
                                         .foregroundStyle(.primary)
-                                        .padding(12)
+                                        .padding(CloudnsSpacing.mdSmall)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .frame(minHeight: 280)
                                 .background(CloudnsColor.tertiaryGroupedBackground)
-                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous)
+                                    RoundedRectangle(cornerRadius: CloudnsRadius.mdLg, style: .continuous)
                                         .stroke(Color(.separator), lineWidth: 0.5)
                                 )
                             }
                         }
-                        .padding(16)
+                        .padding(CloudnsSpacing.md)
                     }
                 }
             }

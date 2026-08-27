@@ -74,7 +74,7 @@ struct WorkerAttachDomainSheetView: View {
                         if isLoadingZones {
                             HStack {
                                 ProgressView()
-                                    .padding(.trailing, 4)
+                                    .padding(.trailing, CloudnsSpacing.xs)
                                 Text("Loading domains...")
                                     .foregroundStyle(.secondary)
                             }

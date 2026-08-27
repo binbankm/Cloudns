@@ -11,7 +11,7 @@ struct CFTraceToolView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Input Card
                     inputCard
                     
@@ -30,8 +30,8 @@ struct CFTraceToolView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -74,8 +74,8 @@ struct CFTraceToolView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "network")
                     .font(.title3)
                     .foregroundStyle(.orange)
@@ -102,34 +102,24 @@ struct CFTraceToolView: View {
                     .accessibilityLabel("Clear host")
                 }
             }
-            .padding(12)
+            .padding(CloudnsSpacing.mdSmall)
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
             
-            Button {
+            CloudnsButton(
+                viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP & Network",
+                icon: "antenna.radiowaves.left.and.right",
+                style: .primary(color: .orange),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isLoading,
+                disabled: viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performTrace()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "antenna.radiowaves.left.and.right")
-                    }
-                    Text(viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP & Network")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
-            .controlSize(.regular)
-            .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -143,13 +133,13 @@ struct CFTraceToolView: View {
     @ViewBuilder
     private func popCard(colo: String?, loc: String?) -> some View {
         let popInfo = CloudflarePoPDatabase.shared.getPoP(code: colo)
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 Text(popInfo?.flag ?? "🌐")
-                    .font(.system(size: 40))
+                    .font(.largeTitle)
                 
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         Text(popInfo?.city ?? (colo ?? "Edge PoP"))
                             .font(.title3.weight(.bold))
                             .foregroundStyle(.primary)
@@ -169,7 +159,7 @@ struct CFTraceToolView: View {
             
             if let airport = popInfo?.airport {
                 Divider()
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "airplane")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -179,21 +169,21 @@ struct CFTraceToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. Context Card
     @ViewBuilder
     private func contextCard(fields: [HTTPHeaderItem], ip: String?, warp: String?) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Client & Security Context")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let ip = ip {
                     HStack {
                         Text("Client Public IP")
@@ -251,8 +241,8 @@ struct CFTraceToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -271,7 +261,7 @@ struct CFTraceToolView: View {
     // MARK: - 4. Raw Trace Card
     @ViewBuilder
     private func rawTraceCard(fields: [HTTPHeaderItem]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text("Raw Trace Properties (\(fields.count))")
                     .font(.headline)
@@ -288,7 +278,7 @@ struct CFTraceToolView: View {
             
             Divider()
             
-            VStack(spacing: 8) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 ForEach(fields) { field in
                     HStack {
                         Text(field.key)
@@ -300,22 +290,22 @@ struct CFTraceToolView: View {
                             .foregroundStyle(.primary)
                             .textSelection(.enabled)
                     }
-                    .padding(.vertical, 1)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Trace Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -324,24 +314,24 @@ struct CFTraceToolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 HStack {
-                    Circle().frame(width: 40, height: 40)
+                    Circle().frame(width: CloudnsSize.controlHeightRegular, height: CloudnsSize.controlHeightRegular)
                     VStack(alignment: .leading) {
                         Text("San Francisco (SFO)").font(.title3.weight(.bold))
                         Text("United States")
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

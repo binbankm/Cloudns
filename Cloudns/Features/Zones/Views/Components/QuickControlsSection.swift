@@ -22,11 +22,11 @@ struct QuickControlsSection: View {
     var body: some View {
         Section(header: Text("Quick Controls")) {
             // Under Attack Mode
-            HStack(spacing: 12) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 Image(systemName: "exclamationmark.shield.fill")
                     .font(.body)
                     .foregroundStyle(isUnderAttack ? .white : .red)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                     .background(isUnderAttack ? Color.red : Color.red.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
 
@@ -52,14 +52,14 @@ struct QuickControlsSection: View {
                     .labelsHidden()
                     .disabled(updatingAttack)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, CloudnsSpacing.xxs)
 
             // Development Mode
-            HStack(spacing: 12) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 Image(systemName: "wrench.and.screwdriver.fill")
                     .font(.body)
                     .foregroundStyle(isDevMode ? .white : .orange)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                     .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
@@ -86,14 +86,14 @@ struct QuickControlsSection: View {
                     .labelsHidden()
                     .disabled(updatingDev)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, CloudnsSpacing.xxs)
 
             // Pause Cloudflare on Site
-            HStack(spacing: 12) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 Image(systemName: "pause.circle.fill")
                     .font(.body)
                     .foregroundStyle(isPaused ? .white : .gray)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                     .background(isPaused ? Color.gray : Color.gray.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
@@ -120,7 +120,7 @@ struct QuickControlsSection: View {
                     .labelsHidden()
                     .disabled(updatingPause)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, CloudnsSpacing.xxs)
         }
         .task { await fetchInitialStates() }
         .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in

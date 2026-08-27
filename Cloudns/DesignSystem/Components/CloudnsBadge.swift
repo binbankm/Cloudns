@@ -105,16 +105,16 @@ public struct CloudnsBadge: View {
                     .foregroundStyle(badgeColor)
             case .active:
                 Circle()
-                    .fill(Color.green)
+                    .fill(CloudnsColor.success)
                     .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
-                    .shadow(color: Color.green.opacity(0.5), radius: 2, x: 0, y: 0)
+                    .shadow(color: CloudnsColor.success.opacity(0.5), radius: 2, x: 0, y: 0)
             case .warning:
                 Circle()
-                    .fill(Color.orange)
+                    .fill(CloudnsColor.warning)
                     .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
             case .error:
                 Circle()
-                    .fill(Color.red)
+                    .fill(CloudnsColor.danger)
                     .frame(width: isCompact ? 4 : 4.5, height: isCompact ? 4 : 4.5)
             case .custom(_, _, let icon):
                 if let icon = icon {

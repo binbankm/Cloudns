@@ -8,17 +8,17 @@ struct TurnstileWidgetRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "checkmark.shield.fill")
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(widget.name)
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
@@ -36,7 +36,7 @@ struct TurnstileWidgetRowView: View {
             
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contextMenu {
             Button {
                 UIPasteboard.general.string = widget.sitekey

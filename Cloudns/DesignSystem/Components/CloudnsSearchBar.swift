@@ -24,12 +24,12 @@ public struct CloudnsSearchBar: View {
     public var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 15, weight: .medium))
+                .font(CloudnsTypography.subheadline)
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
             
             TextField(prompt, text: $text)
-                .font(.system(size: 16))
+                .font(CloudnsTypography.body)
                 .textFieldStyle(.plain)
                 .focused($isFocused)
                 .submitLabel(.search)
@@ -45,17 +45,17 @@ public struct CloudnsSearchBar: View {
                     text = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 15))
+                        .font(CloudnsTypography.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .accessibilityLabel("Clear search text")
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, CloudnsSpacing.smMd)
+        .padding(.vertical, CloudnsSpacing.sm)
         .background(Color(.tertiarySystemFill))
-        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg, style: .continuous))
         .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
     }
 }

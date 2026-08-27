@@ -9,11 +9,11 @@ struct WorkerSecretRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "key.fill")
                 .font(.body)
                 .foregroundStyle(.orange)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.orange.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -32,7 +32,7 @@ struct WorkerSecretRowView: View {
             
             CloudnsBadge(.proxied("SECRET"), isCompact: true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
         .contentShape(Rectangle())
         .contextMenu {
             contextMenuItems

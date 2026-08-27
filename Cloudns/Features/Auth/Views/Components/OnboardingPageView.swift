@@ -13,7 +13,7 @@ struct OnboardingPageView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 20)
+            Spacer(minLength: CloudnsSpacing.mdLarge)
             
             // 1. Multi-layer Glowing Emblem Card
             ZStack {
@@ -46,11 +46,12 @@ struct OnboardingPageView: View {
                 Circle()
                     .fill(CloudnsColor.secondaryGroupedBackground.opacity(0.85))
                     .frame(width: 140, height: 140)
-                    .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
+                    .cloudnsShadow(.brand(color: color, radius: 14, y: 6))
                 
                 // Glowing Icon
                 Image(systemName: icon)
-                    .font(.system(size: 60, weight: .semibold))
+                    .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                    .imageScale(.large)
                     .foregroundStyle(
                         LinearGradient(
                             colors: [color, color.opacity(0.8)],
@@ -58,34 +59,34 @@ struct OnboardingPageView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .shadow(color: color.opacity(0.45), radius: 8, x: 0, y: 3)
+                    .cloudnsShadow(.brand(color: color, radius: 8, y: 3))
                     .accessibilityHidden(true)
             }
             .frame(height: 230)
             
-            Spacer(minLength: 24)
+            Spacer(minLength: CloudnsSpacing.lg)
             
             // 2. Feature Badge
             Text(badgeText)
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(color)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.smMd)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(color.opacity(0.12))
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
                         .stroke(color.opacity(0.25), lineWidth: 1)
                 )
-                .padding(.bottom, 12)
+                .padding(.bottom, CloudnsSpacing.mdSmall)
             
             // 3. Title Text
             Text(title)
                 .font(.system(.title, design: .rounded).weight(.bold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 10)
+                .padding(.horizontal, CloudnsSpacing.lg)
+                .padding(.bottom, CloudnsSpacing.smMd)
                 .minimumScaleFactor(0.85)
             
             // 4. Description Subtitle
@@ -94,7 +95,7 @@ struct OnboardingPageView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, CloudnsSpacing.xl)
             
             Spacer(minLength: 40)
         }

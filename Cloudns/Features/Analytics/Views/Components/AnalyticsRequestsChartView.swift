@@ -16,7 +16,7 @@ struct AnalyticsRequestsChartView: View {
         let maxReq = dataPoints.map { $0.sum.requests }.max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             headerRow
             
             Chart {
@@ -96,7 +96,7 @@ struct AnalyticsRequestsChartView: View {
                 chartInteractionOverlay(proxy: proxy)
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -105,7 +105,7 @@ struct AnalyticsRequestsChartView: View {
     private var headerRow: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.xyaxis.line")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(.blue)
@@ -114,7 +114,7 @@ struct AnalyticsRequestsChartView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                HStack(alignment: .lastTextBaseline, spacing: CloudnsSpacing.sm) {
                     Text(formatNumber(selectedPoint?.sum.requests ?? totalRequests))
                         .font(.system(.title, design: .rounded).weight(.bold))
                         .foregroundStyle(.primary)
@@ -128,7 +128,7 @@ struct AnalyticsRequestsChartView: View {
             
             if let selected = selectedPoint {
                 let dateStr = formattedPointDate(selected)
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 6, height: 6)
@@ -136,8 +136,8 @@ struct AnalyticsRequestsChartView: View {
                         .font(.caption2.monospacedDigit().weight(.semibold))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(Capsule())
             } else {
@@ -153,14 +153,14 @@ struct AnalyticsRequestsChartView: View {
         ZStack {
             Circle()
                 .fill(Color.blue.opacity(0.25))
-                .frame(width: 16, height: 16)
+                .frame(width: CloudnsSize.iconSmall, height: CloudnsSize.iconSmall)
             Circle()
                 .fill(Color.white)
-                .frame(width: 8, height: 8)
+                .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                 .shadow(color: Color.blue, radius: 4)
             Circle()
                 .stroke(Color.blue, lineWidth: 2)
-                .frame(width: 8, height: 8)
+                .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
         }
     }
     

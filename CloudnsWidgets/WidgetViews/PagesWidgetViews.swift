@@ -68,7 +68,7 @@ public struct PagesSmallWidgetView: View {
                 }
             }
         }
-        .padding(11)
+        .padding(12)
         .widgetURL(URL(string: "cloudns://developer/pages/\(snapshot.id)"))
     }
     

@@ -22,9 +22,9 @@ struct R2BucketDetailView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Objects in Bucket"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -102,7 +102,7 @@ struct R2BucketDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 12) {
+                HStack(spacing: CloudnsSpacing.mdSmall) {
                     NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
                         Image(systemName: "gearshape")
                     }

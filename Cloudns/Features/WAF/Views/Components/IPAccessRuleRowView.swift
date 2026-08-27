@@ -8,7 +8,7 @@ struct IPAccessRuleRowView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(rule.configuration.value)
                     .font(.body.monospacedDigit())
@@ -33,7 +33,7 @@ struct IPAccessRuleRowView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

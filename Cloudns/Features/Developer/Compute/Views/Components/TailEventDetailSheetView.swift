@@ -31,7 +31,7 @@ struct TailEventDetailSheetView: View {
                 if let logs = event.logs, !logs.isEmpty {
                     Section(header: Text("Console Logs (\(logs.count))")) {
                         ForEach(logs) { log in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 Text(log.level?.uppercased() ?? "LOG")
                                     .font(.caption2.weight(.medium))
                                     .foregroundStyle(.blue)
@@ -39,7 +39,7 @@ struct TailEventDetailSheetView: View {
                                 Text(msg)
                                     .font(.footnote.monospaced())
                             }
-                            .padding(.vertical, 2)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                         }
                     }
                 }
@@ -47,7 +47,7 @@ struct TailEventDetailSheetView: View {
                 if let exceptions = event.exceptions, !exceptions.isEmpty {
                     Section(header: Text("Exceptions (\(exceptions.count))")) {
                         ForEach(exceptions) { ex in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 if let name = ex.name {
                                     Text(name).font(.caption).foregroundStyle(.red)
                                 }
@@ -55,7 +55,7 @@ struct TailEventDetailSheetView: View {
                                     Text(msg).font(.footnote.monospaced()).foregroundStyle(.red)
                                 }
                             }
-                            .padding(.vertical, 2)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                         }
                     }
                 }

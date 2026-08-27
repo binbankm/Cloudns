@@ -10,7 +10,7 @@ struct WorkerAnalyticsInsightsView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             Label("Worker Performance Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
@@ -37,7 +37,7 @@ struct WorkerAnalyticsInsightsView: View {
                     .foregroundStyle(totalErrors == 0 ? .green : .orange)
             }
         }
-        .padding(14)
+        .padding(CloudnsSpacing.mdMedium)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }

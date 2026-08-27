@@ -15,7 +15,7 @@ struct ZoneDetailDeepLinkWrapper: View {
             if let zone = loadedZone {
                 ZoneDetailView(zone: zone)
             } else if isLoading {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     ProgressView()
                         .scaleEffect(1.2)
                     Text("Loading Domain Details...")
@@ -23,16 +23,13 @@ struct ZoneDetailDeepLinkWrapper: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.largeTitle)
                         .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load domain")
-                        .font(.headline)
-                    Button("Close") {
+                    CloudnsButton("Close", style: .secondary) {
                         onDismiss()
                     }
-                    .buttonStyle(.borderedProminent)
                 }
                 .padding()
             }

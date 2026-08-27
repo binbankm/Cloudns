@@ -26,7 +26,7 @@ struct SnippetEditorSheetView: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: 10) {
+                    HStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "info.circle.fill")
                             .font(.subheadline)
                             .foregroundStyle(.orange)
@@ -34,7 +34,7 @@ struct SnippetEditorSheetView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {

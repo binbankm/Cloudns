@@ -118,7 +118,7 @@ struct WorkerBindingsView: View {
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.vertical, CloudnsSpacing.sm)
         .background(CloudnsColor.groupedBackground)
         .onChange(of: selectedTab) { _ in
             HapticManager.impact(.light)
@@ -170,7 +170,7 @@ struct WorkerBindingsView: View {
                     showingAttachResourceSheet = true
                 }
             )
-            .padding(.top, 40)
+            .padding(.top, CloudnsSpacing.xxl)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -188,7 +188,7 @@ struct WorkerBindingsView: View {
                     showingAddSheet = true
                 }
             )
-            .padding(.top, 40)
+            .padding(.top, CloudnsSpacing.xxl)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -269,9 +269,9 @@ struct WorkerBindingsView: View {
         ) {
             if !secretsViewModel.hasFetchedData {
                 ForEach(0..<2, id: \.self) { idx in
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "slider.horizontal.3")
-                            .frame(width: 32, height: 32)
+                            .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                         VStack(alignment: .leading) {
                             Text("VARIABLE_\(idx + 1)")
                             Text("value")
@@ -287,7 +287,7 @@ struct WorkerBindingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
             } else {
                 ForEach(secretsViewModel.plainVariables) { variable in
                     WorkerVariableRowView(
@@ -312,9 +312,9 @@ struct WorkerBindingsView: View {
         ) {
             if !secretsViewModel.hasFetchedData {
                 ForEach(WorkerSecret.placeholders.prefix(2)) { secret in
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "key.fill")
-                            .frame(width: 32, height: 32)
+                            .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                         VStack(alignment: .leading) {
                             Text(secret.name)
                             Text("••••••••")
@@ -330,7 +330,7 @@ struct WorkerBindingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
             } else {
                 ForEach(secretsViewModel.secrets) { secret in
                     WorkerSecretRowView(

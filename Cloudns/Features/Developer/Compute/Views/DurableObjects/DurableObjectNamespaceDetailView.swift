@@ -98,7 +98,7 @@ struct DurableObjectNamespaceDetailView: View {
                 CloudnsBadge(.active("Persistent Data"), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
     
     // MARK: - Actions

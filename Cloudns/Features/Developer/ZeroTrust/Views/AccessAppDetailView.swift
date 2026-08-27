@@ -88,7 +88,7 @@ struct AccessAppDetailView: View {
     // MARK: - Private Views
     private func policyRow(_ p: AccessPolicy) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(p.name)
                     .font(.body)
                 Text("Decision: \(p.decision.capitalized)")

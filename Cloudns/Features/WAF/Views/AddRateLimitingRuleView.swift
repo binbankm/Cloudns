@@ -120,11 +120,11 @@ struct AddRateLimitingRuleView: View {
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                 }
             )

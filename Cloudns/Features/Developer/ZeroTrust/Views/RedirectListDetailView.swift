@@ -27,9 +27,9 @@ struct RedirectListDetailView: View {
                 text: $searchText,
                 prompt: "Search Redirect Items"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -131,7 +131,7 @@ struct RedirectListDetailView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
             HStack {
                 Text(item.redirect.sourceUrl)
                     .font(.caption.monospaced())
@@ -151,6 +151,6 @@ struct RedirectListDetailView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

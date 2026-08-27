@@ -37,12 +37,12 @@ struct WorkerDetailView: View {
         List {
             // MARK: - Hero & Script Overview Card
             Section {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
+                    HStack(alignment: .top, spacing: CloudnsSpacing.mdMedium) {
                         Image(systemName: "bolt.fill")
                             .font(.title2)
                             .foregroundStyle(.white)
-                            .frame(width: 44, height: 44)
+                            .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                             .background(
                                 LinearGradient(
                                     colors: [Color.orange, Color.orange.opacity(0.8)],
@@ -51,16 +51,16 @@ struct WorkerDetailView: View {
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
-                            .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
+                            .cloudnsShadow(.brand(color: CloudnsColor.brandAccent, radius: 6, y: 3))
                             .accessibilityHidden(true)
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text(viewModel.worker.id)
                                 .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
-                            HStack(spacing: 6) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 CloudnsBadge(.active((viewModel.worker.usageModel ?? "Standard").capitalized), isCompact: true)
                                 
                                 if !viewModel.modules.isEmpty {
@@ -77,12 +77,12 @@ struct WorkerDetailView: View {
                     if let sub = viewModel.subdomain {
                         Divider()
                         
-                        HStack(spacing: 10) {
+                        HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "link")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text("workers.dev Subdomain")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
@@ -117,7 +117,7 @@ struct WorkerDetailView: View {
                                         Image(systemName: "doc.on.doc")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
-                                            .frame(width: 28, height: 28)
+                                            .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                                             .background(Color(.tertiarySystemFill))
                                             .clipShape(Circle())
                                     }
@@ -137,7 +137,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
             
             // MARK: - Script Details
@@ -202,7 +202,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerAnalyticsView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.body)
                             .foregroundStyle(.purple)
@@ -222,7 +222,7 @@ struct WorkerDetailView: View {
                         singleScriptContent: viewModel.scriptContent
                     )
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "curlybraces")
                             .font(.body)
                             .foregroundStyle(.blue)
@@ -242,7 +242,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerDeploymentsView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.body)
                             .foregroundStyle(.orange)
@@ -257,7 +257,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerRoutesView(accountId: accountId, scriptName: worker.id, fallbackRoutes: worker.routes ?? [])
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "globe")
                             .font(.body)
                             .foregroundStyle(.blue)
@@ -277,7 +277,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "slider.horizontal.3")
                             .font(.body)
                             .foregroundStyle(.purple)
@@ -297,7 +297,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerTriggersView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock")
                             .font(.body)
                             .foregroundStyle(.purple)
@@ -317,7 +317,7 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerTailView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "waveform.path.ecg")
                             .font(.body)
                             .foregroundStyle(.green)
@@ -335,7 +335,7 @@ struct WorkerDetailView: View {
                     NavigationLink {
                         WorkerTestView(scriptName: worker.id, initialRoute: worker.routes?.first)
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: CloudnsSpacing.mdSmall) {
                             Image(systemName: "paperplane.fill")
                                 .font(.body)
                                 .foregroundStyle(.blue)

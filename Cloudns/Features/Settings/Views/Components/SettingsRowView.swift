@@ -16,13 +16,13 @@ struct SettingsRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: icon)
                 .font(.body)
                 .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                 .background(color)
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                 .accessibilityHidden(true)
             
             Text(title)

@@ -31,7 +31,7 @@ struct PagesBuildConfigEditorView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Build Settings"), footer: Text("Configure build commands and directories executed during automated deployment.")) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Build Command")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -43,9 +43,9 @@ struct PagesBuildConfigEditorView: View {
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "command")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Build Output Directory")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -57,9 +57,9 @@ struct PagesBuildConfigEditorView: View {
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "output")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Root Directory (Optional)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -71,11 +71,11 @@ struct PagesBuildConfigEditorView: View {
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "root")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 Section(header: Text("Source Configuration")) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Production Branch")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -87,7 +87,7 @@ struct PagesBuildConfigEditorView: View {
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "branch")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 if let error = errorMessage {

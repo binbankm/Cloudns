@@ -23,9 +23,9 @@ struct WorkerSecretsView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Variables & Secrets"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             Picker("Type", selection: $viewModel.selectedTab) {
@@ -34,7 +34,7 @@ struct WorkerSecretsView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentList
@@ -96,7 +96,7 @@ struct WorkerSecretsView: View {
                 Section(header: Text("Variables & Secrets")) {
                     ForEach(0..<4, id: \.self) { _ in
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                                 Text("SECRET_KEY_PLACEHOLDER")
                                     .font(.headline)
                                 Text("••••••••••••••••")
@@ -188,16 +188,16 @@ struct WorkerSecretsView: View {
     
     @ViewBuilder
     private func variableRow(_ variable: WorkerBinding) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "slider.horizontal.3")
                 .font(.body)
                 .foregroundStyle(.blue)
-                .frame(width: 30, height: 30)
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(variable.name)
                     .font(.body.monospacedDigit().weight(.medium))
                     .foregroundStyle(.primary)
@@ -222,7 +222,7 @@ struct WorkerSecretsView: View {
             .buttonStyle(.borderless)
             .accessibilityLabel("Edit variable \(variable.name)")
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
                 HapticManager.impact(.medium)
@@ -266,16 +266,16 @@ struct WorkerSecretsView: View {
     
     @ViewBuilder
     private func secretRow(_ secret: WorkerSecret) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "key.fill")
                 .font(.body)
                 .foregroundStyle(.orange)
-                .frame(width: 30, height: 30)
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                 .background(Color.orange.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(secret.name)
                     .font(.body.monospacedDigit().weight(.medium))
                     .foregroundStyle(.primary)
@@ -292,12 +292,12 @@ struct WorkerSecretsView: View {
             Text("ENCRYPTED")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.green)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
+                .padding(.horizontal, CloudnsSpacing.xs)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 .background(Color.green.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
                 HapticManager.impact(.medium)

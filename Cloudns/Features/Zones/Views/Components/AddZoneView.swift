@@ -114,7 +114,7 @@ struct AddZoneView: View {
 
                     if let error = viewModel.addZoneError {
                         Section {
-                            HStack(spacing: 10) {
+                            HStack(spacing: CloudnsSpacing.smMd) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundStyle(.orange)
                                     .accessibilityHidden(true)
@@ -146,14 +146,14 @@ struct AddZoneView: View {
                     if isSubmitting {
                         ZStack {
                             Color.black.opacity(0.15).ignoresSafeArea()
-                            VStack(spacing: 12) {
+                            VStack(spacing: CloudnsSpacing.mdSmall) {
                                 ProgressView()
                                     .controlSize(.large)
                                 Text("Adding domain...")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
-                            .padding(24)
+                            .padding(CloudnsSpacing.lg)
                             .background(.ultraThinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
                         }

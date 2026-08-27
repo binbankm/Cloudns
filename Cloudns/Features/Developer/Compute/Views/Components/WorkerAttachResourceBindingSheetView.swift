@@ -82,7 +82,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     } else {
                         resourceSelector
                     }
@@ -225,7 +225,7 @@ struct WorkerAttachResourceBindingSheetView: View {
             }
             
         case "service":
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                 TextField("Target Worker Service Name", text: $serviceName)
                     .keyboardType(.asciiCapable)
                     .textInputAutocapitalization(.never)

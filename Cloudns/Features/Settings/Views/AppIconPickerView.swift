@@ -15,23 +15,23 @@ struct AppIconPickerView: View {
                             await iconManager.selectIcon(option)
                         }
                     } label: {
-                        HStack(spacing: 16) {
+                        HStack(spacing: CloudnsSpacing.md) {
                             // Icon Preview Squircle
                             ZStack {
                                 Image(option.previewImageName)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 60, height: 60)
+                                    .frame(width: CloudnsSize.avatarLarge, height: CloudnsSize.avatarLarge)
                                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
-                                    .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
+                                    .cloudnsShadow(.card)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous)
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             }
                             
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                                HStack(spacing: CloudnsSpacing.sm) {
                                     Text(option.displayName)
                                         .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
@@ -56,7 +56,7 @@ struct AppIconPickerView: View {
                                     .accessibilityHidden(true)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)

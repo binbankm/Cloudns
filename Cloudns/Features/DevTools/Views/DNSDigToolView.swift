@@ -13,7 +13,7 @@ struct DNSDigToolView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Query Configuration Card
                     configCard
                     
@@ -28,8 +28,8 @@ struct DNSDigToolView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -77,14 +77,14 @@ struct DNSDigToolView: View {
     
     // MARK: - 1. Config Card
     private var configCard: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
             Picker("Query Mode", selection: $queryMode) {
                 Text("1.1.1.1 Edge Query").tag(0)
                 Text("Multi-Resolver Benchmark").tag(1)
             }
             .pickerStyle(.segmented)
             
-            HStack(spacing: 10) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "globe")
                     .font(.title3)
                     .foregroundStyle(.blue)
@@ -141,39 +141,28 @@ struct DNSDigToolView: View {
                 }
             }
             
-            Button {
+            CloudnsButton(
+                queryMode == 0 ? "Dig DNS Query (1.1.1.1)" : "Benchmark Resolvers",
+                icon: queryMode == 0 ? "magnifyingglass" : "speedometer",
+                style: .primary(color: .blue),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isDnsLoading || viewModel.isBenchmarkLoading,
+                disabled: viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 isFieldFocused = false
-                HapticManager.impact(.light)
                 startQuery()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isDnsLoading || viewModel.isBenchmarkLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: queryMode == 0 ? "magnifyingglass" : "speedometer")
-                    }
-                    Text(queryMode == 0 ? "Dig DNS Query (1.1.1.1)" : "Benchmark Resolvers")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            .controlSize(.regular)
-            .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDnsLoading || viewModel.isBenchmarkLoading)
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 2. Single Query Results
     @ViewBuilder
     private var singleQueryResultsView: some View {
         if viewModel.isDnsLoading {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Querying 1.1.1.1 Edge Resolvers...")
                     .font(.headline)
                 Divider()
@@ -181,13 +170,13 @@ struct DNSDigToolView: View {
                     DNSAnswerRowView(item: item)
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         } else if let result = viewModel.dnsResult {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
                 HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                         Text("Resolved Answers (\(result.answers.count))")
                             .font(.headline)
                             .foregroundStyle(.primary)
@@ -210,9 +199,9 @@ struct DNSDigToolView: View {
                     Text("No DNS records found for this query.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, CloudnsSpacing.sm)
                 } else {
-                    VStack(spacing: 8) {
+                    VStack(spacing: CloudnsSpacing.sm) {
                         ForEach(result.answers) { item in
                             DNSAnswerRowView(item: item)
                         }
@@ -231,8 +220,8 @@ struct DNSDigToolView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
         }
     }
     
@@ -240,39 +229,39 @@ struct DNSDigToolView: View {
     @ViewBuilder
     private var benchmarkResultsView: some View {
         if viewModel.isBenchmarkLoading {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Benchmarking Global Resolvers...")
                     .font(.headline)
                 Divider()
                 ForEach(0..<4, id: \.self) { _ in
                     HStack {
-                        Circle().frame(width: 24, height: 24)
+                        Circle().frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
                         Text("Cloudflare 1.1.1.1")
                         Spacer()
                         Text("12.4 ms")
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         } else if let bench = viewModel.benchmarkResult {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("Resolver Latency & Accuracy Benchmark")
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
                 Divider()
                 
-                VStack(spacing: 12) {
+                VStack(spacing: CloudnsSpacing.mdSmall) {
                     ForEach(bench.items) { item in
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             HStack {
                                 Image(systemName: item.icon)
                                     .foregroundStyle(item.color)
-                                    .frame(width: 24, height: 24)
+                                    .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
                                 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                     Text(item.resolverName)
                                         .font(.subheadline.weight(.semibold))
                                     Text(item.resolverIP)
@@ -302,25 +291,25 @@ struct DNSDigToolView: View {
                                     .font(.caption.monospaced())
                                     .foregroundStyle(.secondary)
                                     .lineLimit(2)
-                                    .padding(.leading, 32)
+                                    .padding(.leading, CloudnsSpacing.xl)
                             }
                         }
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
         }
     }
     
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Query Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -329,8 +318,8 @@ struct DNSDigToolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions

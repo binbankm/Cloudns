@@ -60,7 +60,7 @@ struct D1RowEditorView: View {
                         footer: Text("Leave blank to use column defaults. Values are escaped before saving.")
                     ) {
                         ForEach(editableColumns) { col in
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                                 HStack {
                                     Text(verbatim: col.name)
                                         .font(.subheadline.weight(.semibold))
@@ -72,8 +72,8 @@ struct D1RowEditorView: View {
                                     Spacer()
                                     Text(verbatim: col.type)
                                         .font(.caption2.monospaced())
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .padding(.horizontal, CloudnsSpacing.sm)
+                                        .padding(.vertical, CloudnsSpacing.xxs)
                                         .background(Color(.secondarySystemFill))
                                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                                 }
@@ -97,7 +97,7 @@ struct D1RowEditorView: View {
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, CloudnsSpacing.xs)
                         }
                     }
                 }

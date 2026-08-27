@@ -95,19 +95,19 @@ struct PagesDomainsView: View {
     
     @ViewBuilder
     private func domainRow(_ domain: PagesDomain) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "globe")
                 .font(.title3)
                 .foregroundStyle(.blue)
                 .frame(width: 28)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text(domain.name)
                     .font(.body)
                     .foregroundStyle(.primary)
 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     CloudnsBadge((domain.status == "active") ? .active(domain.status?.capitalized ?? "Active") : .warning(domain.status?.capitalized ?? "Pending"), isCompact: true)
 
                     if let ssl = domain.sslStatus {
@@ -120,6 +120,6 @@ struct PagesDomainsView: View {
 
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

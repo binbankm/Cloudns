@@ -68,7 +68,7 @@ struct PagesDeploymentDetailView: View {
                 }
                 
                 if let msg = deployment.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Commit Message")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -76,7 +76,7 @@ struct PagesDeploymentDetailView: View {
                             .font(.subheadline)
                             .foregroundStyle(.primary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 if let urlStr = deployment.url, let url = URL(string: urlStr) {
@@ -156,7 +156,7 @@ struct PagesDeploymentDetailView: View {
             // MARK: - Build Logs
             Section(header: Text("Build Logs (\(viewModel.logs.count) lines)")) {
                 if viewModel.isLoadingLogs {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                         ForEach(0..<4, id: \.self) { idx in
                             RoundedRectangle(cornerRadius: CloudnsRadius.xs)
                                 .fill(Color.secondary.opacity(0.25))
@@ -164,7 +164,7 @@ struct PagesDeploymentDetailView: View {
                                 .frame(maxWidth: idx == 3 ? 180 : .infinity)
                         }
                     }
-                    .padding(10)
+                    .padding(CloudnsSpacing.smMd)
                     .background(Color.black.opacity(0.85))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     .skeletonLoading(true)
@@ -174,14 +174,14 @@ struct PagesDeploymentDetailView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ScrollView(.horizontal) {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             ForEach(viewModel.logs) { log in
                                 Text(log.line)
                                     .font(.caption2.monospacedDigit())
                                     .foregroundStyle(logColor(log.line))
                             }
                         }
-                        .padding(8)
+                        .padding(CloudnsSpacing.sm)
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     }

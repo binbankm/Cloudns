@@ -42,9 +42,9 @@ struct LoadBalancerView: View {
                 text: $searchText,
                 prompt: "Search Load Balancers, Pools, Monitors"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             Picker("Section", selection: $selectedTab) {
@@ -54,7 +54,7 @@ struct LoadBalancerView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(CloudnsColor.groupedBackground)
             
             contentList
@@ -228,7 +228,7 @@ struct LoadBalancerView: View {
     
     @ViewBuilder
     private func lbRow(_ lb: LoadBalancer) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(lb.name ?? lb.id)
                     .font(.body)
@@ -242,12 +242,12 @@ struct LoadBalancerView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     @ViewBuilder
     private func poolRow(_ pool: LBPool) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(pool.name ?? pool.id)
                     .font(.body)
@@ -263,24 +263,24 @@ struct LoadBalancerView: View {
                     .foregroundStyle(.secondary)
             }
             if let origins = pool.origins, !origins.isEmpty {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     ForEach(origins.prefix(3), id: \.idResolved) { o in
                         Text(o.name ?? o.address ?? "")
                             .font(.caption2.monospaced())
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, CloudnsSpacing.sm)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                             .background(Color(.secondarySystemFill))
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                     }
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     @ViewBuilder
     private func monRow(_ monitor: LBMonitor) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(monitor.description ?? monitor.id)
                     .font(.body)
@@ -302,6 +302,6 @@ struct LoadBalancerView: View {
             }
             .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

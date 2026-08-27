@@ -11,8 +11,8 @@ struct DNSSECDetailRowView: View {
     // MARK: - Body
     var body: some View {
         if let validValue = value, !validValue.isEmpty {
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text(LocalizedStringKey(title))
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -20,7 +20,7 @@ struct DNSSECDetailRowView: View {
                         .font(.body.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
                 
                 Spacer()
                 

@@ -12,7 +12,7 @@ struct IPLookupToolView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     // 1. Input Card
                     inputCard
                     
@@ -31,8 +31,8 @@ struct IPLookupToolView: View {
                         errorCard(message: error)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -49,8 +49,8 @@ struct IPLookupToolView: View {
     
     // MARK: - 1. Input Card
     private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
+        VStack(spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "location.circle.fill")
                     .font(.title3)
                     .foregroundStyle(.teal)
@@ -92,30 +92,20 @@ struct IPLookupToolView: View {
                 }
             )
             
-            Button {
+            CloudnsButton(
+                viewModel.isLoading ? "Querying BGP & Geo..." : "Lookup IP Geolocation & ASN",
+                icon: "location.fill",
+                style: .primary(color: .teal),
+                size: .regular,
+                isFullWidth: true,
+                isLoading: viewModel.isLoading,
+                disabled: viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty
+            ) {
                 performQuery()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "location.fill")
-                    }
-                    Text(viewModel.isLoading ? "Querying BGP & Geo..." : "Lookup IP Geolocation & ASN")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.teal)
-            .controlSize(.regular)
-            .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(CloudnsSpacing.md)
-        .cloudnsCard(style: .frosted, cornerRadius: CloudnsRadius.lg)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Actions
@@ -132,12 +122,12 @@ struct IPLookupToolView: View {
     // MARK: - 2. Identification Card
     @ViewBuilder
     private func identificationCard(result: IPLookupResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 Text(result.countryFlag)
-                    .font(.system(size: 36))
+                    .font(.largeTitle)
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text(result.ip)
                         .font(.title3.weight(.bold).monospacedDigit())
                         .foregroundStyle(.primary)
@@ -177,21 +167,21 @@ struct IPLookupToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. ASN Card
     @ViewBuilder
     private func asnCard(result: IPLookupResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Autonomous System (ASN)")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let asn = result.asn {
                     HStack {
                         Text("ASN Number")
@@ -215,21 +205,21 @@ struct IPLookupToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 4. Geolocation Card
     @ViewBuilder
     private func geoCard(result: IPLookupResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             Text("Geographical Location")
                 .font(.headline)
                 .foregroundStyle(.primary)
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 if let country = result.country {
                     geoRow(title: "Country / Region", value: "\(result.countryFlag) \(country)")
                 }
@@ -244,8 +234,8 @@ struct IPLookupToolView: View {
                 }
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     @ViewBuilder
@@ -264,11 +254,11 @@ struct IPLookupToolView: View {
     // MARK: - Error Card
     @ViewBuilder
     private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
                 .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text("Lookup Failed")
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -277,24 +267,24 @@ struct IPLookupToolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - Skeleton View
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 HStack {
-                    Circle().frame(width: 36, height: 36)
+                    Circle().frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
                     VStack(alignment: .leading) {
                         Text("1.1.1.1").font(.title3.weight(.bold))
                         Text("San Francisco, United States")
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

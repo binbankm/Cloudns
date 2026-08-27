@@ -23,9 +23,9 @@ struct QueuesView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Queues"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -141,11 +141,11 @@ struct QueuesView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func queueRow(_ queue: CFQueue) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "tray.2.fill")
                 .foregroundStyle(.pink)
                 .font(.title3)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.pink.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -168,12 +168,12 @@ struct QueuesView: View {
                 Text("Paused")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.orange)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, CloudnsSpacing.sm)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .background(Color.orange.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

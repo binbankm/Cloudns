@@ -30,7 +30,7 @@ struct D1TableView: View {
             
             VStack(spacing: 0) {
                 // Table stats & Display Mode Bar
-                HStack(spacing: 12) {
+                HStack(spacing: CloudnsSpacing.mdSmall) {
                     Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -50,8 +50,8 @@ struct D1TableView: View {
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.sm)
                 .background(CloudnsColor.secondaryGroupedBackground)
                 
                 Divider()
@@ -111,8 +111,8 @@ struct D1TableView: View {
                         }
                         .disabled(viewModel.currentPage >= viewModel.totalPages || viewModel.isLoading)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, CloudnsSpacing.lg)
+                    .padding(.vertical, CloudnsSpacing.smMd)
                     .background(CloudnsColor.secondaryGroupedBackground)
                 }
             }
@@ -160,10 +160,10 @@ struct D1TableView: View {
     // MARK: - 1. Cards View (纵向全屏卡片视图，无需左右滑动)
     private var cardsView: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: CloudnsSpacing.mdSmall) {
                 ForEach(viewModel.rowItems) { item in
                     let row = item.values
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
                         // Card Header
                         HStack {
                             Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
@@ -196,9 +196,9 @@ struct D1TableView: View {
                         
                         // Field Rows
                         ForEach(viewModel.columns) { col in
-                            HStack(alignment: .top, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack(spacing: 4) {
+                            HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
+                                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
+                                    HStack(spacing: CloudnsSpacing.xs) {
                                         Text(col.name)
                                             .font(.caption.weight(.semibold))
                                             .foregroundStyle(.primary)
@@ -223,16 +223,16 @@ struct D1TableView: View {
                                     .multilineTextAlignment(.trailing)
                                     .textSelection(.enabled)
                             }
-                            .padding(.vertical, 2)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                         }
                     }
-                    .padding(14)
+                    .padding(CloudnsSpacing.mdMedium)
                     .background(CloudnsColor.secondaryGroupedBackground)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
-                    .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
+                    .cloudnsShadow(.soft)
                 }
             }
-            .padding(16)
+            .padding(CloudnsSpacing.md)
         }
     }
     
@@ -246,12 +246,12 @@ struct D1TableView: View {
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(.secondary)
                         .frame(width: 50, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                     
                     ForEach(viewModel.columns) { col in
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
+                            HStack(spacing: CloudnsSpacing.xs) {
                                 Text(col.name)
                                     .font(.caption.weight(.bold))
                                     .foregroundStyle(.primary)
@@ -266,8 +266,8 @@ struct D1TableView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .frame(width: 140, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, CloudnsSpacing.sm)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                     }
                 }
                 .background(CloudnsColor.tertiaryGroupedBackground)
@@ -285,8 +285,8 @@ struct D1TableView: View {
                                 .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                                 .frame(width: 50, alignment: .leading)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, CloudnsSpacing.sm)
+                                .padding(.vertical, CloudnsSpacing.sm)
                             
                             ForEach(viewModel.columns) { col in
                                 let cellValue = row[col.name] ?? "NULL"
@@ -295,8 +295,8 @@ struct D1TableView: View {
                                     .foregroundStyle(cellValue == "NULL" ? .secondary : .primary)
                                     .frame(width: 140, alignment: .leading)
                                     .lineLimit(1)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, CloudnsSpacing.sm)
+                                    .padding(.vertical, CloudnsSpacing.sm)
                             }
                         }
                     }

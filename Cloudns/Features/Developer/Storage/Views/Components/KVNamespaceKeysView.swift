@@ -29,9 +29,9 @@ struct KVNamespaceKeysView: View {
                 text: $searchKey,
                 prompt: "Search Keys"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -204,11 +204,11 @@ struct KVNamespaceKeysView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func keyRow(_ key: KVKey) -> some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "key.horizontal.fill")
                 .font(.subheadline)
                 .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -221,7 +221,7 @@ struct KVNamespaceKeysView: View {
                     .truncationMode(.middle)
                 
                 if let exp = key.expiration {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "clock")
                             .font(.caption2)
                         Text("Expires: \(formatExpiration(exp))")
@@ -229,7 +229,7 @@ struct KVNamespaceKeysView: View {
                     }
                     .foregroundStyle(.secondary)
                 } else {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "infinity")
                             .font(.caption2)
                         Text("Never expires")
@@ -246,7 +246,7 @@ struct KVNamespaceKeysView: View {
                 .foregroundStyle(Color(.tertiaryLabel))
                 .accessibilityHidden(true)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
         .contentShape(Rectangle())
     }
     

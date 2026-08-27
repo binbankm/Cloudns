@@ -435,7 +435,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         let info = action?.info
         let resId = resource?.id
         
-        HStack(spacing: 6) {
+        HStack(spacing: CloudnsSpacing.sm) {
             if let z = zoneName, !z.isEmpty {
                 Text("Domain: \(z)")
             }

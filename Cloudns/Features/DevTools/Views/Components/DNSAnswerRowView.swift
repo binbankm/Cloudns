@@ -8,16 +8,16 @@ struct DNSAnswerRowView: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Text(item.typeName)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.blue)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 .background(Color.blue.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                 Text(item.data)
                     .font(.subheadline.monospaced())
                     .foregroundStyle(.primary)
@@ -41,6 +41,6 @@ struct DNSAnswerRowView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

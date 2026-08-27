@@ -30,17 +30,17 @@ struct ZoneNavRowView<Destination: View>: View {
     // MARK: - Body
     var body: some View {
         NavigationLink(destination: destination) {
-            HStack(spacing: 14) {
+            HStack(spacing: CloudnsSpacing.mdMedium) {
                 Image(systemName: icon)
                     .font(.body)
                     .foregroundStyle(color)
-                    .frame(width: 32, height: 32)
+                    .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                     .background(color.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm, style: .continuous))
                     .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         Text(title)
                             .font(.body)
                             .foregroundStyle(.primary)
@@ -55,7 +55,7 @@ struct ZoneNavRowView<Destination: View>: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.vertical, 3)
+            .padding(.vertical, CloudnsSpacing.xs)
             .accessibilityElement(children: .combine)
         }
     }

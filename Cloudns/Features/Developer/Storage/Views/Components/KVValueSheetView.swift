@@ -13,18 +13,18 @@ struct KVValueSheetView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
                     // 1. Key Name Header Card
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "key.horizontal.fill")
                             .font(.body)
                             .foregroundStyle(.purple)
-                            .frame(width: 36, height: 36)
+                            .frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
                             .background(Color.purple.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                             .accessibilityHidden(true)
                         
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                             Text("KEY NAME")
                                 .font(.caption2.weight(.bold))
                                 .foregroundStyle(.secondary)
@@ -44,20 +44,20 @@ struct KVValueSheetView: View {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)
                                 .foregroundStyle(.purple)
-                                .padding(8)
+                                .padding(CloudnsSpacing.sm)
                                 .background(Color.purple.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Copy Key Name")
                     }
-                    .padding(12)
+                    .padding(CloudnsSpacing.mdSmall)
                     .background(CloudnsColor.secondaryGroupedBackground)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                     
                     // 2. Value Content Box
                     if isLoading {
-                        VStack(spacing: 12) {
+                        VStack(spacing: CloudnsSpacing.mdSmall) {
                             ProgressView()
                                 .scaleEffect(1.1)
                             Text("Loading value...")
@@ -65,9 +65,9 @@ struct KVValueSheetView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 50)
+                        .padding(.vertical, CloudnsSpacing.xxl)
                     } else {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             HStack {
                                 Text("VALUE CONTENT")
                                     .font(.caption2.weight(.bold))
@@ -78,8 +78,8 @@ struct KVValueSheetView: View {
                                 Text("\(valueText.utf8.count) bytes")
                                     .font(.caption2.monospacedDigit())
                                     .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
+                                    .padding(.horizontal, CloudnsSpacing.sm)
+                                    .padding(.vertical, CloudnsSpacing.xxs)
                                     .background(Color(.tertiarySystemFill))
                                     .clipShape(Capsule())
                                 
@@ -88,14 +88,14 @@ struct KVValueSheetView: View {
                                     HapticManager.notification(.success)
                                     CloudnsToastManager.shared.showCopied("Value copied")
                                 } label: {
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: CloudnsSpacing.xs) {
                                         Image(systemName: "doc.on.doc")
                                         Text("Copy")
                                     }
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.white)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, CloudnsSpacing.smMd)
+                                    .padding(.vertical, CloudnsSpacing.xs)
                                     .background(Color.purple)
                                     .clipShape(Capsule())
                                 }
@@ -106,14 +106,14 @@ struct KVValueSheetView: View {
                                 .font(.system(.subheadline, design: .monospaced))
                                 .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(14)
+                                .padding(CloudnsSpacing.mdMedium)
                                 .background(CloudnsColor.secondaryGroupedBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                                 .textSelection(.enabled)
                         }
                     }
                 }
-                .padding(16)
+                .padding(CloudnsSpacing.md)
             }
             .background(CloudnsColor.groupedBackground)
             .navigationTitle("KV Value Inspector")

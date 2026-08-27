@@ -25,9 +25,9 @@ struct RedirectRulesView: View {
                 text: $searchText,
                 prompt: "Search Redirect Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             contentView
@@ -134,7 +134,7 @@ struct RedirectRulesView: View {
     
     @ViewBuilder
     private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
                     .font(.body.weight(.medium))
@@ -146,7 +146,7 @@ struct RedirectRulesView: View {
                 CloudnsBadge(isEnabled ? .active("Active") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
-            HStack(spacing: 6) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 if let status = rule.statusCode {
                     CloudnsBadge(.custom(color: .blue, text: "\(status)"), isCompact: true)
                 }
@@ -166,6 +166,6 @@ struct RedirectRulesView: View {
                     .lineLimit(2)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

@@ -14,11 +14,11 @@ struct QuickDeckButton: View {
     }
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: CloudnsSpacing.sm) {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.12))
-                    .frame(width: 44, height: 44)
+                    .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                 Image(systemName: icon)
                     .font(.body)
                     .foregroundStyle(color)
@@ -31,7 +31,10 @@ struct QuickDeckButton: View {
                 .lineLimit(1)
         }
         .frame(width: 82)
-        .padding(.vertical, 10)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
+        .padding(.vertical, CloudnsSpacing.smMd)
+        .cloudnsCard(style: .frosted, size: .compact)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
     }
 }

@@ -21,9 +21,9 @@ struct GatewayRulesView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -149,11 +149,11 @@ struct GatewayRulesView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func ruleRow(_ rule: GatewayRule) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "shield.lefthalf.filled")
                 .foregroundStyle(.teal)
                 .font(.title3)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.teal.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -175,7 +175,7 @@ struct GatewayRulesView: View {
             
             CloudnsBadge(.custom(color: ruleActionColor(rule.action), text: rule.action.uppercased()), isCompact: true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
     
     // MARK: - Actions

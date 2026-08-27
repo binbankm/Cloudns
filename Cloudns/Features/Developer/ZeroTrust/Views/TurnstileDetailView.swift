@@ -40,7 +40,7 @@ struct TurnstileDetailView: View {
                     CloudnsBadge(.custom(color: .blue, text: (widget.mode ?? "Managed").capitalized), isCompact: true)
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     Text("Sitekey (Public)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -62,10 +62,10 @@ struct TurnstileDetailView: View {
                         }
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 
                 if let secret = currentSecret, !secret.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                         Text("Secret Key (Private)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -87,11 +87,11 @@ struct TurnstileDetailView: View {
                             }
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 if let domains = widget.domains, !domains.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Allowed Domains")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -99,7 +99,7 @@ struct TurnstileDetailView: View {
                             .font(.footnote)
                             .foregroundStyle(.primary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
             }
             
@@ -136,7 +136,7 @@ struct TurnstileDetailView: View {
                     Text("Server Verification").tag("backend")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 .onChange(of: selectedTab) { _ in
                     HapticManager.impact(.light)
                 }
@@ -147,7 +147,7 @@ struct TurnstileDetailView: View {
                         Text("React / Next.js").tag("react")
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .onChange(of: frontendFramework) { _ in
                         HapticManager.impact(.light)
                     }
@@ -158,18 +158,18 @@ struct TurnstileDetailView: View {
                         Text("Go").tag("go")
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .onChange(of: backendLang) { _ in
                         HapticManager.impact(.light)
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     ScrollView(.horizontal) {
                         Text(snippetCode)
                             .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
-                            .padding(.vertical, 4)
+                            .padding(.vertical, CloudnsSpacing.xs)
                     }
                     .scrollIndicators(.hidden)
                     
@@ -182,7 +182,7 @@ struct TurnstileDetailView: View {
                             .font(.caption.weight(.semibold))
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
         }
         .listStyle(.insetGrouped)

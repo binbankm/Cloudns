@@ -19,7 +19,7 @@ struct DNSSECView: View {
             CloudnsColor.groupedBackground.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: CloudnsSpacing.md) {
                     if let dnssec = viewModel.dnssec {
                         statusCard(dnssec)
                         
@@ -30,8 +30,8 @@ struct DNSSECView: View {
                         loadingSkeletonView
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.mdSmall)
                 .centerConstrainedWidth(maxWidth: 840)
             }
             .refreshable {
@@ -60,12 +60,12 @@ struct DNSSECView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func statusCard(_ dnssec: DNSSEC) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
+            HStack(spacing: CloudnsSpacing.mdSmall) {
                 ZStack {
                     Circle()
                         .fill(statusColor(for: dnssec.status).opacity(0.14))
-                        .frame(width: 44, height: 44)
+                        .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                     Image(systemName: "lock.shield.fill")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(statusColor(for: dnssec.status))
@@ -98,7 +98,7 @@ struct DNSSECView: View {
                     Task { await viewModel.toggleDNSSEC() }
                 }
             )) {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text(dnssec.status == "active" ? "DNSSEC is Enabled" : "Enable DNSSEC")
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
@@ -109,30 +109,30 @@ struct DNSSECView: View {
             }
             .toggleStyle(SwitchToggleStyle(tint: .green))
             
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: CloudnsSpacing.sm) {
                 Image(systemName: "info.circle.fill")
                     .font(.caption)
                     .foregroundStyle(.blue)
-                    .padding(.top, 1)
+                    .padding(.top, CloudnsSpacing.xxs)
                 Text("Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineSpacing(2)
             }
-            .padding(10)
+            .padding(CloudnsSpacing.smMd)
             .background(Color.blue.opacity(0.06))
-            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg, style: .continuous))
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 2. DS Record Configuration Card
     @ViewBuilder
     private func dsRecordCard(_ dnssec: DNSSEC) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("DS Record Configuration")
                         .font(.headline)
                         .foregroundStyle(.primary)
@@ -167,7 +167,7 @@ struct DNSSECView: View {
             
             Divider()
             
-            VStack(spacing: 10) {
+            VStack(spacing: CloudnsSpacing.smMd) {
                 DNSSECDetailRowView(title: "DS Record", value: dnssec.ds)
                 DNSSECDetailRowView(title: "Digest", value: dnssec.digest)
                 DNSSECDetailRowView(title: "Digest Type", value: dnssec.digest_type)
@@ -177,21 +177,21 @@ struct DNSSECView: View {
                 DNSSECDetailRowView(title: "Public Key", value: dnssec.public_key, isLast: true)
             }
         }
-        .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .padding(CloudnsSpacing.md)
+        .cloudnsCard(style: .frosted)
     }
     
     // MARK: - 3. Skeleton Loading View
     @ViewBuilder
     private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 12) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
+                HStack(spacing: CloudnsSpacing.mdSmall) {
                     Circle()
                         .fill(Color(.tertiarySystemFill))
-                        .frame(width: 44, height: 44)
+                        .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("DNSSEC Protection")
                             .font(.headline)
                         Text(zoneName)
@@ -209,16 +209,16 @@ struct DNSSECView: View {
                     Toggle(isOn: .constant(true)) { EmptyView() }.labelsHidden()
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                 Text("DS Record Configuration")
                     .font(.headline)
                 Divider()
                 ForEach(0..<5, id: \.self) { idx in
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text(placeholderTitle(for: idx))
                             .font(.caption)
                         Text(placeholderValue(for: idx))
@@ -226,8 +226,8 @@ struct DNSSECView: View {
                     }
                 }
             }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .padding(CloudnsSpacing.md)
+            .cloudnsCard(style: .frosted)
             .skeletonLoading(true)
         }
     }

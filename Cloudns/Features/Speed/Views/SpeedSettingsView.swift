@@ -12,7 +12,7 @@ struct SpeedSettingsView: View {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage {
                     Section {
-                        HStack(spacing: 10) {
+                        HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.red)
                                 .accessibilityHidden(true)
@@ -32,8 +32,8 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "bolt.badge.sparkle")
                                     .foregroundStyle(.purple)
                                 Text("Speed Brain")
@@ -54,8 +54,8 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateFonts(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "textformat.size")
                                     .foregroundStyle(.teal)
                                 Text("Cloudflare Fonts")
@@ -76,8 +76,8 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateTieredCache(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "network")
                                     .foregroundStyle(.orange)
                                 Text("Tiered Cache")
@@ -101,7 +101,7 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateBrotli(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Brotli Compression")
                                 .font(.body)
                             Text("Speed up HTTPS page load times by applying modern Brotli compression.")
@@ -118,8 +118,8 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Text("Rocket Loader™")
                                     .font(.body)
                                 Image(systemName: "hare.fill")
@@ -141,7 +141,7 @@ struct SpeedSettingsView: View {
                             Task { await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val) }
                         }
                     )) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("103 Early Hints")
                                 .font(.body)
                             Text("Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering.")
@@ -164,8 +164,8 @@ struct SpeedSettingsView: View {
                         Text("Lossless (Fast)").tag("lossless")
                         Text("Lossy (Maximum Compression)").tag("lossy")
                     } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Text("Polish (WebP)")
                                     .font(.body)
                                 CloudnsBadge(.pro, isCompact: true)
@@ -180,7 +180,7 @@ struct SpeedSettingsView: View {
             } else if viewModel.isLoading {
                 Section(header: Text("Next-Gen Acceleration")) {
                     Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Speed Brain")
                             Text("Predictive prefetching via W3C Speculation Rules.")
                         }
@@ -188,7 +188,7 @@ struct SpeedSettingsView: View {
                     .skeletonLoading(true)
                     
                     Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Cloudflare Fonts")
                             Text("Privacy-preserving edge proxy for Google Fonts.")
                         }
@@ -198,7 +198,7 @@ struct SpeedSettingsView: View {
                 
                 Section(header: Text("Asset Optimization")) {
                     Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text("Brotli")
                             Text("Speed up page load times for your visitor's HTTPS traffic.")
                         }

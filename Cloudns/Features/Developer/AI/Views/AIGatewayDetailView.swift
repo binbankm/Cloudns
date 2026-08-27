@@ -69,12 +69,12 @@ struct AIGatewayDetailView: View {
                     HapticManager.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     Text(universalEndpoint)
                         .font(.caption.monospaced())
                         .foregroundStyle(.blue)
                         .lineLimit(2)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, CloudnsSpacing.xs)
                     
                     Button {
                         UIPasteboard.general.string = universalEndpoint
@@ -89,7 +89,7 @@ struct AIGatewayDetailView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
             }
             
             // MARK: - Integration Code Examples
@@ -100,17 +100,17 @@ struct AIGatewayDetailView: View {
                     Text("Node.js").tag("node")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
                 .onChange(of: selectedCodeLanguage) { _ in
                     HapticManager.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     ScrollView(.horizontal) {
                         Text(codeSnippet)
                             .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
-                            .padding(.vertical, 4)
+                            .padding(.vertical, CloudnsSpacing.xs)
                     }
                     .scrollIndicators(.hidden)
                     
@@ -123,7 +123,7 @@ struct AIGatewayDetailView: View {
                             .font(.caption.weight(.semibold))
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
         }
         .listStyle(.insetGrouped)

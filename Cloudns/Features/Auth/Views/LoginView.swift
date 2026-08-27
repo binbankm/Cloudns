@@ -41,11 +41,11 @@ struct LoginView: View {
             .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 20) {
-                    Spacer(minLength: 16)
+                VStack(spacing: CloudnsSpacing.mdLarge) {
+                    Spacer(minLength: CloudnsSpacing.md)
                     
                     // 2. Glowing Hero Logo & Header
-                    VStack(spacing: 12) {
+                    VStack(spacing: CloudnsSpacing.mdSmall) {
                         ZStack {
                             Circle()
                                 .fill(
@@ -62,14 +62,14 @@ struct LoginView: View {
                             Circle()
                                 .fill(CloudnsColor.secondaryGroupedBackground)
                                 .frame(width: 76, height: 76)
-                                .shadow(color: Color.orange.opacity(0.2), radius: 14, x: 0, y: 6)
+                                .cloudnsShadow(.brand(color: CloudnsColor.brandAccent, radius: 14, y: 6))
                                 .overlay(
                                     Circle()
                                         .stroke(Color.orange.opacity(0.25), lineWidth: 1.5)
                                 )
                             
                             Image(systemName: "cloud.fill")
-                                .font(.system(size: 36, weight: .semibold))
+                                .font(.system(.largeTitle, design: .default, weight: .semibold))
                                 .foregroundStyle(
                                     LinearGradient(
                                         colors: [.orange, .yellow],
@@ -77,11 +77,11 @@ struct LoginView: View {
                                         endPoint: .bottomTrailing
                                     )
                                 )
-                                .shadow(color: .orange.opacity(0.4), radius: 6, x: 0, y: 2)
+                                .cloudnsShadow(.brand(color: CloudnsColor.brandAccent, radius: 6, y: 2))
                         }
                         .frame(height: 80)
                         
-                        VStack(spacing: 4) {
+                        VStack(spacing: CloudnsSpacing.xs) {
                             Text(onLoginSuccess == nil ? "Welcome to Cloudns" : "Add Account")
                                 .font(.system(.title2, design: .rounded).weight(.bold))
                                 .foregroundStyle(.primary)
@@ -90,20 +90,20 @@ struct LoginView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
-                                .padding(.horizontal, 24)
+                                .padding(.horizontal, CloudnsSpacing.lg)
                         }
                     }
-                    .padding(.bottom, 4)
+                    .padding(.bottom, CloudnsSpacing.xs)
                     
                     // 3. Frosted Credentials Card
-                    VStack(spacing: 16) {
+                    VStack(spacing: CloudnsSpacing.md) {
                         // Email Field
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             Text("Account Email")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
                             
-                            HStack(spacing: 10) {
+                            HStack(spacing: CloudnsSpacing.smMd) {
                                 Image(systemName: "envelope.fill")
                                     .font(.subheadline)
                                     .foregroundStyle(focusedField == .email ? .orange : .gray)
@@ -131,8 +131,8 @@ struct LoginView: View {
                                     .buttonStyle(.plain)
                                 }
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, CloudnsSpacing.mdMedium)
+                            .padding(.vertical, CloudnsSpacing.mdSmall)
                             .background(CloudnsColor.tertiaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
@@ -142,7 +142,7 @@ struct LoginView: View {
                         }
                         
                         // API Key Field
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                             HStack {
                                 Text("Global API Key")
                                     .font(.caption.weight(.semibold))
@@ -162,7 +162,7 @@ struct LoginView: View {
                                 }
                             }
                             
-                            HStack(spacing: 10) {
+                            HStack(spacing: CloudnsSpacing.smMd) {
                                 Image(systemName: "key.fill")
                                     .font(.subheadline)
                                     .foregroundStyle(focusedField == .apiKey ? .orange : .gray)
@@ -209,8 +209,8 @@ struct LoginView: View {
                                 }
                                 .buttonStyle(.plain)
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, CloudnsSpacing.mdMedium)
+                            .padding(.vertical, CloudnsSpacing.mdSmall)
                             .background(CloudnsColor.tertiaryGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
                             .overlay(
@@ -221,7 +221,7 @@ struct LoginView: View {
                         
                         // Error Message Banner
                         if let errorMessage = viewModel.errorMessage {
-                            HStack(spacing: 8) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundStyle(.red)
                                 Text(LocalizedStringKey(errorMessage))
@@ -229,10 +229,10 @@ struct LoginView: View {
                                     .foregroundStyle(.red)
                                     .multilineTextAlignment(.leading)
                             }
-                            .padding(10)
+                            .padding(CloudnsSpacing.smMd)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.red.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                             .onAppear {
                                 HapticManager.notification(.error)
                             }
@@ -240,57 +240,34 @@ struct LoginView: View {
                         
                         // Login Action Button
                         let isFormValid = !viewModel.email.isEmpty && !viewModel.apiKey.isEmpty
-                        let isButtonDisabled = viewModel.isLoading || !isFormValid
                         
-                        Button(action: {
+                        CloudnsButton(
+                            "Log In to Dashboard",
+                            icon: "arrow.right",
+                            style: .primary(color: .orange),
+                            size: .large,
+                            isFullWidth: true,
+                            isLoading: viewModel.isLoading,
+                            disabled: !isFormValid
+                        ) {
                             focusedField = nil
-                            HapticManager.impact(.medium)
                             Task {
                                 await viewModel.login(onSuccess: onLoginSuccess)
                             }
-                        }) {
-                            Group {
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                        .tint(.white)
-                                } else {
-                                    HStack(spacing: 6) {
-                                        Text("Log In to Dashboard")
-                                            .font(.body.weight(.semibold))
-                                        Image(systemName: "arrow.right")
-                                            .font(.caption.weight(.bold))
-                                    }
-                                }
-                            }
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(
-                                LinearGradient(
-                                    colors: isButtonDisabled
-                                        ? [Color.gray.opacity(0.4), Color.gray.opacity(0.5)]
-                                        : [Color.orange, Color.orange.opacity(0.85)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
-                            .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .disabled(isButtonDisabled)
                     }
-                    .padding(16)
-                    .cloudnsCard(style: .frosted, cornerRadius: 18)
-                    .padding(.horizontal, 16)
+                    .padding(CloudnsSpacing.md)
+                    .cloudnsCard(style: .frosted, size: .hero)
+                    .padding(.horizontal, CloudnsSpacing.md)
                     
                     // 4. Helper Links & Guide
-                    VStack(spacing: 12) {
+                    VStack(spacing: CloudnsSpacing.mdSmall) {
                         Button(action: {
                             if let url = URL(string: "https://dash.cloudflare.com/profile/api-tokens") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: CloudnsSpacing.xs) {
                                 Image(systemName: "questionmark.circle")
                                     .font(.caption)
                                 Text("Where to find your Global API Key?")
@@ -300,7 +277,7 @@ struct LoginView: View {
                         }
                         
                         // Apple Keychain Security Seal
-                        HStack(spacing: 6) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             Image(systemName: "lock.shield.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -308,9 +285,9 @@ struct LoginView: View {
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.top, 4)
+                        .padding(.top, CloudnsSpacing.xs)
                     }
-                    .padding(.bottom, 24)
+                    .padding(.bottom, CloudnsSpacing.lg)
                 }
                 .centerConstrainedWidth(maxWidth: 480)
             }

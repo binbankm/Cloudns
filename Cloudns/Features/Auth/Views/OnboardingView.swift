@@ -45,7 +45,7 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 // 2. Top Bar: Brand Title & Skip Action
                 HStack {
-                    HStack(spacing: 6) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         Image(systemName: "cloud.fill")
                             .font(.subheadline.weight(.bold))
                             .foregroundStyle(
@@ -70,13 +70,13 @@ struct OnboardingView: View {
                     }
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, CloudnsSpacing.mdSmall)
+                    .padding(.vertical, CloudnsSpacing.sm)
                     .background(Color(.tertiarySystemFill))
                     .clipShape(Capsule())
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
+                .padding(.horizontal, CloudnsSpacing.lg)
+                .padding(.top, CloudnsSpacing.mdSmall)
                 
                 // 3. Tab Pages
                 TabView(selection: $currentPage) {
@@ -122,9 +122,9 @@ struct OnboardingView: View {
                 }
                 
                 // 4. Bottom Controls: Capsule Indicator & Action Button
-                VStack(spacing: 20) {
+                VStack(spacing: CloudnsSpacing.mdLarge) {
                     // Modern Capsule Page Indicator
-                    HStack(spacing: 8) {
+                    HStack(spacing: CloudnsSpacing.sm) {
                         ForEach(0..<totalPages, id: \.self) { index in
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
@@ -132,7 +132,7 @@ struct OnboardingView: View {
                                 .animation(.spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, CloudnsSpacing.xs)
                     
                     // Main Action Button (Gradient Aurora)
                     Button(action: {
@@ -148,7 +148,7 @@ struct OnboardingView: View {
                             }
                         }
                     }) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             Text(currentPage == totalPages - 1 ? "Get Started" : "Continue")
                                 .font(.body.weight(.semibold))
                             
@@ -166,11 +166,11 @@ struct OnboardingView: View {
                             )
                         )
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
-                        .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
+                        .cloudnsShadow(.brand(color: currentColor, radius: 12, y: 5))
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, CloudnsSpacing.lg)
                 }
-                .padding(.bottom, 28)
+                .padding(.bottom, CloudnsSpacing.xl)
             }
             .centerConstrainedWidth(maxWidth: 520)
         }

@@ -17,7 +17,7 @@ struct AnalyticsBandwidthChartView: View {
         let maxBytes = dataPoints.map { $0.sum.bytes }.max() ?? 1024
         let yUpper = max(1024.0, Double(maxBytes) * 1.18)
         
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             headerRow
             
             Chart {
@@ -85,7 +85,7 @@ struct AnalyticsBandwidthChartView: View {
                 chartInteractionOverlay(proxy: proxy)
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -94,7 +94,7 @@ struct AnalyticsBandwidthChartView: View {
     private var headerRow: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.bar.fill")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(.purple)
@@ -103,7 +103,7 @@ struct AnalyticsBandwidthChartView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                HStack(alignment: .lastTextBaseline, spacing: CloudnsSpacing.sm) {
                     Text(formatBytes(selectedBandwidthPoint?.sum.bytes ?? totalBandwidthBytes))
                         .font(.system(.title, design: .rounded).weight(.bold))
                         .foregroundStyle(.primary)
@@ -117,7 +117,7 @@ struct AnalyticsBandwidthChartView: View {
             
             if let selected = selectedBandwidthPoint {
                 let dateStr = formattedPointDate(selected)
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
                         .fill(Color.purple)
                         .frame(width: 6, height: 6)
@@ -125,8 +125,8 @@ struct AnalyticsBandwidthChartView: View {
                         .font(.caption2.monospacedDigit().weight(.semibold))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(Capsule())
             } else {

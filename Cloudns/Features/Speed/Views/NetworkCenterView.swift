@@ -12,11 +12,11 @@ struct NetworkCenterView: View {
         List {
             // Network Graphic Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: CloudnsSpacing.mdSmall) {
                     Image(systemName: "network")
                         .font(.largeTitle)
                         .foregroundStyle(.blue)
-                        .padding(.top, 10)
+                        .padding(.top, CloudnsSpacing.smMd)
                         .accessibilityHidden(true)
                     
                     Text("Network & Routing")
@@ -29,14 +29,14 @@ struct NetworkCenterView: View {
                         .padding(.horizontal)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, CloudnsSpacing.sm)
             }
             .listRowBackground(Color.clear)
             
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage {
                     Section {
-                        HStack(spacing: 10) {
+                        HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.red)
                                 .accessibilityHidden(true)
@@ -57,7 +57,7 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateIPv6(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("IPv6 Compatibility")
                             .font(.body)
                         Text("Enable IPv6 support and gateway.")
@@ -74,7 +74,7 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateWebsockets(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("WebSockets")
                             .font(.body)
                         Text("Allow WebSockets connections to your origin server.")
@@ -91,7 +91,7 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateHTTP2(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("HTTP/2")
                             .font(.body)
                         Text("Accelerate your website with HTTP/2.")
@@ -108,8 +108,8 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateHTTP3(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             Text("HTTP/3 (with QUIC)")
                                 .font(.body)
                             Image(systemName: "bolt.horizontal.fill")
@@ -134,7 +134,7 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("IP Geolocation Header")
                             .font(.body)
                         Text("Include the country code of the visitor location with all requests to your website.")
@@ -154,8 +154,8 @@ struct NetworkCenterView: View {
                     Text("HTTP/2 (Fastest)").tag("2")
                     Text("HTTP/1.1 (Legacy)").tag("1")
                 } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             Text("Origin Max HTTP Version")
                                 .font(.body)
                             CloudnsBadge(.free, isCompact: true)

@@ -69,7 +69,7 @@ public struct ZoneSmallWidgetView: View {
                 }
             }
         }
-        .padding(11)
+        .padding(12)
         .widgetURL(URL(string: "cloudns://zone/\(snapshot.id)"))
     }
     

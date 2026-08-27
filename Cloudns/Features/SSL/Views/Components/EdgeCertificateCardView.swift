@@ -26,7 +26,7 @@ struct EdgeCertificateCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
             HStack {
                 ZStack {
                     iconColor.opacity(0.15)
@@ -35,8 +35,8 @@ struct EdgeCertificateCardView: View {
                         .font(.body)
                         .accessibilityHidden(true)
                 }
-                .frame(width: 28, height: 28)
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 
                 Text(certificate.type.capitalized)
                     .font(.body.weight(.medium))
@@ -56,14 +56,14 @@ struct EdgeCertificateCardView: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                 HStack(alignment: .top) {
                     Text("Hosts")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 80, alignment: .leading)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         ForEach(certificate.hosts, id: \.self) { host in
                             Text(host)
                                 .font(.subheadline)
@@ -107,8 +107,8 @@ struct EdgeCertificateCardView: View {
         .padding()
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md))
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-        .padding(.vertical, 4)
+        .cloudnsShadow(.card)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

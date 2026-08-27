@@ -118,14 +118,14 @@ struct WorkerTriggersView: View {
     
     @ViewBuilder
     private func scheduleRow(_ schedule: WorkerSchedule) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "clock.arrow.2.circlepath")
                 .font(.title3)
                 .foregroundStyle(.purple)
                 .frame(width: 32)
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                 Text(schedule.cron)
                     .font(.body.monospacedDigit())
                     .foregroundStyle(.primary)
@@ -137,7 +137,7 @@ struct WorkerTriggersView: View {
             
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
     
     // MARK: - Actions

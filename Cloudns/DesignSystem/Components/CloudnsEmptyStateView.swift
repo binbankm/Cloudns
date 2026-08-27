@@ -34,52 +34,45 @@ public struct CloudnsEmptyStateView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: CloudnsSpacing.xs) {
             // Icon with Apple-style soft circular badge
             ZStack {
                 Circle()
-                    .fill((iconColor ?? .orange).opacity(0.12))
-                    .frame(width: 64, height: 64)
+                    .fill((iconColor ?? CloudnsColor.brandAccent).opacity(0.12))
+                    .frame(width: CloudnsSize.iconXL, height: CloudnsSize.iconXL)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(CloudnsTypography.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(iconColor ?? .orange)
+                    .foregroundStyle(iconColor ?? CloudnsColor.brandAccent)
             }
             .accessibilityHidden(true)
-            .padding(.bottom, 18)
+            .padding(.bottom, CloudnsSpacing.mdLarge)
             
             // Title
             Text(title)
-                .font(.title3)
-                .fontWeight(.bold)
+                .font(CloudnsTypography.title3)
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
-                .padding(.bottom, 6)
+                .padding(.bottom, CloudnsSpacing.xs)
             
             // Message
             Text(message)
-                .font(.subheadline)
+                .font(CloudnsTypography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, CloudnsSpacing.lg)
             
             // Actions
             if let actionTitle = actionTitle, let action = action {
-                VStack(spacing: 12) {
-                    Button {
-                        HapticManager.impact(.light)
-                        action()
-                    } label: {
-                        Text(actionTitle)
-                            .font(.body.weight(.semibold))
-                            .padding(.horizontal, 8)
-                            .frame(minWidth: 130, minHeight: 24)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(iconColor ?? .orange)
-                    .controlSize(.regular)
+                VStack(spacing: CloudnsSpacing.mdSmall) {
+                    CloudnsButton(
+                        actionTitle,
+                        style: .primary(color: iconColor ?? CloudnsColor.brandAccent),
+                        size: .regular,
+                        action: action
+                    )
                     
                     if let secondaryTitle = secondaryActionTitle, let secondaryAction = secondaryAction {
                         Button {
@@ -87,16 +80,17 @@ public struct CloudnsEmptyStateView: View {
                             secondaryAction()
                         } label: {
                             Text(secondaryTitle)
-                                .font(.subheadline)
+                                .font(CloudnsTypography.subheadline)
+                                .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.borderless)
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.top, 22)
+                .padding(.top, CloudnsSpacing.lg)
             }
         }
-        .padding(.vertical, 32)
-        .padding(.horizontal, 16)
+        .padding(.vertical, CloudnsSpacing.xl)
+        .padding(.horizontal, CloudnsSpacing.md)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .transition(.asymmetric(
             insertion: .opacity.combined(with: .scale(scale: 0.96)),

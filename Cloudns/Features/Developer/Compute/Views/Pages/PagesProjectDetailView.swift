@@ -105,12 +105,12 @@ struct PagesProjectDetailView: View {
         List {
             // MARK: - Hero & Project Overview Card
             Section {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.mdMedium) {
+                    HStack(alignment: .top, spacing: CloudnsSpacing.mdMedium) {
                         Image(systemName: "macwindow")
                             .font(.title2)
                             .foregroundStyle(.white)
-                            .frame(width: 44, height: 44)
+                            .frame(width: CloudnsSize.minTouchTarget, height: CloudnsSize.minTouchTarget)
                             .background(
                                 LinearGradient(
                                     colors: [Color.blue, Color.cyan],
@@ -119,16 +119,16 @@ struct PagesProjectDetailView: View {
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.md, style: .continuous))
-                            .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
+                            .cloudnsShadow(.brand(color: CloudnsColor.brand, radius: 6, y: 3))
                             .accessibilityHidden(true)
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                             Text(project.name)
                                 .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
-                            HStack(spacing: 6) {
+                            HStack(spacing: CloudnsSpacing.sm) {
                                 if let branch = project.productionBranch {
                                     CloudnsBadge(.active(branch), isCompact: true)
                                 }
@@ -142,12 +142,12 @@ struct PagesProjectDetailView: View {
                     if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
                         Divider()
                         
-                        HStack(spacing: 10) {
+                        HStack(spacing: CloudnsSpacing.smMd) {
                             Image(systemName: "globe")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                                 Text("Production URL")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
@@ -167,7 +167,7 @@ struct PagesProjectDetailView: View {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .frame(width: 28, height: 28)
+                                    .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                                     .background(Color(.tertiarySystemFill))
                                     .clipShape(Circle())
                             }
@@ -178,7 +178,7 @@ struct PagesProjectDetailView: View {
                                 Image(systemName: "arrow.up.right")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .frame(width: 28, height: 28)
+                                    .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                                     .background(Color(.tertiarySystemFill))
                                     .clipShape(Circle())
                             }
@@ -187,7 +187,7 @@ struct PagesProjectDetailView: View {
                         }
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
             
             // MARK: - Project Details
@@ -246,7 +246,7 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesAnalyticsView(accountId: accountId, projectName: project.name)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.body)
                             .foregroundStyle(.purple)
@@ -261,7 +261,7 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesDeploymentsListView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.body)
                             .foregroundStyle(.orange)
@@ -281,7 +281,7 @@ struct PagesProjectDetailView: View {
                 Button {
                     showingDomainsSheet = true
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "globe")
                             .font(.body)
                             .foregroundStyle(.blue)
@@ -305,7 +305,7 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesBindingsView(accountId: accountId, project: project)
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "slider.horizontal.3")
                             .font(.body)
                             .foregroundStyle(.purple)
@@ -320,7 +320,7 @@ struct PagesProjectDetailView: View {
                 Button {
                     showingBuildConfigSheet = true
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: CloudnsSpacing.mdSmall) {
                         Image(systemName: "gearshape")
                             .font(.body)
                             .foregroundStyle(.orange)

@@ -61,7 +61,7 @@ struct EdgeQuickCheckCardView: View {
         .padding(CloudnsSpacing.md)
         .background(CloudnsColor.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
-        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
+        .cloudnsShadow(.card)
         .task {
             if result == nil {
                 performCheck()
@@ -130,8 +130,8 @@ struct EdgeQuickCheckCardView: View {
                         
                         Text(res.colo)
                             .font(.caption2.weight(.bold).monospaced())
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, CloudnsSpacing.sm)
+                            .padding(.vertical, CloudnsSpacing.xxs)
                             .background(Color.orange.opacity(0.15))
                             .foregroundStyle(.orange)
                             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
@@ -145,7 +145,7 @@ struct EdgeQuickCheckCardView: View {
                 Spacer()
                 
                 // RTT Badge
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: CloudnsSpacing.xxs) {
                     HStack(spacing: CloudnsSpacing.xs) {
                         Circle()
                             .fill(latencyColor(res.rttMs))
@@ -168,7 +168,7 @@ struct EdgeQuickCheckCardView: View {
             // Sub-metrics Grid
             HStack(spacing: CloudnsSpacing.md) {
                 // Protocol
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("Protocol")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -179,7 +179,7 @@ struct EdgeQuickCheckCardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // TLS & Security
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
                     Text("Security")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -190,7 +190,7 @@ struct EdgeQuickCheckCardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // Client IP
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: CloudnsSpacing.xxs) {
                     Text("Client IP")
                         .font(.caption2)
                         .foregroundStyle(.secondary)

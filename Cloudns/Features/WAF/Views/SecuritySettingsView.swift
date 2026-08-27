@@ -13,7 +13,7 @@ struct SecuritySettingsView: View {
             if viewModel.hasFetchedData {
                 // Danger Zone: Under Attack Mode
                 Section(header: Text("Danger Zone")) {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.mdSmall) {
                         HStack {
                             Image(systemName: "shield.lefthalf.filled")
                                 .foregroundStyle(viewModel.securityLevel == "under_attack" ? .white : .red)
@@ -53,19 +53,19 @@ struct SecuritySettingsView: View {
                             .padding()
                             .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
-                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                            .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                         }
                         .buttonStyle(.plain)
                         .disabled(!viewModel.hasFetchedData)
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, CloudnsSpacing.sm)
                 }
                 .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : CloudnsColor.secondaryGroupedBackground)
             
             // General Security Settings
             Section(header: Text("General Security")) {
                 // Security Level
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Security Level")
                         .font(.body)
                     Text("Adjust your website's security level to determine who will receive a challenge page.")
@@ -89,7 +89,7 @@ struct SecuritySettingsView: View {
                 }
                 
                 // Challenge Passage (TTL)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Challenge Passage")
                         .font(.body)
                     Text("How long a visitor is allowed access after successfully completing a challenge.")
@@ -124,7 +124,7 @@ struct SecuritySettingsView: View {
                         Task { await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: newValue) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Browser Integrity Check")
                             .font(.body)
                         Text("Evaluate HTTP headers from your visitors browser for threats.")
@@ -141,8 +141,8 @@ struct SecuritySettingsView: View {
                         Task { await viewModel.updateBotFightMode(zoneId: zoneId, isOn: newValue) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
+                        HStack(spacing: CloudnsSpacing.sm) {
                             Text("Bot Fight Mode")
                                 .font(.body)
                             Image(systemName: "ant.fill")

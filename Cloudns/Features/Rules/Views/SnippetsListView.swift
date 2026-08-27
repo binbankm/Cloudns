@@ -33,9 +33,9 @@ struct SnippetsListView: View {
                 text: $searchText,
                 prompt: "Search Snippets & Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             contentView
@@ -190,7 +190,7 @@ struct SnippetsListView: View {
             editingSnippet = snip
             showingEditorSheet = true
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: CloudnsSpacing.mdMedium) {
                 ZStack {
                     Color.orange.opacity(0.12)
                     Image(systemName: "curlybraces")
@@ -198,7 +198,7 @@ struct SnippetsListView: View {
                         .font(.body)
                         .accessibilityHidden(true)
                 }
-                .frame(width: 36, height: 36)
+                .frame(width: CloudnsSize.iconHero, height: CloudnsSize.iconHero)
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -220,7 +220,7 @@ struct SnippetsListView: View {
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
             }
-            .padding(.vertical, 3)
+            .padding(.vertical, CloudnsSpacing.xs)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -237,7 +237,7 @@ struct SnippetsListView: View {
     
     @ViewBuilder
     private func ruleRow(_ rule: WAFRule) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(rule.description ?? "Snippet Trigger Rule")
                     .font(.body)
@@ -248,15 +248,15 @@ struct SnippetsListView: View {
                 let isEnabled = rule.enabled
                 Text(isEnabled ? "Active" : "Disabled")
                     .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, CloudnsSpacing.sm)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                     .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
                     .foregroundStyle(isEnabled ? .green : .secondary)
                     .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
             }
             
             if let snipName = rule.action_parameters?.snippet_name {
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Image(systemName: "curlybraces")
                         .font(.caption2)
                         .foregroundStyle(.orange)
@@ -272,7 +272,7 @@ struct SnippetsListView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 HapticManager.impact(.medium)

@@ -61,24 +61,24 @@ struct WorkersAIPlaygroundSheetView: View {
     
     // MARK: - Private Views
     private var modelHeaderBar: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: CloudnsSpacing.smMd) {
             Image(systemName: "sparkles")
                 .font(.body)
                 .foregroundStyle(.purple)
-                .frame(width: 28, height: 28)
+                .frame(width: CloudnsSize.avatarSmall, height: CloudnsSize.avatarSmall)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xxs))
+                .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
             
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.xxs) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Text(model.shortName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                     
                     Text(model.taskName)
                         .font(.caption2.weight(.medium))
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
+                        .padding(.horizontal, CloudnsSpacing.xs)
+                        .padding(.vertical, CloudnsSpacing.xxs)
                         .background(Color.purple.opacity(0.12))
                         .foregroundStyle(.purple)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
@@ -93,8 +93,8 @@ struct WorkersAIPlaygroundSheetView: View {
             
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, CloudnsSpacing.md)
+        .padding(.vertical, CloudnsSpacing.smMd)
         .background(Color(UIColor.secondarySystemGroupedBackground))
     }
     
@@ -103,7 +103,7 @@ struct WorkersAIPlaygroundSheetView: View {
     private var chatMessagesArea: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 14) {
+                LazyVStack(spacing: CloudnsSpacing.mdMedium) {
                     if viewModel.chatMessages.isEmpty {
                         emptyStateSuggestions
                     } else {
@@ -118,8 +118,8 @@ struct WorkersAIPlaygroundSheetView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                .padding(.horizontal, CloudnsSpacing.md)
+                .padding(.vertical, CloudnsSpacing.md)
             }
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.chatMessages.count) { _ in
@@ -142,12 +142,12 @@ struct WorkersAIPlaygroundSheetView: View {
     // MARK: - Empty State Suggestions
     
     private var emptyStateSuggestions: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 8) {
+        VStack(spacing: CloudnsSpacing.md) {
+            VStack(spacing: CloudnsSpacing.sm) {
                 Image(systemName: "brain.head.profile")
                     .font(.largeTitle)
                     .foregroundStyle(.purple.opacity(0.8))
-                    .padding(.top, 24)
+                    .padding(.top, CloudnsSpacing.lg)
                 
                 Text("Workers AI Edge Playground")
                     .font(.headline)
@@ -158,11 +158,11 @@ struct WorkersAIPlaygroundSheetView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, CloudnsSpacing.mdLarge)
                 }
             }
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                 Text("Suggested prompts:")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -184,15 +184,15 @@ struct WorkersAIPlaygroundSheetView: View {
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, CloudnsSpacing.mdMedium)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.top, 8)
+            .padding(.top, CloudnsSpacing.sm)
         }
     }
     
@@ -201,48 +201,48 @@ struct WorkersAIPlaygroundSheetView: View {
     @ViewBuilder
     private func chatBubble(for message: AIChatMessageItem) -> some View {
         if message.role == "user" {
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .bottom, spacing: CloudnsSpacing.sm) {
                 Spacer(minLength: 40)
                 
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: CloudnsSpacing.xs) {
                     Text(message.content)
                         .font(.body)
                         .foregroundStyle(.white)
                         .textSelection(.enabled)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, CloudnsSpacing.mdMedium)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                         .background(Color.purple)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
                 }
             }
         } else {
-            HStack(alignment: .top, spacing: 10) {
+            HStack(alignment: .top, spacing: CloudnsSpacing.smMd) {
                 Image(systemName: "sparkles")
                     .font(.caption)
                     .foregroundStyle(message.isError ? .red : .purple)
-                    .frame(width: 26, height: 26)
+                    .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
                     .background((message.isError ? Color.red : Color.purple).opacity(0.12))
                     .clipShape(Circle())
-                    .padding(.top, 4)
+                    .padding(.top, CloudnsSpacing.xs)
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     Text(message.content)
                         .font(.body)
                         .foregroundStyle(message.isError ? .red : .primary)
                         .textSelection(.enabled)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, CloudnsSpacing.mdMedium)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
                     
                     if !message.isError {
-                        HStack(spacing: 12) {
+                        HStack(spacing: CloudnsSpacing.mdSmall) {
                             Button {
                                 UIPasteboard.general.string = message.content
                                 HapticManager.impact(.light)
                                 CloudnsToastManager.shared.showCopied("Response copied")
                             } label: {
-                                HStack(spacing: 4) {
+                                HStack(spacing: CloudnsSpacing.xs) {
                                     Image(systemName: "doc.on.doc")
                                     Text("Copy")
                                 }
@@ -253,7 +253,7 @@ struct WorkersAIPlaygroundSheetView: View {
                             
                             Spacer()
                         }
-                        .padding(.leading, 4)
+                        .padding(.leading, CloudnsSpacing.xs)
                     }
                 }
                 
@@ -265,23 +265,23 @@ struct WorkersAIPlaygroundSheetView: View {
     // MARK: - Typing Indicator
     
     private var typingIndicatorBubble: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.smMd) {
             Image(systemName: "sparkles")
                 .font(.caption)
                 .foregroundStyle(.purple)
-                .frame(width: 26, height: 26)
+                .frame(width: CloudnsSize.iconLarge, height: CloudnsSize.iconLarge)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(Circle())
             
-            HStack(spacing: 6) {
+            HStack(spacing: CloudnsSpacing.sm) {
                 ProgressView()
                     .scaleEffect(0.8)
                 Text("Inferencing on Cloudflare edge...")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, CloudnsSpacing.mdSmall)
+            .padding(.vertical, CloudnsSpacing.sm)
             .background(Color(UIColor.secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg, style: .continuous))
             
@@ -292,7 +292,7 @@ struct WorkersAIPlaygroundSheetView: View {
     // MARK: - Bottom Input Bar
     
     private var chatInputBar: some View {
-        HStack(alignment: .bottom, spacing: 10) {
+        HStack(alignment: .bottom, spacing: CloudnsSpacing.smMd) {
             TextField("Ask \(model.shortName)...", text: $viewModel.promptInput, axis: .vertical)
                 .keyboardType(.asciiCapable)
                 .textInputAutocapitalization(.never)
@@ -331,8 +331,8 @@ struct WorkersAIPlaygroundSheetView: View {
             }
             .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, CloudnsSpacing.mdMedium)
+        .padding(.vertical, CloudnsSpacing.smMd)
         .background(Color(UIColor.secondarySystemGroupedBackground))
     }
 }

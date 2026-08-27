@@ -9,7 +9,7 @@ struct CacheRuleCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
                     .font(.body)
@@ -24,7 +24,7 @@ struct CacheRuleCardView: View {
             Text(rule.expression)
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(6)
+                .padding(CloudnsSpacing.sm)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 .lineLimit(2)
@@ -33,6 +33,6 @@ struct CacheRuleCardView: View {
                 CloudnsBadge(cache ? .active("Eligible for cache") : .error("Bypass cache"), isCompact: true)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

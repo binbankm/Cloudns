@@ -21,9 +21,9 @@ struct BulkRedirectListsView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Lists"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -123,11 +123,11 @@ struct BulkRedirectListsView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func listRow(_ list: RedirectList) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: CloudnsSpacing.mdSmall) {
             Image(systemName: "arrow.triangle.swap")
                 .foregroundStyle(.indigo)
                 .font(.title3)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.indigo.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -153,6 +153,6 @@ struct BulkRedirectListsView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, CloudnsSpacing.xxs)
     }
 }

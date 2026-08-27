@@ -33,9 +33,9 @@ struct CachingView: View {
                         Text("Tag (Biz)").tag("tag")
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     TextField(purgePlaceholder, text: $purgeInputText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.URL)
@@ -85,26 +85,26 @@ struct CachingView: View {
                             Spacer()
                             if viewModel.isPurging {
                                 ProgressView()
-                                    .padding(.trailing, 4)
+                                    .padding(.trailing, CloudnsSpacing.xs)
                             }
                             Text("Purge by \(purgeType.capitalized)")
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.white)
                             Spacer()
                         }
-                        .padding(.vertical, 10)
+                        .padding(.vertical, CloudnsSpacing.smMd)
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
                         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                     }
                     .buttonStyle(.plain)
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
             
             // Danger Zone: Purge Cache
             Section(header: Text("Danger Zone")) {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
@@ -135,18 +135,18 @@ struct CachingView: View {
                         .padding()
                         .background(Color.red)
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.smMd))
+                        .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.mdLg))
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, CloudnsSpacing.xs)
             }
             .listRowBackground(CloudnsColor.secondaryGroupedBackground)
             
             // Cache Level
             Section(header: Text("Cache Level")) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Determine how much of your website's static content you want Cloudflare to cache.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -170,7 +170,7 @@ struct CachingView: View {
             
             // Browser Cache TTL
             Section(header: Text("Browser Cache TTL")) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Determine the length of time Cloudflare instructs a visitor's browser to cache files.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -199,7 +199,7 @@ struct CachingView: View {
             // Always Online
             Section(header: Text("Always Online™")) {
                 Toggle(isOn: $viewModel.alwaysOnline) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Always Online")
                             .font(.body)
                         Text("If your server goes down, Cloudflare will serve your website's static pages from our cache.")
@@ -220,7 +220,7 @@ struct CachingView: View {
             // Development Mode
             Section(header: Text("Development Mode")) {
                 Toggle(isOn: $viewModel.developmentMode) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                         Text("Development Mode")
                             .font(.body)
                         Text("Temporarily bypass our cache. Allows you to see changes to your origin server in realtime.")

@@ -168,7 +168,7 @@ struct PagesBindingsView: View {
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.vertical, CloudnsSpacing.sm)
         .background(CloudnsColor.groupedBackground)
         .onChange(of: selectedEnv) { _ in
             HapticManager.impact(.light)
@@ -220,7 +220,7 @@ struct PagesBindingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
             } else {
                 ForEach(Array(plainVariables.keys.sorted()), id: \.self) { key in
                     if let item = plainVariables[key] {
@@ -254,7 +254,7 @@ struct PagesBindingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, CloudnsSpacing.xxs)
             } else {
                 ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
                     if let item = secretVariables[key] {
@@ -356,7 +356,7 @@ struct PagesBindingsView: View {
             }
             
             if let flags = currentConfig?.compatibilityFlags, !flags.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CloudnsSpacing.xs) {
                     Text("Compatibility Flags")
                         .font(.caption)
                         .foregroundStyle(.secondary)

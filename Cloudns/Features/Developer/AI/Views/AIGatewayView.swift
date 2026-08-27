@@ -20,9 +20,9 @@ struct AIGatewayView: View {
                 text: $viewModel.searchText,
                 prompt: "Search Gateways"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
+            .padding(.horizontal, CloudnsSpacing.md)
+            .padding(.top, CloudnsSpacing.sm)
+            .padding(.bottom, CloudnsSpacing.xs)
             .background(CloudnsColor.groupedBackground)
             
             List {
@@ -131,11 +131,11 @@ struct AIGatewayView: View {
     @ViewBuilder
     // MARK: - Private Views
     private func gatewayRow(_ gw: AIGateway) -> some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: CloudnsSpacing.mdMedium) {
             Image(systemName: "brain.head.profile")
                 .font(.body)
                 .foregroundStyle(.pink)
-                .frame(width: 32, height: 32)
+                .frame(width: CloudnsSize.controlHeightSmall, height: CloudnsSize.controlHeightSmall)
                 .background(Color.pink.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.sm))
                 .accessibilityHidden(true)
@@ -145,7 +145,7 @@ struct AIGatewayView: View {
                     .font(.body.monospacedDigit())
                     .foregroundStyle(.primary)
 
-                HStack(spacing: 8) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     if gw.collectLogs == true {
                         CloudnsBadge(.active("Logs Active"), isCompact: true)
                     }
@@ -160,6 +160,6 @@ struct AIGatewayView: View {
 
             Spacer()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

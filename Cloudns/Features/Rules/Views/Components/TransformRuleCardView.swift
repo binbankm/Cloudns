@@ -9,7 +9,7 @@ struct TransformRuleCardView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.sm) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
                     .font(.body)
@@ -24,14 +24,14 @@ struct TransformRuleCardView: View {
             Text(rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(6)
+                .padding(CloudnsSpacing.sm)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.xs))
                 .lineLimit(2)
             
             if let uri = rule.action_parameters?.uri {
                 if let path = uri.path?.value {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "link")
                             .foregroundStyle(.blue)
                             .font(.caption2)
@@ -42,7 +42,7 @@ struct TransformRuleCardView: View {
                     }
                 }
                 if let query = uri.query?.value {
-                    HStack(spacing: 4) {
+                    HStack(spacing: CloudnsSpacing.xs) {
                         Image(systemName: "questionmark.circle")
                             .foregroundStyle(.indigo)
                             .font(.caption2)
@@ -57,7 +57,7 @@ struct TransformRuleCardView: View {
             if let headers = rule.action_parameters?.headers {
                 ForEach(Array(headers.keys), id: \.self) { headerKey in
                     if let item = headers[headerKey] {
-                        HStack(spacing: 4) {
+                        HStack(spacing: CloudnsSpacing.xs) {
                             Image(systemName: item.operation == "remove" ? "minus.circle.fill" : "plus.circle.fill")
                                 .foregroundStyle(item.operation == "remove" ? .red : .green)
                                 .font(.caption2)
@@ -70,6 +70,6 @@ struct TransformRuleCardView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, CloudnsSpacing.xs)
     }
 }

@@ -17,7 +17,7 @@ struct WorkerInvocationsChartView: View {
         let maxReq = dataPoints.map { $0.requests }.max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: CloudnsSpacing.smMd) {
             headerRow
             
             Chart {
@@ -105,7 +105,7 @@ struct WorkerInvocationsChartView: View {
                 chartInteractionOverlay(proxy: proxy)
             }
         }
-        .padding(16)
+        .padding(CloudnsSpacing.md)
         .background(CloudnsColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: CloudnsRadius.lg))
     }
@@ -114,7 +114,7 @@ struct WorkerInvocationsChartView: View {
     private var headerRow: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+                HStack(spacing: CloudnsSpacing.sm) {
                     Image(systemName: "chart.xyaxis.line")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(.purple)
@@ -123,7 +123,7 @@ struct WorkerInvocationsChartView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                HStack(alignment: .lastTextBaseline, spacing: CloudnsSpacing.sm) {
                     Text(formatNumber(selectedPoint?.requests ?? totalRequests))
                         .font(.system(.title, design: .rounded).weight(.bold))
                         .foregroundStyle(.primary)
@@ -143,7 +143,7 @@ struct WorkerInvocationsChartView: View {
             
             if let selected = selectedPoint {
                 let dateStr = formattedPointDate(selected)
-                HStack(spacing: 4) {
+                HStack(spacing: CloudnsSpacing.xs) {
                     Circle()
                         .fill(Color.purple)
                         .frame(width: 6, height: 6)
@@ -151,8 +151,8 @@ struct WorkerInvocationsChartView: View {
                         .font(.caption2.monospacedDigit().weight(.semibold))
                         .foregroundStyle(.primary)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, CloudnsSpacing.sm)
+                .padding(.vertical, CloudnsSpacing.xs)
                 .background(Color.purple.opacity(0.12))
                 .clipShape(Capsule())
             } else {
@@ -168,14 +168,14 @@ struct WorkerInvocationsChartView: View {
         ZStack {
             Circle()
                 .fill(Color.purple.opacity(0.25))
-                .frame(width: 16, height: 16)
+                .frame(width: CloudnsSize.iconSmall, height: CloudnsSize.iconSmall)
             Circle()
                 .fill(Color.white)
-                .frame(width: 8, height: 8)
+                .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
                 .shadow(color: Color.purple, radius: 4)
             Circle()
                 .stroke(Color.purple, lineWidth: 2)
-                .frame(width: 8, height: 8)
+                .frame(width: CloudnsSize.iconMini, height: CloudnsSize.iconMini)
         }
     }
     

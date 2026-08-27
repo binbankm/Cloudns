@@ -55,7 +55,7 @@ struct AddCronTriggerSheetView: View {
                                     .foregroundStyle(.secondary)
                                 if cronExpression == preset.expr {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentColor)
+                                        .foregroundStyle(.tint)
                                 }
                             }
                             .contentShape(Rectangle())

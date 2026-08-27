@@ -44,7 +44,7 @@ struct AddLoadBalancerView: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: 10) {
+                    HStack(spacing: CloudnsSpacing.smMd) {
                         Image(systemName: "info.circle.fill")
                             .font(.subheadline)
                             .foregroundStyle(.purple)
@@ -52,7 +52,7 @@ struct AddLoadBalancerView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, CloudnsSpacing.xxs)
                 }
                 
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
