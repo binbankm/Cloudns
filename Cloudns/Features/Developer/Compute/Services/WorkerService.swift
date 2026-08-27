@@ -37,7 +37,7 @@ final class WorkerService: WorkerServiceProtocol {
     
     private init() {}
     
-    // MARK: - Scripts CRUD API
+    // MARK: - Workers Script API
     func getWorkers(accountId: String) async throws -> [WorkerScript] {
         try await listWorkers(accountId: accountId)
     }
@@ -113,7 +113,7 @@ final class WorkerService: WorkerServiceProtocol {
         }
     }
     
-    // MARK: - Bindings API
+    // MARK: - Worker Bindings & Subdomain API
     func getWorkerBindings(accountId: String, scriptName: String) async throws -> [WorkerBinding] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/bindings")
         let (bindings, _): ([WorkerBinding]?, ResultInfo?) = try await client.performRequest(request)
@@ -128,7 +128,6 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Subdomain API
     func getWorkerSubdomain(accountId: String, scriptName: String) async throws -> WorkerSubdomain? {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/subdomain")
         let (sub, _): (WorkerSubdomain?, ResultInfo?) = try await client.performRequest(request)
@@ -143,7 +142,7 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Schedules & Triggers API
+    // MARK: - Worker Schedules & Secrets API
     func getWorkerSchedules(accountId: String, scriptName: String) async throws -> [WorkerSchedule] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/schedules")
         let (res, _): (WorkerSchedulesResult?, ResultInfo?) = try await client.performRequest(request)
@@ -158,7 +157,6 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Secrets API
     func getWorkerSecrets(accountId: String, scriptName: String) async throws -> [WorkerSecret] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/secrets")
         let (sec, _): ([WorkerSecret]?, ResultInfo?) = try await client.performRequest(request)
@@ -179,7 +177,7 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Custom Domains API
+    // MARK: - Worker Custom Domains API
     func getWorkerCustomDomains(accountId: String, scriptName: String) async throws -> [WorkerCustomDomain] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/domains/records")
         let (doms, _): ([WorkerCustomDomain]?, ResultInfo?) = try await client.performRequest(request)
@@ -200,7 +198,7 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Tail Sessions & Live Logs API
+    // MARK: - Worker Tail & Deployments API
     func createWorkerTailSession(accountId: String, scriptName: String) async throws -> WorkerTailSession {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/tails", method: "POST")
         let (session, _): (WorkerTailSession?, ResultInfo?) = try await client.performRequest(request)
@@ -214,7 +212,6 @@ final class WorkerService: WorkerServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Dispatch & Test API
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult {
         guard let url = URL(string: urlString) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
@@ -267,7 +264,6 @@ final class WorkerService: WorkerServiceProtocol {
         )
     }
     
-    // MARK: - Deployments & Rollbacks API
     func getWorkerDeployments(accountId: String, scriptName: String) async throws -> [WorkerDeployment] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/deployments")
         let rawData = try await client.performDataRequest(request)

@@ -2,13 +2,11 @@ import Foundation
 
 /// Cloudflare AI Gateway 与 Workers AI 模型推理领域服务抽象协议
 protocol AIServiceProtocol: Sendable {
-    // MARK: - AI Gateway API
-    (accountId: String) async throws -> [AIGateway]
+    func getAIGateways(accountId: String) async throws -> [AIGateway]
     func listAIGateways(accountId: String) async throws -> [AIGateway]
     func createAIGateway(accountId: String, id: String) async throws
     func deleteAIGateway(accountId: String, id: String) async throws
-    // MARK: - Workers AI Models & Inference API
-    (accountId: String) async throws -> [AIModel]
+    func getWorkersAIModels(accountId: String) async throws -> [AIModel]
     func listAIModels(accountId: String, search: String?) async throws -> [AIModel]
     func runAIChat(accountId: String, model: String, messages: [[String: String]]) async throws -> String
 }
@@ -16,13 +14,14 @@ protocol AIServiceProtocol: Sendable {
 /// 统一的 Cloudflare AI Gateway 与 Workers AI 模型推理领域服务
 final class AIService: AIServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = AIService()
+    static let shared = AIService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
     
+    // MARK: - AI Gateway API
     func getAIGateways(accountId: String) async throws -> [AIGateway] {
         try await listAIGateways(accountId: accountId)
     }
@@ -47,6 +46,7 @@ final class AIService: AIServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Workers AI API
     func getWorkersAIModels(accountId: String) async throws -> [AIModel] {
         try await listAIModels(accountId: accountId)
     }

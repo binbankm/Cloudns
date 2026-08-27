@@ -2,13 +2,11 @@ import Foundation
 
 /// Cloudflare KV 命名空间与键值对领域服务抽象协议
 protocol KVServiceProtocol: Sendable {
-    // MARK: - KV Namespaces CRUD API
-    (accountId: String) async throws -> [KVNamespace]
+    func getKVNamespaces(accountId: String) async throws -> [KVNamespace]
     func listKVNamespaces(accountId: String) async throws -> [KVNamespace]
     func createKVNamespace(accountId: String, title: String) async throws -> KVNamespace
     func deleteKVNamespace(accountId: String, namespaceId: String) async throws
-    // MARK: - KV Keys & Values API
-    (accountId: String, namespaceId: String) async throws -> [KVKey]
+    func getKVKeys(accountId: String, namespaceId: String) async throws -> [KVKey]
     func listKVKeys(accountId: String, namespaceId: String, prefix: String?, limit: Int) async throws -> [KVKey]
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int?) async throws
@@ -18,7 +16,7 @@ protocol KVServiceProtocol: Sendable {
 /// 统一的 Cloudflare KV 命名空间与键值对领域服务
 final class KVService: KVServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = KVService()
+    static let shared = KVService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
@@ -31,6 +29,7 @@ final class KVService: KVServiceProtocol {
     
     private init() {}
     
+    // MARK: - KV Namespaces & Keys API
     func getKVNamespaces(accountId: String) async throws -> [KVNamespace] {
         try await listKVNamespaces(accountId: accountId)
     }

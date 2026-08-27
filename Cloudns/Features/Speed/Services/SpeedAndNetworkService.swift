@@ -35,7 +35,7 @@ protocol SpeedAndNetworkServiceProtocol: Sendable {
 /// 统一的 Cloudflare 速度优化、网络协议与缓存管理领域服务
 final class SpeedAndNetworkService: SpeedAndNetworkServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = SpeedAndNetworkService()
+    static let shared = SpeedAndNetworkService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

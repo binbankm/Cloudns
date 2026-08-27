@@ -226,6 +226,6 @@ struct AnalyticsView: View {
     
     // MARK: - Helpers
     private func dateFromString(_ str: String) -> Date {
-        DateFormatterCache.shared.parse(str)
+        DateFormatters.parseChartDate(str)
     }
 }

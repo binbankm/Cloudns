@@ -2,8 +2,7 @@ import Foundation
 
 /// Cloudflare Snippets 边缘代码片段领域服务抽象协议
 protocol SnippetServiceProtocol: Sendable {
-    // MARK: - Cloudflare Snippets API
-    (zoneId: String) async throws -> [SnippetItem]
+    func getSnippets(zoneId: String) async throws -> [SnippetItem]
     func getSnippetRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [WAFRule])
     func deleteSnippet(zoneId: String, snippetName: String) async throws
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async throws
@@ -15,7 +14,7 @@ protocol SnippetServiceProtocol: Sendable {
 /// 统一的 Cloudflare Snippets 边缘代码片段领域服务
 final class SnippetService: SnippetServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = SnippetService()
+    static let shared = SnippetService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
@@ -23,6 +22,7 @@ final class SnippetService: SnippetServiceProtocol {
     
     private init() {}
     
+    // MARK: - Snippets API
     func getSnippets(zoneId: String) async throws -> [SnippetItem] {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets")
         let (snips, _): ([SnippetItem]?, ResultInfo?) = try await client.performRequest(request)

@@ -5,7 +5,7 @@ import MapKit
 
 struct AnalyticsCountryDistributionView: View {
     // MARK: - Properties
-    let mapDataPoints: [AnalyticsDataPoint]
+    let mapDataPoints: [CountryDataPoint]
     
     @State private var mapRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 30, longitude: 0),

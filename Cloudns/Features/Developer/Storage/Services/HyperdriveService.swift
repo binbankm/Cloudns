@@ -10,15 +10,15 @@ protocol HyperdriveServiceProtocol: Sendable {
 /// 统一的 Cloudflare Hyperdrive 领域服务
 final class HyperdriveService: HyperdriveServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = HyperdriveService()
+    static let shared = HyperdriveService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
     
-    // MARK: - Hyperdrive Configurations API
-    (accountId: String) async throws -> [HyperdriveConfig] {
+    // MARK: - Hyperdrive API
+    func getHyperdriveConfigs(accountId: String) async throws -> [HyperdriveConfig] {
         try await listHyperdriveConfigs(accountId: accountId)
     }
     

@@ -29,7 +29,7 @@ final class ZoneService: ZoneServiceProtocol {
     
     private init() {}
     
-    // MARK: - Zones Query API
+    // MARK: - Zones API
     /// 获取用户账号下的所有 Zone 列表
     func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
         var queryItems = [
@@ -67,7 +67,6 @@ final class ZoneService: ZoneServiceProtocol {
         return zone
     }
     
-    // MARK: - Zone Mutation & Operations API
     /// 创建新的 Zone
     func createZone(name: String, accountId: String, jumpStart: Bool = false) async throws -> Zone {
         let payload: [String: Any] = [

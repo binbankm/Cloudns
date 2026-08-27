@@ -29,7 +29,7 @@ final class PagesService: PagesServiceProtocol {
     
     private init() {}
     
-    // MARK: - Projects CRUD API
+    // MARK: - Pages Projects API
     func getPagesProjects(accountId: String) async throws -> [PagesProject] {
         try await listPagesProjects(accountId: accountId)
     }
@@ -88,14 +88,14 @@ final class PagesService: PagesServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Deployments API
+    // MARK: - Pages Deployments API
     func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments")
         let (deps, _): ([PagesDeployment]?, ResultInfo?) = try await client.performRequest(request)
         return deps ?? []
     }
     
-    // MARK: - Custom Domains API
+    // MARK: - Pages Domains API
     func getPagesDomains(accountId: String, projectName: String) async throws -> [PagesDomain] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains")
         let (doms, _): ([PagesDomain]?, ResultInfo?) = try await client.performRequest(request)
@@ -141,7 +141,7 @@ final class PagesService: PagesServiceProtocol {
         return logs?.data ?? []
     }
     
-    // MARK: - Environment Variables API
+    // MARK: - Environment & Bindings API
     func updatePagesEnvVars(accountId: String, projectName: String, environment: String, envVars: [String: PagesEnvVarValue]) async throws {
         var envVarsDict: [String: Any] = [:]
         for (k, v) in envVars {
@@ -162,7 +162,6 @@ final class PagesService: PagesServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - Resource Bindings API
     func updatePagesResourceBindings(
         accountId: String,
         projectName: String,

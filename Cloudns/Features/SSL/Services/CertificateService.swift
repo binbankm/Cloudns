@@ -31,7 +31,7 @@ protocol CertificateServiceProtocol: Sendable {
 /// 统一的 Cloudflare SSL / TLS 与边缘证书管理领域服务
 final class CertificateService: CertificateServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = CertificateService()
+    static let shared = CertificateService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

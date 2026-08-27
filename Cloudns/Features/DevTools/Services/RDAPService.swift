@@ -11,7 +11,7 @@ public actor RDAPService: RDAPServiceProtocol {
     public static let shared = RDAPService()
     private let session = URLSession.shared
     
-    // MARK: - RDAP & Whois Lookup API
+    // MARK: - RDAP Lookup API
     public func lookup(domain: String) async throws -> WhoisInfo {
         let cleanDomain = domain.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "https://", with: "")

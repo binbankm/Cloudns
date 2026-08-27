@@ -2,8 +2,7 @@ import Foundation
 
 /// Cloudflare 动态 URL 重定向规则领域服务抽象协议
 protocol RedirectRulesServiceProtocol: Sendable {
-    // MARK: - Dynamic Redirect Rules API
-    (zoneId: String) async throws -> [RedirectRuleItem]
+    func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem]
     func createRedirectRule(zoneId: String, description: String, expression: String, targetUrl: String, statusCode: Int, preserveQueryString: Bool) async throws
     func deleteRedirectRule(zoneId: String, ruleId: String) async throws
 }
@@ -11,7 +10,7 @@ protocol RedirectRulesServiceProtocol: Sendable {
 /// 统一的 Cloudflare 动态 URL 重定向规则领域服务
 final class RedirectRulesService: RedirectRulesServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = RedirectRulesService()
+    static let shared = RedirectRulesService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
@@ -19,6 +18,7 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
     
     private init() {}
     
+    // MARK: - Redirect Rules API
     func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect")
         guard let rules = rs?.rules else { return [] }

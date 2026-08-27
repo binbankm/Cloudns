@@ -39,7 +39,6 @@ final class DNSService: DNSServiceProtocol {
     
     private init() {}
     
-    // MARK: - DNS Records API
     /// 获取 DNS 记录列表
     func getDNSRecords(
         zoneId: String,
@@ -164,7 +163,7 @@ final class DNSService: DNSServiceProtocol {
         let (_, _): (ImportRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    // MARK: - DNSSEC Management API
+    // MARK: - DNSSEC API
     /// 获取 DNSSEC 详情
     func getDNSSEC(zoneId: String) async throws -> DNSSEC {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec")

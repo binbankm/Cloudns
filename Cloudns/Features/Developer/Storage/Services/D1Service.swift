@@ -2,25 +2,24 @@ import Foundation
 
 /// Cloudflare D1 SQL 数据库领域服务抽象协议
 protocol D1ServiceProtocol: Sendable {
-    // MARK: - D1 Databases CRUD API
-    (accountId: String) async throws -> [D1Database]
+    func getD1Databases(accountId: String) async throws -> [D1Database]
     func listD1Databases(accountId: String) async throws -> [D1Database]
     func createD1Database(accountId: String, name: String, primaryLocationHint: String?) async throws -> D1Database
     func deleteD1Database(accountId: String, databaseId: String) async throws
-    // MARK: - D1 Query Execution API
-    (accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
+    func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
 }
 
 /// 统一的 Cloudflare D1 SQL 数据库领域服务
 final class D1Service: D1ServiceProtocol {
     // MARK: - Lifecycle & Dependencies
-     = D1Service()
+    static let shared = D1Service()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
     
+    // MARK: - D1 Database API
     func getD1Databases(accountId: String) async throws -> [D1Database] {
         try await listD1Databases(accountId: accountId)
     }
