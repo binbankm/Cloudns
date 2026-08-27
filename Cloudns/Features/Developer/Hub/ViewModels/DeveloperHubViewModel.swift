@@ -13,6 +13,7 @@ struct DeveloperHubSnapshot: Codable, Sendable {
 
 @MainActor
 final class DeveloperHubViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     private let zoneService: ZoneServiceProtocol
     private let workerService: WorkerServiceProtocol
     private let pagesService: PagesServiceProtocol
@@ -21,6 +22,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
     private let d1Service: D1ServiceProtocol
     private let tunnelService: TunnelServiceProtocol
     
+    // MARK: - Published Properties
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
     
@@ -32,6 +34,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
     @Published var tunnels: [CFTunnel] = []
     private var cancellables = Set<AnyCancellable>()
     
+    // MARK: - Lifecycle / Init
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -64,6 +67,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
         tunnels.filter { $0.isHealthy }.count
     }
     
+    // MARK: - Public Methods
     func resetState() {
         self.accounts = []
         self.selectedAccount = nil

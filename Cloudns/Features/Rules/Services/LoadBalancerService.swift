@@ -2,7 +2,8 @@ import Foundation
 
 /// Cloudflare Load Balancing 负载均衡领域服务抽象协议
 protocol LoadBalancerServiceProtocol: Sendable {
-    func getLoadBalancers(zoneId: String) async throws -> [LoadBalancer]
+    // MARK: - Load Balancers & Pools API
+    (zoneId: String) async throws -> [LoadBalancer]
     func getLBPools(accountId: String) async throws -> [LBPool]
     func getLBMonitors(accountId: String) async throws -> [LBMonitor]
     func createLoadBalancer(zoneId: String, lb: LoadBalancerUpdate) async throws -> LoadBalancer
@@ -15,7 +16,8 @@ protocol LoadBalancerServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Load Balancing 负载均衡领域服务
 final class LoadBalancerService: LoadBalancerServiceProtocol {
-    static let shared = LoadBalancerService()
+    // MARK: - Lifecycle & Dependencies
+     = LoadBalancerService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

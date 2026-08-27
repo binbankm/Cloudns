@@ -10,14 +10,16 @@ protocol QueueServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Queues 消息队列领域服务
 final class QueueService: QueueServiceProtocol {
-    static let shared = QueueService()
+    // MARK: - Lifecycle & Dependencies
+     = QueueService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
     
-    func getQueues(accountId: String) async throws -> [CFQueue] {
+    // MARK: - Queues Management API
+    (accountId: String) async throws -> [CFQueue] {
         try await listQueues(accountId: accountId)
     }
     

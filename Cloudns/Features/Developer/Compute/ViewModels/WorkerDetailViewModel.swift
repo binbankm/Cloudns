@@ -4,7 +4,9 @@ import Combine
 
 @MainActor
 final class WorkerDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
+    // MARK: - Published Properties
     @Published var worker: WorkerScript
     private let workerService: WorkerServiceProtocol
     
@@ -18,6 +20,7 @@ final class WorkerDetailViewModel: BaseLoadableViewModel {
     @Published var isSubdomainUpdating = false
     @Published var isDeploying = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, worker: WorkerScript, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.worker = worker
@@ -25,6 +28,7 @@ final class WorkerDetailViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func selectModule(_ module: WorkerModuleItem) {
         self.selectedModule = module
     }

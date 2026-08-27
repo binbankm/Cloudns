@@ -4,15 +4,19 @@ import Combine
 
 @MainActor
 final class RedirectRulesViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var rules: [RedirectRuleItem] = []
     
+    // MARK: - Private Properties
     private let redirectService: RedirectRulesServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(redirectService: RedirectRulesServiceProtocol = RedirectRulesService.shared) {
         self.redirectService = redirectService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchRules(zoneId: String) async {
         await executeLoadingTask {
             self.rules = try await self.redirectService.getRedirectRules(zoneId: zoneId)

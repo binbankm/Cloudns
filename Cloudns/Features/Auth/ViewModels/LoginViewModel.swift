@@ -4,18 +4,22 @@ import Combine
 
 @MainActor
 final class LoginViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var email: String = ""
     @Published var apiKey: String = ""
     
     @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
     
+    // MARK: - Private Properties
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Lifecycle / Init
     public init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
         self.zoneService = zoneService
         super.init()
     }
     
+    // MARK: - Public Methods
     func login(onSuccess: (() -> Void)? = nil) async {
         errorMessage = nil
         

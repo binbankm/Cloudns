@@ -4,17 +4,21 @@ import Combine
 
 @MainActor
 final class SnippetsViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var snippets: [SnippetItem] = []
     @Published var rules: [WAFRule] = []
     @Published var rulesetId: String?
     
+    // MARK: - Private Properties
     private let snippetService: SnippetServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(snippetService: SnippetServiceProtocol = SnippetService.shared) {
         self.snippetService = snippetService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSnippets(zoneId: String) async {
         await executeLoadingTask {
             async let fetchList = self.snippetService.getSnippets(zoneId: zoneId)

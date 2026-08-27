@@ -4,14 +4,17 @@ import Combine
 
 @MainActor
 final class TunnelDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let tunnel: CFTunnel
     private let tunnelService: TunnelServiceProtocol
     
+    // MARK: - Published Properties
     @Published var ingressRules: [TunnelIngressRule] = []
     @Published var token: String?
     @Published var isDeleting = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, tunnel: CFTunnel, tunnelService: TunnelServiceProtocol = TunnelService.shared) {
         self.accountId = accountId
         self.tunnel = tunnel
@@ -19,6 +22,7 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchConfiguration() async {
         await executeLoadingTask {
             async let fetchConfig = self.tunnelService.getTunnelConfigurations(accountId: self.accountId, tunnelId: self.tunnel.id)

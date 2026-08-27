@@ -4,19 +4,23 @@ import Combine
 
 @MainActor
 final class AlertingViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let alertingService: AlertingServiceProtocol
     
+    // MARK: - Published Properties
     @Published var availableTypes: [AlertingAvailableType] = []
     @Published var policies: [AlertingPolicy] = []
     @Published var webhooks: [AlertingWebhookDestination] = []
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, alertingService: AlertingServiceProtocol = AlertingService.shared) {
         self.accountId = accountId
         self.alertingService = alertingService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchData() async {
         await executeLoadingTask {
             async let fetchTypes = (try? self.alertingService.listAvailableAlertTypes(accountId: self.accountId)) ?? []

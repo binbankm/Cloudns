@@ -2,13 +2,16 @@ import Foundation
 
 /// Cloudflare Durable Objects 领域服务抽象协议
 protocol DurableObjectServiceProtocol: Sendable {
-    func listDONamespaces(accountId: String) async throws -> [DurableObjectNamespace]
-    func listDOObjects(accountId: String, namespaceId: String, cursor: String?, limit: Int) async throws -> (items: [DurableObjectInstance], cursor: String?)
+    // MARK: - Durable Objects Namespaces API
+    (accountId: String) async throws -> [DurableObjectNamespace]
+    // MARK: - Durable Objects Instances API
+    (accountId: String, namespaceId: String, cursor: String?, limit: Int) async throws -> (items: [DurableObjectInstance], cursor: String?)
 }
 
 /// 统一的 Cloudflare Durable Objects 领域服务
 final class DurableObjectService: DurableObjectServiceProtocol {
-    static let shared = DurableObjectService()
+    // MARK: - Lifecycle & Dependencies
+     = DurableObjectService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

@@ -4,16 +4,20 @@ import Combine
 
 @MainActor
 class EdgeCertificatesViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var certificates: [EdgeCertificateModel] = []
     @Published var isUniversalSSLEnabled: Bool = true
     
+    // MARK: - Private Properties
     private let certService: CertificateServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(certService: CertificateServiceProtocol = CertificateService.shared) {
         self.certService = certService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchCertificates(zoneId: String) async {
         isLoading = true
         errorMessage = nil

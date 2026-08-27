@@ -4,13 +4,16 @@ import Combine
 
 @MainActor
 final class ScrapeShieldViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var emailObfuscation: String = "off"
     @Published var serverSideExcludes: String = "off"
     @Published var hotlinkProtection: String = "off"
     @Published var successMessage: String?
     
+    // MARK: - Private Properties
     private let securityService: SecuritySettingsServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
         self.securityService = securityService
         super.init()
@@ -32,6 +35,7 @@ final class ScrapeShieldViewModel: BaseLoadableViewModel {
         set { hotlinkProtection = newValue ? "on" : "off" }
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
             let res = try await self.securityService.getScrapeShieldSettings(zoneId: zoneId)

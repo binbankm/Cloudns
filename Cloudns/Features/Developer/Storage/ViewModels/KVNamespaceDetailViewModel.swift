@@ -4,15 +4,18 @@ import Combine
 
 @MainActor
 final class KVNamespaceDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let namespace: KVNamespace
     private let kvService: KVServiceProtocol
     
+    // MARK: - Published Properties
     @Published var keys: [KVKey] = []
     @Published var selectedKey: String?
     @Published var selectedKeyValue: String?
     @Published var isValueLoading = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, namespace: KVNamespace, kvService: KVServiceProtocol = KVService.shared) {
         self.accountId = accountId
         self.namespace = namespace
@@ -20,6 +23,7 @@ final class KVNamespaceDetailViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchKeys() async {
         await executeLoadingTask {
             self.keys = try await self.kvService.getKVKeys(accountId: self.accountId, namespaceId: self.namespace.id)

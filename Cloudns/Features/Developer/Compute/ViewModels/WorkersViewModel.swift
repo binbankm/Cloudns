@@ -4,15 +4,18 @@ import Combine
 
 @MainActor
 final class WorkersViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let workerService: WorkerServiceProtocol
     private let pagesService: PagesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var workers: [WorkerScript] = []
     @Published var pages: [PagesProject] = []
     @Published var selectedSegment = 0 // 0: Workers, 1: Pages
     @Published var searchText = ""
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -34,6 +37,7 @@ final class WorkersViewModel: BaseLoadableViewModel {
         return pages.filter { $0.name.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchData() async {
         await executeLoadingTask {
             async let fetchW = self.workerService.listWorkers(accountId: self.accountId)

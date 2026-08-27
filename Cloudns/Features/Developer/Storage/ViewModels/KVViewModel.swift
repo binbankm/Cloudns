@@ -4,10 +4,12 @@ import Combine
 
 @MainActor
 class KVViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let kvService: KVServiceProtocol
     private let d1Service: D1ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var namespaces: [KVNamespace] = []
     @Published var d1Databases: [D1Database] = []
     @Published var selectedSegment = 0 // 0: KV, 1: D1
@@ -17,6 +19,7 @@ class KVViewModel: BaseLoadableViewModel {
     @Published var selectedKeyValue: String?
     @Published var isValueLoading = false
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         kvService: KVServiceProtocol = KVService.shared,
@@ -28,6 +31,7 @@ class KVViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchData() async {
         await executeLoadingTask {
             async let fetchKV = self.kvService.listKVNamespaces(accountId: self.accountId)

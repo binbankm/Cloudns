@@ -2,16 +2,19 @@ import Foundation
 
 /// Cloudflare R2 对象存储领域服务抽象协议
 protocol R2ServiceProtocol: Sendable {
-    func getR2Buckets(accountId: String) async throws -> [R2Bucket]
+    // MARK: - R2 Buckets CRUD API
+    (accountId: String) async throws -> [R2Bucket]
     func listR2Buckets(accountId: String) async throws -> [R2Bucket]
     func createR2Bucket(accountId: String, name: String, locationHint: String?) async throws -> R2Bucket
     func deleteR2Bucket(accountId: String, bucketName: String) async throws
-    func getR2Objects(accountId: String, bucketName: String) async throws -> [R2Object]
+    // MARK: - R2 Objects Operations API
+    (accountId: String, bucketName: String) async throws -> [R2Object]
     func listR2Objects(accountId: String, bucketName: String, prefix: String?, cursor: String?) async throws -> (objects: [R2Object], cursor: String?, isTruncated: Bool)
     func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String) async throws
     func uploadR2ObjectFromFile(accountId: String, bucketName: String, objectKey: String, fileURL: URL, contentType: String) async throws
     func deleteR2Object(accountId: String, bucketName: String, objectKey: String) async throws
-    func getR2ManagedDomain(accountId: String, bucketName: String) async throws -> R2ManagedDomain
+    // MARK: - R2 Custom Domains & CORS API
+    (accountId: String, bucketName: String) async throws -> R2ManagedDomain
     func setR2ManagedDomain(accountId: String, bucketName: String, enabled: Bool) async throws
     func getR2CustomDomains(accountId: String, bucketName: String) async throws -> [R2CustomDomain]
     func deleteR2CustomDomain(accountId: String, bucketName: String, domain: String) async throws
@@ -22,7 +25,8 @@ protocol R2ServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare R2 对象存储领域服务
 final class R2Service: R2ServiceProtocol {
-    static let shared = R2Service()
+    // MARK: - Lifecycle & Dependencies
+     = R2Service()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

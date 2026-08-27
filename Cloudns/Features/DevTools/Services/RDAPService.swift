@@ -7,9 +7,11 @@ protocol RDAPServiceProtocol: Sendable {
 
 /// 统一的 RDAP / WHOIS 查询领域服务
 public actor RDAPService: RDAPServiceProtocol {
+    // MARK: - Lifecycle & Dependencies
     public static let shared = RDAPService()
     private let session = URLSession.shared
     
+    // MARK: - RDAP & Whois Lookup API
     public func lookup(domain: String) async throws -> WhoisInfo {
         let cleanDomain = domain.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "https://", with: "")

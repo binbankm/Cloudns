@@ -4,10 +4,12 @@ import Combine
 
 @MainActor
 final class D1ConsoleViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let database: D1Database
     private let d1Service: D1ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var tables: [String] = []
     @Published var sqlInput: String = "SELECT name, type FROM sqlite_master WHERE type='table';"
     @Published var queryResult: D1QueryResult?
@@ -20,6 +22,7 @@ final class D1ConsoleViewModel: BaseLoadableViewModel {
         ("Table Info", "PRAGMA table_list;")
     ]
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, database: D1Database, d1Service: D1ServiceProtocol = D1Service.shared) {
         self.accountId = accountId
         self.database = database
@@ -27,6 +30,7 @@ final class D1ConsoleViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchTables() async {
         isLoadingTables = true
         do {

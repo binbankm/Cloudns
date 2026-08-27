@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class BulkRedirectsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let bulkRedirectService: BulkRedirectServiceProtocol
     
+    // MARK: - Published Properties
     @Published var lists: [RedirectList] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, bulkRedirectService: BulkRedirectServiceProtocol = BulkRedirectService.shared) {
         self.accountId = accountId
         self.bulkRedirectService = bulkRedirectService
@@ -21,6 +24,7 @@ final class BulkRedirectsViewModel: BaseLoadableViewModel {
         return lists.filter { $0.name.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchLists() async {
         await executeLoadingTask {
             self.lists = try await self.bulkRedirectService.listRedirectLists(accountId: self.accountId)

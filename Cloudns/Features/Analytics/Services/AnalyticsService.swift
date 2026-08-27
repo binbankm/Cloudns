@@ -11,6 +11,7 @@ protocol AnalyticsServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Zone Analytics 分析领域服务
 final class AnalyticsService: AnalyticsServiceProtocol {
+    // MARK: - Lifecycle & Dependencies
     static let shared = AnalyticsService()
     
     private let client = HTTPNetworkClient.shared
@@ -18,6 +19,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
     
     private init() {}
     
+    // MARK: - Zone Sparklines GraphQL API
     /// 批量获取多个 Zone 的 24 小时流量走势微图点位（采用 GraphQL 别名聚合单次请求）
     func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {
         guard !zoneTags.isEmpty else { return [:] }
@@ -81,6 +83,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         return result
     }
     
+    // MARK: - Zone Dashboard Analytics GraphQL API
     /// 获取 Zone 基础 Analytics 数据（过去 24 小时或指定时间跨度）
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
         let query: String
@@ -172,6 +175,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         try await getDashboardAnalytics(zoneTag: zoneTag, days: days)
     }
     
+    // MARK: - Worker Analytics GraphQL API
     /// 获取 Worker 专属调用量与性能指标数据 (GraphQL workersInvocationsAdaptive)
     func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
         let pastDate: Date
@@ -263,6 +267,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
+    // MARK: - Pages Functions Analytics GraphQL API
     /// 获取 Pages Functions 专属调用量与性能指标数据 (GraphQL pagesFunctions / workersInvocations)
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
         // First try standard workersInvocationsAdaptive with scriptName

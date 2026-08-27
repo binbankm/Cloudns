@@ -4,9 +4,11 @@ import Combine
 
 @MainActor
 final class TransformRulesViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let zoneId: String
     private let wafService: WAFRulesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var selectedPhase: String = "http_request_transform" {
         didSet {
             Task { await fetchTransformRules() }
@@ -16,12 +18,14 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
+    // MARK: - Lifecycle / Init
     init(zoneId: String, wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
         self.zoneId = zoneId
         self.wafService = wafService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchTransformRules() async {
         await executeLoadingTask {
             let rs = try await self.wafService.fetchRulesetByPhase(zoneId: self.zoneId, phase: self.selectedPhase)
@@ -74,6 +78,7 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
         await performDelete(ruleId: ruleId)
     }
     
+    // MARK: - Private Methods
     private func performDelete(ruleId: String) async {
         guard let rs = ruleset else { return }
         do {

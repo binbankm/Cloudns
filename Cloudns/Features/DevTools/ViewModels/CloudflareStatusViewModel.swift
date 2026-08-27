@@ -4,15 +4,19 @@ import Combine
 
 @MainActor
 class CloudflareStatusViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var summary: CFStatusSummary?
     
+    // MARK: - Private Properties
     private let devToolsService: DevToolsServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
         self.devToolsService = devToolsService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchStatus() async {
         await executeLoadingTask {
             let res = try await self.devToolsService.fetchCloudflareStatus()

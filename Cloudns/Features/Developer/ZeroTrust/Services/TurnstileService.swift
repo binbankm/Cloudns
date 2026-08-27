@@ -2,7 +2,8 @@ import Foundation
 
 /// Cloudflare Turnstile 验证码领域服务抽象协议
 protocol TurnstileServiceProtocol: Sendable {
-    func getTurnstileWidgets(accountId: String) async throws -> [TurnstileWidget]
+    // MARK: - Turnstile Widgets API
+    (accountId: String) async throws -> [TurnstileWidget]
     func createTurnstileWidget(accountId: String, input: TurnstileCreateInput) async throws -> TurnstileWidget
     func updateTurnstileWidget(accountId: String, sitekey: String, input: TurnstileUpdateInput) async throws -> TurnstileWidget
     func deleteTurnstileWidget(accountId: String, sitekey: String) async throws
@@ -11,7 +12,8 @@ protocol TurnstileServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Turnstile 验证码领域服务
 final class TurnstileService: TurnstileServiceProtocol {
-    static let shared = TurnstileService()
+    // MARK: - Lifecycle & Dependencies
+     = TurnstileService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

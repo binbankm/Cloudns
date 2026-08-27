@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class TunnelsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let tunnelService: TunnelServiceProtocol
     
+    // MARK: - Published Properties
     @Published var tunnels: [CFTunnel] = []
     @Published var searchText = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, tunnelService: TunnelServiceProtocol = TunnelService.shared) {
         self.accountId = accountId
         self.tunnelService = tunnelService
@@ -21,6 +24,7 @@ final class TunnelsViewModel: BaseLoadableViewModel {
         return tunnels.filter { $0.name.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchTunnels() async {
         await executeLoadingTask {
             self.tunnels = try await self.tunnelService.getTunnels(accountId: self.accountId)

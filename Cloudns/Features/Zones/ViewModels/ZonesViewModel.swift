@@ -4,19 +4,23 @@ import Combine
 
 @MainActor
 final class ZonesViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var zones: [Zone] = []
     @Published var sparklines: [String: ZoneSparklineCache] = [:]
     @Published var canLoadMore: Bool = false
     @Published var totalCount: Int = 0
+    // MARK: - Private Properties
     private var currentPage: Int = 1
     
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
         self.zoneService = zoneService
         super.init()
     }
     
+    // MARK: - Public Methods
     func filteredZones(query: String) -> [Zone] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
@@ -165,6 +169,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
         isDeleting = false
     }
     
+    // MARK: - Private Methods
     private func syncFirstZoneToWidget(zones: [Zone]) {
         let topZoneId = RecentZonesManager.shared.recentZoneIds.first
         let targetZone = zones.first(where: { $0.id == topZoneId }) ?? zones.first

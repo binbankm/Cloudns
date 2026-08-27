@@ -21,6 +21,7 @@ protocol PagesServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Pages 项目与部署领域服务
 final class PagesService: PagesServiceProtocol {
+    // MARK: - Lifecycle & Dependencies
     static let shared = PagesService()
     
     private let client = HTTPNetworkClient.shared
@@ -28,6 +29,7 @@ final class PagesService: PagesServiceProtocol {
     
     private init() {}
     
+    // MARK: - Projects CRUD API
     func getPagesProjects(accountId: String) async throws -> [PagesProject] {
         try await listPagesProjects(accountId: accountId)
     }
@@ -86,12 +88,14 @@ final class PagesService: PagesServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Deployments API
     func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments")
         let (deps, _): ([PagesDeployment]?, ResultInfo?) = try await client.performRequest(request)
         return deps ?? []
     }
     
+    // MARK: - Custom Domains API
     func getPagesDomains(accountId: String, projectName: String) async throws -> [PagesDomain] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains")
         let (doms, _): ([PagesDomain]?, ResultInfo?) = try await client.performRequest(request)
@@ -112,6 +116,7 @@ final class PagesService: PagesServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Deployment Operations API
     func rollbackPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/rollback", method: "POST")
         struct Res: Codable { let id: String? }
@@ -136,6 +141,7 @@ final class PagesService: PagesServiceProtocol {
         return logs?.data ?? []
     }
     
+    // MARK: - Environment Variables API
     func updatePagesEnvVars(accountId: String, projectName: String, environment: String, envVars: [String: PagesEnvVarValue]) async throws {
         var envVarsDict: [String: Any] = [:]
         for (k, v) in envVars {
@@ -156,6 +162,7 @@ final class PagesService: PagesServiceProtocol {
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Resource Bindings API
     func updatePagesResourceBindings(
         accountId: String,
         projectName: String,

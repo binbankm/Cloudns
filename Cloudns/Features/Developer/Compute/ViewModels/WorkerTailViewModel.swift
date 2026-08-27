@@ -4,10 +4,12 @@ import Combine
 
 @MainActor
 final class WorkerTailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
     
+    // MARK: - Published Properties
     @Published var isStreaming = false
     @Published var events: [TailTraceItem] = []
     @Published var searchText = ""
@@ -18,6 +20,7 @@ final class WorkerTailViewModel: BaseLoadableViewModel {
     private var currentSessionId: String?
     private var isTaskCancelled = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
@@ -54,6 +57,7 @@ final class WorkerTailViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Public Methods
     func clearLogs() {
         self.events = []
     }
@@ -88,6 +92,7 @@ final class WorkerTailViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Methods
     private func startReceiveLoop(for task: URLSessionWebSocketTask) {
         receiveTask?.cancel()
         receiveTask = Task { [weak self] in

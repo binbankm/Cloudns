@@ -5,6 +5,7 @@ import Combine
 @MainActor
 final class SpeedSettingsViewModel: BaseLoadableViewModel {
     // Speed Settings
+    // MARK: - Published Properties
     @Published var brotli: Bool = false
     @Published var rocketLoader: Bool = false
     @Published var earlyHints: Bool = false
@@ -13,13 +14,16 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
     @Published var tieredCache: Bool = false
     @Published var polish: String = "off"
     
+    // MARK: - Private Properties
     private let speedService: SpeedAndNetworkServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(speedService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
         self.speedService = speedService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil

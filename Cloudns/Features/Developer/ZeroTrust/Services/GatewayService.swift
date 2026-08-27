@@ -9,14 +9,16 @@ protocol GatewayServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Gateway 网关规则领域服务
 final class GatewayService: GatewayServiceProtocol {
-    static let shared = GatewayService()
+    // MARK: - Lifecycle & Dependencies
+     = GatewayService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
     
-    func getGatewayRules(accountId: String) async throws -> [GatewayRule] {
+    // MARK: - Zero Trust Gateway Rules API
+    (accountId: String) async throws -> [GatewayRule] {
         try await listGatewayRules(accountId: accountId)
     }
     

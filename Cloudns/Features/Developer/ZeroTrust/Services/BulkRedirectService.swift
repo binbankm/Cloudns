@@ -12,7 +12,8 @@ protocol BulkRedirectServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare 批量重定向与批量操作领域服务
 final class BulkRedirectService: BulkRedirectServiceProtocol {
-    static let shared = BulkRedirectService()
+    // MARK: - Lifecycle & Dependencies
+     = BulkRedirectService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

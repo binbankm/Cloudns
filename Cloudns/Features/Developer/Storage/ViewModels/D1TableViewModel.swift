@@ -6,11 +6,13 @@ import Combine
 
 @MainActor
 final class D1TableViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let databaseId: String
     let tableName: String
     private let d1Service: D1ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var columns: [D1ColumnInfo] = []
     @Published var rows: [[String: String]] = []
     @Published var rowItems: [D1TableRow] = []
@@ -18,6 +20,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 50
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         databaseId: String,
@@ -31,6 +34,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Private Methods
     private func quoteIdentifier(_ id: String) -> String {
         let escaped = id.replacingOccurrences(of: "\"", with: "\"\"")
         return "\"\(escaped)\""
@@ -40,6 +44,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         max(1, Int(ceil(Double(totalRowCount) / Double(pageSize))))
     }
     
+    // MARK: - Public Methods
     func loadTable() async {
         await executeLoadingTask {
             let quotedTable = self.quoteIdentifier(self.tableName)

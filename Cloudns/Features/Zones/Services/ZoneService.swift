@@ -21,6 +21,7 @@ extension ZoneServiceProtocol {
 
 /// 统一的 Cloudflare Zone（域名）管理领域服务
 final class ZoneService: ZoneServiceProtocol {
+    // MARK: - Lifecycle & Dependencies
     static let shared = ZoneService()
     
     private let client = HTTPNetworkClient.shared
@@ -28,6 +29,7 @@ final class ZoneService: ZoneServiceProtocol {
     
     private init() {}
     
+    // MARK: - Zones Query API
     /// 获取用户账号下的所有 Zone 列表
     func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
         var queryItems = [
@@ -65,6 +67,7 @@ final class ZoneService: ZoneServiceProtocol {
         return zone
     }
     
+    // MARK: - Zone Mutation & Operations API
     /// 创建新的 Zone
     func createZone(name: String, accountId: String, jumpStart: Bool = false) async throws -> Zone {
         let payload: [String: Any] = [
@@ -102,6 +105,7 @@ final class ZoneService: ZoneServiceProtocol {
         try await updateZoneStatus(zoneId: zoneId, paused: paused)
     }
     
+    // MARK: - Cache Purge API
     /// 清除全站缓存 (Purge Everything)
     func purgeCache(zoneId: String) async throws {
         let payload = ["purge_everything": true]
@@ -111,6 +115,7 @@ final class ZoneService: ZoneServiceProtocol {
         let (_, _): (PurgeResult?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Audit Logs API
     /// 获取账户审计日志 (Audit Logs)
     func getAuditLogs(accountId: String) async throws -> [AuditLog] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/audit_logs")

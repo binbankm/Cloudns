@@ -4,6 +4,7 @@ import SwiftUI
 
 @MainActor
 final class DNSRecordsViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var records: [DNSRecord] = []
     @Published var totalCount: Int = 0
     
@@ -25,6 +26,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()
     private var searchTask: Task<Void, Never>?
     
@@ -37,6 +39,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
     private let zoneId: String
     private let dnsService: DNSServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(zoneId: String, dnsService: DNSServiceProtocol = DNSService.shared) {
         self.zoneId = zoneId
         self.dnsService = dnsService
@@ -55,6 +58,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             .store(in: &cancellables)
     }
     
+    // MARK: - Public Methods
     func fetchRecords(isRefresh: Bool = false) async {
         if isRefresh {
             currentPage = 1

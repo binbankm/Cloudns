@@ -4,16 +4,20 @@ import Combine
 
 @MainActor
 final class IPAccessRulesViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var rules: [IPAccessRule] = []
     @Published var isCreating: Bool = false
     
+    // MARK: - Private Properties
     private let securityService: SecuritySettingsServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
         self.securityService = securityService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchRules(zoneId: String) async {
         isLoading = true
         errorMessage = nil

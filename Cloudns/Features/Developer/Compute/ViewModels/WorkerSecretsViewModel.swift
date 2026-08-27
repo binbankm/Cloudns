@@ -4,16 +4,19 @@ import Combine
 
 @MainActor
 class WorkerSecretsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
     
+    // MARK: - Published Properties
     @Published var selectedTab: String = "variables" // "variables" | "secrets"
     @Published var plainVariables: [WorkerBinding] = []
     @Published var secrets: [WorkerSecret] = []
     @Published var allBindings: [WorkerBinding] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
@@ -35,6 +38,7 @@ class WorkerSecretsViewModel: BaseLoadableViewModel {
         allBindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
     }
     
+    // MARK: - Public Methods
     func fetchSecrets() async {
         await executeLoadingTask {
             async let fetchedSecrets = self.workerService.getWorkerSecrets(accountId: self.accountId, scriptName: self.scriptName)

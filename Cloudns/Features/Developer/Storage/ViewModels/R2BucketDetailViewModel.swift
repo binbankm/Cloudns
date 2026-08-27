@@ -4,13 +4,16 @@ import Combine
 
 @MainActor
 final class R2BucketDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let bucket: R2Bucket
     private let r2Service: R2ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var objects: [R2Object] = []
     @Published var searchText = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, bucket: R2Bucket, r2Service: R2ServiceProtocol = R2Service.shared) {
         self.accountId = accountId
         self.bucket = bucket
@@ -23,6 +26,7 @@ final class R2BucketDetailViewModel: BaseLoadableViewModel {
         return objects.filter { $0.key.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchObjects() async {
         await executeLoadingTask {
             self.objects = try await self.r2Service.getR2Objects(accountId: self.accountId, bucketName: self.bucket.name)

@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class TurnstileViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let turnstileService: TurnstileServiceProtocol
     
+    // MARK: - Published Properties
     @Published var widgets: [TurnstileWidget] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, turnstileService: TurnstileServiceProtocol = TurnstileService.shared) {
         self.accountId = accountId
         self.turnstileService = turnstileService
@@ -21,6 +24,7 @@ final class TurnstileViewModel: BaseLoadableViewModel {
         return widgets.filter { $0.name.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchWidgets() async {
         await executeLoadingTask {
             self.widgets = try await self.turnstileService.getTurnstileWidgets(accountId: self.accountId)

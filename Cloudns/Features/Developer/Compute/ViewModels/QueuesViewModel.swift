@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class QueuesViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let queueService: QueueServiceProtocol
     
+    // MARK: - Published Properties
     @Published var queues: [CFQueue] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, queueService: QueueServiceProtocol = QueueService.shared) {
         self.accountId = accountId
         self.queueService = queueService
@@ -21,6 +24,7 @@ final class QueuesViewModel: BaseLoadableViewModel {
         return queues.filter { $0.queueName.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchQueues() async {
         await executeLoadingTask {
             self.queues = try await self.queueService.listQueues(accountId: self.accountId)

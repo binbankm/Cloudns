@@ -28,11 +28,13 @@ nonisolated struct PagesAnalyticsSnapshot: Codable, Sendable {
 
 @MainActor
 final class PagesAnalyticsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let projectName: String
     private let analyticsService: AnalyticsServiceProtocol
     private let pagesService: PagesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var selectedDays: Int = 1
     @Published var loadedDays: Int = 1
     @Published var dataPoints: [AggregatedWorkerDataPoint] = []
@@ -54,6 +56,7 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         return (Double(totalErrors) / Double(totalRequests)) * 100.0
     }
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         projectName: String,
@@ -71,6 +74,7 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         "pages_analytics_\(accountId)_\(projectName)_\(selectedDays)"
     }
     
+    // MARK: - Public Methods
     public func fetchAnalytics(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
@@ -121,6 +125,7 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Methods
     private func fetchFunctionsMetrics() async {
         do {
             let items = try await self.analyticsService.getPagesAnalytics(

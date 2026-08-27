@@ -4,10 +4,12 @@ import Combine
 
 @MainActor
 final class EmailRoutingViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let zoneId: String
     private let emailService: EmailRoutingServiceProtocol
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Published Properties
     @Published var settings: EmailRoutingSettings?
     @Published var rules: [EmailRoutingRule] = []
     @Published var destinations: [EmailDestinationAddress] = []
@@ -18,6 +20,7 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         destinations.filter { $0.isVerified }
     }
     
+    // MARK: - Lifecycle / Init
     init(
         zoneId: String,
         emailService: EmailRoutingServiceProtocol = EmailRoutingService.shared,
@@ -29,6 +32,7 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchData() async {
         await executeLoadingTask {
             let zone = try await self.zoneService.getZoneDetails(zoneId: self.zoneId)

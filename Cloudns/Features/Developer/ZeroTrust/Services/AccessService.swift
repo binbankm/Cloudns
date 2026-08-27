@@ -10,7 +10,8 @@ protocol AccessServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Access 访问控制领域服务
 final class AccessService: AccessServiceProtocol {
-    static let shared = AccessService()
+    // MARK: - Lifecycle & Dependencies
+     = AccessService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

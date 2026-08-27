@@ -4,16 +4,20 @@ import Combine
 
 @MainActor
 class RateLimitingViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
+    // MARK: - Private Properties
     private let wafService: WAFRulesServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
         self.wafService = wafService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchRateLimitingRules(zoneId: String) async {
         await executeLoadingTask {
             if let rs = try await self.wafService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_ratelimit") {

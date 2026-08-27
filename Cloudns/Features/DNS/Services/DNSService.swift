@@ -31,6 +31,7 @@ extension DNSServiceProtocol {
 
 /// 统一的 Cloudflare DNS 与 DNSSEC 领域服务
 final class DNSService: DNSServiceProtocol {
+    // MARK: - Lifecycle & Dependencies
     static let shared = DNSService()
     
     private let client = HTTPNetworkClient.shared
@@ -38,6 +39,7 @@ final class DNSService: DNSServiceProtocol {
     
     private init() {}
     
+    // MARK: - DNS Records API
     /// 获取 DNS 记录列表
     func getDNSRecords(
         zoneId: String,
@@ -131,6 +133,7 @@ final class DNSService: DNSServiceProtocol {
         let (_, _): (BatchRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - Import & Export API
     /// 导出 BIND 格式的 DNS 记录
     func exportDNSRecords(zoneId: String) async throws -> URL {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/export", contentType: "text/plain")
@@ -161,6 +164,7 @@ final class DNSService: DNSServiceProtocol {
         let (_, _): (ImportRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
+    // MARK: - DNSSEC Management API
     /// 获取 DNSSEC 详情
     func getDNSSEC(zoneId: String) async throws -> DNSSEC {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec")

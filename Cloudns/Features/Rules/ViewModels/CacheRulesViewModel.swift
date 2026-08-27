@@ -4,18 +4,22 @@ import Combine
 
 @MainActor
 final class CacheRulesViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let zoneId: String
     private let wafService: WAFRulesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var ruleset: Ruleset?
     @Published var rules: [WAFRule] = []
     
+    // MARK: - Lifecycle / Init
     init(zoneId: String, wafService: WAFRulesServiceProtocol = WAFRulesService.shared) {
         self.zoneId = zoneId
         self.wafService = wafService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchCacheRules() async {
         await executeLoadingTask {
             let rs = try await self.wafService.fetchRulesetByPhase(zoneId: self.zoneId, phase: "http_request_cache_settings")
@@ -69,6 +73,7 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Methods
     private func performDelete(ruleId: String) async {
         guard let rs = ruleset else { return }
         

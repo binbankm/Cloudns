@@ -4,14 +4,17 @@ import Combine
 
 @MainActor
 final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let projectName: String
     let deployment: PagesDeployment
     private let pagesService: PagesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var logs: [PagesDeploymentLog] = []
     var isLoadingLogs: Bool { isLoading }
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         projectName: String,
@@ -25,6 +28,7 @@ final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchLogs() async {
         await executeLoadingTask {
             self.logs = try await self.pagesService.getPagesDeploymentLogs(accountId: self.accountId, projectName: self.projectName, deploymentId: self.deployment.id)

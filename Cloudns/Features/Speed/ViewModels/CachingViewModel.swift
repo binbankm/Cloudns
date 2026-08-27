@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 final class CachingViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var cacheLevel: String = "basic"
     @Published var browserCacheTTL: Int = 14400
     @Published var alwaysOnline: Bool = false
@@ -14,13 +15,16 @@ final class CachingViewModel: BaseLoadableViewModel {
     @Published var purgeSuccessMessage: String?
     @Published var purgeErrorMessage: String?
     
+    // MARK: - Private Properties
     private let cachingService: SpeedAndNetworkServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(cachingService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
         self.cachingService = cachingService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
             let res = try await self.cachingService.getCachingSettings(zoneId: zoneId)

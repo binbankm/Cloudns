@@ -54,7 +54,8 @@ extension WAFRulesServiceProtocol {
 
 /// 统一的 Cloudflare WAF 规则集、Transform Rules 与 Cache Rules 领域服务
 final class WAFRulesService: WAFRulesServiceProtocol {
-    static let shared = WAFRulesService()
+    // MARK: - Lifecycle & Dependencies
+     = WAFRulesService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

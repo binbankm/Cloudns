@@ -4,13 +4,16 @@ import Combine
 
 @MainActor
 final class GatewayRulesViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let gatewayService: GatewayServiceProtocol
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Published Properties
     @Published var rules: [GatewayRule] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         gatewayService: GatewayServiceProtocol = GatewayService.shared,
@@ -27,6 +30,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
         return rules.filter { $0.name.localizedStandardContains(searchText) || ($0.action).localizedStandardContains(searchText) }
     }
     
+    // MARK: - Private Methods
     private func resolveTargetAccountId() async -> String {
         if !accountId.isEmpty { return accountId }
         let accounts = try? await zoneService.getAccounts()
@@ -34,6 +38,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
         return accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
     }
     
+    // MARK: - Public Methods
     func fetchRules() async {
         await executeLoadingTask {
             let targetId = await self.resolveTargetAccountId()

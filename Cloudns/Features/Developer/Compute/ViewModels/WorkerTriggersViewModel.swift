@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class WorkerTriggersViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
     
+    // MARK: - Published Properties
     @Published var schedules: [WorkerSchedule] = []
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
@@ -17,6 +20,7 @@ final class WorkerTriggersViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSchedules() async {
         await executeLoadingTask {
             self.schedules = try await self.workerService.getWorkerSchedules(accountId: self.accountId, scriptName: self.scriptName)

@@ -4,13 +4,16 @@ import Combine
 
 @MainActor
 final class AccessAppsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let accessService: AccessServiceProtocol
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Published Properties
     @Published var apps: [AccessApp] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         accessService: AccessServiceProtocol = AccessService.shared,
@@ -27,6 +30,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         return apps.filter { $0.name.localizedStandardContains(searchText) || $0.domain.localizedStandardContains(searchText) }
     }
     
+    // MARK: - Private Methods
     private func resolveTargetAccountId() async -> String {
         if !accountId.isEmpty { return accountId }
         let accounts = try? await zoneService.getAccounts()
@@ -34,6 +38,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         return accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
     }
     
+    // MARK: - Public Methods
     func fetchApps() async {
         await executeLoadingTask {
             let targetId = await self.resolveTargetAccountId()

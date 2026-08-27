@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 final class SSLSettingsViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var sslMode: String = "off"
     @Published var alwaysUseHTTPS: Bool = false
     @Published var automaticHTTPSRewrites: Bool = false
@@ -19,13 +20,16 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     @Published var hstsNoSniff: Bool = false
     @Published var hstsPreload: Bool = false
     
+    // MARK: - Private Properties
     private let certService: CertificateServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(certService: CertificateServiceProtocol = CertificateService.shared) {
         self.certService = certService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
             let res = try await self.certService.getSSLSettings(zoneId: zoneId)

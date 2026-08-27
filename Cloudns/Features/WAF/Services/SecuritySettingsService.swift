@@ -21,7 +21,8 @@ protocol SecuritySettingsServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare 域名安全与防御领域服务
 final class SecuritySettingsService: SecuritySettingsServiceProtocol {
-    static let shared = SecuritySettingsService()
+    // MARK: - Lifecycle & Dependencies
+     = SecuritySettingsService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

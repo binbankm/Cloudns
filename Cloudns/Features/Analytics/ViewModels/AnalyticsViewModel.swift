@@ -10,17 +10,21 @@ nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
 
 @MainActor
 final class AnalyticsViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var dataPoints: [AnalyticsDataPoint] = []
     @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var loadedDays: Int = 30
     
+    // MARK: - Private Properties
     private let analyticsService: AnalyticsServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared) {
         self.analyticsService = analyticsService
         super.init()
     }
     
+    // MARK: - Public Methods
     func resetState() {
         self.dataPoints = []
         self.mapDataPoints = []
@@ -53,6 +57,7 @@ final class AnalyticsViewModel: BaseLoadableViewModel {
         ByteCountFormatters.format(Int64(bytes))
     }
     
+    // MARK: - Private Methods
     private func cacheKey(zoneTag: String, days: Int) -> String {
         "zone_analytics_\(zoneTag)_\(days)"
     }

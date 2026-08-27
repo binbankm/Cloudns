@@ -10,7 +10,8 @@ protocol AlertingServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Alerting 告警与通知策略领域服务
 final class AlertingService: AlertingServiceProtocol {
-    static let shared = AlertingService()
+    // MARK: - Lifecycle & Dependencies
+     = AlertingService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

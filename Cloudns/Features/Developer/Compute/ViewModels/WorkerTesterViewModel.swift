@@ -4,9 +4,11 @@ import Combine
 
 @MainActor
 final class WorkerTesterViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let scriptName: String
     private let workerService: WorkerServiceProtocol
     
+    // MARK: - Published Properties
     @Published var targetUrl: String = ""
     @Published var selectedMethod: String = "GET"
     @Published var requestBody: String = ""
@@ -19,6 +21,7 @@ final class WorkerTesterViewModel: BaseLoadableViewModel {
     
     let methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     
+    // MARK: - Lifecycle / Init
     init(scriptName: String, initialRoute: String? = nil, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.scriptName = scriptName
         self.workerService = workerService
@@ -30,6 +33,7 @@ final class WorkerTesterViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func executeDispatch() async {
         let trimmed = targetUrl.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

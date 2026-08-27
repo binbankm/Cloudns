@@ -4,17 +4,21 @@ import SwiftUI
 
 @MainActor
 final class DNSSECViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var dnssec: DNSSEC?
     
+    // MARK: - Private Properties
     private let zoneId: String
     private let dnsService: DNSServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(zoneId: String, dnsService: DNSServiceProtocol = DNSService.shared) {
         self.zoneId = zoneId
         self.dnsService = dnsService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchDNSSEC() async {
         guard !isLoading else { return }
         await executeLoadingTask {

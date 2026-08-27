@@ -4,15 +4,18 @@ import Combine
 
 @MainActor
 final class R2BucketSettingsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let bucketName: String
     private let r2Service: R2ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var managedDomain: R2ManagedDomain?
     @Published var customDomains: [R2CustomDomain] = []
     @Published var corsRules: [R2CORSRule] = []
     @Published var isManagedDomainEnabled: Bool = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, bucketName: String, r2Service: R2ServiceProtocol = R2Service.shared) {
         self.accountId = accountId
         self.bucketName = bucketName
@@ -20,6 +23,7 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings() async {
         await executeLoadingTask {
             async let fetchManaged = self.r2Service.getR2ManagedDomain(accountId: self.accountId, bucketName: self.bucketName)

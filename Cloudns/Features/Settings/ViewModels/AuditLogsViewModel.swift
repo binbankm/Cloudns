@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class AuditLogsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Published Properties
     @Published var logs: [AuditLog] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, zoneService: ZoneServiceProtocol = ZoneService.shared) {
         self.accountId = accountId
         self.zoneService = zoneService
@@ -34,6 +37,7 @@ final class AuditLogsViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Public Methods
     func fetchLogs() async {
         await executeLoadingTask {
             var targetAccountId = self.accountId

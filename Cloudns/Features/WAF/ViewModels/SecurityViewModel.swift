@@ -4,18 +4,22 @@ import Combine
 
 @MainActor
 final class SecurityViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var securityLevel: String = "medium"
     @Published var challengeTTL: Int = 1800
     @Published var browserCheck: Bool = true
     @Published var botFightMode: Bool = false
     
+    // MARK: - Private Properties
     private let securityService: SecuritySettingsServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
         self.securityService = securityService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
             let res = try await self.securityService.getSecuritySettings(zoneId: zoneId)

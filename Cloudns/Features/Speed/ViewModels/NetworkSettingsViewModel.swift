@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 final class NetworkSettingsViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var ipv6: Bool = false
     @Published var websockets: Bool = false
     @Published var http2: Bool = false
@@ -11,13 +12,16 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var ipGeolocation: Bool = false
     @Published var originMaxHttpVersion: String = "2"
     
+    // MARK: - Private Properties
     private let networkService: SpeedAndNetworkServiceProtocol
     
+    // MARK: - Lifecycle / Init
     init(networkService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
         self.networkService = networkService
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchSettings(zoneId: String) async {
         isLoading = true
         errorMessage = nil

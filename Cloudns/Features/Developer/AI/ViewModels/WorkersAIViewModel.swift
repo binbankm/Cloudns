@@ -18,9 +18,11 @@ public struct AIChatMessageItem: Identifiable, Equatable {
 
 @MainActor
 final class WorkersAIViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let aiService: AIServiceProtocol
     
+    // MARK: - Published Properties
     @Published var models: [AIModel] = []
     @Published var searchText: String = ""
     
@@ -29,6 +31,7 @@ final class WorkersAIViewModel: BaseLoadableViewModel {
     @Published var promptInput: String = ""
     @Published var isSendingMessage = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, aiService: AIServiceProtocol = AIService.shared) {
         self.accountId = accountId
         self.aiService = aiService
@@ -48,6 +51,7 @@ final class WorkersAIViewModel: BaseLoadableViewModel {
         Dictionary(grouping: filteredModels, by: { $0.taskName })
     }
     
+    // MARK: - Public Methods
     func fetchModels() async {
         await executeLoadingTask {
             self.models = try await self.aiService.getWorkersAIModels(accountId: self.accountId)

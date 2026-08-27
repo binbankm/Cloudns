@@ -4,14 +4,17 @@ import Combine
 
 @MainActor
 final class WorkerDeploymentsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
     
+    // MARK: - Published Properties
     @Published var deployments: [WorkerDeployment] = []
     @Published var searchText: String = ""
     @Published var isRollingBack: Bool = false
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
@@ -29,6 +32,7 @@ final class WorkerDeploymentsViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Public Methods
     func fetchDeployments() async {
         await executeLoadingTask {
             self.deployments = try await self.workerService.getWorkerDeployments(accountId: self.accountId, scriptName: self.scriptName)

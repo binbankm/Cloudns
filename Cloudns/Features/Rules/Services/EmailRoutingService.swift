@@ -2,7 +2,8 @@ import Foundation
 
 /// Cloudflare Email Routing 邮件路由领域服务抽象协议
 protocol EmailRoutingServiceProtocol: Sendable {
-    func getEmailRoutingSettings(zoneId: String) async throws -> EmailRoutingSettings?
+    // MARK: - Email Routing Settings & Rules API
+    (zoneId: String) async throws -> EmailRoutingSettings?
     func enableEmailRouting(zoneId: String) async throws -> EmailRoutingSettings?
     func disableEmailRouting(zoneId: String) async throws -> EmailRoutingSettings?
     func getEmailRoutingRules(zoneId: String) async throws -> [EmailRoutingRule]
@@ -17,7 +18,8 @@ protocol EmailRoutingServiceProtocol: Sendable {
 
 /// 统一的 Cloudflare Email Routing 邮件路由领域服务
 final class EmailRoutingService: EmailRoutingServiceProtocol {
-    static let shared = EmailRoutingService()
+    // MARK: - Lifecycle & Dependencies
+     = EmailRoutingService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

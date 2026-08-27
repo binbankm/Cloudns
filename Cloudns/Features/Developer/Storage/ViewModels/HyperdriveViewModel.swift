@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class HyperdriveViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let hyperdriveService: HyperdriveServiceProtocol
     
+    // MARK: - Published Properties
     @Published var configs: [HyperdriveConfig] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, hyperdriveService: HyperdriveServiceProtocol = HyperdriveService.shared) {
         self.accountId = accountId
         self.hyperdriveService = hyperdriveService
@@ -21,6 +24,7 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
         return configs.filter { $0.name.localizedStandardContains(searchText) || ($0.origin?.host ?? "").localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchConfigs() async {
         await executeLoadingTask {
             self.configs = try await self.hyperdriveService.listHyperdriveConfigs(accountId: self.accountId)

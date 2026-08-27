@@ -4,16 +4,19 @@ import Combine
 
 @MainActor
 final class LoadBalancerViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let zoneId: String
     private let lbService: LoadBalancerServiceProtocol
     private let zoneService: ZoneServiceProtocol
     
+    // MARK: - Published Properties
     @Published var loadBalancers: [LoadBalancer] = []
     @Published var pools: [LBPool] = []
     @Published var monitors: [LBMonitor] = []
     
     private var cachedAccountId: String?
     
+    // MARK: - Lifecycle / Init
     init(
         zoneId: String,
         lbService: LoadBalancerServiceProtocol = LoadBalancerService.shared,
@@ -25,6 +28,7 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Private Methods
     private func resolveAccountId() async throws -> String {
         if let aid = cachedAccountId, !aid.isEmpty {
             return aid
@@ -35,6 +39,7 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         return aid
     }
     
+    // MARK: - Public Methods
     func fetchData() async {
         await executeLoadingTask {
             let accountId = try await self.resolveAccountId()

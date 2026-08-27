@@ -4,12 +4,15 @@ import Combine
 
 @MainActor
 final class AIGatewaysViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     private let aiService: AIServiceProtocol
     
+    // MARK: - Published Properties
     @Published var gateways: [AIGateway] = []
     @Published var searchText: String = ""
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, aiService: AIServiceProtocol = AIService.shared) {
         self.accountId = accountId
         self.aiService = aiService
@@ -21,6 +24,7 @@ final class AIGatewaysViewModel: BaseLoadableViewModel {
         return gateways.filter { ($0.name ?? $0.id).localizedStandardContains(searchText) }
     }
     
+    // MARK: - Public Methods
     func fetchGateways() async {
         await executeLoadingTask {
             self.gateways = try await self.aiService.listAIGateways(accountId: self.accountId)

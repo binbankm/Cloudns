@@ -14,6 +14,7 @@ nonisolated struct DashboardSnapshot: Codable, Sendable {
 
 @MainActor
 final class DashboardViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     private let zoneService: ZoneServiceProtocol
     private let workerService: WorkerServiceProtocol
     private let pagesService: PagesServiceProtocol
@@ -22,6 +23,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
     private let r2Service: R2ServiceProtocol
     private let d1Service: D1ServiceProtocol
     
+    // MARK: - Published Properties
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
     
@@ -40,6 +42,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
     
     private var cancellables = Set<AnyCancellable>()
     
+    // MARK: - Lifecycle / Init
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -110,6 +113,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             .store(in: &cancellables)
     }
     
+    // MARK: - Public Methods
     public func refreshRecentZones() {
         self.recentZones = RecentZonesManager.shared.getRecentZones(from: self.zones, limit: 3)
         self.fetchRecentSparklines()
@@ -227,6 +231,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Methods
     /// 获取近期活跃域名的 24h 流量 Sparkline 数据
     private func fetchRecentSparklines() {
         let activeRecentIds = recentZones.filter { $0.status.lowercased() == "active" }.map { $0.id }

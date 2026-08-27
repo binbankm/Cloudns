@@ -4,13 +4,16 @@ import Combine
 
 @MainActor
 final class PagesProjectDetailViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let project: PagesProject
     private let pagesService: PagesServiceProtocol
     
+    // MARK: - Published Properties
     @Published var deployments: [PagesDeployment] = []
     @Published var domains: [PagesDomain] = []
     
+    // MARK: - Lifecycle / Init
     init(accountId: String, project: PagesProject, pagesService: PagesServiceProtocol = PagesService.shared) {
         self.accountId = accountId
         self.project = project
@@ -18,6 +21,7 @@ final class PagesProjectDetailViewModel: BaseLoadableViewModel {
         super.init()
     }
     
+    // MARK: - Public Methods
     func fetchProjectDetails() async {
         await executeLoadingTask {
             async let fetchDeps = self.pagesService.getPagesDeployments(accountId: self.accountId, projectName: self.project.name)

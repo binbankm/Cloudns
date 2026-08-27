@@ -31,7 +31,8 @@ extension DevToolsServiceProtocol {
 }
 
 final class DevToolsService: DevToolsServiceProtocol {
-    static let shared = DevToolsService()
+    // MARK: - Lifecycle & Dependencies
+     = DevToolsService()
     
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared

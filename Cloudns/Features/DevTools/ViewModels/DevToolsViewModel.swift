@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 final class DevToolsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     private let devToolsService: DevToolsServiceProtocol
     
     // MARK: - DNS Dig & Benchmark
@@ -47,6 +48,7 @@ final class DevToolsViewModel: BaseLoadableViewModel {
     @Published var subnetResult: SubnetCalculationResult?
     @Published var subnetError: String?
     
+    // MARK: - Lifecycle / Init
     init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
         self.devToolsService = devToolsService
         super.init()

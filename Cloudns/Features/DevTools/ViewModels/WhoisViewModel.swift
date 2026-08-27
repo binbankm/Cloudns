@@ -4,9 +4,11 @@ import Combine
 
 @MainActor
 final class WhoisViewModel: BaseLoadableViewModel {
+    // MARK: - Published Properties
     @Published var domainInput = ""
     @Published var info: WhoisInfo?
     
+    // MARK: - Public Methods
     func performLookup() async {
         let trimmed = domainInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

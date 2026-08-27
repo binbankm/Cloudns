@@ -4,11 +4,14 @@ import Combine
 
 @MainActor
 final class CFTraceViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     private let devToolsService: DevToolsServiceProtocol
     
+    // MARK: - Published Properties
     @Published var host: String = "www.cloudflare.com"
     @Published var traceFields: [HTTPHeaderItem] = []
     
+    // MARK: - Lifecycle / Init
     init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
         self.devToolsService = devToolsService
         super.init()
@@ -30,6 +33,7 @@ final class CFTraceViewModel: BaseLoadableViewModel {
         traceFields.first(where: { $0.key == "warp" })?.value
     }
     
+    // MARK: - Public Methods
     func queryTrace() async {
         await executeLoadingTask {
             self.traceFields = try await self.devToolsService.getCFTrace(host: self.host)

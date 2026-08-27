@@ -25,10 +25,12 @@ nonisolated struct WorkerAnalyticsSnapshot: Codable, Sendable {
 
 @MainActor
 final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
+    // MARK: - Private Properties
     let accountId: String
     let scriptName: String
     private let analyticsService: AnalyticsServiceProtocol
     
+    // MARK: - Published Properties
     @Published var selectedDays: Int = 1
     @Published var loadedDays: Int = 1
     @Published var dataPoints: [AggregatedWorkerDataPoint] = []
@@ -43,6 +45,7 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         return (Double(totalErrors) / Double(totalRequests)) * 100.0
     }
     
+    // MARK: - Lifecycle / Init
     init(
         accountId: String,
         scriptName: String,
@@ -58,6 +61,7 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         "worker_analytics_\(accountId)_\(scriptName)_\(selectedDays)"
     }
     
+    // MARK: - Public Methods
     public func fetchAnalytics(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
@@ -99,6 +103,7 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
         }
     }
     
+    // MARK: - Private Methods
     private func processAnalytics(_ items: [WorkerAnalyticsItem]) {
         var pointsMap: [String: (requests: Int, errors: Int, subrequests: Int, cpu50: [Double], cpu99: [Double])] = [:]
         
