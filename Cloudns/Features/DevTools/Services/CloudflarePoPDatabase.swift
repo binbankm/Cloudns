@@ -50,6 +50,14 @@ public final class CloudflarePoPDatabase: Sendable {
         return pops[code]
     }
     
+    public static func info(for code: String?) -> CloudflarePoPInfo? {
+        shared.getPoP(code: code)
+    }
+    
+    public static func city(for code: String?) -> CloudflarePoPInfo? {
+        shared.getPoP(code: code)
+    }
+    
     private static func loadAsiaPops() -> [(String, String, String, String, String, String)] {
         [
             ("HKG", "Hong Kong", "Hong Kong", "🇭🇰", "Asia Pacific", "Hong Kong International Airport"),

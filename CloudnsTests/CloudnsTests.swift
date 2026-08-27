@@ -529,7 +529,7 @@ struct DeepLinkRouterTests {
     @Test("DeepLink routing for Zone")
     @MainActor
     func testZoneDeepLink() {
-        var tab = 0
+        var tab: AppTab = .dashboard
         let url = URL(string: "cloudns://zone/zone_abc_123")!
         let binding = Binding(get: { tab }, set: { tab = $0 })
         
@@ -537,28 +537,248 @@ struct DeepLinkRouterTests {
         #expect(DeepLinkRouter.shared.activeDestination == .zone(id: "zone_abc_123"))
     }
     
-    @Test("DeepLink routing for Developer tab")
+    @Test("DeepLink routing for Developer tab and Workers/Pages")
     @MainActor
     func testDeveloperDeepLink() {
-        var tab = 0
-        let url = URL(string: "cloudns://developer/workers")!
+        var tab: AppTab = .dashboard
         let binding = Binding(get: { tab }, set: { tab = $0 })
         
-        DeepLinkRouter.shared.handle(url: url, currentTab: binding)
-        #expect(tab == 2)
+        // Developer hub
+        let urlDev = URL(string: "cloudns://developer")!
+        DeepLinkRouter.shared.handle(url: urlDev, currentTab: binding)
+        #expect(tab == .developer)
+        
+        // Worker detail
+        let urlWorker = URL(string: "cloudns://worker/auth-api-worker")!
+        DeepLinkRouter.shared.handle(url: urlWorker, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .worker(id: "auth-api-worker"))
+        
+        // Pages project detail
+        let urlPages = URL(string: "cloudns://pages/my-web-frontend")!
+        DeepLinkRouter.shared.handle(url: urlPages, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .pages(id: "my-web-frontend"))
     }
     
-    @Test("DeepLink routing for Diagnostic Tools")
+    @Test("DeepLink routing for Diagnostic Tools & DevTools Hub")
     @MainActor
     func testToolsDeepLink() {
-        var tab = 0
-        let url = URL(string: "cloudns://tools/dig")!
+        var tab: AppTab = .dashboard
         let binding = Binding(get: { tab }, set: { tab = $0 })
         
-        DeepLinkRouter.shared.handle(url: url, currentTab: binding)
+        // Dig
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://tools/dig")!, currentTab: binding)
         #expect(DeepLinkRouter.shared.activeDestination == .dig)
+        
+        // Trace
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://tools/trace")!, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .trace)
+        
+        // Status
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://tools/status")!, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .status)
+        
+        // IP Ranges
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://tools/ipranges")!, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == .ipranges)
+        
+        // DevTools tab fallback
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://devtools")!, currentTab: binding)
+        #expect(tab == .devtools)
+    }
+    
+    @Test("DeepLink invalid schemes and placeholder fallback defense")
+    @MainActor
+    func testDeepLinkDefense() {
+        var tab: AppTab = .dashboard
+        let binding = Binding(get: { tab }, set: { tab = $0 })
+        
+        // Non-cloudns scheme ignored
+        DeepLinkRouter.shared.activeDestination = nil
+        DeepLinkRouter.shared.handle(url: URL(string: "https://tools/dig")!, currentTab: binding)
+        #expect(DeepLinkRouter.shared.activeDestination == nil)
+        
+        // Placeholder zone id redirects to domains tab without invalid destination
+        DeepLinkRouter.shared.handle(url: URL(string: "cloudns://zone/placeholder")!, currentTab: binding)
+        #expect(tab == .domains)
     }
 }
+
+// MARK: - 11.1 AuthenticatedRequestFactory Tests
+
+@Suite("AuthenticatedRequestFactory Tests")
+struct AuthenticatedRequestFactoryTests {
+    
+    @Test("Explicit authenticated request builds valid URL and headers")
+    func testExplicitAuthenticatedRequest() throws {
+        let factory = AuthenticatedRequestFactory.shared
+        let email = "engineer@example.com"
+        let apiKey = "cf_global_api_key_test_12345"
+        
+        let request = try factory.createExplicitAuthenticatedRequest(
+            email: email,
+            apiKey: apiKey,
+            path: "/zones",
+            queryItems: [URLQueryItem(name: "page", value: "1"), URLQueryItem(name: "per_page", value: "20")],
+            method: "GET"
+        )
+        
+        #expect(request.url?.scheme == "https")
+        #expect(request.url?.host == "api.cloudflare.com")
+        #expect(request.url?.path == "/client/v4/zones")
+        #expect(request.url?.query?.contains("page=1") == true)
+        #expect(request.url?.query?.contains("per_page=20") == true)
+        #expect(request.httpMethod == "GET")
+        #expect(request.value(forHTTPHeaderField: "X-Auth-Email") == email)
+        #expect(request.value(forHTTPHeaderField: "X-Auth-Key") == apiKey)
+        #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
+        #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+    }
+    
+    @Test("Explicit request with custom body and POST method")
+    func testExplicitRequestWithBody() throws {
+        let factory = AuthenticatedRequestFactory.shared
+        let payload = "{\"name\":\"test.com\"}".data(using: .utf8)!
+        
+        let request = try factory.createExplicitAuthenticatedRequest(
+            email: "user@example.com",
+            apiKey: "secret_key",
+            path: "/zones",
+            method: "POST",
+            body: payload,
+            contentType: "application/json"
+        )
+        
+        #expect(request.httpMethod == "POST")
+        #expect(request.httpBody == payload)
+    }
+    
+    @Test("Explicit request empty email or API key throws unauthorized")
+    func testEmptyCredentialsThrows() {
+        let factory = AuthenticatedRequestFactory.shared
+        
+        #expect(throws: APIError.self) {
+            _ = try factory.createExplicitAuthenticatedRequest(
+                email: "",
+                apiKey: "valid_key",
+                path: "/zones"
+            )
+        }
+        
+        #expect(throws: APIError.self) {
+            _ = try factory.createExplicitAuthenticatedRequest(
+                email: "valid@example.com",
+                apiKey: "",
+                path: "/zones"
+            )
+        }
+    }
+}
+
+// MARK: - 11.2 DevToolsService & Diagnostics Tests
+
+@Suite("DevToolsService & Diagnostics Tests")
+struct DevToolsServiceTests {
+    
+    @Test("Subnet calculation for IPv4 CIDR /24")
+    func testSubnetCalculationIPv4() {
+        let service = DevToolsService.shared
+        let result = service.calculateSubnet(cidr: "192.168.1.0/24")
+        
+        #expect(result != nil)
+        #expect(result?.isIPv6 == false)
+        #expect(result?.prefixLength == 24)
+        #expect(result?.netmask == "255.255.255.0")
+        #expect(result?.networkAddress == "192.168.1.0")
+        #expect(result?.broadcastAddress == "192.168.1.255")
+        #expect(result?.totalUsableHosts == "254")
+    }
+    
+    @Test("Subnet calculation for IPv4 single host /32")
+    func testSubnetCalculationSingleHost() {
+        let service = DevToolsService.shared
+        let result = service.calculateSubnet(cidr: "1.1.1.1")
+        
+        #expect(result != nil)
+        #expect(result?.prefixLength == 32)
+        #expect(result?.netmask == "255.255.255.255")
+        #expect(result?.totalUsableHosts == "1")
+    }
+    
+    @Test("Subnet calculation for IPv6 CIDR /64")
+    func testSubnetCalculationIPv6() {
+        let service = DevToolsService.shared
+        let result = service.calculateSubnet(cidr: "2606:4700:4700::1111/64")
+        
+        #expect(result != nil)
+        #expect(result?.isIPv6 == true)
+        #expect(result?.prefixLength == 64)
+    }
+    
+    @Test("Cloudflare PoP Airport database resolution")
+    func testPoPDatabaseResolution() {
+        let sjc = CloudflarePoPDatabase.city(for: "SJC")
+        #expect(sjc != nil)
+        #expect(sjc?.city.contains("San Jose") == true)
+        #expect(sjc?.country == "US")
+        
+        let hkg = CloudflarePoPDatabase.city(for: "HKG")
+        #expect(hkg != nil)
+        #expect(hkg?.city.contains("Hong Kong") == true)
+        #expect(hkg?.country == "HK")
+        
+        let nrt = CloudflarePoPDatabase.city(for: "NRT")
+        #expect(nrt != nil)
+        #expect(nrt?.city.contains("Tokyo") == true)
+        #expect(nrt?.country == "JP")
+        
+        let unknown = CloudflarePoPDatabase.city(for: "ZZZ_NON_EXISTENT")
+        #expect(unknown == nil)
+    }
+}
+
+// MARK: - 11.3 DevToolsHistoryManager Tests
+
+@Suite("DevToolsHistoryManager Tests")
+struct DevToolsHistoryManagerTests {
+    
+    @Test("Query history recording and automatic deduplication")
+    @MainActor
+    func testHistoryRecordingAndDeduplication() {
+        let suiteName = "unit_test_history_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let manager = DevToolsHistoryManager(userDefaults: defaults)
+        
+        manager.recordQuery("example.com", for: .dnsDig)
+        manager.recordQuery("google.com", for: .dnsDig)
+        manager.recordQuery("example.com", for: .dnsDig)
+        
+        let dnsHistory = manager.history(for: .dnsDig)
+        #expect(dnsHistory.count == 2)
+        #expect(dnsHistory.first == "example.com")
+        #expect(dnsHistory.last == "google.com")
+        
+        // Clear
+        manager.clearHistory(for: .dnsDig)
+        #expect(manager.history(for: .dnsDig).isEmpty)
+    }
+    
+    @Test("Query history max capacity limit")
+    @MainActor
+    func testHistoryCapacityLimit() {
+        let suiteName = "unit_test_history_cap_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let manager = DevToolsHistoryManager(userDefaults: defaults)
+        
+        for i in 1...15 {
+            manager.recordQuery("query_\(i).com", for: .whois)
+        }
+        
+        let whoisList = manager.history(for: .whois)
+        #expect(whoisList.count == 8)
+        #expect(whoisList.first == "query_15.com")
+    }
+}
+
 
 // MARK: - 12. Widget Snapshot Formatting Tests
 
