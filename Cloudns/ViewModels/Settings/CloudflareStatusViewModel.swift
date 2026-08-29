@@ -3,20 +3,21 @@ import SwiftUI
 import Combine
 
 @MainActor
-class CloudflareStatusViewModel: BaseLoadableViewModel {
+final class CloudflareStatusViewModel: BaseLoadableViewModel {
     @Published var summary: CFStatusSummary?
     
-    private let devToolsService: DevToolsServiceProtocol
+    private let statusService: CloudflareStatusServiceProtocol
     
-    init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
-        self.devToolsService = devToolsService
+    init(statusService: CloudflareStatusServiceProtocol = CloudflareStatusService.shared) {
+        self.statusService = statusService
         super.init()
     }
     
     func fetchStatus() async {
         await executeLoadingTask {
-            let res = try await self.devToolsService.fetchCloudflareStatus()
+            let res = try await self.statusService.fetchCloudflareStatus()
             self.summary = res
+            self.hasFetchedData = true
             let snap = CFStatusWidgetSnapshot(
                 indicator: res.status?.indicator ?? "none",
                 description: res.status?.description ?? "All Systems Operational",

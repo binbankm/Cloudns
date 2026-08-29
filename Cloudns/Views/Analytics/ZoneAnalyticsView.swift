@@ -8,7 +8,7 @@ struct ZoneAnalyticsView: View {
     let zoneId: String
     let zoneName: String
     
-    @StateObject private var viewModel = AnalyticsViewModel()
+    @StateObject private var viewModel = ZoneAnalyticsViewModel()
     @State private var timeRange: Int = 1
     
     // Interactive Scrubbing States

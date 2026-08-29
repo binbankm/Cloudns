@@ -2,16 +2,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-nonisolated struct DashboardSnapshot: Codable, Sendable {
-    let zones: [Zone]
-    let workers: [WorkerScript]
-    let pages: [PagesProject]
-    let tunnels: [CFTunnel]
-    let kvCount: Int
-    let r2Count: Int
-    let d1Count: Int
-}
-
 @MainActor
 final class DashboardViewModel: BaseLoadableViewModel {
     private let zoneService: ZoneServiceProtocol
@@ -21,6 +11,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
     private let kvService: KVServiceProtocol
     private let r2Service: R2ServiceProtocol
     private let d1Service: D1ServiceProtocol
+    private let dashboardService: DashboardServiceProtocol
     
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
@@ -70,7 +61,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
         tunnelService: TunnelServiceProtocol = TunnelService.shared,
         kvService: KVServiceProtocol = KVService.shared,
         r2Service: R2ServiceProtocol = R2Service.shared,
-        d1Service: D1ServiceProtocol = D1Service.shared
+        d1Service: D1ServiceProtocol = D1Service.shared,
+        dashboardService: DashboardServiceProtocol = DashboardService.shared
     ) {
         self.zoneService = zoneService
         self.workerService = workerService
@@ -79,6 +71,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         self.kvService = kvService
         self.r2Service = r2Service
         self.d1Service = d1Service
+        self.dashboardService = dashboardService
         super.init()
         
         NotificationCenter.default.publisher(for: .recentZonesDidUpdate)
@@ -271,7 +264,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             defer { self.isFetchingFleetAnalytics = false }
             
             // 优先拉取全量 24h 时序数据
-            if let metrics = try? await AnalyticsService.shared.getFleetAnalytics(zoneTags: activeZoneIds), !metrics.isEmpty {
+            if let metrics = try? await self.dashboardService.getFleetMetrics(zoneTags: activeZoneIds), !metrics.isEmpty {
                 self.fleetMetrics = metrics
                 let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
                 await SWRCacheStore.shared.set(metrics, forKey: chartKey)
@@ -301,7 +294,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
             
             // 2. 批量拉取实时 24h 流量点位
-            if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeRecentIds) {
+            if let batchMap = try? await self.dashboardService.getSparklines(zoneTags: activeRecentIds) {
                 self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
                     let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")

@@ -13,9 +13,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
     @Published var tieredCache: Bool = false
     @Published var polish: String = "off"
     
-    private let speedService: SpeedAndNetworkServiceProtocol
+    private let speedService: SpeedSettingsServiceProtocol
     
-    init(speedService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+    init(speedService: SpeedSettingsServiceProtocol = SpeedSettingsService.shared) {
         self.speedService = speedService
         super.init()
     }

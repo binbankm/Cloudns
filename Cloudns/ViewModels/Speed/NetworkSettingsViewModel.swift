@@ -11,9 +11,9 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var ipGeolocation: Bool = false
     @Published var originMaxHttpVersion: String = "2"
     
-    private let networkService: SpeedAndNetworkServiceProtocol
+    private let networkService: NetworkSettingsServiceProtocol
     
-    init(networkService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+    init(networkService: NetworkSettingsServiceProtocol = NetworkSettingsService.shared) {
         self.networkService = networkService
         super.init()
     }

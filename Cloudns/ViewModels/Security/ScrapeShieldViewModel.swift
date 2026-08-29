@@ -9,10 +9,10 @@ final class ScrapeShieldViewModel: BaseLoadableViewModel {
     @Published var hotlinkProtection: String = "off"
     @Published var successMessage: String?
     
-    private let securityService: SecuritySettingsServiceProtocol
+    private let scrapeShieldService: ScrapeShieldServiceProtocol
     
-    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
-        self.securityService = securityService
+    init(scrapeShieldService: ScrapeShieldServiceProtocol = ScrapeShieldService.shared) {
+        self.scrapeShieldService = scrapeShieldService
         super.init()
     }
     
@@ -34,18 +34,17 @@ final class ScrapeShieldViewModel: BaseLoadableViewModel {
     
     func fetchSettings(zoneId: String) async {
         await executeLoadingTask {
-            let res = try await self.securityService.getScrapeShieldSettings(zoneId: zoneId)
-            self.emailObfuscation = res.emailObfuscation
-            self.serverSideExcludes = res.serverSideExcludes
-            self.hotlinkProtection = res.hotlinkProtection
+            let settings = try await self.scrapeShieldService.getScrapeShieldSettings(zoneId: zoneId)
+            self.emailObfuscation = settings.emailObfuscation
+            self.serverSideExcludes = settings.serverSideExcludes
+            self.hotlinkProtection = settings.hotlinkProtection
         }
     }
     
     func updateSetting(zoneId: String, settingId: String, value: String) async {
-        do {
-            try await securityService.updateScrapeShieldSetting(zoneId: zoneId, settingId: settingId, value: value)
-        } catch {
-            self.errorMessage = "Update failed: \(error.localizedDescription)"
+        await executeLoadingTask {
+            try await self.scrapeShieldService.updateScrapeShieldSetting(zoneId: zoneId, settingId: settingId, value: value)
+            self.successMessage = "Setting updated successfully"
         }
     }
 }

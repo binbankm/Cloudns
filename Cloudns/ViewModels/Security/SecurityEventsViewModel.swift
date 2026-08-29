@@ -6,16 +6,16 @@ import Combine
 final class SecurityEventsViewModel: BaseLoadableViewModel {
     @Published var events: [SecurityEvent] = []
     
-    private let securityService: SecuritySettingsServiceProtocol
+    private let eventsService: SecurityEventsServiceProtocol
     
-    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
-        self.securityService = securityService
+    init(eventsService: SecurityEventsServiceProtocol = SecurityEventsService.shared) {
+        self.eventsService = eventsService
         super.init()
     }
     
     func fetchEvents(zoneId: String) async {
         await executeLoadingTask {
-            self.events = try await self.securityService.fetchSecurityEvents(zoneId: zoneId, limit: 50)
+            self.events = try await self.eventsService.fetchSecurityEvents(zoneId: zoneId, limit: 50)
         }
     }
 }

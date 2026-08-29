@@ -9,7 +9,7 @@ nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
 }
 
 @MainActor
-final class AnalyticsViewModel: BaseLoadableViewModel {
+final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
     @Published var dataPoints: [AnalyticsDataPoint] = []
     @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var loadedDays: Int = 30

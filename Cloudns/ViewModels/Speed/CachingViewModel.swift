@@ -14,9 +14,9 @@ final class CachingViewModel: BaseLoadableViewModel {
     @Published var purgeSuccessMessage: String?
     @Published var purgeErrorMessage: String?
     
-    private let cachingService: SpeedAndNetworkServiceProtocol
+    private let cachingService: CachingServiceProtocol
     
-    init(cachingService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+    init(cachingService: CachingServiceProtocol = CachingService.shared) {
         self.cachingService = cachingService
         super.init()
     }

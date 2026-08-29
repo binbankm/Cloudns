@@ -3,14 +3,14 @@ import SwiftUI
 import Combine
 
 @MainActor
-class SSLCertInspectorViewModel: BaseLoadableViewModel {
-    private let devToolsService: DevToolsServiceProtocol
+final class CertInspectViewModel: BaseLoadableViewModel {
+    private let certService: CertInspectServiceProtocol
     
     @Published var domainInput: String = ""
     @Published var certDetails: SSLCertDetails?
     
-    init(devToolsService: DevToolsServiceProtocol = DevToolsService.shared) {
-        self.devToolsService = devToolsService
+    init(certService: CertInspectServiceProtocol = CertInspectService.shared) {
+        self.certService = certService
         super.init()
     }
     
@@ -20,7 +20,10 @@ class SSLCertInspectorViewModel: BaseLoadableViewModel {
         certDetails = nil
         
         await executeLoadingTask {
-            self.certDetails = try await self.devToolsService.inspectSSLCertificate(domain: domain)
+            self.certDetails = try await self.certService.inspectSSLCertificate(domain: domain)
+            self.hasFetchedData = true
         }
     }
 }
+
+typealias SSLCertInspectorViewModel = CertInspectViewModel
