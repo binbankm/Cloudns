@@ -41,12 +41,13 @@ struct RedirectRulesView: View {
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
+                 .higToast()
             }
             .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
                 Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                    HIGFeedback.impact(.medium)
                     Task {
-                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+                        _ = await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+                        ToastManager.shared.showSuccess("Redirect Rule Deleted", icon: "trash.fill")
                     }
                 }
                 Button("Cancel", role: .cancel) {}

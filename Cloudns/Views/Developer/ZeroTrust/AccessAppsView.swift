@@ -34,14 +34,14 @@ struct AccessAppsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = app.domain
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                             } label: {
                                 Label("Copy Domain", systemImage: "doc.on.doc")
                             }
                             
                             Button {
                                 UIPasteboard.general.string = app.name
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                             } label: {
                                 Label("Copy App Name", systemImage: "doc.on.doc")
                             }
@@ -88,6 +88,7 @@ struct AccessAppsView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddAccessAppSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
             Button("Delete '\(app.name)'", role: .destructive) {

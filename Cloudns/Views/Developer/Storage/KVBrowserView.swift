@@ -78,18 +78,20 @@ struct KVBrowserView: View {
         }
         .sheet(isPresented: $showingCreateKVSheet) {
             KVCreateNamespaceSheetView(viewModel: viewModel)
+             .higToast()
         }
         .sheet(isPresented: $showingCreateD1Sheet) {
             D1CreateDatabaseSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
             Button("Delete '\(ns.title)'", role: .destructive) {
                 Task {
                     do {
                         try await viewModel.deleteNamespace(namespaceId: ns.id)
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("KV Namespace Deleted", icon: "trash.fill")
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Failed to delete namespace")
                     }
                 }
             }
@@ -102,9 +104,9 @@ struct KVBrowserView: View {
                 Task {
                     do {
                         try await viewModel.deleteDatabase(databaseId: db.uuid)
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("D1 Database Deleted", icon: "trash.fill")
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Failed to delete database")
                     }
                 }
             }
@@ -484,6 +486,7 @@ struct KVNamespaceKeysView: View {
         }
         .sheet(isPresented: $showingAddKeySheet) {
             KVAddKeySheetView(viewModel: viewModel, namespaceId: namespace.id)
+             .higToast()
         }
         .confirmationDialog("Delete Key", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: keyToDelete) { key in
             Button("Delete '\(key)'", role: .destructive) {

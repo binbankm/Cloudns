@@ -47,6 +47,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateBrotli(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Brotli Enabled" : "Brotli Disabled")
         } catch {
             self.brotli = previous
             self.errorMessage = error.localizedDescription
@@ -59,6 +60,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateRocketLoader(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Rocket Loader Enabled" : "Rocket Loader Disabled")
         } catch {
             self.rocketLoader = previous
             self.errorMessage = error.localizedDescription
@@ -71,6 +73,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateEarlyHints(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Early Hints Enabled" : "Early Hints Disabled")
         } catch {
             self.earlyHints = previous
             self.errorMessage = error.localizedDescription
@@ -83,6 +86,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateSpeedBrain(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Speed Brain Enabled" : "Speed Brain Disabled")
         } catch {
             self.speedBrain = previous
             self.errorMessage = error.localizedDescription
@@ -95,6 +99,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateFonts(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Fonts Enabled" : "Fonts Disabled")
         } catch {
             self.fonts = previous
             self.errorMessage = error.localizedDescription
@@ -107,6 +112,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateTieredCache(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Tiered Cache Enabled" : "Tiered Cache Disabled")
         } catch {
             self.tieredCache = previous
             self.errorMessage = error.localizedDescription

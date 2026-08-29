@@ -48,6 +48,7 @@ struct ZonesListView: View {
             }
             .sheet(isPresented: $showAddZoneSheet) {
                 AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
+                 .higToast()
             }
             .overlay {
                 emptyStateOverlay

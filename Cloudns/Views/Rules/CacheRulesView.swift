@@ -8,6 +8,8 @@ struct CacheRulesView: View {
     @StateObject private var viewModel: CacheRulesViewModel
     @State private var showingAddSheet = false
     @State private var searchText = ""
+    @State private var ruleToDelete: WAFRule?
+    @State private var showingDeleteConfirm = false
     
     init(zoneId: String) {
         self.zoneId = zoneId
@@ -38,15 +40,18 @@ struct CacheRulesView: View {
                             HIGFeedback.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
+                                ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "bolt.badge.clock")
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                ruleToDelete = rule
+                                showingDeleteConfirm = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
-                    .onDelete(perform: { indexSet in
-                        HIGFeedback.impact(.medium)
-                        for index in indexSet {
-                            viewModel.deleteRule(at: IndexSet(integer: index))
-                        }
-                    })
                 }
             }
         }
@@ -100,6 +105,29 @@ struct CacheRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddCacheRuleView(zoneId: zoneId, viewModel: viewModel)
+             .higToast()
+        }
+        .confirmationDialog(
+            "Delete Cache Rule",
+            isPresented: $showingDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            if let rule = ruleToDelete {
+                Button("Delete Rule", role: .destructive) {
+                    if let index = viewModel.rules.firstIndex(where: { $0.id == rule.id }) {
+                        viewModel.deleteRule(at: IndexSet(integer: index))
+                        ToastManager.shared.showSuccess("Cache Rule Deleted", icon: "trash.fill")
+                    }
+                    ruleToDelete = nil
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                ruleToDelete = nil
+            }
+        } message: {
+            if let rule = ruleToDelete {
+                Text("Are you sure you want to delete cache rule '\(rule.description ?? "Untitled Rule")'?")
+            }
         }
         .task {
             if !viewModel.hasFetchedData {

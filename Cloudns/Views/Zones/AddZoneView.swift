@@ -16,7 +16,8 @@ struct AddZoneView: View {
     }
     
     var body: some View {
-        if let zone = createdZone {
+        Group {
+            if let zone = createdZone {
             NavigationStack {
                 List {
                     Section(
@@ -35,19 +36,20 @@ struct AddZoneView: View {
                                 Spacer()
                                 Button {
                                     UIPasteboard.general.string = ns
-                                    HIGFeedback.success()
+                                    ToastManager.shared.showCopied("Nameserver Copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
                                         .foregroundStyle(.blue)
                                 }
                                 .buttonStyle(.plain)
+                                .higTouchTarget()
                                 .accessibilityLabel("Copy nameserver \(ns)")
                             }
                         }
 
                         Button {
                             UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                            HIGFeedback.success()
+                            ToastManager.shared.showCopied("All Nameservers Copied")
                         } label: {
                             Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
                                 .font(.subheadline)
@@ -154,7 +156,9 @@ struct AddZoneView: View {
                         }
                     }
                 }
+                }
             }
         }
+        .higToast()
     }
 }

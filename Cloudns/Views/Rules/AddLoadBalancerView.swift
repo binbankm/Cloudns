@@ -163,6 +163,7 @@ struct AddLoadBalancerView: View {
             }
             .interactiveDismissDisabled(isSubmitting)
         }
+        .higToast()
     }
     
     private func save() {
@@ -188,6 +189,7 @@ struct AddLoadBalancerView: View {
             isSubmitting = false
             if success {
                 HIGFeedback.success()
+                ToastManager.shared.showSuccess("Load Balancer Created", icon: "arrow.triangle.branch")
                 dismiss()
             } else {
                 HIGFeedback.error()

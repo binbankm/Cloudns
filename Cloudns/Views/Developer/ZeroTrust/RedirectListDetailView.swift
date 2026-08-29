@@ -9,6 +9,8 @@ struct RedirectListDetailView: View {
     @State private var searchText = ""
     @State private var isLoading = false
     @State private var showingAddSheet = false
+    @State private var itemToDelete: RedirectListItem?
+    @State private var showingDeleteConfirm = false
     
     private var filteredItems: [RedirectListItem] {
         if searchText.isEmpty { return items }
@@ -46,8 +48,8 @@ struct RedirectListDetailView: View {
                         redirectItemRow(item)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
-                                    Task { await deleteItem(id: item.id) }
+                                    itemToDelete = item
+                                    showingDeleteConfirm = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -82,6 +84,23 @@ struct RedirectListDetailView: View {
             AddRedirectItemSheetView(accountId: accountId, listId: list.id) {
                 Task { await fetchItems() }
             }
+             .higToast()
+        }
+        .confirmationDialog("Delete Redirect Item", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+            if let item = itemToDelete {
+                Button("Delete '\(item.redirect.sourceUrl)'", role: .destructive) {
+                    Task {
+                        await deleteItem(id: item.id)
+                        ToastManager.shared.showSuccess("Redirect Item Deleted", icon: "trash.fill")
+                        itemToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                itemToDelete = nil
+            }
+        } message: {
+            Text("Are you sure you want to delete this redirect rule?")
         }
         .task {
             await fetchItems()

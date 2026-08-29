@@ -9,6 +9,8 @@ struct TunnelDetailView: View {
     @State private var showingAddIngressSheet = false
     @State private var showingDeleteAlert = false
     @State private var isTokenRevealed = false
+    @State private var ingressIndexToDelete: Int?
+    @State private var showingDeleteIngressAlert = false
     
     init(accountId: String, tunnel: CFTunnel) {
         self.accountId = accountId
@@ -32,18 +34,37 @@ struct TunnelDetailView: View {
             }
             .sheet(isPresented: $showingAddIngressSheet) {
                 AddIngressRuleSheetView(viewModel: viewModel)
+                 .higToast()
             }
             .confirmationDialog("Delete Tunnel", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
                 Button("Delete '\(tunnel.name)'", role: .destructive) {
-                    HIGFeedback.impact(.medium)
                     Task {
                         let success = await viewModel.deleteTunnel()
-                        if success { dismiss() }
+                        if success {
+                            ToastManager.shared.showSuccess("Tunnel Deleted", icon: "trash.fill")
+                            dismiss()
+                        }
                     }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
+            }
+            .confirmationDialog("Delete Ingress Rule", isPresented: $showingDeleteIngressAlert, titleVisibility: .visible) {
+                if let idx = ingressIndexToDelete {
+                    Button("Delete Rule", role: .destructive) {
+                        Task {
+                            await viewModel.deleteIngressRule(at: idx)
+                            ToastManager.shared.showSuccess("Ingress Rule Deleted", icon: "trash.fill")
+                            ingressIndexToDelete = nil
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    ingressIndexToDelete = nil
+                }
+            } message: {
+                Text("Are you sure you want to delete this hostname routing rule?")
             }
             .refreshable {
                 await viewModel.fetchConfiguration()
@@ -94,7 +115,7 @@ struct TunnelDetailView: View {
                         Button {
                             let cmd = "cloudflared tunnel run --token \(token)"
                             UIPasteboard.general.string = cmd
-                            HIGFeedback.success()
+                            ToastManager.shared.showCopied()
                             HIGFeedback.impact(.light)
                         } label: {
                             HStack(spacing: 12) {
@@ -111,6 +132,7 @@ struct TunnelDetailView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget()
                         
                         Button {
                             HIGFeedback.impact(.light)
@@ -205,8 +227,8 @@ struct TunnelDetailView: View {
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if rule.hostname != nil {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
-                                    Task { await viewModel.deleteIngressRule(at: index) }
+                                    ingressIndexToDelete = index
+                                    showingDeleteIngressAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -346,4 +368,3 @@ struct AddIngressRuleSheetView: View {
         }
     }
 }
-

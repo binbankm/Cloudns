@@ -63,6 +63,7 @@ struct HyperdriveView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateHyperdriveSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Hyperdrive", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: configToDelete) { cfg in
             Button("Delete '\(cfg.name)'", role: .destructive) {

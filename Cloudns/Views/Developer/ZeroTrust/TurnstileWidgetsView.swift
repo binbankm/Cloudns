@@ -63,6 +63,7 @@ struct TurnstileWidgetsView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateTurnstileWidgetSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Turnstile Widget", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: widgetToDelete) { widget in
             Button("Delete '\(widget.name)'", role: .destructive) {

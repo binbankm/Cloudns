@@ -8,6 +8,8 @@ struct IPAccessRulesView: View {
     @StateObject private var viewModel = IPAccessRulesViewModel()
     @State private var showingAddRule = false
     @State private var searchText = ""
+    @State private var ruleToDelete: IPAccessRule?
+    @State private var showingDeleteConfirm = false
     
     private var displayedRules: [IPAccessRule] {
         if searchText.isEmpty { return viewModel.rules }
@@ -34,10 +36,8 @@ struct IPAccessRulesView: View {
                         IPAccessRuleRowView(rule: rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
-                                    Task {
-                                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                    }
+                                    ruleToDelete = rule
+                                    showingDeleteConfirm = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -96,6 +96,29 @@ struct IPAccessRulesView: View {
         }
         .sheet(isPresented: $showingAddRule) {
             AddIPAccessRuleView(zoneId: zoneId, viewModel: viewModel, isPresented: $showingAddRule)
+             .higToast()
+        }
+        .confirmationDialog(
+            "Delete IP Access Rule",
+            isPresented: $showingDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            if let rule = ruleToDelete {
+                Button("Delete Rule", role: .destructive) {
+                    Task {
+                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                        ToastManager.shared.showSuccess("IP Rule Deleted", icon: "trash.fill")
+                        ruleToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                ruleToDelete = nil
+            }
+        } message: {
+            if let rule = ruleToDelete {
+                Text("Are you sure you want to delete the \(rule.mode.uppercased()) rule for \(rule.configuration.value)?")
+            }
         }
         .task {
             if !viewModel.hasFetchedData {

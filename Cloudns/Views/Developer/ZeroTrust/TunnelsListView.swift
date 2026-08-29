@@ -53,6 +53,7 @@ struct TunnelsListView: View {
         }
         .sheet(isPresented: $showingCreateTunnelSheet) {
             CreateTunnelSheetView(viewModel: viewModel)
+             .higToast()
         }
         .overlay {
             if viewModel.hasFetchedData {

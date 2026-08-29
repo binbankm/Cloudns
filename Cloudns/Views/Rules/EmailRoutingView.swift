@@ -8,6 +8,8 @@ struct EmailRoutingView: View {
     @State private var showingAddRuleSheet = false
     @State private var showingAddDestinationSheet = false
     @State private var searchText = ""
+    @State private var ruleToDelete: EmailRoutingRule?
+    @State private var showingDeleteAlert = false
     
     init(zoneId: String, zoneName: String = "") {
         self.zoneId = zoneId
@@ -34,7 +36,10 @@ struct EmailRoutingView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.settings?.isEnabled ?? false },
                     set: { enabled in
-                        Task { await viewModel.toggleEnabled(enabled) }
+                        Task {
+                            await viewModel.toggleEnabled(enabled)
+                            ToastManager.shared.showSuccess(enabled ? "Email Routing Enabled" : "Email Routing Disabled", icon: "envelope.badge.fill")
+                        }
                     }
                 )) {
                     HStack(spacing: 12) {
@@ -63,7 +68,10 @@ struct EmailRoutingView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.catchAllRule?.isEnabled ?? false },
                     set: { enabled in
-                        Task { await viewModel.toggleCatchAll(enabled: enabled) }
+                        Task {
+                            await viewModel.toggleCatchAll(enabled: enabled)
+                            ToastManager.shared.showSuccess(enabled ? "Catch-all Enabled" : "Catch-all Disabled", icon: "tray.fill")
+                        }
                     }
                 )) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -106,10 +114,8 @@ struct EmailRoutingView: View {
                         ruleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
-                                    Task {
-                                        await viewModel.deleteRule(ruleId: rule.id)
-                                    }
+                                    ruleToDelete = rule
+                                    showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -220,9 +226,22 @@ struct EmailRoutingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddRuleSheet) {
             AddEmailRuleView(viewModel: viewModel, zoneName: zoneName)
+             .higToast()
         }
         .sheet(isPresented: $showingAddDestinationSheet) {
             AddDestinationAddressSheetView(viewModel: viewModel)
+             .higToast()
+        }
+        .confirmationDialog("Delete Email Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+            Button("Delete '\(rule.name ?? "Rule")'", role: .destructive) {
+                Task {
+                    await viewModel.deleteRule(ruleId: rule.id)
+                    ToastManager.shared.showSuccess("Email Rule Deleted", icon: "trash.fill")
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { rule in
+            Text("Are you sure you want to delete email rule '\(rule.name ?? rule.matchAddress ?? "Rule")'?")
         }
         .task {
             if !viewModel.hasFetchedData {

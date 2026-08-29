@@ -17,12 +17,16 @@ struct ZoneDetailView: View {
             // Domain Status & Info Section
             Section(header: Text("Domain Info")) {
                 LabeledContent("Status") {
-                    HIGBadge(zone.status.lowercased() == "active" ? .active : .warning(zone.status.capitalized), isCompact: true)
+                    HIGBadge(
+                        zone.status.lowercased() == "active" ? .active : (zone.status.lowercased() == "pending" ? .warning("Pending") : .custom(color: .secondary, text: zone.status.capitalized)),
+                        isCompact: true
+                    )
                 }
                 
                 if let planName = zone.plan?.displayName {
                     LabeledContent("Plan") {
-                        HIGBadge(.custom(color: .blue, text: planName), isCompact: true)
+                        Text(planName)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 
@@ -31,6 +35,35 @@ struct ZoneDetailView: View {
                         Text(type.uppercased())
                             .font(.subheadline.monospaced())
                             .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if let nsArray = zone.nameServers, !nsArray.isEmpty {
+                    ForEach(Array(nsArray.enumerated()), id: \.offset) { index, ns in
+                        LabeledContent {
+                            Button {
+                                UIPasteboard.general.string = ns
+                                ToastManager.shared.showCopied("Nameserver Copied")
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Text(ns)
+                                        .font(.subheadline.monospaced())
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
+                                    
+                                    Image(systemName: "doc.on.doc")
+                                        .font(.caption2)
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .higTouchTarget()
+                        } label: {
+                            Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
             }
@@ -42,7 +75,7 @@ struct ZoneDetailView: View {
                     subtitle: "Requests, bandwidth & threats",
                     icon: "chart.xyaxis.line",
                     color: .indigo,
-                    destination: AnalyticsView(zoneId: zone.id, zoneName: zone.name)
+                    destination: ZoneAnalyticsView(zoneId: zone.id, zoneName: zone.name)
                 )
             }
 
@@ -187,10 +220,6 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // Quick Controls
-            QuickControlsSection(zoneId: zone.id, initialPaused: zone.paused)
-                .id("quick_ctrl_\(zone.id)_\(zone.paused)")
-
             // Advanced
             Section(header: Text("Advanced")) {
                 ZoneNavRowView(
@@ -301,191 +330,5 @@ struct ZoneNavRowView<Destination: View>: View {
             .padding(.vertical, 2)
             .accessibilityElement(children: .combine)
         }
-    }
-}
-
-
-
-// MARK: - QuickControlsSection (Inlined & Cohesive)
-
-struct QuickControlsSection: View {
-    let zoneId: String
-
-    @State private var isUnderAttack: Bool = false
-    @State private var isDevMode: Bool = false
-    @State private var isPaused: Bool
-    @State private var hasFetchedData: Bool = false
-
-    @State private var updatingAttack: Bool = false
-    @State private var updatingDev: Bool = false
-    @State private var updatingPause: Bool = false
-
-    init(zoneId: String, initialPaused: Bool) {
-        self.zoneId = zoneId
-        self._isPaused = State(initialValue: initialPaused)
-    }
-
-    var body: some View {
-        Section(header: Text("Quick Controls")) {
-            // Under Attack Mode
-            HStack(spacing: 12) {
-                Image(systemName: "exclamationmark.shield.fill")
-                    .font(.body)
-                    .foregroundStyle(isUnderAttack ? .white : .red)
-                    .frame(width: 32, height: 32)
-                    .background(isUnderAttack ? Color.red : Color.red.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Under Attack Mode")
-                        .font(.body)
-                    Text("5-second challenge for all visitors")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Toggle(isOn: Binding(
-                    get: { isUnderAttack },
-                    set: { val in
-                        guard !updatingAttack else { return }
-                        isUnderAttack = val
-                        HIGFeedback.selection()
-                        Task { await setUnderAttack(val) }
-                    }
-                )) { }
-                    .labelsHidden()
-                    .disabled(updatingAttack)
-            }
-            .padding(.vertical, 2)
-
-            // Development Mode
-            HStack(spacing: 12) {
-                Image(systemName: "wrench.and.screwdriver.fill")
-                    .font(.body)
-                    .foregroundStyle(isDevMode ? .white : .orange)
-                    .frame(width: 32, height: 32)
-                    .background(isDevMode ? Color.orange : Color.orange.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Development Mode")
-                        .font(.body)
-                    Text("Bypass cache, lasts 3 hours")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Toggle(isOn: Binding(
-                    get: { isDevMode },
-                    set: { val in
-                        guard !updatingDev else { return }
-                        isDevMode = val
-                        HIGFeedback.selection()
-                        Task { await setDevMode(val) }
-                    }
-                )) { }
-                    .labelsHidden()
-                    .disabled(updatingDev)
-            }
-            .padding(.vertical, 2)
-
-            // Pause Cloudflare on Site
-            HStack(spacing: 12) {
-                Image(systemName: "pause.circle.fill")
-                    .font(.body)
-                    .foregroundStyle(isPaused ? .white : .gray)
-                    .frame(width: 32, height: 32)
-                    .background(isPaused ? Color.gray : Color.gray.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Pause Cloudflare")
-                        .font(.body)
-                    Text(isPaused ? "Traffic bypassing Cloudflare" : "Cloudflare active on site")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Toggle(isOn: Binding(
-                    get: { isPaused },
-                    set: { val in
-                        guard !updatingPause else { return }
-                        isPaused = val
-                        HIGFeedback.selection()
-                        Task { await setPaused(val) }
-                    }
-                )) { }
-                    .labelsHidden()
-                    .disabled(updatingPause)
-            }
-            .padding(.vertical, 2)
-        }
-        .task {
-            guard !hasFetchedData else { return }
-            await fetchCurrentStates()
-        }
-    }
-
-    private func fetchCurrentStates() async {
-        do {
-            async let secTask = SecuritySettingsService.shared.getSecuritySettings(zoneId: zoneId)
-            async let devTask = ZoneService.shared.getZoneDetails(zoneId: zoneId)
-            
-            let (secSettings, zoneDetails) = try await (secTask, devTask)
-            await MainActor.run {
-                self.isUnderAttack = (secSettings.level == "under_attack")
-                self.isDevMode = (zoneDetails.developmentMode ?? 0) > 0
-                self.isPaused = zoneDetails.paused
-                self.hasFetchedData = true
-            }
-        } catch {
-            // Keep defaults
-        }
-    }
-
-    private func setUnderAttack(_ enabled: Bool) async {
-        updatingAttack = true
-        let targetLevel = enabled ? "under_attack" : "medium"
-        do {
-            try await SecuritySettingsService.shared.updateSecurityLevel(zoneId: zoneId, level: targetLevel)
-            HIGFeedback.success()
-        } catch {
-            isUnderAttack = !enabled
-            HIGFeedback.error()
-        }
-        updatingAttack = false
-    }
-
-    private func setDevMode(_ enabled: Bool) async {
-        updatingDev = true
-        do {
-            try await SpeedAndNetworkService.shared.updateDevelopmentMode(zoneId: zoneId, isOn: enabled)
-            HIGFeedback.success()
-        } catch {
-            isDevMode = !enabled
-            HIGFeedback.error()
-        }
-        updatingDev = false
-    }
-
-    private func setPaused(_ paused: Bool) async {
-        updatingPause = true
-        do {
-            try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
-            HIGFeedback.success()
-            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-        } catch {
-            isPaused = !paused
-            HIGFeedback.error()
-        }
-        updatingPause = false
     }
 }

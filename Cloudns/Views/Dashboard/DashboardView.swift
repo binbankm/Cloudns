@@ -21,14 +21,14 @@ struct DashboardView: View {
                         // 2. Global Fleet Metrics Grid (2x2)
                         resourcesOverviewGridView
                         
-                        // 3. Quick Command Deck
+                        // 3. Interactive Zone Analytics Chart (Swift Charts)
+                        DashboardZoneTrafficChartView(viewModel: viewModel)
+                        
+                        // 4. Quick Command Deck (Bento Grid)
                         quickCommandDeckView
                         
-                        // 4. Primary Active Domains (with Sparklines)
+                        // 5. Primary Active Domains (with Sparklines)
                         activeZonesSectionView
-                        
-                        // 5. Cloudflare Live Status Bar
-                        systemStatusBannerView
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
@@ -46,15 +46,7 @@ struct DashboardView: View {
                         HIGFeedback.impact(.light)
                         showingAccountSheet = true
                     } label: {
-                        Circle()
-                            .fill(LinearGradient(gradient: Gradient(colors: [.blue, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 30, height: 30)
-                            .overlay(
-                                Text(accountManager.activeEmail.prefix(1).uppercased())
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.white)
-                            )
-                            .shadow(color: Color.blue.opacity(0.25), radius: 4, x: 0, y: 1)
+                        AccountAvatarView(identifier: accountManager.activeEmail, size: 30)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Switch Cloudflare Account")
@@ -62,6 +54,8 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showingAccountSheet) {
                 AccountsView()
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
@@ -85,54 +79,121 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 1. Hero Header
+    // MARK: - 1. Professional Hero Header
     private var heroHeaderView: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 14) {
+            // Top Row: Greeting & Identity
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 5) {
+                    Image(systemName: greetingIcon)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.orange)
+                    
                     Text(viewModel.timeGreeting)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
-                    
-                    Text(viewModel.selectedAccount?.name ?? "Cloudflare Account")
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
                 }
                 
-                Spacer(minLength: 8)
+                Text(viewModel.selectedAccount?.name ?? (accountManager.activeEmail.isEmpty ? "Cloudflare Account" : accountManager.activeEmail))
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
                 
-                NavigationLink(destination: CloudflareStatusView()) {
-                    HIGBadge(.custom(color: .green, text: "Edge Optimal", icon: "checkmark.shield.fill"), isCompact: true)
-                }
-                .buttonStyle(.plain)
-            }
-            
-            if let accountId = viewModel.selectedAccount?.id, !accountId.isEmpty {
-                HStack(spacing: 6) {
-                    Text("Account ID: \(accountId)")
-                        .font(.caption2.monospacedDigit())
+                if !accountManager.activeEmail.isEmpty && viewModel.selectedAccount?.name != accountManager.activeEmail {
+                    Text(accountManager.activeEmail)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                    
-                    Button {
-                        UIPasteboard.general.string = accountId
-                        HIGFeedback.success()
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Copy Account ID")
                 }
             }
+            
+            Divider()
+                .opacity(0.6)
+            
+            // Bottom Meta Bar: Account ID Capsule & Architecture Level
+            HStack(spacing: 8) {
+                if let accountId = viewModel.selectedAccount?.id, !accountId.isEmpty {
+                    Button {
+                        HIGFeedback.impact(.light)
+                        UIPasteboard.general.string = accountId
+                        ToastManager.shared.showCopied("Account ID Copied")
+                    } label: {
+                        HStack(spacing: 5) {
+                            Text("ID")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Color.orange.opacity(0.18))
+                                .foregroundStyle(.orange)
+                                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                            
+                            Text(accountId.prefix(8) + "..." + accountId.suffix(4))
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                            
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.secondary.opacity(0.8))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(.tertiarySystemFill))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Account ID: \(accountId), tap to copy")
+                }
+                
+                Spacer(minLength: 4)
+                
+                HStack(spacing: 5) {
+                    Image(systemName: "shield.checkered")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.blue)
+                    
+                    Text("Zero Trust Edge")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.blue.opacity(0.08))
+                .clipShape(Capsule())
+            }
         }
-        .padding(14)
+        .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.orange.opacity(0.35),
+                                    Color.blue.opacity(0.15),
+                                    Color(.separator).opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                )
+                .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 2)
         )
+    }
+    
+    private var greetingIcon: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12:
+            return "sun.max.fill"
+        case 12..<18:
+            return "sun.haze.fill"
+        default:
+            return "moon.stars.fill"
+        }
     }
     
     // MARK: - 2. Resources Overview Cards Grid (2x2)
@@ -188,54 +249,73 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 3. Quick Command Deck
+    // MARK: - 3. Quick Command Deck (Bento Grid)
     private var quickCommandDeckView: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Quick Diagnostics & Tools")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
-                    NavigationLink(destination: AddZoneView()) {
-                        QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
+            HStack {
+                Text("Quick Diagnostics & Tools")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                NavigationLink(destination: NetworkToolsView()) {
+                    HStack(spacing: 4) {
+                        Text("All Tools")
+                        Image(systemName: "chevron.right")
+                            .font(.caption2.weight(.bold))
                     }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: DNSDigToolView()) {
-                        QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DoH Dig")
-                    }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: CFTraceToolView()) {
-                        QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
-                    }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: IPLookupToolView()) {
-                        QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
-                    }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: CertInspectToolView()) {
-                        QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Inspector")
-                    }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: WhoisToolView()) {
-                        QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "RDAP / WHOIS")
-                    }
-                    .buttonStyle(.plain)
-                    
-                    NavigationLink(destination: CIDRCalculatorView()) {
-                        QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .orange, title: "CIDR Calc")
-                    }
-                    .buttonStyle(.plain)
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
                 }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 2)
             }
+            .padding(.horizontal, 4)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
+                NavigationLink(destination: AddZoneView()) {
+                    QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: DNSDigToolView()) {
+                    QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DoH Dig")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: CFTraceToolView()) {
+                    QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: CertInspectToolView()) {
+                    QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Inspect")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: IPLookupToolView()) {
+                    QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: WhoisToolView()) {
+                    QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "WHOIS")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: EdgeLatencyTestView()) {
+                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency")
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: CIDRCalculatorView()) {
+                    QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .green, title: "CIDR Calc")
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 10)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
     
@@ -262,8 +342,8 @@ struct DashboardView: View {
             .padding(.horizontal, 4)
             
             if !viewModel.hasFetchedData {
-                VStack(spacing: 10) {
-                    ForEach(Zone.placeholders.prefix(3)) { placeholderZone in
+                VStack(spacing: 0) {
+                    ForEach(Array(Zone.placeholders.prefix(3).enumerated()), id: \.element.id) { index, placeholderZone in
                         HStack(spacing: 12) {
                             Circle()
                                 .fill(Color(.tertiarySystemFill))
@@ -282,11 +362,17 @@ struct DashboardView: View {
                             
                             HIGBadge(.active, isCompact: true)
                         }
-                        .padding(12)
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 11)
+                        
+                        if index < 2 {
+                            Divider()
+                                .padding(.leading, 62)
+                        }
                     }
                 }
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .redacted(reason: .placeholder)
             } else if viewModel.zones.isEmpty {
                 HIGContentState(
@@ -300,10 +386,10 @@ struct DashboardView: View {
                 )
                 .padding(.vertical, 16)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             } else {
-                VStack(spacing: 10) {
-                    ForEach(viewModel.recentZones) { zone in
+                VStack(spacing: 0) {
+                    ForEach(Array(viewModel.recentZones.enumerated()), id: \.element.id) { index, zone in
                         NavigationLink(destination: ZoneDetailView(zone: zone)) {
                             HStack(spacing: 12) {
                                 ZStack {
@@ -336,46 +422,22 @@ struct DashboardView: View {
                                     .foregroundStyle(.tertiary)
                                     .accessibilityHidden(true)
                             }
-                            .padding(12)
-                            .background(Color(.secondarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 11)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        
+                        if index < viewModel.recentZones.count - 1 {
+                            Divider()
+                                .padding(.leading, 62)
+                        }
                     }
                 }
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
         }
-    }
-    
-    // MARK: - 5. System Status Banner
-    private var systemStatusBannerView: some View {
-        NavigationLink(destination: CloudflareStatusView()) {
-            HStack(spacing: 12) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.title3)
-                    .foregroundStyle(.green)
-                    .accessibilityHidden(true)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Cloudflare Operational Status")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text("CDN, DNS, WAF and Global Edge Centers")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(14)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -443,7 +505,7 @@ struct DashboardMetricCardView: View {
     }
 }
 
-// MARK: - QuickDeckButton (Inlined & Cohesive)
+// MARK: - QuickDeckButton (Apple HIG Clean Action Item)
 
 struct QuickDeckButton: View {
     let icon: String
@@ -451,25 +513,26 @@ struct QuickDeckButton: View {
     let title: LocalizedStringKey
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ZStack {
-                Circle()
-                    .fill(color.opacity(0.12))
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(color.opacity(0.14))
                     .frame(width: 44, height: 44)
+                
                 Image(systemName: icon)
-                    .font(.body)
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(color)
             }
             .accessibilityHidden(true)
             
             Text(title)
-                .font(.caption2.weight(.medium))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
-        .frame(width: 84)
-        .padding(.vertical, 10)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 }

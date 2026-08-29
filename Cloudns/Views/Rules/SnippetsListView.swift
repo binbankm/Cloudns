@@ -61,15 +61,17 @@ struct SnippetsListView: View {
             }
             .sheet(isPresented: $showingEditorSheet) {
                 SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
+                 .higToast()
             }
             .sheet(isPresented: $showingBindSheet) {
                 BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
+                 .higToast()
             }
             .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
                 Button("Delete '\(snip.snippet_name)'", role: .destructive) {
-                    HIGFeedback.impact(.medium)
                     Task {
                         _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
+                        ToastManager.shared.showSuccess("Snippet Deleted", icon: "trash.fill")
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -78,10 +80,10 @@ struct SnippetsListView: View {
             }
             .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
                 Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                    HIGFeedback.impact(.medium)
                     if let rId = viewModel.rulesetId {
                         Task {
                             _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
+                            ToastManager.shared.showSuccess("Trigger Rule Deleted", icon: "trash.fill")
                         }
                     }
                 }

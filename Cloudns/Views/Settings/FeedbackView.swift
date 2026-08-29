@@ -66,7 +66,7 @@ struct FeedbackView: View {
                 
                 Button {
                     UIPasteboard.general.string = diagnosticSummary
-                    HIGFeedback.success()
+                    ToastManager.shared.showCopied()
                     HIGFeedback.impact(.light)
                 } label: {
                     HStack {

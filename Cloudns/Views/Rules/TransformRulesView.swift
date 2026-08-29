@@ -61,12 +61,13 @@ struct TransformRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                HIGFeedback.impact(.medium)
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
+                    ToastManager.shared.showSuccess("Transform Rule Deleted", icon: "trash.fill")
                 }
             }
             Button("Cancel", role: .cancel) {}

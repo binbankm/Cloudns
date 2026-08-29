@@ -2,9 +2,9 @@ import SwiftUI
 import Charts
 import MapKit
 
-// MARK: - AnalyticsView
+// MARK: - ZoneAnalyticsView
 
-struct AnalyticsView: View {
+struct ZoneAnalyticsView: View {
     let zoneId: String
     let zoneName: String
     
@@ -810,4 +810,3 @@ struct PulsingAnnotationView: View {
         }
     }
 }
-

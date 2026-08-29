@@ -67,7 +67,7 @@ struct AIGatewayDetailView: View {
                     
                     Button {
                         UIPasteboard.general.string = universalEndpoint
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                         HIGFeedback.impact(.light)
                     } label: {
                         HStack {
@@ -105,7 +105,7 @@ struct AIGatewayDetailView: View {
                     
                     Button {
                         UIPasteboard.general.string = codeSnippet
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                         HIGFeedback.impact(.light)
                     } label: {
                         Label("Copy Code", systemImage: "doc.on.doc")

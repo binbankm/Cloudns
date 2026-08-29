@@ -216,7 +216,8 @@ struct OnboardingPageView: View {
                     .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 60, weight: .semibold))
+                    .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                    .imageScale(.large)
                     .foregroundStyle(
                         LinearGradient(
                             colors: [color, color.opacity(0.8)],

@@ -77,7 +77,7 @@ struct WorkerSourceCodeView: View {
                 HStack(spacing: 12) {
                     Button {
                         UIPasteboard.general.string = currentCode
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                     } label: {
                         Image(systemName: "doc.on.doc")
                     }

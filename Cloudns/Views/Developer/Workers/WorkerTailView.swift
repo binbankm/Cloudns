@@ -90,6 +90,7 @@ struct WorkerTailView: View {
             TailEventDetailSheetView(event: event)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+             .higToast()
         }
     }
     

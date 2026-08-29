@@ -36,6 +36,18 @@ enum DateFormatters {
         return formatter
     }()
     
+    /// 仅小时格式化器（如 "14:00"）
+    static let hourOnly: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:00"
+        return formatter
+    }()
+    
+    /// 格式化为小时简短字符串（如 "14:00"）
+    static func formatHour(_ date: Date) -> String {
+        hourOnly.string(from: date)
+    }
+    
     /// 仅日期（如 "2023年10月1日"）
     static let dateOnly: DateFormatter = {
         let formatter = DateFormatter()

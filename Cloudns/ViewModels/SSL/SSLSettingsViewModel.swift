@@ -65,6 +65,7 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Always Use H T T P S Enabled" : "Always Use H T T P S Disabled")
         } catch {
             self.alwaysUseHTTPS = previous
             self.errorMessage = error.localizedDescription
@@ -77,6 +78,7 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Automatic H T T P S Rewrites Enabled" : "Automatic H T T P S Rewrites Disabled")
         } catch {
             self.automaticHTTPSRewrites = previous
             self.errorMessage = error.localizedDescription
@@ -101,6 +103,7 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateTLS13(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "T L S13 Enabled" : "T L S13 Disabled")
         } catch {
             self.tls13 = previous
             self.errorMessage = error.localizedDescription
@@ -113,6 +116,7 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticEncryption(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Opportunistic Encryption Enabled" : "Opportunistic Encryption Disabled")
         } catch {
             self.opportunisticEncryption = previous
             self.errorMessage = error.localizedDescription
@@ -125,6 +129,7 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticOnion(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Opportunistic Onion Enabled" : "Opportunistic Onion Disabled")
         } catch {
             self.opportunisticOnion = previous
             self.errorMessage = error.localizedDescription

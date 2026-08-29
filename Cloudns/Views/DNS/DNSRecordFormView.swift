@@ -306,6 +306,7 @@ struct DNSRecordFormView: View {
                 }
             }
         }
+        .higToast()
     }
     
     private func saveRecord() async {
@@ -381,7 +382,7 @@ struct DNSRecordFormView: View {
             } else {
                 try await viewModel.addRecord(payload: payload)
             }
-            HIGFeedback.success()
+            ToastManager.shared.showSuccess("DNS Record Saved")
             dismiss()
         } catch {
             HIGFeedback.error()

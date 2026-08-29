@@ -133,6 +133,7 @@ struct D1TableView: View {
                 viewModel: viewModel,
                 existingRow: context.row
             )
+             .higToast()
         }
         .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
             Button("Delete Row", role: .destructive) {

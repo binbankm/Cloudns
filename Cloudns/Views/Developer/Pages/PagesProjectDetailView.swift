@@ -91,9 +91,11 @@ struct PagesProjectDetailView: View {
                             }
                         }
                 }
+                 .higToast()
             }
             .sheet(isPresented: $showingBuildConfigSheet) {
                 PagesBuildConfigEditorView(accountId: accountId, project: project, parentViewModel: viewModel)
+                 .higToast()
             }
     }
     
@@ -158,7 +160,7 @@ struct PagesProjectDetailView: View {
                             
                             Button {
                                 UIPasteboard.general.string = "https://\(sub)"
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.success()
                             } label: {
                                 Image(systemName: "doc.on.doc")

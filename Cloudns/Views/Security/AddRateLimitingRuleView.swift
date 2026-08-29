@@ -129,6 +129,9 @@ struct AddRateLimitingRuleView: View {
                 }
             )
         }
+        .higToast()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     private func submitRule() async {
@@ -162,6 +165,7 @@ struct AddRateLimitingRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
+            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkered")
             dismiss()
         } else {
             HIGFeedback.error()

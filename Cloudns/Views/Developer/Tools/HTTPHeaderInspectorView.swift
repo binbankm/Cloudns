@@ -13,110 +13,111 @@ struct HTTPHeaderInspectorView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 1. URL & Method Config Card
-                    inputCard
+        List {
+            // 1. Target URL & Method Section
+            Section(header: Text("Request Configuration"), footer: Text("Inspects live Cloudflare Edge HTTP response status, CF-Ray, caching status & custom headers.")) {
+                HStack(spacing: 10) {
+                    Image(systemName: "link")
+                        .font(.body)
+                        .foregroundStyle(.blue)
+                        .accessibilityHidden(true)
                     
-                    if viewModel.isHttpLoading {
-                        VStack(spacing: 16) {
-                            edgeSummaryCard(result: HTTPInspectionResult.placeholder)
-                            headersCard(result: HTTPInspectionResult.placeholder)
+                    TextField("https://example.com", text: $viewModel.httpUrlInput)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isFieldFocused)
+                        .font(.body.monospacedDigit())
+                        .submitLabel(.go)
+                        .onSubmit {
+                            performInspect()
                         }
-                        .redacted(reason: .placeholder)
-                    } else if let result = viewModel.httpResult {
-                        // 2. Edge & Performance Hero Card
-                        edgeSummaryCard(result: result)
-                        
-                        // 3. Response Headers Card
-                        headersCard(result: result)
-                    } else if let error = viewModel.httpError {
-                        errorCard(message: error)
+                    
+                    if !viewModel.httpUrlInput.isEmpty {
+                        Button {
+                            viewModel.httpUrlInput = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear URL")
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .refreshable {
-                if !viewModel.httpUrlInput.isEmpty {
-                    await viewModel.inspectHTTP()
+                
+                Picker("HTTP Method", selection: $viewModel.httpMethod) {
+                    ForEach(viewModel.httpMethods, id: \.self) { method in
+                        Text(method).tag(method)
+                    }
                 }
+                .pickerStyle(.segmented)
+                
+                Button {
+                    performInspect()
+                } label: {
+                    HStack(spacing: 6) {
+                        if viewModel.isHttpLoading {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "arrow.up.right.circle.fill")
+                        }
+                        Text(viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
+            }
+            
+            if viewModel.isHttpLoading {
+                Section(header: Text("Edge Response Summary")) {
+                    edgeSummaryRows(result: HTTPInspectionResult.placeholder)
+                }
+                .redacted(reason: .placeholder)
+            } else if let result = viewModel.httpResult {
+                // 2. Edge & Performance Hero Section
+                Section(header: Text("Edge Response Summary")) {
+                    edgeSummaryRows(result: result)
+                }
+                
+                // 3. Response Headers Section
+                Section(header: Text("Response Headers (\(result.headers.count))")) {
+                    headersRows(result: result)
+                }
+            } else if let error = viewModel.httpError {
+                Section(header: Text("Error")) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .refreshable {
+            if !viewModel.httpUrlInput.isEmpty {
+                await viewModel.inspectHTTP()
             }
         }
         .navigationTitle("HTTP & Cache Inspector")
         .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    // MARK: - 1. Input Card
-    private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
-                Image(systemName: "link")
-                    .font(.title3)
-                    .foregroundStyle(.blue)
-                    .accessibilityHidden(true)
-                
-                TextField("https://example.com", text: $viewModel.httpUrlInput)
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .focused($isFieldFocused)
-                    .font(.body.monospacedDigit())
-                    .submitLabel(.go)
-                    .onSubmit {
-                        performInspect()
-                    }
-                
-                if !viewModel.httpUrlInput.isEmpty {
+        .toolbar {
+            if let result = viewModel.httpResult {
+                ToolbarItem(placement: .primaryAction) {
                     Button {
-                        viewModel.httpUrlInput = ""
+                        copyAllHeaders(result)
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "doc.on.doc")
                     }
-                    .accessibilityLabel("Clear URL")
+                    .accessibilityLabel("Copy all headers")
                 }
             }
-            .padding(12)
-            .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            
-            Picker("HTTP Method", selection: $viewModel.httpMethod) {
-                ForEach(viewModel.httpMethods, id: \.self) { method in
-                    Text(method).tag(method)
-                }
-            }
-            .pickerStyle(.segmented)
-            
-            Button {
-                performInspect()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isHttpLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "arrow.up.right.circle.fill")
-                    }
-                    Text(viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            .controlSize(.regular)
-            .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performInspect() {
@@ -125,182 +126,130 @@ struct HTTPHeaderInspectorView: View {
         Task { await viewModel.inspectHTTP() }
     }
     
-    // MARK: - 2. Edge Summary Card
+    // MARK: - 2. Edge Summary Rows
     @ViewBuilder
-    private func edgeSummaryCard(result: HTTPInspectionResult) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Edge Response Summary")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    
-                    HStack(spacing: 8) {
-                        Text("\(result.statusCode)")
-                            .font(.title2.weight(.bold).monospacedDigit())
-                            .foregroundStyle(result.statusCode < 400 ? .green : .red)
-                        Text(result.statusText)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                    }
-                }
-                
-                Spacer()
-                
-                if let cache = result.cfCacheStatus {
-                    cacheStatusBadge(cache)
-                }
+    private func edgeSummaryRows(result: HTTPInspectionResult) -> some View {
+        HStack {
+            Text("Status Code")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            HStack(spacing: 6) {
+                Text("\(result.statusCode)")
+                    .font(.subheadline.weight(.bold).monospacedDigit())
+                    .foregroundStyle(result.statusCode < 400 ? .green : .red)
+                Text(result.statusText)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
             }
+        }
+        
+        if let cache = result.cfCacheStatus {
+            HStack {
+                Text("CF-Cache-Status")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                cacheStatusBadge(cache)
+            }
+        }
+        
+        if let ray = result.cfRay {
+            let coloCode = ray.split(separator: "-").last.map(String.init) ?? ""
+            let popInfo = CloudflarePoPDatabase.shared.getPoP(code: coloCode)
             
-            Divider()
-            
-            VStack(spacing: 10) {
-                if let ray = result.cfRay {
-                    let coloCode = ray.split(separator: "-").last.map(String.init) ?? ""
-                    let popInfo = CloudflarePoPDatabase.shared.getPoP(code: coloCode)
-                    
-                    HStack {
-                        Text("CF-Ray Trace")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        if let info = popInfo {
-                            Text("\(info.flag) \(info.city)")
-                                .font(.subheadline)
-                                .foregroundStyle(.primary)
-                        }
-                        HIGBadge(.proxied(coloCode.isEmpty ? ray : coloCode), isCompact: true)
-                    }
-                }
-                
-                HStack {
-                    Text("Protocol")
+            HStack {
+                Text("CF-Ray Trace")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let info = popInfo {
+                    Text("\(info.flag) \(info.city)")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    if result.isHTTP3Supported {
-                        HIGBadge(.active("HTTP/3 (QUIC)"), isCompact: true)
-                    } else {
-                        Text(result.httpVersion)
-                            .font(.subheadline)
-                            .foregroundStyle(.primary)
-                    }
-                }
-                
-                if let enc = result.contentEncoding {
-                    HStack {
-                        Text("Compression")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(enc.uppercased())
-                            .font(.subheadline.monospaced())
-                            .foregroundStyle(.primary)
-                    }
-                }
-                
-                HStack {
-                    Text("Edge TTFB")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(String(format: "%.1f ms", result.ttfbMs))
-                        .font(.subheadline.weight(.semibold).monospacedDigit())
-                        .foregroundStyle(.green)
-                }
-                
-                HStack {
-                    Text("Total Duration")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(String(format: "%.1f ms", result.durationMs))
-                        .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
+                HIGBadge(.proxied(coloCode.isEmpty ? ray : coloCode), isCompact: true)
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        
+        HStack {
+            Text("Protocol")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            if result.isHTTP3Supported {
+                HIGBadge(.active("HTTP/3 (QUIC)"), isCompact: true)
+            } else {
+                Text(result.httpVersion)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+            }
+        }
+        
+        if let enc = result.contentEncoding {
+            HStack {
+                Text("Compression")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(enc.uppercased())
+                    .font(.subheadline.monospaced())
+                    .foregroundStyle(.primary)
+            }
+        }
+        
+        HStack {
+            Text("Edge TTFB")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(String(format: "%.1f ms", result.ttfbMs))
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+                .foregroundStyle(.green)
+        }
+        
+        HStack {
+            Text("Total Duration")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(String(format: "%.1f ms", result.durationMs))
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.primary)
+        }
     }
     
-    // MARK: - 3. Headers Card
+    // MARK: - 3. Headers Rows
     @ViewBuilder
-    private func headersCard(result: HTTPInspectionResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Response Headers (\(result.headers.count))")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-                Button {
-                    copyAllHeaders(result)
-                } label: {
-                    Label("Copy All", systemImage: "doc.on.doc")
-                        .font(.caption.weight(.semibold))
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
-            
-            // Filter Search Bar
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                TextField("Filter headers...", text: $headerSearchText)
-                    .font(.caption)
-                if !headerSearchText.isEmpty {
+    private func headersRows(result: HTTPInspectionResult) -> some View {
+        ForEach(filteredHeaders) { header in
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(header.key)
+                        .font(.caption.weight(.bold).monospaced())
+                        .foregroundStyle(.blue)
+                    
+                    Spacer()
+                    
                     Button {
-                        headerSearchText = ""
+                        UIPasteboard.general.string = "\(header.key): \(header.value)"
+                        ToastManager.shared.showCopied()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.caption)
+                        Image(systemName: "doc.on.doc")
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
+                    .buttonStyle(.plain)
+                    .higTouchTarget()
                 }
+                
+                Text(header.value)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.primary)
+                    .textSelection(.enabled)
             }
-            .padding(8)
-            .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            
-            Divider()
-            
-            VStack(spacing: 8) {
-                ForEach(filteredHeaders) { header in
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack {
-                            Text(header.key)
-                                .font(.caption.weight(.bold).monospaced())
-                                .foregroundStyle(.blue)
-                            
-                            Spacer()
-                            
-                            Button {
-                                UIPasteboard.general.string = "\(header.key): \(header.value)"
-                                HIGFeedback.success()
-                                HIGFeedback.impact(.light)
-                            } label: {
-                                Image(systemName: "doc.on.doc")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        
-                        Text(header.value)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.primary)
-                            .textSelection(.enabled)
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
+            .padding(.vertical, 2)
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -324,31 +273,9 @@ struct HTTPHeaderInspectorView: View {
         }
     }
     
-    // MARK: - Error Card
-    @ViewBuilder
-    private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.title3)
-                .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Inspection Failed")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-    
     private func copyAllHeaders(_ result: HTTPInspectionResult) {
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
-        HIGFeedback.success()
-        HIGFeedback.impact(.light)
+        ToastManager.shared.showCopied()
     }
 }

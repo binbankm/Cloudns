@@ -30,6 +30,7 @@ struct PagesDomainsView: View {
             }
             .sheet(isPresented: $showingAddDomainSheet) {
                 AddPagesDomainSheetView(viewModel: viewModel)
+                 .higToast()
             }
             .confirmationDialog("Delete Domain", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: domainToDelete) { dom in
                 Button("Delete '\(dom.name)'", role: .destructive) {

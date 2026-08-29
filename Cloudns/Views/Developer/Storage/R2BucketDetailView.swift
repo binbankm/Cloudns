@@ -9,6 +9,8 @@ struct R2BucketDetailView: View {
     @StateObject private var viewModel: R2BucketDetailViewModel
     @State private var showingUploadSheet = false
     @State private var selectedObject: R2Object?
+    @State private var objectToDelete: R2Object?
+    @State private var showingDeleteConfirm = false
     
     init(accountId: String, bucket: R2Bucket) {
         self.accountId = accountId
@@ -56,15 +58,8 @@ struct R2BucketDetailView: View {
                         .buttonStyle(.plain)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
-                                Task {
-                                    do {
-                                        try await viewModel.deleteObject(key: obj.key)
-                                        HIGFeedback.success()
-                                    } catch {
-                                        HIGFeedback.error()
-                                    }
-                                }
+                                objectToDelete = obj
+                                showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -104,11 +99,35 @@ struct R2BucketDetailView: View {
         }
         .sheet(isPresented: $showingUploadSheet) {
             R2UploadObjectSheetView(viewModel: viewModel)
+             .higToast()
         }
         .sheet(item: $selectedObject) { obj in
             R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+             .higToast()
+        }
+        .confirmationDialog("Delete Object", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+            if let obj = objectToDelete {
+                Button("Delete '\(obj.key)'", role: .destructive) {
+                    Task {
+                        do {
+                            try await viewModel.deleteObject(key: obj.key)
+                            ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
+                        } catch {
+                            ToastManager.shared.showError("Failed to delete object")
+                        }
+                        objectToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                objectToDelete = nil
+            }
+        } message: {
+            if let obj = objectToDelete {
+                Text("Are you sure you want to delete object '\(obj.key)'? This cannot be undone.")
+            }
         }
         .overlay {
             if viewModel.hasFetchedData {

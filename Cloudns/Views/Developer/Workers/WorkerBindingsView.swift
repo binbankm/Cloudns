@@ -78,21 +78,24 @@ struct WorkerBindingsView: View {
         }
         .sheet(isPresented: $showingAttachResourceSheet) {
             WorkerAttachResourceBindingSheetView(accountId: accountId, viewModel: secretsViewModel)
+             .higToast()
         }
         .sheet(isPresented: $showingAddSheet) {
             WorkerAddVariableOrSecretSheetView(viewModel: secretsViewModel)
+             .higToast()
         }
         .sheet(item: $variableToEdit) { v in
             WorkerEditVariableSheetView(viewModel: secretsViewModel, variable: v)
+             .higToast()
         }
         .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: bindingToDelete) { binding in
             Button("Unbind '\(binding.name)'", role: .destructive) {
                 Task {
                     do {
                         try await secretsViewModel.deleteResourceBinding(name: binding.name)
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Failed to unbind resource")
                     }
                 }
             }
@@ -109,9 +112,9 @@ struct WorkerBindingsView: View {
                         } else {
                             try await secretsViewModel.deletePlainVariable(name: item.name)
                         }
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("\(item.isSecret ? "Secret" : "Variable") Deleted", icon: "trash.fill")
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Failed to delete item")
                     }
                 }
             }

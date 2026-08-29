@@ -253,6 +253,7 @@ struct AddWAFRuleView: View {
                 }
             )
         }
+        .higToast()
     }
     
     @ViewBuilder
@@ -315,6 +316,7 @@ struct AddWAFRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
+            ToastManager.shared.showSuccess("WAF Rule Created", icon: "shield.fill")
             dismiss()
         } else {
             HIGFeedback.error()

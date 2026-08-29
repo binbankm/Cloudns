@@ -41,16 +41,16 @@ struct WorkerTriggersView: View {
             }
             .sheet(isPresented: $showingAddCronSheet) {
                 AddCronTriggerSheetView(viewModel: viewModel)
+                 .higToast()
             }
             .confirmationDialog("Delete Cron Trigger", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: cronToDelete) { cron in
                 Button("Delete", role: .destructive) {
-                    HIGFeedback.impact(.medium)
                     Task {
                         do {
                             try await viewModel.deleteSchedule(cron: cron.cron)
-                            HIGFeedback.success()
+                            ToastManager.shared.showSuccess("Cron Trigger Deleted", icon: "trash.fill")
                         } catch {
-                            HIGFeedback.error()
+                            ToastManager.shared.showError("Failed to delete trigger")
                         }
                     }
                 }

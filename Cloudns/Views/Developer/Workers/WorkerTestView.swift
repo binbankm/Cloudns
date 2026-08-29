@@ -152,7 +152,7 @@ struct WorkerTestView: View {
                             Spacer()
                             Button {
                                 UIPasteboard.general.string = body
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy", systemImage: "doc.on.doc")
@@ -209,7 +209,7 @@ struct WorkerTestView: View {
                     Button {
                         let curl = generateCurlCommand()
                         UIPasteboard.general.string = curl
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                         HIGFeedback.impact(.light)
                     } label: {
                         Label("Copy as cURL", systemImage: "terminal")
@@ -218,7 +218,7 @@ struct WorkerTestView: View {
                     Button {
                         let fetchCode = generateFetchCode()
                         UIPasteboard.general.string = fetchCode
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                         HIGFeedback.impact()
                     } label: {
                         Label("Copy as Fetch (TS)", systemImage: "chevron.left.forwardslash.chevron.right")

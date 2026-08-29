@@ -27,7 +27,7 @@ struct TextDocument: FileDocument {
 
 // MARK: - ShareSheet
 
-fileprivate struct ShareSheet: UIViewControllerRepresentable {
+private struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     
     func makeUIViewController(context: Context) -> UIActivityViewController {
@@ -101,7 +101,7 @@ struct DNSExportSheetView: View {
                             HStack(spacing: 10) {
                                 Button {
                                     UIPasteboard.general.string = exportedContent
-                                    HIGFeedback.success()
+                                    ToastManager.shared.showCopied("BIND Zone File Copied")
                                 } label: {
                                     Label("Copy", systemImage: "doc.on.doc")
                                         .font(.subheadline.weight(.medium))
@@ -189,6 +189,7 @@ struct DNSExportSheetView: View {
                 }
             }
         }
+        .higToast()
     }
     
     private func loadExportedContent() async {

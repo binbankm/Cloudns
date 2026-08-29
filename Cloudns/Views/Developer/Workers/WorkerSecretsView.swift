@@ -56,9 +56,11 @@ struct WorkerSecretsView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
+             .higToast()
         }
         .sheet(item: $variableToEdit) { v in
             WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
+             .higToast()
         }
         .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
             Button("Delete '\(item.name)'", role: .destructive) {
@@ -69,9 +71,9 @@ struct WorkerSecretsView: View {
                         } else {
                             try await viewModel.deletePlainVariable(name: item.name)
                         }
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("\(item.isSecret ? "Secret" : "Variable") Deleted", icon: "trash.fill")
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Failed to delete item")
                     }
                 }
             }

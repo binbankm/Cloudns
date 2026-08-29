@@ -157,6 +157,7 @@ struct PagesBindingsView: View {
                     previewEnvVars = updated
                 }
             }
+            .higToast()
         }
         .sheet(isPresented: $showingAttachResourceSheet) {
             PagesAttachResourceBindingSheetView(
@@ -180,6 +181,7 @@ struct PagesBindingsView: View {
                     previewAI = ai
                 }
             }
+             .higToast()
         }
         .sheet(item: Binding(
             get: { variableToEdit.map { EditVarWrapper(name: $0.name, value: $0.value) } },
@@ -280,7 +282,7 @@ struct PagesBindingsView: View {
                                 if let val = item.value {
                                     Button {
                                         UIPasteboard.general.string = val
-                                        HIGFeedback.success()
+                                        ToastManager.shared.showCopied()
                                         HIGFeedback.impact(.light)
                                     } label: {
                                         Label("Copy Value", systemImage: "doc.on.doc")
@@ -288,7 +290,7 @@ struct PagesBindingsView: View {
                                 }
                                 Button {
                                     UIPasteboard.general.string = key
-                                    HIGFeedback.success()
+                                    ToastManager.shared.showCopied()
                                     HIGFeedback.impact(.light)
                                 } label: {
                                     Label("Copy Key Name", systemImage: "doc.on.doc")
@@ -362,7 +364,7 @@ struct PagesBindingsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy Secret Name", systemImage: "doc.on.doc")
@@ -419,7 +421,7 @@ struct PagesBindingsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
@@ -476,7 +478,7 @@ struct PagesBindingsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
@@ -533,7 +535,7 @@ struct PagesBindingsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
@@ -581,7 +583,7 @@ struct PagesBindingsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
@@ -947,4 +949,3 @@ struct PagesAttachResourceBindingSheetView: View {
         }
     }
 }
-

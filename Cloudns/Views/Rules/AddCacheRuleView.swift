@@ -122,6 +122,7 @@ struct AddCacheRuleView: View {
                 }
             )
         }
+        .higToast()
     }
     
     private func submitRule() async {
@@ -155,6 +156,7 @@ struct AddCacheRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
+            ToastManager.shared.showSuccess("Cache Rule Created", icon: "bolt.badge.clock")
             dismiss()
         } else {
             HIGFeedback.error()

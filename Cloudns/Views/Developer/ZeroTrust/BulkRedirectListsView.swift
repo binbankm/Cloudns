@@ -64,6 +64,7 @@ struct BulkRedirectListsView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateBulkRedirectListSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete List", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: listToDelete) { item in
             Button("Delete '\(item.name)'", role: .destructive) {

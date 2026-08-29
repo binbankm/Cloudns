@@ -88,6 +88,7 @@ struct WorkersListView: View {
         }
         .sheet(isPresented: $showingCreateWorkerSheet) {
             WorkerCreateSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
             Button("Delete '\(worker.id)'", role: .destructive) {

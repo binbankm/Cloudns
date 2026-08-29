@@ -7,9 +7,10 @@ struct DNSPropagationView: View {
     var body: some View {
         List {
             // Target Domain Input
-            Section(header: Text("Propagation Target")) {
-                HStack {
+            Section(header: Text("Propagation Target"), footer: Text("Simultaneously probes DNS answers across 8 Anycast edge resolvers across North America, Europe, Asia, Australia & South America.")) {
+                HStack(spacing: 10) {
                     Image(systemName: "globe.americas.fill")
+                        .font(.body)
                         .foregroundStyle(.indigo)
                         .accessibilityHidden(true)
                     
@@ -18,6 +19,7 @@ struct DNSPropagationView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
+                        .font(.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             Task { await viewModel.queryPropagation() }
@@ -30,11 +32,14 @@ struct DNSPropagationView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear domain")
                     }
                 }
                 
                 HStack {
                     Text("Record Type")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Picker("Record Type", selection: $viewModel.propagationType) {
@@ -45,13 +50,15 @@ struct DNSPropagationView: View {
                     .pickerStyle(.menu)
                 }
                 
-                HStack {
+                HStack(spacing: 10) {
                     Image(systemName: "target")
+                        .font(.body)
                         .foregroundStyle(.secondary)
                     TextField("Expected Value (Optional)", text: $viewModel.expectedIP)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .font(.body.monospacedDigit())
                 }
                 
                 Button {
@@ -59,21 +66,19 @@ struct DNSPropagationView: View {
                     HIGFeedback.impact(.light)
                     Task { await viewModel.queryPropagation() }
                 } label: {
-                    HStack {
-                        Spacer()
+                    HStack(spacing: 6) {
                         if viewModel.isPropagationLoading {
                             ProgressView()
-                                .padding(.trailing, 4)
+                                .controlSize(.small)
                         } else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
-                        Text("Probe Worldwide DNS Propagation")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.indigo)
-                        Spacer()
+                        Text(viewModel.isPropagationLoading ? "Probing Global Edge..." : "Probe Worldwide DNS Propagation")
+                            .fontWeight(.semibold)
                     }
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .disabled(viewModel.propagationDomain.isEmpty || viewModel.isPropagationLoading)
+                .disabled(viewModel.propagationDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isPropagationLoading)
             }
             
             if viewModel.isPropagationLoading {

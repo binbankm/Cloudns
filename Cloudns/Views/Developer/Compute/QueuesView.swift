@@ -74,6 +74,7 @@ struct QueuesView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateQueueSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Queue", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: queueToDelete) { q in
             Button("Delete '\(q.queueName)'", role: .destructive) {

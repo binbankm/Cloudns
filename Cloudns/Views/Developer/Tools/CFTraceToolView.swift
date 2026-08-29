@@ -5,38 +5,15 @@ struct CFTraceToolView: View {
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 1. Input Card
-                    inputCard
-                    
-                    if viewModel.isLoading && viewModel.traceFields.isEmpty {
-                        popCard(colo: "SJC", loc: "San Jose, United States")
-                            .redacted(reason: .placeholder)
-                    } else if !viewModel.traceFields.isEmpty {
-                        // 2. PoP Hero Card
-                        popCard(colo: viewModel.coloCode, loc: viewModel.locCountry)
-                        
-                        // 3. Security & Context Card
-                        contextCard(fields: viewModel.traceFields, ip: viewModel.clientIp, warp: viewModel.warpStatus)
-                        
-                        // 4. Raw Trace Properties Card
-                        rawTraceCard(fields: viewModel.traceFields)
-                    } else if let error = viewModel.errorMessage {
-                        errorCard(message: error)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .refreshable {
-                if !viewModel.host.isEmpty {
-                    await viewModel.queryTrace()
-                }
+        List {
+            inputSection
+            resultsSection
+        }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .refreshable {
+            if !viewModel.host.isEmpty {
+                await viewModel.queryTrace()
             }
         }
         .navigationTitle("Cloudflare Trace")
@@ -69,16 +46,17 @@ struct CFTraceToolView: View {
         }
     }
     
-    // MARK: - 1. Input Card
-    private var inputCard: some View {
-        VStack(spacing: 14) {
+    // MARK: - 1. Input Section
+    @ViewBuilder
+    private var inputSection: some View {
+        Section(header: Text("Target Domain / Host"), footer: Text("Traces Cloudflare's Anycast edge server, data center PoP airport code, IP & security capabilities via /cdn-cgi/trace.")) {
             HStack(spacing: 10) {
                 Image(systemName: "network")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(.orange)
                     .accessibilityHidden(true)
                 
-                TextField("www.cloudflare.com or custom domain", text: $viewModel.host)
+                TextField("www.cloudflare.com or domain", text: $viewModel.host)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -96,12 +74,10 @@ struct CFTraceToolView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
                     }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Clear host")
                 }
             }
-            .padding(12)
-            .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             
             Button {
                 performTrace()
@@ -110,24 +86,49 @@ struct CFTraceToolView: View {
                     if viewModel.isLoading {
                         ProgressView()
                             .controlSize(.small)
-                            .tint(.white)
                     } else {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                     }
-                    Text(viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP & Network")
-                        .font(.body.weight(.semibold))
+                    Text(viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP")
+                        .fontWeight(.semibold)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .center)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
-            .controlSize(.regular)
             .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+    
+    // MARK: - Results Section
+    @ViewBuilder
+    private var resultsSection: some View {
+        if viewModel.isLoading && viewModel.traceFields.isEmpty {
+            Section(header: Text("Resolved Edge PoP")) {
+                popCard(colo: "SJC", loc: "San Jose, United States")
+                    .redacted(reason: .placeholder)
+            }
+        } else if !viewModel.traceFields.isEmpty {
+            Section(header: Text("Resolved Edge PoP")) {
+                popCard(colo: viewModel.coloCode, loc: viewModel.locCountry)
+            }
+            
+            Section(header: Text("Network & Security Context")) {
+                contextRows(fields: viewModel.traceFields, ip: viewModel.clientIp, warp: viewModel.warpStatus)
+            }
+            
+            Section(header: Text("Raw Trace Breakdown (\(viewModel.traceFields.count) Keys)")) {
+                rawTraceRows(fields: viewModel.traceFields)
+            }
+        } else if let error = viewModel.errorMessage {
+            Section(header: Text("Error")) {
+                HStack(spacing: 10) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
     }
     
     private func performTrace() {
@@ -136,122 +137,99 @@ struct CFTraceToolView: View {
         Task { await viewModel.queryTrace() }
     }
     
-    // MARK: - 2. PoP Hero Card
+    // MARK: - 2. PoP Hero Section View
     @ViewBuilder
     private func popCard(colo: String?, loc: String?) -> some View {
         let popInfo = CloudflarePoPDatabase.shared.getPoP(code: colo)
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Text(popInfo?.flag ?? "🌐")
-                    .font(.largeTitle)
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        Text(popInfo?.city ?? (colo ?? "Edge PoP"))
-                            .font(.title3.weight(.bold))
-                            .foregroundStyle(.primary)
-                        
-                        if let c = colo {
-                            HIGBadge(.proxied(c), isCompact: false)
-                        }
-                    }
-                    
-                    Text(popInfo?.country ?? (loc ?? "Cloudflare Global Anycast"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-            }
+        HStack(spacing: 14) {
+            Text(popInfo?.flag ?? "🌐")
+                .font(.system(size: 36))
             
-            if let airport = popInfo?.airport {
-                Divider()
+            VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
-                    Image(systemName: "airplane")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text(popInfo?.city ?? (colo ?? "Edge PoP"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
+                    if let c = colo {
+                        HIGBadge(.proxied(c), isCompact: true)
+                    }
+                }
+                
+                Text(popInfo?.country ?? (loc ?? "Cloudflare Global Anycast"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                if let airport = popInfo?.airport {
                     Text(airport)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
             }
+            Spacer()
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.vertical, 4)
     }
     
-    // MARK: - 3. Context Card
+    // MARK: - 3. Context Rows
     @ViewBuilder
-    private func contextCard(fields: [HTTPHeaderItem], ip: String?, warp: String?) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Client & Security Context")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            
-            Divider()
-            
-            VStack(spacing: 10) {
-                if let ip = ip {
-                    HStack {
-                        Text("Client Public IP")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(ip)
-                            .font(.subheadline.monospacedDigit())
-                            .foregroundStyle(.primary)
-                        
-                        Button {
-                            UIPasteboard.general.string = ip
-                            HIGFeedback.success()
-                            HIGFeedback.impact(.light)
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                        }
-                    }
-                }
+    private func contextRows(fields: [HTTPHeaderItem], ip: String?, warp: String?) -> some View {
+        if let ip = ip {
+            HStack {
+                Text("Client Public IP")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(ip)
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.primary)
                 
-                if let warp = warp {
-                    HStack {
-                        Text("WARP Status")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        if warp == "on" || warp == "plus" {
-                            HIGBadge(.active(warp == "plus" ? "WARP+ Active" : "WARP On"), isCompact: true)
-                        } else {
-                            HIGBadge(.dnsOnly("WARP Off"), isCompact: true)
-                        }
-                    }
+                Button {
+                    UIPasteboard.general.string = ip
+                    ToastManager.shared.showCopied()
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
-                
-                if let gateway = fields.first(where: { $0.key.lowercased() == "gateway" })?.value {
-                    HStack {
-                        Text("Zero Trust Gateway")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        HIGBadge(gateway == "on" ? .active("Protected") : .warning("Bypassed"), isCompact: true)
-                    }
-                }
-                
-                if let kex = fields.first(where: { $0.key.lowercased() == "kex" })?.value {
-                    contextRow(title: "Key Exchange (KEX)", value: kex)
-                }
-                if let tls = fields.first(where: { $0.key.lowercased() == "tls" })?.value {
-                    contextRow(title: "TLS Version", value: tls)
-                }
-                if let http = fields.first(where: { $0.key.lowercased() == "http" })?.value {
-                    contextRow(title: "HTTP Protocol", value: http.uppercased())
+                .buttonStyle(.plain)
+                .higTouchTarget()
+            }
+        }
+        
+        if let warp = warp {
+            HStack {
+                Text("WARP Status")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if warp == "on" || warp == "plus" {
+                    HIGBadge(.active(warp == "plus" ? "WARP+ Active" : "WARP On"), isCompact: true)
+                } else {
+                    HIGBadge(.dnsOnly("WARP Off"), isCompact: true)
                 }
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        
+        if let gateway = fields.first(where: { $0.key.lowercased() == "gateway" })?.value {
+            HStack {
+                Text("Zero Trust Gateway")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                HIGBadge(gateway == "on" ? .active("Protected") : .warning("Bypassed"), isCompact: true)
+            }
+        }
+        
+        if let kex = fields.first(where: { $0.key.lowercased() == "kex" })?.value {
+            contextRow(title: "Key Exchange (KEX)", value: kex)
+        }
+        if let tls = fields.first(where: { $0.key.lowercased() == "tls" })?.value {
+            contextRow(title: "TLS Version", value: tls)
+        }
+        if let http = fields.first(where: { $0.key.lowercased() == "http" })?.value {
+            contextRow(title: "HTTP Protocol", value: http.uppercased())
+        }
     }
     
     @ViewBuilder
@@ -267,79 +245,43 @@ struct CFTraceToolView: View {
         }
     }
     
-    // MARK: - 4. Raw Trace Card
+    // MARK: - 4. Raw Trace Rows
     @ViewBuilder
-    private func rawTraceCard(fields: [HTTPHeaderItem]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private func rawTraceRows(fields: [HTTPHeaderItem]) -> some View {
+        ForEach(fields) { field in
             HStack {
-                Text("Raw Trace Properties (\(fields.count))")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                Text(field.key)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
                 Spacer()
+                Text(field.value)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.primary)
+                    .textSelection(.enabled)
+                
                 Button {
-                    copyRawTrace()
+                    UIPasteboard.general.string = "\(field.key)=\(field.value)"
+                    ToastManager.shared.showCopied()
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-            }
-            
-            Divider()
-            
-            VStack(spacing: 8) {
-                ForEach(fields) { field in
-                    HStack {
-                        Text(field.key)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(field.value)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.primary)
-                            .textSelection(.enabled)
-                    }
-                    .padding(.vertical, 1)
-                }
+                .buttonStyle(.plain)
+                .higTouchTarget()
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-    
-    // MARK: - Error Card
-    @ViewBuilder
-    private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.title3)
-                .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Trace Failed")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func copyRawTrace() {
         let text = viewModel.traceFields.map { "\($0.key)=\($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
-        HIGFeedback.success()
-        HIGFeedback.impact(.light)
+        ToastManager.shared.showCopied()
     }
     
     private func copyCurlCommand() {
         let cmd = "curl -sL https://\(viewModel.host)/cdn-cgi/trace"
         UIPasteboard.general.string = cmd
-        HIGFeedback.success()
-        HIGFeedback.impact(.light)
+        ToastManager.shared.showCopied()
     }
 }

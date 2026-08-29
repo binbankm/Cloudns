@@ -51,6 +51,12 @@ struct ContentView: View {
                         }
                         .tag(AppTab.developer)
                     
+                    NetworkToolsView()
+                        .tabItem {
+                            Label("Tools", systemImage: selectedTab == .tools ? "terminal.fill" : "terminal")
+                        }
+                        .tag(AppTab.tools)
+                    
                     SettingsView()
                         .tabItem {
                             Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
@@ -115,6 +121,9 @@ struct ContentView: View {
         }
         .animation(.default, value: isLoggedIn)
         .animation(.default, value: hasSeenOnboarding)
+        .overlay(alignment: .top) {
+            HIGToastOverlay()
+        }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
         .id(appLanguage)

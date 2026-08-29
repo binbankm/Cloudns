@@ -33,6 +33,7 @@ struct WorkerRoutesView: View {
                 WorkerAttachDomainSheetView(accountId: accountId, scriptName: scriptName) {
                     Task { await fetchDomains() }
                 }
+                 .higToast()
             }
             .confirmationDialog("Detach Domain", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: domainToDelete) { dom in
                 Button("Detach '\(dom.hostname)'", role: .destructive) {

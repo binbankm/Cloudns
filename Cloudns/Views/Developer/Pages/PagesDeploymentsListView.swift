@@ -92,6 +92,7 @@ struct PagesDeploymentsListView: View {
                     parentViewModel: viewModel
                 )
             }
+             .higToast()
         }
     }
     

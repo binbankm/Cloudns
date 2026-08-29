@@ -88,6 +88,7 @@ struct PagesProjectsListView: View {
         }
         .sheet(isPresented: $showingCreatePagesSheet) {
             PagesCreateProjectSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
             Button("Delete '\(proj.name)'", role: .destructive) {

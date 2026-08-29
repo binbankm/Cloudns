@@ -141,7 +141,7 @@ struct DNSSECView: View {
                     Public Key: \(dnssec.public_key ?? "")
                     """
                     UIPasteboard.general.string = fullConfig
-                    HIGFeedback.success()
+                    ToastManager.shared.showCopied("DNSSEC Configuration Copied")
                 } label: {
                     Label("Copy All", systemImage: "doc.on.doc")
                         .font(.caption.weight(.semibold))
@@ -201,7 +201,7 @@ struct DNSSECDetailRowView: View {
                 
                 Button {
                     UIPasteboard.general.string = validValue
-                    HIGFeedback.success()
+                    ToastManager.shared.showCopied("\(title) Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .foregroundStyle(.blue)

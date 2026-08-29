@@ -42,7 +42,7 @@ struct TurnstileDetailView: View {
                         Spacer()
                         Button {
                             UIPasteboard.general.string = widget.sitekey
-                            HIGFeedback.success()
+                            ToastManager.shared.showCopied()
                             HIGFeedback.impact(.light)
                         } label: {
                             Image(systemName: "doc.on.doc")
@@ -67,7 +67,7 @@ struct TurnstileDetailView: View {
                             Spacer()
                             Button {
                                 UIPasteboard.general.string = secret
-                                HIGFeedback.success()
+                                ToastManager.shared.showCopied()
                                 HIGFeedback.impact(.light)
                             } label: {
                                 Image(systemName: "doc.on.doc")
@@ -164,7 +164,7 @@ struct TurnstileDetailView: View {
                     
                     Button {
                         UIPasteboard.general.string = snippetCode
-                        HIGFeedback.success()
+                        ToastManager.shared.showCopied()
                         HIGFeedback.impact(.light)
                     } label: {
                         Label("Copy Code Snippet", systemImage: "doc.on.doc")
@@ -178,11 +178,14 @@ struct TurnstileDetailView: View {
         .navigationTitle(widget.name)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingEditSheet) {
-            if let vm = viewModel {
-                EditTurnstileWidgetSheetView(viewModel: vm, widget: widget) { updated in
-                    self.widget = updated
+            Group {
+                if let vm = viewModel {
+                    EditTurnstileWidgetSheetView(viewModel: vm, widget: widget) { updated in
+                        self.widget = updated
+                    }
                 }
             }
+            .higToast()
         }
         .alert("Rotate Secret Key", isPresented: $showingRotateAlert) {
             Button("Cancel", role: .cancel) {}
@@ -399,4 +402,3 @@ struct EditTurnstileWidgetSheetView: View {
         }
     }
 }
-

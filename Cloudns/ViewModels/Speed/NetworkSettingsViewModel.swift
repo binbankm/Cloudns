@@ -44,6 +44,7 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPv6(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "I Pv6 Enabled" : "I Pv6 Disabled")
         } catch {
             self.ipv6 = previous
             self.errorMessage = error.localizedDescription
@@ -56,6 +57,7 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateWebsockets(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Websockets Enabled" : "Websockets Disabled")
         } catch {
             self.websockets = previous
             self.errorMessage = error.localizedDescription
@@ -68,6 +70,7 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP2(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "H T T P2 Enabled" : "H T T P2 Disabled")
         } catch {
             self.http2 = previous
             self.errorMessage = error.localizedDescription
@@ -80,6 +83,7 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP3(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "H T T P3 Enabled" : "H T T P3 Disabled")
         } catch {
             self.http3 = previous
             self.errorMessage = error.localizedDescription
@@ -92,6 +96,7 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPGeolocation(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "I P Geolocation Enabled" : "I P Geolocation Disabled")
         } catch {
             self.ipGeolocation = previous
             self.errorMessage = error.localizedDescription

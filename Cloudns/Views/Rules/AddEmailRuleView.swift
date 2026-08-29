@@ -83,6 +83,9 @@ struct AddEmailRuleView: View {
                 }
             )
         }
+        .higToast()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     private func submitRule() async {
@@ -107,6 +110,7 @@ struct AddEmailRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
+            ToastManager.shared.showSuccess("Email Rule Created", icon: "envelope.fill")
             dismiss()
         } else {
             HIGFeedback.error()

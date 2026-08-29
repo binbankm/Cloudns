@@ -32,7 +32,7 @@ struct GatewayRulesView: View {
                             .contextMenu {
                                 Button {
                                     UIPasteboard.general.string = rule.name
-                                    HIGFeedback.success()
+                                    ToastManager.shared.showCopied()
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "doc.on.doc")
                                 }
@@ -40,7 +40,7 @@ struct GatewayRulesView: View {
                                 if let traffic = rule.traffic, !traffic.isEmpty {
                                     Button {
                                         UIPasteboard.general.string = traffic
-                                        HIGFeedback.success()
+                                        ToastManager.shared.showCopied()
                                     } label: {
                                         Label("Copy Traffic Expression", systemImage: "doc.on.doc")
                                     }
@@ -88,6 +88,7 @@ struct GatewayRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddGatewayRuleSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name)'", role: .destructive) {

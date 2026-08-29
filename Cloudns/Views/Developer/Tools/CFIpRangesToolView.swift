@@ -12,9 +12,10 @@ struct CFIpRangesToolView: View {
     var body: some View {
         List {
             // 1. IP Range Tester
-            Section(header: Text("Cloudflare IP Matcher & Calculator")) {
-                HStack {
+            Section(header: Text("Cloudflare IP Matcher & Calculator"), footer: Text("Verifies if an IP address belongs to Cloudflare's official proxy edge CIDR network blocks.")) {
+                HStack(spacing: 10) {
                     Image(systemName: "checkmark.shield.fill")
+                        .font(.body)
                         .foregroundStyle(.cyan)
                         .accessibilityHidden(true)
                     
@@ -22,6 +23,11 @@ struct CFIpRangesToolView: View {
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .font(.body.monospacedDigit())
+                        .submitLabel(.search)
+                        .onSubmit {
+                            testIP()
+                        }
                     
                     if !testIpInput.isEmpty {
                         Button {
@@ -31,21 +37,22 @@ struct CFIpRangesToolView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear input")
                     }
                 }
                 
                 Button {
                     testIP()
                 } label: {
-                    HStack {
-                        Spacer()
+                    HStack(spacing: 6) {
+                        Image(systemName: "shield.righthalf.filled")
                         Text("Test If IP Is Cloudflare Proxy")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.cyan)
-                        Spacer()
+                            .fontWeight(.semibold)
                     }
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .disabled(testIpInput.isEmpty)
+                .disabled(testIpInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 
                 if let result = testResult {
                     HStack {
@@ -142,7 +149,7 @@ struct CFIpRangesToolView: View {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             UIPasteboard.general.string = generateExportCode()
-                            HIGFeedback.success()
+                            ToastManager.shared.showCopied()
                             HIGFeedback.impact(.light)
                         } label: {
                             Image(systemName: "doc.on.doc")
@@ -152,6 +159,7 @@ struct CFIpRangesToolView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+             .higToast()
         }
         .task {
             if viewModel.ipv4List.isEmpty {
@@ -247,7 +255,7 @@ struct CFIpRangesToolView: View {
     
     private func copyList(_ list: [String], title: String) {
         UIPasteboard.general.string = list.joined(separator: "\n")
-        HIGFeedback.success()
+        ToastManager.shared.showCopied()
         HIGFeedback.impact()
     }
 }

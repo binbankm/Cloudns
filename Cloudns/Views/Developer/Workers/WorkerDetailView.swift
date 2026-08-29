@@ -106,7 +106,7 @@ struct WorkerDetailView: View {
                                     let urlStr = id.hasPrefix("http") ? id : "https://\(id)"
                                     Button {
                                         UIPasteboard.general.string = urlStr
-                                        HIGFeedback.success()
+                                        ToastManager.shared.showCopied()
                                         HIGFeedback.success()
                                     } label: {
                                         Image(systemName: "doc.on.doc")

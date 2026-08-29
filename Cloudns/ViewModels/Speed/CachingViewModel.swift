@@ -40,8 +40,10 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeEverything(zoneId: zoneId)
             purgeSuccessMessage = "Successfully purged all cache!"
+            ToastManager.shared.showSuccess("Entire Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge cache: \(error.localizedDescription)"
+            ToastManager.shared.showError("Failed to purge cache")
         }
         
         isPurging = false
@@ -55,8 +57,10 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeCacheByURLs(zoneId: zoneId, urls: urls)
             purgeSuccessMessage = "Successfully purged requested URLs!"
+            ToastManager.shared.showSuccess("Custom Cache Purged", icon: "checkmark.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge URLs: \(error.localizedDescription)"
+            ToastManager.shared.showError("Failed to purge URLs")
         }
         
         isPurging = false
@@ -134,9 +138,11 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.alwaysOnline = isOn
         do {
             try await cachingService.updateAlwaysOnline(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Always Online Enabled" : "Always Online Disabled", icon: "bolt.horizontal.fill")
         } catch {
             self.alwaysOnline = prev
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Failed to update Always Online")
         }
     }
     
@@ -145,11 +151,14 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.developmentMode = isOn
         do {
             try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Development Mode Enabled" : "Development Mode Disabled")
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
+            ToastManager.shared.showSuccess(isOn ? "Development Mode Enabled" : "Development Mode Disabled", icon: "hammer.fill")
         } catch {
             self.developmentMode = prev
             self.errorMessage = error.localizedDescription
+            ToastManager.shared.showError("Failed to update Development Mode")
         }
     }
 }

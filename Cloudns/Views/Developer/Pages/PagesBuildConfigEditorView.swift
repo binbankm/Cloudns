@@ -134,5 +134,6 @@ struct PagesBuildConfigEditorView: View {
                 }
             }
         }
+        .higToast()
     }
 }

@@ -242,8 +242,12 @@ struct DNSPresetsSheetView: View {
             }
             .sheet(item: $selectedGroup) { group in
                 presetDetailSheet(for: group)
+                 .higToast()
             }
         }
+        .higToast()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     @ViewBuilder
@@ -369,10 +373,10 @@ struct DNSPresetsSheetView: View {
         selectedGroup = nil
         
         if successCount > 0 {
-            HIGFeedback.success()
+            ToastManager.shared.showSuccess("DNS Presets Applied (\(successCount))", icon: "wand.and.stars")
             dismiss()
         } else {
-            HIGFeedback.error()
+            ToastManager.shared.showError("Failed to apply presets")
         }
     }
 }

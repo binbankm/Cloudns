@@ -7,6 +7,8 @@ struct EdgeCertificatesView: View {
     
     @StateObject private var viewModel = EdgeCertificatesViewModel()
     @State private var searchText = ""
+    @State private var certToDelete: EdgeCertificateModel?
+    @State private var showingDeleteConfirm = false
     
     private var displayedCertificates: [EdgeCertificateModel] {
         if searchText.isEmpty { return viewModel.certificates }
@@ -46,8 +48,8 @@ struct EdgeCertificatesView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 if cert.type.lowercased() != "universal" {
                                     Button(role: .destructive) {
-                                        HIGFeedback.impact(.medium)
-                                        Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
+                                        certToDelete = cert
+                                        showingDeleteConfirm = true
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -93,6 +95,24 @@ struct EdgeCertificatesView: View {
         }
         .navigationTitle("Edge Certificates")
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog("Delete Certificate", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+            if let cert = certToDelete {
+                Button("Delete Certificate", role: .destructive) {
+                    Task {
+                        await viewModel.deleteCertificate(zoneId: zoneId, cert: cert)
+                        ToastManager.shared.showSuccess("Certificate Deleted", icon: "trash.fill")
+                        certToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                certToDelete = nil
+            }
+        } message: {
+            if let cert = certToDelete {
+                Text("Are you sure you want to delete certificate for '\(cert.hosts.joined(separator: ", "))'?")
+            }
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchCertificates(zoneId: zoneId)

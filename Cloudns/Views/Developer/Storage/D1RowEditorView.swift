@@ -128,6 +128,7 @@ struct D1RowEditorView: View {
                 }
             }
         }
+        .higToast()
     }
 
     private func saveRow() {

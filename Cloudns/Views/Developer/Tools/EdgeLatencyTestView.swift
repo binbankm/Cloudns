@@ -5,110 +5,100 @@ struct EdgeLatencyTestView: View {
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 1. Input & Rounds Card
-                    inputCard
+        List {
+            // 1. Input & Rounds Section
+            Section(header: Text("Target Host"), footer: Text("Sends consecutive HTTP/HTTPS HEAD probes to measure edge latency, round-trip time jitter & packet consistency.")) {
+                HStack(spacing: 10) {
+                    Image(systemName: "speedometer")
+                        .font(.body)
+                        .foregroundStyle(.purple)
+                        .accessibilityHidden(true)
                     
-                    if viewModel.isLatencyLoading {
-                        VStack(spacing: 16) {
-                            metricsCard(result: EdgeLatencyResult.placeholder)
-                            protocolCard(result: EdgeLatencyResult.placeholder)
+                    TextField("https://example.com", text: $viewModel.latencyHostInput)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isFieldFocused)
+                        .font(.body.monospacedDigit())
+                        .submitLabel(.go)
+                        .onSubmit {
+                            performTest()
                         }
-                        .redacted(reason: .placeholder)
-                            .redacted(reason: .placeholder)
-                    } else if let result = viewModel.latencyResult {
-                        // 2. Metrics Hero Card
-                        metricsCard(result: result)
-                        
-                        // 3. Protocol Info Card
-                        protocolCard(result: result)
-                        
-                        // 4. Round Breakdown Card
-                        roundsCard(result: result)
-                    } else if let error = viewModel.latencyError {
-                        errorCard(message: error)
+                    
+                    if !viewModel.latencyHostInput.isEmpty {
+                        Button {
+                            viewModel.latencyHostInput = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear input")
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .refreshable {
-                if !viewModel.latencyHostInput.isEmpty {
-                    await viewModel.testLatency()
+                
+                Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
+                    .font(.subheadline)
+                
+                Button {
+                    performTest()
+                } label: {
+                    HStack(spacing: 6) {
+                        if viewModel.isLatencyLoading {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "bolt.horizontal.fill")
+                        }
+                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .disabled(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading)
+            }
+            
+            if viewModel.isLatencyLoading {
+                Section(header: Text("Latency & Jitter Summary")) {
+                    metricsRows(result: EdgeLatencyResult.placeholder)
+                }
+                .redacted(reason: .placeholder)
+            } else if let result = viewModel.latencyResult {
+                // 2. Metrics Hero Section
+                Section(header: Text("Latency & Jitter Summary")) {
+                    metricsRows(result: result)
+                }
+                
+                // 3. Protocol Info Section
+                Section(header: Text("Edge Protocol & Server")) {
+                    protocolRows(result: result)
+                }
+                
+                // 4. Round Breakdown Section
+                Section(header: Text("Round-by-Round Breakdown (\(result.pings.count))")) {
+                    roundsRows(result: result)
+                }
+            } else if let error = viewModel.latencyError {
+                Section(header: Text("Error")) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .refreshable {
+            if !viewModel.latencyHostInput.isEmpty {
+                await viewModel.testLatency()
             }
         }
         .navigationTitle("Edge Latency Test")
         .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    // MARK: - 1. Input Card
-    private var inputCard: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 10) {
-                Image(systemName: "speedometer")
-                    .font(.title3)
-                    .foregroundStyle(.purple)
-                    .accessibilityHidden(true)
-                
-                TextField("https://example.com", text: $viewModel.latencyHostInput)
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .focused($isFieldFocused)
-                    .font(.body.monospacedDigit())
-                    .submitLabel(.go)
-                    .onSubmit {
-                        performTest()
-                    }
-                
-                if !viewModel.latencyHostInput.isEmpty {
-                    Button {
-                        viewModel.latencyHostInput = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                    }
-                    .accessibilityLabel("Clear input")
-                }
-            }
-            .padding(12)
-            .background(Color(.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            
-            Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
-                .font(.subheadline)
-            
-            Button {
-                performTest()
-            } label: {
-                HStack(spacing: 6) {
-                    if viewModel.isLatencyLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "bolt.horizontal.fill")
-                    }
-                    Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark")
-                        .font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.purple)
-            .controlSize(.regular)
-            .disabled(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading)
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performTest() {
@@ -117,147 +107,95 @@ struct EdgeLatencyTestView: View {
         Task { await viewModel.testLatency() }
     }
     
-    // MARK: - 2. Metrics Card
+    // MARK: - 2. Metrics Rows
     @ViewBuilder
-    private func metricsCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Latency & Jitter Summary")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            
-            Divider()
-            
-            HStack(spacing: 12) {
-                metricBox(title: "Avg Latency", value: String(format: "%.1f ms", result.avgMs), color: .green)
-                Spacer()
-                metricBox(title: "Min / Max", value: String(format: "%.0f / %.0f", result.minMs, result.maxMs), color: .blue)
-                Spacer()
-                metricBox(title: "Jitter", value: String(format: "±%.1f ms", result.jitterMs), color: .orange)
-            }
-            
-            Divider()
-            
-            HStack {
-                Text("Packet Loss")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(verbatim: String(format: "%.0f%%", result.packetLossPercent))
-                    .font(.caption.weight(.bold).monospacedDigit())
-                    .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
-            }
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-    
-    @ViewBuilder
-    private func metricBox(title: LocalizedStringKey, value: String, color: Color) -> some View {
-        VStack(alignment: .center, spacing: 4) {
-            Text(title)
-                .font(.caption2.weight(.medium))
+    private func metricsRows(result: EdgeLatencyResult) -> some View {
+        HStack {
+            Text("Average Latency")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text(value)
-                .font(.headline.weight(.bold).monospacedDigit())
-                .foregroundStyle(color)
+            Spacer()
+            Text(String(format: "%.1f ms", result.avgMs))
+                .font(.subheadline.weight(.bold).monospacedDigit())
+                .foregroundStyle(.green)
         }
-        .frame(minWidth: 80)
-    }
-    
-    // MARK: - 3. Protocol Card
-    @ViewBuilder
-    private func protocolCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Edge Protocol & Server")
-                .font(.headline)
+        
+        HStack {
+            Text("Min / Max Latency")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(String(format: "%.1f ms / %.1f ms", result.minMs, result.maxMs))
+                .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
-            
-            Divider()
-            
-            VStack(spacing: 10) {
-                HStack {
-                    Text("Protocol")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    HIGBadge(.active(result.httpProtocol), isCompact: true)
-                }
-                
-                if !result.serverHeader.isEmpty {
-                    HStack {
-                        Text("Server Banner")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(result.serverHeader)
-                            .font(.subheadline.monospaced())
-                            .foregroundStyle(.primary)
-                    }
-                }
-            }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        
+        HStack {
+            Text("Jitter")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(String(format: "±%.1f ms", result.jitterMs))
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+                .foregroundStyle(.orange)
+        }
+        
+        HStack {
+            Text("Packet Loss")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(verbatim: String(format: "%.0f%%", result.packetLossPercent))
+                .font(.subheadline.weight(.bold).monospacedDigit())
+                .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
+        }
     }
     
-    // MARK: - 4. Rounds Card
+    // MARK: - 3. Protocol Rows
     @ViewBuilder
-    private func roundsCard(result: EdgeLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Round-by-Round Breakdown (\(result.pings.count))")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            
-            Divider()
-            
-            VStack(spacing: 8) {
-                ForEach(result.pings) { ping in
-                    HStack {
-                        Text("Round \(ping.id)")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.secondary)
-                        
-                        Spacer()
-                        
-                        if ping.isSuccess {
-                            Text(String(format: "%.1f ms", ping.latencyMs))
-                                .font(.subheadline.weight(.semibold).monospacedDigit())
-                                .foregroundStyle(ping.latencyMs < 50 ? .green : (ping.latencyMs < 120 ? .orange : .red))
-                        } else {
-                            Text("Failed")
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(.red)
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
+    private func protocolRows(result: EdgeLatencyResult) -> some View {
+        HStack {
+            Text("Protocol")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            HIGBadge(.active(result.httpProtocol), isCompact: true)
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-    
-    // MARK: - Error Card
-    @ViewBuilder
-    private func errorCard(message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.title3)
-                .foregroundStyle(.red)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Test Failed")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(message)
+        
+        if !result.serverHeader.isEmpty {
+            HStack {
+                Text("Server Banner")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                Spacer()
+                Text(result.serverHeader)
+                    .font(.subheadline.monospaced())
+                    .foregroundStyle(.primary)
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+    
+    // MARK: - 4. Rounds Rows
+    @ViewBuilder
+    private func roundsRows(result: EdgeLatencyResult) -> some View {
+        ForEach(result.pings) { ping in
+            HStack {
+                Text("Round \(ping.id)")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                if ping.isSuccess {
+                    Text(String(format: "%.1f ms", ping.latencyMs))
+                        .font(.subheadline.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(ping.latencyMs < 50 ? .green : (ping.latencyMs < 120 ? .orange : .red))
+                } else {
+                    Text("Failed")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.red)
+                }
+            }
+        }
     }
 }

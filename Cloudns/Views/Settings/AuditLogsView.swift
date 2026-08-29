@@ -55,6 +55,7 @@ struct AuditLogsView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+             .higToast()
         }
         .overlay {
             if viewModel.hasFetchedData {
@@ -364,13 +365,14 @@ struct AuditLogDetailSheetView: View {
             if isCopyable {
                 Button {
                     UIPasteboard.general.string = value
-                    HIGFeedback.impact(.light)
+                    ToastManager.shared.showCopied()
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
+                .higTouchTarget()
             }
         }
     }

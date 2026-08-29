@@ -6,6 +6,10 @@ struct R2BucketSettingsView: View {
     let bucketName: String
     @StateObject private var viewModel: R2BucketSettingsViewModel
     @State private var showingAddCORSSheet = false
+    @State private var domainToDelete: R2CustomDomain?
+    @State private var corsIndexToDelete: Int?
+    @State private var showingDeleteDomainConfirm = false
+    @State private var showingDeleteCORSConfirm = false
     
     init(accountId: String, bucketName: String) {
         self.accountId = accountId
@@ -55,7 +59,8 @@ struct R2BucketSettingsView: View {
                             customDomainRow(domain)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
-                                        Task { await viewModel.deleteCustomDomain(domain: domain.domain) }
+                                        domainToDelete = domain
+                                        showingDeleteDomainConfirm = true
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -78,7 +83,8 @@ struct R2BucketSettingsView: View {
                             corsRuleRow(rule)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
-                                        Task { await viewModel.deleteCORSRule(at: index) }
+                                        corsIndexToDelete = index
+                                        showingDeleteCORSConfirm = true
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -104,6 +110,39 @@ struct R2BucketSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddCORSSheet) {
             AddCORSRuleSheetView(viewModel: viewModel)
+             .higToast()
+        }
+        .confirmationDialog("Delete Custom Domain", isPresented: $showingDeleteDomainConfirm, titleVisibility: .visible) {
+            if let domain = domainToDelete {
+                Button("Delete '\(domain.domain)'", role: .destructive) {
+                    Task {
+                        await viewModel.deleteCustomDomain(domain: domain.domain)
+                        ToastManager.shared.showSuccess("Custom Domain Deleted", icon: "trash.fill")
+                        domainToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                domainToDelete = nil
+            }
+        } message: {
+            Text("Are you sure you want to disconnect this custom domain?")
+        }
+        .confirmationDialog("Delete CORS Rule", isPresented: $showingDeleteCORSConfirm, titleVisibility: .visible) {
+            if let idx = corsIndexToDelete {
+                Button("Delete CORS Rule", role: .destructive) {
+                    Task {
+                        await viewModel.deleteCORSRule(at: idx)
+                        ToastManager.shared.showSuccess("CORS Rule Deleted", icon: "trash.fill")
+                        corsIndexToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                corsIndexToDelete = nil
+            }
+        } message: {
+            Text("Are you sure you want to delete this CORS rule?")
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -276,4 +315,3 @@ struct AddCORSRuleSheetView: View {
         }
     }
 }
-

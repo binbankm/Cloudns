@@ -9,6 +9,10 @@ struct LoadBalancerView: View {
     @State private var selectedTab = 0
     @State private var showingAddSheet = false
     @State private var searchText = ""
+    @State private var lbToDelete: LoadBalancer?
+    @State private var poolToDelete: LBPool?
+    @State private var monitorToDelete: LBMonitor?
+    @State private var showingDeleteDialog = false
     
     init(zoneId: String) {
         self.zoneId = zoneId
@@ -77,12 +81,59 @@ struct LoadBalancerView: View {
             }
         }
         .sheet(isPresented: $showingAddSheet) {
-            if selectedTab == 0 {
-                AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
-            } else if selectedTab == 1 {
-                AddLBPoolSheetView(viewModel: viewModel)
-            } else {
-                AddLBMonitorSheetView(viewModel: viewModel)
+            Group {
+                if selectedTab == 0 {
+                    AddLoadBalancerView(zoneId: zoneId, viewModel: viewModel)
+                } else if selectedTab == 1 {
+                    AddLBPoolSheetView(viewModel: viewModel)
+                } else {
+                    AddLBMonitorSheetView(viewModel: viewModel)
+                }
+            }
+            .higToast()
+        }
+        .confirmationDialog(
+            "Delete Resource",
+            isPresented: $showingDeleteDialog,
+            titleVisibility: .visible
+        ) {
+            if let lb = lbToDelete {
+                Button("Delete '\(lb.name ?? "Load Balancer")'", role: .destructive) {
+                    Task {
+                        await viewModel.deleteLoadBalancer(id: lb.id)
+                        ToastManager.shared.showSuccess("Load Balancer Deleted", icon: "trash.fill")
+                        lbToDelete = nil
+                    }
+                }
+            } else if let pool = poolToDelete {
+                Button("Delete '\(pool.name ?? "Pool")'", role: .destructive) {
+                    Task {
+                        await viewModel.deletePool(poolId: pool.id)
+                        ToastManager.shared.showSuccess("Origin Pool Deleted", icon: "trash.fill")
+                        poolToDelete = nil
+                    }
+                }
+            } else if let mon = monitorToDelete {
+                Button("Delete '\(mon.description ?? "Monitor")'", role: .destructive) {
+                    Task {
+                        await viewModel.deleteMonitor(monitorId: mon.id)
+                        ToastManager.shared.showSuccess("Health Monitor Deleted", icon: "trash.fill")
+                        monitorToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                lbToDelete = nil
+                poolToDelete = nil
+                monitorToDelete = nil
+            }
+        } message: {
+            if let lb = lbToDelete {
+                Text("Are you sure you want to delete Load Balancer '\(lb.name ?? "Resource")'?")
+            } else if let pool = poolToDelete {
+                Text("Are you sure you want to delete Origin Pool '\(pool.name ?? "Resource")'?")
+            } else if let mon = monitorToDelete {
+                Text("Are you sure you want to delete Health Monitor '\(mon.description ?? "Resource")'?")
             }
         }
     }
@@ -170,7 +221,7 @@ struct LoadBalancerView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, (viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty) {
+                if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
                     HIGContentState(
                         .error(
                             message: LocalizedStringKey(errorMessage),

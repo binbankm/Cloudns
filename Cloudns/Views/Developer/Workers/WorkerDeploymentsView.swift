@@ -42,7 +42,7 @@ struct WorkerDeploymentsView: View {
                                 
                                 Button {
                                     UIPasteboard.general.string = dep.id
-                                    HIGFeedback.success()
+                                    ToastManager.shared.showCopied()
                                     HIGFeedback.impact(.light)
                                 } label: {
                                     Label("Copy ID", systemImage: "doc.on.doc")

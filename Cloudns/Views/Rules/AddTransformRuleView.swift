@@ -135,6 +135,7 @@ struct AddTransformRuleView: View {
                 }
             )
         }
+        .higToast()
     }
     
     private var isFormInvalid: Bool {
@@ -177,6 +178,7 @@ struct AddTransformRuleView: View {
         isSubmitting = false
         if success {
             HIGFeedback.success()
+            ToastManager.shared.showSuccess("Transform Rule Created", icon: "arrow.triangle.2.circlepath")
             dismiss()
         } else {
             HIGFeedback.error()

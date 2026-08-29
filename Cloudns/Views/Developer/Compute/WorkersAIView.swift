@@ -24,7 +24,7 @@ struct WorkersAIView: View {
             } else if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {
-                        Section(header: Text(taskName)) {
+                        Section {
                             ForEach(list) { model in
                                 Button {
                                     HIGFeedback.selection()
@@ -32,7 +32,10 @@ struct WorkersAIView: View {
                                 } label: {
                                     modelRow(model)
                                 }
+                                .buttonStyle(.plain)
                             }
+                        } header: {
+                            categoryHeader(taskName, count: list.count)
                         }
                     }
                 }
@@ -49,6 +52,7 @@ struct WorkersAIView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedModelForPlayground) { model in
             WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
+             .higToast()
         }
         .refreshable {
             await viewModel.fetchModels()
@@ -85,9 +89,32 @@ struct WorkersAIView: View {
     }
     
     @ViewBuilder
+    private func categoryHeader(_ rawName: String, count: Int) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: iconForTask(rawName))
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.purple)
+            
+            Text(localizedTaskName(rawName))
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
+            Text("\(count)")
+                .font(.caption2.monospacedDigit().weight(.semibold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color(.tertiarySystemFill))
+                .clipShape(Capsule())
+                .foregroundStyle(.secondary)
+        }
+    }
+    
+    @ViewBuilder
     private func modelRow(_ model: AIModel) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "sparkles")
+            Image(systemName: iconForTask(model.taskName))
                 .font(.body)
                 .foregroundStyle(.purple)
                 .frame(width: 32, height: 32)
@@ -95,10 +122,23 @@ struct WorkersAIView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 3) {
-                Text(model.shortName)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.primary)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(model.shortName)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    
+                    if let vendor = vendorFromModel(model) {
+                        Text(vendor)
+                            .font(.system(size: 10, weight: .semibold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Color(.tertiarySystemFill))
+                            .foregroundStyle(.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    }
+                }
                 
                 if let desc = model.description, !desc.isEmpty {
                     Text(desc)
@@ -108,13 +148,58 @@ struct WorkersAIView: View {
                 }
             }
             
-            Spacer()
+            Spacer(minLength: 8)
             
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 4)
+    }
+    
+    private func vendorFromModel(_ model: AIModel) -> String? {
+        let parts = model.modelPath.split(separator: "/")
+        if parts.count >= 2 {
+            let v = String(parts[parts.count - 2])
+            if v != "@cf" {
+                return v.capitalized
+            }
+        }
+        return nil
+    }
+    
+    private func localizedTaskName(_ raw: String) -> String {
+        let lower = raw.lowercased()
+        if lower.contains("speech") || lower.contains("audio") {
+            return "语音识别与处理"
+        } else if lower.contains("text-generation") || lower.contains("generation") {
+            return "文本生成与推理 (LLM)"
+        } else if lower.contains("image") || lower.contains("vision") {
+            return "图像与视觉生成"
+        } else if lower.contains("embed") {
+            return "向量嵌入 (Embedding)"
+        } else if lower.contains("translation") {
+            return "智能多语言翻译"
+        } else if lower.contains("classification") {
+            return "文本/图像分类"
+        }
+        return raw.capitalized
+    }
+    
+    private func iconForTask(_ task: String) -> String {
+        let lower = task.lowercased()
+        if lower.contains("speech") || lower.contains("audio") {
+            return "waveform"
+        } else if lower.contains("text") || lower.contains("generation") {
+            return "bubble.left.and.bubble.right.fill"
+        } else if lower.contains("image") {
+            return "photo.fill"
+        } else if lower.contains("embed") {
+            return "point.3.connected.trianglepath.dotted"
+        } else if lower.contains("translation") {
+            return "character.bubble.fill"
+        }
+        return "sparkles"
     }
 }
 
@@ -133,7 +218,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         if viewModel.chatMessages.isEmpty {
                             VStack(spacing: 8) {
                                 Image(systemName: "brain.head.profile")
-                                    .font(.system(size: 40))
+                                    .font(.system(.largeTitle, design: .rounded).weight(.medium))
                                     .foregroundStyle(.purple)
                                     .padding(.top, 40)
                                 

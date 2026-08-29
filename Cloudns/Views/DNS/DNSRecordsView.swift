@@ -16,6 +16,9 @@ struct DNSRecordsView: View {
     @State private var showingImporter = false
     @State private var showingPresetsSheet = false
     @State private var multiSelection = Set<String>()
+    @State private var recordToDelete: DNSRecord?
+    @State private var showingSingleDeleteDialog = false
+    @State private var showingBatchDeleteDialog = false
     
     @Environment(\.editMode) private var editMode
     
@@ -73,9 +76,7 @@ struct DNSRecordsView: View {
                     let selectedCount = multiSelection.count
                     Button(role: .destructive) {
                         HIGFeedback.impact(.medium)
-                        viewModel.deleteRecords(withIds: multiSelection)
-                        multiSelection.removeAll()
-                        editMode?.wrappedValue = .inactive
+                        showingBatchDeleteDialog = true
                     } label: {
                         Text("Delete Selected (\(selectedCount))")
                             .foregroundStyle(.red)
@@ -92,6 +93,7 @@ struct DNSRecordsView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+             .higToast()
         }
         .sheet(isPresented: $showingPresetsSheet) {
             DNSPresetsSheetView(
@@ -99,6 +101,7 @@ struct DNSRecordsView: View {
                 zoneId: zoneId,
                 viewModel: viewModel
             )
+             .higToast()
         }
         .fileImporter(
             isPresented: $showingImporter,
@@ -114,14 +117,14 @@ struct DNSRecordsView: View {
                 Task {
                     do {
                         try await DNSService.shared.importDNSRecords(zoneId: zoneId, fileURL: selectedURL)
-                        HIGFeedback.success()
+                        ToastManager.shared.showSuccess("BIND Records Imported", icon: "square.and.arrow.down.fill")
                         await viewModel.fetchRecords(isRefresh: true)
                     } catch {
-                        HIGFeedback.error()
+                        ToastManager.shared.showError("Import Failed")
                     }
                 }
             case .failure:
-                HIGFeedback.error()
+                ToastManager.shared.showError("Import Failed")
             }
         }
         .overlay {
@@ -152,9 +155,53 @@ struct DNSRecordsView: View {
         }
         .sheet(isPresented: $showingForm) {
             DNSRecordFormView(viewModel: viewModel)
+             .higToast()
         }
         .sheet(item: $recordToEdit) { record in
             DNSRecordFormView(viewModel: viewModel, existingRecord: record)
+             .higToast()
+        }
+        .confirmationDialog(
+            "Delete DNS Record",
+            isPresented: $showingSingleDeleteDialog,
+            titleVisibility: .visible
+        ) {
+            if let record = recordToDelete {
+                Button("Delete \"\(record.name)\"", role: .destructive) {
+                    Task {
+                        do {
+                            try await viewModel.deleteRecord(recordId: record.id)
+                            ToastManager.shared.showSuccess("DNS Record Deleted", icon: "trash.fill")
+                        } catch {
+                            ToastManager.shared.showError("Failed to delete record")
+                        }
+                        recordToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                recordToDelete = nil
+            }
+        } message: {
+            if let record = recordToDelete {
+                Text("Are you sure you want to delete the \(record.type) record for \(record.name)? Traffic resolving to this record will stop immediately.")
+            }
+        }
+        .confirmationDialog(
+            "Delete Selected Records",
+            isPresented: $showingBatchDeleteDialog,
+            titleVisibility: .visible
+        ) {
+            Button("Delete \(multiSelection.count) Records", role: .destructive) {
+                let count = multiSelection.count
+                viewModel.deleteRecords(withIds: multiSelection)
+                multiSelection.removeAll()
+                editMode?.wrappedValue = .inactive
+                ToastManager.shared.showSuccess("\(count) Records Deleted", icon: "trash.fill")
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Are you sure you want to delete \(multiSelection.count) DNS records? This action cannot be undone.")
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -164,38 +211,151 @@ struct DNSRecordsView: View {
     }
     
     // MARK: - Subviews
+    
     @ViewBuilder
     private var trailingToolbar: some View {
         HStack(spacing: 8) {
             Menu {
-                Button {
-                    showingForm = true
+                // SubMenu 1: Filter by Type
+                Menu {
+                    Button {
+                        viewModel.selectedType = "ALL"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.selectedType == "ALL" {
+                            Label("All Types", systemImage: "checkmark")
+                        } else {
+                            Text("All Types")
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    ForEach(["A", "AAAA", "CNAME", "TXT", "MX", "NS", "PTR", "SRV", "CAA"], id: \.self) { type in
+                        Button {
+                            viewModel.selectedType = type
+                            HIGFeedback.selection()
+                        } label: {
+                            if viewModel.selectedType == type {
+                                Label(type, systemImage: "checkmark")
+                            } else {
+                                Text(type)
+                            }
+                        }
+                    }
                 } label: {
-                    Label("Add DNS Record", systemImage: "plus")
+                    Label(
+                        viewModel.selectedType == "ALL" ? "Record Type" : "Type: \(viewModel.selectedType)",
+                        systemImage: "line.3.horizontal.decrease"
+                    )
                 }
                 
-                Button {
-                    showingPresetsSheet = true
+                // SubMenu 2: Filter by Proxy Status
+                Menu {
+                    Button {
+                        viewModel.selectedProxyStatus = "ALL"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.selectedProxyStatus == "ALL" {
+                            Label("All Statuses", systemImage: "checkmark")
+                        } else {
+                            Text("All Statuses")
+                        }
+                    }
+                    
+                    Button {
+                        viewModel.selectedProxyStatus = "PROXIED"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.selectedProxyStatus == "PROXIED" {
+                            Label("Proxied (Orange Cloud)", systemImage: "checkmark")
+                        } else {
+                            Text("Proxied (Orange Cloud)")
+                        }
+                    }
+                    
+                    Button {
+                        viewModel.selectedProxyStatus = "DNS_ONLY"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.selectedProxyStatus == "DNS_ONLY" {
+                            Label("DNS Only (Grey Cloud)", systemImage: "checkmark")
+                        } else {
+                            Text("DNS Only (Grey Cloud)")
+                        }
+                    }
                 } label: {
-                    Label("1-Click Presets", systemImage: "wand.and.stars")
+                    Label(
+                        viewModel.selectedProxyStatus == "ALL" ? "Proxy Status" : (viewModel.selectedProxyStatus == "PROXIED" ? "Proxy: Proxied" : "Proxy: DNS Only"),
+                        systemImage: "shield.lefthalf.filled"
+                    )
+                }
+                
+                // SubMenu 3: Sort Records
+                Menu {
+                    Button {
+                        viewModel.sortOption = "name"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.sortOption == "name" {
+                            Label("Name (A to Z)", systemImage: "checkmark")
+                        } else {
+                            Text("Name (A to Z)")
+                        }
+                    }
+                    
+                    Button {
+                        viewModel.sortOption = "type"
+                        HIGFeedback.selection()
+                    } label: {
+                        if viewModel.sortOption == "type" {
+                            Label("Record Type", systemImage: "checkmark")
+                        } else {
+                            Text("Record Type")
+                        }
+                    }
+                } label: {
+                    Label("Sort Records", systemImage: "arrow.up.arrow.down")
+                }
+                
+                if viewModel.isFiltered {
+                    Divider()
+                    
+                    Button(role: .destructive) {
+                        viewModel.resetFilters()
+                        HIGFeedback.impact(.light)
+                    } label: {
+                        Label("Reset All Filters", systemImage: "arrow.counterclockwise")
+                    }
                 }
                 
                 Divider()
                 
-                Button {
-                    showingExportSheet = true
-                } label: {
-                    Label("Export BIND Zone File", systemImage: "square.and.arrow.up")
-                }
-                
-                Button {
-                    showingImporter = true
-                } label: {
-                    Label("Import BIND Zone File", systemImage: "square.and.arrow.down")
+                // Tools & Presets Section
+                Section("Tools") {
+                    Button {
+                        showingPresetsSheet = true
+                    } label: {
+                        Label("1-Click Presets", systemImage: "wand.and.stars")
+                    }
+                    
+                    Button {
+                        showingExportSheet = true
+                    } label: {
+                        Label("Export BIND Zone File", systemImage: "square.and.arrow.up")
+                    }
+                    
+                    Button {
+                        showingImporter = true
+                    } label: {
+                        Label("Import BIND Zone File", systemImage: "square.and.arrow.down")
+                    }
                 }
             } label: {
-                Image(systemName: "ellipsis.circle")
+                Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
+                    .foregroundStyle(viewModel.isFiltered ? Color.orange : Color.accentColor)
             }
+            .accessibilityLabel("DNS Options and Filters")
             
             Button {
                 showingForm = true
@@ -265,14 +425,8 @@ struct DNSRecordsView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
-                Task {
-                    do {
-                        try await viewModel.deleteRecord(recordId: record.id)
-                    } catch {
-                        HIGFeedback.error()
-                    }
-                }
+                recordToDelete = record
+                showingSingleDeleteDialog = true
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -287,7 +441,7 @@ struct DNSRecordsView: View {
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 UIPasteboard.general.string = record.content ?? record.name
-                HIGFeedback.success()
+                ToastManager.shared.showCopied("Record Content Copied")
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }

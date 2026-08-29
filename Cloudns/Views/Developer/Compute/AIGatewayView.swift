@@ -63,6 +63,7 @@ struct AIGatewayView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             AIGatewayCreateSheetView(viewModel: viewModel)
+             .higToast()
         }
         .confirmationDialog("Delete AI Gateway", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: gatewayToDelete) { gw in
             Button("Delete '\(gw.name ?? gw.id)'", role: .destructive) {

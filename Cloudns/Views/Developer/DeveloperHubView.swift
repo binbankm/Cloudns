@@ -40,26 +40,8 @@ struct DeveloperHubView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            // Account Information Section
-            Section {
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "person.crop.circle.fill", color: .blue, size: 28, cornerRadius: 6)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(viewModel.selectedAccount?.name ?? "Active Account")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(.primary)
-                        Text(accountId.isEmpty ? "No account selected" : "Account ID: \(accountId)")
-                            .font(.caption2.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                .padding(.vertical, 2)
-            }
-            
             // MARK: - Compute
-                Section(header: Text("Compute & Applications")) {
+            Section(header: Text("Compute & Applications")) {
                     NavigationLink {
                         WorkersListView(accountId: accountId)
                     } label: {
@@ -258,36 +240,20 @@ struct DeveloperHubView: View {
                     }
                     .disabled(!isAccountReady)
                 }
-                
-                // MARK: - Dev Diagnostics (Option A: Consolidated)
-                Section(header: Text("Diagnostics & Tools")) {
-                    NavigationLink {
-                        NetworkDiagnosticsListView()
-                    } label: {
-                        DeveloperHubRowView(
-                            icon: "wrench.and.screwdriver.fill",
-                            iconColor: .indigo,
-                            title: "Network & Security Diagnostics",
-                            subtitle: "Trace · DNS Dig · HTTP · SSL · WHOIS · IP"
-                        )
-                    }
-                }
+            }
             .listStyle(.insetGrouped)
             .refreshable {
                 await viewModel.fetchOverview(isRefresh: true)
             }
         }
     }
-}
-
-// MARK: - DeveloperHubRowView (Inlined & Cohesive)
 
 struct DeveloperHubRowView: View {
     let icon: String
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    var badge: HIGBadgeType? = nil
+    var badge: HIGBadgeType?
     
     var body: some View {
         HStack(spacing: 12) {

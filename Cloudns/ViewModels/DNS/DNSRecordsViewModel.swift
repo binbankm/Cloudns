@@ -11,13 +11,33 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
     
     @Published var searchQuery: String = ""
     @Published var sortOption: String = "name"
+    @Published var selectedType: String = "ALL"
+    @Published var selectedProxyStatus: String = "ALL"
+    
+    var isFiltered: Bool {
+        selectedType != "ALL" || selectedProxyStatus != "ALL"
+    }
+    
+    func resetFilters() {
+        selectedType = "ALL"
+        selectedProxyStatus = "ALL"
+    }
     
     var filteredRecords: [DNSRecord] {
+        var result = records
+        if selectedType != "ALL" {
+            result = result.filter { $0.type.uppercased() == selectedType.uppercased() }
+        }
+        if selectedProxyStatus == "PROXIED" {
+            result = result.filter { $0.proxied == true }
+        } else if selectedProxyStatus == "DNS_ONLY" {
+            result = result.filter { $0.proxied != true }
+        }
         let trimmed = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
-            return records
+            return result
         }
-        return records.filter { record in
+        return result.filter { record in
             record.name.localizedStandardContains(trimmed) ||
             (record.content ?? "").localizedStandardContains(trimmed) ||
             record.type.localizedStandardContains(trimmed) ||
@@ -168,6 +188,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
                 records[idx] = updatedRecord
             }
+            ToastManager.shared.showSuccess(newProxied ? "Proxy Enabled (Orange Cloud ☁️)" : "Proxy Disabled (DNS Only)", icon: "shield.lefthalf.filled")
         } catch {
             // Rollback on error
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
@@ -175,6 +196,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 rollback.proxied = currentProxied
                 records[idx] = rollback
             }
+            ToastManager.shared.showError("Failed to update proxy status")
         }
     }
     
