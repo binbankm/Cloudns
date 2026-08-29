@@ -781,6 +781,9 @@
         }
       }
     },
+    "*/15 * * * *" : {
+
+    },
     "/" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2009,6 +2012,7 @@
       }
     },
     "%@ • TTL %llds" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2547,6 +2551,7 @@
       }
     },
     "%@ record %@, points to %@, %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2695,6 +2700,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 记录 • %@ ➔ %@"
+          }
+        }
+      }
+    },
+    "%@ Records (%lld)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ Records (%2$lld)"
           }
         }
       }
@@ -3467,6 +3482,7 @@
       }
     },
     "%@, status %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3538,6 +3554,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@，状態 %2$@"
+          }
+        }
+      }
+    },
+    "%@://%@:%lld/%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@://%2$@:%3$lld/%4$@"
           }
         }
       }
@@ -4390,6 +4416,7 @@
       }
     },
     "%lld bytes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4615,6 +4642,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 個连接器"
+          }
+        }
+      }
+    },
+    "%lld consumer%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld consumer%2$@"
           }
         }
       }
@@ -4995,6 +5032,9 @@
           }
         }
       }
+    },
+    "%lld Healthy" : {
+
     },
     "%lld Healthy Connectors" : {
       "extractionState" : "manual",
@@ -5458,6 +5498,7 @@
       }
     },
     "%lld Lines" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -6071,6 +6112,7 @@
       }
     },
     "%lld routes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7222,6 +7264,9 @@
         }
       }
     },
+    "• Created %@" : {
+
+    },
     "• SSL: %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7300,6 +7345,7 @@
       }
     },
     "••••••••" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7529,6 +7575,7 @@
       }
     },
     "•••••••••••• (Encrypted)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -10365,6 +10412,7 @@
       }
     },
     "12.4 ms" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -11804,6 +11852,9 @@
         }
       }
     },
+    "301 (Permanent)" : {
+
+    },
     "301 Permanent Redirect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11957,6 +12008,9 @@
           }
         }
       }
+    },
+    "302 (Temporary)" : {
+
     },
     "302 Temporary Redirect" : {
       "extractionState" : "manual",
@@ -12112,6 +12166,9 @@
         }
       }
     },
+    "307 (Temporary Redirect)" : {
+
+    },
     "307 Temporary Redirect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12265,6 +12322,9 @@
           }
         }
       }
+    },
+    "308 (Permanent Redirect)" : {
+
     },
     "308 Permanent Redirect" : {
       "extractionState" : "manual",
@@ -12420,6 +12480,9 @@
         }
       }
     },
+    "3600" : {
+
+    },
     "A unique slug used in the Gateway universal endpoint URL." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12498,6 +12561,7 @@
       }
     },
     "A-" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12651,6 +12715,7 @@
       }
     },
     "A+" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -14187,6 +14252,9 @@
           }
         }
       }
+    },
+    "Account ID: %@" : {
+
     },
     "Account Removed" : {
       "extractionState" : "manual",
@@ -16343,6 +16411,7 @@
       }
     },
     "Add Access App" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16647,6 +16716,9 @@
           }
         }
       }
+    },
+    "Add Application" : {
+
     },
     "Add Cache Rule" : {
       "extractionState" : "manual",
@@ -17645,6 +17717,9 @@
         }
       }
     },
+    "Add Ingress Rule" : {
+
+    },
     "Add IP Rule" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17875,6 +17950,9 @@
           }
         }
       }
+    },
+    "Add KV Key" : {
+
     },
     "Add Load Balancer" : {
       "extractionState" : "manual",
@@ -18108,6 +18186,7 @@
       }
     },
     "Add Pages Binding" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18569,6 +18648,7 @@
       }
     },
     "Add Resource Binding" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18953,6 +19033,7 @@
       }
     },
     "Add these records to your domain registrar (GoDaddy, Namecheap, etc.)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -19021,6 +19102,9 @@
           }
         }
       }
+    },
+    "Add this DS record to your domain registrar." : {
+
     },
     "Add Transform Rule" : {
       "extractionState" : "manual",
@@ -19098,6 +19182,9 @@
           }
         }
       }
+    },
+    "Add Trigger" : {
+
     },
     "Add Trigger Rule" : {
       "extractionState" : "manual",
@@ -19329,6 +19416,9 @@
           }
         }
       }
+    },
+    "Add Variable / Secret" : {
+
     },
     "Add Variable or Resource" : {
       "localizations" : {
@@ -19712,6 +19802,9 @@
           }
         }
       }
+    },
+    "Add your first domain to start managing DNS records and edge security." : {
+
     },
     "Added 1 row to %@" : {
       "extractionState" : "manual",
@@ -24560,6 +24653,9 @@
         }
       }
     },
+    "App Name (e.g. Jira Internal)" : {
+
+    },
     "App Version" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -24944,7 +25040,11 @@
         }
       }
     },
+    "Application Info" : {
+
+    },
     "Application Name (e.g. Admin Portal)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25021,6 +25121,7 @@
       }
     },
     "Application Type" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -26166,6 +26267,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "確定要從 %@ 環境中刪除環境變數「%@」嗎？"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete key '%@' from namespace '%@'?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete key '%1$@' from namespace '%2$@'?"
           }
         }
       }
@@ -29089,6 +29200,9 @@
         }
       }
     },
+    "Attach a custom hostname to route requests to this Worker." : {
+
+    },
     "Attach Custom Domain" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -29165,6 +29279,9 @@
           }
         }
       }
+    },
+    "Attach Domain" : {
+
     },
     "Attach Resource" : {
       "localizations" : {
@@ -31317,6 +31434,7 @@
       }
     },
     "Benchmark Resolvers" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -31387,6 +31505,7 @@
       }
     },
     "Benchmarking Global Resolvers..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -31455,6 +31574,9 @@
           }
         }
       }
+    },
+    "Benchmarking Public Resolvers..." : {
+
     },
     "BGP Autonomous System (ASN)" : {
       "extractionState" : "manual",
@@ -31757,7 +31879,11 @@
         }
       }
     },
+    "Bind Cloudflare KV, D1, R2, Queues, or AI directly to this Worker." : {
+
+    },
     "Bind First Resource" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -31834,6 +31960,7 @@
       }
     },
     "Bind KV namespaces, D1 SQL databases, R2 buckets, and Queues directly to this Worker." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32062,6 +32189,9 @@
         }
       }
     },
+    "Binding Configuration" : {
+
+    },
     "Binding Failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -32139,6 +32269,12 @@
         }
       }
     },
+    "Binding Kind" : {
+
+    },
+    "Binding Name (e.g. MY_KV)" : {
+
+    },
     "Binding name copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -32215,6 +32351,9 @@
           }
         }
       }
+    },
+    "Binding Type" : {
+
     },
     "Binding variable copied" : {
       "extractionState" : "manual",
@@ -32294,6 +32433,7 @@
       }
     },
     "Binding Variable Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32523,6 +32663,9 @@
         }
       }
     },
+    "BIZ" : {
+
+    },
     "Block" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -32676,6 +32819,9 @@
           }
         }
       }
+    },
+    "blog.example.com" : {
+
     },
     "Bot Fight Mode" : {
       "extractionState" : "manual",
@@ -39795,6 +39941,9 @@
         }
       }
     },
+    "Check the spelling or try a new search." : {
+
+    },
     "Check Timing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -40711,6 +40860,9 @@
           }
         }
       }
+    },
+    "Clear domain" : {
+
     },
     "Clear domain input" : {
       "localizations" : {
@@ -41692,6 +41844,7 @@
       }
     },
     "Cloud Storage" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41845,6 +41998,7 @@
       }
     },
     "Cloudflare 1.1.1.1" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42068,6 +42222,7 @@
       }
     },
     "Cloudflare Accounts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42142,6 +42297,9 @@
           }
         }
       }
+    },
+    "Cloudflare active on site" : {
+
     },
     "Cloudflare Anycast detection, ISP organization & ASN" : {
       "extractionState" : "manual",
@@ -42682,6 +42840,9 @@
         }
       }
     },
+    "Cloudflare evaluates Cron triggers in UTC." : {
+
+    },
     "Cloudflare Fonts" : {
       "localizations" : {
         "ar" : {
@@ -43136,9 +43297,6 @@
         }
       }
     },
-    "Cloudflare KV Key Value Placeholder Payload\nKey configuration metadata\nEncrypted content" : {
-
-    },
     "Cloudflare Load Balancing is a paid add-on service. Make sure it is active on your Cloudflare account." : {
       "localizations" : {
         "ar" : {
@@ -43445,7 +43603,11 @@
         }
       }
     },
+    "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers." : {
+
+    },
     "Cloudflare Rules expression determining which queries or requests trigger this action." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -45902,6 +46064,12 @@
         }
       }
     },
+    "Comma or newline separated list of hostnames (e.g. example.com, app.example.com)." : {
+
+    },
+    "Comma or newline separated list of hostnames." : {
+
+    },
     "Comma-separated headers (e.g. Content-Type, Authorization, *)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -46055,6 +46223,9 @@
           }
         }
       }
+    },
+    "Comma-separated origins (e.g. https://example.com, *)." : {
+
     },
     "Comment (Optional)" : {
       "extractionState" : "manual",
@@ -47665,7 +47836,11 @@
         }
       }
     },
+    "Configure plaintext environment variables and encrypted secrets." : {
+
+    },
     "Configure plaintext variables and encrypted secrets accessible in your Worker code." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -48427,6 +48602,9 @@
           }
         }
       }
+    },
+    "Configured: %@" : {
+
     },
     "Configuring security level and scraper prevention rules..." : {
       "localizations" : {
@@ -49574,6 +49752,9 @@
           }
         }
       }
+    },
+    "Content Type" : {
+
     },
     "Content-Type or *" : {
       "extractionState" : "manual",
@@ -52017,6 +52198,7 @@
       }
     },
     "Copy Namespace ID" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -53005,6 +53187,7 @@
       }
     },
     "Copy Target Resource ID" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -53311,6 +53494,7 @@
       }
     },
     "Copy Variable Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -55677,6 +55861,9 @@
         }
       }
     },
+    "Create origin pools to group backend servers together." : {
+
+    },
     "Create Pages Project" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -56601,6 +56788,9 @@
         }
       }
     },
+    "Created %@" : {
+
+    },
     "Created Date" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -57063,6 +57253,9 @@
         }
       }
     },
+    "CRON" : {
+
+    },
     "Cron Expression" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -57139,6 +57332,9 @@
           }
         }
       }
+    },
+    "Cron Schedule" : {
+
     },
     "Cron Trigger" : {
       "extractionState" : "manual",
@@ -57603,6 +57799,7 @@
       }
     },
     "Cryptographically sign DNS lookup responses" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -57671,6 +57868,9 @@
           }
         }
       }
+    },
+    "Cryptographically sign DNS records to prevent DNS spoofing and cache poisoning." : {
+
     },
     "CSS" : {
       "extractionState" : "manual",
@@ -61826,6 +62026,7 @@
       }
     },
     "Deactivated" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -67044,6 +67245,9 @@
         }
       }
     },
+    "Detach '%@'" : {
+
+    },
     "Detach Domain" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -69200,6 +69404,9 @@
         }
       }
     },
+    "Distribute your traffic across multiple server pools with automatic failover." : {
+
+    },
     "Divergent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -70585,6 +70792,9 @@
         }
       }
     },
+    "dns.fqdn == \"malicious.com\"" : {
+
+    },
     "DNSSEC" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -70663,6 +70873,7 @@
       }
     },
     "DNSSEC is Enabled" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -71264,7 +71475,11 @@
         }
       }
     },
+    "Domain (e.g. jira.example.com)" : {
+
+    },
     "Domain (e.g. portal.example.com)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -71955,6 +72170,9 @@
           }
         }
       }
+    },
+    "Domain Info" : {
+
     },
     "Domain Information" : {
       "extractionState" : "manual",
@@ -73489,6 +73707,7 @@
       }
     },
     "DS Record Configuration" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -78994,6 +79213,7 @@
       }
     },
     "Enable Rule" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -79685,6 +79905,7 @@
       }
     },
     "Encrypt as Secret" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -79759,6 +79980,9 @@
           }
         }
       }
+    },
+    "Encrypt Value (Secret)" : {
+
     },
     "ENCRYPTED" : {
       "extractionState" : "manual",
@@ -79836,6 +80060,9 @@
           }
         }
       }
+    },
+    "Encrypted environment variables encrypted at rest and in transit." : {
+
     },
     "Encrypted Secret" : {
       "extractionState" : "manual",
@@ -80453,6 +80680,9 @@
         }
       }
     },
+    "ENT" : {
+
+    },
     "Enter a domain or subdomain owned by your account (e.g. api.example.com)." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -81068,6 +81298,9 @@
         }
       }
     },
+    "Enter the custom domain or subdomain you want to route to this project (e.g. blog.example.com)." : {
+
+    },
     "Enter the full hostname you wish to attach (e.g. app.example.com)." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -81144,6 +81377,9 @@
           }
         }
       }
+    },
+    "Enter the hostname (e.g. api.example.com) to attach to this Worker." : {
+
     },
     "Enter the root domain you want to add to Cloudflare, e.g. example.com" : {
       "extractionState" : "manual",
@@ -81761,6 +81997,7 @@
       }
     },
     "Environment (optional, default: production)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -82528,6 +82765,7 @@
       }
     },
     "ES Module" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -83064,6 +83302,9 @@
           }
         }
       }
+    },
+    "Event Overview" : {
+
     },
     "Events" : {
       "extractionState" : "manual",
@@ -83682,6 +83923,7 @@
       }
     },
     "Example: 'api' for api.yourdomain.com, or leave empty / '@' for apex domain." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -83903,6 +84145,9 @@
           }
         }
       }
+    },
+    "example.com, app.example.com" : {
+
     },
     "example.txt" : {
       "extractionState" : "manual",
@@ -85057,6 +85302,9 @@
         }
       }
     },
+    "Expires %@" : {
+
+    },
     "Expires: %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -85211,7 +85459,11 @@
         }
       }
     },
+    "Export BIND Zone File" : {
+
+    },
     "Export DNS Records" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -85664,6 +85916,9 @@
         }
       }
     },
+    "Export Zone File" : {
+
+    },
     "Exported Class" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -85819,6 +86074,7 @@
       }
     },
     "Expression Templates" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -89349,6 +89605,9 @@
           }
         }
       }
+    },
+    "FREE" : {
+
     },
     "Full" : {
       "extractionState" : "manual",
@@ -93347,6 +93606,9 @@
         }
       }
     },
+    "Health Monitors (%lld)" : {
+
+    },
     "Help browsers start loading assets sooner by responding with 103 Early Hints before the full response is ready." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -94269,6 +94531,7 @@
       }
     },
     "Hostname (e.g. worker.example.com)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -94730,6 +94993,7 @@
       }
     },
     "How long a user stays authenticated before being prompted to log in again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -97182,6 +97446,9 @@
         }
       }
     },
+    "https://example.com, *" : {
+
+    },
     "https://example.com/style.css" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -98258,6 +98525,9 @@
         }
       }
     },
+    "Import BIND Zone File" : {
+
+    },
     "Import Failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -98872,6 +99142,9 @@
           }
         }
       }
+    },
+    "Incoming requests to this public domain and path will route through the tunnel." : {
+
     },
     "Inference Playground" : {
       "extractionState" : "manual",
@@ -99490,6 +99763,7 @@
       }
     },
     "Initializing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -101076,6 +101350,9 @@
           }
         }
       }
+    },
+    "Internal Origin Service" : {
+
     },
     "Interval: %llds" : {
       "extractionState" : "manual",
@@ -105228,6 +105505,9 @@
         }
       }
     },
+    "JavaScript Snippets (%lld)" : {
+
+    },
     "Jitter" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -106145,6 +106425,7 @@
       }
     },
     "KEY NAME" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -106605,6 +106886,9 @@
         }
       }
     },
+    "KEY_PLACEHOLDER_NAME" : {
+
+    },
     "KEY:" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -106683,6 +106967,7 @@
       }
     },
     "Keys" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -107220,6 +107505,7 @@
       }
     },
     "KV Namespace %@, ID %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -109058,6 +109344,9 @@
         }
       }
     },
+    "List Information" : {
+
+    },
     "List Metadata" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -109211,6 +109500,9 @@
           }
         }
       }
+    },
+    "List Name (e.g. legacy_domains)" : {
+
     },
     "List: %@" : {
       "extractionState" : "manual",
@@ -112827,6 +113119,9 @@
         }
       }
     },
+    "main" : {
+
+    },
     "main / master" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -114666,6 +114961,9 @@
         }
       }
     },
+    "Matching Records (%lld)" : {
+
+    },
     "Matte obsidian with brushed titanium" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -114819,6 +115117,9 @@
           }
         }
       }
+    },
+    "Max Age (Seconds)" : {
+
     },
     "Max CPU (P99)" : {
       "localizations" : {
@@ -118280,6 +118581,7 @@
       }
     },
     "Moved" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -118580,6 +118882,9 @@
         }
       }
     },
+    "MY_KV_NAMESPACE" : {
+
+    },
     "my_snippet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -118733,6 +119038,9 @@
           }
         }
       }
+    },
+    "my-bucket" : {
+
     },
     "my-bucket-name" : {
       "extractionState" : "manual",
@@ -118888,6 +119196,15 @@
         }
       }
     },
+    "my-file.txt" : {
+
+    },
+    "my-pages-site" : {
+
+    },
+    "my-postgres-hyperdrive" : {
+
+    },
     "my-queue" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -118964,6 +119281,9 @@
           }
         }
       }
+    },
+    "my-tunnel" : {
+
     },
     "my-worker" : {
       "extractionState" : "manual",
@@ -119118,6 +119438,9 @@
           }
         }
       }
+    },
+    "Name (e.g. API_KEY)" : {
+
     },
     "Name (e.g., @ or www)" : {
       "extractionState" : "manual",
@@ -119349,6 +119672,15 @@
           }
         }
       }
+    },
+    "Name your KV namespace (e.g. USER_SESSIONS)." : {
+
+    },
+    "Name your queue using alphanumeric characters and dashes (e.g. auth-events-queue)." : {
+
+    },
+    "Name your Zero Trust Cloudflare Tunnel (e.g. home-server-tunnel)." : {
+
     },
     "name@example.com" : {
       "localizations" : {
@@ -121429,6 +121761,7 @@
       }
     },
     "Never expires" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -121503,6 +121836,9 @@
           }
         }
       }
+    },
+    "New Access App" : {
+
     },
     "New AI Gateway" : {
       "extractionState" : "manual",
@@ -121812,6 +122148,9 @@
         }
       }
     },
+    "New Gateway Rule" : {
+
+    },
     "New Health Monitor" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -121890,6 +122229,7 @@
       }
     },
     "New Hostname Rule" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -122349,6 +122689,9 @@
           }
         }
       }
+    },
+    "New R2 Bucket" : {
+
     },
     "New Rate Limit" : {
       "extractionState" : "manual",
@@ -123120,6 +123463,12 @@
         }
       }
     },
+    "New Tunnel" : {
+
+    },
+    "New Turnstile Widget" : {
+
+    },
     "New URL Rewrite" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -123887,6 +124236,9 @@
           }
         }
       }
+    },
+    "No account selected" : {
+
     },
     "No Account Selected" : {
       "extractionState" : "manual",
@@ -125274,6 +125626,7 @@
       }
     },
     "No D1 databases found in this account." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -126185,6 +126538,9 @@
         }
       }
     },
+    "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic." : {
+
+    },
     "No DNS records returned for this query." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -126339,7 +126695,11 @@
         }
       }
     },
+    "No Domains Added" : {
+
+    },
     "No Domains Added Yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -127331,6 +127691,7 @@
       }
     },
     "No encrypted secrets configured." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -127407,6 +127768,7 @@
       }
     },
     "No Environment Variables" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -128321,6 +128683,7 @@
       }
     },
     "No KV namespaces found in this account." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -129858,6 +130221,7 @@
       }
     },
     "No plaintext variables configured." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -130472,7 +130836,11 @@
         }
       }
     },
+    "No Queues Configured" : {
+
+    },
     "No queues found in this account." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -130626,6 +130994,7 @@
       }
     },
     "No R2 buckets found in this account." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -131463,6 +131832,9 @@
         }
       }
     },
+    "No Results for \"%@\"" : {
+
+    },
     "No results found for \"%@\". Check spelling or try a different term." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -131539,6 +131911,9 @@
           }
         }
       }
+    },
+    "No Routes Configured" : {
+
     },
     "No routing rules configured." : {
       "extractionState" : "manual",
@@ -131770,6 +132145,9 @@
           }
         }
       }
+    },
+    "No Secrets" : {
+
     },
     "No Secrets Found" : {
       "extractionState" : "manual",
@@ -132079,6 +132457,9 @@
         }
       }
     },
+    "No Snippets" : {
+
+    },
     "No Snippets Found" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -132387,6 +132768,7 @@
       }
     },
     "No trigger rules configured." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -132615,6 +132997,15 @@
           }
         }
       }
+    },
+    "No value retrieved" : {
+
+    },
+    "No Variables" : {
+
+    },
+    "No Variables or Secrets" : {
+
     },
     "No verified destinations available." : {
       "extractionState" : "manual",
@@ -133146,6 +133537,9 @@
           }
         }
       }
+    },
+    "No Zero Trust Gateway DNS/HTTP policies configured." : {
+
     },
     "No-Sniff" : {
       "extractionState" : "manual",
@@ -134147,6 +134541,9 @@
           }
         }
       }
+    },
+    "Object Info" : {
+
     },
     "Object Information" : {
       "extractionState" : "manual",
@@ -137609,6 +138006,9 @@
         }
       }
     },
+    "Other Bindings (%lld)" : {
+
+    },
     "Outcome" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -138992,6 +139392,7 @@
       }
     },
     "Pages project %@, branch %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -139144,6 +139545,9 @@
         }
       }
     },
+    "Pages Projects (%lld)" : {
+
+    },
     "Pages projects deploy Jamstack frontend websites on Cloudflare edge." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -139220,6 +139624,9 @@
           }
         }
       }
+    },
+    "PAID" : {
+
     },
     "Partial Outage" : {
       "extractionState" : "manual",
@@ -139990,6 +140397,9 @@
         }
       }
     },
+    "Path (Optional, e.g. /api)" : {
+
+    },
     "Path Filter (optional, e.g. /login)" : {
       "localizations" : {
         "ar" : {
@@ -140142,6 +140552,9 @@
           }
         }
       }
+    },
+    "Path/filename in the bucket (e.g. assets/config.json)." : {
+
     },
     "Pause" : {
       "extractionState" : "manual",
@@ -141144,6 +141557,9 @@
         }
       }
     },
+    "Plaintext environment variables accessible via env.VAR_NAME." : {
+
+    },
     "Plaintext environment variables are readable in code and configuration." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -141222,6 +141638,7 @@
       }
     },
     "Plaintext environment variables are readable in script code via env.VAR_NAME." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -141834,6 +142251,9 @@
           }
         }
       }
+    },
+    "Plan" : {
+
     },
     "Please check your network connection." : {
       "extractionState" : "manual",
@@ -144214,6 +144634,7 @@
       }
     },
     "Preview (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -145362,6 +145783,9 @@
         }
       }
     },
+    "PRO" : {
+
+    },
     "Pro Plan" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -145747,6 +146171,9 @@
         }
       }
     },
+    "prod-users-db" : {
+
+    },
     "Producers (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -145902,6 +146329,7 @@
       }
     },
     "Production (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -147594,6 +148022,7 @@
       }
     },
     "Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -149126,6 +149555,7 @@
       }
     },
     "Purge All Files" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -151115,6 +151545,9 @@
         }
       }
     },
+    "Query Resolvers" : {
+
+    },
     "Query Results (%lld rows)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -152401,6 +152834,9 @@
         }
       }
     },
+    "Queues (%lld)" : {
+
+    },
     "Quick Actions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -153552,6 +153988,9 @@
           }
         }
       }
+    },
+    "Ranked by lowest response time" : {
+
     },
     "Rate Limit Configuration" : {
       "extractionState" : "manual",
@@ -155852,6 +156291,9 @@
           }
         }
       }
+    },
+    "Redirect Behavior" : {
+
     },
     "Redirect Items (%lld)" : {
       "extractionState" : "manual",
@@ -159386,6 +159828,7 @@
       }
     },
     "Resolver Latency & Accuracy Benchmark" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -159460,6 +159903,9 @@
           }
         }
       }
+    },
+    "Resolver Latency Comparison" : {
+
     },
     "Resolving Answers..." : {
       "extractionState" : "manual",
@@ -160078,6 +160524,7 @@
       }
     },
     "Resources (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -162454,6 +162901,9 @@
           }
         }
       }
+    },
+    "Rewrite URL paths, query strings, or modify HTTP headers dynamically at the edge." : {
+
     },
     "Rewrite URLs and modify HTTP headers." : {
       "extractionState" : "manual",
@@ -165742,6 +166192,7 @@
       }
     },
     "Rule Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -166587,6 +167038,7 @@
       }
     },
     "Rule Scope" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -167047,6 +167499,9 @@
         }
       }
     },
+    "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge." : {
+
+    },
     "Run Model Inference" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -167354,6 +167809,9 @@
           }
         }
       }
+    },
+    "Run this Worker on a recurring schedule with Cron syntax." : {
+
     },
     "S3 Compatible" : {
       "extractionState" : "manual",
@@ -169035,6 +169493,7 @@
       }
     },
     "Scroll" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -171315,6 +171774,9 @@
         }
       }
     },
+    "Search Pages Projects" : {
+
+    },
     "Search Queues" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -173530,6 +173992,7 @@
       }
     },
     "Secret values are encrypted at rest and cannot be viewed once saved." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -173759,6 +174222,7 @@
       }
     },
     "Secrets" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -173989,6 +174453,7 @@
       }
     },
     "Secrets are encrypted at rest and masked in responses." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -175680,9 +176145,6 @@
         }
       }
     },
-    "Select Domain (Zone)" : {
-
-    },
     "Select Fallback Pool" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -176144,9 +176606,6 @@
           }
         }
       }
-    },
-    "Select Target Resource" : {
-
     },
     "Send an HTTP request or wait for a cron trigger to see logs appear in real time." : {
       "extractionState" : "manual",
@@ -176910,6 +177369,9 @@
         }
       }
     },
+    "Serverless edge functions & microservices" : {
+
+    },
     "Serverless Execution" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -177218,7 +177680,11 @@
         }
       }
     },
+    "Service URL accessible from where cloudflared is running, e.g. http://localhost:3000, tcp://192.168.1.100:22" : {
+
+    },
     "Service Worker" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -177601,6 +178067,7 @@
       }
     },
     "Services & Other Bindings (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -177830,6 +178297,7 @@
       }
     },
     "Session Lifespan" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -177904,6 +178372,9 @@
           }
         }
       }
+    },
+    "Session Settings" : {
+
     },
     "Set Static Value" : {
       "extractionState" : "manual",
@@ -178212,6 +178683,9 @@
           }
         }
       }
+    },
+    "Setup Type" : {
+
     },
     "Share" : {
       "localizations" : {
@@ -179058,6 +179532,9 @@
           }
         }
       }
+    },
+    "Sitekey: %@" : {
+
     },
     "Size" : {
       "extractionState" : "manual",
@@ -180135,6 +180612,9 @@
         }
       }
     },
+    "Snippets" : {
+
+    },
     "Snippets (%lld)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -180980,6 +181460,9 @@
           }
         }
       }
+    },
+    "Source URL (e.g. example.com/old)" : {
+
     },
     "Speed" : {
       "extractionState" : "manual",
@@ -182287,6 +182770,9 @@
         }
       }
     },
+    "Standard 5-segment cron format: minute hour day-of-month month day-of-week (UTC)." : {
+
+    },
     "Standard zone file format compatible with Cloudflare, BIND, Route 53, and standard DNS servers." : {
       "localizations" : {
         "ar" : {
@@ -182894,6 +183380,9 @@
         }
       }
     },
+    "Static site hosting & full-stack web apps" : {
+
+    },
     "Status" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -183432,6 +183921,9 @@
         }
       }
     },
+    "Storage & DB" : {
+
+    },
     "Storage & DBs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -183508,6 +184000,9 @@
           }
         }
       }
+    },
+    "Storage Class" : {
+
     },
     "Storage Engine" : {
       "extractionState" : "manual",
@@ -183895,6 +184390,7 @@
       }
     },
     "Subdomain (e.g. api)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -185349,6 +185845,7 @@
       }
     },
     "Swipe up or tap to dismiss" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -185423,6 +185920,9 @@
           }
         }
       }
+    },
+    "Switch Cloudflare Account" : {
+
     },
     "Switched Account" : {
       "extractionState" : "manual",
@@ -187117,6 +187617,7 @@
       }
     },
     "Target Environment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -187809,6 +188310,7 @@
       }
     },
     "Target Worker Service Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -188640,6 +189142,12 @@
         }
       }
     },
+    "Text Content" : {
+
+    },
+    "text/plain" : {
+
+    },
     "The email address on your domain that will receive messages." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -188718,6 +189226,7 @@
       }
     },
     "The variable name accessible inside Pages Functions (e.g. context.env.%@)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -188794,6 +189303,7 @@
       }
     },
     "The variable name used in Worker code (e.g. env.%@)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -189409,6 +189919,7 @@
       }
     },
     "This will immediately expire and clear all cached static files globally across Cloudflare edge data centers for %@." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -190331,6 +190842,7 @@
       }
     },
     "Timeout" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -193000,6 +193512,9 @@
         }
       }
     },
+    "Traffic bypassing Cloudflare" : {
+
+    },
     "Traffic Expression" : {
       "localizations" : {
         "ar" : {
@@ -194153,6 +194668,9 @@
         }
       }
     },
+    "Trigger Rules (%lld)" : {
+
+    },
     "Try Again" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -194383,6 +194901,9 @@
           }
         }
       }
+    },
+    "TTL %llds" : {
+
     },
     "TTL applies to DNS-only mode." : {
       "extractionState" : "manual",
@@ -195616,6 +196137,9 @@
         }
       }
     },
+    "Type:" : {
+
+    },
     "Ultimate Security" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -196609,6 +197133,21 @@
           }
         }
       }
+    },
+    "Unique bucket name using lowercase letters, numbers, and hyphens." : {
+
+    },
+    "Unique identifier using letters, numbers, and hyphens (e.g. my-ai-gateway)." : {
+
+    },
+    "Unique project name across your account." : {
+
+    },
+    "Unique script identifier (e.g. auth-middleware)." : {
+
+    },
+    "Unique SQLite database name across your account." : {
+
     },
     "United States" : {
       "extractionState" : "stale",
@@ -198067,6 +198606,9 @@
         }
       }
     },
+    "Updated %@" : {
+
+    },
     "Updated Date" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -198913,6 +199455,9 @@
         }
       }
     },
+    "URL Mapping" : {
+
+    },
     "URL Redirect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -199683,7 +200228,11 @@
         }
       }
     },
+    "user_1001" : {
+
+    },
     "UTF-8" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -200291,6 +200840,7 @@
       }
     },
     "value" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -201519,7 +202069,11 @@
         }
       }
     },
+    "Variable Name" : {
+
+    },
     "Variable Name (e.g. %@)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -201670,6 +202224,9 @@
           }
         }
       }
+    },
+    "Variable Name (e.g. DB or MY_BUCKET)" : {
+
     },
     "Variable Saved" : {
       "extractionState" : "manual",
@@ -201980,6 +202537,7 @@
       }
     },
     "VARIABLE_%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -202133,6 +202691,7 @@
       }
     },
     "Variables" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -202363,6 +202922,7 @@
       }
     },
     "Variables & Secrets (%lld)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -205725,6 +206285,9 @@
         }
       }
     },
+    "Widget Details" : {
+
+    },
     "Widget Mode" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -205878,6 +206441,9 @@
           }
         }
       }
+    },
+    "Widget Name (e.g. Login Page)" : {
+
     },
     "Widget Name (e.g. My Website Login)" : {
       "extractionState" : "manual",
@@ -206110,6 +206676,9 @@
         }
       }
     },
+    "Wirefilter expression matching network traffic." : {
+
+    },
     "Wireshark Filter Expression" : {
       "localizations" : {
         "ar" : {
@@ -206187,6 +206756,7 @@
       }
     },
     "Worker %@, usage model %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -207107,6 +207677,9 @@
         }
       }
     },
+    "Worker Script Name" : {
+
+    },
     "Worker Secrets" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -207492,6 +208065,9 @@
         }
       }
     },
+    "Workers & Compute" : {
+
+    },
     "Workers & Pages" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -207800,6 +208376,7 @@
       }
     },
     "Workers AI inference binding for Pages Functions." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -207876,6 +208453,7 @@
       }
     },
     "Workers AI model execution binding." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -207950,6 +208528,9 @@
           }
         }
       }
+    },
+    "Workers Scripts (%lld)" : {
+
     },
     "workers.dev disabled" : {
       "extractionState" : "manual",
@@ -208183,6 +208764,7 @@
       }
     },
     "Wrap" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

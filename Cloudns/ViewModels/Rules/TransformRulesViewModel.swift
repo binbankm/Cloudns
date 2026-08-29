@@ -79,11 +79,9 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -121,12 +119,10 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("Transform Rule Created", message: description.isEmpty ? "URL Rewrite" : description)
             HapticManager.notification(.success)
             return true
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -167,12 +163,10 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("Header Rule Created", message: description.isEmpty ? headerName : description)
             HapticManager.notification(.success)
             return true
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }

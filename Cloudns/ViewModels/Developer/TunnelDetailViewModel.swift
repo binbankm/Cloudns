@@ -44,10 +44,8 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
         do {
             try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
             self.ingressRules = updated
-            ToastManager.shared.showSuccess("Ingress Rule Added", message: hostname)
             return true
         } catch {
-            ToastManager.shared.showError("Save Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -62,9 +60,7 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
         do {
             try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
             self.ingressRules = updated
-            ToastManager.shared.showSuccess("Ingress Rule Deleted")
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -75,11 +71,9 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot"))
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("dashboard_overview_snapshot"))
             NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
-            ToastManager.shared.showSuccess("Tunnel Deleted", message: tunnel.name)
             isDeleting = false
             return true
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             isDeleting = false
             return false
         }

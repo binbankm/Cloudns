@@ -57,9 +57,7 @@ final class WorkerDetailViewModel: BaseLoadableViewModel {
         do {
             try await workerService.setWorkerSubdomain(accountId: accountId, scriptName: worker.id, enabled: enabled)
             self.subdomain = try? await workerService.getWorkerSubdomain(accountId: accountId, scriptName: worker.id)
-            ToastManager.shared.showSuccess("Subdomain Updated", message: enabled ? "workers.dev enabled" : "workers.dev disabled")
         } catch {
-            ToastManager.shared.showError("Failed to update subdomain", message: error.localizedDescription)
         }
         isSubdomainUpdating = false
     }

@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - RedirectRulesView
+
 struct RedirectRulesView: View {
     let zoneId: String
     @StateObject private var viewModel = RedirectRulesViewModel()
@@ -27,37 +29,38 @@ struct RedirectRulesView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Redirect Rules")
             .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingAddSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Redirect Rule")
-            }
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
-        }
-        .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                Task {
-                    await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Redirect Rule")
                 }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { rule in
-            Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
-        }
-        .refreshable {
-            await viewModel.fetchRules(zoneId: zoneId)
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .sheet(isPresented: $showingAddSheet) {
+                AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
+            }
+            .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                    HIGFeedback.impact(.medium)
+                    Task {
+                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { rule in
+                Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
+            }
+            .refreshable {
                 await viewModel.fetchRules(zoneId: zoneId)
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchRules(zoneId: zoneId)
+                }
+            }
     }
     
     @ViewBuilder
@@ -76,7 +79,6 @@ struct RedirectRulesView: View {
                         redirectRuleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
                                 } label: {
@@ -92,8 +94,8 @@ struct RedirectRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchRules(zoneId: zoneId) }
@@ -101,22 +103,17 @@ struct RedirectRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "arrow.triangle.swap",
+                    HIGContentState(
+                        .empty(
                             title: "No Redirect Rules",
-                            message: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
+                            systemImage: "arrow.triangle.swap",
+                            description: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
                             actionTitle: "Add Rule",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -124,7 +121,7 @@ struct RedirectRulesView: View {
     
     @ViewBuilder
     private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
                     .font(.body.weight(.medium))
@@ -133,12 +130,12 @@ struct RedirectRulesView: View {
                 Spacer()
                 
                 let isEnabled = rule.enabled ?? true
-                CloudnsBadge(isEnabled ? .active("Active") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+                HIGBadge(isEnabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
             HStack(spacing: 6) {
                 if let status = rule.statusCode {
-                    CloudnsBadge(.custom(color: .blue, text: "\(status)"), isCompact: true)
+                    HIGBadge(.custom(color: .blue, text: "\(status)"), isCompact: true)
                 }
                 
                 if let url = rule.targetUrl {
@@ -156,6 +153,105 @@ struct RedirectRulesView: View {
                     .lineLimit(2)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
+    }
+}
+
+// MARK: - AddRedirectRuleSheetView (Inlined & Cohesive)
+
+struct AddRedirectRuleSheetView: View {
+    let zoneId: String
+    @ObservedObject var viewModel: RedirectRulesViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var ruleDescription = ""
+    @State private var expression = "http.request.uri.path eq \"/old-path\""
+    @State private var targetUrl = "https://example.com/new-path"
+    @State private var statusCode = 301
+    @State private var preserveQueryString = false
+    @State private var isCreating = false
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Rule Description")) {
+                    TextField("Rule Name", text: $ruleDescription)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                }
+                
+                Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")) {
+                    TextField("Expression", text: $expression)
+                        .font(.footnote.monospaced())
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                }
+                
+                Section(header: Text("Redirect Target & Code")) {
+                    TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
+                        .font(.footnote)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                    
+                    Picker("Status Code", selection: $statusCode) {
+                        Text("301 - Moved Permanently").tag(301)
+                        Text("302 - Found (Temporary)").tag(302)
+                        Text("307 - Temporary Redirect").tag(307)
+                        Text("308 - Permanent Redirect").tag(308)
+                    }
+                    
+                    Toggle("Preserve Query String", isOn: $preserveQueryString)
+                }
+                
+                if let err = errorMessage {
+                    Section {
+                        Text(err)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("New Redirect Rule")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Create") {
+                        Task {
+                            isCreating = true
+                            errorMessage = nil
+                            let success = await viewModel.createRule(
+                                zoneId: zoneId,
+                                description: ruleDescription,
+                                expression: expression,
+                                targetUrl: targetUrl,
+                                statusCode: statusCode,
+                                preserveQueryString: preserveQueryString
+                            )
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isCreating = false
+                        }
+                    }
+                    .fontWeight(.semibold)
+                    .disabled(ruleDescription.trimmingCharacters(in: .whitespaces).isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                }
+            }
+            .interactiveDismissDisabled(isCreating)
+        }
     }
 }

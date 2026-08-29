@@ -47,11 +47,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateBrotli(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Brotli", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.brotli = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -61,11 +59,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateRocketLoader(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Rocket Loader", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.rocketLoader = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -75,11 +71,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateEarlyHints(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Early Hints", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.earlyHints = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -89,11 +83,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateSpeedBrain(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Speed Brain", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.speedBrain = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -103,11 +95,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateFonts(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Cloudflare Fonts", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.fonts = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -117,11 +107,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updateTieredCache(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Tiered Cache", message: isOn ? "Enabled" : "Disabled")
         } catch {
             self.tieredCache = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -131,11 +119,9 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await speedService.updatePolish(zoneId: zoneId, value: value)
-            ToastManager.shared.showSuccess("Polish", message: "Updated to \(value.capitalized)")
         } catch {
             self.polish = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

@@ -46,7 +46,6 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
-            ToastManager.shared.showSuccess("Rate Limit Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
@@ -54,7 +53,6 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                 rules[index] = rule
             }
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -70,11 +68,9 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
-            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -107,11 +103,9 @@ class RateLimitingViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("Rate Limit Created", message: description.isEmpty ? action.uppercased() : description)
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

@@ -32,12 +32,7 @@ struct DNSRecordsView: View {
     var body: some View {
         List(selection: $multiSelection) {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(DNSRecord.placeholders) { placeholderRecord in
-                        DNSRecordRowView(record: placeholderRecord)
-                    }
-                }
-                .redacted(reason: .placeholder)
+                skeletonSection
             } else if !displayRecords.isEmpty {
                 recordsSections
 
@@ -73,14 +68,16 @@ struct DNSRecordsView: View {
             }
             
             ToolbarItem(placement: .bottomBar) {
-                if editMode?.wrappedValue.isEditing == true && !multiSelection.isEmpty {
+                let isEditing = editMode?.wrappedValue.isEditing ?? false
+                if isEditing && !multiSelection.isEmpty {
+                    let selectedCount = multiSelection.count
                     Button(role: .destructive) {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         viewModel.deleteRecords(withIds: multiSelection)
                         multiSelection.removeAll()
                         editMode?.wrappedValue = .inactive
                     } label: {
-                        Text("Delete Selected (\(multiSelection.count))")
+                        Text("Delete Selected (\(selectedCount))")
                             .foregroundStyle(.red)
                     }
                 }
@@ -102,38 +99,36 @@ struct DNSRecordsView: View {
                 zoneId: zoneId,
                 viewModel: viewModel
             )
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
         }
         .fileImporter(
             isPresented: $showingImporter,
-            allowedContentTypes: [.plainText, .data]
+            allowedContentTypes: [.plainText, .text],
+            allowsMultipleSelection: false
         ) { result in
             switch result {
-            case .success(let fileURL):
+            case .success(let urls):
+                guard let selectedURL = urls.first else { return }
+                guard selectedURL.startAccessingSecurityScopedResource() else { return }
+                defer { selectedURL.stopAccessingSecurityScopedResource() }
+                
                 Task {
-                    _ = fileURL.startAccessingSecurityScopedResource()
-                    try? await viewModel.importRecords(fileURL: fileURL)
-                    fileURL.stopAccessingSecurityScopedResource()
+                    do {
+                        try await DNSService.shared.importDNSRecords(zoneId: zoneId, fileURL: selectedURL)
+                        HIGFeedback.success()
+                        await viewModel.fetchRecords(isRefresh: true)
+                    } catch {
+                        HIGFeedback.error()
+                    }
                 }
-            case .failure(let error):
-                ToastManager.shared.showError("Import Failed", message: error.localizedDescription)
+            case .failure:
+                HIGFeedback.error()
             }
-        }
-        .onChange(of: editMode?.wrappedValue) { _ in
-            multiSelection.removeAll()
-        }
-        .sheet(isPresented: $showingForm) {
-            DNSRecordFormView(viewModel: viewModel, existingRecord: nil)
-        }
-        .sheet(item: $recordToEdit) { record in
-            DNSRecordFormView(viewModel: viewModel, existingRecord: record)
         }
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchRecords(isRefresh: true) }
@@ -141,24 +136,25 @@ struct DNSRecordsView: View {
                         )
                     )
                 } else if viewModel.records.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "server.rack",
+                    HIGContentState(
+                        .empty(
                             title: "No DNS Records",
-                            message: "No DNS records found for this domain.",
+                            systemImage: "server.rack",
+                            description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
                             actionTitle: "Add Record",
                             action: { showingForm = true }
                         )
                     )
                 } else if displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: viewModel.searchQuery,
-                            clearAction: { viewModel.searchQuery = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: viewModel.searchQuery))
                 }
             }
+        }
+        .sheet(isPresented: $showingForm) {
+            DNSRecordFormView(viewModel: viewModel)
+        }
+        .sheet(item: $recordToEdit) { record in
+            DNSRecordFormView(viewModel: viewModel, existingRecord: record)
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -167,51 +163,16 @@ struct DNSRecordsView: View {
         }
     }
     
-    @ViewBuilder
-    private var recordsSections: some View {
-        if viewModel.sortOption == "type" {
-            let groupedRecords = Dictionary(grouping: displayRecords, by: { $0.type })
-            let sortedTypes = groupedRecords.keys.sorted()
-            ForEach(sortedTypes, id: \.self) { type in
-                Section(header: Text(type).font(.subheadline)) {
-                    ForEach(groupedRecords[type] ?? []) { record in
-                        recordRow(record: record)
-                    }
-                }
-            }
-        } else if viewModel.sortOption == "proxied" {
-            let groupedRecords = Dictionary(grouping: displayRecords, by: { $0.proxied == true ? "Proxied (Cloudflare)" : "DNS Only" })
-            let sortedKeys = groupedRecords.keys.sorted(by: { $0 > $1 })
-            ForEach(sortedKeys, id: \.self) { status in
-                Section(header: Text(status).font(.subheadline)) {
-                    ForEach(groupedRecords[status] ?? []) { record in
-                        recordRow(record: record)
-                    }
-                }
-            }
-        } else {
-            Section {
-                ForEach(displayRecords) { record in
-                    recordRow(record: record)
-                }
-            }
-        }
-    }
-    
+    // MARK: - Subviews
     @ViewBuilder
     private var trailingToolbar: some View {
-        HStack {
-            EditButton()
-            
+        HStack(spacing: 8) {
             Menu {
-                Picker("Sort By", selection: $viewModel.sortOption) {
-                    Text("Name").tag("name")
-                    Text("Type").tag("type")
-                    Text("Proxied").tag("proxied")
-                    Text("Content").tag("content")
+                Button {
+                    showingForm = true
+                } label: {
+                    Label("Add DNS Record", systemImage: "plus")
                 }
-                
-                Divider()
                 
                 Button {
                     showingPresetsSheet = true
@@ -219,26 +180,26 @@ struct DNSRecordsView: View {
                     Label("1-Click Presets", systemImage: "wand.and.stars")
                 }
                 
+                Divider()
+                
                 Button {
                     showingExportSheet = true
                 } label: {
-                    Label("Export Records", systemImage: "square.and.arrow.up")
+                    Label("Export BIND Zone File", systemImage: "square.and.arrow.up")
                 }
                 
                 Button {
                     showingImporter = true
                 } label: {
-                    Label("Import BIND File", systemImage: "square.and.arrow.down")
+                    Label("Import BIND Zone File", systemImage: "square.and.arrow.down")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
-            .accessibilityLabel("More Options")
             
-            Button(action: {
-                recordToEdit = nil
+            Button {
                 showingForm = true
-            }) {
+            } label: {
                 Image(systemName: "plus")
             }
             .accessibilityLabel("Add DNS Record")
@@ -246,7 +207,39 @@ struct DNSRecordsView: View {
     }
     
     @ViewBuilder
-    private func recordRow(record: DNSRecord) -> some View {
+    private var skeletonSection: some View {
+        Section {
+            ForEach(DNSRecord.placeholders) { (placeholderRecord: DNSRecord) in
+                DNSRecordRowView(record: placeholderRecord)
+            }
+        }
+        .redacted(reason: .placeholder)
+    }
+    
+    @ViewBuilder
+    private var recordsSections: some View {
+        if viewModel.searchQuery.isEmpty {
+            let grouped = Dictionary(grouping: displayRecords, by: { $0.type })
+            let sortedTypes = grouped.keys.sorted()
+            
+            ForEach(sortedTypes, id: \.self) { type in
+                Section(header: Text("\(type) Records (\(grouped[type]?.count ?? 0))")) {
+                    ForEach(grouped[type] ?? []) { record in
+                        recordRow(record)
+                    }
+                }
+            }
+        } else {
+            Section(header: Text("Matching Records (\(displayRecords.count))")) {
+                ForEach(displayRecords) { record in
+                    recordRow(record)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func recordRow(_ record: DNSRecord) -> some View {
         Group {
             if editMode?.wrappedValue.isEditing == true {
                 DNSRecordRowView(
@@ -272,13 +265,12 @@ struct DNSRecordsView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HapticManager.impact(.medium)
+                HIGFeedback.impact(.medium)
                 Task {
                     do {
                         try await viewModel.deleteRecord(recordId: record.id)
-                        ToastManager.shared.showSuccess("DNS Record Deleted", message: "\(record.name) (\(record.type))")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete record", message: error.localizedDescription)
+                        HIGFeedback.error()
                     }
                 }
             } label: {
@@ -295,12 +287,104 @@ struct DNSRecordsView: View {
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 UIPasteboard.general.string = record.content ?? record.name
-                HapticManager.impact(.light)
-                ToastManager.shared.showCopied("Record content copied")
+                HIGFeedback.success()
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }
             .tint(.blue)
         }
+    }
+}
+
+// MARK: - DNSRecordRowView (Inlined & Cohesive)
+
+struct DNSRecordRowView: View {
+    let record: DNSRecord
+    var onToggleProxy: (() -> Void)?
+    
+    private var recordTypeColor: Color {
+        switch record.type.uppercased() {
+        case "A", "AAAA": return .blue
+        case "CNAME": return .green
+        case "TXT": return .purple
+        case "MX": return .orange
+        case "NS", "CAA", "SRV": return .teal
+        default: return .indigo
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(record.type)
+                    .font(.caption.monospacedDigit().weight(.bold))
+                    .frame(width: 48)
+                    .padding(.vertical, 2.5)
+                    .background(recordTypeColor.opacity(0.14))
+                    .foregroundStyle(recordTypeColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                
+                Text(record.name)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                
+                Spacer()
+                
+                if record.proxiable == true {
+                    Button {
+                        HIGFeedback.selection()
+                        onToggleProxy?()
+                    } label: {
+                        HIGBadge(
+                            record.proxied == true ? .proxied : .dnsOnly,
+                            isCompact: true
+                        )
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    HIGBadge(.dnsOnly, isCompact: true)
+                }
+            }
+            
+            HStack(alignment: .top) {
+                Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                
+                Spacer()
+                
+                Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            
+            if let comment = record.comment, !comment.isEmpty {
+                Text(comment)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .padding(.top, 1)
+            }
+            
+            if let tags = record.tags, !tags.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(tags, id: \.self) { tag in
+                        Text("#\(tag)")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Color.purple.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+                }
+                .padding(.top, 1)
+            }
+        }
+        .padding(.vertical, 3)
+        .contentShape(Rectangle())
     }
 }

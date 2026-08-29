@@ -75,8 +75,8 @@ struct AnalyticsView: View {
                     VStack {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            StateOverlayView(
-                                state: .error(
+                            HIGContentState(
+                                .error(
                                     message: LocalizedStringKey(errorMessage),
                                     retryAction: {
                                         Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
@@ -84,11 +84,11 @@ struct AnalyticsView: View {
                                 )
                             )
                         } else {
-                            StateOverlayView(
-                                state: .empty(
-                                    icon: "chart.xyaxis.line",
+                            HIGContentState(
+                                .empty(
                                     title: "No Traffic Data",
-                                    message: "No HTTP requests recorded for \(zoneName) in the selected time range."
+                                    systemImage: "chart.xyaxis.line",
+                                    description: "No HTTP requests recorded for \(zoneName) in the selected time range."
                                 )
                             )
                         }
@@ -167,7 +167,7 @@ struct AnalyticsView: View {
             .pickerStyle(.segmented)
             .frame(width: 155)
             .onChange(of: timeRange) { newValue in
-                HapticManager.impact(.light)
+                HIGFeedback.selection()
                 selectedPoint = nil
                 selectedBandwidthPoint = nil
                 Task {
@@ -245,7 +245,7 @@ struct AnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(value)
-                .font(.system(.title2, design: .rounded).weight(.bold))
+                .font(.system(.title2, design: .rounded).weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -283,7 +283,7 @@ struct AnalyticsView: View {
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
-                            .font(.system(.title, design: .rounded).weight(.bold))
+                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
                             .font(.caption.weight(.medium))
@@ -415,7 +415,7 @@ struct AnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
-                                                HapticManager.impact(.light)
+                                                HIGFeedback.selection()
                                                 selectedPoint = closest
                                             }
                                         }
@@ -452,7 +452,7 @@ struct AnalyticsView: View {
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
-                            .font(.system(.title, design: .rounded).weight(.bold))
+                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedBandwidthPoint != nil ? "transferred" : "total")
                             .font(.caption.weight(.medium))
@@ -561,7 +561,7 @@ struct AnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedBandwidthPoint?.id != closest.id {
-                                                HapticManager.impact(.light)
+                                                HIGFeedback.selection()
                                                 selectedBandwidthPoint = closest
                                             }
                                         }
@@ -627,7 +627,7 @@ struct AnalyticsView: View {
             Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
                 MapAnnotation(coordinate: item.coordinate) {
                     Button {
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             selectedCountry = item.countryCode
                         }
@@ -741,3 +741,73 @@ struct AnalyticsView: View {
         return String(format: "%.2fM", m)
     }
 }
+
+// MARK: - MapAnnotationItem & PulsingAnnotationView (Inlined & Cohesive)
+
+struct MapAnnotationItem: Identifiable, Sendable {
+    let id: UUID
+    let countryCode: String
+    let coordinate: CLLocationCoordinate2D
+    let size: CGFloat
+    let requests: Int
+    let ratio: Double
+    
+    init(
+        id: UUID = UUID(),
+        countryCode: String,
+        coordinate: CLLocationCoordinate2D,
+        size: CGFloat = 12.0,
+        requests: Int,
+        ratio: Double
+    ) {
+        self.id = id
+        self.countryCode = countryCode
+        self.coordinate = coordinate
+        self.size = size
+        self.requests = requests
+        self.ratio = ratio
+    }
+}
+
+struct PulsingAnnotationView: View {
+    let item: MapAnnotationItem
+    let isSelected: Bool
+    @State private var isPulsing = false
+    
+    init(item: MapAnnotationItem, isSelected: Bool) {
+        self.item = item
+        self.isSelected = isSelected
+    }
+    
+    private var heatColor: Color {
+        switch item.ratio {
+        case 0.7...: return .red
+        case 0.3..<0.7: return .orange
+        case 0.1..<0.3: return .yellow
+        default: return .cyan
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(heatColor, lineWidth: 2)
+                .frame(width: item.size, height: item.size)
+                .scaleEffect(isPulsing ? 2.5 : 1.0)
+                .opacity(isPulsing ? 0.0 : 0.8)
+            
+            Circle()
+                .fill(heatColor)
+                .frame(width: item.size, height: item.size)
+                .overlay(Circle().stroke(Color.white, lineWidth: isSelected ? 2.5 : 0.5))
+                .shadow(color: heatColor.opacity(0.6), radius: isSelected ? 10 : 3, x: 0, y: 0)
+                .scaleEffect(isSelected ? 1.3 : 1.0)
+        }
+        .onAppear {
+            withAnimation(Animation.easeOut(duration: 2.0).repeatForever(autoreverses: false)) {
+                isPulsing = true
+            }
+        }
+    }
+}
+

@@ -18,7 +18,7 @@ struct SSLSettingsView: View {
                     .disabled(!viewModel.hasFetchedData)
                     .onChange(of: viewModel.sslMode) { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task {
                             await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue)
                         }
@@ -39,7 +39,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.alwaysUseHTTPS) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue)
                     }
@@ -58,7 +58,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.automaticHTTPSRewrites) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue)
                     }
@@ -75,7 +75,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.minTLSVersion) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue)
                     }
@@ -94,7 +94,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.tls13) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue)
                     }
@@ -113,7 +113,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.opportunisticEncryption) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue)
                     }
@@ -132,7 +132,7 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.opportunisticOnion) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateOpportunisticOnion(zoneId: zoneId, isOn: newValue)
                     }
@@ -156,9 +156,9 @@ struct SSLSettingsView: View {
                 .onChange(of: viewModel.hstsEnabled) { enabled in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                     if enabled {
-                        HapticManager.notification(.warning)
+                        HIGFeedback.warning()
                     } else {
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                     }
                 }
                 
@@ -179,7 +179,7 @@ struct SSLSettingsView: View {
                         .disabled(!viewModel.hasFetchedData)
                     
                     Button("Save HSTS Configuration") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff, preload: viewModel.hstsPreload)
                         }
@@ -188,7 +188,7 @@ struct SSLSettingsView: View {
                     .foregroundStyle(.blue)
                 } else {
                     Button("Save HSTS (Disable)") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false, preload: false)
                         }

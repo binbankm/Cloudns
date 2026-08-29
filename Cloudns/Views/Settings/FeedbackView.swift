@@ -66,8 +66,8 @@ struct FeedbackView: View {
                 
                 Button {
                     UIPasteboard.general.string = diagnosticSummary
-                    HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("Diagnostics copied")
+                    HIGFeedback.success()
+                    HIGFeedback.impact(.light)
                 } label: {
                     HStack {
                         Image(systemName: "doc.on.doc").font(.subheadline)
@@ -80,7 +80,7 @@ struct FeedbackView: View {
             
             Section {
                 Button {
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     if let url = URL(string: "https://github.com/binbankm/Cloudns/issues/new") {
                         UIApplication.shared.open(url)
                     }

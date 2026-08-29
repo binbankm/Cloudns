@@ -51,7 +51,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipv6 },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateIPv6(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -68,7 +68,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.websockets },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateWebsockets(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -85,7 +85,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http2 },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateHTTP2(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -102,7 +102,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http3 },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateHTTP3(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -128,7 +128,7 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipGeolocation },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val) }
                     }
                 )) {
@@ -145,7 +145,7 @@ struct NetworkCenterView: View {
                 Picker(selection: Binding(
                     get: { viewModel.originMaxHttpVersion },
                     set: { val in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.updateOriginMaxHTTPVersion(zoneId: zoneId, version: val) }
                     }
                 )) {
@@ -156,7 +156,7 @@ struct NetworkCenterView: View {
                         HStack(spacing: 6) {
                             Text("Origin Max HTTP Version")
                                 .font(.body)
-                            CloudnsBadge(.free, isCompact: true)
+                            HIGBadge(.free, isCompact: true)
                         }
                         Text("Maximum HTTP protocol version Cloudflare will use to connect to your origin server.")
                             .font(.caption)

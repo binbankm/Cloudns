@@ -57,12 +57,10 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             _ = try await lbService.createLoadBalancer(zoneId: zoneId, lb: payload)
-            ToastManager.shared.showSuccess("Load Balancer Created", message: payload.name)
             await fetchData()
             return true
         } catch {
             errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Creation Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -74,11 +72,9 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         
         do {
             try await lbService.deleteLoadBalancer(zoneId: zoneId, lbId: id)
-            ToastManager.shared.showSuccess("Load Balancer Deleted")
             await fetchData()
         } catch {
             errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -90,12 +86,10 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             _ = try await lbService.createLBPool(accountId: accountId, pool: payload)
-            ToastManager.shared.showSuccess("Pool Created", message: payload.name)
             await fetchData()
             return true
         } catch {
             errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -104,10 +98,8 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             try await lbService.deleteLBPool(accountId: accountId, poolId: poolId)
-            ToastManager.shared.showSuccess("Pool Deleted")
             await fetchData()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -119,12 +111,10 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             _ = try await lbService.createLBMonitor(accountId: accountId, monitor: payload)
-            ToastManager.shared.showSuccess("Monitor Created", message: payload.description ?? payload.type)
             await fetchData()
             return true
         } catch {
             errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -133,10 +123,8 @@ final class LoadBalancerViewModel: BaseLoadableViewModel {
         do {
             let accountId = try await resolveAccountId()
             try await lbService.deleteLBMonitor(accountId: accountId, monitorId: monitorId)
-            ToastManager.shared.showSuccess("Monitor Deleted")
             await fetchData()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

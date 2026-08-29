@@ -76,10 +76,8 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
                 self.rules.removeAll { $0.id == id }
             }
             try await gatewayService.deleteGatewayRule(accountId: targetId, ruleId: id)
-            ToastManager.shared.showSuccess("Gateway Rule Deleted")
             await fetchRules()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

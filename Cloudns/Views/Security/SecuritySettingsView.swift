@@ -24,7 +24,7 @@ struct SecuritySettingsView: View {
                             Spacer()
                             
                             if viewModel.securityLevel == "under_attack" {
-                                CloudnsBadge(.error("ACTIVE"), isCompact: true)
+                                HIGBadge(.error("ACTIVE"), isCompact: true)
                             }
                         }
                         
@@ -34,7 +34,7 @@ struct SecuritySettingsView: View {
                         
                         Button(action: {
                             if viewModel.securityLevel == "under_attack" {
-                                HapticManager.impact(.medium)
+                                HIGFeedback.impact(.medium)
                                 Task {
                                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
                                 }
@@ -147,7 +147,7 @@ struct SecuritySettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                                 .accessibilityHidden(true)
-                            CloudnsBadge(.free, isCompact: true)
+                            HIGBadge(.free, isCompact: true)
                         }
                         Text("Detects and challenges known bots and crawlers. Recommended for most sites.")
                             .font(.caption)
@@ -174,8 +174,8 @@ struct SecuritySettingsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
+                HIGContentState(
+                    .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
                     )
@@ -195,7 +195,7 @@ struct SecuritySettingsView: View {
         .confirmationDialog("Enable Under Attack Mode?", isPresented: $showUnderAttackAlert, titleVisibility: .visible) {
             Button("Enable Under Attack Mode", role: .destructive) {
                 Task {
-                    HapticManager.notification(.warning)
+                    HIGFeedback.warning()
                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "under_attack")
                 }
             }

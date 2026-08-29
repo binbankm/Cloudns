@@ -1,0 +1,349 @@
+import SwiftUI
+
+struct TunnelDetailView: View {
+    let accountId: String
+    let tunnel: CFTunnel
+    @StateObject private var viewModel: TunnelDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var showingAddIngressSheet = false
+    @State private var showingDeleteAlert = false
+    @State private var isTokenRevealed = false
+    
+    init(accountId: String, tunnel: CFTunnel) {
+        self.accountId = accountId
+        self.tunnel = tunnel
+        _viewModel = StateObject(wrappedValue: TunnelDetailViewModel(accountId: accountId, tunnel: tunnel))
+    }
+    
+    var body: some View {
+        contentView
+            .navigationTitle(tunnel.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingAddIngressSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Hostname Rule")
+                }
+            }
+            .sheet(isPresented: $showingAddIngressSheet) {
+                AddIngressRuleSheetView(viewModel: viewModel)
+            }
+            .confirmationDialog("Delete Tunnel", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+                Button("Delete '\(tunnel.name)'", role: .destructive) {
+                    HIGFeedback.impact(.medium)
+                    Task {
+                        let success = await viewModel.deleteTunnel()
+                        if success { dismiss() }
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to permanently delete tunnel '\(tunnel.name)'? Any active connections will be terminated.")
+            }
+            .refreshable {
+                await viewModel.fetchConfiguration()
+            }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchConfiguration()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var contentView: some View {
+        List {
+            // MARK: - Overview
+            Section(header: Text("Tunnel Overview")) {
+                LabeledContent("Tunnel Name", value: tunnel.name)
+                
+                LabeledContent("Status") {
+                    HIGBadge(tunnel.isHealthy ? .active((tunnel.status ?? "Active").capitalized) : .error((tunnel.status ?? "Inactive").capitalized), isCompact: true)
+                }
+                
+                LabeledContent("UUID") {
+                    Text(tunnel.id)
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            // MARK: - Connector Token / Install Command
+            if !viewModel.hasFetchedData {
+                Section(header: Text("Connector Token")) {
+                    HStack {
+                        Image(systemName: "terminal")
+                            .foregroundStyle(.blue)
+                        Text("cloudflared tunnel run --token ••••••••••••••••••••••••")
+                            .font(.caption.monospaced())
+                        Spacer()
+                    }
+                    .redacted(reason: .placeholder)
+                }
+            } else if let token = viewModel.token, !token.isEmpty {
+                Section(
+                    header: Text("Connector Token"),
+                    footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
+                ) {
+                    HStack {
+                        Button {
+                            let cmd = "cloudflared tunnel run --token \(token)"
+                            UIPasteboard.general.string = cmd
+                            HIGFeedback.success()
+                            HIGFeedback.impact(.light)
+                        } label: {
+                            HStack(spacing: 12) {
+                                ListRowIcon(icon: "terminal.fill", color: .blue)
+                                Text(isTokenRevealed ? "cloudflared tunnel run --token \(token)" : "cloudflared tunnel run --token ••••••••")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(isTokenRevealed ? 3 : 1)
+                                Spacer()
+                                Image(systemName: "doc.on.doc")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                                    .accessibilityHidden(true)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Button {
+                            HIGFeedback.impact(.light)
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isTokenRevealed.toggle()
+                            }
+                        } label: {
+                            Image(systemName: isTokenRevealed ? "eye.slash" : "eye")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 28, height: 28)
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(isTokenRevealed ? "Hide token" : "Reveal token")
+                    }
+                }
+            }
+            
+            // MARK: - Ingress Public Routing Rules
+            Section(
+                header: HStack {
+                    Text("Public Hostnames / Ingress (\(viewModel.ingressRules.count))")
+                    Spacer()
+                    Button {
+                        showingAddIngressSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                },
+                footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
+            ) {
+                if !viewModel.hasFetchedData {
+                    ForEach(0..<2, id: \.self) { idx in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Image(systemName: "globe")
+                                    .foregroundStyle(.blue)
+                                Text("app\(idx + 1).example.com")
+                                    .font(.body.weight(.medium))
+                            }
+                            HStack {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text("http://localhost:\(8080 + idx)")
+                                    .font(.caption.monospaced())
+                            }
+                        }
+                        .padding(.vertical, 3)
+                    }
+                    .redacted(reason: .placeholder)
+                } else if viewModel.ingressRules.isEmpty {
+                    Text("No public ingress hostnames configured.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
+                        VStack(alignment: .leading, spacing: 4) {
+                            if let host = rule.hostname, !host.isEmpty {
+                                HStack {
+                                    Image(systemName: "globe")
+                                        .font(.caption)
+                                        .foregroundStyle(.blue)
+                                        .accessibilityHidden(true)
+                                    Text(host)
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                    if let p = rule.path, !p.isEmpty {
+                                        Text(p)
+                                            .font(.caption.monospaced())
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            } else {
+                                Text("Catch-all Fallback")
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            if let svc = rule.service {
+                                HStack {
+                                    Image(systemName: "arrow.right.circle.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(.green)
+                                        .accessibilityHidden(true)
+                                    Text(svc)
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 3)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            if rule.hostname != nil {
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    Task { await viewModel.deleteIngressRule(at: index) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // MARK: - Connectors
+            if let conns = tunnel.connections, !conns.isEmpty {
+                Section(header: Text("Active Connectors (\(conns.count))")) {
+                    ForEach(conns) { conn in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                if let colo = conn.coloName {
+                                    Text(colo.uppercased())
+                                        .font(.caption.monospacedDigit())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.blue.opacity(0.12))
+                                        .foregroundStyle(.blue)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                }
+                                
+                                if let ip = conn.originIp {
+                                    Text(ip)
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundStyle(.primary)
+                                }
+                                
+                                Spacer()
+                                
+                                if let arch = conn.arch {
+                                    Text(arch)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            
+                            if let ver = conn.version {
+                                Text("cloudflared v\(ver)")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 3)
+                    }
+                }
+            }
+            
+            // MARK: - Danger Zone
+            Section {
+                Button(role: .destructive) {
+                    HIGFeedback.impact(.medium)
+                    showingDeleteAlert = true
+                } label: {
+                    HStack {
+                        Spacer()
+                        Text("Delete Tunnel")
+                            .font(.body.weight(.medium))
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+}
+
+// MARK: - AddIngressRuleSheetView (Inlined & Cohesive)
+
+struct AddIngressRuleSheetView: View {
+    @ObservedObject var viewModel: TunnelDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var hostname = ""
+    @State private var path = ""
+    @State private var service = "http://localhost:8080"
+    @State private var isSaving = false
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Public Hostname"), footer: Text("Incoming requests to this public domain and path will route through the tunnel.")) {
+                    TextField("sub.example.com", text: $hostname)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                    
+                    TextField("Path (Optional, e.g. /api)", text: $path)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                }
+                
+                Section(header: Text("Internal Origin Service"), footer: Text("Service URL accessible from where cloudflared is running, e.g. http://localhost:3000, tcp://192.168.1.100:22")) {
+                    TextField("http://localhost:8080", text: $service)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Add Ingress Rule")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let success = await viewModel.addIngressRule(
+                                hostname: hostname.trimmingCharacters(in: .whitespaces),
+                                path: path.isEmpty ? nil : path.trimmingCharacters(in: .whitespaces),
+                                service: service.trimmingCharacters(in: .whitespaces)
+                            )
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || service.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                }
+            }
+            .interactiveDismissDisabled(isSaving)
+        }
+    }
+}
+

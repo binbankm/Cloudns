@@ -15,6 +15,7 @@ final class DevToolsViewModel: BaseLoadableViewModel {
     @Published var isBenchmarkLoading = false
     @Published var dnsError: String?
     @Published var showingRFCExport = false
+    @Published var dnssecEnabled = false
     
     let recordTypes = ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SOA", "SRV", "CAA", "HTTPS", "PTR", "DNSKEY", "DS"]
     

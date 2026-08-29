@@ -152,7 +152,7 @@ struct LoginView: View {
                                     Button("Paste") {
                                         if let clip = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !clip.isEmpty {
                                             viewModel.apiKey = clip
-                                            HapticManager.impact(.light)
+                                            HIGFeedback.impact(.light)
                                         }
                                     }
                                     .font(.caption2.weight(.semibold))
@@ -199,7 +199,7 @@ struct LoginView: View {
                                 
                                 Button {
                                     isShowingApiKey.toggle()
-                                    HapticManager.selection()
+                                    HIGFeedback.selection()
                                 } label: {
                                     Image(systemName: isShowingApiKey ? "eye.slash.fill" : "eye.fill")
                                         .font(.caption)
@@ -232,7 +232,7 @@ struct LoginView: View {
                             .background(Color.red.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             .onAppear {
-                                HapticManager.notification(.error)
+                                HIGFeedback.error()
                             }
                         }
                         
@@ -242,7 +242,7 @@ struct LoginView: View {
                         
                         Button(action: {
                             focusedField = nil
-                            HapticManager.impact(.medium)
+                            HIGFeedback.impact(.medium)
                             Task {
                                 await viewModel.login(onSuccess: onLoginSuccess)
                             }

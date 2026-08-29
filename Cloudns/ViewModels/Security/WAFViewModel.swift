@@ -46,7 +46,6 @@ class WAFViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
-            ToastManager.shared.showSuccess("WAF Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
@@ -54,7 +53,6 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules[index] = rule
             }
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -70,11 +68,9 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
-            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -105,11 +101,9 @@ class WAFViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("WAF Rule Created", message: description.isEmpty ? action.uppercased() : description)
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

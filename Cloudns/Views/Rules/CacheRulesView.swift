@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - CacheRulesView
+
 struct CacheRulesView: View {
     let zoneId: String
     
@@ -33,18 +35,16 @@ struct CacheRulesView: View {
                 Section {
                     ForEach(displayedRules) { rule in
                         CacheRuleCardView(rule: rule) {
-                            HapticManager.impact(.light)
+                            HIGFeedback.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
                             }
                         }
                     }
                     .onDelete(perform: { indexSet in
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         for index in indexSet {
-                            let rule = displayedRules[index]
                             viewModel.deleteRule(at: IndexSet(integer: index))
-                            ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
                         }
                     })
                 }
@@ -65,8 +65,8 @@ struct CacheRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchCacheRules() }
@@ -74,22 +74,17 @@ struct CacheRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "bolt.badge.clock",
+                    HIGContentState(
+                        .empty(
                             title: "No Cache Rules",
-                            message: "You haven't created any custom cache rules yet.",
+                            systemImage: "bolt.badge.clock",
+                            description: "You haven't created any custom cache rules yet.",
                             actionTitle: "Add Cache Rule",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -111,5 +106,40 @@ struct CacheRulesView: View {
                 await viewModel.fetchCacheRules()
             }
         }
+    }
+}
+
+// MARK: - CacheRuleCardView (Inlined & Cohesive)
+
+struct CacheRuleCardView: View {
+    let rule: WAFRule
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(rule.description ?? "Unnamed Rule")
+                    .font(.body.weight(.medium))
+                Spacer()
+                Toggle(isOn: Binding(
+                    get: { rule.enabled },
+                    set: { _ in onToggle() }
+                )) { }
+                .labelsHidden()
+            }
+            
+            Text(rule.expression)
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+                .padding(6)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                .lineLimit(2)
+            
+            if let cache = rule.action_parameters?.cache {
+                HIGBadge(cache ? .active : .error("Bypass Cache"), isCompact: true)
+            }
+        }
+        .padding(.vertical, 3)
     }
 }

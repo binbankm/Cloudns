@@ -103,7 +103,7 @@ enum DateFormatters {
         }
     }
     
-    private static let iso8601FractionalFormatter: ISO8601DateFormatter = {
+    private nonisolated(unsafe) static let iso8601FractionalFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter

@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - WAFCustomRulesView
+
 struct WAFCustomRulesView: View {
     let zoneId: String
     
@@ -29,10 +31,9 @@ struct WAFCustomRulesView: View {
                 Section(header: Text("Custom Rules (\(displayedRules.count))")) {
                     ForEach(displayedRules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
-                            HapticManager.impact(.light)
+                            HIGFeedback.selection()
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
                             }
                         })
                     }
@@ -55,8 +56,8 @@ struct WAFCustomRulesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchWAFRules(zoneId: zoneId) }
@@ -64,22 +65,17 @@ struct WAFCustomRulesView: View {
                         )
                     )
                 } else if viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "shield.slash",
+                    HIGContentState(
+                        .empty(
                             title: "No WAF Custom Rules",
-                            message: "Create custom firewall rules to protect your web application from malicious traffic.",
+                            systemImage: "shield.slash",
+                            description: "Create custom firewall rules to protect your web application from malicious traffic.",
                             actionTitle: "Add WAF Rule",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -104,13 +100,83 @@ struct WAFCustomRulesView: View {
     }
     
     private func deleteRules(at offsets: IndexSet) {
-        HapticManager.impact(.medium)
         for index in offsets {
-            let rule = viewModel.rules[index]
+            let rule = displayedRules[index]
+            HIGFeedback.impact(.medium)
             Task {
                 await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                ToastManager.shared.showSuccess("WAF Rule Deleted", message: rule.description ?? "")
             }
+        }
+    }
+}
+
+// MARK: - WAFRuleCardView (Inlined & Cohesive)
+
+struct WAFRuleCardView: View {
+    let rule: WAFRule
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(rule.description ?? "Untitled Rule")
+                    .font(.body.weight(.medium))
+                    .lineLimit(2)
+                
+                Spacer()
+                
+                Toggle(isOn: Binding(
+                    get: { rule.enabled },
+                    set: { _ in onToggle() }
+                )) { }
+                .labelsHidden()
+            }
+            
+            HStack {
+                HIGBadge(.custom(color: colorForAction(rule.action), text: actionDisplayName(rule.action)), isCompact: true)
+                
+                Spacer()
+                
+                HIGBadge(rule.enabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Expression")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                
+                Text(rule.expression)
+                    .font(.footnote.monospaced())
+                    .foregroundStyle(.primary)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .textSelection(.enabled)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private func actionDisplayName(_ action: String) -> String {
+        switch action {
+        case "block": return "BLOCK"
+        case "challenge": return "LEGACY CAPTCHA"
+        case "js_challenge": return "JS CHALLENGE"
+        case "managed_challenge": return "MANAGED CHALLENGE"
+        case "log": return "LOG"
+        case "skip": return "SKIP"
+        default: return action.uppercased()
+        }
+    }
+    
+    private func colorForAction(_ action: String) -> Color {
+        switch action {
+        case "block": return .red
+        case "challenge", "js_challenge", "managed_challenge": return .orange
+        case "log": return .blue
+        case "skip": return .green
+        default: return .gray
         }
     }
 }

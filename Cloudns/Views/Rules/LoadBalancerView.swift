@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - LoadBalancerView
+
 struct LoadBalancerView: View {
     let zoneId: String
     
@@ -102,10 +104,9 @@ struct LoadBalancerView: View {
                             lbRow(lb)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
+                                        HIGFeedback.impact(.medium)
                                         Task {
                                             await viewModel.deleteLoadBalancer(id: lb.id)
-                                            ToastManager.shared.showSuccess("Load Balancer Deleted", message: lb.name ?? "")
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -128,7 +129,7 @@ struct LoadBalancerView: View {
                             poolRow(pool)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
+                                        HIGFeedback.impact(.medium)
                                         Task {
                                             await viewModel.deletePool(poolId: pool.id)
                                         }
@@ -139,7 +140,7 @@ struct LoadBalancerView: View {
                         }
                     }
                 }
-            } else if selectedTab == 2 {
+            } else {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
                     Section {
                         ForEach(LBMonitor.placeholders) { placeholderMon in
@@ -148,14 +149,14 @@ struct LoadBalancerView: View {
                     }
                     .redacted(reason: .placeholder)
                 } else if !displayedMonitors.isEmpty {
-                    Section(header: Text("Monitors (\(displayedMonitors.count))")) {
-                        ForEach(displayedMonitors) { monitor in
-                            monRow(monitor)
+                    Section(header: Text("Health Monitors (\(displayedMonitors.count))")) {
+                        ForEach(displayedMonitors) { mon in
+                            monRow(mon)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
+                                        HIGFeedback.impact(.medium)
                                         Task {
-                                            await viewModel.deleteMonitor(monitorId: monitor.id)
+                                            await viewModel.deleteMonitor(monitorId: mon.id)
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -169,50 +170,47 @@ struct LoadBalancerView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                if let errorMessage = viewModel.errorMessage, (viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty) {
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchData() } }
+                            retryAction: {
+                                Task { await viewModel.fetchData() }
+                            }
                         )
                     )
                 } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "arrow.triangle.branch",
+                    HIGContentState(
+                        .empty(
                             title: "No Load Balancers",
-                            message: "Distribute incoming traffic across server pools for high availability.",
+                            systemImage: "arrow.triangle.branch",
+                            description: "Distribute your traffic across multiple server pools with automatic failover.",
                             actionTitle: "Add Load Balancer",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if selectedTab == 1 && viewModel.pools.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "server.rack",
+                    HIGContentState(
+                        .empty(
                             title: "No Origin Pools",
-                            message: "Group multiple origin servers together with health monitoring.",
+                            systemImage: "server.rack",
+                            description: "Create origin pools to group backend servers together.",
                             actionTitle: "Add Pool",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if selectedTab == 2 && viewModel.monitors.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "waveform.path.ecg",
+                    HIGContentState(
+                        .empty(
                             title: "No Health Monitors",
-                            message: "Send automated HTTP/HTTPS health checks to your origin servers.",
+                            systemImage: "waveform.path.ecg",
+                            description: "Send automated HTTP/HTTPS health checks to your origin servers.",
                             actionTitle: "Add Monitor",
                             action: { showingAddSheet = true }
                         )
                     )
                 } else if !searchText.isEmpty && ((selectedTab == 0 && displayedLoadBalancers.isEmpty) || (selectedTab == 1 && displayedPools.isEmpty) || (selectedTab == 2 && displayedMonitors.isEmpty)) {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -223,10 +221,10 @@ struct LoadBalancerView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(lb.name ?? lb.id)
-                    .font(.body)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
-                CloudnsBadge(lb.enabled == true ? .active("Active") : .custom(color: .secondary, text: "Inactive"), isCompact: true)
+                HIGBadge(lb.enabled == true ? .active : .custom(color: .secondary, text: "Inactive"), isCompact: true)
             }
             if let fallback = lb.fallbackPool {
                 Text("Fallback: \(fallback)")
@@ -234,7 +232,7 @@ struct LoadBalancerView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
     }
     
     @ViewBuilder
@@ -242,7 +240,7 @@ struct LoadBalancerView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(pool.name ?? pool.id)
-                    .font(.body)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
                 Text("\(pool.origins?.count ?? 0) Origins")
@@ -267,7 +265,7 @@ struct LoadBalancerView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
     }
     
     @ViewBuilder
@@ -275,10 +273,10 @@ struct LoadBalancerView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(monitor.description ?? monitor.id)
-                    .font(.body)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
-                CloudnsBadge(.custom(color: .blue, text: monitor.type?.uppercased() ?? "HTTP"), isCompact: true)
+                HIGBadge(.custom(color: .blue, text: monitor.type?.uppercased() ?? "HTTP"), isCompact: true)
             }
             HStack {
                 Text(monitor.method ?? "GET")
@@ -294,6 +292,171 @@ struct LoadBalancerView: View {
             }
             .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
+    }
+}
+
+// MARK: - AddLBPoolSheetView (Inlined & Cohesive)
+
+struct AddLBPoolSheetView: View {
+    @ObservedObject var viewModel: LoadBalancerViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var poolName = ""
+    @State private var description = ""
+    @State private var originName = "origin-1"
+    @State private var originAddress = "1.2.3.4"
+    @State private var originWeight = 1.0
+    @State private var isSaving = false
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Pool Details")) {
+                    TextField("Pool Name (e.g. primary-cluster)", text: $poolName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                    TextField("Description (Optional)", text: $description)
+                        .submitLabel(.next)
+                }
+                
+                Section(header: Text("Initial Origin Server")) {
+                    TextField("Origin Name (e.g. srv-01)", text: $originName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                    TextField("IP or Hostname (e.g. 192.0.2.1)", text: $originAddress)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("New Origin Pool")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let origin = LBOrigin(id: nil, name: originName, address: originAddress, enabled: true, weight: originWeight)
+                            let update = LBPoolUpdate(
+                                name: poolName,
+                                description: description.isEmpty ? nil : description,
+                                enabled: true,
+                                minimumOrigins: 1,
+                                monitor: nil,
+                                origins: [origin]
+                            )
+                            let success = await viewModel.createPool(payload: update)
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(poolName.isEmpty || originAddress.isEmpty || isSaving)
+                }
+            }
+            .interactiveDismissDisabled(isSaving)
+        }
+    }
+}
+
+// MARK: - AddLBMonitorSheetView (Inlined & Cohesive)
+
+struct AddLBMonitorSheetView: View {
+    @ObservedObject var viewModel: LoadBalancerViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var monitorType = "http"
+    @State private var path = "/healthz"
+    @State private var expectedCodes = "200"
+    @State private var interval = 60
+    @State private var timeout = 5
+    @State private var retries = 2
+    @State private var isSaving = false
+    
+    let monitorTypes = ["http", "https", "tcp", "udp_icmp", "icmp_ping"]
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Monitor Type")) {
+                    Picker("Type", selection: $monitorType) {
+                        ForEach(monitorTypes, id: \.self) { t in
+                            Text(t.uppercased()).tag(t)
+                        }
+                    }
+                }
+                
+                Section(header: Text("Health Check Request")) {
+                    TextField("Path (e.g. /healthz)", text: $path)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                    TextField("Expected Status Code (e.g. 200 or 2xx)", text: $expectedCodes)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                }
+                
+                Section(header: Text("Check Timing")) {
+                    Stepper("Interval: \(interval)s", value: $interval, in: 10...300, step: 10)
+                    Stepper("Timeout: \(timeout)s", value: $timeout, in: 1...30)
+                    Stepper("Retries: \(retries)", value: $retries, in: 1...5)
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("New Health Monitor")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            let update = LBMonitorUpdate(
+                                type: monitorType,
+                                description: "\(monitorType.uppercased()) on \(path)",
+                                method: "GET",
+                                path: path,
+                                port: nil,
+                                retries: retries,
+                                timeout: timeout,
+                                interval: interval,
+                                expectedCodes: expectedCodes
+                            )
+                            let success = await viewModel.createMonitor(payload: update)
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(path.isEmpty || isSaving)
+                }
+            }
+            .interactiveDismissDisabled(isSaving)
+        }
     }
 }

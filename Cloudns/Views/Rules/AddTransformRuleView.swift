@@ -113,11 +113,12 @@ struct AddTransformRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(isFormInvalid || isSubmitting)
                 }
             }
@@ -133,7 +134,6 @@ struct AddTransformRuleView: View {
                     }
                 }
             )
-            .toastContainer()
         }
     }
     
@@ -176,7 +176,10 @@ struct AddTransformRuleView: View {
         
         isSubmitting = false
         if success {
+            HIGFeedback.success()
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

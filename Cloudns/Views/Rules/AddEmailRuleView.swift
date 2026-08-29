@@ -56,11 +56,12 @@ struct AddEmailRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(customAddress.trimmingCharacters(in: .whitespaces).isEmpty || destinationAddress.isEmpty || isSubmitting)
                 }
             }
@@ -81,7 +82,6 @@ struct AddEmailRuleView: View {
                     }
                 }
             )
-            .toastContainer()
         }
     }
     
@@ -106,7 +106,10 @@ struct AddEmailRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

@@ -11,10 +11,10 @@ struct AccountsView: View {
                 Section(header: Text("Logged In Accounts")) {
                     ForEach(accountManager.accountEmails, id: \.self) { email in
                         Button(action: {
-                            HapticManager.impact(.light)
+                            HIGFeedback.impact(.light)
                             withAnimation {
                                 accountManager.switchAccount(to: email)
-                                ToastManager.shared.showSuccess("Switched Account", message: email)
+                                HIGFeedback.success()
                             }
                         }) {
                             HStack {
@@ -24,7 +24,7 @@ struct AccountsView: View {
                                         .foregroundStyle(.primary)
                                     
                                     if accountManager.activeEmail == email {
-                                        CloudnsBadge(.custom(color: .orange, text: "Current"), isCompact: true)
+                                        HIGBadge(.custom(color: .orange, text: "Current"), isCompact: true)
                                     }
                                 }
                                 
@@ -46,7 +46,7 @@ struct AccountsView: View {
                 
                 Section {
                     Button(action: {
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                         isShowingAddAccount = true
                     }) {
                         HStack {
@@ -69,28 +69,28 @@ struct AccountsView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .fontWeight(.semibold)
                     .foregroundStyle(.orange)
                 }
             }
             .sheet(isPresented: $isShowingAddAccount) {
                 LoginView(onLoginSuccess: {
                     isShowingAddAccount = false
-                    ToastManager.shared.showSuccess("Account Added")
+                    HIGFeedback.success()
                 })
                 .presentationDragIndicator(.visible)
             }
-            .toastContainer()
         }
     }
     
     private func deleteAccount(at offsets: IndexSet) {
         let emails = accountManager.accountEmails
-        HapticManager.impact(.medium)
+        HIGFeedback.impact(.medium)
         withAnimation {
             for index in offsets {
                 let email = emails[index]
                 accountManager.removeAccount(email: email)
-                ToastManager.shared.showSuccess("Account Removed", message: email)
+                HIGFeedback.success()
             }
         }
     }

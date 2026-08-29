@@ -97,19 +97,22 @@ struct AddRateLimitingRuleView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Rate Limit")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || requests.isEmpty || Int(requests) == nil || isSubmitting)
                 }
             }
@@ -125,7 +128,6 @@ struct AddRateLimitingRuleView: View {
                     }
                 }
             )
-            .toastContainer()
         }
     }
     
@@ -159,7 +161,10 @@ struct AddRateLimitingRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

@@ -48,7 +48,7 @@ struct AppLockSettingsView: View {
                 Section {
                     ForEach(timeoutOptions, id: \.seconds) { option in
                         Button {
-                            HapticManager.selection()
+                            HIGFeedback.selection()
                             autoLockTimeout = option.seconds
                         } label: {
                             HStack {

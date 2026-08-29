@@ -69,10 +69,8 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
                 self.apps.removeAll { $0.id == id }
             }
             try await accessService.deleteAccessApp(accountId: targetId, appId: id)
-            ToastManager.shared.showSuccess("Access App Deleted")
             await fetchApps()
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

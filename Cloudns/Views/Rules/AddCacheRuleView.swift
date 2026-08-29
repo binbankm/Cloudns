@@ -100,11 +100,12 @@ struct AddCacheRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || isSubmitting)
                 }
             }
@@ -120,7 +121,6 @@ struct AddCacheRuleView: View {
                     }
                 }
             )
-            .toastContainer()
         }
     }
     
@@ -154,7 +154,10 @@ struct AddCacheRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

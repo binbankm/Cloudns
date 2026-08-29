@@ -40,14 +40,25 @@ struct DeveloperHubView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            // Header Account Card
+            // Account Information Section
             Section {
-                accountHeaderCard
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "person.crop.circle.fill", color: .blue, size: 28, cornerRadius: 6)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(viewModel.selectedAccount?.name ?? "Active Account")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                        Text(accountId.isEmpty ? "No account selected" : "Account ID: \(accountId)")
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .padding(.vertical, 2)
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets())
-                
-                // MARK: - Compute
+            
+            // MARK: - Compute
                 Section(header: Text("Compute & Applications")) {
                     NavigationLink {
                         WorkersListView(accountId: accountId)
@@ -55,8 +66,20 @@ struct DeveloperHubView: View {
                         DeveloperHubRowView(
                             icon: "bolt.fill",
                             iconColor: .orange,
-                            title: "Workers & Pages",
-                            subtitle: "Serverless execution & static sites"
+                            title: "Workers",
+                            subtitle: "Serverless edge functions & microservices"
+                        )
+                    }
+                    .disabled(!isAccountReady)
+                    
+                    NavigationLink {
+                        PagesProjectsListView(accountId: accountId)
+                    } label: {
+                        DeveloperHubRowView(
+                            icon: "macwindow",
+                            iconColor: .blue,
+                            title: "Pages",
+                            subtitle: "Static site hosting & full-stack web apps"
                         )
                     }
                     .disabled(!isAccountReady)
@@ -69,7 +92,7 @@ struct DeveloperHubView: View {
                             iconColor: .purple,
                             title: "Queues",
                             subtitle: "Asynchronous message queue delivery",
-                            badge: .paid
+                            badge: .custom(color: .purple, text: "PAID")
                         )
                     }
                     .disabled(!isAccountReady)
@@ -82,7 +105,7 @@ struct DeveloperHubView: View {
                             iconColor: .cyan,
                             title: "Durable Objects",
                             subtitle: "Coordinated edge state namespaces",
-                            badge: .paid
+                            badge: .custom(color: .purple, text: "PAID")
                         )
                     }
                     .disabled(!isAccountReady)
@@ -122,7 +145,7 @@ struct DeveloperHubView: View {
                             iconColor: .yellow,
                             title: "Hyperdrive",
                             subtitle: "Regional database connection acceleration",
-                            badge: .paid
+                            badge: .custom(color: .purple, text: "PAID")
                         )
                     }
                     .disabled(!isAccountReady)
@@ -249,71 +272,52 @@ struct DeveloperHubView: View {
                         )
                     }
                 }
-            }
             .listStyle(.insetGrouped)
             .refreshable {
                 await viewModel.fetchOverview(isRefresh: true)
             }
         }
+    }
+}
+
+// MARK: - DeveloperHubRowView (Inlined & Cohesive)
+
+struct DeveloperHubRowView: View {
+    let icon: String
+    let iconColor: Color
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    var badge: HIGBadgeType? = nil
     
-    // MARK: - Account Header Card
-    
-    private var accountHeaderCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Developer Suite")
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.white)
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(iconColor)
+                .frame(width: 32, height: 32)
+                .background(iconColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
                     
-                    Text(viewModel.selectedAccount?.name ?? "Active Account")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.85))
+                    if let badge = badge {
+                        HIGBadge(badge, isCompact: true)
+                    }
                 }
                 
-                Spacer()
-                
-                Image(systemName: "cpu.fill")
-                    .font(.title2)
-                    .foregroundStyle(.white.opacity(0.85))
-                    .accessibilityHidden(true)
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
             
-            Divider()
-                .overlay(Color.white.opacity(0.25))
-            
-            // Metrics grid
-            HStack(spacing: 12) {
-                metricItem(title: "Workers", value: "\(viewModel.workers.count)")
-                metricItem(title: "Pages", value: "\(viewModel.pagesProjects.count)")
-                metricItem(title: "R2", value: "\(viewModel.r2Buckets.count)")
-                metricItem(title: "Tunnels", value: "\(viewModel.tunnels.count)")
-            }
-            .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
+            Spacer()
         }
-        .padding(16)
-        .background(
-            LinearGradient(
-                colors: [Color.blue, Color.blue.opacity(0.75)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 4)
-    }
-    
-    private func metricItem(title: LocalizedStringKey, value: String) -> some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.headline.weight(.bold).monospacedDigit())
-                .foregroundStyle(.white)
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
-        }
-        .frame(maxWidth: .infinity)
+        .padding(.vertical, 3)
     }
 }

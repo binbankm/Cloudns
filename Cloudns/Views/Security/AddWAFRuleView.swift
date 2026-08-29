@@ -221,6 +221,7 @@ struct AddWAFRuleView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New WAF Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -230,11 +231,12 @@ struct AddWAFRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || finalEffectiveExpression.isEmpty || isSubmitting)
                 }
             }
@@ -250,14 +252,13 @@ struct AddWAFRuleView: View {
                     }
                 }
             )
-            .toastContainer()
         }
     }
     
     @ViewBuilder
     private func presetButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
-            HapticManager.impact(.light)
+            HIGFeedback.impact(.light)
             action()
         } label: {
             HStack(spacing: 4) {
@@ -313,7 +314,10 @@ struct AddWAFRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

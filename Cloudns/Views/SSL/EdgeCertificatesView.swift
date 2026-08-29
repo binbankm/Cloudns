@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - EdgeCertificatesView
+
 struct EdgeCertificatesView: View {
     let zoneId: String
     
@@ -24,7 +26,7 @@ struct EdgeCertificatesView: View {
                 Toggle("Enable Universal SSL", isOn: Binding(
                     get: { viewModel.isUniversalSSLEnabled },
                     set: { newValue in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                         Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
                     }
                 ))
@@ -34,7 +36,6 @@ struct EdgeCertificatesView: View {
                 Section {
                     ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
                         EdgeCertificateCardView(certificate: placeholderCert)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     }
                 }
                 .redacted(reason: .placeholder)
@@ -42,11 +43,10 @@ struct EdgeCertificatesView: View {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 if cert.type.lowercased() != "universal" {
                                     Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
+                                        HIGFeedback.impact(.medium)
                                         Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -67,8 +67,8 @@ struct EdgeCertificatesView: View {
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchCertificates(zoneId: zoneId) }
@@ -76,20 +76,15 @@ struct EdgeCertificatesView: View {
                         )
                     )
                 } else if viewModel.certificates.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "lock.shield",
+                    HIGContentState(
+                        .empty(
                             title: "No Edge Certificates",
-                            message: "No Edge Certificates found."
+                            systemImage: "lock.shield",
+                            description: "No Edge Certificates found."
                         )
                     )
                 } else if displayedCertificates.isEmpty && !searchText.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -103,5 +98,111 @@ struct EdgeCertificatesView: View {
                 await viewModel.fetchCertificates(zoneId: zoneId)
             }
         }
+    }
+}
+
+// MARK: - EdgeCertificateCardView (Inlined & Cohesive)
+
+struct EdgeCertificateCardView: View {
+    let certificate: EdgeCertificateModel
+    
+    var iconName: String {
+        switch certificate.type.lowercased() {
+        case "universal": return "globe"
+        case "advanced": return "star.fill"
+        case "custom": return "person.badge.key"
+        default: return "seal.fill"
+        }
+    }
+    
+    var iconColor: Color {
+        switch certificate.type.lowercased() {
+        case "universal": return .blue
+        case "advanced": return .purple
+        case "custom": return .orange
+        default: return .gray
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                ZStack {
+                    iconColor.opacity(0.12)
+                    Image(systemName: iconName)
+                        .foregroundStyle(iconColor)
+                        .font(.subheadline.weight(.semibold))
+                        .accessibilityHidden(true)
+                }
+                .frame(width: 28, height: 28)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                
+                Text(certificate.type.capitalized)
+                    .font(.body.weight(.medium))
+                
+                Spacer()
+                
+                HIGBadge(certificate.status.lowercased() == "active" ? .active : .custom(color: .secondary, text: certificate.status.capitalized), isCompact: true)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .top) {
+                    Text("Hosts")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 70, alignment: .leading)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach(certificate.hosts, id: \.self) { host in
+                            Text(host)
+                                .font(.subheadline)
+                        }
+                    }
+                }
+                
+                HStack {
+                    Text("Issuer")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 70, alignment: .leading)
+                    Text(certificate.issuer)
+                        .font(.subheadline)
+                }
+                
+                HStack {
+                    Text("Signature")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 70, alignment: .leading)
+                    Text(certificate.signature)
+                        .font(.subheadline.monospacedDigit())
+                }
+                    
+                HStack {
+                    Text(certificate.id)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    
+                    Spacer()
+                    
+                    Text(formatDate(certificate.expiresOn))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private func formatDate(_ dateStr: String) -> String {
+        guard let date = ISO8601DateFormatter().date(from: dateStr) else {
+            return "Expires: \(dateStr)"
+        }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return "Expires: \(formatter.string(from: date))"
     }
 }

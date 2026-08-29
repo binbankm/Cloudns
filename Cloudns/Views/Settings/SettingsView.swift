@@ -35,7 +35,7 @@ struct SettingsView: View {
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 6) {
-                                    CloudnsBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
+                                    HIGBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
@@ -55,14 +55,8 @@ struct SettingsView: View {
                 // MARK: - Cloudflare Operations & Status
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.body)
-                                .foregroundStyle(.green)
-                                .frame(width: 32, height: 32)
-                                .background(Color.green.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: .green, size: 28, cornerRadius: 6)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
@@ -77,14 +71,8 @@ struct SettingsView: View {
                     }
                     
                     NavigationLink(destination: AuditLogsView(accountId: "")) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "list.bullet.rectangle.portrait.fill")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue, size: 28, cornerRadius: 6)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
@@ -140,7 +128,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: themePreference) { _ in
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                     }
                     
                     NavigationLink(destination: AppIconPickerView()) {
@@ -181,7 +169,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: appLanguage) { _ in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                     }
                     
                     Toggle(isOn: $hapticsEnabled) {
@@ -193,12 +181,12 @@ struct SettingsView: View {
                     }
                     .onChange(of: hapticsEnabled) { enabled in
                         if enabled {
-                            HapticManager.impact(.medium)
+                            HIGFeedback.impact(.medium)
                         }
                     }
                     
                     Button {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         showingClearCacheAlert = true
                     } label: {
                         HStack {
@@ -265,7 +253,7 @@ struct SettingsView: View {
                 // MARK: - Log Out Section
                 Section {
                     Button(role: .destructive, action: {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         showingLogoutAlert = true
                     }) {
                         HStack {
@@ -288,8 +276,7 @@ struct SettingsView: View {
                 Button("Clear", role: .destructive) {
                     Task {
                         await cacheManager.clearAllCaches()
-                        HapticManager.notification(.success)
-                        ToastManager.shared.showSuccess("Cache Cleared", message: "All local caches and temporary storage purged")
+                        HIGFeedback.success()
                     }
                 }
             } message: {
@@ -306,3 +293,28 @@ struct SettingsView: View {
         }
     }
 }
+
+// MARK: - SettingsRowView (Inlined & Cohesive)
+
+struct SettingsRowView: View {
+    let icon: String
+    let color: Color
+    let title: LocalizedStringKey
+    
+    init(icon: String, color: Color, title: LocalizedStringKey) {
+        self.icon = icon
+        self.color = color
+        self.title = title
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            ListRowIcon(icon: icon, color: color, size: 28, cornerRadius: 6)
+            
+            Text(title)
+                .font(.body)
+                .foregroundStyle(.primary)
+        }
+    }
+}
+
