@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EdgeLatencyTestView: View {
-    @StateObject private var viewModel = DevToolsViewModel()
+    @StateObject private var viewModel = EdgeLatencyViewModel()
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {

@@ -4,24 +4,33 @@ import Combine
 
 @MainActor
 final class CIDRCalculatorViewModel: BaseLoadableViewModel {
-    @Published var cidrInput: String = "192.168.1.1/24"
-    @Published var result: SubnetCalculationResult?
+    @Published var cidrInput = "192.168.1.0/24"
+    @Published var subnetResult: SubnetCalculationResult?
+    @Published var subnetError: String?
     
     private let cidrService: CIDRCalculatorServiceProtocol
     
     init(cidrService: CIDRCalculatorServiceProtocol = CIDRCalculatorService.shared) {
         self.cidrService = cidrService
         super.init()
-        self.calculate()
+        self.calculateSubnet()
     }
     
-    func calculate() {
+    func calculateSubnet() {
         let clean = cidrInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else {
-            self.result = nil
+            subnetResult = nil
+            subnetError = nil
             return
         }
-        self.result = cidrService.calculateSubnet(cidr: clean)
-        self.hasFetchedData = (self.result != nil)
+        
+        if let res = cidrService.calculateSubnet(cidr: clean) {
+            self.subnetResult = res
+            self.subnetError = nil
+            self.hasFetchedData = true
+        } else {
+            self.subnetResult = nil
+            self.subnetError = "Invalid CIDR notation (e.g. 192.168.1.0/24)"
+        }
     }
 }

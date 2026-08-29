@@ -217,12 +217,13 @@ struct EdgeCertificateCardView: View {
     }
     
     private func formatDate(_ dateStr: String) -> String {
-        guard let date = ISO8601DateFormatter().date(from: dateStr) else {
-            return "Expires: \(dateStr)"
+        guard let date = DateFormatters.parseISO8601(dateStr) else {
+            return dateStr.isEmpty ? "" : "Expires: \(dateStr)"
         }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return "Expires: \(formatter.string(from: date))"
+        let formattedDate = date.formatted(date: .abbreviated, time: .omitted)
+        if date < Date() {
+            return "Expired: \(formattedDate)"
+        }
+        return "Expires: \(formattedDate)"
     }
 }

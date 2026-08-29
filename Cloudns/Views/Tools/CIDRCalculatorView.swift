@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CIDRCalculatorView: View {
-    @StateObject private var viewModel = DevToolsViewModel()
+    @StateObject private var viewModel = CIDRCalculatorViewModel()
     @FocusState private var isFieldFocused: Bool
     
     private let presetCIDRs = [

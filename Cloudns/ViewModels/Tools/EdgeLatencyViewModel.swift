@@ -4,9 +4,11 @@ import Combine
 
 @MainActor
 final class EdgeLatencyViewModel: BaseLoadableViewModel {
-    @Published var host: String = "www.cloudflare.com"
-    @Published var rounds: Int = 4
-    @Published var result: EdgeLatencyResult?
+    @Published var latencyHostInput = ""
+    @Published var latencyResult: EdgeLatencyResult?
+    @Published var isLatencyLoading = false
+    @Published var latencyRounds = 6
+    @Published var latencyError: String?
     
     private let latencyService: EdgeLatencyServiceProtocol
     
@@ -15,14 +17,27 @@ final class EdgeLatencyViewModel: BaseLoadableViewModel {
         super.init()
     }
     
-    func startTest() async {
-        let clean = host.trimmingCharacters(in: .whitespacesAndNewlines)
+    func performEdgeLatencyTest() async {
+        let clean = latencyHostInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
         
-        await executeLoadingTask {
-            let res = try await self.latencyService.performEdgeLatencyTest(host: clean, rounds: self.rounds)
-            self.result = res
+        isLatencyLoading = true
+        latencyError = nil
+        latencyResult = nil
+        
+        do {
+            let res = try await latencyService.performEdgeLatencyTest(host: clean, rounds: latencyRounds)
+            self.latencyResult = res
             self.hasFetchedData = true
+            HIGFeedback.success()
+        } catch {
+            self.latencyError = error.localizedDescription
+            HIGFeedback.error()
         }
+        isLatencyLoading = false
+    }
+    
+    func testLatency() async {
+        await performEdgeLatencyTest()
     }
 }

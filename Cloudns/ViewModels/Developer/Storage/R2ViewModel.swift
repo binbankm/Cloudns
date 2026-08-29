@@ -22,8 +22,21 @@ final class R2ViewModel: BaseLoadableViewModel {
     }
     
     func fetchBuckets() async {
+        let scopedKey = SWRCacheStore.accountScopedKey("r2_buckets_\(accountId)")
+        
+        // 1. [SWR Stale Cache] 优先从本地缓存秒级直出
+        if !hasFetchedData {
+            if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [R2Bucket].self), !cached.isEmpty {
+                self.buckets = cached
+                self.hasFetchedData = true
+            }
+        }
+        
         await executeLoadingTask {
-            self.buckets = try await self.r2Service.listR2Buckets(accountId: self.accountId)
+            let latestBuckets = try await self.r2Service.listR2Buckets(accountId: self.accountId)
+            self.buckets = latestBuckets
+            // 2. [SWR Update Cache] 存入最新数据
+            await SWRCacheStore.shared.set(latestBuckets, forKey: scopedKey)
         }
     }
 

@@ -34589,6 +34589,82 @@
         }
       }
     },
+    "Classification": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification"
+          }
+        }
+      }
+    },
     "Clear": {
       "extractionState": "manual",
       "localizations": {
@@ -80955,6 +81031,82 @@
         }
       }
     },
+    "Image & Vision Generation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image & Vision Generation"
+          }
+        }
+      }
+    },
     "Image Optimization": {
       "localizations": {
         "ar": {
@@ -93067,16 +93219,40 @@
     },
     "Metric": {
       "localizations": {
-        "zh-Hans": {
+        "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "指标"
+            "value": "المقياس"
           }
         },
-        "zh-Hant": {
+        "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "指標"
+            "value": "Metrik"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metric"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métrica"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métrique"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metrica"
           }
         },
         "ja": {
@@ -93091,36 +93267,6 @@
             "value": "지표"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Metric"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Metrik"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Métrique"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Métrica"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Metrica"
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -93133,10 +93279,16 @@
             "value": "Метрика"
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "المقياس"
+            "value": "指标"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "指標"
           }
         }
       }
@@ -139435,16 +139587,40 @@
     },
     "Selected": {
       "localizations": {
-        "zh-Hans": {
+        "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "选中"
+            "value": "محدد"
           }
         },
-        "zh-Hant": {
+        "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "選中"
+            "value": "Ausgewählt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionné"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selezionato"
           }
         },
         "ja": {
@@ -139459,36 +139635,6 @@
             "value": "선택됨"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selected"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ausgewählt"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionné"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seleccionado"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selezionato"
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -139501,26 +139647,56 @@
             "value": "Выбрано"
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "محدد"
+            "value": "选中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選中"
           }
         }
       }
     },
     "SelectedValue": {
       "localizations": {
-        "zh-Hans": {
+        "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "选中值"
+            "value": "القيمة المحددة"
           }
         },
-        "zh-Hant": {
+        "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "選中值"
+            "value": "Ausgewählter Wert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected Value"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valor seleccionado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valeur sélectionnée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valore selezionato"
           }
         },
         "ja": {
@@ -139535,36 +139711,6 @@
             "value": "선택한 값"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selected Value"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ausgewählter Wert"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Valeur sélectionnée"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Valor seleccionado"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Valore selezionato"
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -139577,10 +139723,16 @@
             "value": "Выбранное значение"
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "القيمة المحددة"
+            "value": "选中值"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選中值"
           }
         }
       }
@@ -143488,6 +143640,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "源匹配 URL（如 example.com/old）"
+          }
+        }
+      }
+    },
+    "Speech Recognition & Audio": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech Recognition & Audio"
           }
         }
       }
@@ -150001,6 +150229,82 @@
         }
       }
     },
+    "Text Generation (LLM)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Generation (LLM)"
+          }
+        }
+      }
+    },
     "text/plain": {
       "localizations": {
         "ar": {
@@ -154063,6 +154367,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "轉换、快取、重定向与 Snippets"
+          }
+        }
+      }
+    },
+    "Translation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation"
           }
         }
       }
@@ -160270,6 +160650,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "變量与机密"
+          }
+        }
+      }
+    },
+    "Vector Embeddings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vector Embeddings"
           }
         }
       }
@@ -166793,16 +167249,40 @@
     },
     "Zone Traffic Analytics (24h)": {
       "localizations": {
-        "zh-Hans": {
+        "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "域名流量走势 (24小时)"
+            "value": "تحليلات حركة المنطقة (24 ساعة)"
           }
         },
-        "zh-Hant": {
+        "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "網域流量趨勢 (24小時)"
+            "value": "Zonen-Traffic-Analysen (24 Std.)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone Traffic Analytics (24h)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tráfico de zona (24 h)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trafic de zone (24h)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffico di zona (24 ore)"
           }
         },
         "ja": {
@@ -166817,36 +167297,6 @@
             "value": "도메인 트래픽 분석 (24시간)"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zone Traffic Analytics (24h)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zonen-Traffic-Analysen (24 Std.)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trafic de zone (24h)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tráfico de zona (24 h)"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Traffico di zona (24 ore)"
-          }
-        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -166859,10 +167309,16 @@
             "value": "Трафик зон (24ч)"
           }
         },
-        "ar": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "تحليلات حركة المنطقة (24 ساعة)"
+            "value": "域名流量走势 (24小时)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網域流量趨勢 (24小時)"
           }
         }
       }

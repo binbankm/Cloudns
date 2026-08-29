@@ -4,10 +4,14 @@ import Combine
 
 @MainActor
 final class DNSPropagationViewModel: BaseLoadableViewModel {
-    @Published var domain: String = ""
-    @Published var selectedType: String = "A"
-    @Published var expectedIP: String = ""
+    @Published var propagationDomain = ""
+    @Published var propagationType = "A"
+    @Published var expectedIP = ""
     @Published var propagationResult: DNSPropagationResult?
+    @Published var isPropagationLoading = false
+    @Published var propagationError: String?
+    
+    let recordTypes = ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SOA"]
     
     private let propagationService: DNSPropagationServiceProtocol
     
@@ -16,18 +20,27 @@ final class DNSPropagationViewModel: BaseLoadableViewModel {
         super.init()
     }
     
-    func probeWorldwide() async {
-        let clean = domain.trimmingCharacters(in: .whitespacesAndNewlines)
+    func queryPropagation() async {
+        let clean = propagationDomain.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
         
-        await executeLoadingTask {
-            let res = try await self.propagationService.performDNSPropagation(
+        isPropagationLoading = true
+        propagationError = nil
+        propagationResult = nil
+        
+        do {
+            let res = try await propagationService.performDNSPropagation(
                 domain: clean,
-                type: self.selectedType,
-                expectedIP: self.expectedIP.isEmpty ? nil : self.expectedIP
+                type: propagationType,
+                expectedIP: expectedIP.isEmpty ? nil : expectedIP
             )
             self.propagationResult = res
             self.hasFetchedData = true
+            HIGFeedback.success()
+        } catch {
+            self.propagationError = error.localizedDescription
+            HIGFeedback.error()
         }
+        isPropagationLoading = false
     }
 }

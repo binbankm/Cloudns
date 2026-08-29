@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - DNSDigToolView
 
 struct DNSDigToolView: View {
-    @StateObject private var viewModel = DevToolsViewModel()
+    @StateObject private var viewModel = DNSDigViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var queryMode = 0 // 0: Single (1.1.1.1), 1: Benchmark
     

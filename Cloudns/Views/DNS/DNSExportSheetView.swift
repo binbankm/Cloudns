@@ -107,9 +107,8 @@ struct DNSExportSheetView: View {
                                         .font(.subheadline.weight(.medium))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 10)
-                                        .background(Color.blue)
+                                        .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                                         .foregroundStyle(.white)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 }
                                 
                                 Button {

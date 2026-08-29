@@ -234,6 +234,6 @@ struct WhoisToolView: View {
     }
     
     private func formatDate(_ date: Date) -> String {
-        DateFormatters.yearMonthDayHourMinute.string(from: date)
+        date.formatted(date: .abbreviated, time: .shortened)
     }
 }

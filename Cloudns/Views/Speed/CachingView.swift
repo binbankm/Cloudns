@@ -126,14 +126,13 @@ struct CachingView: View {
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             } else {
                                 Text("Purge Everything")
-                                    .fontWeight(.bold)
+                                    .fontWeight(.semibold)
                             }
                             Spacer()
                         }
-                        .padding()
-                        .background(Color.red)
+                        .padding(.vertical, 12)
+                        .background(Color.red, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)

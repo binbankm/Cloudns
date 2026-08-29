@@ -1,7 +1,7 @@
 import Foundation
 
-struct SecurityHeader: Codable, Equatable {
-    struct StrictTransportSecurity: Codable, Equatable {
+struct SecurityHeader: Codable, Equatable, Sendable {
+    struct StrictTransportSecurity: Codable, Equatable, Sendable {
         var enabled: Bool
         var max_age: Int
         var include_subdomains: Bool
@@ -109,7 +109,7 @@ enum SettingValue: Codable, Equatable {
     }
 }
 
-struct ZoneSetting: Codable, Identifiable {
+struct ZoneSetting: Codable, Identifiable, Sendable {
     var id: String { rawId ?? UUID().uuidString }
     let rawId: String?
     let value: SettingValue
@@ -131,13 +131,13 @@ struct ZoneSetting: Codable, Identifiable {
     }
 }
 
-struct ZoneSettingsResponse: Codable {
+struct ZoneSettingsResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: [ZoneSetting]?
 }
 
-struct ZoneSettingUpdateResponse: Codable {
+struct ZoneSettingUpdateResponse: Codable, Sendable {
     let success: Bool
     let errors: [CloudflareError]?
     let result: ZoneSetting?

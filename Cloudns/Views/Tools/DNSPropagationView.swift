@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DNSPropagationView: View {
-    @StateObject private var viewModel = DevToolsViewModel()
+    @StateObject private var viewModel = DNSPropagationViewModel()
     @FocusState private var isFieldFocused: Bool
     
     var body: some View {

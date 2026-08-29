@@ -15,10 +15,23 @@ class WAFViewModel: BaseLoadableViewModel {
     }
     
     func fetchWAFRules(zoneId: String) async {
+        let scopedKey = SWRCacheStore.accountScopedKey("waf_rules_\(zoneId)")
+        
+        // 1. [SWR Stale Cache] 优先从本地缓存秒级直出
+        if !hasFetchedData {
+            if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [WAFRule].self), !cached.isEmpty {
+                self.rules = cached
+                self.hasFetchedData = true
+            }
+        }
+        
         await executeLoadingTask {
             if let rs = try await self.wafService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_firewall_custom") {
                 self.ruleset = rs
-                self.rules = rs.rules ?? []
+                let latestRules = rs.rules ?? []
+                self.rules = latestRules
+                // 2. [SWR Update Cache] 存入最新数据
+                await SWRCacheStore.shared.set(latestRules, forKey: scopedKey)
             } else {
                 self.ruleset = nil
                 self.rules = []

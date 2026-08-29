@@ -5,6 +5,12 @@ enum DateFormatters {
     
     // MARK: - Modern ISO8601 Formatters
     
+    /// 标准 ISO8601 格式化器单例
+    nonisolated(unsafe) static let iso8601: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        return formatter
+    }()
+    
     /// 将 Date 格式化为标准 ISO8601 字符串（如 "2023-01-01T12:00:00Z"）
     static func formatISO8601(_ date: Date) -> String {
         date.ISO8601Format()
@@ -134,6 +140,9 @@ enum DateFormatters {
             return date
         }
         if let date = iso8601FallbackSpace.date(from: trimmed) {
+            return date
+        }
+        if let date = yearMonthDay.date(from: trimmed) {
             return date
         }
         return nil

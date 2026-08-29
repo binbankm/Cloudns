@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HTTPHeaderInspectorView: View {
-    @StateObject private var viewModel = DevToolsViewModel()
+    @StateObject private var viewModel = HTTPHeaderInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var headerSearchText = ""
     

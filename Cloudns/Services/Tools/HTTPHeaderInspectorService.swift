@@ -1,12 +1,14 @@
 import Foundation
 
 /// HTTP/HTTPS 响应头诊断与性能检测领域服务协议
-protocol HTTPInspectorServiceProtocol: Sendable {
+protocol HTTPHeaderInspectorServiceProtocol: Sendable {
     func inspectHTTPHeaders(urlString: String, method: String) async throws -> HTTPInspectionResult
 }
 
-final class HTTPInspectorService: HTTPInspectorServiceProtocol {
-    static let shared = HTTPInspectorService()
+typealias HTTPInspectorServiceProtocol = HTTPHeaderInspectorServiceProtocol
+
+final class HTTPHeaderInspectorService: HTTPHeaderInspectorServiceProtocol {
+    static let shared = HTTPHeaderInspectorService()
     
     private let diagnosticSession: URLSession = {
         let config = URLSessionConfiguration.ephemeral
@@ -74,3 +76,5 @@ final class HTTPInspectorService: HTTPInspectorServiceProtocol {
         )
     }
 }
+
+typealias HTTPInspectorService = HTTPHeaderInspectorService

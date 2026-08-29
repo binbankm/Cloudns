@@ -15,6 +15,7 @@ struct ContentView: View {
     @ObservedObject private var authManager = AppAuthManager.shared
     @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     @ObservedObject private var router = DeepLinkRouter.shared
     
@@ -32,89 +33,59 @@ struct ContentView: View {
             if !hasSeenOnboarding {
                 OnboardingView()
             } else if isLoggedIn {
-                TabView(selection: $selectedTab) {
-                    DashboardView()
-                        .tabItem {
-                            Label("Dashboard", systemImage: selectedTab == .dashboard ? "square.grid.2x2.fill" : "square.grid.2x2")
-                        }
-                        .tag(AppTab.dashboard)
-                    
-                    ZonesListView()
-                        .tabItem {
-                            Label("Domains", systemImage: selectedTab == .domains ? "globe.asia.australia.fill" : "globe.asia.australia")
-                        }
-                        .tag(AppTab.domains)
-                    
-                    DeveloperHubView()
-                        .tabItem {
-                            Label("Developer", systemImage: selectedTab == .developer ? "cpu.fill" : "cpu")
-                        }
-                        .tag(AppTab.developer)
-                    
-                    NetworkToolsView()
-                        .tabItem {
-                            Label("Tools", systemImage: selectedTab == .tools ? "terminal.fill" : "terminal")
-                        }
-                        .tag(AppTab.tools)
-                    
-                    SettingsView()
-                        .tabItem {
-                            Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
-                        }
-                        .tag(AppTab.settings)
-                }
-                .id(tabViewResetId)
-                .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
-                    tabViewResetId = UUID()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
-                    router.activeDestination = nil
-                    tabViewResetId = UUID()
-                }
-                .onChange(of: selectedTab) { _ in HapticManager.selection() }
-                .overlay(alignment: .top) {
-                    if !networkMonitor.isConnected {
-                        HStack(spacing: 6) {
-                            Image(systemName: "wifi.slash")
-                                .font(.caption.weight(.bold))
-                            Text("Offline Mode · Showing Cached Data")
-                                .font(.caption.weight(.medium))
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .background(Capsule().fill(Color.orange.opacity(0.92)))
-                        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
-                        .padding(.top, 4)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                mainRootLayout
+                    .id(tabViewResetId)
+                    .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
+                        tabViewResetId = UUID()
                     }
-                }
-                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
-                .overlay {
-                    if isAppLockEnabled {
-                        let shouldMask = !authManager.isUnlocked || scenePhase != .active
-                        
-                        ZStack {
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                                .ignoresSafeArea()
-                            
-                            Image(systemName: "lock.shield.fill")
-                                .font(.largeTitle)
-                                .foregroundStyle(.secondary.opacity(0.6))
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if !authManager.isUnlocked {
-                                HapticManager.impact(.light)
-                                authManager.authenticate()
+                    .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
+                        router.activeDestination = nil
+                        tabViewResetId = UUID()
+                    }
+                    .onChange(of: selectedTab) { _ in HIGFeedback.selection() }
+                    .overlay(alignment: .top) {
+                        if !networkMonitor.isConnected {
+                            HStack(spacing: 6) {
+                                Image(systemName: "wifi.slash")
+                                    .font(.caption.weight(.bold))
+                                Text("Offline Mode · Showing Cached Data")
+                                    .font(.caption.weight(.medium))
                             }
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Capsule().fill(Color.orange.opacity(0.92)))
+                            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
+                            .padding(.top, 4)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                         }
-                        .opacity(shouldMask ? 1 : 0)
-                        .allowsHitTesting(!authManager.isUnlocked && scenePhase == .active)
-                        .animation(.easeInOut(duration: 0.15), value: shouldMask)
                     }
-                }
+                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
+                    .overlay {
+                        if isAppLockEnabled {
+                            let shouldMask = !authManager.isUnlocked || scenePhase != .active
+                            
+                            ZStack {
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+                                    .ignoresSafeArea()
+                                
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.secondary.opacity(0.6))
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if !authManager.isUnlocked {
+                                    HIGFeedback.impact(.light)
+                                    authManager.authenticate()
+                                }
+                            }
+                            .opacity(shouldMask ? 1 : 0)
+                            .allowsHitTesting(!authManager.isUnlocked && scenePhase == .active)
+                            .animation(.easeInOut(duration: 0.15), value: shouldMask)
+                        }
+                    }
             } else {
                 LoginView()
             }
@@ -191,6 +162,109 @@ struct ContentView: View {
                 }
             }
             .environment(\.locale, currentLocale)
+        }
+    }
+    
+    // MARK: - Adaptive Layout (Compact TabView vs Regular NavigationSplitView)
+    
+    @ViewBuilder
+    private var mainRootLayout: some View {
+        if horizontalSizeClass == .regular {
+            // iPad / Mac / 宽屏：原生 NavigationSplitView 侧边栏模式
+            NavigationSplitView {
+                List {
+                    Section {
+                        sidebarRow(tab: .dashboard, title: "Dashboard", icon: "square.grid.2x2", activeIcon: "square.grid.2x2.fill", color: .orange)
+                        sidebarRow(tab: .domains, title: "Domains", icon: "globe.asia.australia", activeIcon: "globe.asia.australia.fill", color: .blue)
+                        sidebarRow(tab: .developer, title: "Developer", icon: "cpu", activeIcon: "cpu.fill", color: .purple)
+                        sidebarRow(tab: .tools, title: "Tools", icon: "terminal", activeIcon: "terminal.fill", color: .teal)
+                        sidebarRow(tab: .settings, title: "Settings", icon: "gearshape", activeIcon: "gearshape.fill", color: .gray)
+                    } header: {
+                        Text("Cloudns")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                            .textCase(nil)
+                    }
+                }
+                .listStyle(.sidebar)
+                .navigationTitle("Cloudns")
+            } detail: {
+                detailViewForTab(selectedTab)
+            }
+        } else {
+            // iPhone / 紧凑屏：原生经典 5-Tab 栏模式
+            TabView(selection: $selectedTab) {
+                DashboardView()
+                    .tabItem {
+                        Label("Dashboard", systemImage: selectedTab == .dashboard ? "square.grid.2x2.fill" : "square.grid.2x2")
+                    }
+                    .tag(AppTab.dashboard)
+                
+                ZonesListView()
+                    .tabItem {
+                        Label("Domains", systemImage: selectedTab == .domains ? "globe.asia.australia.fill" : "globe.asia.australia")
+                    }
+                    .tag(AppTab.domains)
+                
+                DeveloperHubView()
+                    .tabItem {
+                        Label("Developer", systemImage: selectedTab == .developer ? "cpu.fill" : "cpu")
+                    }
+                    .tag(AppTab.developer)
+                
+                NetworkToolsView()
+                    .tabItem {
+                        Label("Tools", systemImage: selectedTab == .tools ? "terminal.fill" : "terminal")
+                    }
+                    .tag(AppTab.tools)
+                
+                SettingsView()
+                    .tabItem {
+                        Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
+                    }
+                    .tag(AppTab.settings)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func sidebarRow(tab: AppTab, title: LocalizedStringKey, icon: String, activeIcon: String, color: Color) -> some View {
+        Button {
+            selectedTab = tab
+            HIGFeedback.selection()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: selectedTab == tab ? activeIcon : icon)
+                    .foregroundStyle(selectedTab == tab ? color : .secondary)
+                    .font(.body.weight(.medium))
+                    .frame(width: 24, height: 24)
+                
+                Text(title)
+                    .font(.body.weight(selectedTab == tab ? .semibold : .regular))
+                    .foregroundStyle(selectedTab == tab ? .primary : .secondary)
+                
+                Spacer()
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .background(selectedTab == tab ? color.opacity(0.12) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private func detailViewForTab(_ tab: AppTab) -> some View {
+        switch tab {
+        case .dashboard:
+            DashboardView()
+        case .domains:
+            ZonesListView()
+        case .developer:
+            DeveloperHubView()
+        case .tools:
+            NetworkToolsView()
+        case .settings:
+            SettingsView()
         }
     }
 }

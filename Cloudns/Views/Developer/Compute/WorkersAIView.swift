@@ -168,22 +168,22 @@ struct WorkersAIView: View {
         return nil
     }
     
-    private func localizedTaskName(_ raw: String) -> String {
+    private func localizedTaskName(_ raw: String) -> LocalizedStringKey {
         let lower = raw.lowercased()
         if lower.contains("speech") || lower.contains("audio") {
-            return "语音识别与处理"
+            return "Speech Recognition & Audio"
         } else if lower.contains("text-generation") || lower.contains("generation") {
-            return "文本生成与推理 (LLM)"
+            return "Text Generation (LLM)"
         } else if lower.contains("image") || lower.contains("vision") {
-            return "图像与视觉生成"
+            return "Image & Vision Generation"
         } else if lower.contains("embed") {
-            return "向量嵌入 (Embedding)"
+            return "Vector Embeddings"
         } else if lower.contains("translation") {
-            return "智能多语言翻译"
+            return "Translation"
         } else if lower.contains("classification") {
-            return "文本/图像分类"
+            return "Classification"
         }
-        return raw.capitalized
+        return LocalizedStringKey(raw.capitalized)
     }
     
     private func iconForTask(_ task: String) -> String {

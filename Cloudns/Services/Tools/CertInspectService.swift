@@ -2,12 +2,14 @@ import Foundation
 import Security
 
 /// SSL/TLS 证书深度探测与握手分析领域服务协议
-protocol SSLCertInspectServiceProtocol: Sendable {
+protocol CertInspectServiceProtocol: Sendable {
     func inspectSSLCertificate(domain: String) async throws -> SSLCertDetails
 }
 
-final class SSLCertInspectService: SSLCertInspectServiceProtocol {
-    static let shared = SSLCertInspectService()
+typealias SSLCertInspectServiceProtocol = CertInspectServiceProtocol
+
+final class CertInspectService: CertInspectServiceProtocol {
+    static let shared = CertInspectService()
     
     private let diagnosticSession: URLSession = {
         let config = URLSessionConfiguration.ephemeral
@@ -61,3 +63,5 @@ final class SSLCertInspectService: SSLCertInspectServiceProtocol {
         )
     }
 }
+
+typealias SSLCertInspectService = CertInspectService

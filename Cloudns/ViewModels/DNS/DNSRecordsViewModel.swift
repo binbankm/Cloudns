@@ -80,6 +80,17 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             currentPage = 1
         }
         
+        let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+        
+        // 1. [SWR Stale Cache] 首次进入或非刷新时，优先从离线缓存毫秒级直出
+        if !hasFetchedData && !isRefresh {
+            if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [DNSRecord].self), !cached.isEmpty {
+                self.records = cached
+                self.totalCount = cached.count
+                self.hasFetchedData = true
+            }
+        }
+        
         guard !isLoading else { return }
         if !isRefresh && !canLoadMore && !records.isEmpty { return }
         
@@ -94,8 +105,10 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 direction: self.sortOption == "name" ? "asc" : "desc"
             )
             
-            if isRefresh {
+            if isRefresh || self.currentPage == 1 {
                 self.records = newRecords
+                // 2. [SWR Update Cache] 成功拉取第一页最新数据后平滑存入缓存
+                await SWRCacheStore.shared.set(newRecords, forKey: scopedKey)
             } else {
                 self.records.append(contentsOf: newRecords)
             }

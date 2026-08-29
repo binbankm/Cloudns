@@ -61,8 +61,8 @@ enum APIError: Error, LocalizedError, Sendable {
     
     /// 便捷构造器，预先解析原始错误响应（支持 JSON 与 HTML 容错提取）
     static func fromCloudflareResponse(data: Data, statusCode: Int? = nil, defaultMessage: String = "API Request Failed") -> APIError {
-        struct CFErrorResponse: Codable {
-            struct ErrorItem: Codable {
+        struct CFErrorResponse: Codable, Sendable {
+            struct ErrorItem: Codable, Sendable {
                 let code: Int?
                 let message: String?
             }
@@ -123,8 +123,8 @@ enum APIError: Error, LocalizedError, Sendable {
             return rawMessage
         }
         
-        struct CFErrorResponse: Codable {
-            struct ErrorItem: Codable {
+        struct CFErrorResponse: Codable, Sendable {
+            struct ErrorItem: Codable, Sendable {
                 let code: Int?
                 let message: String?
             }

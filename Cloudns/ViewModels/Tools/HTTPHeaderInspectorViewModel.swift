@@ -4,9 +4,13 @@ import Combine
 
 @MainActor
 final class HTTPHeaderInspectorViewModel: BaseLoadableViewModel {
-    @Published var urlString: String = "https://www.cloudflare.com"
-    @Published var method: String = "HEAD"
-    @Published var result: HTTPInspectionResult?
+    @Published var httpUrlInput = ""
+    @Published var httpMethod = "HEAD"
+    @Published var httpResult: HTTPInspectionResult?
+    @Published var isHttpLoading = false
+    @Published var httpError: String?
+    
+    let httpMethods = ["HEAD", "GET", "OPTIONS"]
     
     private let httpService: HTTPHeaderInspectorServiceProtocol
     
@@ -15,14 +19,27 @@ final class HTTPHeaderInspectorViewModel: BaseLoadableViewModel {
         super.init()
     }
     
-    func inspect() async {
-        let clean = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+    func inspectHTTPHeaders() async {
+        let clean = httpUrlInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
         
-        await executeLoadingTask {
-            let res = try await self.httpService.inspectHTTPHeaders(urlString: clean, method: self.method)
-            self.result = res
+        isHttpLoading = true
+        httpError = nil
+        httpResult = nil
+        
+        do {
+            let res = try await httpService.inspectHTTPHeaders(urlString: clean, method: httpMethod)
+            self.httpResult = res
             self.hasFetchedData = true
+            HIGFeedback.success()
+        } catch {
+            self.httpError = error.localizedDescription
+            HIGFeedback.error()
         }
+        isHttpLoading = false
+    }
+    
+    func inspectHTTP() async {
+        await inspectHTTPHeaders()
     }
 }

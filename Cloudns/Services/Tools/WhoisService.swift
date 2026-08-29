@@ -1,13 +1,15 @@
 import Foundation
 
 /// RDAP / WHOIS 查询领域服务抽象协议
-protocol RDAPServiceProtocol: Sendable {
+protocol WhoisServiceProtocol: Sendable {
     func lookup(domain: String) async throws -> WhoisInfo
 }
 
+typealias RDAPServiceProtocol = WhoisServiceProtocol
+
 /// 统一的 RDAP / WHOIS 查询领域服务
-public actor RDAPService: RDAPServiceProtocol {
-    public static let shared = RDAPService()
+public actor WhoisService: WhoisServiceProtocol {
+    public static let shared = WhoisService()
     private let session = URLSession.shared
     
     public func lookup(domain: String) async throws -> WhoisInfo {
@@ -242,3 +244,5 @@ public actor RDAPService: RDAPServiceProtocol {
         DateFormatters.parseISO8601(str)
     }
 }
+
+typealias RDAPService = WhoisService

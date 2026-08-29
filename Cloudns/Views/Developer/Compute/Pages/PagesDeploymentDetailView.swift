@@ -164,7 +164,7 @@ struct PagesDeploymentDetailView: View {
                             }
                         }
                         .padding(8)
-                        .background(Color.black)
+                        .background(Color.black.opacity(0.85))
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .scrollIndicators(.hidden)
