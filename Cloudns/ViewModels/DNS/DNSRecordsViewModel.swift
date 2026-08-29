@@ -11,13 +11,33 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
     
     @Published var searchQuery: String = ""
     @Published var sortOption: String = "name"
+    @Published var selectedType: String = "ALL"
+    @Published var selectedProxyStatus: String = "ALL"
+    
+    var isFiltered: Bool {
+        selectedType != "ALL" || selectedProxyStatus != "ALL"
+    }
+    
+    func resetFilters() {
+        selectedType = "ALL"
+        selectedProxyStatus = "ALL"
+    }
     
     var filteredRecords: [DNSRecord] {
+        var result = records
+        if selectedType != "ALL" {
+            result = result.filter { $0.type.uppercased() == selectedType.uppercased() }
+        }
+        if selectedProxyStatus == "PROXIED" {
+            result = result.filter { $0.proxied == true }
+        } else if selectedProxyStatus == "DNS_ONLY" {
+            result = result.filter { $0.proxied != true }
+        }
         let trimmed = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
-            return records
+            return result
         }
-        return records.filter { record in
+        return result.filter { record in
             record.name.localizedStandardContains(trimmed) ||
             (record.content ?? "").localizedStandardContains(trimmed) ||
             record.type.localizedStandardContains(trimmed) ||
@@ -60,6 +80,17 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             currentPage = 1
         }
         
+        let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+        
+        // 1. [SWR Stale Cache] 首次进入或非刷新时，优先从离线缓存毫秒级直出
+        if !hasFetchedData && !isRefresh {
+            if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [DNSRecord].self), !cached.isEmpty {
+                self.records = cached
+                self.totalCount = cached.count
+                self.hasFetchedData = true
+            }
+        }
+        
         guard !isLoading else { return }
         if !isRefresh && !canLoadMore && !records.isEmpty { return }
         
@@ -74,8 +105,10 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 direction: self.sortOption == "name" ? "asc" : "desc"
             )
             
-            if isRefresh {
+            if isRefresh || self.currentPage == 1 {
                 self.records = newRecords
+                // 2. [SWR Update Cache] 成功拉取第一页最新数据后平滑存入缓存
+                await SWRCacheStore.shared.set(newRecords, forKey: scopedKey)
             } else {
                 self.records.append(contentsOf: newRecords)
             }
@@ -168,10 +201,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
                 records[idx] = updatedRecord
             }
-            ToastManager.shared.showSuccess(
-                newProxied ? "CDN Proxy Enabled" : "DNS Only Enabled",
-                message: "\(record.name) (\(record.type))"
-            )
+            ToastManager.shared.showSuccess(newProxied ? "Proxy Enabled (Orange Cloud ☁️)" : "Proxy Disabled (DNS Only)", icon: "shield.lefthalf.filled")
         } catch {
             // Rollback on error
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
@@ -179,7 +209,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 rollback.proxied = currentProxied
                 records[idx] = rollback
             }
-            ToastManager.shared.showError("Failed to update proxy status", message: error.localizedDescription)
+            ToastManager.shared.showError("Failed to update proxy status")
         }
     }
     

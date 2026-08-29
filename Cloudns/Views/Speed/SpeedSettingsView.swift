@@ -36,7 +36,7 @@ struct SpeedSettingsView: View {
                                     .foregroundStyle(.purple)
                                 Text("Speed Brain")
                                     .font(.body.weight(.medium))
-                                CloudnsBadge(.free, isCompact: true)
+                                HIGBadge(.free, isCompact: true)
                             }
                             Text("Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations.")
                                 .font(.caption)
@@ -58,7 +58,7 @@ struct SpeedSettingsView: View {
                                     .foregroundStyle(.teal)
                                 Text("Cloudflare Fonts")
                                     .font(.body.weight(.medium))
-                                CloudnsBadge(.free, isCompact: true)
+                                HIGBadge(.free, isCompact: true)
                             }
                             Text("Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift.")
                                 .font(.caption)
@@ -80,7 +80,7 @@ struct SpeedSettingsView: View {
                                     .foregroundStyle(.orange)
                                 Text("Tiered Cache")
                                     .font(.body.weight(.medium))
-                                CloudnsBadge(.free, isCompact: true)
+                                HIGBadge(.free, isCompact: true)
                             }
                             Text("Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios.")
                                 .font(.caption)
@@ -166,7 +166,7 @@ struct SpeedSettingsView: View {
                             HStack(spacing: 6) {
                                 Text("Polish (WebP)")
                                     .font(.body)
-                                CloudnsBadge(.pro, isCompact: true)
+                                HIGBadge(.pro, isCompact: true)
                             }
                             Text("Automatic image compression and WebP conversion.")
                                 .font(.caption)
@@ -183,7 +183,7 @@ struct SpeedSettingsView: View {
                             Text("Predictive prefetching via W3C Speculation Rules.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                     
                     Toggle(isOn: .constant(true)) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -191,7 +191,7 @@ struct SpeedSettingsView: View {
                             Text("Privacy-preserving edge proxy for Google Fonts.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
                 
                 Section(header: Text("Asset Optimization")) {
@@ -201,12 +201,11 @@ struct SpeedSettingsView: View {
                             Text("Speed up page load times for your visitor's HTTPS traffic.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

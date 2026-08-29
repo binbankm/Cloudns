@@ -35,11 +35,9 @@ final class SecurityViewModel: BaseLoadableViewModel {
             try await securityService.updateSecurityLevel(zoneId: zoneId, level: level)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
-            ToastManager.shared.showSuccess("Security Level", message: "Updated to \(level.capitalized)")
         } catch {
             self.securityLevel = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Security Level Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -49,11 +47,9 @@ final class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateChallengeTTL(zoneId: zoneId, ttl: ttl)
-            ToastManager.shared.showSuccess("Challenge Passage", message: "TTL updated successfully.")
         } catch {
             self.challengeTTL = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -63,11 +59,10 @@ final class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBrowserCheck(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Browser Integrity Check", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Browser Check Enabled" : "Browser Check Disabled")
         } catch {
             self.browserCheck = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -77,11 +72,10 @@ final class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBotFightMode(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Bot Fight Mode", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Bot Fight Mode Enabled" : "Bot Fight Mode Disabled")
         } catch {
             self.botFightMode = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

@@ -14,9 +14,9 @@ final class CachingViewModel: BaseLoadableViewModel {
     @Published var purgeSuccessMessage: String?
     @Published var purgeErrorMessage: String?
     
-    private let cachingService: SpeedAndNetworkServiceProtocol
+    private let cachingService: CachingServiceProtocol
     
-    init(cachingService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+    init(cachingService: CachingServiceProtocol = CachingService.shared) {
         self.cachingService = cachingService
         super.init()
     }
@@ -40,10 +40,10 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeEverything(zoneId: zoneId)
             purgeSuccessMessage = "Successfully purged all cache!"
-            ToastManager.shared.showSuccess("Cache Purged", message: "All cached resources were purged successfully.")
+            ToastManager.shared.showSuccess("Entire Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge cache: \(error.localizedDescription)"
-            ToastManager.shared.showError("Purge Cache Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Failed to purge cache")
         }
         
         isPurging = false
@@ -57,10 +57,10 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeCacheByURLs(zoneId: zoneId, urls: urls)
             purgeSuccessMessage = "Successfully purged requested URLs!"
-            ToastManager.shared.showSuccess("URLs Purged", message: "\(urls.count) URL(s) purged from cache.")
+            ToastManager.shared.showSuccess("Custom Cache Purged", icon: "checkmark.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge URLs: \(error.localizedDescription)"
-            ToastManager.shared.showError("Purge URLs Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Failed to purge URLs")
         }
         
         isPurging = false
@@ -74,10 +74,8 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeCacheByHosts(zoneId: zoneId, hosts: hosts)
             purgeSuccessMessage = "Successfully purged requested Hosts!"
-            ToastManager.shared.showSuccess("Hosts Purged", message: "\(hosts.count) host(s) purged from cache.")
         } catch {
             purgeErrorMessage = "Failed to purge hosts: \(error.localizedDescription)"
-            ToastManager.shared.showError("Purge Hosts Failed", message: error.localizedDescription)
         }
         
         isPurging = false
@@ -91,10 +89,8 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeCacheByPrefixes(zoneId: zoneId, prefixes: prefixes)
             purgeSuccessMessage = "Successfully purged requested URL prefixes!"
-            ToastManager.shared.showSuccess("Prefixes Purged", message: "\(prefixes.count) prefix(es) purged from cache.")
         } catch {
             purgeErrorMessage = "Failed to purge prefixes: \(error.localizedDescription)"
-            ToastManager.shared.showError("Purge Prefixes Failed", message: error.localizedDescription)
         }
         
         isPurging = false
@@ -108,10 +104,8 @@ final class CachingViewModel: BaseLoadableViewModel {
         do {
             try await cachingService.purgeCacheByTags(zoneId: zoneId, tags: tags)
             purgeSuccessMessage = "Successfully purged requested Cache-Tags!"
-            ToastManager.shared.showSuccess("Tags Purged", message: "\(tags.count) tag(s) purged from cache.")
         } catch {
             purgeErrorMessage = "Failed to purge tags: \(error.localizedDescription)"
-            ToastManager.shared.showError("Purge Tags Failed", message: error.localizedDescription)
         }
         
         isPurging = false
@@ -122,11 +116,9 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.cacheLevel = level
         do {
             try await cachingService.updateCacheLevel(zoneId: zoneId, level: level)
-            ToastManager.shared.showSuccess("Caching Level", message: "Updated to \(level.capitalized)")
         } catch {
             self.cacheLevel = prev
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -135,11 +127,9 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.browserCacheTTL = ttl
         do {
             try await cachingService.updateBrowserCacheTTL(zoneId: zoneId, ttl: ttl)
-            ToastManager.shared.showSuccess("Browser Cache TTL", message: "TTL updated successfully.")
         } catch {
             self.browserCacheTTL = prev
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -148,11 +138,11 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.alwaysOnline = isOn
         do {
             try await cachingService.updateAlwaysOnline(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Always Online", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Always Online Enabled" : "Always Online Disabled", icon: "bolt.horizontal.fill")
         } catch {
             self.alwaysOnline = prev
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Failed to update Always Online")
         }
     }
     
@@ -161,13 +151,14 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.developmentMode = isOn
         do {
             try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
+            ToastManager.shared.showSuccess(isOn ? "Development Mode Enabled" : "Development Mode Disabled")
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
-            ToastManager.shared.showSuccess("Development Mode", message: isOn ? "Enabled (3 hours)" : "Disabled")
             NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
+            ToastManager.shared.showSuccess(isOn ? "Development Mode Enabled" : "Development Mode Disabled", icon: "hammer.fill")
         } catch {
             self.developmentMode = prev
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
+            ToastManager.shared.showError("Failed to update Development Mode")
         }
     }
 }

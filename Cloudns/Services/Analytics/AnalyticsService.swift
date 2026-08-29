@@ -5,6 +5,7 @@ protocol AnalyticsServiceProtocol: Sendable {
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
     func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache]
+    func getFleetAnalytics(zoneTags: [String]) async throws -> [FleetHourlyMetric]
     func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem]
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem]
 }
@@ -17,6 +18,105 @@ final class AnalyticsService: AnalyticsServiceProtocol {
     private let factory = AuthenticatedRequestFactory.shared
     
     private init() {}
+    
+    /// 获取全账号所有活跃域名的 24 小时逐小时聚合趋势数据
+    func getFleetAnalytics(zoneTags: [String]) async throws -> [FleetHourlyMetric] {
+        guard !zoneTags.isEmpty else { return [] }
+        let targetTags = Array(zoneTags.prefix(20))
+        let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
+        let dateString = DateFormatters.formatISO8601(pastDate)
+        
+        var querySubfields = ""
+        for (index, tag) in targetTags.enumerated() {
+            querySubfields += """
+            z_\(index): zones(filter: { zoneTag: "\(tag)" }) {
+              httpRequests1hGroups(limit: 24, filter: { datetime_geq: "\(dateString)" }, orderBy: [datetime_ASC]) {
+                dimensions {
+                  datetime
+                }
+                sum {
+                  requests
+                  bytes
+                  cachedRequests
+                  threats
+                }
+              }
+            }
+            """
+        }
+        
+        let query = """
+        query {
+          viewer {
+            \(querySubfields)
+          }
+        }
+        """
+        
+        let payload: [String: Any] = ["query": query]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
+        let rawData = try await client.performDataRequest(request)
+        
+        guard let json = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let viewerObj = dataObj["viewer"] as? [String: Any] else {
+            return []
+        }
+        
+        // Aggregate across zones by datetime
+        var timelineMap: [String: (date: Date, requests: Double, bytes: Double, cached: Double, threats: Double)] = [:]
+        
+        for index in targetTags.indices {
+            if let zoneArray = viewerObj["z_\(index)"] as? [[String: Any]],
+               let firstZone = zoneArray.first,
+               let groups = firstZone["httpRequests1hGroups"] as? [[String: Any]] {
+                for group in groups {
+                    if let dims = group["dimensions"] as? [String: Any],
+                       let dtStr = dims["datetime"] as? String,
+                       let sum = group["sum"] as? [String: Any] {
+                        let reqs = (sum["requests"] as? NSNumber)?.doubleValue ?? 0
+                        let bytes = (sum["bytes"] as? NSNumber)?.doubleValue ?? 0
+                        let cached = (sum["cachedRequests"] as? NSNumber)?.doubleValue ?? 0
+                        let threats = (sum["threats"] as? NSNumber)?.doubleValue ?? 0
+                        
+                        let date = DateFormatters.parseISO8601(dtStr) ?? Date()
+                        let hourKey = DateFormatters.formatHour(date)
+                        
+                        if let current = timelineMap[hourKey] {
+                            timelineMap[hourKey] = (
+                                date: current.date,
+                                requests: current.requests + reqs,
+                                bytes: current.bytes + bytes,
+                                cached: current.cached + cached,
+                                threats: current.threats + threats
+                            )
+                        } else {
+                            timelineMap[hourKey] = (
+                                date: date,
+                                requests: reqs,
+                                bytes: bytes,
+                                cached: cached,
+                                threats: threats
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        let sorted = timelineMap.values.sorted { $0.date < $1.date }
+        return sorted.map { item in
+            FleetHourlyMetric(
+                date: item.date,
+                timeString: DateFormatters.formatHour(item.date),
+                requests: item.requests,
+                bytes: item.bytes,
+                cachedRequests: item.cached,
+                threats: item.threats
+            )
+        }
+    }
     
     /// 批量获取多个 Zone 的 24 小时流量走势微图点位（采用 GraphQL 别名聚合单次请求）
     func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {

@@ -2,16 +2,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-nonisolated struct DashboardSnapshot: Codable, Sendable {
-    let zones: [Zone]
-    let workers: [WorkerScript]
-    let pages: [PagesProject]
-    let tunnels: [CFTunnel]
-    let kvCount: Int
-    let r2Count: Int
-    let d1Count: Int
-}
-
 @MainActor
 final class DashboardViewModel: BaseLoadableViewModel {
     private let zoneService: ZoneServiceProtocol
@@ -21,6 +11,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
     private let kvService: KVServiceProtocol
     private let r2Service: R2ServiceProtocol
     private let d1Service: D1ServiceProtocol
+    private let dashboardService: DashboardServiceProtocol
     
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
@@ -35,8 +26,31 @@ final class DashboardViewModel: BaseLoadableViewModel {
     @Published var d1Count: Int = 0
     
     @Published var sparklines: [String: ZoneSparklineCache] = [:]
-    
     @Published var recentZones: [Zone] = []
+    
+    // MARK: - Global Fleet Trend Analytics
+    @Published var fleetMetrics: [FleetHourlyMetric] = []
+    @Published var selectedChartMetric: DashboardChartMetric = .requests
+    @Published var isFetchingFleetAnalytics: Bool = false
+    
+    public var totalFleetRequests24h: Double {
+        fleetMetrics.reduce(0) { $0 + $1.requests }
+    }
+    
+    public var totalFleetBandwidth24h: Double {
+        fleetMetrics.reduce(0) { $0 + $1.bytes }
+    }
+    
+    public var averageCacheHitRate24h: Double {
+        let totalReqs = totalFleetRequests24h
+        guard totalReqs > 0 else { return 0 }
+        let totalCached = fleetMetrics.reduce(0) { $0 + $1.cachedRequests }
+        return min(1.0, totalCached / totalReqs)
+    }
+    
+    public var totalThreats24h: Double {
+        fleetMetrics.reduce(0) { $0 + $1.threats }
+    }
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -47,7 +61,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
         tunnelService: TunnelServiceProtocol = TunnelService.shared,
         kvService: KVServiceProtocol = KVService.shared,
         r2Service: R2ServiceProtocol = R2Service.shared,
-        d1Service: D1ServiceProtocol = D1Service.shared
+        d1Service: D1ServiceProtocol = D1Service.shared,
+        dashboardService: DashboardServiceProtocol = DashboardService.shared
     ) {
         self.zoneService = zoneService
         self.workerService = workerService
@@ -56,6 +71,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         self.kvService = kvService
         self.r2Service = r2Service
         self.d1Service = d1Service
+        self.dashboardService = dashboardService
         super.init()
         
         NotificationCenter.default.publisher(for: .recentZonesDidUpdate)
@@ -166,6 +182,12 @@ final class DashboardViewModel: BaseLoadableViewModel {
             self.syncTopZoneToWidget()
             self.syncTopWorkerToWidget()
             self.syncTopPagesToWidget()
+            
+            // 尝试恢复图表时序缓存，避免启动抖动
+            let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
+            if let cachedMetrics = await SWRCacheStore.shared.get(forKey: chartKey, as: [FleetHourlyMetric].self), !cachedMetrics.isEmpty {
+                self.fleetMetrics = cachedMetrics
+            }
         }
         
         // 2. [Revalidate / Refresh] 统一执行前台/后台实时拉取
@@ -175,14 +197,18 @@ final class DashboardViewModel: BaseLoadableViewModel {
             if !fetchedAccounts.isEmpty {
                 self.accounts = fetchedAccounts
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
-                let currentAcc = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
-                self.selectedAccount = currentAcc
+                if let matched = fetchedAccounts.first(where: { $0.name.lowercased() == activeEmail.lowercased() }) {
+                    self.selectedAccount = matched
+                } else if self.selectedAccount == nil {
+                    self.selectedAccount = fetchedAccounts.first
+                }
             }
             
             // B. 获取域名列表
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
                 self.refreshRecentZones()
+                self.fetchRecentSparklines()
                 // Fallback: 如果 getAccounts() 无返回（如普通 Zone 权限 Token），从 Zones 列表自动提取关联的 Account
                 if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
@@ -223,6 +249,28 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.syncTopZoneToWidget()
                 self.syncTopWorkerToWidget()
                 self.syncTopPagesToWidget()
+                self.fetchFleetAnalytics()
+            }
+        }
+    }
+    
+    /// 获取全账号所有活跃域名的 24h 逐小时趋势分析
+    public func fetchFleetAnalytics() {
+        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+        guard !activeZoneIds.isEmpty else { return }
+        
+        Task {
+            self.isFetchingFleetAnalytics = true
+            defer { self.isFetchingFleetAnalytics = false }
+            
+            // 优先拉取全量 24h 时序数据
+            if let metrics = try? await self.dashboardService.getFleetMetrics(zoneTags: activeZoneIds), !metrics.isEmpty {
+                self.fleetMetrics = metrics
+                let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
+                await SWRCacheStore.shared.set(metrics, forKey: chartKey)
+            } else if self.fleetMetrics.isEmpty {
+                // 若没有网络或解析数据为空，回退到平滑确定性占位
+                self.fleetMetrics = FleetHourlyMetric.placeholder24h
             }
         }
     }
@@ -246,7 +294,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
             
             // 2. 批量拉取实时 24h 流量点位
-            if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeRecentIds) {
+            if let batchMap = try? await self.dashboardService.getSparklines(zoneTags: activeRecentIds) {
                 self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
                     let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")

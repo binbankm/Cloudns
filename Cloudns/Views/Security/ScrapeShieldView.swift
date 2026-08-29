@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - ScrapeShieldView
+
 struct ScrapeShieldView: View {
     let zoneId: String
     
@@ -41,7 +43,6 @@ struct ScrapeShieldView: View {
                     }
                     .padding(.top, 8)
                 ) {
-                    // Email Obfuscation
                     ScrapeShieldRowView(
                         title: "Email Address Obfuscation",
                         subtitle: "Hides your email addresses from scrapers. Visitors can still see them.",
@@ -50,7 +51,7 @@ struct ScrapeShieldView: View {
                         isOn: Binding(
                             get: { viewModel.emailObfuscationEnabled },
                             set: { val in
-                                HapticManager.impact(.light)
+                                HIGFeedback.selection()
                                 viewModel.emailObfuscationEnabled = val
                                 Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off") }
                             }
@@ -58,7 +59,6 @@ struct ScrapeShieldView: View {
                         isLoading: viewModel.isLoading && !viewModel.hasFetchedData
                     )
                     
-                    // Server-Side Excludes
                     ScrapeShieldRowView(
                         title: "Server-Side Excludes",
                         subtitle: "Hides specific page content from suspicious visitors.",
@@ -67,7 +67,7 @@ struct ScrapeShieldView: View {
                         isOn: Binding(
                             get: { viewModel.serverSideExcludesEnabled },
                             set: { val in
-                                HapticManager.impact(.light)
+                                HIGFeedback.selection()
                                 viewModel.serverSideExcludesEnabled = val
                                 Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_excludes", value: val ? "on" : "off") }
                             }
@@ -75,7 +75,6 @@ struct ScrapeShieldView: View {
                         isLoading: viewModel.isLoading && !viewModel.hasFetchedData
                     )
                     
-                    // Hotlink Protection
                     ScrapeShieldRowView(
                         title: "Hotlink Protection",
                         subtitle: "Prevents other sites from embedding your images, saving your bandwidth.",
@@ -84,7 +83,7 @@ struct ScrapeShieldView: View {
                         isOn: Binding(
                             get: { viewModel.hotlinkProtectionEnabled },
                             set: { val in
-                                HapticManager.impact(.light)
+                                HIGFeedback.selection()
                                 viewModel.hotlinkProtectionEnabled = val
                                 Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off") }
                             }
@@ -99,36 +98,65 @@ struct ScrapeShieldView: View {
                             title: "Scrape Protection Setting",
                             subtitle: "Configuring security level and scraper prevention rules...",
                             icon: "shield.fill",
-                            iconColor: .purple,
-                            isOn: .constant(true),
+                            iconColor: .gray,
+                            isOn: .constant(false),
                             isLoading: true
                         )
-                        .skeletonLoading(true)
                     }
                 }
+                .redacted(reason: .placeholder)
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-        .overlay {
-            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
-                    )
-                )
-            }
-        }
-        .navigationTitle("Scrape Shield")
-        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
+        .navigationTitle("Scrape Shield")
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
+    }
+}
+
+// MARK: - ScrapeShieldRowView (Inlined & Cohesive)
+
+struct ScrapeShieldRowView: View {
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let icon: String
+    let iconColor: Color
+    @Binding var isOn: Bool
+    let isLoading: Bool
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(iconColor)
+                .frame(width: 32, height: 32)
+                .background(iconColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            Spacer()
+            
+            Toggle(isOn: $isOn) { }
+                .labelsHidden()
+                .disabled(isLoading)
+        }
+        .padding(.vertical, 4)
     }
 }

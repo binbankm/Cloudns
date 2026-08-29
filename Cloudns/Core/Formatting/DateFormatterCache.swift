@@ -5,6 +5,12 @@ enum DateFormatters {
     
     // MARK: - Modern ISO8601 Formatters
     
+    /// 标准 ISO8601 格式化器单例
+    nonisolated(unsafe) static let iso8601: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        return formatter
+    }()
+    
     /// 将 Date 格式化为标准 ISO8601 字符串（如 "2023-01-01T12:00:00Z"）
     static func formatISO8601(_ date: Date) -> String {
         date.ISO8601Format()
@@ -35,6 +41,18 @@ enum DateFormatters {
         formatter.timeStyle = .short
         return formatter
     }()
+    
+    /// 仅小时格式化器（如 "14:00"）
+    static let hourOnly: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:00"
+        return formatter
+    }()
+    
+    /// 格式化为小时简短字符串（如 "14:00"）
+    static func formatHour(_ date: Date) -> String {
+        hourOnly.string(from: date)
+    }
     
     /// 仅日期（如 "2023年10月1日"）
     static let dateOnly: DateFormatter = {
@@ -103,9 +121,18 @@ enum DateFormatters {
         }
     }
     
-    /// 将 ISO8601 字符串解析为 Date（优先尝试值类型 strategy，其次尝试无时区回退）
+    private nonisolated(unsafe) static let iso8601FractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    /// 将 ISO8601 字符串解析为 Date（优先尝试带毫秒/纳秒，其次尝试值类型 strategy，再次尝试无时区回退）
     static func parseISO8601(_ string: String) -> Date? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let date = iso8601FractionalFormatter.date(from: trimmed) {
+            return date
+        }
         if let date = try? Date(trimmed, strategy: .iso8601) {
             return date
         }
@@ -113,6 +140,9 @@ enum DateFormatters {
             return date
         }
         if let date = iso8601FallbackSpace.date(from: trimmed) {
+            return date
+        }
+        if let date = yearMonthDay.date(from: trimmed) {
             return date
         }
         return nil

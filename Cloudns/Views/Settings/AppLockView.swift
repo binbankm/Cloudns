@@ -15,7 +15,7 @@ struct AppLockView: View {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     authManager.authenticate()
                 }
             
@@ -24,7 +24,7 @@ struct AppLockView: View {
                 
                 // Subtle fallback trigger if Face ID prompt was dismissed/cancelled
                 Button {
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     authManager.authenticate()
                 } label: {
                     Label("Tap to Unlock", systemImage: "lock.open.fill")

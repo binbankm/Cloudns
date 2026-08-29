@@ -7,10 +7,10 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
     @Published var rules: [IPAccessRule] = []
     @Published var isCreating: Bool = false
     
-    private let securityService: SecuritySettingsServiceProtocol
+    private let accessRulesService: IPAccessRulesServiceProtocol
     
-    init(securityService: SecuritySettingsServiceProtocol = SecuritySettingsService.shared) {
-        self.securityService = securityService
+    init(accessRulesService: IPAccessRulesServiceProtocol = IPAccessRulesService.shared) {
+        self.accessRulesService = accessRulesService
         super.init()
     }
     
@@ -19,7 +19,7 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
         errorMessage = nil
         
         do {
-            let (fetched, _) = try await securityService.getIPAccessRules(zoneId: zoneId, page: 1, perPage: 50)
+            let (fetched, _) = try await accessRulesService.getIPAccessRules(zoneId: zoneId, page: 1, perPage: 50)
             self.rules = fetched
             self.hasFetchedData = true
         } catch {
@@ -29,43 +29,27 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
         isLoading = false
     }
     
-    func createRule(zoneId: String, mode: String, target: String, value: String, notes: String) async -> Bool {
+    func createRule(zoneId: String, mode: String, target: String, value: String, notes: String?) async -> Bool {
         isCreating = true
-        errorMessage = nil
+        defer { isCreating = false }
         
         do {
-            let newRule = try await securityService.createIPAccessRule(
-                zoneId: zoneId,
-                mode: mode,
-                target: target,
-                value: value,
-                notes: notes
-            )
-            
-            // Insert at the top
+            let newRule = try await accessRulesService.createIPAccessRule(zoneId: zoneId, mode: mode, target: target, value: value, notes: notes)
             self.rules.insert(newRule, at: 0)
-            ToastManager.shared.showSuccess("IP Rule Added", message: "\(value) (\(mode.uppercased()))")
-            HapticManager.notification(.success)
-            isCreating = false
             return true
         } catch {
-            self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to Add IP Rule", message: error.localizedDescription)
-            HapticManager.notification(.error)
-            isCreating = false
+            self.errorMessage = "Failed to create rule: \(error.localizedDescription)"
             return false
         }
     }
     
     func deleteRule(zoneId: String, ruleId: String) async {
         do {
-            try await securityService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
+            try await accessRulesService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             self.rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("IP Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

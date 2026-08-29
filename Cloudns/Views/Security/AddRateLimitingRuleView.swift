@@ -95,22 +95,24 @@ struct AddRateLimitingRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Rate Limit")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || requests.isEmpty || Int(requests) == nil || isSubmitting)
                 }
             }
@@ -122,12 +124,14 @@ struct AddRateLimitingRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
-            .toastContainer()
         }
+        .higToast()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     private func submitRule() async {
@@ -160,7 +164,11 @@ struct AddRateLimitingRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
+            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkered")
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

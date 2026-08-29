@@ -8,7 +8,7 @@ struct AppIconPickerView: View {
             Section {
                 ForEach(AppIconOption.allCases) { option in
                     Button {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await iconManager.selectIcon(option)
                         }
@@ -35,7 +35,7 @@ struct AppIconPickerView: View {
                                         .foregroundStyle(.primary)
                                     
                                     if iconManager.currentIcon == option {
-                                        CloudnsBadge(.custom(color: .orange, text: "Active"), isCompact: true)
+                                        HIGBadge(.custom(color: .orange, text: "Active"), isCompact: true)
                                     }
                                 }
                                 
@@ -68,7 +68,6 @@ struct AppIconPickerView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("App Icon")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {

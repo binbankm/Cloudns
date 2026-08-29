@@ -17,9 +17,9 @@ struct CachingView: View {
                         Text("Custom Cache Purge")
                         Spacer()
                         if purgeType == "url" {
-                            CloudnsBadge(.free, isCompact: true)
+                            HIGBadge(.free, isCompact: true)
                         } else {
-                            CloudnsBadge(.business, isCompact: true)
+                            HIGBadge(.business, isCompact: true)
                         }
                     },
                     footer: Text(purgeTypeDescription)
@@ -45,7 +45,7 @@ struct CachingView: View {
                             guard !clean.isEmpty && !viewModel.isPurging else { return }
                             let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                             
-                            HapticManager.impact(.medium)
+                            HIGFeedback.impact(.medium)
                             Task {
                                 if purgeType == "url" {
                                     await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
@@ -65,7 +65,7 @@ struct CachingView: View {
                         guard !clean.isEmpty else { return }
                         let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                         
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             if purgeType == "url" {
                                 await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
@@ -92,7 +92,7 @@ struct CachingView: View {
                         }
                         .padding(.vertical, 10)
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
@@ -126,14 +126,13 @@ struct CachingView: View {
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             } else {
                                 Text("Purge Everything")
-                                    .fontWeight(.bold)
+                                    .fontWeight(.semibold)
                             }
                             Spacer()
                         }
-                        .padding()
-                        .background(Color.red)
+                        .padding(.vertical, 12)
+                        .background(Color.red, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
@@ -158,7 +157,7 @@ struct CachingView: View {
                     .disabled(!viewModel.hasFetchedData)
                     .onChange(of: viewModel.cacheLevel) { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                         Task {
                             await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue)
                         }
@@ -186,7 +185,7 @@ struct CachingView: View {
                     .disabled(!viewModel.hasFetchedData)
                     .onChange(of: viewModel.browserCacheTTL) { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                         Task {
                             await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue)
                         }
@@ -208,7 +207,7 @@ struct CachingView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.alwaysOnline) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
                     }
@@ -229,7 +228,7 @@ struct CachingView: View {
                 .disabled(!viewModel.hasFetchedData)
                 .onChange(of: viewModel.developmentMode) { newValue in
                     guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HapticManager.impact(.light)
+                    HIGFeedback.impact(.light)
                     Task {
                         await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
                     }
@@ -241,29 +240,28 @@ struct CachingView: View {
                         Text("URL").tag("url")
                     }
                     .pickerStyle(.segmented)
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
                 
                 Section(header: Text("General Caching Settings")) {
                     Picker("Caching Level", selection: .constant("standard")) {
                         Text("Standard").tag("standard")
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                     
                     Picker("Browser Cache TTL", selection: .constant(14400)) {
                         Text("4 Hours").tag(14400)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
+                HIGContentState(
+                    .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
                     )
@@ -282,7 +280,7 @@ struct CachingView: View {
         }
         .confirmationDialog("Purge Everything?", isPresented: $showingPurgeAlert, titleVisibility: .visible) {
             Button("Purge All Cached Resources", role: .destructive) {
-                HapticManager.notification(.warning)
+                HIGFeedback.warning()
                 Task {
                     await viewModel.purgeCacheEverything(zoneId: zoneId)
                 }

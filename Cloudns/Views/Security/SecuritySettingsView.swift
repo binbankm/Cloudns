@@ -24,7 +24,7 @@ struct SecuritySettingsView: View {
                             Spacer()
                             
                             if viewModel.securityLevel == "under_attack" {
-                                CloudnsBadge(.error("ACTIVE"), isCompact: true)
+                                HIGBadge(.error("ACTIVE"), isCompact: true)
                             }
                         }
                         
@@ -34,7 +34,7 @@ struct SecuritySettingsView: View {
                         
                         Button(action: {
                             if viewModel.securityLevel == "under_attack" {
-                                HapticManager.impact(.medium)
+                                HIGFeedback.impact(.medium)
                                 Task {
                                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
                                 }
@@ -51,7 +51,7 @@ struct SecuritySettingsView: View {
                             .padding()
                             .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .disabled(!viewModel.hasFetchedData)
@@ -147,7 +147,7 @@ struct SecuritySettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                                 .accessibilityHidden(true)
-                            CloudnsBadge(.free, isCompact: true)
+                            HIGBadge(.free, isCompact: true)
                         }
                         Text("Detects and challenges known bots and crawlers. Recommended for most sites.")
                             .font(.caption)
@@ -161,22 +161,21 @@ struct SecuritySettingsView: View {
                 Picker("Security Level", selection: .constant("medium")) {
                     Text("Medium").tag("medium")
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             }
             Section(header: Text("Browser Integrity Check")) {
                 Toggle(isOn: .constant(true)) {
                     Text("Browser Integrity Check")
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             }
         }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
+                HIGContentState(
+                    .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
                     )
@@ -196,7 +195,7 @@ struct SecuritySettingsView: View {
         .confirmationDialog("Enable Under Attack Mode?", isPresented: $showUnderAttackAlert, titleVisibility: .visible) {
             Button("Enable Under Attack Mode", role: .destructive) {
                 Task {
-                    HapticManager.notification(.warning)
+                    HIGFeedback.warning()
                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "under_attack")
                 }
             }

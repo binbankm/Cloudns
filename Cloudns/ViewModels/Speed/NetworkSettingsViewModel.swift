@@ -11,9 +11,9 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     @Published var ipGeolocation: Bool = false
     @Published var originMaxHttpVersion: String = "2"
     
-    private let networkService: SpeedAndNetworkServiceProtocol
+    private let networkService: NetworkSettingsServiceProtocol
     
-    init(networkService: SpeedAndNetworkServiceProtocol = SpeedAndNetworkService.shared) {
+    init(networkService: NetworkSettingsServiceProtocol = NetworkSettingsService.shared) {
         self.networkService = networkService
         super.init()
     }
@@ -44,11 +44,10 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPv6(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("IPv6", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "I Pv6 Enabled" : "I Pv6 Disabled")
         } catch {
             self.ipv6 = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -58,11 +57,10 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateWebsockets(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("WebSockets", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Websockets Enabled" : "Websockets Disabled")
         } catch {
             self.websockets = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -72,11 +70,10 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP2(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("HTTP/2", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "H T T P2 Enabled" : "H T T P2 Disabled")
         } catch {
             self.http2 = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -86,11 +83,10 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP3(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("HTTP/3 (QUIC)", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "H T T P3 Enabled" : "H T T P3 Disabled")
         } catch {
             self.http3 = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -100,11 +96,10 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateIPGeolocation(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("IP Geolocation", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "I P Geolocation Enabled" : "I P Geolocation Disabled")
         } catch {
             self.ipGeolocation = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -114,11 +109,9 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await networkService.updateOriginMaxHTTPVersion(zoneId: zoneId, version: version)
-            ToastManager.shared.showSuccess("Origin Max HTTP", message: version == "2" ? "HTTP/2" : "HTTP/1.1")
         } catch {
             self.originMaxHttpVersion = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
 }

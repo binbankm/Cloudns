@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - SnippetsListView
+
 struct SnippetsListView: View {
     let zoneId: String
     @StateObject private var viewModel = SnippetsViewModel()
@@ -26,116 +28,100 @@ struct SnippetsListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
+        contentView
+            .searchable(
                 text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
                 prompt: "Search Snippets & Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
             .background(Color(.systemGroupedBackground))
-            
-            contentView
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Edge Snippets")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        editingSnippet = nil
-                        showingEditorSheet = true
+            .navigationTitle("Edge Snippets")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            editingSnippet = nil
+                            showingEditorSheet = true
+                        } label: {
+                            Label("New Snippet Script", systemImage: "curlybraces")
+                        }
+                        
+                        Button {
+                            showingBindSheet = true
+                        } label: {
+                            Label("Add Trigger Rule", systemImage: "arrow.triangle.branch")
+                        }
+                        .disabled(viewModel.snippets.isEmpty)
                     } label: {
-                        Label("New Snippet Script", systemImage: "curlybraces")
+                        Image(systemName: "plus")
                     }
-                    
-                    Button {
-                        showingBindSheet = true
-                    } label: {
-                        Label("Add Trigger Rule", systemImage: "arrow.triangle.branch")
-                    }
-                    .disabled(viewModel.snippets.isEmpty)
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Snippet or Trigger Rule")
-            }
-        }
-        .sheet(isPresented: $showingEditorSheet) {
-            SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingBindSheet) {
-            BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
-        }
-        .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
-            Button("Delete '\(snip.snippet_name)'", role: .destructive) {
-                Task {
-                    _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
+                    .accessibilityLabel("Add Snippet or Trigger Rule")
                 }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { snip in
-            Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
-        }
-        .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
-                if let rId = viewModel.rulesetId {
+            .sheet(isPresented: $showingEditorSheet) {
+                SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
+                 .higToast()
+            }
+            .sheet(isPresented: $showingBindSheet) {
+                BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
+                 .higToast()
+            }
+            .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
+                Button("Delete '\(snip.snippet_name)'", role: .destructive) {
                     Task {
-                        _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
+                        _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
+                        ToastManager.shared.showSuccess("Snippet Deleted", icon: "trash.fill")
                     }
                 }
+                Button("Cancel", role: .cancel) {}
+            } message: { snip in
+                Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { rule in
-            Text("Are you sure you want to delete trigger rule '\(rule.description ?? rule.id)'?")
-        }
-        .refreshable {
-            await viewModel.fetchSnippets(zoneId: zoneId)
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                    if let rId = viewModel.rulesetId {
+                        Task {
+                            _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
+                            ToastManager.shared.showSuccess("Trigger Rule Deleted", icon: "trash.fill")
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { rule in
+                Text("Are you sure you want to delete trigger rule '\(rule.description ?? rule.id)'?")
+            }
+            .refreshable {
                 await viewModel.fetchSnippets(zoneId: zoneId)
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchSnippets(zoneId: zoneId)
+                }
+            }
     }
     
     @ViewBuilder
     private var contentView: some View {
         List {
-            
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
+                Section(header: Text("Snippets")) {
                     ForEach(SnippetItem.placeholders) { placeholderSnippet in
                         snippetRow(placeholderSnippet)
                     }
                 }
-                .skeletonLoading(true)
-            } else if !displayedSnippets.isEmpty || !displayedRules.isEmpty {
-                // MARK: - Snippet Scripts
-                Section(header: Text("Snippet Scripts (\(displayedSnippets.count))")) {
-                    if displayedSnippets.isEmpty {
-                        Text("No snippet scripts uploaded.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
+                .redacted(reason: .placeholder)
+            } else {
+                if !displayedSnippets.isEmpty {
+                    Section(header: Text("JavaScript Snippets (\(displayedSnippets.count))")) {
                         ForEach(displayedSnippets) { snip in
                             snippetRow(snip)
                         }
                     }
                 }
-
-                // MARK: - Snippet Rules (Routing)
-                Section(
-                    header: Text("Execution Rules (\(displayedRules.count))"),
-                    footer: Text("Rules determine which HTTP requests execute specific snippets based on expression filters.")
-                ) {
-                    if displayedRules.isEmpty {
-                        Text("No trigger rules configured.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
+                
+                if !displayedRules.isEmpty {
+                    Section(header: Text("Trigger Rules (\(displayedRules.count))")) {
                         ForEach(displayedRules) { rule in
                             ruleRow(rule)
                         }
@@ -144,12 +130,12 @@ struct SnippetsListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
+        .scrollDismissesKeyboard(.interactively)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task { await viewModel.fetchSnippets(zoneId: zoneId) }
@@ -157,25 +143,20 @@ struct SnippetsListView: View {
                         )
                     )
                 } else if viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "curlybraces",
-                            title: "No Edge Snippets",
-                            message: "Deploy lightweight JavaScript logic to the Cloudflare edge directly for this zone.",
-                            actionTitle: "New Snippet",
+                    HIGContentState(
+                        .empty(
+                            title: "No Snippets",
+                            systemImage: "curlybraces",
+                            description: "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge.",
+                            actionTitle: "Create Snippet",
                             action: {
                                 editingSnippet = nil
                                 showingEditorSheet = true
                             }
                         )
                     )
-                } else if !searchText.isEmpty && displayedSnippets.isEmpty && displayedRules.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                } else if displayedSnippets.isEmpty && displayedRules.isEmpty && !searchText.isEmpty {
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -184,6 +165,7 @@ struct SnippetsListView: View {
     @ViewBuilder
     private func snippetRow(_ snip: SnippetItem) -> some View {
         Button {
+            HIGFeedback.selection()
             editingSnippet = snip
             showingEditorSheet = true
         } label: {
@@ -196,7 +178,7 @@ struct SnippetsListView: View {
                         .accessibilityHidden(true)
                 }
                 .frame(width: 36, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(snip.snippet_name)
@@ -223,7 +205,7 @@ struct SnippetsListView: View {
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HapticManager.impact(.medium)
+                HIGFeedback.impact(.medium)
                 snippetToDelete = snip
                 showingDeleteSnippetAlert = true
             } label: {
@@ -243,13 +225,7 @@ struct SnippetsListView: View {
                 Spacer()
 
                 let isEnabled = rule.enabled
-                Text(isEnabled ? "Active" : "Disabled")
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
-                    .foregroundStyle(isEnabled ? .green : .secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                HIGBadge(isEnabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
             if let snipName = rule.action_parameters?.snippet_name {
@@ -272,11 +248,200 @@ struct SnippetsListView: View {
         .padding(.vertical, 4)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HapticManager.impact(.medium)
+                HIGFeedback.impact(.medium)
                 ruleToDelete = rule
                 showingDeleteRuleAlert = true
             } label: {
                 Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+}
+
+// MARK: - SnippetEditorSheetView (Inlined & Cohesive)
+
+struct SnippetEditorSheetView: View {
+    let zoneId: String
+    let existingSnippet: SnippetItem?
+    @ObservedObject var viewModel: SnippetsViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var snippetName = ""
+    @State private var code = """
+    export default {
+      async fetch(request) {
+        // Modify request or response on the edge
+        return fetch(request);
+      }
+    };
+    """
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    HStack(spacing: 10) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.orange)
+                        Text("Cloudflare Snippets is available on Pro, Business, and Enterprise plans.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                }
+                
+                Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
+                    TextField("my_snippet", text: $snippetName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .disabled(existingSnippet != nil)
+                }
+                
+                Section(header: Text("JavaScript Code (ES Module)")) {
+                    TextEditor(text: $code)
+                        .font(.footnote.monospaced())
+                        .frame(minHeight: 180)
+                }
+                
+                if let err = errorMessage {
+                    Section {
+                        Text(err)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            errorMessage = nil
+                            let success = await viewModel.saveSnippet(
+                                zoneId: zoneId,
+                                name: snippetName,
+                                code: code
+                            )
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(snippetName.trimmingCharacters(in: .whitespaces).isEmpty || code.isEmpty || isSaving)
+                }
+            }
+            .interactiveDismissDisabled(isSaving)
+            .task {
+                if let ex = existingSnippet {
+                    snippetName = ex.snippet_name
+                    if let fetched = await viewModel.loadSnippetContent(zoneId: zoneId, name: ex.snippet_name), !fetched.isEmpty {
+                        code = fetched
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - BindSnippetRuleSheetView (Inlined & Cohesive)
+
+struct BindSnippetRuleSheetView: View {
+    let zoneId: String
+    let snippets: [SnippetItem]
+    @ObservedObject var viewModel: SnippetsViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var selectedSnippetName = ""
+    @State private var ruleDescription = ""
+    @State private var expression = "http.request.uri.path starts_with \"/api\""
+    @State private var isBinding = false
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Target Snippet")) {
+                    Picker("Select Snippet", selection: $selectedSnippetName) {
+                        ForEach(snippets) { snip in
+                            Text(snip.snippet_name).tag(snip.snippet_name)
+                        }
+                    }
+                }
+                
+                Section(header: Text("Rule Description")) {
+                    TextField("e.g. Route /api requests to snippet", text: $ruleDescription)
+                        .submitLabel(.next)
+                }
+                
+                Section(header: Text("Matching Expression"), footer: Text("Requests matching this wirefilter expression will execute the selected snippet.")) {
+                    TextField("Expression", text: $expression)
+                        .font(.footnote.monospaced())
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                }
+                
+                if let err = errorMessage {
+                    Section {
+                        Text(err)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Add Trigger Rule")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Bind") {
+                        Task {
+                            isBinding = true
+                            errorMessage = nil
+                            let success = await viewModel.bindSnippetRule(
+                                zoneId: zoneId,
+                                snippetName: selectedSnippetName,
+                                expression: expression,
+                                description: ruleDescription.isEmpty ? nil : ruleDescription
+                            )
+                            if success {
+                                HIGFeedback.success()
+                                dismiss()
+                            } else {
+                                HIGFeedback.error()
+                            }
+                            isBinding = false
+                        }
+                    }
+                    .disabled(selectedSnippetName.isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || isBinding)
+                }
+            }
+            .interactiveDismissDisabled(isBinding)
+            .onAppear {
+                if selectedSnippetName.isEmpty, let first = snippets.first {
+                    selectedSnippetName = first.snippet_name
+                }
             }
         }
     }

@@ -32,13 +32,12 @@ struct RulesHubView: View {
                     subtitle: "Lightweight JavaScript on HTTP requests",
                     icon: "curlybraces",
                     color: .orange,
-                    badge: .pro,
+                    badge: .warning("PRO"),
                     destination: SnippetsListView(zoneId: zoneId)
                 )
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Rules")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -89,7 +89,6 @@ struct AddCacheRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Cache Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -101,11 +100,12 @@ struct AddCacheRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || isSubmitting)
                 }
             }
@@ -117,12 +117,12 @@ struct AddCacheRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
-            .toastContainer()
         }
+        .higToast()
     }
     
     private func submitRule() async {
@@ -155,7 +155,11 @@ struct AddCacheRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
+            ToastManager.shared.showSuccess("Cache Rule Created", icon: "bolt.badge.clock")
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

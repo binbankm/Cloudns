@@ -8,6 +8,8 @@ struct EmailRoutingView: View {
     @State private var showingAddRuleSheet = false
     @State private var showingAddDestinationSheet = false
     @State private var searchText = ""
+    @State private var ruleToDelete: EmailRoutingRule?
+    @State private var showingDeleteAlert = false
     
     init(zoneId: String, zoneName: String = "") {
         self.zoneId = zoneId
@@ -25,26 +27,19 @@ struct EmailRoutingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Email Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                // MARK: - Master Toggle
-                Section(
+        List {
+            // MARK: - Master Toggle
+            Section(
                 header: Text("Status"),
                 footer: Text("When enabled, Cloudflare receives incoming emails for your domain and forwards them according to your routing rules.")
             ) {
                 Toggle(isOn: Binding(
                     get: { viewModel.settings?.isEnabled ?? false },
                     set: { enabled in
-                        Task { await viewModel.toggleEnabled(enabled) }
+                        Task {
+                            await viewModel.toggleEnabled(enabled)
+                            ToastManager.shared.showSuccess(enabled ? "Email Routing Enabled" : "Email Routing Disabled", icon: "envelope.badge.fill")
+                        }
                     }
                 )) {
                     HStack(spacing: 12) {
@@ -73,7 +68,10 @@ struct EmailRoutingView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.catchAllRule?.isEnabled ?? false },
                     set: { enabled in
-                        Task { await viewModel.toggleCatchAll(enabled: enabled) }
+                        Task {
+                            await viewModel.toggleCatchAll(enabled: enabled)
+                            ToastManager.shared.showSuccess(enabled ? "Catch-all Enabled" : "Catch-all Disabled", icon: "tray.fill")
+                        }
                     }
                 )) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -106,7 +104,7 @@ struct EmailRoutingView: View {
                     ForEach(EmailRoutingRule.placeholders) { placeholderRule in
                         ruleRow(placeholderRule)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if displayedRules.isEmpty {
                     Text("No custom routing rules configured.")
                         .foregroundStyle(.secondary)
@@ -116,10 +114,8 @@ struct EmailRoutingView: View {
                         ruleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    Task {
-                                        await viewModel.deleteRule(ruleId: rule.id)
-                                    }
+                                    ruleToDelete = rule
+                                    showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -181,7 +177,7 @@ struct EmailRoutingView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HapticManager.impact(.medium)
+                                HIGFeedback.impact(.medium)
                                 Task {
                                     await viewModel.deleteDestination(addressId: dest.id)
                                 }
@@ -195,35 +191,34 @@ struct EmailRoutingView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
-    }
-    .background(Color(.systemGroupedBackground))
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Email Rules"
+        )
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
-                    StateOverlayView(
-                        state: .error(
+                    HIGContentState(
+                        .error(
                             message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchData() } }
+                            retryAction: {
+                                Task { await viewModel.fetchData() }
+                            }
                         )
                     )
                 } else if viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
-                    StateOverlayView(
-                        state: .empty(
-                            icon: "envelope.badge.shield.half.filled",
+                    HIGContentState(
+                        .empty(
                             title: "No Email Routing Rules",
-                            message: "Create custom email addresses and forward incoming mail to your personal inboxes.",
+                            systemImage: "envelope.badge.shield.half.filled",
+                            description: "Create custom email addresses and forward incoming mail to your personal inboxes.",
                             actionTitle: "Add Rule",
                             action: { showingAddRuleSheet = true }
                         )
                     )
                 } else if !searchText.isEmpty && displayedRules.isEmpty {
-                    StateOverlayView(
-                        state: .search(
-                            query: searchText,
-                            clearAction: { searchText = "" }
-                        )
-                    )
+                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -231,9 +226,22 @@ struct EmailRoutingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddRuleSheet) {
             AddEmailRuleView(viewModel: viewModel, zoneName: zoneName)
+             .higToast()
         }
         .sheet(isPresented: $showingAddDestinationSheet) {
             AddDestinationAddressSheetView(viewModel: viewModel)
+             .higToast()
+        }
+        .confirmationDialog("Delete Email Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
+            Button("Delete '\(rule.name ?? "Rule")'", role: .destructive) {
+                Task {
+                    await viewModel.deleteRule(ruleId: rule.id)
+                    ToastManager.shared.showSuccess("Email Rule Deleted", icon: "trash.fill")
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { rule in
+            Text("Are you sure you want to delete email rule '\(rule.name ?? rule.matchAddress ?? "Rule")'?")
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -293,5 +301,85 @@ struct EmailRoutingView: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+// MARK: - AddDestinationAddressSheetView (Inlined & Cohesive)
+
+struct AddDestinationAddressSheetView: View {
+    @ObservedObject var viewModel: EmailRoutingViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var email = ""
+    @State private var isSubmitting = false
+    @FocusState private var isFocused: Bool
+    
+    var isValidEmail: Bool {
+        let pattern = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}$"#
+        return email.range(of: pattern, options: .regularExpression) != nil
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(
+                    header: Text("Destination Email"),
+                    footer: Text("Cloudflare will send a verification email with an activation link to this address. You must verify it before forwarding emails to it.")
+                ) {
+                    TextField("name@example.com", text: $email)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isFocused)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            if isValidEmail && !isSubmitting {
+                                submit()
+                            }
+                        }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Add Destination")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        submit()
+                    } label: {
+                        if isSubmitting {
+                            ProgressView()
+                        } else {
+                            Text("Send Verification")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .disabled(!isValidEmail || isSubmitting)
+                }
+            }
+            .interactiveDismissDisabled(isSubmitting)
+            .onAppear { isFocused = true }
+        }
+    }
+    
+    private func submit() {
+        let target = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !target.isEmpty else { return }
+        
+        isSubmitting = true
+        Task {
+            let success = await viewModel.addDestination(email: target)
+            isSubmitting = false
+            if success {
+                HIGFeedback.success()
+                dismiss()
+            } else {
+                HIGFeedback.error()
+            }
+        }
     }
 }

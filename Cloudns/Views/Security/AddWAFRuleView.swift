@@ -219,9 +219,9 @@ struct AddWAFRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New WAF Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -231,11 +231,12 @@ struct AddWAFRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || finalEffectiveExpression.isEmpty || isSubmitting)
                 }
             }
@@ -247,18 +248,18 @@ struct AddWAFRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
-            .toastContainer()
         }
+        .higToast()
     }
     
     @ViewBuilder
     private func presetButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
-            HapticManager.impact(.light)
+            HIGFeedback.impact(.light)
             action()
         } label: {
             HStack(spacing: 4) {
@@ -314,7 +315,11 @@ struct AddWAFRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
+            ToastManager.shared.showSuccess("WAF Rule Created", icon: "shield.fill")
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

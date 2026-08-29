@@ -53,11 +53,9 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
             try await certService.updateSSLMode(zoneId: zoneId, mode: mode)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
-            ToastManager.shared.showSuccess("SSL/TLS Mode", message: "Updated to \(mode.capitalized)")
         } catch {
             self.sslMode = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -67,11 +65,10 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Always Use HTTPS", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Always Use H T T P S Enabled" : "Always Use H T T P S Disabled")
         } catch {
             self.alwaysUseHTTPS = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -81,11 +78,10 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("HTTPS Rewrites", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Automatic H T T P S Rewrites Enabled" : "Automatic H T T P S Rewrites Disabled")
         } catch {
             self.automaticHTTPSRewrites = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -95,11 +91,9 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateMinTLSVersion(zoneId: zoneId, version: version)
-            ToastManager.shared.showSuccess("Minimum TLS", message: "Set to TLS \(version)")
         } catch {
             self.minTLSVersion = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -109,11 +103,10 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateTLS13(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("TLS 1.3", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "T L S13 Enabled" : "T L S13 Disabled")
         } catch {
             self.tls13 = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -123,11 +116,10 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticEncryption(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Opportunistic Encryption", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Opportunistic Encryption Enabled" : "Opportunistic Encryption Disabled")
         } catch {
             self.opportunisticEncryption = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -137,11 +129,10 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticOnion(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess("Opportunistic Onion", message: isOn ? "Enabled" : "Disabled")
+            ToastManager.shared.showSuccess(isOn ? "Opportunistic Onion Enabled" : "Opportunistic Onion Disabled")
         } catch {
             self.opportunisticOnion = previous
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
         }
     }
     
@@ -161,7 +152,6 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff, preload: preload)
-            ToastManager.shared.showSuccess("HSTS Updated", message: enabled ? "HSTS is active." : "HSTS is disabled.")
         } catch {
             self.hstsEnabled = prevEnabled
             self.hstsMaxAge = prevMaxAge
@@ -169,7 +159,6 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
             self.hstsNoSniff = prevNosniff
             self.hstsPreload = prevPreload
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("HSTS Update Failed", message: error.localizedDescription)
         }
     }
 }

@@ -10,6 +10,7 @@ struct SettingsView: View {
     
     @State private var showingLogoutAlert = false
     @State private var showingClearCacheAlert = false
+    @State private var showingAccountSheet = false
     @ObservedObject private var accountManager = AccountManager.shared
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
@@ -19,23 +20,16 @@ struct SettingsView: View {
             List {
                 // MARK: - Profile Card Section
                 Section {
-                    NavigationLink(destination: AccountsView()) {
+                    Button {
+                        HIGFeedback.impact(.light)
+                        showingAccountSheet = true
+                    } label: {
                         HStack(spacing: 16) {
-                            ZStack {
-                                Circle()
-                                    .fill(LinearGradient(gradient: Gradient(colors: [.blue, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 54, height: 54)
-                                    .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
-                                
-                                Text(accountManager.activeEmail.prefix(1).uppercased())
-                                    .font(.title2.weight(.bold))
-                                    .foregroundStyle(.white)
-                            }
-                            .accessibilityHidden(true)
+                            AccountAvatarView(identifier: accountManager.activeEmail, size: 52)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 6) {
-                                    CloudnsBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
+                                    HIGBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
@@ -47,26 +41,28 @@ struct SettingsView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
                         .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 // MARK: - Cloudflare Operations & Status
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.body)
-                                .foregroundStyle(.green)
-                                .frame(width: 32, height: 32)
-                                .background(Color.green.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: .green, size: 28, cornerRadius: 6)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
-                                    .font(.body)
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Live Cloudflare network & service health")
                                     .font(.caption)
@@ -77,18 +73,12 @@ struct SettingsView: View {
                     }
                     
                     NavigationLink(destination: AuditLogsView(accountId: "")) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "list.bullet.rectangle.portrait.fill")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .accessibilityHidden(true)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue, size: 28, cornerRadius: 6)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
-                                    .font(.body)
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Account change history & actor records")
                                     .font(.caption)
@@ -140,7 +130,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: themePreference) { _ in
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                     }
                     
                     NavigationLink(destination: AppIconPickerView()) {
@@ -181,7 +171,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: appLanguage) { _ in
-                        HapticManager.impact(.light)
+                        HIGFeedback.selection()
                     }
                     
                     Toggle(isOn: $hapticsEnabled) {
@@ -193,12 +183,12 @@ struct SettingsView: View {
                     }
                     .onChange(of: hapticsEnabled) { enabled in
                         if enabled {
-                            HapticManager.impact(.medium)
+                            HIGFeedback.impact(.medium)
                         }
                     }
                     
                     Button {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         showingClearCacheAlert = true
                     } label: {
                         HStack {
@@ -263,9 +253,9 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - Log Out Section
-                Section {
+                Section(footer: appVersionFooter) {
                     Button(role: .destructive, action: {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         showingLogoutAlert = true
                     }) {
                         HStack {
@@ -278,32 +268,78 @@ struct SettingsView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .task {
                 await cacheManager.calculateCacheSize()
             }
-            .alert("Clear Local Cache", isPresented: $showingClearCacheAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Clear", role: .destructive) {
+            .confirmationDialog("Clear Local Cache", isPresented: $showingClearCacheAlert, titleVisibility: .visible) {
+                Button("Clear Local Cache", role: .destructive) {
                     Task {
                         await cacheManager.clearAllCaches()
-                        HapticManager.notification(.success)
-                        ToastManager.shared.showSuccess("Cache Cleared", message: "All local caches and temporary storage purged")
+                        ToastManager.shared.showSuccess("Local Cache Cleared", icon: "trash.fill")
                     }
                 }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to clear cached network responses and temporary storage?")
             }
-            .alert("Log Out", isPresented: $showingLogoutAlert) {
-                Button("Log Out", role: .destructive) {
+            .confirmationDialog("Log Out", isPresented: $showingLogoutAlert, titleVisibility: .visible) {
+                Button("Log Out of All Accounts", role: .destructive) {
                     AccountManager.shared.logoutAll()
                 }
-                Button("Cancel", role: .cancel) { }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to log out of your Cloudflare account?")
             }
+            .sheet(isPresented: $showingAccountSheet) {
+                AccountsView()
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
+    }
+    
+    // MARK: - Version Footer
+    private var appVersionFooter: some View {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        
+        return VStack(spacing: 4) {
+            Text("Cloudns v\(appVersion) (\(buildNumber))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            Text("Designed for Cloudflare Edge & Zero Trust")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+    }
+}
+
+// MARK: - SettingsRowView (Inlined & Cohesive)
+
+struct SettingsRowView: View {
+    let icon: String
+    let color: Color
+    let title: LocalizedStringKey
+    
+    init(icon: String, color: Color, title: LocalizedStringKey) {
+        self.icon = icon
+        self.color = color
+        self.title = title
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            ListRowIcon(icon: icon, color: color, size: 28, cornerRadius: 6)
+            
+            Text(title)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.primary)
         }
     }
 }

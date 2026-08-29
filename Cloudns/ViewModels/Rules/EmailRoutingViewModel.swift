@@ -54,10 +54,8 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
             let updated: EmailRoutingSettings?
             if enabled {
                 updated = try await emailService.enableEmailRouting(zoneId: zoneId)
-                ToastManager.shared.showSuccess("Email Routing", message: "Enabled")
             } else {
                 updated = try await emailService.disableEmailRouting(zoneId: zoneId)
-                ToastManager.shared.showSuccess("Email Routing", message: "Disabled")
             }
             if let updated = updated {
                 self.settings = updated
@@ -66,7 +64,6 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
             }
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to Update Status", message: error.localizedDescription)
             await fetchData()
         }
     }
@@ -75,13 +72,11 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         guard let accId = accountId, !accId.isEmpty else { return false }
         do {
             _ = try await emailService.createDestinationAddress(accountId: accId, email: email)
-            ToastManager.shared.showSuccess("Verification Sent", message: "Check \(email) to confirm.")
             HapticManager.notification(.success)
             await fetchData()
             return true
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to Add Destination", message: error.localizedDescription)
             return false
         }
     }
@@ -91,11 +86,9 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteDestinationAddress(accountId: accId, addressId: addressId)
             destinations.removeAll { $0.id == addressId }
-            ToastManager.shared.showSuccess("Destination Removed")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -104,10 +97,8 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             let updated = try await emailService.updateCatchAllRule(zoneId: zoneId, enabled: enabled, action: "drop", forwardTo: nil)
             self.catchAllRule = updated
-            ToastManager.shared.showSuccess("Catch-all Rule", message: enabled ? "Enabled" : "Disabled")
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to update Catch-all", message: error.localizedDescription)
         }
     }
     
@@ -116,12 +107,10 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         
         do {
             _ = try await emailService.createEmailRoutingRule(zoneId: zoneId, rule: ruleInput)
-            ToastManager.shared.showSuccess("Email Rule Added", message: "\(customAddress) -> \(destinationAddress)")
             HapticManager.notification(.success)
             await fetchData()
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to Add Rule", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -130,11 +119,9 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteEmailRoutingRule(zoneId: zoneId, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            ToastManager.shared.showSuccess("Email Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
     
@@ -151,7 +138,6 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
                     break
                 }
             }
-            ToastManager.shared.showSuccess("Email Rule Deleted")
         }
     }
 }

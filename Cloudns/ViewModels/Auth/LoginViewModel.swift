@@ -9,10 +9,10 @@ final class LoginViewModel: BaseLoadableViewModel {
     
     @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
     
-    private let zoneService: ZoneServiceProtocol
+    private let authService: AuthServiceProtocol
     
-    public init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
-        self.zoneService = zoneService
+    public init(authService: AuthServiceProtocol = AuthService.shared) {
+        self.authService = authService
         super.init()
     }
     
@@ -30,19 +30,7 @@ final class LoginViewModel: BaseLoadableViewModel {
         isLoading = true
         
         do {
-            // Validate credentials by attempting to fetch zones with explicit credentials
-            let request = try AuthenticatedRequestFactory.shared.createExplicitAuthenticatedRequest(
-                email: trimmedEmail,
-                apiKey: trimmedKey,
-                path: "zones",
-                queryItems: [
-                    URLQueryItem(name: "page", value: "1"),
-                    URLQueryItem(name: "per_page", value: "1")
-                ]
-            )
-            let (_, _): ([Zone]?, ResultInfo?) = try await HTTPNetworkClient.shared.performRequest(request)
-            
-            // If validated successfully, permanently add to AccountManager
+            _ = try await authService.verifyCredentials(email: trimmedEmail, apiKey: trimmedKey)
             AccountManager.shared.addAccount(email: trimmedEmail, apiKey: trimmedKey)
             hasFetchedData = true
             onSuccess?()

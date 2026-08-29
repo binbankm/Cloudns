@@ -14,25 +14,72 @@ struct ZoneDetailView: View {
 
     var body: some View {
         List {
-            // ── Header Card ──────────────────────────────────────────────
-            Section {
-                ZoneHeaderCardView(zone: zone)
+            // Domain Status & Info Section
+            Section(header: Text("Domain Info")) {
+                LabeledContent("Status") {
+                    HIGBadge(
+                        zone.status.lowercased() == "active" ? .active : (zone.status.lowercased() == "pending" ? .warning("Pending") : .custom(color: .secondary, text: zone.status.capitalized)),
+                        isCompact: true
+                    )
+                }
+                
+                if let planName = zone.plan?.displayName {
+                    LabeledContent("Plan") {
+                        Text(planName)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if let type = zone.type {
+                    LabeledContent("Setup Type") {
+                        Text(type.uppercased())
+                            .font(.subheadline.monospaced())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if let nsArray = zone.nameServers, !nsArray.isEmpty {
+                    ForEach(Array(nsArray.enumerated()), id: \.offset) { index, ns in
+                        LabeledContent {
+                            Button {
+                                UIPasteboard.general.string = ns
+                                ToastManager.shared.showCopied("Nameserver Copied")
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Text(ns)
+                                        .font(.subheadline.monospaced())
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
+                                    
+                                    Image(systemName: "doc.on.doc")
+                                        .font(.caption2)
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .higTouchTarget()
+                        } label: {
+                            Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                }
             }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
 
-            // ── Analytics ────────────────────────────────────────────────
+            // Analytics
             Section(header: Text("Analytics")) {
                 ZoneNavRowView(
                     title: "Traffic",
                     subtitle: "Requests, bandwidth & threats",
                     icon: "chart.xyaxis.line",
                     color: .indigo,
-                    destination: AnalyticsView(zoneId: zone.id, zoneName: zone.name)
+                    destination: ZoneAnalyticsView(zoneId: zone.id, zoneName: zone.name)
                 )
             }
 
-            // ── DNS ──────────────────────────────────────────────────────
+            // DNS
             Section(header: Text("DNS")) {
                 ZoneNavRowView(
                     title: "Records",
@@ -50,7 +97,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── Security ─────────────────────────────────────────────────
+            // Security
             Section(header: Text("Security")) {
                 ZoneNavRowView(
                     title: "Security Events",
@@ -89,7 +136,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── SSL / TLS ────────────────────────────────────────────────
+            // SSL / TLS
             Section(header: Text("SSL/TLS")) {
                 ZoneNavRowView(
                     title: "Overview",
@@ -107,7 +154,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── Performance ──────────────────────────────────────────────
+            // Performance
             Section(header: Text("Performance")) {
                 ZoneNavRowView(
                     title: "Speed",
@@ -132,7 +179,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── Network ──────────────────────────────────────────────────
+            // Network
             Section(header: Text("Network")) {
                 ZoneNavRowView(
                     title: "Network",
@@ -146,12 +193,12 @@ struct ZoneDetailView: View {
                     subtitle: "Distribute traffic across origins",
                     icon: "arrow.triangle.branch",
                     color: .blue,
-                    badge: .addOn,
+                    badge: .warning("ADD-ON"),
                     destination: LoadBalancerView(zoneId: zone.id)
                 )
             }
 
-            // ── Email ────────────────────────────────────────────────────
+            // Email
             Section(header: Text("Email")) {
                 ZoneNavRowView(
                     title: "Email Routing",
@@ -162,7 +209,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── Content ──────────────────────────────────────────────────
+            // Content
             Section(header: Text("Content")) {
                 ZoneNavRowView(
                     title: "Scrape Shield",
@@ -173,11 +220,7 @@ struct ZoneDetailView: View {
                 )
             }
 
-            // ── Quick Controls ───────────────────────────────────────────
-            QuickControlsSection(zoneId: zone.id, initialPaused: zone.paused)
-                .id("quick_ctrl_\(zone.id)_\(zone.paused)")
-
-            // ── Advanced ─────────────────────────────────────────────────
+            // Advanced
             Section(header: Text("Advanced")) {
                 ZoneNavRowView(
                     title: "Advanced",
@@ -189,7 +232,6 @@ struct ZoneDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(zone.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -228,6 +270,65 @@ struct ZoneDetailView: View {
             }
         } catch {
             // Keep current zone snapshot if offline
+        }
+    }
+}
+
+// MARK: - ZoneNavRowView (Inlined & Cohesive)
+
+struct ZoneNavRowView<Destination: View>: View {
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let icon: String
+    let color: Color
+    let badge: HIGBadgeType?
+    let destination: Destination
+
+    init(
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey,
+        icon: String,
+        color: Color,
+        badge: HIGBadgeType? = nil,
+        destination: Destination
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.icon = icon
+        self.color = color
+        self.badge = badge
+        self.destination = destination
+    }
+
+    var body: some View {
+        NavigationLink(destination: destination) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundStyle(color)
+                    .frame(width: 32, height: 32)
+                    .background(color.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                        
+                        if let badge = badge {
+                            HIGBadge(badge, isCompact: true)
+                        }
+                    }
+                    
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.vertical, 2)
+            .accessibilityElement(children: .combine)
         }
     }
 }

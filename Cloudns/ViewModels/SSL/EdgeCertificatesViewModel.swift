@@ -85,11 +85,9 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
         isUniversalSSLEnabled = enabled
         do {
             try await certService.updateUniversalSSL(zoneId: zoneId, enabled: enabled)
-            ToastManager.shared.showSuccess("Universal SSL", message: enabled ? "Enabled" : "Disabled")
             await fetchCertificates(zoneId: zoneId)
         } catch {
             isUniversalSSLEnabled = !enabled
-            ToastManager.shared.showError("Failed", message: error.localizedDescription)
         }
     }
     
@@ -100,10 +98,8 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
             } else {
                 try await certService.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
             }
-            ToastManager.shared.showSuccess("Certificate Removed")
             await fetchCertificates(zoneId: zoneId)
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
         }
     }
 }

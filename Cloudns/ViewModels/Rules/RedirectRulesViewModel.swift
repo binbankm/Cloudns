@@ -22,11 +22,9 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
     func deleteRule(zoneId: String, ruleId: String, description: String?) async -> Bool {
         do {
             try await redirectService.deleteRedirectRule(zoneId: zoneId, ruleId: ruleId)
-            ToastManager.shared.showSuccess("Rule Deleted", message: description ?? "Redirect Rule")
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             return false
         }
     }
@@ -48,11 +46,9 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
                 statusCode: statusCode,
                 preserveQueryString: preserveQueryString
             )
-            ToastManager.shared.showSuccess("Redirect Rule Added", message: description)
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             return false
         }
     }

@@ -140,9 +140,10 @@ struct AddLoadBalancerView: View {
                     }
                 }
             }
-            .centerConstrainedWidth(maxWidth: 840)
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Load Balancer")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -154,19 +155,20 @@ struct AddLoadBalancerView: View {
                         if isSubmitting {
                             ProgressView().progressViewStyle(CircularProgressViewStyle())
                         } else {
-                            Text("Save").fontWeight(.bold)
+                            Text("Save").fontWeight(.semibold)
                         }
                     }
                     .disabled(!isValid || isSubmitting)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
-            .toastContainer()
         }
+        .higToast()
     }
     
     private func save() {
         isSubmitting = true
+        HIGFeedback.impact(.medium)
         
         // Convert selected set to array
         let poolsArray = Array(selectedPools)
@@ -186,7 +188,11 @@ struct AddLoadBalancerView: View {
             let success = await viewModel.createLoadBalancer(payload: payload)
             isSubmitting = false
             if success {
+                HIGFeedback.success()
+                ToastManager.shared.showSuccess("Load Balancer Created", icon: "arrow.triangle.branch")
                 dismiss()
+            } else {
+                HIGFeedback.error()
             }
         }
     }

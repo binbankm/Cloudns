@@ -102,7 +102,6 @@ struct AddTransformRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Transform Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -114,11 +113,12 @@ struct AddTransformRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(isFormInvalid || isSubmitting)
                 }
             }
@@ -130,12 +130,12 @@ struct AddTransformRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
-            .toastContainer()
         }
+        .higToast()
     }
     
     private var isFormInvalid: Bool {
@@ -177,7 +177,11 @@ struct AddTransformRuleView: View {
         
         isSubmitting = false
         if success {
+            HIGFeedback.success()
+            ToastManager.shared.showSuccess("Transform Rule Created", icon: "arrow.triangle.2.circlepath")
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

@@ -5,13 +5,19 @@ import Combine
 @MainActor
 final class AuditLogsViewModel: BaseLoadableViewModel {
     let accountId: String
+    private let auditLogService: AuditLogServiceProtocol
     private let zoneService: ZoneServiceProtocol
     
     @Published var logs: [AuditLog] = []
     @Published var searchText: String = ""
     
-    init(accountId: String, zoneService: ZoneServiceProtocol = ZoneService.shared) {
+    init(
+        accountId: String,
+        auditLogService: AuditLogServiceProtocol = AuditLogService.shared,
+        zoneService: ZoneServiceProtocol = ZoneService.shared
+    ) {
         self.accountId = accountId
+        self.auditLogService = auditLogService
         self.zoneService = zoneService
         super.init()
     }
@@ -48,7 +54,7 @@ final class AuditLogsViewModel: BaseLoadableViewModel {
                 return
             }
             
-            self.logs = try await self.zoneService.getAuditLogs(accountId: targetAccountId)
+            self.logs = try await self.auditLogService.getAuditLogs(accountId: targetAccountId)
         }
     }
 }

@@ -45,7 +45,6 @@ struct AddEmailRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Routing Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -57,11 +56,12 @@ struct AddEmailRuleView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(customAddress.trimmingCharacters(in: .whitespaces).isEmpty || destinationAddress.isEmpty || isSubmitting)
                 }
             }
@@ -78,12 +78,14 @@ struct AddEmailRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
-            .toastContainer()
         }
+        .higToast()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     private func submitRule() async {
@@ -107,7 +109,11 @@ struct AddEmailRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
+            HIGFeedback.success()
+            ToastManager.shared.showSuccess("Email Rule Created", icon: "envelope.fill")
             dismiss()
+        } else {
+            HIGFeedback.error()
         }
     }
 }

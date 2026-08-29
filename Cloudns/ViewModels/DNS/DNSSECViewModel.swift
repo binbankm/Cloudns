@@ -25,8 +25,7 @@ final class DNSSECViewModel: BaseLoadableViewModel {
     func toggleDNSSEC() async {
         guard let current = dnssec else { return }
         
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+        HIGFeedback.impact(.medium)
         
         await executeLoadingTask {
             let isActiveOrPending = current.status == "active" || current.status == "pending"
@@ -35,6 +34,11 @@ final class DNSSECViewModel: BaseLoadableViewModel {
             
             // Re-fetch after update
             self.dnssec = try await self.dnsService.getDNSSEC(zoneId: self.zoneId)
+            
+            ToastManager.shared.showSuccess(
+                targetStatus == "active" ? "DNSSEC Enabled" : "DNSSEC Disabled",
+                icon: "lock.shield.fill"
+            )
         }
     }
 }

@@ -51,7 +51,7 @@ struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
             self.clientAsn = nil
         }
         
-        self.datetime = (try? container.decode(String.self, forKey: .datetime)) ?? ISO8601DateFormatter().string(from: Date())
+        self.datetime = (try? container.decode(String.self, forKey: .datetime)) ?? DateFormatters.iso8601.string(from: Date())
         self.source = (try? container.decode(String.self, forKey: .source)) ?? "firewall"
         self.edgeResponseStatus = try? container.decodeIfPresent(Int.self, forKey: .edgeResponseStatus)
         self.host = (try? container.decode(String.self, forKey: .host)) ?? ""

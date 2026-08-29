@@ -15,10 +15,23 @@ class WAFViewModel: BaseLoadableViewModel {
     }
     
     func fetchWAFRules(zoneId: String) async {
+        let scopedKey = SWRCacheStore.accountScopedKey("waf_rules_\(zoneId)")
+        
+        // 1. [SWR Stale Cache] 优先从本地缓存秒级直出
+        if !hasFetchedData {
+            if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [WAFRule].self), !cached.isEmpty {
+                self.rules = cached
+                self.hasFetchedData = true
+            }
+        }
+        
         await executeLoadingTask {
             if let rs = try await self.wafService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_firewall_custom") {
                 self.ruleset = rs
-                self.rules = rs.rules ?? []
+                let latestRules = rs.rules ?? []
+                self.rules = latestRules
+                // 2. [SWR Update Cache] 存入最新数据
+                await SWRCacheStore.shared.set(latestRules, forKey: scopedKey)
             } else {
                 self.ruleset = nil
                 self.rules = []
@@ -46,7 +59,6 @@ class WAFViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
-            ToastManager.shared.showSuccess("WAF Rule", message: !rule.enabled ? "Rule enabled" : "Rule disabled")
             HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
@@ -54,7 +66,6 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules[index] = rule
             }
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Update Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -70,11 +81,9 @@ class WAFViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
             }
             
-            ToastManager.shared.showSuccess("Rule Deleted")
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Delete Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }
@@ -105,11 +114,9 @@ class WAFViewModel: BaseLoadableViewModel {
             self.ruleset = updatedRuleset
             self.rules = updatedRuleset.rules ?? []
             
-            ToastManager.shared.showSuccess("WAF Rule Created", message: description.isEmpty ? action.uppercased() : description)
             HapticManager.notification(.success)
         } catch {
             self.errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Create Failed", message: error.localizedDescription)
             HapticManager.notification(.error)
         }
     }

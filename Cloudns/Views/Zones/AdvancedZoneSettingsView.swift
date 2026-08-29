@@ -29,9 +29,9 @@ struct AdvancedZoneSettingsView: View {
                     set: { newValue in
                         isPaused = newValue
                         if newValue {
-                            HapticManager.notification(.warning)
+                            HIGFeedback.warning()
                         } else {
-                            HapticManager.impact(.light)
+                            HIGFeedback.impact(.light)
                         }
                         Task {
                             await updatePauseStatus(paused: newValue)
@@ -47,7 +47,7 @@ struct AdvancedZoneSettingsView: View {
                 footer: Text("Removing this site will immediately delete all its configuration and data from Cloudflare. This action cannot be undone.")
             ) {
                 Button(action: {
-                    HapticManager.impact(.medium)
+                    HIGFeedback.impact(.medium)
                     showDeleteConfirmation = true
                 }) {
                     HStack {
@@ -65,7 +65,6 @@ struct AdvancedZoneSettingsView: View {
                 .disabled(isDeleting)
             }
         }
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Advanced Settings")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Remove Site from Cloudflare", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
@@ -106,7 +105,7 @@ struct AdvancedZoneSettingsView: View {
         do {
             try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
             NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-            ToastManager.shared.showSuccess(paused ? "Site Paused" : "Site Resumed")
+            HIGFeedback.success()
         } catch {
             self.errorMessage = error.localizedDescription
             self.isPaused = !paused

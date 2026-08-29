@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - OnboardingView
+
 struct OnboardingView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var currentPage = 0
@@ -17,7 +19,6 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            // 1. Dynamic Ambient Aurora Glow Background
             Color(.systemBackground).ignoresSafeArea()
             
             GeometryReader { proxy in
@@ -41,7 +42,7 @@ struct OnboardingView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // 2. Top Bar: Brand Title & Skip Action
+                // Top Bar: Brand & Skip Action
                 HStack {
                     HStack(spacing: 6) {
                         Image(systemName: "cloud.fill")
@@ -61,7 +62,7 @@ struct OnboardingView: View {
                     Spacer()
                     
                     Button("Skip") {
-                        HapticManager.impact(.light)
+                        HIGFeedback.impact(.light)
                         withAnimation(.easeInOut(duration: 0.3)) {
                             hasSeenOnboarding = true
                         }
@@ -76,7 +77,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
                 
-                // 3. Tab Pages
+                // Tab Pages
                 TabView(selection: $currentPage) {
                     OnboardingPageView(
                         icon: "globe.asia.australia.fill",
@@ -116,12 +117,11 @@ struct OnboardingView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .onChange(of: currentPage) { _ in
-                    HapticManager.selection()
+                    HIGFeedback.selection()
                 }
                 
-                // 4. Bottom Controls: Capsule Indicator & Action Button
+                // Bottom Controls
                 VStack(spacing: 20) {
-                    // Modern Capsule Page Indicator
                     HStack(spacing: 8) {
                         ForEach(0..<totalPages, id: \.self) { index in
                             Capsule()
@@ -132,15 +132,14 @@ struct OnboardingView: View {
                     }
                     .padding(.vertical, 4)
                     
-                    // Main Action Button (Gradient Aurora)
                     Button(action: {
                         if currentPage < totalPages - 1 {
-                            HapticManager.impact(.light)
+                            HIGFeedback.impact(.light)
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                 currentPage += 1
                             }
                         } else {
-                            HapticManager.impact(.medium)
+                            HIGFeedback.impact(.medium)
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 hasSeenOnboarding = true
                             }
@@ -163,18 +162,105 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
                     .padding(.horizontal, 24)
                 }
                 .padding(.bottom, 28)
             }
-            .centerConstrainedWidth(maxWidth: 520)
         }
     }
 }
 
-#Preview {
-    OnboardingView()
+// MARK: - OnboardingPageView (Inlined & Cohesive)
+
+struct OnboardingPageView: View {
+    let icon: String
+    let title: LocalizedStringKey
+    let description: LocalizedStringKey
+    let color: Color
+    let badgeText: LocalizedStringKey
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 20)
+            
+            ZStack {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [color.opacity(0.35), color.opacity(0.0)],
+                            center: .center,
+                            startRadius: 20,
+                            endRadius: 110
+                        )
+                    )
+                    .frame(width: 220, height: 220)
+                    .blur(radius: 20)
+                
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [color.opacity(0.6), color.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 2
+                    )
+                    .frame(width: 156, height: 156)
+                
+                Circle()
+                    .fill(Color(.secondarySystemGroupedBackground).opacity(0.85))
+                    .frame(width: 140, height: 140)
+                    .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
+                
+                Image(systemName: icon)
+                    .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                    .imageScale(.large)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [color, color.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: color.opacity(0.45), radius: 8, x: 0, y: 3)
+                    .accessibilityHidden(true)
+            }
+            .frame(height: 230)
+            
+            Spacer(minLength: 24)
+            
+            Text(badgeText)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(color)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(color.opacity(0.12))
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(color.opacity(0.25), lineWidth: 1)
+                )
+                .padding(.bottom, 12)
+            
+            Text(title)
+                .font(.system(.title, design: .rounded).weight(.bold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 10)
+                .minimumScaleFactor(0.85)
+            
+            Text(description)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, 32)
+            
+            Spacer(minLength: 40)
+        }
+    }
 }

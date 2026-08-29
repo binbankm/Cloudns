@@ -223,7 +223,7 @@ struct DNSRecordFormView: View {
                                 HStack(spacing: 8) {
                                     Text("Proxy Status")
                                         .font(.body.weight(.medium))
-                                    CloudnsBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
+                                    HIGBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
                                 }
                                 Text(proxied ? "Accelerated & Protected by Cloudflare" : "Bypasses Cloudflare proxy")
                                     .font(.caption)
@@ -272,9 +272,9 @@ struct DNSRecordFormView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle(existingRecord == nil ? "Add Record" : "Edit Record")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -283,11 +283,12 @@ struct DNSRecordFormView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HapticManager.impact(.medium)
+                        HIGFeedback.impact(.medium)
                         Task {
                             await saveRecord()
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(name.isEmpty || isSaving)
                 }
             }
@@ -300,23 +301,25 @@ struct DNSRecordFormView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             }
-            .toastContainer()
         }
+        .higToast()
     }
     
     private func saveRecord() async {
         if type == "A" {
             if IPv4Address(content) == nil {
                 errorMessage = "Invalid IPv4 address format."
+                HIGFeedback.error()
                 return
             }
         } else if type == "AAAA" {
             if IPv6Address(content) == nil {
                 errorMessage = "Invalid IPv6 address format."
+                HIGFeedback.error()
                 return
             }
         }
@@ -352,7 +355,7 @@ struct DNSRecordFormView: View {
             let p = Int(priority) ?? 1
             finalPriority = p
             finalContent = "\(p) \(httpsTarget) \(httpsParams)".trimmingCharacters(in: .whitespaces)
-        } else if type == "MX" || type == "URI" {
+        } else if type == "MX" {
             finalPriority = Int(priority) ?? 10
         }
         
@@ -376,13 +379,13 @@ struct DNSRecordFormView: View {
         do {
             if let existingRecord = existingRecord {
                 try await viewModel.updateRecord(recordId: existingRecord.id, payload: payload)
-                ToastManager.shared.showSuccess("DNS Record Updated", message: "\(name) (\(type))")
             } else {
                 try await viewModel.addRecord(payload: payload)
-                ToastManager.shared.showSuccess("DNS Record Created", message: "\(name) (\(type))")
             }
+            ToastManager.shared.showSuccess("DNS Record Saved")
             dismiss()
         } catch {
+            HIGFeedback.error()
             errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
         

@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - DNSSECView
+
 struct DNSSECView: View {
     let zoneId: String
     let zoneName: String
@@ -25,22 +27,24 @@ struct DNSSECView: View {
                             dsRecordCard(dnssec)
                         }
                     } else if viewModel.isLoading {
-                        loadingSkeletonView
+                        VStack(spacing: 16) {
+                            statusCard(DNSSEC.placeholder)
+                            dsRecordCard(DNSSEC.placeholder)
+                        }
+                        .redacted(reason: .placeholder)
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .refreshable {
-                HapticManager.impact(.light)
                 await viewModel.fetchDNSSEC()
             }
         }
         .overlay {
             if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
-                StateOverlayView(
-                    state: .error(
+                HIGContentState(
+                    .error(
                         message: LocalizedStringKey(errorMessage),
                         retryAction: { Task { await viewModel.fetchDNSSEC() } }
                     )
@@ -80,8 +84,8 @@ struct DNSSECView: View {
                 
                 Spacer()
                 
-                CloudnsBadge(
-                    dnssec.status == "active" ? .active("Active") : (dnssec.status == "pending" ? .warning("Pending") : .custom(color: .secondary, text: dnssec.status.capitalized)),
+                HIGBadge(
+                    dnssec.status == "active" ? .active : (dnssec.status == "pending" ? .warning("Pending") : .custom(color: .secondary, text: dnssec.status.capitalized)),
                     isCompact: false
                 )
             }
@@ -91,49 +95,34 @@ struct DNSSECView: View {
             Toggle(isOn: Binding(
                 get: { dnssec.status == "active" || dnssec.status == "pending" },
                 set: { _ in
-                    HapticManager.impact(.light)
+                    HIGFeedback.selection()
                     Task { await viewModel.toggleDNSSEC() }
                 }
             )) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(dnssec.status == "active" ? "DNSSEC is Enabled" : "Enable DNSSEC")
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(.primary)
-                    Text("Cryptographically sign DNS lookup responses")
+                    Text("Enable DNSSEC")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Cryptographically sign DNS records to prevent DNS spoofing and cache poisoning.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            .toggleStyle(SwitchToggleStyle(tint: .green))
-            
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.blue)
-                    .padding(.top, 1)
-                Text("Protects your domain against DNS cache poisoning and man-in-the-middle spoofing by verifying cryptographic signatures with your registrar.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineSpacing(2)
-            }
-            .padding(10)
-            .background(Color.blue.opacity(0.06))
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .disabled(viewModel.isLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 2. DS Record Configuration Card
     @ViewBuilder
     private func dsRecordCard(_ dnssec: DNSSEC) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("DS Record Configuration")
+                    Text("DS Record Details")
                         .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text("Add these records to your domain registrar (GoDaddy, Namecheap, etc.)")
+                    Text("Add this DS record to your domain registrar.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -152,8 +141,7 @@ struct DNSSECView: View {
                     Public Key: \(dnssec.public_key ?? "")
                     """
                     UIPasteboard.general.string = fullConfig
-                    HapticManager.notification(.success)
-                    ToastManager.shared.showCopied("All DS fields copied")
+                    ToastManager.shared.showCopied("DNSSEC Configuration Copied")
                 } label: {
                     Label("Copy All", systemImage: "doc.on.doc")
                         .font(.caption.weight(.semibold))
@@ -175,58 +163,8 @@ struct DNSSECView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - 3. Skeleton Loading View
-    @ViewBuilder
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 12) {
-                    Circle()
-                        .fill(Color(.tertiarySystemFill))
-                        .frame(width: 44, height: 44)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("DNSSEC Protection")
-                            .font(.headline)
-                        Text(zoneName)
-                            .font(.caption)
-                    }
-                    Spacer()
-                    Capsule()
-                        .fill(Color(.tertiarySystemFill))
-                        .frame(width: 60, height: 22)
-                }
-                Divider()
-                HStack {
-                    Text("Enable DNSSEC Status")
-                    Spacer()
-                    Toggle(isOn: .constant(true)) { EmptyView() }.labelsHidden()
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("DS Record Configuration")
-                    .font(.headline)
-                Divider()
-                ForEach(0..<5, id: \.self) { idx in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(placeholderTitle(for: idx))
-                            .font(.caption)
-                        Text(placeholderValue(for: idx))
-                            .font(.body.monospacedDigit())
-                    }
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func statusColor(for status: String) -> Color {
@@ -237,21 +175,39 @@ struct DNSSECView: View {
         default: return .gray
         }
     }
+}
+
+// MARK: - DNSSECDetailRowView (Inlined & Cohesive)
+
+struct DNSSECDetailRowView: View {
+    let title: String
+    let value: String?
+    var isLast: Bool = false
     
-    private func placeholderTitle(for index: Int) -> String {
-        let titles = ["DS Record", "Digest", "Digest Type", "Algorithm", "Key Tag", "Flags"]
-        return titles[index % titles.count]
-    }
-    
-    private func placeholderValue(for index: Int) -> String {
-        let values = [
-            "example.com. 3600 IN DS 2371 13 2 4004D79...8F",
-            "4004D7981C02844D04C251877995...8F",
-            "2 (SHA-256)",
-            "13 (ECDSA Curve P-256 with SHA-256)",
-            "2371",
-            "257 (KSK)"
-        ]
-        return values[index % values.count]
+    var body: some View {
+        if let validValue = value, !validValue.isEmpty {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(LocalizedStringKey(title))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(validValue)
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.primary)
+                }
+                .padding(.vertical, 4)
+                
+                Spacer()
+                
+                Button {
+                    UIPasteboard.general.string = validValue
+                    ToastManager.shared.showCopied("\(title) Copied")
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.blue)
+                }
+                .accessibilityLabel("Copy \(title)")
+            }
+        }
     }
 }
