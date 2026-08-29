@@ -117,6 +117,7 @@ struct AddGatewayRuleSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Gateway Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -32,6 +32,7 @@ struct AIGatewayCreateSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New AI Gateway")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

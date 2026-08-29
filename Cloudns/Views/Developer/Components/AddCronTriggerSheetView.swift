@@ -73,6 +73,7 @@ struct AddCronTriggerSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Cron Trigger")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

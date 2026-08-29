@@ -14,7 +14,8 @@ struct CFTraceToolView: View {
                     inputCard
                     
                     if viewModel.isLoading && viewModel.traceFields.isEmpty {
-                        loadingSkeletonView
+                        popCard(colo: "SJC", loc: "San Jose, United States")
+                            .redacted(reason: .placeholder)
                     } else if !viewModel.traceFields.isEmpty {
                         // 2. PoP Hero Card
                         popCard(colo: viewModel.coloCode, loc: viewModel.locCountry)
@@ -30,12 +31,10 @@ struct CFTraceToolView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.host.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.queryTrace()
                 }
             }
@@ -127,7 +126,8 @@ struct CFTraceToolView: View {
             .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performTrace() {
@@ -143,7 +143,7 @@ struct CFTraceToolView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 Text(popInfo?.flag ?? "🌐")
-                    .font(.system(size: 40))
+                    .font(.largeTitle)
                 
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
@@ -177,7 +177,8 @@ struct CFTraceToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 3. Context Card
@@ -249,7 +250,8 @@ struct CFTraceToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -302,7 +304,8 @@ struct CFTraceToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Error Card
@@ -322,25 +325,8 @@ struct CFTraceToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Circle().frame(width: 40, height: 40)
-                    VStack(alignment: .leading) {
-                        Text("San Francisco (SFO)").font(.title3.weight(.bold))
-                        Text("United States")
-                    }
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func copyRawTrace() {

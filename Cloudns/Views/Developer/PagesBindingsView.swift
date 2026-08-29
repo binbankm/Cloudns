@@ -117,7 +117,6 @@ struct PagesBindingsView: View {
             }
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Bindings & Variables")
@@ -243,7 +242,7 @@ struct PagesBindingsView: View {
                                     .foregroundStyle(.blue)
                                     .frame(width: 32, height: 32)
                                     .background(Color.blue.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                     .accessibilityHidden(true)
                                 
                                 VStack(alignment: .leading, spacing: 3) {
@@ -338,7 +337,7 @@ struct PagesBindingsView: View {
                                 .foregroundStyle(.orange)
                                 .frame(width: 32, height: 32)
                                 .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -394,7 +393,7 @@ struct PagesBindingsView: View {
                                 .foregroundStyle(.purple)
                                 .frame(width: 32, height: 32)
                                 .background(Color.purple.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -451,7 +450,7 @@ struct PagesBindingsView: View {
                                 .foregroundStyle(.indigo)
                                 .frame(width: 32, height: 32)
                                 .background(Color.indigo.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -508,7 +507,7 @@ struct PagesBindingsView: View {
                                 .foregroundStyle(.blue)
                                 .frame(width: 32, height: 32)
                                 .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -565,7 +564,7 @@ struct PagesBindingsView: View {
                                 .foregroundStyle(.pink)
                                 .frame(width: 32, height: 32)
                                 .background(Color.pink.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             Text(key)

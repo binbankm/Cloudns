@@ -24,46 +24,38 @@ struct PagesDeploymentsListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Deployments"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(PagesDeployment.placeholders) { dep in
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(PagesDeployment.placeholders) { dep in
+                        deploymentRow(dep)
+                    }
+                }
+                .redacted(reason: .placeholder)
+            } else if !filteredDeployments.isEmpty {
+                Section(
+                    header: Text("Deployments (\(filteredDeployments.count))"),
+                    footer: Text("Tap any deployment to view build logs, stage status, and environment variables.")
+                ) {
+                    ForEach(filteredDeployments) { dep in
+                        Button {
+                            HapticManager.impact(.light)
+                            selectedDeployment = dep
+                        } label: {
                             deploymentRow(dep)
                         }
-                    }
-                    .skeletonLoading(true)
-                } else if !filteredDeployments.isEmpty {
-                    Section(
-                        header: Text("Deployments (\(filteredDeployments.count))"),
-                        footer: Text("Tap any deployment to view build logs, stage status, and environment variables.")
-                    ) {
-                        ForEach(filteredDeployments) { dep in
-                            Button {
-                                HapticManager.impact(.light)
-                                selectedDeployment = dep
-                            } label: {
-                                deploymentRow(dep)
-                            }
-                            .buttonStyle(.plain)
-                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Deployments"
+        )
         .navigationTitle("Deployments History")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -125,7 +117,7 @@ struct PagesDeploymentsListView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                         .foregroundStyle(.primary)
                 }
                 

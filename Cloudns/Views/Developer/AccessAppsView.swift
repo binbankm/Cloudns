@@ -14,74 +14,66 @@ struct AccessAppsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Applications"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(AccessApp.placeholders) { placeholder in
-                            appRow(placeholder)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(AccessApp.placeholders) { placeholder in
+                        appRow(placeholder)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredApps.isEmpty {
-                    Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
-                        ForEach(viewModel.filteredApps) { app in
-                            NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
-                                appRow(app)
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredApps.isEmpty {
+                Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
+                    ForEach(viewModel.filteredApps) { app in
+                        NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
+                            appRow(app)
+                        }
+                        .contentShape(Rectangle())
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = app.domain
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Domain copied")
+                            } label: {
+                                Label("Copy Domain", systemImage: "doc.on.doc")
                             }
-                            .contentShape(Rectangle())
-                            .contextMenu {
-                                Button {
-                                    UIPasteboard.general.string = app.domain
-                                    HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Domain copied")
-                                } label: {
-                                    Label("Copy Domain", systemImage: "doc.on.doc")
-                                }
-                                
-                                Button {
-                                    UIPasteboard.general.string = app.name
-                                    HapticManager.notification(.success)
-                                    ToastManager.shared.showCopied("Name copied")
-                                } label: {
-                                    Label("Copy App Name", systemImage: "doc.on.doc")
-                                }
-                                
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    appToDelete = app
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete Application", systemImage: "trash")
-                                }
+                            
+                            Button {
+                                UIPasteboard.general.string = app.name
+                                HapticManager.notification(.success)
+                                ToastManager.shared.showCopied("Name copied")
+                            } label: {
+                                Label("Copy App Name", systemImage: "doc.on.doc")
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    appToDelete = app
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                            
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                appToDelete = app
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Application", systemImage: "trash")
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                appToDelete = app
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Applications"
+        )
         .navigationTitle("Access Applications")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -152,7 +144,7 @@ struct AccessAppsView: View {
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

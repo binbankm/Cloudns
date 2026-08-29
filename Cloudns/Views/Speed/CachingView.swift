@@ -92,7 +92,7 @@ struct CachingView: View {
                         }
                         .padding(.vertical, 10)
                         .background(purgeInputText.isEmpty ? Color.gray : Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .disabled(purgeInputText.isEmpty || viewModel.isPurging)
@@ -133,7 +133,7 @@ struct CachingView: View {
                         .padding()
                         .background(Color.red)
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
@@ -241,25 +241,24 @@ struct CachingView: View {
                         Text("URL").tag("url")
                     }
                     .pickerStyle(.segmented)
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
                 
                 Section(header: Text("General Caching Settings")) {
                     Picker("Caching Level", selection: .constant("standard")) {
                         Text("Standard").tag("standard")
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                     
                     Picker("Browser Cache TTL", selection: .constant(14400)) {
                         Text("4 Hours").tag(14400)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging && !viewModel.isLoading {
                 StateOverlayView(

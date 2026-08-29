@@ -51,7 +51,7 @@ struct SecuritySettingsView: View {
                             .padding()
                             .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
                             .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .disabled(!viewModel.hasFetchedData)
@@ -161,18 +161,17 @@ struct SecuritySettingsView: View {
                 Picker("Security Level", selection: .constant("medium")) {
                     Text("Medium").tag("medium")
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             }
             Section(header: Text("Browser Integrity Check")) {
                 Toggle(isOn: .constant(true)) {
                     Text("Browser Integrity Check")
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             }
         }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(

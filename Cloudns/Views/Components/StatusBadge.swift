@@ -1,30 +1,8 @@
 import SwiftUI
 
-// MARK: - Plan Tier Enum
+// MARK: - Status Badge Type
 
-public enum PlanTier: String, Codable, Sendable {
-    case free = "free"
-    case pro = "pro"
-    case business = "business"
-    case enterprise = "enterprise"
-    case paid = "paid"
-    case addOn = "addon"
-    
-    public var title: String {
-        switch self {
-        case .free: return "FREE"
-        case .pro: return "PRO"
-        case .business: return "BUSINESS"
-        case .enterprise: return "ENTERPRISE"
-        case .paid: return "PAID"
-        case .addOn: return "ADD-ON"
-        }
-    }
-}
-
-// MARK: - Cloudns Badge Type
-
-public enum CloudnsBadgeType {
+public enum StatusBadgeType {
     /// Cloudflare 经典橙色 CDN 代理加速 (带小云朵 ☁️)
     case proxied(String = "Proxied")
     /// 仅 DNS 回源解析 (带灰色小云朵 ☁️)
@@ -40,23 +18,25 @@ public enum CloudnsBadgeType {
     /// 自定义徽标
     case custom(color: Color, text: String, icon: String? = nil)
     
-    public static var proxied: CloudnsBadgeType { .proxied() }
-    public static var dnsOnly: CloudnsBadgeType { .dnsOnly() }
-    public static var active: CloudnsBadgeType { .active() }
-    public static var warning: CloudnsBadgeType { .warning() }
-    public static var error: CloudnsBadgeType { .error() }
-    public static var free: CloudnsBadgeType { .plan(.free) }
-    public static var pro: CloudnsBadgeType { .plan(.pro) }
-    public static var business: CloudnsBadgeType { .plan(.business) }
-    public static var enterprise: CloudnsBadgeType { .plan(.enterprise) }
-    public static var paid: CloudnsBadgeType { .plan(.paid) }
-    public static var addOn: CloudnsBadgeType { .plan(.addOn) }
+    public static var proxied: StatusBadgeType { .proxied() }
+    public static var dnsOnly: StatusBadgeType { .dnsOnly() }
+    public static var active: StatusBadgeType { .active() }
+    public static var warning: StatusBadgeType { .warning() }
+    public static var error: StatusBadgeType { .error() }
+    public static var free: StatusBadgeType { .plan(.free) }
+    public static var pro: StatusBadgeType { .plan(.pro) }
+    public static var business: StatusBadgeType { .plan(.business) }
+    public static var enterprise: StatusBadgeType { .plan(.enterprise) }
+    public static var paid: StatusBadgeType { .plan(.paid) }
+    public static var addOn: StatusBadgeType { .plan(.addOn) }
 }
 
-// MARK: - Cloudns Badge View
+public typealias CloudnsBadgeType = StatusBadgeType
 
-public struct CloudnsBadge: View {
-    let type: CloudnsBadgeType
+// MARK: - Native Status Badge View
+
+public struct StatusBadge: View {
+    let type: StatusBadgeType
     let isCompact: Bool
     @Environment(\.redactionReasons) private var redactionReasons
     
@@ -64,7 +44,7 @@ public struct CloudnsBadge: View {
         redactionReasons.contains(.placeholder)
     }
     
-    public init(_ type: CloudnsBadgeType, isCompact: Bool = false) {
+    public init(_ type: StatusBadgeType, isCompact: Bool = false) {
         self.type = type
         self.isCompact = isCompact
     }
@@ -207,3 +187,5 @@ public struct CloudnsBadge: View {
         }
     }
 }
+
+public typealias CloudnsBadge = StatusBadge

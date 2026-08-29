@@ -15,35 +15,20 @@ struct R2BucketDetailView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Objects in Bucket"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.objects.isEmpty {
+        List {
+            if !viewModel.objects.isEmpty {
                     // MARK: - Bucket Info
                     Section(header: Text("Bucket Information")) {
-                        HStack {
-                            Text("Created")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            if let created = bucket.creationDate {
+                        if let created = bucket.creationDate {
+                            LabeledContent("Created") {
                                 Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
                                     .font(.body.monospacedDigit())
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         
                         if let loc = bucket.location {
-                            HStack {
-                                Text("Location")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
+                            LabeledContent("Location") {
                                 Text(loc.uppercased())
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.secondary)
@@ -59,7 +44,7 @@ struct R2BucketDetailView: View {
                             R2ObjectRowView(object: placeholder)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !viewModel.filteredObjects.isEmpty {
                     Section(header: Text("Objects (\(viewModel.filteredObjects.count))")) {
                         ForEach(viewModel.filteredObjects) { obj in
@@ -90,9 +75,11 @@ struct R2BucketDetailView: View {
             }
             .listStyle(.insetGrouped)
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
-        }
-        .background(Color(.systemGroupedBackground))
+            .searchable(
+                text: $viewModel.searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "Search Objects in Bucket"
+            )
         .navigationTitle(bucket.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

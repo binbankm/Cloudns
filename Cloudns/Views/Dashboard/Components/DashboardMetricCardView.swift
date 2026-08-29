@@ -35,7 +35,7 @@ struct DashboardMetricCardView: View {
                         .fill(iconColor.opacity(0.14))
                         .frame(width: 26, height: 26)
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(iconColor)
                 }
                 .accessibilityHidden(true)
@@ -43,7 +43,7 @@ struct DashboardMetricCardView: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -55,14 +55,11 @@ struct DashboardMetricCardView: View {
             Spacer(minLength: 4)
             
             // 2. Middle Value: Large Bold Number
-            CloudnsRollingNumber(
-                value: value,
-                font: .system(.title2, design: .rounded),
-                weight: .bold,
-                color: .primary
-            )
-            .lineLimit(1)
-            .minimumScaleFactor(0.80)
+            Text(value)
+                .font(Font.system(.title2, design: .rounded).weight(.bold))
+                .foregroundStyle(Color.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.80)
             
             Spacer(minLength: 4)
             
@@ -83,6 +80,7 @@ struct DashboardMetricCardView: View {
         }
         .padding(11)
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

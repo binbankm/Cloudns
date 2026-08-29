@@ -43,7 +43,7 @@ struct WAFRuleCardView: View {
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                     .textSelection(.enabled)
             }
         }

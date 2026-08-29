@@ -21,33 +21,24 @@ struct R2ObjectDetailSheetView: View {
                             .foregroundStyle(.primary)
                     }
                     
-                    HStack {
-                        Text("Size")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(object.formattedSize)
-                            .foregroundStyle(.primary)
-                    }
+                    LabeledContent("Size", value: object.formattedSize)
                     
                     if let etag = object.etag {
-                        HStack {
-                            Text("ETag")
-                                .foregroundStyle(.secondary)
-                            Spacer()
+                        LabeledContent {
                             Text(etag)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
+                        } label: {
+                            Text("ETag")
                         }
                     }
                     
                     if let uploaded = object.uploaded {
-                        HStack {
-                            Text("Uploaded")
-                                .foregroundStyle(.secondary)
-                            Spacer()
+                        LabeledContent {
                             Text(DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.mediumDateTime))
                                 .font(.body.monospacedDigit())
-                                .foregroundStyle(.primary)
+                        } label: {
+                            Text("Uploaded")
                         }
                     }
                 }
@@ -72,6 +63,7 @@ struct R2ObjectDetailSheetView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Object Details")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

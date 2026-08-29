@@ -63,6 +63,7 @@ struct CreateHyperdriveSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Hyperdrive")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

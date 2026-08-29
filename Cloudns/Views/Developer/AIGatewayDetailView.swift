@@ -23,29 +23,20 @@ struct AIGatewayDetailView: View {
         List {
             // MARK: - Overview
             Section(header: Text("Gateway Overview")) {
-                HStack {
-                    Text("Gateway Slug")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Gateway Slug") {
                     Text(gateway.id)
                         .font(.body.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
-                HStack {
-                    Text("Logging")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Logging") {
                     Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
                 }
                 
                 if let created = gateway.createdOn {
-                    HStack {
-                        Text("Created")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Created") {
                         Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -80,7 +71,7 @@ struct AIGatewayDetailView: View {
                         ToastManager.shared.showCopied("Endpoint URL copied")
                     } label: {
                         HStack {
-                            Image(systemName: "doc.on.doc")
+                            Image(systemName: "doc.on.doc").font(.subheadline)
                             Text("Copy Base URL")
                         }
                         .font(.subheadline.weight(.semibold))

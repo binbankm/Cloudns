@@ -22,6 +22,7 @@ struct CreateQueueSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Queue")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

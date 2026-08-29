@@ -95,6 +95,7 @@ struct PagesAddVariableSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(isEditing ? "Edit Variable" : "Add Variable")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

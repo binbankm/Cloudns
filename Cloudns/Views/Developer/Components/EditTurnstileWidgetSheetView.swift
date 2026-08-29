@@ -60,6 +60,7 @@ struct EditTurnstileWidgetSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Edit Widget")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -74,7 +74,7 @@ struct AuditLogDetailSheetView: View {
                                 .padding(10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.red.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
@@ -90,7 +90,7 @@ struct AuditLogDetailSheetView: View {
                                 .padding(10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.green.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
@@ -148,6 +148,7 @@ struct AuditLogDetailSheetView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Audit Log Detail")
         .navigationBarTitleDisplayMode(.inline)
+        .presentationDragIndicator(.visible)
         .id(appLanguage)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {

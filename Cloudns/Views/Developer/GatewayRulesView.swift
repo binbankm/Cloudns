@@ -14,24 +14,14 @@ struct GatewayRulesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
                     Section {
                         ForEach(GatewayRule.placeholders) { placeholder in
                             ruleRow(placeholder)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
@@ -79,9 +69,11 @@ struct GatewayRulesView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
-    }
-    .background(Color(.systemGroupedBackground))
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Rules"
+        )
         .navigationTitle("Gateway Rules")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -147,12 +139,12 @@ struct GatewayRulesView: View {
     @ViewBuilder
     private func ruleRow(_ rule: GatewayRule) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "shield.lefthalf.filled")
+            Image(systemName: "shield.lefthalf.filled").font(.body).symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.teal)
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.teal.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

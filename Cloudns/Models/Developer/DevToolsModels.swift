@@ -218,6 +218,23 @@ public struct EdgeLatencyResult: Equatable, Sendable {
         self.serverHeader = serverHeader
         self.isCloudflareEdge = isCloudflareEdge
     }
+    
+    public static let placeholder = EdgeLatencyResult(
+        host: "example.com",
+        pings: [
+            EdgeLatencyPing(id: 1, latencyMs: 24.1, httpStatus: 200, isSuccess: true),
+            EdgeLatencyPing(id: 2, latencyMs: 25.3, httpStatus: 200, isSuccess: true),
+            EdgeLatencyPing(id: 3, latencyMs: 23.8, httpStatus: 200, isSuccess: true)
+        ],
+        minMs: 23.8,
+        maxMs: 25.3,
+        avgMs: 24.4,
+        jitterMs: 1.5,
+        packetLossPercent: 0.0,
+        httpProtocol: "HTTP/2",
+        serverHeader: "cloudflare",
+        isCloudflareEdge: true
+    )
 }
 
 // MARK: - HTTP & Cache Models

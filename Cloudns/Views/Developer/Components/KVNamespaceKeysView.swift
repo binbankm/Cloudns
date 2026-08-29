@@ -22,19 +22,9 @@ struct KVNamespaceKeysView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchKey,
-                prompt: "Search Keys"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                // MARK: - Namespace Metadata (Hidden during search)
-                if searchKey.isEmpty {
+        List {
+            // MARK: - Namespace Metadata (Hidden during search)
+            if searchKey.isEmpty {
                 Section(header: Text("Namespace Information")) {
                     HStack {
                         Text("Namespace Name")
@@ -75,7 +65,7 @@ struct KVNamespaceKeysView: View {
                         keyRow(key)
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { key in
@@ -135,9 +125,11 @@ struct KVNamespaceKeysView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
-    }
-    .background(Color(.systemGroupedBackground))
+        .searchable(
+            text: $searchKey,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Keys"
+        )
         .navigationTitle(namespace.title)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -207,7 +199,7 @@ struct KVNamespaceKeysView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 32, height: 32)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

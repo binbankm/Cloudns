@@ -24,7 +24,6 @@ struct AlertingView: View {
             .background(Color(.systemGroupedBackground))
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Notification Alerts")
@@ -49,7 +48,7 @@ struct AlertingView: View {
                             policyRow(placeholder)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !viewModel.policies.isEmpty {
                     Section(header: Text("Configured Policies (\(viewModel.policies.count))")) {
                         ForEach(viewModel.policies) { p in

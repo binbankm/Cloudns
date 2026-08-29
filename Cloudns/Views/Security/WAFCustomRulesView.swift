@@ -17,44 +17,36 @@ struct WAFCustomRulesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search WAF Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section(header: Text("Custom Rules")) {
-                        ForEach(WAFRule.placeholders) { placeholderRule in
-                            WAFRuleCardView(rule: placeholderRule, onToggle: {})
-                        }
-                    }
-                    .skeletonLoading(true)
-                } else if !displayedRules.isEmpty {
-                    Section(header: Text("Custom Rules (\(displayedRules.count))")) {
-                        ForEach(displayedRules) { rule in
-                            WAFRuleCardView(rule: rule, onToggle: {
-                                HapticManager.impact(.light)
-                                Task {
-                                    await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                    ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
-                                }
-                            })
-                        }
-                        .onDelete(perform: deleteRules)
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section(header: Text("Custom Rules")) {
+                    ForEach(WAFRule.placeholders) { placeholderRule in
+                        WAFRuleCardView(rule: placeholderRule, onToggle: {})
                     }
                 }
+                .redacted(reason: .placeholder)
+            } else if !displayedRules.isEmpty {
+                Section(header: Text("Custom Rules (\(displayedRules.count))")) {
+                    ForEach(displayedRules) { rule in
+                        WAFRuleCardView(rule: rule, onToggle: {
+                            HapticManager.impact(.light)
+                            Task {
+                                await viewModel.toggleRule(zoneId: zoneId, rule: rule)
+                                ToastManager.shared.showSuccess("WAF Rule Updated", message: "\(rule.description ?? "Rule") status updated")
+                            }
+                        })
+                    }
+                    .onDelete(perform: deleteRules)
+                }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search WAF Rules"
+        )
         .refreshable {
             await viewModel.fetchWAFRules(zoneId: zoneId)
         }

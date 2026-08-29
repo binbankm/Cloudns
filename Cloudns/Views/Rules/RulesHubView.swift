@@ -38,7 +38,6 @@ struct RulesHubView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Rules")
         .navigationBarTitleDisplayMode(.inline)
     }

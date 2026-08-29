@@ -18,48 +18,40 @@ struct IPAccessRulesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search IP Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(IPAccessRule.placeholders) { placeholderRule in
-                            IPAccessRuleRowView(rule: placeholderRule)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(IPAccessRule.placeholders) { placeholderRule in
+                        IPAccessRuleRowView(rule: placeholderRule)
                     }
-                    .skeletonLoading(true)
-                } else if !displayedRules.isEmpty {
-                    Section {
-                        ForEach(displayedRules) { rule in
-                            IPAccessRuleRowView(rule: rule)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        HapticManager.impact(.medium)
-                                        Task {
-                                            await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
-                                            ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
-                                        }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
+                }
+                .redacted(reason: .placeholder)
+            } else if !displayedRules.isEmpty {
+                Section {
+                    ForEach(displayedRules) { rule in
+                        IPAccessRuleRowView(rule: rule)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    HapticManager.impact(.medium)
+                                    Task {
+                                        await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
+                                        ToastManager.shared.showSuccess("IP Rule Deleted", message: rule.configuration.value)
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                        }
+                            }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search IP Rules"
+        )
         .refreshable {
             await viewModel.fetchRules(zoneId: zoneId)
         }

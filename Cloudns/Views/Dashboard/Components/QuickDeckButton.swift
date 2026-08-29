@@ -32,6 +32,7 @@ struct QuickDeckButton: View {
         }
         .frame(width: 82)
         .padding(.vertical, 10)
-        .cloudnsCard(style: .frosted, cornerRadius: 14)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

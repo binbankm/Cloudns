@@ -24,15 +24,6 @@ struct TransformRulesView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Transform Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
             Picker("Phase", selection: $viewModel.selectedPhase) {
                 Text("Rewrite URL").tag("http_request_transform")
                 Text("Request Headers").tag("http_request_late_transform")
@@ -44,8 +35,12 @@ struct TransformRulesView: View {
             .background(Color(.systemGroupedBackground))
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Transform Rules"
+        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Transform Rules")
         .navigationBarTitleDisplayMode(.inline)
@@ -91,7 +86,7 @@ struct TransformRulesView: View {
                         TransformRuleCardView(rule: placeholderRule, onToggle: {})
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if !displayedRules.isEmpty {
                 Section(header: HStack {
                     Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")

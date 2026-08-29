@@ -12,43 +12,35 @@ struct AuditLogsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Logs"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(AuditLog.placeholders) { placeholderLog in
-                            AuditLogRowView(log: placeholderLog)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(AuditLog.placeholders) { placeholderLog in
+                        AuditLogRowView(log: placeholderLog)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredLogs.isEmpty {
-                    Section {
-                        ForEach(viewModel.filteredLogs) { log in
-                            Button {
-                                selectedLog = log
-                                HapticManager.impact(.light)
-                            } label: {
-                                AuditLogRowView(log: log)
-                            }
-                            .buttonStyle(.plain)
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredLogs.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredLogs) { log in
+                        Button {
+                            selectedLog = log
+                            HapticManager.impact(.light)
+                        } label: {
+                            AuditLogRowView(log: log)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Logs"
+        )
         .navigationTitle("Audit Logs")
         .navigationBarTitleDisplayMode(.inline)
         .id(appLanguage)

@@ -145,7 +145,7 @@ struct WorkerTestView: View {
                                 .textSelection(.enabled)
                         }
                         .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     } header: {
                         HStack {
                             Text("Response Payload")
@@ -201,7 +201,6 @@ struct WorkerTestView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Test Dispatch")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -279,7 +278,7 @@ struct WorkerTestView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         }
     }
 }

@@ -35,15 +35,6 @@ struct KVBrowserView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
             Picker("Storage", selection: $viewModel.selectedSegment) {
                 Text(viewModel.hasFetchedData ? "KV Namespaces (\(viewModel.namespaces.count))" : "KV Namespaces").tag(0)
                 Text(viewModel.hasFetchedData ? "D1 Databases (\(viewModel.d1Databases.count))" : "D1 Databases").tag(1)
@@ -54,8 +45,12 @@ struct KVBrowserView: View {
             .background(Color(.systemGroupedBackground))
             
             contentView
-                .centerConstrainedWidth(maxWidth: 840)
         }
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
+        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("KV & D1")
         .navigationBarTitleDisplayMode(.inline)
@@ -134,7 +129,7 @@ struct KVBrowserView: View {
                         }
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if viewModel.selectedSegment == 0 {
                 if !filteredNamespaces.isEmpty {
                     Section {
@@ -229,7 +224,7 @@ struct KVBrowserView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 32, height: 32)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
@@ -256,7 +251,7 @@ struct KVBrowserView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 32, height: 32)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

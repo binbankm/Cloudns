@@ -16,82 +16,17 @@ struct WorkersListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            Picker("Type", selection: $viewModel.selectedSegment) {
-                Text(viewModel.hasFetchedData ? "Workers (\(viewModel.workers.count))" : "Workers").tag(0)
-                Text(viewModel.hasFetchedData ? "Pages (\(viewModel.pages.count))" : "Pages").tag(1)
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
-            
-            contentView
-                .centerConstrainedWidth(maxWidth: 840)
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Workers & Pages")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if viewModel.selectedSegment == 0 {
-                        showingCreateWorkerSheet = true
-                    } else {
-                        showingCreatePagesSheet = true
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Create Worker or Project")
-            }
-        }
-        .sheet(isPresented: $showingCreateWorkerSheet) {
-            WorkerCreateSheetView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingCreatePagesSheet) {
-            PagesCreateProjectSheetView(viewModel: viewModel)
-        }
-        .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
-            Button("Delete '\(worker.id)'", role: .destructive) {
-                Task {
-                    await viewModel.deleteWorker(name: worker.id)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { worker in
-            Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
-        }
-        .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
-            Button("Delete '\(proj.name)'", role: .destructive) {
-                Task {
-                    await viewModel.deletePagesProject(name: proj.name)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { proj in
-            Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
-        }
-        .refreshable { await viewModel.fetchData() }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchData()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var contentView: some View {
         List {
+            Section {
+                Picker("Type", selection: $viewModel.selectedSegment) {
+                    Text(viewModel.hasFetchedData ? "Workers (\(viewModel.workers.count))" : "Workers").tag(0)
+                    Text(viewModel.hasFetchedData ? "Pages (\(viewModel.pages.count))" : "Pages").tag(1)
+                }
+                .pickerStyle(.segmented)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 Section {
                     if viewModel.selectedSegment == 0 {
@@ -104,7 +39,7 @@ struct WorkersListView: View {
                         }
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if viewModel.selectedSegment == 0 {
                 if !viewModel.filteredWorkers.isEmpty {
                     Section {
@@ -200,6 +135,60 @@ struct WorkersListView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: viewModel.selectedSegment == 0 ? "Search Workers" : "Search Pages"
+        )
+        .navigationTitle("Workers & Pages")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if viewModel.selectedSegment == 0 {
+                        showingCreateWorkerSheet = true
+                    } else {
+                        showingCreatePagesSheet = true
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Create Worker or Project")
+            }
+        }
+        .sheet(isPresented: $showingCreateWorkerSheet) {
+            WorkerCreateSheetView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingCreatePagesSheet) {
+            PagesCreateProjectSheetView(viewModel: viewModel)
+        }
+        .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
+            Button("Delete '\(worker.id)'", role: .destructive) {
+                Task {
+                    await viewModel.deleteWorker(name: worker.id)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { worker in
+            Text("Are you sure you want to permanently delete Worker '\(worker.id)'? Associated routes and scripts will be removed.")
+        }
+        .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
+            Button("Delete '\(proj.name)'", role: .destructive) {
+                Task {
+                    await viewModel.deletePagesProject(name: proj.name)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { proj in
+            Text("Are you sure you want to delete Pages project '\(proj.name)'? Deployments and hosted assets will be permanently removed.")
+        }
+        .refreshable { await viewModel.fetchData() }
+        .task {
+            if !viewModel.hasFetchedData {
+                await viewModel.fetchData()
+            }
+        }
     }
     
     @ViewBuilder
@@ -210,7 +199,7 @@ struct WorkersListView: View {
                 .foregroundStyle(.blue)
                 .frame(width: 32, height: 32)
                 .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

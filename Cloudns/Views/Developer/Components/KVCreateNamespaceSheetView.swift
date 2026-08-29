@@ -32,6 +32,7 @@ struct KVCreateNamespaceSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New KV Namespace")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

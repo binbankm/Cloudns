@@ -14,7 +14,12 @@ struct EdgeLatencyTestView: View {
                     inputCard
                     
                     if viewModel.isLatencyLoading {
-                        loadingSkeletonView
+                        VStack(spacing: 16) {
+                            metricsCard(result: EdgeLatencyResult.placeholder)
+                            protocolCard(result: EdgeLatencyResult.placeholder)
+                        }
+                        .redacted(reason: .placeholder)
+                            .redacted(reason: .placeholder)
                     } else if let result = viewModel.latencyResult {
                         // 2. Metrics Hero Card
                         metricsCard(result: result)
@@ -30,12 +35,10 @@ struct EdgeLatencyTestView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.latencyHostInput.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.testLatency()
                 }
             }
@@ -104,7 +107,8 @@ struct EdgeLatencyTestView: View {
             .disabled(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performTest() {
@@ -144,7 +148,8 @@ struct EdgeLatencyTestView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -193,7 +198,8 @@ struct EdgeLatencyTestView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 4. Rounds Card
@@ -230,7 +236,8 @@ struct EdgeLatencyTestView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Error Card
@@ -250,25 +257,7 @@ struct EdgeLatencyTestView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Latency & Jitter Summary")
-                    .font(.headline)
-                Divider()
-                HStack {
-                    Text("24.5 ms").font(.headline.weight(.bold))
-                    Spacer()
-                    Text("±2.1 ms")
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

@@ -97,9 +97,9 @@ struct PagesBuildConfigEditorView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Build Configuration")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -7,15 +7,13 @@ struct WorkerRowView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(Color.orange.opacity(0.12))
-                    .frame(width: 34, height: 34)
-                Image(systemName: "bolt.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.orange)
-            }
-            .accessibilityHidden(true)
+            Image(systemName: "bolt.fill")
+                .font(.body)
+                .foregroundStyle(Color.orange)
+                .frame(width: 32, height: 32)
+                .background(Color.orange.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)

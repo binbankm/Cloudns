@@ -23,18 +23,9 @@ struct TurnstileDetailView: View {
         List {
             // MARK: - Keys & Overview
             Section(header: Text("Widget Credentials")) {
-                HStack {
-                    Text("Widget Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(widget.name)
-                        .font(.body.weight(.medium))
-                }
+                LabeledContent("Widget Name", value: widget.name)
                 
-                HStack {
-                    Text("Mode")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Mode") {
                     CloudnsBadge(.custom(color: .blue, text: (widget.mode ?? "Managed").capitalized), isCompact: true)
                 }
                 
@@ -184,7 +175,6 @@ struct TurnstileDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(widget.name)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingEditSheet) {

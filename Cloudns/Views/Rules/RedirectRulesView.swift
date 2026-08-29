@@ -18,21 +18,15 @@ struct RedirectRulesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
+        contentView
+            .searchable(
                 text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
                 prompt: "Search Redirect Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
             .background(Color(.systemGroupedBackground))
-            
-            contentView
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Redirect Rules")
-        .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Redirect Rules")
+            .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -75,7 +69,7 @@ struct RedirectRulesView: View {
                         redirectRuleRow(placeholderRule)
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if !displayedRules.isEmpty {
                 Section(header: Text("Configured Rules (\(displayedRules.count))")) {
                     ForEach(displayedRules) { rule in
@@ -95,7 +89,6 @@ struct RedirectRulesView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {

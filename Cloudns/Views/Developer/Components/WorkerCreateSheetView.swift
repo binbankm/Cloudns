@@ -44,6 +44,7 @@ struct WorkerCreateSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Worker")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

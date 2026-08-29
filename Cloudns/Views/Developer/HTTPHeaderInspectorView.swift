@@ -22,7 +22,11 @@ struct HTTPHeaderInspectorView: View {
                     inputCard
                     
                     if viewModel.isHttpLoading {
-                        loadingSkeletonView
+                        VStack(spacing: 16) {
+                            edgeSummaryCard(result: HTTPInspectionResult.placeholder)
+                            headersCard(result: HTTPInspectionResult.placeholder)
+                        }
+                        .redacted(reason: .placeholder)
                     } else if let result = viewModel.httpResult {
                         // 2. Edge & Performance Hero Card
                         edgeSummaryCard(result: result)
@@ -35,12 +39,10 @@ struct HTTPHeaderInspectorView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.httpUrlInput.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.inspectHTTP()
                 }
             }
@@ -113,7 +115,8 @@ struct HTTPHeaderInspectorView: View {
             .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performInspect() {
@@ -218,7 +221,8 @@ struct HTTPHeaderInspectorView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 3. Headers Card
@@ -295,7 +299,8 @@ struct HTTPHeaderInspectorView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -336,21 +341,8 @@ struct HTTPHeaderInspectorView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Edge Response Summary")
-                    .font(.caption)
-                Text("200 OK").font(.title2.weight(.bold))
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func copyAllHeaders(_ result: HTTPInspectionResult) {

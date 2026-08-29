@@ -50,6 +50,7 @@ struct BindSnippetRuleSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Trigger Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

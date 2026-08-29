@@ -56,7 +56,7 @@ struct D1TableView: View {
                 
                 if viewModel.isLoading && !viewModel.hasFetchedData {
                     cardsView
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
                     StateOverlayView(
                         state: .error(
@@ -116,7 +116,6 @@ struct D1TableView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(tableName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -226,7 +225,7 @@ struct D1TableView: View {
                     }
                     .padding(14)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
                 }
             }

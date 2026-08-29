@@ -87,6 +87,7 @@ struct AddAccessAppSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Access App")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

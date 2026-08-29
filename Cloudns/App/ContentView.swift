@@ -65,7 +65,7 @@ struct ContentView: View {
                     router.activeDestination = nil
                     tabViewResetId = UUID()
                 }
-                .cloudnsSensorySelection(trigger: selectedTab)
+                .onChange(of: selectedTab) { _ in HapticManager.selection() }
                 .overlay(alignment: .top) {
                     if !networkMonitor.isConnected {
                         HStack(spacing: 6) {

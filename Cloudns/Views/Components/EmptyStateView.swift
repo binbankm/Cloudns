@@ -42,7 +42,7 @@ public struct EmptyStateView: View {
                     .frame(width: 64, height: 64)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(.title.weight(.semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(iconColor ?? .orange)
             }

@@ -14,8 +14,8 @@ struct ZoneHeaderCardView: View {
     private var isActive: Bool { zone.status == "active" }
     private var gradientColors: [Color] {
         isActive
-            ? [Color(red: 0.07, green: 0.54, blue: 0.31), Color(red: 0.15, green: 0.72, blue: 0.50)]
-            : [Color(red: 0.72, green: 0.35, blue: 0.0), Color(red: 0.85, green: 0.20, blue: 0.15)]
+            ? [Color.green, Color.green.opacity(0.75)]
+            : [Color.orange, Color.red.opacity(0.85)]
     }
 
     private var statusDisplayText: LocalizedStringKey {
@@ -173,7 +173,7 @@ struct ZoneHeaderCardView: View {
                             .foregroundStyle(.white.opacity(0.85))
                             .padding(5)
                             .background(.white.opacity(0.16))
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                            .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }

@@ -167,16 +167,15 @@ struct NetworkCenterView: View {
             } else if viewModel.isLoading {
                 Section(header: Text("Core Protocols")) {
                     Toggle("IPv6 Compatibility", isOn: .constant(true))
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                     Toggle("WebSockets", isOn: .constant(true))
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                     Toggle("HTTP/2", isOn: .constant(true))
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

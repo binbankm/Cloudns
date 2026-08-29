@@ -11,39 +11,31 @@ struct DurableObjectsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Namespaces"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(DurableObjectNamespace.placeholders) { placeholder in
-                            nsRow(placeholder)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(DurableObjectNamespace.placeholders) { placeholder in
+                        nsRow(placeholder)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredNamespaces.isEmpty {
-                    Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
-                        ForEach(viewModel.filteredNamespaces) { ns in
-                            NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
-                                nsRow(ns)
-                            }
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredNamespaces.isEmpty {
+                Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
+                    ForEach(viewModel.filteredNamespaces) { ns in
+                        NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
+                            nsRow(ns)
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Namespaces"
+        )
         .navigationTitle("Durable Objects")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -93,7 +85,7 @@ struct DurableObjectsView: View {
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.cyan.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

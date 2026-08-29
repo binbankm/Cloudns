@@ -189,7 +189,6 @@ struct ZoneDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(zone.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

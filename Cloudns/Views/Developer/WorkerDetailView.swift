@@ -74,10 +74,8 @@ struct WorkerDetailView: View {
                     if let sub = viewModel.subdomain {
                         Divider()
                         
-                        HStack(spacing: 10) {
-                            Image(systemName: "link")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "link", color: .green, size: 28, cornerRadius: 6)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("workers.dev Subdomain")
@@ -140,56 +138,44 @@ struct WorkerDetailView: View {
             // MARK: - Script Details
             Section(header: Text("Script Details")) {
                 if !viewModel.scriptContent.isEmpty {
-                    HStack {
-                        Label {
-                            Text("Total Size")
-                        } icon: {
-                            Image(systemName: "doc.zipper")
-                                .foregroundStyle(.blue)
-                        }
-                        .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
+                    LabeledContent {
                         Text(formatBytes(viewModel.scriptContent.utf8.count))
                             .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "doc.zipper", color: .blue)
+                            Text("Total Size")
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
                 
                 if let compat = viewModel.worker.compatibilityDate {
-                    HStack {
-                        Label {
-                            Text("Compatibility Date")
-                        } icon: {
-                            Image(systemName: "calendar.badge.clock")
-                                .foregroundStyle(.orange)
-                        }
-                        .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
+                    LabeledContent {
                         Text(compat)
                             .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "calendar.badge.clock", color: .orange)
+                            Text("Compatibility Date")
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
                 
                 if let modified = viewModel.worker.modifiedOn {
-                    HStack {
-                        Label {
-                            Text("Last Modified")
-                        } icon: {
-                            Image(systemName: "clock.arrow.2.circlepath")
-                                .foregroundStyle(.purple)
-                        }
-                        .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
+                    LabeledContent {
                         Text(DateFormatters.formatISO8601ToDisplay(modified))
                             .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple)
+                            Text("Last Modified")
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
             }
@@ -200,11 +186,7 @@ struct WorkerDetailView: View {
                     WorkerAnalyticsView(accountId: accountId, scriptName: worker.id)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "chart.xyaxis.line")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "chart.xyaxis.line", color: .purple)
                         Text("Analytics & Metrics")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -220,11 +202,7 @@ struct WorkerDetailView: View {
                     )
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "curlybraces")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "curlybraces", color: .blue)
                         Text("Source Code")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -240,11 +218,7 @@ struct WorkerDetailView: View {
                     WorkerDeploymentsView(accountId: accountId, scriptName: worker.id)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "clock.arrow.circlepath", color: .orange)
                         Text("Deployments History")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -255,11 +229,7 @@ struct WorkerDetailView: View {
                     WorkerRoutesView(accountId: accountId, scriptName: worker.id, fallbackRoutes: worker.routes ?? [])
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "globe")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "globe", color: .blue)
                         Text("Domains & Routes")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -275,11 +245,7 @@ struct WorkerDetailView: View {
                     WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "slider.horizontal.3", color: .indigo)
                         Text("Bindings & Variables")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -295,11 +261,7 @@ struct WorkerDetailView: View {
                     WorkerTriggersView(accountId: accountId, scriptName: worker.id)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "clock")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "clock", color: .purple)
                         Text("Cron Triggers")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -315,11 +277,7 @@ struct WorkerDetailView: View {
                     WorkerTailView(accountId: accountId, scriptName: worker.id)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "waveform.path.ecg")
-                            .font(.body)
-                            .foregroundStyle(.green)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "terminal.fill", color: .teal)
                         Text("Real-Time Logs")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -333,11 +291,7 @@ struct WorkerDetailView: View {
                         WorkerTestView(scriptName: worker.id, initialRoute: worker.routes?.first)
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "paperplane.fill")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 24)
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "play.fill", color: .green)
                             Text("Test Dispatch")
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -346,7 +300,6 @@ struct WorkerDetailView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .centerConstrainedWidth(maxWidth: 840)
     }
     
     private func formatBytes(_ bytes: Int) -> String {

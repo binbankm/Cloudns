@@ -34,6 +34,7 @@ struct WorkersAIPlaygroundSheetView: View {
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle(model.shortName)
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Close") { dismiss() }
@@ -64,7 +65,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 .foregroundStyle(.purple)
                 .frame(width: 28, height: 28)
                 .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -78,7 +79,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.vertical, 1)
                         .background(Color.purple.opacity(0.12))
                         .foregroundStyle(.purple)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
                 
                 Text(model.modelPath)
@@ -184,7 +185,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -298,7 +299,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(UIColor.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .focused($isInputFocused)
                 .disabled(viewModel.isSendingMessage)
                 .submitLabel(.send)

@@ -10,19 +10,10 @@ struct QueueDetailView: View {
     var body: some View {
         List {
             Section(header: Text("Queue Overview")) {
-                HStack {
-                    Text("Queue Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(queue.queueName)
-                        .font(.body.weight(.medium))
-                }
+                LabeledContent("Queue Name", value: queue.queueName)
                 
                 if let id = queue.queueId {
-                    HStack {
-                        Text("Queue ID")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Queue ID") {
                         Text(id)
                             .font(.caption.monospaced())
                             .foregroundStyle(.secondary)
@@ -30,33 +21,19 @@ struct QueueDetailView: View {
                 }
                 
                 if let delay = queue.settings?.deliveryDelay {
-                    HStack {
-                        Text("Delivery Delay")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("\(delay)s")
-                            .font(.subheadline)
-                    }
+                    LabeledContent("Delivery Delay", value: "\(delay)s")
                 }
                 
                 if let ret = queue.settings?.messageRetentionPeriod {
-                    HStack {
-                        Text("Retention Period")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("\(ret / 86400) days (\(ret)s)")
-                            .font(.subheadline)
-                    }
+                    LabeledContent("Retention Period", value: "\(ret / 86400) days (\(ret)s)")
                 }
             }
             
             if let producers = queue.producers, !producers.isEmpty {
                 Section(header: Text("Producers (\(producers.count))")) {
                     ForEach(producers) { p in
-                        HStack {
-                            Image(systemName: "arrow.up.right.circle.fill")
-                                .foregroundStyle(.blue)
-                                .accessibilityHidden(true)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "arrow.up.right", color: .blue)
                             Text(p.script ?? p.service ?? "Worker")
                                 .font(.body)
                             Spacer()
@@ -74,10 +51,8 @@ struct QueueDetailView: View {
                 Section(header: Text("Consumers (\(consumers.count))")) {
                     ForEach(consumers) { c in
                         VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Image(systemName: "arrow.down.left.circle.fill")
-                                    .foregroundStyle(.green)
-                                    .accessibilityHidden(true)
+                            HStack(spacing: 12) {
+                                ListRowIcon(icon: "arrow.down.left", color: .green)
                                 Text(c.scriptName ?? c.service ?? "Worker")
                                     .font(.body.weight(.medium))
                                 Spacer()

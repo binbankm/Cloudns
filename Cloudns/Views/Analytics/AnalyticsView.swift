@@ -54,23 +54,21 @@ struct AnalyticsView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 ScrollView {
                     VStack(spacing: 16) {
                         metricsGrid
-                            .skeletonLoading(true)
+                            .redacted(reason: .placeholder)
                         
                         requestsLineChartCard
-                            .skeletonLoading(true)
+                            .redacted(reason: .placeholder)
                         
                         bandwidthBarChartCard
-                            .skeletonLoading(true)
+                            .redacted(reason: .placeholder)
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
@@ -98,7 +96,6 @@ struct AnalyticsView: View {
                     }
                     .frame(minHeight: 450)
                     .padding(.horizontal, 16)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true)
@@ -125,7 +122,6 @@ struct AnalyticsView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
@@ -181,7 +177,7 @@ struct AnalyticsView: View {
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 2. Key Metrics Grid
@@ -265,7 +261,7 @@ struct AnalyticsView: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 3. Requests 折线图 (Luminous Aurora + Interactive Live Scrubbing)
@@ -434,7 +430,7 @@ struct AnalyticsView: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 4. Bandwidth 柱状图 (Bar Chart with Rounded Bars & Scrubbing)
@@ -580,7 +576,7 @@ struct AnalyticsView: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 5. Traffic by Country Map
@@ -601,11 +597,11 @@ struct AnalyticsView: View {
             
             trafficMapView
                 .frame(height: 260)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     private var mapAnnotations: [MapAnnotationItem] {
@@ -672,7 +668,7 @@ struct AnalyticsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(Color(.systemBackground).opacity(0.95))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
@@ -688,30 +684,30 @@ struct AnalyticsView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.blue)
             
-            HStack {
+            LabeledContent {
+                Text(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
+                    .font(.caption.weight(.semibold).monospacedDigit())
+            } label: {
                 Text("Origin Bandwidth Saved")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer()
-                Text(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
-                    .font(.caption.weight(.semibold).monospacedDigit())
             }
             
             Divider()
             
-            HStack {
+            LabeledContent {
+                Text(verbatim: String(format: "%.1f%%", viewModel.cachedRatio * 100))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(viewModel.cachedRatio > 0.5 ? Color.green : Color.orange)
+            } label: {
                 Text("Edge Cache Ratio")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer()
-                Text(verbatim: String(format: "%.1f%%", viewModel.cachedRatio * 100))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(viewModel.cachedRatio > 0.5 ? .green : .orange)
             }
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - Helpers

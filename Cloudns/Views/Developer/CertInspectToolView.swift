@@ -14,7 +14,11 @@ struct CertInspectToolView: View {
                     inputCard
                     
                     if viewModel.isLoading && viewModel.certDetails == nil {
-                        loadingSkeletonView
+                        VStack(spacing: 16) {
+                            validityCard(details: SSLCertDetails.placeholder)
+                            chainCard(details: SSLCertDetails.placeholder)
+                        }
+                        .redacted(reason: .placeholder)
                     } else if let details = viewModel.certDetails {
                         // 2. Validity Hero Card
                         validityCard(details: details)
@@ -33,12 +37,10 @@ struct CertInspectToolView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.domainInput.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.inspectCert()
                 }
             }
@@ -104,7 +106,8 @@ struct CertInspectToolView: View {
             .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performInspect() {
@@ -166,7 +169,8 @@ struct CertInspectToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 3. Chain Card
@@ -208,7 +212,8 @@ struct CertInspectToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 4. Crypto Parameters Card
@@ -237,7 +242,8 @@ struct CertInspectToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -299,7 +305,8 @@ struct CertInspectToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Error Card
@@ -319,37 +326,7 @@ struct CertInspectToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Certificate Validity")
-                    .font(.caption)
-                Text("90 Days Remaining")
-                    .font(.title2.weight(.bold))
-                ProgressView(value: 0.8)
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Certificate Chain Hierarchy")
-                    .font(.headline)
-                Divider()
-                ForEach(0..<3, id: \.self) { _ in
-                    HStack {
-                        Circle().frame(width: 32, height: 32)
-                        Text("Cloudflare Inc ECC CA-3")
-                    }
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

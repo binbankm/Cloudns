@@ -26,21 +26,15 @@ struct SnippetsListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
+        contentView
+            .searchable(
                 text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
                 prompt: "Search Snippets & Rules"
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
             .background(Color(.systemGroupedBackground))
-            
-            contentView
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Edge Snippets")
-        .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Edge Snippets")
+            .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -111,7 +105,7 @@ struct SnippetsListView: View {
                         snippetRow(placeholderSnippet)
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if !displayedSnippets.isEmpty || !displayedRules.isEmpty {
                 // MARK: - Snippet Scripts
                 Section(header: Text("Snippet Scripts (\(displayedSnippets.count))")) {
@@ -144,7 +138,6 @@ struct SnippetsListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
@@ -196,7 +189,7 @@ struct SnippetsListView: View {
                         .accessibilityHidden(true)
                 }
                 .frame(width: 36, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(snip.snippet_name)
@@ -249,7 +242,7 @@ struct SnippetsListView: View {
                     .padding(.vertical, 2)
                     .background((isEnabled ? Color.green : Color.gray).opacity(0.15))
                     .foregroundStyle(isEnabled ? .green : .secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
             
             if let snipName = rule.action_parameters?.snippet_name {

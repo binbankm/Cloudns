@@ -21,50 +21,42 @@ struct CacheRulesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Cache Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(WAFRule.placeholders) { placeholderRule in
-                            CacheRuleCardView(rule: placeholderRule, onToggle: {})
-                        }
-                    }
-                    .skeletonLoading(true)
-                } else if !displayedRules.isEmpty {
-                    Section {
-                        ForEach(displayedRules) { rule in
-                            CacheRuleCardView(rule: rule) {
-                                HapticManager.impact(.light)
-                                Task {
-                                    await viewModel.toggleRule(rule: rule)
-                                }
-                            }
-                        }
-                        .onDelete(perform: { indexSet in
-                            HapticManager.impact(.medium)
-                            for index in indexSet {
-                                let rule = displayedRules[index]
-                                viewModel.deleteRule(at: IndexSet(integer: index))
-                                ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
-                            }
-                        })
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(WAFRule.placeholders) { placeholderRule in
+                        CacheRuleCardView(rule: placeholderRule, onToggle: {})
                     }
                 }
+                .redacted(reason: .placeholder)
+            } else if !displayedRules.isEmpty {
+                Section {
+                    ForEach(displayedRules) { rule in
+                        CacheRuleCardView(rule: rule) {
+                            HapticManager.impact(.light)
+                            Task {
+                                await viewModel.toggleRule(rule: rule)
+                            }
+                        }
+                    }
+                    .onDelete(perform: { indexSet in
+                        HapticManager.impact(.medium)
+                        for index in indexSet {
+                            let rule = displayedRules[index]
+                            viewModel.deleteRule(at: IndexSet(integer: index))
+                            ToastManager.shared.showSuccess("Cache Rule Deleted", message: rule.description ?? "")
+                        }
+                    })
+                }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Cache Rules"
+        )
         .refreshable {
             await viewModel.fetchCacheRules()
         }

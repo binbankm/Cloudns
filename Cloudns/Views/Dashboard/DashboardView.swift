@@ -31,15 +31,13 @@ struct DashboardView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
                 .refreshable {
-                    HapticManager.impact(.light)
                     await viewModel.fetchDashboard(isRefresh: true)
                 }
             }
             .navigationTitle("Dashboard")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -139,7 +137,7 @@ struct DashboardView: View {
     
     // MARK: - 2. Resources Overview Cards Grid (114pt Symmetrical)
     private var resourcesOverviewGridView: some View {
-        LazyVGrid(columns: GridItem.cloudnsAdaptiveMetrics, spacing: 10) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 10)], spacing: 10) {
             NavigationLink(destination: ZonesListView()) {
                 DashboardMetricCardView(
                     icon: "globe",
@@ -251,7 +249,7 @@ struct DashboardView: View {
                     HStack(spacing: 2) {
                         Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.caption2.weight(.bold))
                     }
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.blue)
@@ -281,22 +279,21 @@ struct DashboardView: View {
                             CloudnsBadge(.active("Active"), isCompact: true)
                         }
                         .padding(10)
-                        .cloudnsCard(style: .frosted, cornerRadius: 14)
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if viewModel.zones.isEmpty {
-                VStack(spacing: 10) {
-                    Image(systemName: "globe.badge.chevron.backward")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-                    Text("No Domains Added Yet")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-                .cloudnsCard(style: .frosted, cornerRadius: 14)
+                EmptyStateView(
+                    icon: "globe.badge.chevron.backward",
+                    title: "No Domains Added Yet",
+                    message: "Add your first domain to start managing DNS records and Cloudflare edge services.",
+                    iconColor: .secondary
+                )
+                .padding(.vertical, 16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             } else {
                 VStack(spacing: 8) {
                     ForEach(viewModel.recentZones) { zone in
@@ -329,12 +326,13 @@ struct DashboardView: View {
                                 ZoneRowSparklineView(zoneId: zone.id, cached: viewModel.sparklines[zone.id])
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.caption2.weight(.semibold))
                                     .foregroundStyle(.tertiary)
                                     .accessibilityHidden(true)
                             }
                             .padding(10)
-                            .cloudnsCard(style: .frosted, cornerRadius: 14)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -364,11 +362,12 @@ struct DashboardView: View {
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
             .padding(12)
-            .cloudnsCard(style: .frosted, cornerRadius: 14)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(PlainButtonStyle())
     }

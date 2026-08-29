@@ -121,7 +121,6 @@ struct NetworkDiagnosticsListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Network Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -137,7 +136,7 @@ struct NetworkDiagnosticsListView: View {
                     .foregroundStyle(tool.iconColor)
                     .frame(width: 32, height: 32)
                     .background(tool.iconColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(tool.title))

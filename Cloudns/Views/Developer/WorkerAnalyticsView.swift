@@ -44,19 +44,17 @@ public struct WorkerAnalyticsView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 ScrollView {
                     VStack(spacing: 16) {
                         metricsGrid
-                            .skeletonLoading(true)
+                            .redacted(reason: .placeholder)
                         invocationsLineChartCard
-                            .skeletonLoading(true)
+                            .redacted(reason: .placeholder)
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
@@ -84,7 +82,6 @@ public struct WorkerAnalyticsView: View {
                     }
                     .frame(minHeight: 450)
                     .padding(.horizontal, 16)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(isRefresh: true)
@@ -106,7 +103,6 @@ public struct WorkerAnalyticsView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 28)
-                    .centerConstrainedWidth(maxWidth: 840)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
@@ -158,7 +154,7 @@ public struct WorkerAnalyticsView: View {
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 2. 4 Metrics Cards Grid
@@ -242,7 +238,7 @@ public struct WorkerAnalyticsView: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 3. Invocations 折线图 (Line Chart with Live Scrubbing)
@@ -424,7 +420,7 @@ public struct WorkerAnalyticsView: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 4. CPU Latency 双折线图 (Line Chart with Live Scrubbing)
@@ -446,7 +442,7 @@ public struct WorkerAnalyticsView: View {
                     
                     if let selected = selectedCpuPoint {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", selected.cpuP50))
+                            Text(String(format: "%.2f ms", selected.cpuP50)).font(.subheadline.monospacedDigit())
                                 .font(.system(.title, design: .rounded).weight(.bold))
                                 .foregroundStyle(.cyan)
                             Text("P50")
@@ -456,7 +452,7 @@ public struct WorkerAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", selected.cpuP99))
+                            Text(String(format: "%.2f ms", selected.cpuP99)).font(.subheadline.monospacedDigit())
                                 .font(.system(.title3, design: .rounded).weight(.semibold))
                                 .foregroundStyle(.orange)
                             Text("P99")
@@ -465,7 +461,7 @@ public struct WorkerAnalyticsView: View {
                         }
                     } else {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", viewModel.avgCpuP50))
+                            Text(String(format: "%.2f ms", viewModel.avgCpuP50)).font(.subheadline.monospacedDigit())
                                 .font(.system(.title, design: .rounded).weight(.bold))
                                 .foregroundStyle(.cyan)
                             Text("avg P50")
@@ -475,7 +471,7 @@ public struct WorkerAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", viewModel.maxCpuP99))
+                            Text(String(format: "%.2f ms", viewModel.maxCpuP99)).font(.subheadline.monospacedDigit())
                                 .font(.system(.title3, design: .rounded).weight(.semibold))
                                 .foregroundStyle(.orange)
                             Text("max P99")
@@ -578,7 +574,7 @@ public struct WorkerAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
-                            Text(String(format: "%.1f ms", ms))
+                            Text(String(format: "%.1f ms", ms)).font(.caption.monospacedDigit())
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -614,7 +610,7 @@ public struct WorkerAnalyticsView: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - 5. Insights & Summary
@@ -648,7 +644,7 @@ public struct WorkerAnalyticsView: View {
         }
         .padding(14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     // MARK: - Helpers

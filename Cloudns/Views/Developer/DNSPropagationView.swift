@@ -86,7 +86,7 @@ struct DNSPropagationView: View {
                         }
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
                 Section(header: Text("Global Status")) {
@@ -142,7 +142,7 @@ struct DNSPropagationView: View {
                             }
                             
                             if let lat = node.latencyMs {
-                                Text(String(format: "Latency: %.1f ms", lat))
+                                Text(String(format: "Latency: %.1f ms", lat)).font(.caption.monospacedDigit())
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                                     .padding(.leading, 32)
@@ -161,7 +161,6 @@ struct DNSPropagationView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Global DNS Propagation")
         .navigationBarTitleDisplayMode(.inline)
     }

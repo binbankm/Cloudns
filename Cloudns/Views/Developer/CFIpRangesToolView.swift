@@ -104,7 +104,6 @@ struct CFIpRangesToolView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Cloudflare IP Ranges")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

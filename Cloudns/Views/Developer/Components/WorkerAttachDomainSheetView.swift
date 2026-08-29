@@ -71,11 +71,15 @@ struct WorkerAttachDomainSheetView: View {
                     Section(header: Text("Managed Domain (Zone)")) {
                         if isLoadingZones {
                             HStack {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                                Text("Loading domains...")
+                                Text("Select Domain (Zone)")
+                                    .font(.body)
                                     .foregroundStyle(.secondary)
+                                Spacer()
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
                             }
+                            .redacted(reason: .placeholder)
                         } else if availableZones.isEmpty {
                             Text("No domains found in account. Use manual entry.")
                                 .font(.caption)
@@ -130,6 +134,7 @@ struct WorkerAttachDomainSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Attach Custom Domain")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

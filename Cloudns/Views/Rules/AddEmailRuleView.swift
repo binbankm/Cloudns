@@ -45,7 +45,6 @@ struct AddEmailRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Routing Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -78,7 +77,7 @@ struct AddEmailRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )

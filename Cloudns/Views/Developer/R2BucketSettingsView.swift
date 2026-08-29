@@ -89,18 +89,17 @@ struct R2BucketSettingsView: View {
             } else if viewModel.isLoading {
                 Section(header: Text("Public Access (r2.dev)")) {
                     Toggle("Enable r2.dev Subdomain", isOn: .constant(false))
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                 }
                 Section(header: Text("Connected Custom Domains")) {
                     ForEach(R2CustomDomain.placeholders) { ph in
                         customDomainRow(ph)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Bucket Settings")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddCORSSheet) {

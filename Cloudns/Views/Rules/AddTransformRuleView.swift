@@ -102,7 +102,6 @@ struct AddTransformRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Transform Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -130,7 +129,7 @@ struct AddTransformRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )

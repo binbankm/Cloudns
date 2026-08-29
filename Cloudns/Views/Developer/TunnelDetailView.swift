@@ -60,26 +60,13 @@ struct TunnelDetailView: View {
         List {
             // MARK: - Overview
             Section(header: Text("Tunnel Overview")) {
-                HStack {
-                    Text("Tunnel Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(tunnel.name)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                }
+                LabeledContent("Tunnel Name", value: tunnel.name)
                 
-                HStack {
-                    Text("Status")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Status") {
                     CloudnsBadge(tunnel.isHealthy ? .active((tunnel.status ?? "Active").capitalized) : .error((tunnel.status ?? "Inactive").capitalized), isCompact: true)
                 }
                 
-                HStack {
-                    Text("UUID")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("UUID") {
                     Text(tunnel.id)
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
@@ -96,7 +83,7 @@ struct TunnelDetailView: View {
                             .font(.caption.monospaced())
                         Spacer()
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             } else if let token = viewModel.token, !token.isEmpty {
                 Section(
@@ -110,10 +97,8 @@ struct TunnelDetailView: View {
                             HapticManager.notification(.success)
                             ToastManager.shared.showCopied("Install command copied")
                         } label: {
-                            HStack {
-                                Image(systemName: "terminal")
-                                    .foregroundStyle(.blue)
-                                    .accessibilityHidden(true)
+                            HStack(spacing: 12) {
+                                ListRowIcon(icon: "terminal.fill", color: .blue)
                                 Text(isTokenRevealed ? "cloudflared tunnel run --token \(token)" : "cloudflared tunnel run --token ••••••••")
                                     .font(.caption.monospaced())
                                     .foregroundStyle(.primary)
@@ -175,7 +160,7 @@ struct TunnelDetailView: View {
                         }
                         .padding(.vertical, 3)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if viewModel.ingressRules.isEmpty {
                     Text("No public ingress hostnames configured.")
                         .font(.subheadline)
@@ -244,7 +229,7 @@ struct TunnelDetailView: View {
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
                                 
                                 if let ip = conn.originIp {
@@ -289,6 +274,5 @@ struct TunnelDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
     }
 }

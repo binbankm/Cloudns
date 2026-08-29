@@ -13,48 +13,40 @@ struct TurnstileWidgetsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Widgets"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(TurnstileWidget.placeholders) { placeholder in
-                            TurnstileWidgetRowView(widget: placeholder)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(TurnstileWidget.placeholders) { placeholder in
+                        TurnstileWidgetRowView(widget: placeholder)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredWidgets.isEmpty {
-                    Section {
-                        ForEach(viewModel.filteredWidgets) { widget in
-                            NavigationLink(destination: TurnstileDetailView(widget: widget, viewModel: viewModel)) {
-                                TurnstileWidgetRowView(widget: widget)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    widgetToDelete = widget
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredWidgets.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredWidgets) { widget in
+                        NavigationLink(destination: TurnstileDetailView(widget: widget, viewModel: viewModel)) {
+                            TurnstileWidgetRowView(widget: widget)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                widgetToDelete = widget
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Widgets"
+        )
         .navigationTitle("Turnstile")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

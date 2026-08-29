@@ -66,7 +66,7 @@ struct WorkerTriggersView: View {
                         scheduleRow(WorkerSchedule(cron: "0 * * * *"))
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
@@ -88,7 +88,6 @@ struct WorkerTriggersView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {

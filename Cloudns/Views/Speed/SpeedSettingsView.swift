@@ -183,7 +183,7 @@ struct SpeedSettingsView: View {
                             Text("Predictive prefetching via W3C Speculation Rules.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                     
                     Toggle(isOn: .constant(true)) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -191,7 +191,7 @@ struct SpeedSettingsView: View {
                             Text("Privacy-preserving edge proxy for Google Fonts.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
                 
                 Section(header: Text("Asset Optimization")) {
@@ -201,12 +201,11 @@ struct SpeedSettingsView: View {
                             Text("Speed up page load times for your visitor's HTTPS traffic.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

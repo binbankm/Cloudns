@@ -14,48 +14,40 @@ struct HyperdriveView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Hyperdrive"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(HyperdriveConfig.placeholders) { placeholder in
-                            configRow(placeholder)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(HyperdriveConfig.placeholders) { placeholder in
+                        configRow(placeholder)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredConfigs.isEmpty {
-                    Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
-                        ForEach(viewModel.filteredConfigs) { config in
-                            NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
-                                configRow(config)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    configToDelete = config
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredConfigs.isEmpty {
+                Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
+                    ForEach(viewModel.filteredConfigs) { config in
+                        NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
+                            configRow(config)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                configToDelete = config
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Hyperdrive"
+        )
         .navigationTitle("Hyperdrive")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -125,7 +117,7 @@ struct HyperdriveView: View {
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.green.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

@@ -65,7 +65,6 @@ struct AdvancedZoneSettingsView: View {
                 .disabled(isDeleting)
             }
         }
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Advanced Settings")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Remove Site from Cloudflare", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {

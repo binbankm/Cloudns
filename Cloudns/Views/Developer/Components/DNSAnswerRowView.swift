@@ -13,7 +13,7 @@ struct DNSAnswerRowView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
                 .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.data)

@@ -25,19 +25,9 @@ struct EmailRoutingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Email Rules"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                // MARK: - Master Toggle
-                Section(
+        List {
+            // MARK: - Master Toggle
+            Section(
                 header: Text("Status"),
                 footer: Text("When enabled, Cloudflare receives incoming emails for your domain and forwards them according to your routing rules.")
             ) {
@@ -106,7 +96,7 @@ struct EmailRoutingView: View {
                     ForEach(EmailRoutingRule.placeholders) { placeholderRule in
                         ruleRow(placeholderRule)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if displayedRules.isEmpty {
                     Text("No custom routing rules configured.")
                         .foregroundStyle(.secondary)
@@ -195,9 +185,11 @@ struct EmailRoutingView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
-    }
-    .background(Color(.systemGroupedBackground))
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Email Rules"
+        )
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {

@@ -14,37 +14,18 @@ struct AccessAppDetailView: View {
     var body: some View {
         List {
             Section(header: Text("Application Details")) {
-                HStack {
-                    Text("Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(app.name)
-                        .font(.body.weight(.medium))
-                }
+                LabeledContent("Name", value: app.name)
                 
-                HStack {
-                    Text("Domain")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(app.domain)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
-                }
+                LabeledContent("Domain", value: app.domain)
                 
                 if let type = app.type {
-                    HStack {
-                        Text("Type")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Type") {
                         CloudnsBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
                     }
                 }
                 
                 if let aud = app.aud {
-                    HStack {
-                        Text("Audience Tag (AUD)")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Audience Tag (AUD)") {
                         Text(aud)
                             .font(.caption2.monospaced())
                             .foregroundStyle(.secondary)
@@ -57,7 +38,7 @@ struct AccessAppDetailView: View {
                     ForEach(AccessPolicy.placeholders) { placeholder in
                         policyRow(placeholder)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(err)
                         .font(.caption)
@@ -74,7 +55,6 @@ struct AccessAppDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(app.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {

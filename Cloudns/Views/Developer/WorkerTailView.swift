@@ -16,15 +16,6 @@ struct WorkerTailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search logs & URLs"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.secondarySystemGroupedBackground))
-            
             // Top Toolbar: Status & Filters
             filterBar
                 .padding(.horizontal)
@@ -52,10 +43,14 @@ struct WorkerTailView: View {
                     }
                     .listStyle(.plain)
                     .scrollDismissesKeyboard(.interactively)
-                    .centerConstrainedWidth(maxWidth: 840)
                 }
             }
         }
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search logs & URLs"
+        )
         .navigationTitle("Live Tail Logs")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -27,12 +27,10 @@ struct DNSDigToolView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.domainInput.isEmpty {
-                    HapticManager.impact(.light)
                     startQuery()
                 }
             }
@@ -152,7 +150,8 @@ struct DNSDigToolView: View {
             .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDnsLoading || viewModel.isBenchmarkLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 2. Single Query Results
@@ -168,8 +167,9 @@ struct DNSDigToolView: View {
                 }
             }
             .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .redacted(reason: .placeholder)
         } else if let result = viewModel.dnsResult {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
@@ -218,7 +218,8 @@ struct DNSDigToolView: View {
                 .controlSize(.small)
             }
             .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }
     
@@ -235,13 +236,14 @@ struct DNSDigToolView: View {
                         Circle().frame(width: 24, height: 24)
                         Text("Cloudflare 1.1.1.1")
                         Spacer()
-                        Text("12.4 ms")
+                        Text("12.4 ms").font(.body.monospacedDigit())
                     }
                 }
             }
             .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .redacted(reason: .placeholder)
         } else if let bench = viewModel.benchmarkResult {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Resolver Latency & Accuracy Benchmark")
@@ -295,7 +297,8 @@ struct DNSDigToolView: View {
                 }
             }
             .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }
     
@@ -316,7 +319,8 @@ struct DNSDigToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func startQuery() {

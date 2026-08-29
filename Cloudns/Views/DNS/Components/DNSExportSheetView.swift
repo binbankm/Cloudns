@@ -20,14 +20,21 @@ struct DNSExportSheetView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 if isLoading {
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .controlSize(.large)
-                        Text("Generating BIND Zone File...")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("; BIND Zone File Export Preview")
+                            Text("$ORIGIN example.com.")
+                            Text("$TTL 3600")
+                            Text("@ IN SOA ns1.cloudflare.com. dns.cloudflare.com. ( 2024010101 10000 2400 604800 3600 )")
+                            Text("@ IN NS ns1.cloudflare.com.")
+                            Text("@ IN A 192.0.2.1")
+                            Text("www IN CNAME example.com.")
+                        }
+                        .font(.caption.monospaced())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .redacted(reason: .placeholder)
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
@@ -129,6 +136,7 @@ struct DNSExportSheetView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Export DNS Records")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {

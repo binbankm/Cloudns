@@ -238,6 +238,7 @@ struct DNSPresetsSheetView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("DNS Presets")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") {
@@ -281,7 +282,7 @@ struct DNSPresetsSheetView: View {
                                     .padding(.vertical, 2)
                                     .background(Color.blue.opacity(0.12))
                                     .foregroundStyle(.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
                                     .font(.system(.subheadline, design: .monospaced).weight(.medium))
@@ -333,6 +334,7 @@ struct DNSPresetsSheetView: View {
             .listStyle(.insetGrouped)
             .navigationTitle(group.title)
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {

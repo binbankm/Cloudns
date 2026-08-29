@@ -42,6 +42,7 @@ struct AddLBPoolSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Origin Pool")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

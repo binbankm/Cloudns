@@ -26,6 +26,7 @@ struct CreateTunnelSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Tunnel")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

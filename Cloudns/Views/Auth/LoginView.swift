@@ -67,7 +67,7 @@ struct LoginView: View {
                                 )
                             
                             Image(systemName: "cloud.fill")
-                                .font(.system(size: 36, weight: .semibold))
+                                .font(.largeTitle.weight(.semibold))
                                 .foregroundStyle(
                                     LinearGradient(
                                         colors: [.orange, .yellow],
@@ -132,9 +132,9 @@ struct LoginView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     .stroke(focusedField == .email ? Color.orange : Color.clear, lineWidth: 1.5)
                             )
                         }
@@ -210,9 +210,9 @@ struct LoginView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     .stroke(focusedField == .apiKey ? Color.orange : Color.clear, lineWidth: 1.5)
                             )
                         }
@@ -230,7 +230,7 @@ struct LoginView: View {
                             .padding(10)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.red.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             .onAppear {
                                 HapticManager.notification(.error)
                             }
@@ -272,13 +272,14 @@ struct LoginView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isButtonDisabled)
                     }
                     .padding(16)
-                    .cloudnsCard(style: .frosted, cornerRadius: 18)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .padding(.horizontal, 16)
                     
                     // 4. Helper Links & Guide
@@ -310,9 +311,9 @@ struct LoginView: View {
                     }
                     .padding(.bottom, 24)
                 }
-                .centerConstrainedWidth(maxWidth: 480)
             }
             .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
             .contentShape(Rectangle())
             .onTapGesture {
                 focusedField = nil

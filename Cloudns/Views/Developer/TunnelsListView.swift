@@ -11,41 +11,33 @@ struct TunnelsListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Tunnels"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(CFTunnel.placeholders) { placeholderTunnel in
-                            TunnelRowView(tunnel: placeholderTunnel)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(CFTunnel.placeholders) { placeholderTunnel in
+                        TunnelRowView(tunnel: placeholderTunnel)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredTunnels.isEmpty {
-                    Section {
-                        ForEach(viewModel.filteredTunnels) { tunnel in
-                            NavigationLink {
-                                TunnelDetailView(accountId: accountId, tunnel: tunnel)
-                            } label: {
-                                TunnelRowView(tunnel: tunnel)
-                            }
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredTunnels.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredTunnels) { tunnel in
+                        NavigationLink {
+                            TunnelDetailView(accountId: accountId, tunnel: tunnel)
+                        } label: {
+                            TunnelRowView(tunnel: tunnel)
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Tunnels"
+        )
         .navigationTitle("Cloudflare Tunnels")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable { await viewModel.fetchTunnels() }

@@ -10,18 +10,9 @@ struct HyperdriveDetailView: View {
     var body: some View {
         List {
             Section(header: Text("Accelerator Overview")) {
-                HStack {
-                    Text("Config Name")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(config.name)
-                        .font(.body.weight(.medium))
-                }
+                LabeledContent("Config Name", value: config.name)
                 
-                HStack {
-                    Text("Config ID")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Config ID") {
                     Text(config.id)
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
@@ -30,67 +21,37 @@ struct HyperdriveDetailView: View {
             
             if let origin = config.origin {
                 Section(header: Text("Origin Database")) {
-                    HStack {
-                        Text("Scheme")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(origin.scheme?.uppercased() ?? "POSTGRES")
-                            .font(.subheadline)
+                    LabeledContent("Scheme", value: origin.scheme?.uppercased() ?? "POSTGRES")
+                    
+                    if let host = origin.host, !host.isEmpty {
+                        LabeledContent("Host") {
+                            Text(host)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     
-                    HStack {
-                        Text("Host")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(origin.host ?? "")
-                            .font(.caption.monospaced())
+                    LabeledContent("Port", value: "\(origin.port ?? 5432)")
+                    
+                    if let db = origin.database, !db.isEmpty {
+                        LabeledContent("Database Name", value: db)
                     }
                     
-                    HStack {
-                        Text("Port")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text("\(origin.port ?? 5432)")
-                            .font(.subheadline)
-                    }
-                    
-                    HStack {
-                        Text("Database Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(origin.database ?? "")
-                            .font(.subheadline)
-                    }
-                    
-                    HStack {
-                        Text("User")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(origin.user ?? "")
-                            .font(.subheadline)
+                    if let user = origin.user, !user.isEmpty {
+                        LabeledContent("User", value: user)
                     }
                 }
             }
             
             if let caching = config.caching {
                 Section(header: Text("Query Caching")) {
-                    HStack {
-                        Text("Cache Status")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Cache Status") {
                         Text(caching.disabled == true ? "Disabled" : "Enabled")
-                            .font(.subheadline)
                             .foregroundStyle(caching.disabled == true ? Color.secondary : Color.green)
                     }
                     
                     if let maxAge = caching.maxAge {
-                        HStack {
-                            Text("Max Age")
-                            .foregroundStyle(.secondary)
-                            Spacer()
-                            Text("\(maxAge)s")
-                                .font(.subheadline)
-                        }
+                        LabeledContent("Max Age", value: "\(maxAge)s")
                     }
                 }
             }

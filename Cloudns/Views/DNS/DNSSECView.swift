@@ -25,15 +25,17 @@ struct DNSSECView: View {
                             dsRecordCard(dnssec)
                         }
                     } else if viewModel.isLoading {
-                        loadingSkeletonView
+                        VStack(spacing: 16) {
+                            statusCard(DNSSEC.placeholder)
+                            dsRecordCard(DNSSEC.placeholder)
+                        }
+                        .redacted(reason: .placeholder)
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .refreshable {
-                HapticManager.impact(.light)
                 await viewModel.fetchDNSSEC()
             }
         }
@@ -121,7 +123,8 @@ struct DNSSECView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 2. DS Record Configuration Card
@@ -175,58 +178,8 @@ struct DNSSECView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - 3. Skeleton Loading View
-    @ViewBuilder
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 12) {
-                    Circle()
-                        .fill(Color(.tertiarySystemFill))
-                        .frame(width: 44, height: 44)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("DNSSEC Protection")
-                            .font(.headline)
-                        Text(zoneName)
-                            .font(.caption)
-                    }
-                    Spacer()
-                    Capsule()
-                        .fill(Color(.tertiarySystemFill))
-                        .frame(width: 60, height: 22)
-                }
-                Divider()
-                HStack {
-                    Text("Enable DNSSEC Status")
-                    Spacer()
-                    Toggle(isOn: .constant(true)) { EmptyView() }.labelsHidden()
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("DS Record Configuration")
-                    .font(.headline)
-                Divider()
-                ForEach(0..<5, id: \.self) { idx in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(placeholderTitle(for: idx))
-                            .font(.caption)
-                        Text(placeholderValue(for: idx))
-                            .font(.body.monospacedDigit())
-                    }
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func statusColor(for status: String) -> Color {
@@ -236,22 +189,5 @@ struct DNSSECView: View {
         case "disabled": return .gray
         default: return .gray
         }
-    }
-    
-    private func placeholderTitle(for index: Int) -> String {
-        let titles = ["DS Record", "Digest", "Digest Type", "Algorithm", "Key Tag", "Flags"]
-        return titles[index % titles.count]
-    }
-    
-    private func placeholderValue(for index: Int) -> String {
-        let values = [
-            "example.com. 3600 IN DS 2371 13 2 4004D79...8F",
-            "4004D7981C02844D04C251877995...8F",
-            "2 (SHA-256)",
-            "13 (ECDSA Curve P-256 with SHA-256)",
-            "2371",
-            "257 (KSK)"
-        ]
-        return values[index % values.count]
     }
 }

@@ -14,7 +14,8 @@ struct IPLookupToolView: View {
                     inputCard
                     
                     if viewModel.isLoading && viewModel.lookupResult == nil {
-                        loadingSkeletonView
+                        identificationCard(result: IPLookupResult.placeholder)
+                            .redacted(reason: .placeholder)
                     } else if let result = viewModel.lookupResult {
                         // 2. Identification Hero Card
                         identificationCard(result: result)
@@ -30,12 +31,10 @@ struct IPLookupToolView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.ipInput.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.queryIP()
                 }
             }
@@ -101,7 +100,8 @@ struct IPLookupToolView: View {
             .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performQuery() {
@@ -116,7 +116,7 @@ struct IPLookupToolView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(result.countryFlag)
-                    .font(.system(size: 36))
+                    .font(.largeTitle)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(result.ip)
@@ -159,7 +159,8 @@ struct IPLookupToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 3. ASN Card
@@ -197,7 +198,8 @@ struct IPLookupToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 4. Geolocation Card
@@ -226,7 +228,8 @@ struct IPLookupToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -259,24 +262,7 @@ struct IPLookupToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Circle().frame(width: 36, height: 36)
-                    VStack(alignment: .leading) {
-                        Text("1.1.1.1").font(.title3.weight(.bold))
-                        Text("San Francisco, United States")
-                    }
-                }
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

@@ -68,7 +68,6 @@ struct AppIconPickerView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("App Icon")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {

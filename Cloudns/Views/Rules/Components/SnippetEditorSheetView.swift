@@ -61,6 +61,7 @@ struct SnippetEditorSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

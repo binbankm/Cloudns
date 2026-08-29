@@ -26,42 +26,26 @@ struct PagesDeploymentDetailView: View {
         List {
             // MARK: - Overview
             Section(header: Text("Deployment Overview")) {
-                HStack {
-                    Text("Status")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent {
                     CloudnsBadge(isSuccess ? .active(deployment.latestStage?.status?.capitalized ?? "Success") : .warning(deployment.latestStage?.status?.capitalized ?? "Pending"), isCompact: true)
+                } label: {
+                    Text("Status")
                 }
                 
                 if let env = deployment.environment {
-                    HStack {
-                        Text("Environment")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(env.capitalized)
-                            .foregroundStyle(.primary)
-                    }
+                    LabeledContent("Environment", value: env.capitalized)
                 }
                 
                 if let branch = deployment.deploymentTrigger?.metadata?.branch {
-                    HStack {
-                        Text("Branch")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(branch)
-                            .font(.body)
-                            .foregroundStyle(.primary)
-                    }
+                    LabeledContent("Branch", value: branch)
                 }
                 
                 if let hash = deployment.deploymentTrigger?.metadata?.commitHash {
-                    HStack {
-                        Text("Commit")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent {
                         Text(String(hash.prefix(7)))
                             .font(.body.monospacedDigit())
-                            .foregroundStyle(.primary)
+                    } label: {
+                        Text("Commit")
                     }
                 }
                 
@@ -156,7 +140,7 @@ struct PagesDeploymentDetailView: View {
                 if viewModel.isLoadingLogs {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(0..<4, id: \.self) { idx in
-                            RoundedRectangle(cornerRadius: 3)
+                            RoundedRectangle(cornerRadius: 3, style: .continuous)
                                 .fill(Color.secondary.opacity(0.25))
                                 .frame(height: 10)
                                 .frame(maxWidth: idx == 3 ? 180 : .infinity)
@@ -164,8 +148,8 @@ struct PagesDeploymentDetailView: View {
                     }
                     .padding(10)
                     .background(Color.black.opacity(0.85))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .skeletonLoading(true)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .redacted(reason: .placeholder)
                 } else if viewModel.logs.isEmpty {
                     Text("No build logs available for this deployment.")
                         .font(.footnote)
@@ -181,16 +165,16 @@ struct PagesDeploymentDetailView: View {
                         }
                         .padding(8)
                         .background(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .scrollIndicators(.hidden)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Deployment Details")
         .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Done") { dismiss() }

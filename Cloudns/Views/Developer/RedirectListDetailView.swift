@@ -20,30 +20,11 @@ struct RedirectListDetailView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Redirect Items"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                Section(header: Text("List Metadata")) {
-                    HStack {
-                        Text("Name")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(list.name)
-                            .font(.body.weight(.medium))
-                    }
+        List {
+            Section(header: Text("List Metadata")) {
+                    LabeledContent("Name", value: list.name)
                     
-                    HStack {
-                        Text("List ID")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("List ID") {
                         Text(list.id)
                             .font(.caption.monospaced())
                             .foregroundStyle(.secondary)
@@ -55,7 +36,7 @@ struct RedirectListDetailView: View {
                         ForEach(RedirectListItem.placeholders) { placeholder in
                             redirectItemRow(placeholder)
                         }
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                     } else if filteredItems.isEmpty {
                         Text(searchText.isEmpty ? "No redirect items in this list." : "No redirect items matching '\(searchText)'")
                             .font(.subheadline)
@@ -77,9 +58,11 @@ struct RedirectListDetailView: View {
             }
             .listStyle(.insetGrouped)
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
-        }
-        .background(Color(.systemGroupedBackground))
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "Search Redirect Items"
+            )
         .navigationTitle(list.name)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

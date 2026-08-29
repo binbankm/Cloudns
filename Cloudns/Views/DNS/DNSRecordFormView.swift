@@ -272,9 +272,9 @@ struct DNSRecordFormView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle(existingRecord == nil ? "Add Record" : "Edit Record")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -300,7 +300,7 @@ struct DNSRecordFormView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             }

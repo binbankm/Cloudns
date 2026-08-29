@@ -48,12 +48,26 @@ struct D1ConsoleView: View {
             // MARK: - Database Tables
             Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
-                    HStack {
-                        ProgressView()
-                            .padding(.trailing, 6)
-                        Text("Discovering tables...")
-                            .foregroundStyle(.secondary)
+                    ForEach(["users", "sessions", "analytics"], id: \.self) { placeholderName in
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue.opacity(0.12))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "tablecells")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.blue)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(placeholderName)
+                                    .font(.body.weight(.medium))
+                                Text("Table schema")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
+                    .redacted(reason: .placeholder)
                 } else if viewModel.tables.isEmpty {
                     Text("No tables found. Create a table using SQL below.")
                         .font(.subheadline)
@@ -70,7 +84,7 @@ struct D1ConsoleView: View {
                                         .accessibilityHidden(true)
                                 }
                                 .frame(width: 32, height: 32)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                                 
                                 Text(tableName)
                                     .font(.body.weight(.medium))
@@ -99,7 +113,7 @@ struct D1ConsoleView: View {
                                     .padding(.vertical, 5)
                                     .background(Color(.secondarySystemFill))
                                     .foregroundStyle(.purple)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                             }
                         }
                     }
@@ -180,7 +194,6 @@ struct D1ConsoleView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .refreshable {
             await viewModel.fetchTables()
         }

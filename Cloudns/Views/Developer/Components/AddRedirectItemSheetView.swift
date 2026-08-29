@@ -49,6 +49,7 @@ struct AddRedirectItemSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect Item")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

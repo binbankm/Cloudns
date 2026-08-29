@@ -92,6 +92,7 @@ struct R2UploadObjectSheetView: View {
             }
             .navigationTitle("Upload Object")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.item]) { result in
                 switch result {
                 case .success(let url):

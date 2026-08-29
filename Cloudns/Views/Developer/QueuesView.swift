@@ -16,56 +16,48 @@ struct QueuesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Queues"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(CFQueue.placeholders) { placeholderQueue in
-                            queueRow(placeholderQueue)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(CFQueue.placeholders) { placeholderQueue in
+                        queueRow(placeholderQueue)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredQueues.isEmpty {
-                    Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
-                        ForEach(viewModel.filteredQueues) { queue in
-                            NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
-                                queueRow(queue)
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredQueues.isEmpty {
+                Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
+                    ForEach(viewModel.filteredQueues) { queue in
+                        NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
+                            queueRow(queue)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                queueToDelete = queue
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    queueToDelete = queue
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                Button {
-                                    HapticManager.impact(.light)
-                                    queueToPurge = queue
-                                    showingPurgeAlert = true
-                                } label: {
-                                    Label("Purge", systemImage: "xmark.bin")
-                                }
-                                .tint(.orange)
+                            Button {
+                                HapticManager.impact(.light)
+                                queueToPurge = queue
+                                showingPurgeAlert = true
+                            } label: {
+                                Label("Purge", systemImage: "xmark.bin")
                             }
+                            .tint(.orange)
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Queues"
+        )
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -144,7 +136,7 @@ struct QueuesView: View {
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.pink.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
@@ -168,7 +160,7 @@ struct QueuesView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.orange.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
         }
         .padding(.vertical, 2)

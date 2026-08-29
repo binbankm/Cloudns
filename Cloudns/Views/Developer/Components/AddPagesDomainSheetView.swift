@@ -33,6 +33,7 @@ struct AddPagesDomainSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Custom Domain")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

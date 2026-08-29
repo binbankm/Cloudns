@@ -45,6 +45,7 @@ struct WorkerEditVariableSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Edit Variable")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

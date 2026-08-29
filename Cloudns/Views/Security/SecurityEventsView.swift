@@ -18,37 +18,29 @@ struct SecurityEventsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search IP, Country or Action"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(SecurityEvent.placeholders) { placeholderEvent in
-                            SecurityEventCardView(event: placeholderEvent)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(SecurityEvent.placeholders) { placeholderEvent in
+                        SecurityEventCardView(event: placeholderEvent)
                     }
-                    .skeletonLoading(true)
-                } else if !displayedEvents.isEmpty {
-                    Section {
-                        ForEach(displayedEvents) { event in
-                            SecurityEventCardView(event: event)
-                        }
+                }
+                .redacted(reason: .placeholder)
+            } else if !displayedEvents.isEmpty {
+                Section {
+                    ForEach(displayedEvents) { event in
+                        SecurityEventCardView(event: event)
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search IP, Country or Action"
+        )
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {

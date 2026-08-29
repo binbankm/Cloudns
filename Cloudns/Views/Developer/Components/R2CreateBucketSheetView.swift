@@ -91,6 +91,7 @@ struct R2CreateBucketSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create R2 Bucket")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

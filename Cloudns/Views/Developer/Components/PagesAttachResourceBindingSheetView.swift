@@ -101,11 +101,15 @@ struct PagesAttachResourceBindingSheetView: View {
                 Section(header: Text("Target Resource")) {
                     if isLoadingResources {
                         HStack {
-                            ProgressView().scaleEffect(0.8)
-                            Text("Loading resources...")
-                                .font(.caption)
+                            Text("Select Target Resource")
+                                .font(.body)
                                 .foregroundStyle(.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                         }
+                        .redacted(reason: .placeholder)
                         .padding(.vertical, 4)
                     } else {
                         resourceSelector
@@ -123,6 +127,7 @@ struct PagesAttachResourceBindingSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Pages Binding")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

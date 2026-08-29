@@ -244,11 +244,7 @@ struct PagesProjectDetailView: View {
                     PagesAnalyticsView(accountId: accountId, projectName: project.name)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "chart.xyaxis.line")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "chart.xyaxis.line", color: .purple)
                         Text("Analytics & Metrics")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -259,11 +255,7 @@ struct PagesProjectDetailView: View {
                     PagesDeploymentsListView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "clock.arrow.circlepath", color: .orange)
                         Text("Deployments History")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -279,11 +271,7 @@ struct PagesProjectDetailView: View {
                     showingDomainsSheet = true
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "globe")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "globe", color: .blue)
                         Text("Custom Domains")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -303,11 +291,7 @@ struct PagesProjectDetailView: View {
                     PagesBindingsView(accountId: accountId, project: project)
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.body)
-                            .foregroundStyle(.purple)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "slider.horizontal.3", color: .indigo)
                         Text("Bindings & Variables")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -318,11 +302,7 @@ struct PagesProjectDetailView: View {
                     showingBuildConfigSheet = true
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "gearshape")
-                            .font(.body)
-                            .foregroundStyle(.orange)
-                            .frame(width: 24)
-                            .accessibilityHidden(true)
+                        ListRowIcon(icon: "gearshape.fill", color: .orange)
                         Text("Build Configuration")
                             .foregroundStyle(.primary)
                         Spacer()
@@ -337,6 +317,5 @@ struct PagesProjectDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
     }
 }

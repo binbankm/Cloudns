@@ -202,7 +202,7 @@ struct SSLSettingsView: View {
                     Picker("Encryption Mode", selection: .constant("full")) {
                         Text("Full").tag("full")
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
                 
                 Section(header: Text("Edge Certificates")) {
@@ -212,7 +212,7 @@ struct SSLSettingsView: View {
                             Text("Redirect all HTTP requests to HTTPS.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                     
                     Toggle(isOn: .constant(true)) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -220,11 +220,10 @@ struct SSLSettingsView: View {
                             Text("Automatically rewrite HTTP resources to HTTPS.")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             }
         }
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

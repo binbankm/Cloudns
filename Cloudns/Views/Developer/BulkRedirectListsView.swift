@@ -14,48 +14,40 @@ struct BulkRedirectListsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Lists"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(RedirectList.placeholders) { placeholder in
-                            listRow(placeholder)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(RedirectList.placeholders) { placeholder in
+                        listRow(placeholder)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredLists.isEmpty {
-                    Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
-                        ForEach(viewModel.filteredLists) { item in
-                            NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
-                                listRow(item)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    listToDelete = item
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredLists.isEmpty {
+                Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
+                    ForEach(viewModel.filteredLists) { item in
+                        NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
+                            listRow(item)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                listToDelete = item
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Lists"
+        )
         .navigationTitle("Redirect Lists")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -126,7 +118,7 @@ struct BulkRedirectListsView: View {
                 .font(.title3)
                 .frame(width: 32, height: 32)
                 .background(Color.indigo.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

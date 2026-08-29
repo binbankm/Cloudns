@@ -44,36 +44,21 @@ struct FeedbackView: View {
                 header: Text("Environment Diagnostics"),
                 footer: Text("Diagnostics info helps developers identify and resolve technical issues faster.")
             ) {
-                HStack {
-                    Text("App Version")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("App Version") {
                     Text("v\(appVersion) (\(buildNumber))")
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
-                HStack {
-                    Text("iOS System")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text("iOS \(systemVersion)")
-                        .foregroundStyle(.primary)
-                }
+                LabeledContent("iOS System", value: "iOS \(systemVersion)")
                 
-                HStack {
-                    Text("Account")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Account") {
                     Text(accountManager.activeEmail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack {
-                    Text("Local Time")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Local Time") {
                     Text(DateFormatters.formatLocalDiagnosticTimestamp())
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
@@ -85,7 +70,7 @@ struct FeedbackView: View {
                     ToastManager.shared.showCopied("Diagnostics copied")
                 } label: {
                     HStack {
-                        Image(systemName: "doc.on.doc")
+                        Image(systemName: "doc.on.doc").font(.subheadline)
                         Text("Copy Diagnostic Info")
                     }
                     .font(.subheadline)
@@ -112,7 +97,6 @@ struct FeedbackView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle("Feedback & Support")
         .navigationBarTitleDisplayMode(.inline)
     }

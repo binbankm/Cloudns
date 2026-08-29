@@ -30,46 +30,38 @@ struct DNSRecordsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchQuery,
-                prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List(selection: $multiSelection) {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(DNSRecord.placeholders) { placeholderRecord in
-                            DNSRecordRowView(record: placeholderRecord)
-                        }
-                    }
-                    .skeletonLoading(true)
-                } else if !displayRecords.isEmpty {
-                    recordsSections
-
-                    if viewModel.canLoadMore && viewModel.hasFetchedData {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets())
-                            .onAppear {
-                                Task {
-                                    await viewModel.fetchRecords()
-                                }
-                            }
+        List(selection: $multiSelection) {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(DNSRecord.placeholders) { placeholderRecord in
+                        DNSRecordRowView(record: placeholderRecord)
                     }
                 }
+                .redacted(reason: .placeholder)
+            } else if !displayRecords.isEmpty {
+                recordsSections
+
+                if viewModel.canLoadMore && viewModel.hasFetchedData {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                        .onAppear {
+                            Task {
+                                await viewModel.fetchRecords()
+                            }
+                        }
+                }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchQuery,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
+        )
         .navigationTitle("DNS Records")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

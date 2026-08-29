@@ -20,30 +20,22 @@ struct ZonesListView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                CloudnsSearchBar(
-                    text: $searchText,
-                    prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
-                )
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-                .background(Color(.systemGroupedBackground))
-                
-                List {
-                    if !viewModel.hasFetchedData && viewModel.isLoading {
-                        skeletonSection
-                    } else if !displayedZones.isEmpty {
-                        zonesSection
-                    }
+            List {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    skeletonSection
+                } else if !displayedZones.isEmpty {
+                    zonesSection
                 }
-                .listStyle(.insetGrouped)
-                .scrollDismissesKeyboard(.interactively)
-                .centerConstrainedWidth(maxWidth: 840)
             }
-            .background(Color(.systemGroupedBackground))
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
+            )
             .navigationTitle("My Domains")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .refreshable {
                 await viewModel.fetchZones(isRefresh: true)
             }
@@ -119,7 +111,7 @@ struct ZonesListView: View {
                 ZoneRowView(zone: placeholderZone)
             }
         }
-        .skeletonLoading(true)
+        .redacted(reason: .placeholder)
     }
     
     private var zonesSection: some View {

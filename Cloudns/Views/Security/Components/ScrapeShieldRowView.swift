@@ -11,15 +11,13 @@ struct ScrapeShieldRowView: View {
     let isLoading: Bool
     
     var body: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                iconColor.opacity(0.15)
-                Image(systemName: icon)
-                    .foregroundStyle(iconColor)
-                    .font(.body)
-            }
-            .frame(width: 36, height: 36)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(iconColor)
+                .frame(width: 32, height: 32)
+                .background(iconColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {

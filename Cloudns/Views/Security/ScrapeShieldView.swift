@@ -103,13 +103,12 @@ struct ScrapeShieldView: View {
                             isOn: .constant(true),
                             isLoading: true
                         )
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 StateOverlayView(

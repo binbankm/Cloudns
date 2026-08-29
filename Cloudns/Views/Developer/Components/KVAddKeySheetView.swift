@@ -45,6 +45,7 @@ struct KVAddKeySheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Key / Value")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

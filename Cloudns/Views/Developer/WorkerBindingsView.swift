@@ -55,7 +55,6 @@ struct WorkerBindingsView: View {
             }
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Bindings & Variables")
@@ -240,7 +239,7 @@ struct WorkerBindingsView: View {
                 .foregroundStyle(bindingColor(for: binding.type))
                 .frame(width: 32, height: 32)
                 .background(bindingColor(for: binding.type).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
@@ -316,7 +315,7 @@ struct WorkerBindingsView: View {
                             Text("value")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             } else if secretsViewModel.plainVariables.isEmpty {
                 HStack {
@@ -335,7 +334,7 @@ struct WorkerBindingsView: View {
                             .foregroundStyle(.blue)
                             .frame(width: 32, height: 32)
                             .background(Color.blue.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             .accessibilityHidden(true)
                         
                         VStack(alignment: .leading, spacing: 3) {
@@ -425,7 +424,7 @@ struct WorkerBindingsView: View {
                             Text("••••••••")
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 }
             } else if secretsViewModel.secrets.isEmpty {
                 HStack {
@@ -444,7 +443,7 @@ struct WorkerBindingsView: View {
                             .foregroundStyle(.orange)
                             .frame(width: 32, height: 32)
                             .background(Color.orange.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             .accessibilityHidden(true)
                         
                         VStack(alignment: .leading, spacing: 3) {

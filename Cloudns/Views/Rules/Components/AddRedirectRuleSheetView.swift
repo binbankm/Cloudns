@@ -63,6 +63,7 @@ struct AddRedirectRuleSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

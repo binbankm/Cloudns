@@ -28,6 +28,7 @@ struct CreateBulkRedirectListSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Redirect List")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

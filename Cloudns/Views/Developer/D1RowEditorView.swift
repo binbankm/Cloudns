@@ -73,7 +73,7 @@ struct D1RowEditorView: View {
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color(.secondarySystemFill))
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
                                 
                                 TextField(
@@ -111,6 +111,7 @@ struct D1RowEditorView: View {
             .scrollDismissesKeyboard(.interactively)
         .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

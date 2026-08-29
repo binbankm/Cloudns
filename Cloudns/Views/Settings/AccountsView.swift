@@ -62,7 +62,6 @@ struct AccountsView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("Accounts")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

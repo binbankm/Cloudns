@@ -16,62 +16,54 @@ struct EdgeCertificatesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Certificates"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                Section(
-                    header: Text("Universal SSL"),
-                    footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
-                ) {
-                    Toggle("Enable Universal SSL", isOn: Binding(
-                        get: { viewModel.isUniversalSSLEnabled },
-                        set: { newValue in
-                            HapticManager.impact(.light)
-                            Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
-                        }
-                    ))
-                }
-                
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
-                            EdgeCertificateCardView(certificate: placeholderCert)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                        }
+        List {
+            Section(
+                header: Text("Universal SSL"),
+                footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
+            ) {
+                Toggle("Enable Universal SSL", isOn: Binding(
+                    get: { viewModel.isUniversalSSLEnabled },
+                    set: { newValue in
+                        HapticManager.impact(.light)
+                        Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
                     }
-                    .skeletonLoading(true)
-                } else if !displayedCertificates.isEmpty {
-                    Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
-                        ForEach(displayedCertificates) { cert in
-                            EdgeCertificateCardView(certificate: cert)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    if cert.type.lowercased() != "universal" {
-                                        Button(role: .destructive) {
-                                            HapticManager.impact(.medium)
-                                            Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
+                ))
+            }
+            
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
+                        EdgeCertificateCardView(certificate: placeholderCert)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    }
+                }
+                .redacted(reason: .placeholder)
+            } else if !displayedCertificates.isEmpty {
+                Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
+                    ForEach(displayedCertificates) { cert in
+                        EdgeCertificateCardView(certificate: cert)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                if cert.type.lowercased() != "universal" {
+                                    Button(role: .destructive) {
+                                        HapticManager.impact(.medium)
+                                        Task { await viewModel.deleteCertificate(zoneId: zoneId, cert: cert) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                        }
+                            }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Certificates"
+        )
         .overlay {
             if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {

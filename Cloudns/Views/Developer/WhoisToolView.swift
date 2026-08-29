@@ -16,7 +16,8 @@ struct WhoisToolView: View {
                     queryCard
                     
                     if viewModel.isLoading && viewModel.info == nil {
-                        loadingSkeletonView
+                        registrationCard(info: WhoisInfo.placeholder)
+                            .redacted(reason: .placeholder)
                     } else if let info = viewModel.info {
                         // 2. Registration Hero Card
                         registrationCard(info: info)
@@ -36,12 +37,10 @@ struct WhoisToolView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .centerConstrainedWidth(maxWidth: 840)
             }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 if !viewModel.domainInput.isEmpty {
-                    HapticManager.impact(.light)
                     await viewModel.performLookup()
                 }
             }
@@ -115,7 +114,7 @@ struct WhoisToolView: View {
                             .controlSize(.small)
                             .tint(.white)
                     } else {
-                        Image(systemName: "globe")
+                        Image(systemName: "globe").font(.body).symbolRenderingMode(.hierarchical)
                     }
                     Text(viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory")
                         .font(.body.weight(.semibold))
@@ -129,7 +128,8 @@ struct WhoisToolView: View {
             .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func performLookup() {
@@ -189,7 +189,8 @@ struct WhoisToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     @ViewBuilder
@@ -229,7 +230,8 @@ struct WhoisToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 4. Nameservers Card
@@ -268,7 +270,8 @@ struct WhoisToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Error Card
@@ -288,25 +291,8 @@ struct WhoisToolView: View {
             }
         }
         .padding(16)
-        .cloudnsCard(style: .frosted, cornerRadius: 16)
-    }
-    
-    // MARK: - Skeleton View
-    private var loadingSkeletonView: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Domain Registration")
-                    .font(.caption)
-                Text("example.com")
-                    .font(.title3.weight(.bold))
-                Divider()
-                Text("Created Date")
-                Text("Expiration Date")
-            }
-            .padding(16)
-            .cloudnsCard(style: .frosted, cornerRadius: 16)
-            .skeletonLoading(true)
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func formatDate(_ date: Date) -> String {

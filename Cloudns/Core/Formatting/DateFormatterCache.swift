@@ -103,9 +103,18 @@ enum DateFormatters {
         }
     }
     
-    /// 将 ISO8601 字符串解析为 Date（优先尝试值类型 strategy，其次尝试无时区回退）
+    private static let iso8601FractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    /// 将 ISO8601 字符串解析为 Date（优先尝试带毫秒/纳秒，其次尝试值类型 strategy，再次尝试无时区回退）
     static func parseISO8601(_ string: String) -> Date? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let date = iso8601FractionalFormatter.date(from: trimmed) {
+            return date
+        }
         if let date = try? Date(trimmed, strategy: .iso8601) {
             return date
         }

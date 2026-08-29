@@ -163,14 +163,13 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
                     .padding(.horizontal, 24)
                 }
                 .padding(.bottom, 28)
             }
-            .centerConstrainedWidth(maxWidth: 520)
         }
     }
 }

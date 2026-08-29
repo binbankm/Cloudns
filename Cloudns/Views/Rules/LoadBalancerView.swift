@@ -36,15 +36,6 @@ struct LoadBalancerView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Load Balancers, Pools, Monitors"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
             Picker("Section", selection: $selectedTab) {
                 Text("Load Balancers").tag(0)
                 Text("Pools").tag(1)
@@ -56,8 +47,12 @@ struct LoadBalancerView: View {
             .background(Color(.systemGroupedBackground))
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Load Balancers, Pools, Monitors"
+        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
@@ -100,7 +95,7 @@ struct LoadBalancerView: View {
                             lbRow(placeholderLB)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !displayedLoadBalancers.isEmpty {
                     Section(header: Text("Load Balancers (\(displayedLoadBalancers.count))")) {
                         ForEach(displayedLoadBalancers) { lb in
@@ -126,7 +121,7 @@ struct LoadBalancerView: View {
                             poolRow(placeholderPool)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !displayedPools.isEmpty {
                     Section(header: Text("Origin Pools (\(displayedPools.count))")) {
                         ForEach(displayedPools) { pool in
@@ -151,7 +146,7 @@ struct LoadBalancerView: View {
                             monRow(placeholderMon)
                         }
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if !displayedMonitors.isEmpty {
                     Section(header: Text("Monitors (\(displayedMonitors.count))")) {
                         ForEach(displayedMonitors) { monitor in
@@ -267,7 +262,7 @@ struct LoadBalancerView: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color(.secondarySystemFill))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
             }

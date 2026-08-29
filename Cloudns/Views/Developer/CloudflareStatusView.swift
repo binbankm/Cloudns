@@ -63,15 +63,6 @@ struct CloudflareStatusView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $searchText,
-                prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
             // Segmented Picker Header (Standard pattern across app)
             Picker("Category", selection: $selectedTab) {
                 Text(viewModel.hasFetchedData ? "Issues (\(issuesComponents.count))" : "Issues").tag(StatusFilterTab.issues)
@@ -84,8 +75,12 @@ struct CloudflareStatusView: View {
             .background(Color(.systemGroupedBackground))
             
             contentView
-                .centerConstrainedWidth(maxWidth: 840)
         }
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
+        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
@@ -93,7 +88,7 @@ struct CloudflareStatusView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if let url = URL(string: "https://www.cloudflarestatus.com") {
                     Link(destination: url) {
-                        Image(systemName: "safari")
+                        Image(systemName: "safari").font(.subheadline)
                             .accessibilityLabel("Open Statuspage in Browser")
                     }
                 }
@@ -126,7 +121,7 @@ struct CloudflareStatusView: View {
                         componentRow(comp)
                     }
                 }
-                .skeletonLoading(true)
+                .redacted(reason: .placeholder)
             } else if let summary = viewModel.summary {
                 // MARK: - Overall Banner
                 if searchText.isEmpty {

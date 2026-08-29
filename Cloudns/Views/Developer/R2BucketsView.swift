@@ -13,50 +13,42 @@ struct R2BucketsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search R2 Buckets"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
-            List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(R2Bucket.placeholders) { placeholderBucket in
-                            R2BucketRowView(bucket: placeholderBucket)
-                        }
+        List {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                Section {
+                    ForEach(R2Bucket.placeholders) { placeholderBucket in
+                        R2BucketRowView(bucket: placeholderBucket)
                     }
-                    .skeletonLoading(true)
-                } else if !viewModel.filteredBuckets.isEmpty {
-                    Section {
-                        ForEach(viewModel.filteredBuckets) { bucket in
-                            NavigationLink {
-                                R2BucketDetailView(accountId: accountId, bucket: bucket)
+                }
+                .redacted(reason: .placeholder)
+            } else if !viewModel.filteredBuckets.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredBuckets) { bucket in
+                        NavigationLink {
+                            R2BucketDetailView(accountId: accountId, bucket: bucket)
+                        } label: {
+                            R2BucketRowView(bucket: bucket)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HapticManager.impact(.medium)
+                                bucketToDelete = bucket
+                                showingDeleteAlert = true
                             } label: {
-                                R2BucketRowView(bucket: bucket)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HapticManager.impact(.medium)
-                                    bucketToDelete = bucket
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
         }
-        .background(Color(.systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search R2 Buckets"
+        )
         .navigationTitle("R2 Object Storage")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable { await viewModel.fetchBuckets() }

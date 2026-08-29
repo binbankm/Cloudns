@@ -49,6 +49,7 @@ struct AddLBMonitorSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Health Monitor")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -17,15 +17,6 @@ struct WorkerSecretsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CloudnsSearchBar(
-                text: $viewModel.searchText,
-                prompt: "Search Variables & Secrets"
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 4)
-            .background(Color(.systemGroupedBackground))
-            
             Picker("Type", selection: $viewModel.selectedTab) {
                 Text(viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables").tag("variables")
                 Text(viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets").tag("secrets")
@@ -36,8 +27,12 @@ struct WorkerSecretsView: View {
             .background(Color(.systemGroupedBackground))
             
             contentList
-                .centerConstrainedWidth(maxWidth: 840)
         }
+        .searchable(
+            text: $viewModel.searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Variables & Secrets"
+        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Variables & Secrets")
         .navigationBarTitleDisplayMode(.inline)
@@ -101,7 +96,7 @@ struct WorkerSecretsView: View {
                             }
                             Spacer()
                         }
-                        .skeletonLoading(true)
+                        .redacted(reason: .placeholder)
                     }
                 }
             } else if viewModel.selectedTab == "variables" {
@@ -191,7 +186,7 @@ struct WorkerSecretsView: View {
                 .foregroundStyle(.blue)
                 .frame(width: 30, height: 30)
                 .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -269,7 +264,7 @@ struct WorkerSecretsView: View {
                 .foregroundStyle(.orange)
                 .frame(width: 30, height: 30)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -292,7 +287,7 @@ struct WorkerSecretsView: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 2)
                 .background(Color.green.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
         }
         .padding(.vertical, 3)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {

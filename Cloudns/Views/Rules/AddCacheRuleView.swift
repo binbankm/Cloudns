@@ -89,7 +89,6 @@ struct AddCacheRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Cache Rule")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -117,7 +116,7 @@ struct AddCacheRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )

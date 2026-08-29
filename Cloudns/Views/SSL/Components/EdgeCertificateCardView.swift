@@ -34,7 +34,7 @@ struct EdgeCertificateCardView: View {
                         .accessibilityHidden(true)
                 }
                 .frame(width: 28, height: 28)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
                 Text(certificate.type.capitalized)
                     .font(.body.weight(.medium))
@@ -104,7 +104,7 @@ struct EdgeCertificateCardView: View {
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
         .padding(.vertical, 4)
     }

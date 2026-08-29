@@ -62,6 +62,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(isSecret ? "Add Secret" : "Add Variable")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

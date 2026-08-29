@@ -70,7 +70,7 @@ struct WorkerRoutesView: View {
                     ForEach(WorkerCustomDomain.placeholders) { dom in
                         domainRow(dom)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(.subheadline)
@@ -104,7 +104,7 @@ struct WorkerRoutesView: View {
                                 .foregroundStyle(.blue)
                                 .frame(width: 30, height: 30)
                                 .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                 .accessibilityHidden(true)
                             
                             Text(route)
@@ -117,7 +117,6 @@ struct WorkerRoutesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .overlay {
             if hasFetchedData {
                 if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
@@ -140,7 +139,7 @@ struct WorkerRoutesView: View {
                 .foregroundStyle(.orange)
                 .frame(width: 30, height: 30)
                 .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {

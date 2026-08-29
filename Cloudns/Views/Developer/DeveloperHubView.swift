@@ -17,7 +17,7 @@ struct DeveloperHubView: View {
         NavigationStack {
             contentView
                 .navigationTitle("Developer Hub")
-                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.large)
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
                 Task { await viewModel.fetchOverview(isRefresh: true) }
@@ -251,9 +251,7 @@ struct DeveloperHubView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .centerConstrainedWidth(maxWidth: 840)
             .refreshable {
-                HapticManager.impact(.light)
                 await viewModel.fetchOverview(isRefresh: true)
             }
         }
@@ -291,12 +289,12 @@ struct DeveloperHubView: View {
                 metricItem(title: "R2", value: "\(viewModel.r2Buckets.count)")
                 metricItem(title: "Tunnels", value: "\(viewModel.tunnels.count)")
             }
-            .skeletonLoading(!viewModel.hasFetchedData)
+            .redacted(reason: !viewModel.hasFetchedData ? .placeholder : [])
         }
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.15, green: 0.45, blue: 0.95), Color(red: 0.08, green: 0.30, blue: 0.75)],
+                colors: [Color.blue, Color.blue.opacity(0.75)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -309,7 +307,9 @@ struct DeveloperHubView: View {
     
     private func metricItem(title: LocalizedStringKey, value: String) -> some View {
         VStack(spacing: 2) {
-            CloudnsRollingNumber(value: value, font: .headline, weight: .bold, color: .white)
+            Text(value)
+                .font(.headline.weight(.bold).monospacedDigit())
+                .foregroundStyle(.white)
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.8))

@@ -19,7 +19,7 @@ struct KVValueSheetView: View {
                             .foregroundStyle(.purple)
                             .frame(width: 36, height: 36)
                             .background(Color.purple.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             .accessibilityHidden(true)
                         
                         VStack(alignment: .leading, spacing: 2) {
@@ -44,26 +44,33 @@ struct KVValueSheetView: View {
                                 .foregroundStyle(.purple)
                                 .padding(8)
                                 .background(Color.purple.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Copy Key Name")
                     }
                     .padding(12)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     
                     // 2. Value Content Box
                     if isLoading {
-                        VStack(spacing: 12) {
-                            ProgressView()
-                                .scaleEffect(1.1)
-                            Text("Loading value...")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("VALUE CONTENT")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                            Text("Cloudflare KV Key Value Placeholder Payload\nKey configuration metadata\nEncrypted content")
+                                .font(.subheadline.monospaced())
+                                .foregroundStyle(.primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(14)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 50)
+                        .redacted(reason: .placeholder)
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
@@ -106,7 +113,7 @@ struct KVValueSheetView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(14)
                                 .background(Color(.secondarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                 .textSelection(.enabled)
                         }
                     }
@@ -116,6 +123,7 @@ struct KVValueSheetView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("KV Value Inspector")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

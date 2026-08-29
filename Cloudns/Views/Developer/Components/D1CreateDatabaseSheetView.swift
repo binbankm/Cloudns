@@ -32,6 +32,7 @@ struct D1CreateDatabaseSheetView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New D1 Database")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

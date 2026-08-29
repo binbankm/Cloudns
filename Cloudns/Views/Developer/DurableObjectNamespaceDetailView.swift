@@ -14,20 +14,14 @@ struct DurableObjectNamespaceDetailView: View {
     var body: some View {
         List {
             Section(header: Text("Namespace Details")) {
-                HStack {
-                    Text("Namespace ID")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent("Namespace ID") {
                     Text(namespace.id)
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 
                 if let scr = namespace.script {
-                    HStack {
-                        Text("Bound Worker Script")
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                    LabeledContent("Bound Worker Script") {
                         Text(scr)
                             .font(.subheadline.monospaced())
                     }
@@ -49,7 +43,7 @@ struct DurableObjectNamespaceDetailView: View {
                     ForEach(DurableObjectInstance.placeholders) { placeholder in
                         instanceRow(placeholder)
                     }
-                    .skeletonLoading(true)
+                    .redacted(reason: .placeholder)
                 } else if let err = errorMessage, objects.isEmpty {
                     Text(err)
                         .font(.caption)
@@ -66,7 +60,6 @@ struct DurableObjectNamespaceDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .centerConstrainedWidth(maxWidth: 840)
         .navigationTitle(namespace.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

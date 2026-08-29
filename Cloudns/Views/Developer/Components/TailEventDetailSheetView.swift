@@ -60,6 +60,7 @@ struct TailEventDetailSheetView: View {
             }
             .navigationTitle("Event Details")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }

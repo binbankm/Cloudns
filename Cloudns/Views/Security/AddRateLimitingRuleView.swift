@@ -95,7 +95,6 @@ struct AddRateLimitingRuleView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .centerConstrainedWidth(maxWidth: 840)
             .navigationTitle("New Rate Limit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -122,7 +121,7 @@ struct AddRateLimitingRuleView: View {
                         ProgressView("Saving...")
                             .padding()
                             .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             )
