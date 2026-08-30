@@ -81,33 +81,6 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
         self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
         self.data = try container.decodeIfPresent(DNSRecordData.self, forKey: .data)
     }
-    
-    static var dummyData: [DNSRecord] {
-        return (0..<5).map { i in
-            DNSRecord(
-                id: "dummy-\(i)",
-                type: "A",
-                name: "example.com",
-                content: "192.168.1.1",
-                proxiable: true,
-                proxied: true,
-                ttl: 1,
-                locked: false,
-                zoneId: "dummy-zone",
-                zoneName: "example.com",
-                modifiedOn: nil,
-                createdOn: nil,
-                priority: nil,
-                comment: "Dummy comment",
-                tags: ["production", "api"],
-                data: nil
-            )
-        }
-    }
-    
-    static var placeholders: [DNSRecord] {
-        dummyData
-    }
 }
 
 struct DNSRecordData: Codable, Equatable, Sendable {

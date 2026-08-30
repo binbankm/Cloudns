@@ -18,150 +18,138 @@ struct WorkerSecretsView: View {
     }
     
     var body: some View {
-        let varsTitle = viewModel.hasFetchedData ? "Variables (\(viewModel.plainVariables.count))" : "Variables"
-        let secretsTitle = viewModel.hasFetchedData ? "Secrets (\(viewModel.secrets.count))" : "Secrets"
-        
-        VStack(spacing: 0) {
-            Picker("Type", selection: $viewModel.selectedTab) {
-                Text(varsTitle).tag("variables")
-                Text(secretsTitle).tag("secrets")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+        contentList
             .background(Color(.systemGroupedBackground))
-            .onChange(of: viewModel.selectedTab) { _ in
-                HIGFeedback.selection()
-            }
-            
-            contentList
-        }
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Variables & Secrets"
-        )
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Variables & Secrets")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingAddSheet = true
-                } label: {
-                    Image(systemName: "plus")
+            .navigationTitle("Variables & Secrets")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Variable or Secret")
                 }
-                .accessibilityLabel("Add Variable or Secret")
             }
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
-             .higToast()
-        }
-        .sheet(item: $variableToEdit) { v in
-            WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
-             .higToast()
-        }
-        .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
-            Button("Delete '\(item.name)'", role: .destructive) {
-                Task {
-                    do {
-                        if item.isSecret {
-                            try await viewModel.deleteSecret(name: item.name)
-                        } else {
-                            try await viewModel.deletePlainVariable(name: item.name)
+            .sheet(isPresented: $showingAddSheet) {
+                WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
+                    .higToast()
+            }
+            .sheet(item: $variableToEdit) { v in
+                WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
+                    .higToast()
+            }
+            .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+                if let item = itemToDelete {
+                    Button("Delete '\(item.name)'", role: .destructive) {
+                        Task {
+                            do {
+                                if item.isSecret {
+                                    try await viewModel.deleteSecret(name: item.name)
+                                } else {
+                                    try await viewModel.deletePlainVariable(name: item.name)
+                                }
+                                ToastManager.shared.showSuccess("Deleted '\(item.name)'", icon: "trash.fill")
+                                HIGFeedback.success()
+                            } catch {
+                                ToastManager.shared.showError("Failed to delete")
+                                HIGFeedback.error()
+                            }
                         }
-                        ToastManager.shared.showSuccess("\(item.isSecret ? "Secret" : "Variable") Deleted", icon: "trash.fill")
-                    } catch {
-                        ToastManager.shared.showError("Failed to delete item")
                     }
                 }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                if let item = itemToDelete {
+                    Text("Are you sure you want to delete \(item.isSecret ? "secret" : "variable") '\(item.name)'?")
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { item in
-            Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
-        }
-        .refreshable {
-            await viewModel.fetchSecrets()
-        }
-        .task {
-            if !viewModel.hasFetchedData {
+            .refreshable {
                 await viewModel.fetchSecrets()
             }
-        }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchSecrets()
+                }
+            }
     }
     
     @ViewBuilder
     private var contentList: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Variables & Secrets")) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("SECRET_KEY_PLACEHOLDER")
-                                    .font(.headline)
-                                Text("••••••••••••••••")
-                                    .font(.subheadline)
-                            }
-                            Spacer()
+            // MARK: - Plaintext Variables
+            if !viewModel.plainVariables.isEmpty {
+                Section(header: Text("Plaintext Variables (\(viewModel.plainVariables.count))")) {
+                    ForEach(viewModel.plainVariables) { item in
+                        Button {
+                            HIGFeedback.impact(.light)
+                            variableToEdit = item
+                        } label: {
+                            variableRow(name: item.name, value: item.text, isSecret: false)
                         }
-                        .redacted(reason: .placeholder)
-                    }
-                }
-            } else if viewModel.selectedTab == "variables" {
-                if !viewModel.filteredVariables.isEmpty {
-                    Section(header: Text("Plaintext Variables (\(viewModel.filteredVariables.count))")) {
-                        ForEach(viewModel.filteredVariables) { item in
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            if let val = item.text {
+                                Button {
+                                    UIPasteboard.general.string = val
+                                    ToastManager.shared.showCopied()
+                                    HIGFeedback.impact(.light)
+                                } label: {
+                                    Label("Copy Value", systemImage: "doc.on.doc")
+                                }
+                            }
+                            Button {
+                                UIPasteboard.general.string = item.name
+                                ToastManager.shared.showCopied()
+                                HIGFeedback.impact(.light)
+                            } label: {
+                                Label("Copy Key Name", systemImage: "doc.on.doc")
+                            }
                             Button {
                                 variableToEdit = item
                             } label: {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(item.name)
-                                            .font(.body.weight(.medium))
-                                            .foregroundStyle(.primary)
-                                        
-                                        if let text = item.text {
-                                            Text(text)
-                                                .font(.caption.monospaced())
-                                                .foregroundStyle(.secondary)
-                                                .lineLimit(2)
-                                        }
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption2.weight(.semibold))
-                                        .foregroundStyle(.tertiary)
-                                }
+                                Label("Edit Variable", systemImage: "pencil")
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
-                                    itemToDelete = (item.name, false)
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                            Button(role: .destructive) {
+                                itemToDelete = (item.name, false)
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Variable", systemImage: "trash")
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                itemToDelete = (item.name, false)
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-            } else {
-                if !viewModel.filteredSecrets.isEmpty {
-                    Section(header: Text("Encrypted Secrets (\(viewModel.filteredSecrets.count))")) {
-                        ForEach(viewModel.filteredSecrets) { secret in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(secret.name)
-                                        .font(.body.weight(.medium))
-                                        .foregroundStyle(.primary)
-                                    Text("••••••••••••••••")
-                                        .font(.caption.monospaced())
-                                        .foregroundStyle(.secondary)
+            }
+            
+            // MARK: - Encrypted Secrets
+            if !viewModel.secrets.isEmpty {
+                Section(header: Text("Encrypted Secrets (\(viewModel.secrets.count))")) {
+                    ForEach(viewModel.secrets) { secret in
+                        variableRow(name: secret.name, value: nil, isSecret: true)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = secret.name
+                                    ToastManager.shared.showCopied()
+                                    HIGFeedback.impact(.light)
+                                } label: {
+                                    Label("Copy Secret Name", systemImage: "doc.on.doc")
                                 }
-                                Spacer()
-                                HIGBadge(.custom(color: .indigo, text: "Secret"), isCompact: true)
+                                Button(role: .destructive) {
+                                    itemToDelete = (secret.name, true)
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete Secret", systemImage: "trash")
+                                }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -172,37 +160,72 @@ struct WorkerSecretsView: View {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
-                        }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
-                if viewModel.selectedTab == "variables" && viewModel.plainVariables.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Variables",
-                            systemImage: "slider.horizontal.3",
-                            description: "Plaintext environment variables accessible via env.VAR_NAME.",
-                            actionTitle: "Add Variable",
-                            action: { showingAddSheet = true }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Variables & Secrets..."))
+            } else if viewModel.hasFetchedData && viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Variables or Secrets",
+                        systemImage: "key.fill",
+                        description: "Configure plaintext environment variables and encrypted secrets for this Worker.",
+                        actionTitle: "Add Variable or Secret",
+                        action: { showingAddSheet = true }
                     )
-                } else if viewModel.selectedTab == "secrets" && viewModel.secrets.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Secrets",
-                            systemImage: "lock.shield",
-                            description: "Encrypted environment variables encrypted at rest and in transit.",
-                            actionTitle: "Add Secret",
-                            action: { showingAddSheet = true }
-                        )
-                    )
-                }
+                )
             }
         }
+    }
+    
+    @ViewBuilder
+    private func variableRow(name: String, value: String?, isSecret: Bool) -> some View {
+        HStack(spacing: 12) {
+            ListRowIcon(
+                icon: isSecret ? "lock.fill" : "textformat",
+                color: isSecret ? .purple : .blue,
+                size: 28,
+                cornerRadius: 6
+            )
+            
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(name)
+                        .font(.body.monospaced().weight(.semibold))
+                        .foregroundStyle(.primary)
+                    
+                    if isSecret {
+                        HIGBadge(.custom(color: .purple, text: "Secret"), isCompact: true)
+                    }
+                }
+                
+                if isSecret {
+                    Text("••••••••••••••••")
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                } else if let txt = value, !txt.isEmpty {
+                    Text(txt)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            
+            Spacer()
+            
+            if !isSecret {
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.vertical, 3)
+        .contentShape(Rectangle())
     }
 }
 

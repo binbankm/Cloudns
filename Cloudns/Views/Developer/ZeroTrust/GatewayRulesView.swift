@@ -17,14 +17,7 @@ struct GatewayRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(GatewayRule.placeholders) { placeholder in
-                        ruleRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredRules.isEmpty {
+            if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
@@ -71,7 +64,7 @@ struct GatewayRulesView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Rules"
         )
         .navigationTitle("Gateway Rules")
@@ -105,7 +98,9 @@ struct GatewayRulesView: View {
             await viewModel.fetchRules()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Gateway Rules..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     HIGContentState(
                         .error(

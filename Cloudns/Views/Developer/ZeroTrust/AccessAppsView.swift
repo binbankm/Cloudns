@@ -17,14 +17,7 @@ struct AccessAppsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AccessApp.placeholders) { placeholder in
-                        appRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredApps.isEmpty {
+            if !viewModel.filteredApps.isEmpty {
                 Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
                     ForEach(viewModel.filteredApps) { app in
                         NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
@@ -71,7 +64,7 @@ struct AccessAppsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Applications"
         )
         .navigationTitle("Access Applications")
@@ -102,7 +95,9 @@ struct AccessAppsView: View {
             await viewModel.fetchApps()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Access Applications..."))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
                     HIGContentState(
                         .error(

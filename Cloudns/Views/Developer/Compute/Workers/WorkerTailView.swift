@@ -48,7 +48,7 @@ struct WorkerTailView: View {
         }
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search logs & URLs"
         )
         .navigationTitle("Live Tail Logs")
@@ -120,36 +120,26 @@ struct WorkerTailView: View {
         }
     }
     
+    @ViewBuilder
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            if viewModel.isStreaming {
-                ProgressView()
-                    .scaleEffect(1.2)
-                Text("Listening for live worker events…")
-                    .font(.body.weight(.medium))
-                Text("Send an HTTP request or wait for a cron trigger to see logs appear in real time.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            } else {
-                Image(systemName: "pause.circle")
-                    .font(.largeTitle)
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
-                Text("Log stream paused")
-                    .font(.body.weight(.medium))
-                Button("Resume Stream") {
-                    HIGFeedback.impact(.light)
-                    Task { await viewModel.startStream() }
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            Spacer()
+        if viewModel.isStreaming {
+            HIGContentState(
+                .loading(message: "Listening for live Worker events...")
+            )
+        } else {
+            HIGContentState(
+                .empty(
+                    title: "Log Stream Paused",
+                    systemImage: "pause.circle",
+                    description: "Stream is paused. Tap Resume to start listening for live edge execution events.",
+                    actionTitle: "Resume Stream",
+                    action: {
+                        HIGFeedback.impact(.light)
+                        Task { await viewModel.startStream() }
+                    }
+                )
+            )
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
     }
 }
 

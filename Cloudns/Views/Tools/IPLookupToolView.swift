@@ -56,10 +56,14 @@ struct IPLookupToolView: View {
             }
             
             if viewModel.isLoading && viewModel.lookupResult == nil {
-                Section(header: Text("IP Identification")) {
-                    identificationRows(result: IPLookupResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Querying IP...")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.lookupResult {
                 // 2. Identification Hero Section
                 Section(header: Text("IP Identification")) {

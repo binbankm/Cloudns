@@ -16,14 +16,7 @@ struct R2BucketsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(R2Bucket.placeholders) { placeholderBucket in
-                        R2BucketRowView(bucket: placeholderBucket)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredBuckets.isEmpty {
+            if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
                         NavigationLink {
@@ -48,7 +41,7 @@ struct R2BucketsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search R2 Buckets"
         )
         .navigationTitle("R2 Object Storage")
@@ -80,7 +73,9 @@ struct R2BucketsView: View {
             Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading R2 Buckets..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
                     HIGContentState(
                         .error(

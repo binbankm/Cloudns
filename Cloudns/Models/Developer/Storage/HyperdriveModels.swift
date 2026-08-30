@@ -25,10 +25,6 @@ public struct HyperdriveConfig: Codable, Identifiable, Equatable, Sendable {
         self.modifiedOn = modifiedOn
     }
     
-    public static let placeholders: [HyperdriveConfig] = [
-        HyperdriveConfig(id: "hd_1", name: "prod-postgres-hyperdrive", origin: HyperdriveOrigin(host: "db.aws.example.com", port: 5432, database: "users", user: "app", scheme: "postgres")),
-        HyperdriveConfig(id: "hd_2", name: "staging-postgres-accelerator", origin: HyperdriveOrigin(host: "staging-db.example.com", port: 5432, database: "staging", user: "app", scheme: "postgres"))
-    ]
 }
 
 public struct HyperdriveOrigin: Codable, Equatable, Sendable {

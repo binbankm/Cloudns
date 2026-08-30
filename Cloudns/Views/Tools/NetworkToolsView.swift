@@ -3,7 +3,6 @@ import SwiftUI
 // MARK: - NetworkToolsView (Top-Level Tab)
 
 struct NetworkToolsView: View {
-    @State private var searchText = ""
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
     // MARK: - Diagnostic Tool Models
@@ -119,64 +118,34 @@ struct NetworkToolsView: View {
     private let globalProbingTools: [DiagnosticToolType] = [.dnsPropagation, .edgeLatency]
     private let ipRoutingTools: [DiagnosticToolType] = [.ipLookup, .whois, .cfIpRanges, .cidrCalc]
     
-    private func filterTools(_ list: [DiagnosticToolType]) -> [DiagnosticToolType] {
-        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !q.isEmpty else { return list }
-        return list.filter { tool in
-            tool.rawValue.lowercased().contains(q) ||
-            tool.searchKeywords.contains(q)
-        }
-    }
-    
     var body: some View {
         NavigationStack {
-            let filteredEdge = filterTools(edgeTools)
-            let filteredGlobal = filterTools(globalProbingTools)
-            let filteredRouting = filterTools(ipRoutingTools)
-            let totalCount = filteredEdge.count + filteredGlobal.count + filteredRouting.count
-            
             List {
-                if !filteredEdge.isEmpty {
-                    Section(header: Text("Edge Diagnostics")) {
-                        ForEach(filteredEdge) { tool in
-                            toolRow(tool)
-                        }
+                Section(header: Text("Edge Diagnostics")) {
+                    ForEach(edgeTools) { tool in
+                        toolRow(tool)
                     }
                 }
                 
-                if !filteredGlobal.isEmpty {
-                    Section(header: Text("Global Connectivity & Probing")) {
-                        ForEach(filteredGlobal) { tool in
-                            toolRow(tool)
-                        }
+                Section(header: Text("Global Connectivity & Probing")) {
+                    ForEach(globalProbingTools) { tool in
+                        toolRow(tool)
                     }
                 }
                 
-                if !filteredRouting.isEmpty {
-                    Section(
-                        header: Text("IP & Routing Utilities"),
-                        footer: Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
-                    ) {
-                        ForEach(filteredRouting) { tool in
-                            toolRow(tool)
-                        }
+                Section(
+                    header: Text("IP & Routing Utilities"),
+                    footer: Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
+                ) {
+                    ForEach(ipRoutingTools) { tool in
+                        toolRow(tool)
                     }
                 }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Tools")
             .navigationBarTitleDisplayMode(.large)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .automatic),
-                prompt: "Search Tools"
-            )
             .id(appLanguage)
-            .overlay {
-                if totalCount == 0 && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
-            }
         }
     }
     

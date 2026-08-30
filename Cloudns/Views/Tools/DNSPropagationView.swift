@@ -91,7 +91,7 @@ struct DNSPropagationView: View {
                         }
                     }
                 }
-                .redacted(reason: .placeholder)
+                
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
                 Section(header: Text("Global Status")) {

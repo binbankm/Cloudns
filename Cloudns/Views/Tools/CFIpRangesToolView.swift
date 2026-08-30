@@ -159,7 +159,12 @@ struct CFIpRangesToolView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-             .higToast()
+            .higToast()
+        }
+        .overlay {
+            if viewModel.isLoading && viewModel.ipv4List.isEmpty {
+                HIGContentState(.loading(message: "Loading Cloudflare IP Ranges..."))
+            }
         }
         .task {
             if viewModel.ipv4List.isEmpty {

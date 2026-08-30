@@ -14,14 +14,7 @@ struct WorkersAIView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIModel.placeholders) { placeholder in
-                        modelRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredModels.isEmpty {
+            if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {
                         Section {
@@ -45,7 +38,7 @@ struct WorkersAIView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search AI Models"
         )
         .navigationTitle("Workers AI")

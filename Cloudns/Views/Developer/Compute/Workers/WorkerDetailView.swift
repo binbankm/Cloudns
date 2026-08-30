@@ -242,11 +242,22 @@ struct WorkerDetailView: View {
                 }
                 
                 NavigationLink {
+                    WorkerSecretsView(accountId: accountId, scriptName: worker.id)
+                } label: {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "key.fill", color: .green)
+                        Text("Variables & Secrets")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                    }
+                }
+                
+                NavigationLink {
                     WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                 } label: {
                     HStack(spacing: 12) {
-                        ListRowIcon(icon: "slider.horizontal.3", color: .indigo)
-                        Text("Bindings & Variables")
+                        ListRowIcon(icon: "link.badge.plus", color: .indigo)
+                        Text("Resource Bindings")
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.bindings.isEmpty {

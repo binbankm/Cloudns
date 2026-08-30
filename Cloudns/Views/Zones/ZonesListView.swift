@@ -17,9 +17,7 @@ struct ZonesListView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    skeletonSection
-                } else if !displayedZones.isEmpty {
+                if !displayedZones.isEmpty {
                     zonesSection
                 }
             }
@@ -27,8 +25,8 @@ struct ZonesListView: View {
             .scrollDismissesKeyboard(.interactively)
             .searchable(
                 text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .automatic),
-                prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) domains" : "Search domains"
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search domains"
             )
             .navigationTitle("My Domains")
             .navigationBarTitleDisplayMode(.large)
@@ -103,15 +101,6 @@ struct ZonesListView: View {
     
     // MARK: - Subviews
     
-    private var skeletonSection: some View {
-        Section {
-            ForEach(Zone.placeholders) { placeholderZone in
-                ZoneRowView(zone: placeholderZone)
-            }
-        }
-        .redacted(reason: .placeholder)
-    }
-    
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
@@ -138,9 +127,7 @@ struct ZonesListView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
                 .onAppear {
-                    Task {
-                        await viewModel.fetchZones(isRefresh: false)
-                    }
+                    Task { await viewModel.fetchZones(isRefresh: false) }
                 }
             }
         }
@@ -148,29 +135,29 @@ struct ZonesListView: View {
     
     @ViewBuilder
     private var emptyStateOverlay: some View {
-        if viewModel.hasFetchedData {
-            if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchZones(isRefresh: true) }
-                        }
-                    )
+        if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Domains..."))
+        } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
+            HIGContentState(
+                .error(
+                    message: LocalizedStringKey(errorMessage),
+                    retryAction: {
+                        Task { await viewModel.fetchZones(isRefresh: true) }
+                    }
                 )
-            } else if viewModel.zones.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Domains Found",
-                        systemImage: "globe",
-                        description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
-                        actionTitle: "Add Domain",
-                        action: { showAddZoneSheet = true }
-                    )
+            )
+        } else if viewModel.hasFetchedData && viewModel.zones.isEmpty {
+            HIGContentState(
+                .empty(
+                    title: "No Domains Found",
+                    systemImage: "globe",
+                    description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
+                    actionTitle: "Add Domain",
+                    action: { showAddZoneSheet = true }
                 )
-            } else if displayedZones.isEmpty && !searchText.isEmpty {
-                HIGContentState(.search(query: searchText))
-            }
+            )
+        } else if viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty {
+            HIGContentState(.search(query: searchText))
         }
     }
 }
@@ -197,23 +184,15 @@ struct ZoneRowView: View {
         return palette[hash % palette.count]
     }
     
-    @Environment(\.redactionReasons) private var redactionReasons
-    
-    private var isRedacted: Bool {
-        redactionReasons.contains(.placeholder)
-    }
-    
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(isRedacted ? Color(.tertiarySystemFill) : avatarColor.opacity(0.14))
+                    .fill(avatarColor.opacity(0.14))
                     .frame(width: 36, height: 36)
-                if !isRedacted {
-                    Text(initialChar)
-                        .font(.system(.body, design: .rounded, weight: .semibold))
-                        .foregroundStyle(avatarColor)
-                }
+                Text(initialChar)
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .foregroundStyle(avatarColor)
             }
             .accessibilityHidden(true)
             
@@ -387,23 +366,11 @@ public struct ZoneRowSparklineView: View {
         self.cached = cached
     }
     
-    @Environment(\.redactionReasons) private var redactionReasons
-    
-    private var isRedacted: Bool {
-        redactionReasons.contains(.placeholder)
-    }
-    
     public var body: some View {
-        if isRedacted {
-            Capsule()
-                .fill(Color(.tertiarySystemFill))
-                .frame(width: 48, height: 16)
-                .accessibilityHidden(true)
-        } else {
-            let points = cached?.points ?? []
-            let total = cached?.totalRequests ?? 0
-            
-            HStack(spacing: 5) {
+        let points = cached?.points ?? []
+        let total = cached?.totalRequests ?? 0
+        
+        HStack(spacing: 5) {
                 ZoneTrafficSparklineView(
                     data: points,
                     lineColor: sparklineColor(total: total),
@@ -421,7 +388,6 @@ public struct ZoneRowSparklineView: View {
                 }
             }
             .accessibilityHidden(true)
-        }
     }
     
     private func sparklineColor(total: Int) -> Color {

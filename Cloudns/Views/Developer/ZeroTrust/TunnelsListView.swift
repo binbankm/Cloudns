@@ -14,14 +14,7 @@ struct TunnelsListView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(CFTunnel.placeholders) { placeholderTunnel in
-                        TunnelRowView(tunnel: placeholderTunnel)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredTunnels.isEmpty {
+            if !viewModel.filteredTunnels.isEmpty {
                 Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in
                         NavigationLink {
@@ -37,7 +30,7 @@ struct TunnelsListView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Tunnels"
         )
         .navigationTitle("Cloudflare Tunnels")
@@ -56,7 +49,9 @@ struct TunnelsListView: View {
              .higToast()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Cloudflare Tunnels..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
                     HIGContentState(
                         .error(

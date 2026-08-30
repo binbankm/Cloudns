@@ -342,38 +342,14 @@ struct DashboardView: View {
             .padding(.horizontal, 4)
             
             if !viewModel.hasFetchedData {
-                VStack(spacing: 0) {
-                    ForEach(Array(Zone.placeholders.prefix(3).enumerated()), id: \.element.id) { index, placeholderZone in
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(Color(.tertiarySystemFill))
-                                .frame(width: 36, height: 36)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(placeholderZone.name)
-                                    .font(.body.weight(.medium))
-                                    .lineLimit(1)
-                                
-                                Text(placeholderZone.plan?.name ?? "Free Plan")
-                                    .font(.caption2)
-                            }
-                            
-                            Spacer()
-                            
-                            HIGBadge(.active, isCompact: true)
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 11)
-                        
-                        if index < 2 {
-                            Divider()
-                                .padding(.leading, 62)
-                        }
-                    }
+                HStack {
+                    Spacer()
+                    ProgressView("Loading Domains...")
+                        .padding(.vertical, 32)
+                    Spacer()
                 }
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .redacted(reason: .placeholder)
             } else if viewModel.zones.isEmpty {
                 HIGContentState(
                     .empty(

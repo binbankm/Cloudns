@@ -36,9 +36,6 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
         self.modifiedOn = modifiedOn
     }
     
-    public static let placeholders: [TurnstileWidget] = (0..<4).map { idx in
-        TurnstileWidget(sitekey: "0x4AAAAAAAXyZ\(idx + 1)", name: "Login Captcha Widget \(idx + 1)")
-    }
 }
 
 public struct TurnstileCreateInput: Codable, Sendable {

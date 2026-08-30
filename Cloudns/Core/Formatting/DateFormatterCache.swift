@@ -156,6 +156,14 @@ enum DateFormatters {
         return style.string(from: date)
     }
     
+    /// 将 ISO8601 字符串格式化为相对时间（如 "2 hours ago" 或 "yesterday"）
+    static func formatRelative(from string: String) -> String {
+        guard let date = parseISO8601(string) else {
+            return string.prefix(10).description
+        }
+        return date.formatted(.relative(presentation: .named))
+    }
+    
     /// 将时间戳（毫秒）格式化为日志时间字符串
     static func formatTimestampMs(_ timestampMs: Double) -> String {
         let date = Date(timeIntervalSince1970: timestampMs / 1000.0)

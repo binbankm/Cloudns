@@ -17,14 +17,7 @@ struct BulkRedirectListsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(RedirectList.placeholders) { placeholder in
-                        listRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredLists.isEmpty {
+            if !viewModel.filteredLists.isEmpty {
                 Section(header: Text("Redirect Lists (\(viewModel.lists.count))")) {
                     ForEach(viewModel.filteredLists) { item in
                         NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
@@ -47,7 +40,7 @@ struct BulkRedirectListsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Lists"
         )
         .navigationTitle("Redirect Lists")
@@ -78,7 +71,9 @@ struct BulkRedirectListsView: View {
             await viewModel.fetchLists()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Redirect Lists..."))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
                     HIGContentState(
                         .error(

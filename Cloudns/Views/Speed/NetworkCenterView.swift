@@ -8,45 +8,59 @@ struct NetworkCenterView: View {
     
     var body: some View {
         List {
-            // Network Graphic Header
+            // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    Image(systemName: "network")
-                        .font(.largeTitle)
-                        .foregroundStyle(.blue)
-                        .padding(.top, 10)
-                        .accessibilityHidden(true)
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.blue.opacity(0.18), Color.cyan.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "globe.asia.australia.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.blue)
+                    }
+                    .padding(.top, 4)
                     
                     Text("Network & Routing")
-                        .font(.title2)
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
                     
                     Text("Manage network protocols and connectivity for \(zoneName).")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
             
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage {
-                    Section {
-                        HStack(spacing: 10) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
-                                .accessibilityHidden(true)
-                            Text(errorMessage)
-                                .foregroundStyle(.primary)
-                                .font(.subheadline)
-                        }
+            // MARK: - Error Banner
+            if let errorMessage = viewModel.errorMessage {
+                Section {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: .red, size: 28, cornerRadius: 6)
+                        Text(errorMessage)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
                     }
                 }
-                
-                // Core Protocols
-                Section(header: Text("Core Protocols")) {
+            }
+            
+            // MARK: - Core Protocols
+            Section(
+                header: Text("Core Protocols"),
+                footer: Text("Modern network protocols accelerate delivery and provide better connection resilience.")
+            ) {
                 // IPv6
                 Toggle(isOn: Binding(
                     get: { viewModel.ipv6 },
@@ -55,14 +69,18 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateIPv6(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("IPv6 Compatibility")
-                            .font(.body)
-                        Text("Enable IPv6 support and gateway.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "network", color: .blue, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("IPv6 Compatibility")
+                                .font(.body)
+                            Text("Enable IPv6 support and dual-stack gateway.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
                 // WebSockets
                 Toggle(isOn: Binding(
@@ -72,15 +90,25 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateWebsockets(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("WebSockets")
-                            .font(.body)
-                        Text("Allow WebSockets connections to your origin server.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "arrow.up.arrow.down.square.fill", color: .indigo, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("WebSockets")
+                                .font(.body)
+                            Text("Allow WebSockets traffic to your origin server.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
-                
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - HTTP & Transport
+            Section(
+                header: Text("HTTP & Transport Acceleration"),
+                footer: Text("HTTP/2 and HTTP/3 (QUIC) drastically reduce page load latency and handshake round trips.")
+            ) {
                 // HTTP/2
                 Toggle(isOn: Binding(
                     get: { viewModel.http2 },
@@ -89,14 +117,18 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateHTTP2(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("HTTP/2")
-                            .font(.body)
-                        Text("Accelerate your website with HTTP/2.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "bolt.horizontal.fill", color: .green, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("HTTP/2")
+                                .font(.body)
+                            Text("Accelerate page delivery with multiplexing.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
                 // HTTP/3 (QUIC)
                 Toggle(isOn: Binding(
@@ -106,24 +138,28 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateHTTP3(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Text("HTTP/3 (with QUIC)")
-                                .font(.body)
-                            Image(systemName: "bolt.horizontal.fill")
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "bolt.fill", color: .orange, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Text("HTTP/3 (QUIC)")
+                                    .font(.body)
+                                HIGBadge(.active("Fastest"), isCompact: true)
+                            }
+                            Text("Next-generation QUIC transport with 0-RTT.")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
-                                .accessibilityHidden(true)
+                                .foregroundStyle(.secondary)
                         }
-                        Text("Accelerate HTTP requests by using QUIC, which provides encryption and performance improvements compared to TCP and TLS.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
             }
             
-            // Advanced Routing & Origin Protocol
-            Section(header: Text("Advanced Routing & Origin"), footer: Text("Control geographic headers and edge-to-origin protocol versions.")) {
+            // MARK: - Advanced Routing
+            Section(
+                header: Text("Advanced Routing"),
+                footer: Text("IP Geolocation includes visitor country code in the CF-IPCountry header.")
+            ) {
                 // IP Geolocation
                 Toggle(isOn: Binding(
                     get: { viewModel.ipGeolocation },
@@ -132,50 +168,51 @@ struct NetworkCenterView: View {
                         Task { await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("IP Geolocation Header")
-                            .font(.body)
-                        Text("Include the country code of the visitor location with all requests to your website.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "location.fill", color: .blue, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("IP Geolocation")
+                                .font(.body)
+                            Text("Attach visitor country code to headers.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
                 // Origin Max HTTP Version
-                Picker(selection: Binding(
-                    get: { viewModel.originMaxHttpVersion },
-                    set: { val in
-                        HIGFeedback.selection()
-                        Task { await viewModel.updateOriginMaxHTTPVersion(zoneId: zoneId, version: val) }
-                    }
-                )) {
-                    Text("HTTP/2 (Fastest)").tag("2")
-                    Text("HTTP/1.1 (Legacy)").tag("1")
-                } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Text("Origin Max HTTP Version")
-                                .font(.body)
-                            HIGBadge(.free, isCompact: true)
-                        }
-                        Text("Maximum HTTP protocol version Cloudflare will use to connect to your origin server.")
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "server.rack", color: .purple, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Origin Max Protocol")
+                            .font(.body)
+                        Text("Maximum protocol version used to talk to origin server.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { viewModel.originMaxHttpVersion },
+                        set: { val in
+                            HIGFeedback.selection()
+                            Task { await viewModel.updateOriginMaxHTTPVersion(zoneId: zoneId, version: val) }
+                        }
+                    )) {
+                        Text("HTTP/2").tag("2")
+                        Text("HTTP/1.1").tag("1")
+                    }
+                    .pickerStyle(.menu)
                 }
-            }
-            } else if viewModel.isLoading {
-                Section(header: Text("Core Protocols")) {
-                    Toggle("IPv6 Compatibility", isOn: .constant(true))
-                        .redacted(reason: .placeholder)
-                    Toggle("WebSockets", isOn: .constant(true))
-                        .redacted(reason: .placeholder)
-                    Toggle("HTTP/2", isOn: .constant(true))
-                        .redacted(reason: .placeholder)
-                }
+                .disabled(!viewModel.hasFetchedData)
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Network Settings..."))
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

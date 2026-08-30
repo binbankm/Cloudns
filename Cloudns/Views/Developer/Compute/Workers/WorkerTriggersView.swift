@@ -69,7 +69,7 @@ struct WorkerTriggersView: View {
                         cronRow(WorkerSchedule(cron: "*/5 * * * *", createdOn: nil, modifiedOn: nil))
                     }
                 }
-                .redacted(reason: .placeholder)
+                
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
@@ -91,7 +91,9 @@ struct WorkerTriggersView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Triggers..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     HIGContentState(
                         .error(

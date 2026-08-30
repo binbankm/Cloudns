@@ -47,9 +47,6 @@ public struct PagesProject: Codable, Identifiable, Equatable, Sendable {
         self.deploymentConfigs = nil
     }
     
-    public static let placeholders: [PagesProject] = (0..<6).map { idx in
-        PagesProject(id: "project-\(idx + 1)", name: "pages-web-app-\(idx + 1)", subdomain: "pages-web-app-\(idx + 1).pages.dev")
-    }
 }
 
 public struct PagesProjectSource: Codable, Equatable, Sendable {
@@ -184,10 +181,6 @@ public struct PagesDomain: Codable, Identifiable, Equatable, Sendable {
         self.createdOn = createdOn
     }
     
-    public static let placeholders: [PagesDomain] = [
-        PagesDomain(name: "docs.example.com"),
-        PagesDomain(name: "app.example.com")
-    ]
 }
 
 public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
@@ -225,10 +218,6 @@ public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
         self.deploymentTrigger = deploymentTrigger
     }
     
-    public static let placeholders: [PagesDeployment] = [
-        PagesDeployment(id: "dep_1", environment: "production"),
-        PagesDeployment(id: "dep_2", environment: "preview")
-    ]
 }
 
 public struct PagesDeploymentLog: Codable, Identifiable, Equatable, Sendable {

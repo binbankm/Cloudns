@@ -92,13 +92,21 @@ struct DashboardZoneTrafficChartView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
-    // MARK: - Chart View
     @ViewBuilder
     private var chartBodyView: some View {
-        let metrics = viewModel.fleetMetrics.isEmpty ? FleetHourlyMetric.placeholder24h : viewModel.fleetMetrics
-        let themeColor = metricColor(viewModel.selectedChartMetric)
-        
-        Chart {
+        if viewModel.fleetMetrics.isEmpty {
+            HStack {
+                Spacer()
+                ProgressView("Loading Analytics...")
+                    .font(.subheadline)
+                Spacer()
+            }
+            .frame(height: 160)
+        } else {
+            let metrics = viewModel.fleetMetrics
+            let themeColor = metricColor(viewModel.selectedChartMetric)
+            
+            Chart {
             ForEach(metrics) { item in
                 let value = valueForMetric(item, metric: viewModel.selectedChartMetric)
                 
@@ -197,6 +205,7 @@ struct DashboardZoneTrafficChartView: View {
                     )
             }
         }
+    }
     }
     
     // MARK: - Helpers

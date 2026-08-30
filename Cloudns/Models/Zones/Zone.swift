@@ -146,15 +146,6 @@ public struct Zone: Codable, Identifiable, Equatable, Sendable {
     }
     
     /// HIG 骨架屏专用占位数据
-    public static let placeholders: [Zone] = (0..<6).map { idx in
-        Zone(
-            id: "placeholder-zone-\(idx)",
-            name: "placeholder-domain-\(idx + 1).com",
-            status: "active",
-            paused: false,
-            plan: ZonePlan(name: "Pro Plan")
-        )
-    }
     
     public var planTier: PlanTier {
         plan?.planTier ?? .free

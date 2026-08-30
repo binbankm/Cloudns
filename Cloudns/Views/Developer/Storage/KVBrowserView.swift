@@ -56,7 +56,7 @@ struct KVBrowserView: View {
         }
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
         )
         .background(Color(.systemGroupedBackground))
@@ -127,20 +127,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    if viewModel.selectedSegment == 0 {
-                        ForEach(KVNamespace.placeholders) { ns in
-                            kvRow(ns)
-                        }
-                    } else {
-                        ForEach(D1Database.placeholders) { db in
-                            d1Row(db)
-                        }
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if viewModel.selectedSegment == 0 {
+            if viewModel.selectedSegment == 0 {
                 if !filteredNamespaces.isEmpty {
                     Section {
                         ForEach(filteredNamespaces) { ns in
@@ -186,15 +173,17 @@ struct KVBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchData() } }
-                        )
+            if viewModel.isLoading && ((viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty) || (viewModel.selectedSegment == 1 && viewModel.d1Databases.isEmpty)) {
+                HIGContentState(.loading(message: "Loading Storage..."))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchData() } }
                     )
-                } else if viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty {
+                )
+            } else if viewModel.hasFetchedData {
+                if viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty {
                     HIGContentState(
                         .empty(
                             title: "No KV Namespaces",
@@ -433,14 +422,7 @@ struct KVNamespaceKeysView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.keys.isEmpty {
-                Section {
-                    ForEach(0..<5, id: \.self) { _ in
-                        Text("KEY_PLACEHOLDER_NAME")
-                            .redacted(reason: .placeholder)
-                    }
-                }
-            } else if !filteredKeys.isEmpty {
+            if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { k in
                         NavigationLink {

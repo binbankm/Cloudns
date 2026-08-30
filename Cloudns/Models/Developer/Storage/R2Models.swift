@@ -27,9 +27,6 @@ public struct R2Bucket: Codable, Identifiable, Equatable, Sendable {
         self.location = location
     }
     
-    public static let placeholders: [R2Bucket] = (0..<5).map { idx in
-        R2Bucket(name: "assets-storage-bucket-\(idx + 1)")
-    }
 }
 
 public struct R2Object: Codable, Identifiable, Equatable, Sendable {
@@ -109,11 +106,6 @@ public struct R2Object: Codable, Identifiable, Equatable, Sendable {
         try container.encodeIfPresent(httpEtag, forKey: .httpEtag)
     }
     
-    public static let placeholders: [R2Object] = [
-        R2Object(key: "assets/logo.png", size: 45000),
-        R2Object(key: "backups/db-2024.sql.gz", size: 104857600),
-        R2Object(key: "configs/app.json", size: 2400)
-    ]
 }
 
 public struct R2ManagedDomain: Codable, Equatable, Sendable {
@@ -179,10 +171,6 @@ public struct R2CustomDomain: Codable, Identifiable, Equatable, Sendable {
         try container.encodeIfPresent(minTLS, forKey: .minTLS)
     }
     
-    public static let placeholders: [R2CustomDomain] = [
-        R2CustomDomain(domain: "cdn.example.com"),
-        R2CustomDomain(domain: "static.example.com")
-    ]
 }
 
 public struct R2CORSRule: Codable, Identifiable, Equatable, Sendable {
@@ -251,7 +239,4 @@ public struct R2CORSRule: Codable, Identifiable, Equatable, Sendable {
         try container.encode(allowed, forKey: .allowed)
     }
     
-    public static let placeholders: [R2CORSRule] = [
-        R2CORSRule(allowedOrigins: ["*"], allowedMethods: ["GET", "HEAD"], allowedHeaders: ["*"], maxAgeSeconds: 3600)
-    ]
 }

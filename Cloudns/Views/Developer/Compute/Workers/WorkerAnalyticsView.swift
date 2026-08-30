@@ -46,16 +46,7 @@ public struct WorkerAnalyticsView: View {
                 .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        metricsGrid
-                            .redacted(reason: .placeholder)
-                        invocationsLineChartCard
-                            .redacted(reason: .placeholder)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 28)
-                }
+                HIGContentState(.loading(message: "Loading Worker Analytics..."))
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack {

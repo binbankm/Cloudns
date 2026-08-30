@@ -7,205 +7,238 @@ struct SpeedSettingsView: View {
     
     var body: some View {
         List {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage {
-                    Section {
-                        HStack(spacing: 10) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
-                                .accessibilityHidden(true)
-                            Text(errorMessage)
-                                .foregroundStyle(.primary)
-                                .font(.subheadline)
-                        }
+            // MARK: - Hero Header
+            Section {
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.purple.opacity(0.18), Color.indigo.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "bolt.badge.automatic")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.purple)
+                    }
+                    .padding(.top, 4)
+                    
+                    Text("Speed Optimization")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Supercharge site performance, CDN caching, and edge asset delivery.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
+            // MARK: - Error Banner
+            if let errorMessage = viewModel.errorMessage {
+                Section {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: .red, size: 28, cornerRadius: 6)
+                        Text(errorMessage)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
                     }
                 }
-                
-                // 1. Next-Gen Acceleration
-                Section(header: Text("Next-Gen Acceleration"), footer: Text("Modern edge protocols and AI-powered speculation for sub-second page loads.")) {
-                    // Speed Brain
-                    Toggle(isOn: Binding(
-                        get: { viewModel.speedBrain },
-                        set: { val in
-                            Task { await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val) }
-                        }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
+            }
+            
+            // MARK: - AI & Modern Acceleration
+            Section(
+                header: Text("Smart Acceleration"),
+                footer: Text("Speed Brain uses predictive prefetching to load web pages before users click.")
+            ) {
+                // Speed Brain
+                Toggle(isOn: Binding(
+                    get: { viewModel.speedBrain },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "brain.head.profile", color: .pink, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
                             HStack(spacing: 6) {
-                                Image(systemName: "bolt.badge.sparkle")
-                                    .foregroundStyle(.purple)
                                 Text("Speed Brain")
-                                    .font(.body.weight(.medium))
-                                HIGBadge(.free, isCompact: true)
+                                    .font(.body)
+                                HIGBadge(.active("AI Powered"), isCompact: true)
                             }
-                            Text("Predictive prefetching via W3C Speculation Rules for instantaneous zero-latency page navigations.")
+                            Text("Speculative HTML prefetching for instant page navigation.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    // Cloudflare Fonts
-                    Toggle(isOn: Binding(
-                        get: { viewModel.fonts },
-                        set: { val in
-                            Task { await viewModel.updateFonts(zoneId: zoneId, isOn: val) }
-                        }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "textformat.size")
-                                    .foregroundStyle(.teal)
-                                Text("Cloudflare Fonts")
-                                    .font(.body.weight(.medium))
-                                HIGBadge(.free, isCompact: true)
-                            }
-                            Text("Privacy-preserving edge proxy for Google Fonts to eliminate third-party tracking and layout shift.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    // Tiered Cache
-                    Toggle(isOn: Binding(
-                        get: { viewModel.tieredCache },
-                        set: { val in
-                            Task { await viewModel.updateTieredCache(zoneId: zoneId, isOn: val) }
-                        }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "network")
-                                    .foregroundStyle(.orange)
-                                Text("Tiered Cache")
-                                    .font(.body.weight(.medium))
-                                HIGBadge(.free, isCompact: true)
-                            }
-                            Text("Smart regional cache tiering to reduce origin server load and drastically improve global cache hit ratios.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .disabled(!viewModel.hasFetchedData)
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
-                // 2. Asset Optimizations
-                Section(header: Text("Asset Optimization"), footer: Text("Configure CDN edge compression and runtime asset improvements.")) {
-                    // Brotli
-                    Toggle(isOn: Binding(
-                        get: { viewModel.brotli },
-                        set: { val in
-                            Task { await viewModel.updateBrotli(zoneId: zoneId, isOn: val) }
+                // Cloudflare Fonts
+                Toggle(isOn: Binding(
+                    get: { viewModel.fonts },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateFonts(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "textformat", color: .blue, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Cloudflare Fonts")
+                                .font(.body)
+                            Text("Accelerate Google Fonts with privacy-preserving edge caching.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+                
+                // Tiered Cache
+                Toggle(isOn: Binding(
+                    get: { viewModel.tieredCache },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateTieredCache(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "square.stack.3d.up.fill", color: .indigo, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Text("Tiered Cache")
+                                    .font(.body)
+                                HIGBadge(.free, isCompact: true)
+                            }
+                            Text("Use Cloudflare data centers as tiered caching layers.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Compression & Scripts
+            Section(
+                header: Text("Compression & Script Loading"),
+                footer: Text("Brotli offers higher compression over standard Gzip. Rocket Loader defers JavaScript execution.")
+            ) {
+                // Brotli
+                Toggle(isOn: Binding(
+                    get: { viewModel.brotli },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateBrotli(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "doc.zipper", color: .teal, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("Brotli Compression")
                                 .font(.body)
-                            Text("Speed up HTTPS page load times by applying modern Brotli compression.")
+                            Text("Speed up page load times for HTTPS traffic.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    // Rocket Loader
-                    Toggle(isOn: Binding(
-                        get: { viewModel.rocketLoader },
-                        set: { val in
-                            Task { await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val) }
-                        }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
-                                Text("Rocket Loader™")
-                                    .font(.body)
-                                Image(systemName: "hare.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
-                                    .accessibilityHidden(true)
-                            }
-                            Text("Improve paint times for pages containing heavy JavaScript.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .disabled(!viewModel.hasFetchedData)
-                    
-                    // Early Hints
-                    Toggle(isOn: Binding(
-                        get: { viewModel.earlyHints },
-                        set: { val in
-                            Task { await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val) }
-                        }
-                    )) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("103 Early Hints")
-                                .font(.body)
-                            Text("Help browsers start loading linked CSS/JS assets before the HTML response finishes rendering.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .disabled(!viewModel.hasFetchedData)
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
-                // 3. Image Optimization (Polish)
-                Section(header: Text("Image Optimization"), footer: Text("Cloudflare Polish optimizes images on the fly, reducing byte payload for mobile visitors.")) {
-                    Picker(selection: Binding(
+                // Early Hints
+                Toggle(isOn: Binding(
+                    get: { viewModel.earlyHints },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "sparkles", color: .yellow, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Early Hints (HTTP 103)")
+                                .font(.body)
+                            Text("Preload linked critical assets while server compiles response.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+                
+                // Rocket Loader
+                Toggle(isOn: Binding(
+                    get: { viewModel.rocketLoader },
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "flame.fill", color: .orange, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Rocket Loader™")
+                                .font(.body)
+                            Text("Prioritize website content by deferring JavaScript loading.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Image Optimization
+            Section(
+                header: Text("Image Optimization"),
+                footer: Text("Cloudflare Polish optimizes images on the fly, reducing payload for mobile visitors.")
+            ) {
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "photo.fill", color: .green, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 6) {
+                            Text("Polish (WebP)")
+                                .font(.body)
+                            HIGBadge(.pro, isCompact: true)
+                        }
+                        Text("Automatic image compression and modern WebP conversion.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("", selection: Binding(
                         get: { viewModel.polish },
                         set: { val in
+                            HIGFeedback.selection()
                             Task { await viewModel.updatePolish(zoneId: zoneId, value: val) }
                         }
                     )) {
                         Text("Off").tag("off")
-                        Text("Lossless (Fast)").tag("lossless")
-                        Text("Lossy (Maximum Compression)").tag("lossy")
-                    } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
-                                Text("Polish (WebP)")
-                                    .font(.body)
-                                HIGBadge(.pro, isCompact: true)
-                            }
-                            Text("Automatic image compression and WebP conversion.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+                        Text("Lossless").tag("lossless")
+                        Text("Lossy").tag("lossy")
                     }
-                    .disabled(!viewModel.hasFetchedData)
+                    .pickerStyle(.menu)
                 }
-            } else if viewModel.isLoading {
-                Section(header: Text("Next-Gen Acceleration")) {
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Speed Brain")
-                            Text("Predictive prefetching via W3C Speculation Rules.")
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                    
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Cloudflare Fonts")
-                            Text("Privacy-preserving edge proxy for Google Fonts.")
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                }
-                
-                Section(header: Text("Asset Optimization")) {
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Brotli")
-                            Text("Speed up page load times for your visitor's HTTPS traffic.")
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                }
+                .disabled(!viewModel.hasFetchedData)
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Speed Settings..."))
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

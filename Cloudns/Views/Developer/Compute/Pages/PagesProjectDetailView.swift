@@ -269,32 +269,39 @@ struct PagesProjectDetailView: View {
                     }
                 }
                 
-                Button {
-                    showingDomainsSheet = true
+                NavigationLink {
+                    PagesDomainsView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "globe", color: .blue)
                         Text("Custom Domains")
                             .foregroundStyle(.primary)
                         Spacer()
-                        Text("\(viewModel.domains.count)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .accessibilityHidden(true)
+                        if !viewModel.domains.isEmpty {
+                            Text("\(viewModel.domains.count)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                
+                NavigationLink {
+                    PagesVariablesView(accountId: accountId, project: project)
+                } label: {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "key.fill", color: .green)
+                        Text("Variables & Secrets")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                    }
+                }
                 
                 NavigationLink {
                     PagesBindingsView(accountId: accountId, project: project)
                 } label: {
                     HStack(spacing: 12) {
-                        ListRowIcon(icon: "slider.horizontal.3", color: .indigo)
-                        Text("Bindings & Variables")
+                        ListRowIcon(icon: "link.badge.plus", color: .indigo)
+                        Text("Resource Bindings")
                             .foregroundStyle(.primary)
                         Spacer()
                     }

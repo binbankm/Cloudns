@@ -38,11 +38,6 @@ public struct AccessApp: Codable, Identifiable, Equatable, Sendable {
         self.updatedAt = try? container.decodeIfPresent(String.self, forKey: .updatedAt)
     }
     
-    public static let placeholders: [AccessApp] = [
-        AccessApp(id: "app_1", name: "Internal Admin Dashboard", domain: "admin.internal.net", type: "self_hosted"),
-        AccessApp(id: "app_2", name: "Production Grafana", domain: "grafana.internal.net", type: "self_hosted"),
-        AccessApp(id: "app_3", name: "Staging SSH Gateway", domain: "ssh.staging.internal.net", type: "ssh")
-    ]
 }
 
 public struct AccessPolicy: Codable, Identifiable, Equatable, Sendable {
@@ -78,8 +73,4 @@ public struct AccessPolicy: Codable, Identifiable, Equatable, Sendable {
         self.updatedAt = try? container.decodeIfPresent(String.self, forKey: .updatedAt)
     }
     
-    public static let placeholders: [AccessPolicy] = [
-        AccessPolicy(id: "pol_1", name: "Allow Company SSO Emails", decision: "allow", precedence: 1),
-        AccessPolicy(id: "pol_2", name: "Require MFA / Hard Token", decision: "non_identity", precedence: 2)
-    ]
 }

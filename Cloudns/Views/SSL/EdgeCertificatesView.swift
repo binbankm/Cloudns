@@ -34,14 +34,7 @@ struct EdgeCertificatesView: View {
                 ))
             }
             
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
-                        EdgeCertificateCardView(certificate: placeholderCert)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedCertificates.isEmpty {
+            if !displayedCertificates.isEmpty {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
@@ -63,11 +56,13 @@ struct EdgeCertificatesView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Certificates"
         )
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Certificates..."))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
                     HIGContentState(
                         .error(

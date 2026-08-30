@@ -5,31 +5,14 @@ struct RateLimitingRulesView: View {
     
     @StateObject private var viewModel = RateLimitingViewModel()
     @State private var showingAddSheet = false
-    @State private var searchText = ""
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
     
-    private var displayedRules: [WAFRule] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            $0.expression.localizedStandardContains(searchText) ||
-            $0.action.localizedStandardContains(searchText)
-        }
-    }
-    
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+            if !viewModel.rules.isEmpty {
                 Section {
-                    ForEach(WAFRule.placeholders) { placeholderRule in
-                        WAFRuleCardView(rule: placeholderRule, onToggle: {})
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedRules.isEmpty {
-                Section {
-                    ForEach(displayedRules) { rule in
+                    ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             HIGFeedback.selection()
                             Task {
@@ -50,41 +33,33 @@ struct RateLimitingRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Rate Limiting Rules"
-        )
         .refreshable {
             await viewModel.fetchRateLimitingRules(zoneId: zoneId)
         }
         .navigationTitle("Rate Limiting")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchRateLimitingRules(zoneId: zoneId) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Rate Limiting Rules..."))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchRateLimitingRules(zoneId: zoneId) }
+                        }
                     )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Rate Limiting Rules",
-                            systemImage: "speedometer",
-                            description: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
-                            actionTitle: "Add Rule",
-                            action: { showingAddSheet = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Rate Limiting Rules",
+                        systemImage: "speedometer",
+                        description: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
+                        actionTitle: "Add Rule",
+                        action: { showingAddSheet = true }
                     )
-                } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
         .toolbar {

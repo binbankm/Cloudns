@@ -5,6 +5,7 @@ import SwiftUI
 /// 统一遵循 Apple HIG 标准的空状态/无数据/错误占位视图
 public struct HIGContentState: View {
     public enum Kind {
+        case loading(message: LocalizedStringKey = "Loading...")
         case empty(title: LocalizedStringKey, systemImage: String, description: LocalizedStringKey? = nil, actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil)
         case search(query: String)
         case error(title: LocalizedStringKey = "Unable to Load", message: LocalizedStringKey, retryAction: (() -> Void)? = nil)
@@ -17,17 +18,28 @@ public struct HIGContentState: View {
     }
     
     public var body: some View {
-        if #available(iOS 17.0, *) {
-            modernUnavailableView
-        } else {
-            legacyHIGFallbackView
+        Group {
+            if #available(iOS 17.0, *) {
+                modernUnavailableView
+            } else {
+                legacyHIGFallbackView
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemGroupedBackground))
     }
     
     @available(iOS 17.0, *)
     @ViewBuilder
     private var modernUnavailableView: some View {
         switch kind {
+        case .loading(let message):
+            ContentUnavailableView {
+                ProgressView()
+                    .controlSize(.large)
+            } description: {
+                Text(message)
+            }
         case .search(let query):
             ContentUnavailableView.search(text: query)
         case .error(let title, let message, let retryAction):
@@ -62,6 +74,13 @@ public struct HIGContentState: View {
     private var legacyHIGFallbackView: some View {
         VStack(spacing: 12) {
             switch kind {
+            case .loading(let message):
+                ProgressView()
+                    .controlSize(.large)
+                    .padding(.bottom, 4)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             case .search(let query):
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 44, weight: .light))

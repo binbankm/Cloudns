@@ -53,20 +53,4 @@ public struct IPLookupResult: Equatable, Sendable {
         self.isCloudflareAnycast = isCloudflareAnycast
         self.cloudProvider = cloudProvider
     }
-    
-    public static let placeholder = IPLookupResult(
-        query: "1.1.1.1",
-        ip: "1.1.1.1",
-        asn: "AS13335",
-        org: "Cloudflare, Inc.",
-        country: "United States",
-        countryCode: "US",
-        city: "San Francisco",
-        region: "California",
-        timezone: "America/Los_Angeles",
-        latitude: 37.7749,
-        longitude: -122.4194,
-        isCloudflareAnycast: true,
-        cloudProvider: "Cloudflare Anycast Network"
-    )
 }

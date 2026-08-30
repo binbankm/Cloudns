@@ -15,14 +15,7 @@ struct AuditLogsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AuditLog.placeholders) { placeholderLog in
-                        AuditLogRowView(log: placeholderLog)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredLogs.isEmpty {
+            if !viewModel.filteredLogs.isEmpty {
                 Section {
                     ForEach(viewModel.filteredLogs) { log in
                         Button {
@@ -40,7 +33,7 @@ struct AuditLogsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Logs"
         )
         .navigationTitle("Audit Logs")
@@ -58,25 +51,25 @@ struct AuditLogsView: View {
              .higToast()
         }
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchLogs() } }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Audit Logs..."))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchLogs() } }
                     )
-                } else if viewModel.logs.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Audit Logs",
-                            systemImage: "list.clipboard.fill",
-                            description: "No recent account audit logs or modification records found."
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.logs.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Audit Logs",
+                        systemImage: "list.clipboard.fill",
+                        description: "No recent account audit logs or modification records found."
                     )
-                } else if viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
+                )
+            } else if viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
+                HIGContentState(.search(query: viewModel.searchText))
             }
         }
         .task {

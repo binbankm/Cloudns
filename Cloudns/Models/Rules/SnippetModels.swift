@@ -20,8 +20,4 @@ public struct SnippetItem: Codable, Identifiable, Equatable, Sendable {
         self.createdOn = createdOn
     }
     
-    public static let placeholders: [SnippetItem] = [
-        SnippetItem(snippet_name: "add_security_headers", modifiedOn: "2024-01-01T00:00:00Z"),
-        SnippetItem(snippet_name: "normalize_uri_path", modifiedOn: "2024-01-01T00:00:00Z")
-    ]
 }

@@ -40,14 +40,7 @@ struct R2BucketDetailView: View {
                 }
             }
             
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Objects")) {
-                    ForEach(R2Object.placeholders) { placeholder in
-                        R2ObjectRowView(object: placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredObjects.isEmpty {
+            if !viewModel.filteredObjects.isEmpty {
                 Section(header: Text("Objects (\(viewModel.filteredObjects.count))")) {
                     ForEach(viewModel.filteredObjects) { obj in
                         Button {
@@ -72,7 +65,7 @@ struct R2BucketDetailView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Objects in Bucket"
         )
         .navigationTitle(bucket.name)
@@ -130,7 +123,9 @@ struct R2BucketDetailView: View {
             }
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Objects..."))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
                     HIGContentState(
                         .error(

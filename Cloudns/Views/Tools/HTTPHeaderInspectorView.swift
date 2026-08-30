@@ -71,10 +71,14 @@ struct HTTPHeaderInspectorView: View {
             }
             
             if viewModel.isHttpLoading {
-                Section(header: Text("Edge Response Summary")) {
-                    edgeSummaryRows(result: HTTPInspectionResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Inspecting Edge Response...")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.httpResult {
                 // 2. Edge & Performance Hero Section
                 Section(header: Text("Edge Response Summary")) {

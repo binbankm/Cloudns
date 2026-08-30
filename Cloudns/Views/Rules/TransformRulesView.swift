@@ -9,19 +9,10 @@ struct TransformRulesView: View {
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteAlert = false
-    @State private var searchText = ""
     
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: TransformRulesViewModel(zoneId: zoneId))
-    }
-    
-    private var displayedRules: [WAFRule] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            $0.expression.localizedStandardContains(searchText)
-        }
     }
     
     var body: some View {
@@ -38,11 +29,6 @@ struct TransformRulesView: View {
             
             contentList
         }
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Transform Rules"
-        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Transform Rules")
         .navigationBarTitleDisplayMode(.inline)
@@ -84,20 +70,13 @@ struct TransformRulesView: View {
     @ViewBuilder
     private var contentList: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(WAFRule.placeholders) { placeholderRule in
-                        TransformRuleCardView(rule: placeholderRule, onToggle: {})
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedRules.isEmpty {
+            if !viewModel.rules.isEmpty {
                 Section(header: HStack {
-                    Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(displayedRules.count))")
+                    Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")
                     Spacer()
                     HIGBadge(viewModel.selectedPhase == "http_response_headers_transform" ? .warning("PRO") : .custom(color: .secondary, text: "FREE"), isCompact: true)
                 }) {
-                    ForEach(displayedRules) { rule in
+                    ForEach(viewModel.rules) { rule in
                         TransformRuleCardView(rule: rule) {
                             HIGFeedback.selection()
                             Task {
@@ -118,29 +97,27 @@ struct TransformRulesView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchTransformRules() }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Transform Rules..."))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchTransformRules() }
+                        }
                     )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Transform Rules",
-                            systemImage: "arrow.triangle.swap",
-                            description: "Rewrite URL paths, query strings, or modify HTTP headers dynamically at the edge.",
-                            actionTitle: "Add Rule",
-                            action: { showingAddSheet = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Transform Rules",
+                        systemImage: "arrow.triangle.swap",
+                        description: "Rewrite URL paths, query strings, or modify HTTP headers dynamically at the edge.",
+                        actionTitle: "Add Rule",
+                        action: { showingAddSheet = true }
                     )
-                } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
     }

@@ -16,14 +16,7 @@ struct AIGatewayView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIGateway.placeholders) { placeholder in
-                        gatewayRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredGateways.isEmpty {
+            if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
                     ForEach(viewModel.filteredGateways) { gw in
                         NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
@@ -46,7 +39,7 @@ struct AIGatewayView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Gateways"
         )
         .navigationTitle("AI Gateway")
@@ -85,7 +78,9 @@ struct AIGatewayView: View {
             await viewModel.fetchGateways()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading AI Gateways..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
                     HIGContentState(
                         .error(

@@ -70,10 +70,12 @@ struct WorkerRoutesView: View {
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
             ) {
                 if !hasFetchedData && isLoading {
-                    ForEach(WorkerCustomDomain.placeholders) { dom in
-                        domainRow(dom)
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading Routes...")
+                        Spacer()
                     }
-                    .redacted(reason: .placeholder)
+                    .padding(.vertical, 4)
                 } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(.subheadline)

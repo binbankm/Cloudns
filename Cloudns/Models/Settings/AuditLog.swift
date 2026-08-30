@@ -601,34 +601,6 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         return .secondary
     }
     
-    public static let placeholders: [AuditLog] = [
-        AuditLog(
-            id: "audit_1",
-            actor: AuditActor(id: "1", email: "admin@example.com", type: "user", ip: "192.0.2.1"),
-            action: AuditAction(type: "create", result: true, info: "CreateDNSRecord"),
-            when: "2024-01-01T12:00:00Z",
-            resource: AuditResource(type: "zone.dns_record", id: "rec_123"),
-            zone: AuditZone(id: "z1", name: "08060331.xyz"),
-            newValueJson: ["type": .string("A"), "name": .string("api.08060331.xyz"), "content": .string("192.0.2.1")]
-        ),
-        AuditLog(
-            id: "audit_2",
-            actor: AuditActor(id: "2", email: "dev@example.com", type: "user", ip: "198.51.100.2"),
-            action: AuditAction(type: "delete", result: true, info: "DeleteItem"),
-            when: "2024-01-01T11:45:00Z",
-            resource: AuditResource(type: "account.iplists", id: "list_456"),
-            metadata: ["list_name": .string("Threat Blocklist"), "ip": .string("38.134.40.39")]
-        ),
-        AuditLog(
-            id: "audit_3",
-            actor: AuditActor(id: "3", email: "system@api", type: "api_key", ip: "203.0.113.1"),
-            action: AuditAction(type: "update", result: true, info: "UpdateZoneSetting"),
-            when: "2024-01-01T10:30:00Z",
-            resource: AuditResource(type: "zone.settings", id: "dev_mode"),
-            zone: AuditZone(id: "z1", name: "08060331.xyz"),
-            newValueJson: ["setting_id": .string("dev_mode"), "value": .string("on")]
-        )
-    ]
 }
 
 private extension String {

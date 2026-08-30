@@ -93,55 +93,42 @@ struct PagesBindingsView: View {
         selectedEnv == "production" ? project.deploymentConfigs?.production : project.deploymentConfigs?.preview
     }
     
-    private var productionTotalCount: Int {
-        productionEnvVars.count + productionKV.count + productionD1.count + productionR2.count + productionAI.count
+    private var productionResourcesCount: Int {
+        productionKV.count + productionD1.count + productionR2.count + productionAI.count
     }
     
-    private var previewTotalCount: Int {
-        previewEnvVars.count + previewKV.count + previewD1.count + previewR2.count + previewAI.count
+    private var previewResourcesCount: Int {
+        previewKV.count + previewD1.count + previewR2.count + previewAI.count
     }
     
     var body: some View {
-        let prodLabel = "Production (\(productionTotalCount))"
-        let prevLabel = "Preview (\(previewTotalCount))"
-        
         VStack(spacing: 0) {
             // Environment Segmented Switcher
             Picker("Environment", selection: $selectedEnv) {
-                Text(prodLabel).tag("production")
-                Text(prevLabel).tag("preview")
+                Text("Production (\(productionResourcesCount))").tag("production")
+                Text("Preview (\(previewResourcesCount))").tag("preview")
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
             .onChange(of: selectedEnv) { _ in
-                HIGFeedback.impact(.light)
+                HIGFeedback.selection()
             }
             
             contentList
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Bindings & Variables")
+        .navigationTitle("Resource Bindings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        showingAddVariableSheet = true
-                    } label: {
-                        Label("Add Environment Variable", systemImage: "slider.horizontal.3")
-                    }
-                    
-                    Button {
-                        showingAttachResourceSheet = true
-                    } label: {
-                        Label("Attach Resource (KV / D1 / R2 / AI)", systemImage: "link.badge.plus")
-                    }
+                Button {
+                    showingAttachResourceSheet = true
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("Add Variable or Resource")
+                .accessibilityLabel("Attach Resource")
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
@@ -224,171 +211,7 @@ struct PagesBindingsView: View {
     @ViewBuilder
     private var contentList: some View {
         List {
-            // MARK: - 1. Plaintext Variables
-            Section(
-                header: Text("Plaintext Variables (\(plainVariables.count))"),
-                footer: Text("Plaintext variables are accessible in Pages Functions via context.env.VAR_NAME.")
-            ) {
-                if plainVariables.isEmpty {
-                    HStack {
-                        Image(systemName: "slider.horizontal.3")
-                            .foregroundStyle(.secondary)
-                        Text("No plaintext variables configured for \(selectedEnv.capitalized).")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                } else {
-                    ForEach(Array(plainVariables.keys.sorted()), id: \.self) { key in
-                        if let item = plainVariables[key] {
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "slider.horizontal.3")
-                                    .font(.body)
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.blue.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                    .accessibilityHidden(true)
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(key)
-                                        .font(.body.monospaced().weight(.semibold))
-                                        .foregroundStyle(.primary)
-                                    
-                                    if let val = item.value, !val.isEmpty {
-                                        Text(val)
-                                            .font(.caption.monospaced())
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(2)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                HIGBadge(.custom(color: .blue, text: "VARIABLE"), isCompact: true)
-                                
-                                Button {
-                                    variableToEdit = (name: key, value: item)
-                                } label: {
-                                    Image(systemName: "pencil")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.vertical, 2)
-                            .contentShape(Rectangle())
-                            .contextMenu {
-                                if let val = item.value {
-                                    Button {
-                                        UIPasteboard.general.string = val
-                                        ToastManager.shared.showCopied()
-                                        HIGFeedback.impact(.light)
-                                    } label: {
-                                        Label("Copy Value", systemImage: "doc.on.doc")
-                                    }
-                                }
-                                Button {
-                                    UIPasteboard.general.string = key
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
-                                } label: {
-                                    Label("Copy Key Name", systemImage: "doc.on.doc")
-                                }
-                                Button {
-                                    variableToEdit = (name: key, value: item)
-                                } label: {
-                                    Label("Edit Variable", systemImage: "pencil")
-                                }
-                                Button(role: .destructive) {
-                                    varNameToDelete = key
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete Variable", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    varNameToDelete = key
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 2. Encrypted Secrets
-            Section(
-                header: Text("Encrypted Secrets (\(secretVariables.count))"),
-                footer: Text("Secrets are encrypted at rest and never exposed in cleartext.")
-            ) {
-                if secretVariables.isEmpty {
-                    HStack {
-                        Image(systemName: "key.fill")
-                            .foregroundStyle(.secondary)
-                        Text("No encrypted secrets configured for \(selectedEnv.capitalized).")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                } else {
-                    ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
-                        HStack(alignment: .center, spacing: 12) {
-                            Image(systemName: "key.fill")
-                                .font(.body)
-                                .foregroundStyle(.orange)
-                                .frame(width: 32, height: 32)
-                                .background(Color.orange.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                
-                                Text("•••••••••••• (Encrypted Secret)")
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            HIGBadge(.proxied("SECRET"), isCompact: true)
-                        }
-                        .padding(.vertical, 2)
-                        .contentShape(Rectangle())
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
-                            } label: {
-                                Label("Copy Secret Name", systemImage: "doc.on.doc")
-                            }
-                            Button(role: .destructive) {
-                                varNameToDelete = key
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete Secret", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                varNameToDelete = key
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // MARK: - 3. KV Namespaces
+            // MARK: - 1. KV Namespaces
             if !currentKV.isEmpty {
                 Section(header: Text("KV Namespaces (\(currentKV.count))")) {
                     ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
@@ -630,6 +453,19 @@ struct PagesBindingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if currentStorageResourcesCount == 0 {
+                HIGContentState(
+                    .empty(
+                        title: "No Resource Bindings",
+                        systemImage: "link.badge.plus",
+                        description: "Bind Cloudflare KV, D1, R2, or AI directly to \(selectedEnv.capitalized) environment.",
+                        actionTitle: "Attach Resource",
+                        action: { showingAttachResourceSheet = true }
+                    )
+                )
+            }
+        }
     }
     
     private func deleteVariable(name: String) async {
@@ -842,6 +678,14 @@ struct PagesAttachResourceBindingSheetView: View {
     @State private var bindingType = "kv" // "kv" | "d1" | "r2" | "ai"
     @State private var variableName = ""
     @State private var resourceTarget = ""
+    @State private var isCustomInput = false
+    
+    // Existing Account Resources
+    @State private var kvNamespaces: [KVNamespace] = []
+    @State private var d1Databases: [D1Database] = []
+    @State private var r2Buckets: [R2Bucket] = []
+    @State private var isLoadingResources = false
+    
     @State private var isSaving = false
     @State private var errorMessage: String?
     
@@ -861,20 +705,53 @@ struct PagesAttachResourceBindingSheetView: View {
                             Text(label).tag(value)
                         }
                     }
+                    .onChange(of: bindingType) { newType in
+                        resourceTarget = ""
+                        autoSelectFirstResource(for: newType)
+                    }
                 }
                 
-                Section(header: Text("Binding Configuration")) {
-                    TextField("Variable Name (e.g. DB or MY_BUCKET)", text: $variableName)
-                        .keyboardType(.asciiCapable)
-                        .textInputAutocapitalization(.characters)
-                        .autocorrectionDisabled()
-                    
-                    if bindingType != "ai" {
+                Section(header: Text("Resource Selection")) {
+                    if bindingType == "ai" {
+                        HStack(spacing: 10) {
+                            Image(systemName: "brain.head.profile")
+                                .foregroundStyle(.pink)
+                            Text("Workers AI runtime binding requires no external ID.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    } else if !isCustomInput && hasExistingResources(for: bindingType) {
+                        Picker(resourcePickerLabel, selection: $resourceTarget) {
+                            ForEach(resourcePickerOptions(for: bindingType), id: \.id) { opt in
+                                Text(opt.title).tag(opt.id)
+                            }
+                        }
+                        .onChange(of: resourceTarget) { newId in
+                            updateBindingNameForSelectedTarget(targetId: newId, type: bindingType)
+                        }
+                    } else {
                         TextField(resourceTargetPlaceholder, text: $resourceTarget)
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                        
+                        if hasExistingResources(for: bindingType) {
+                            Button {
+                                isCustomInput = false
+                                autoSelectFirstResource(for: bindingType)
+                            } label: {
+                                Text("Choose from existing account resources")
+                                    .font(.caption)
+                            }
+                        }
                     }
+                }
+                
+                Section(header: Text("Binding Variable Name"), footer: Text("The identifier to access this resource inside Pages Functions (e.g. context.env.\(variableName.isEmpty ? "MY_RESOURCE" : variableName)).")) {
+                    TextField("Variable Name (e.g. DB or MY_KV)", text: $variableName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
                 }
                 
                 if let err = errorMessage {
@@ -924,6 +801,7 @@ struct PagesAttachResourceBindingSheetView: View {
                                     aiBindings: updatedAI
                                 )
                                 onSave(environment, updatedKV, updatedD1, updatedR2, updatedAI)
+                                ToastManager.shared.showSuccess("Resource Attached", icon: "link.badge.plus")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -937,6 +815,18 @@ struct PagesAttachResourceBindingSheetView: View {
                 }
             }
             .interactiveDismissDisabled(isSaving)
+            .task {
+                await fetchAccountResources()
+            }
+        }
+    }
+    
+    private var resourcePickerLabel: String {
+        switch bindingType {
+        case "kv": return "KV Namespace"
+        case "d1": return "D1 Database"
+        case "r2": return "R2 Bucket"
+        default: return "Resource"
         }
     }
     
@@ -946,6 +836,90 @@ struct PagesAttachResourceBindingSheetView: View {
         case "d1": return "D1 Database ID"
         case "r2": return "R2 Bucket Name"
         default: return "Target Identifier"
+        }
+    }
+    
+    private func hasExistingResources(for type: String) -> Bool {
+        switch type {
+        case "kv": return !kvNamespaces.isEmpty
+        case "d1": return !d1Databases.isEmpty
+        case "r2": return !r2Buckets.isEmpty
+        default: return false
+        }
+    }
+    
+    private func resourcePickerOptions(for type: String) -> [(id: String, title: String)] {
+        switch type {
+        case "kv":
+            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))...)") }
+        case "d1":
+            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))...)") }
+        case "r2":
+            return r2Buckets.map { (id: $0.name, title: $0.name) }
+        default:
+            return []
+        }
+    }
+    
+    private func autoSelectFirstResource(for type: String) {
+        switch type {
+        case "kv":
+            if let first = kvNamespaces.first {
+                resourceTarget = first.id
+                if variableName.isEmpty { variableName = first.title.uppercased().replacingOccurrences(of: "-", with: "_") }
+            }
+        case "d1":
+            if let first = d1Databases.first {
+                resourceTarget = first.uuid
+                if variableName.isEmpty { variableName = "DB" }
+            }
+        case "r2":
+            if let first = r2Buckets.first {
+                resourceTarget = first.name
+                if variableName.isEmpty { variableName = "\(first.name.uppercased().replacingOccurrences(of: "-", with: "_"))_BUCKET" }
+            }
+        case "ai":
+            if variableName.isEmpty { variableName = "AI" }
+        default:
+            break
+        }
+    }
+    
+    private func updateBindingNameForSelectedTarget(targetId: String, type: String) {
+        switch type {
+        case "kv":
+            if let item = kvNamespaces.first(where: { $0.id == targetId }) {
+                variableName = item.title.uppercased().replacingOccurrences(of: "-", with: "_")
+            }
+        case "d1":
+            if let item = d1Databases.first(where: { $0.uuid == targetId }) {
+                variableName = item.name.uppercased().replacingOccurrences(of: "-", with: "_")
+            }
+        case "r2":
+            if let item = r2Buckets.first(where: { $0.name == targetId }) {
+                variableName = "\(item.name.uppercased().replacingOccurrences(of: "-", with: "_"))_BUCKET"
+            }
+        default:
+            break
+        }
+    }
+    
+    private func fetchAccountResources() async {
+        isLoadingResources = true
+        async let kvTask = try? KVService.shared.getKVNamespaces(accountId: accountId)
+        async let d1Task = try? D1Service.shared.getD1Databases(accountId: accountId)
+        async let r2Task = try? R2Service.shared.getR2Buckets(accountId: accountId)
+        
+        let (kvRes, d1Res, r2Res) = await (kvTask, d1Task, r2Task)
+        
+        await MainActor.run {
+            self.kvNamespaces = kvRes ?? []
+            self.d1Databases = d1Res ?? []
+            self.r2Buckets = r2Res ?? []
+            self.isLoadingResources = false
+            if resourceTarget.isEmpty {
+                autoSelectFirstResource(for: bindingType)
+            }
         }
     }
 }

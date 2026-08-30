@@ -53,25 +53,4 @@ public struct HTTPInspectionResult: Equatable, Sendable {
         self.isHTTP3Supported = isHTTP3Supported
         self.responseBody = responseBody
     }
-    
-    public static let placeholder = HTTPInspectionResult(
-        url: "https://example.com",
-        statusCode: 200,
-        statusText: "OK",
-        headers: [
-            HTTPHeaderItem(key: "content-type", value: "text/html; charset=UTF-8"),
-            HTTPHeaderItem(key: "server", value: "cloudflare"),
-            HTTPHeaderItem(key: "cf-cache-status", value: "HIT"),
-            HTTPHeaderItem(key: "cf-ray", value: "89a12bc34de56789-SJC")
-        ],
-        cfRay: "89a12bc34de56789-SJC",
-        cfCacheStatus: "HIT",
-        server: "cloudflare",
-        durationMs: 42.5,
-        ttfbMs: 31.2,
-        contentEncoding: "br",
-        contentType: "text/html; charset=UTF-8",
-        httpVersion: "HTTP/2",
-        isHTTP3Supported: true
-    )
 }

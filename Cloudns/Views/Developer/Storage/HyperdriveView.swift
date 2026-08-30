@@ -17,16 +17,9 @@ struct HyperdriveView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(HyperdriveConfig.placeholders) { placeholder in
-                        configRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredConfigs.isEmpty {
+            if !viewModel.configs.isEmpty {
                 Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
-                    ForEach(viewModel.filteredConfigs) { config in
+                    ForEach(viewModel.configs) { config in
                         NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
                             configRow(config)
                         }
@@ -44,12 +37,6 @@ struct HyperdriveView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Hyperdrive"
-        )
         .navigationTitle("Hyperdrive")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -80,7 +67,9 @@ struct HyperdriveView: View {
             await viewModel.fetchConfigs()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Hyperdrive Configs..."))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
                     HIGContentState(
                         .error(
@@ -98,8 +87,6 @@ struct HyperdriveView: View {
                             action: { showingCreateSheet = true }
                         )
                     )
-                } else if viewModel.filteredConfigs.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
                 }
             }
         }

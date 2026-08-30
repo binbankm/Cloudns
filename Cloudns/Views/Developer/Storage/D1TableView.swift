@@ -56,7 +56,7 @@ struct D1TableView: View {
                 
                 if viewModel.isLoading && !viewModel.hasFetchedData {
                     cardsView
-                        .redacted(reason: .placeholder)
+                        
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
                     HIGContentState(
                         .error(

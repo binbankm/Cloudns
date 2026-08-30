@@ -16,14 +16,7 @@ struct WorkersListView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(WorkerScript.placeholders) { (script: WorkerScript) in
-                        WorkerRowView(worker: script)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredWorkers.isEmpty {
+            if !viewModel.filteredWorkers.isEmpty {
                 Section(header: Text("Workers Scripts (\(viewModel.filteredWorkers.count))")) {
                     ForEach(viewModel.filteredWorkers) { worker in
                         NavigationLink {
@@ -46,7 +39,9 @@ struct WorkersListView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Workers..."))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty {
                     HIGContentState(
                         .error(
@@ -71,7 +66,7 @@ struct WorkersListView: View {
         }
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Workers"
         )
         .navigationTitle("Workers")

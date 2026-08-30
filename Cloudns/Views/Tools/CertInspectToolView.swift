@@ -56,10 +56,14 @@ struct CertInspectToolView: View {
             }
             
             if viewModel.isLoading && viewModel.certDetails == nil {
-                Section(header: Text("Certificate Validity")) {
-                    validityRows(details: SSLCertDetails.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Inspecting SSL Certificate...")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let details = viewModel.certDetails {
                 // 2. Validity Hero Section
                 Section(header: Text("Certificate Validity")) {

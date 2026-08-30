@@ -104,7 +104,7 @@ struct CFTraceToolView: View {
         if viewModel.isLoading && viewModel.traceFields.isEmpty {
             Section(header: Text("Resolved Edge PoP")) {
                 popCard(colo: "SJC", loc: "San Jose, United States")
-                    .redacted(reason: .placeholder)
+                    
             }
         } else if !viewModel.traceFields.isEmpty {
             Section(header: Text("Resolved Edge PoP")) {

@@ -91,12 +91,14 @@ struct DNSDigToolView: View {
             // 2. Results Sections
             if queryMode == 0 {
                 if viewModel.isDnsLoading {
-                    Section(header: Text("Resolved Answers")) {
-                        ForEach(DNSAnswerItem.placeholders) { item in
-                            DNSAnswerRowView(item: item)
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView("Resolving DNS Records...")
+                            Spacer()
                         }
+                        .padding(.vertical, 8)
                     }
-                    .redacted(reason: .placeholder)
                 } else if let result = viewModel.dnsResult {
                     Section(header: Text("Resolved Answers (\(result.answers.count))")) {
                         HStack {

@@ -63,11 +63,6 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
         self.action_parameters = action_parameters
     }
     
-    static let placeholders: [WAFRule] = [
-        WAFRule(id: "rule_1", action: "block", expression: "(http.request.uri.path contains \"/admin\")", description: "Block unauthorized admin login attempts"),
-        WAFRule(id: "rule_2", action: "managed_challenge", expression: "(ip.geoip.country eq \"T1\")", description: "Challenge Tor Exit Nodes"),
-        WAFRule(id: "rule_3", action: "js_challenge", expression: "(cf.threat_score gt 30)", description: "JS Challenge High Threat Score")
-    ]
 }
 
 struct RateLimitConfig: Codable, Equatable, Sendable {

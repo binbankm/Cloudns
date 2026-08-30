@@ -38,9 +38,6 @@ public struct WorkerScript: Codable, Identifiable, Equatable, Sendable {
         self.cronTriggers = []
     }
     
-    public static let placeholders: [WorkerScript] = (0..<6).map { idx in
-        WorkerScript(id: "worker-service-\(idx + 1)")
-    }
 }
 
 public struct WorkerModuleItem: Identifiable, Hashable, Codable, Sendable {
@@ -115,9 +112,6 @@ public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
         case text
     }
     
-    public static let placeholders: [WorkerBinding] = (0..<6).map { idx in
-        WorkerBinding(name: "ENV_VARIABLE_\(idx + 1)", type: "plain_text", text: "placeholder_value_\(idx + 1)")
-    }
 }
 
 public struct WorkerSecret: Codable, Identifiable, Equatable, Sendable {
@@ -137,9 +131,6 @@ public struct WorkerSecret: Codable, Identifiable, Equatable, Sendable {
         case modifiedOn = "modified_on"
     }
     
-    public static let placeholders: [WorkerSecret] = (0..<6).map { idx in
-        WorkerSecret(name: "SECRET_KEY_\(idx + 1)", type: "secret_text", modifiedOn: "2024-01-01T00:00:00Z")
-    }
 }
 
 public struct WorkerCustomRoute: Codable, Identifiable, Equatable, Sendable {
@@ -169,10 +160,6 @@ public struct WorkerCustomDomain: Codable, Identifiable, Equatable, Sendable {
         self.service = service
     }
     
-    public static let placeholders: [WorkerCustomDomain] = [
-        WorkerCustomDomain(id: "dom_1", hostname: "api.example.com", zoneName: "example.com"),
-        WorkerCustomDomain(id: "dom_2", hostname: "auth.example.com", zoneName: "example.com")
-    ]
 }
 
 public struct WorkerSubdomain: Codable, Equatable, Sendable {
@@ -198,10 +185,6 @@ public struct WorkerSchedule: Codable, Identifiable, Equatable, Sendable {
         self.modifiedOn = modifiedOn
     }
     
-    public static let placeholders: [WorkerSchedule] = [
-        WorkerSchedule(cron: "*/5 * * * *", createdOn: "2024-01-01T00:00:00Z"),
-        WorkerSchedule(cron: "0 0 * * *", createdOn: "2024-01-01T00:00:00Z")
-    ]
 }
 
 public struct WorkerSchedulesResult: Codable, Sendable {
@@ -412,16 +395,6 @@ public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
         }
     }
     
-    public static let placeholders: [WorkerDeployment] = (1...4).reversed().map { num in
-        WorkerDeployment(
-            id: "d-\(num)-uuid-deployment",
-            number: num,
-            createdOn: "2024-01-0\(num)T12:00:00Z",
-            authorEmail: "admin@cloudflare.com",
-            source: num == 4 ? "wrangler" : "dash",
-            annotations: WorkerDeploymentAnnotations(message: "Release v1.\(num).0 - Production updates", triggeredBy: "upload")
-        )
-    }
 }
 
 public struct WorkerDeploymentAnnotations: Codable, Equatable, Sendable {

@@ -59,10 +59,14 @@ struct EdgeLatencyTestView: View {
             }
             
             if viewModel.isLatencyLoading {
-                Section(header: Text("Latency & Jitter Summary")) {
-                    metricsRows(result: EdgeLatencyResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Testing Edge Latency...")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.latencyResult {
                 // 2. Metrics Hero Section
                 Section(header: Text("Latency & Jitter Summary")) {

@@ -135,46 +135,28 @@ struct PagesDeploymentDetailView: View {
                 .disabled(isActionRunning)
             }
             
-            // MARK: - Build Logs
-            Section(header: Text("Build Logs (\(viewModel.logs.count) lines)")) {
-                if viewModel.isLoadingLogs {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(0..<4, id: \.self) { idx in
-                            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                .fill(Color.secondary.opacity(0.25))
-                                .frame(height: 10)
-                                .frame(maxWidth: idx == 3 ? 180 : .infinity)
-                        }
+            // MARK: - Build Logs Section
+            Section(
+                header: HStack {
+                    Text("Build & Execution Output")
+                    Spacer()
+                    if !viewModel.logs.isEmpty {
+                        Text("\(viewModel.logs.count) lines")
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(10)
-                    .background(Color.black.opacity(0.85))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                    .redacted(reason: .placeholder)
-                } else if viewModel.logs.isEmpty {
-                    Text("No build logs available for this deployment.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ScrollView(.horizontal) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            ForEach(viewModel.logs) { log in
-                                Text(log.line)
-                                    .font(.caption2.monospacedDigit())
-                                    .foregroundStyle(logColor(log.line))
-                            }
-                        }
-                        .padding(8)
-                        .background(Color.black.opacity(0.85))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                    }
-                    .scrollIndicators(.hidden)
-                }
+                },
+                footer: Text("Inspect real-time build stages, package installations, and Pages Functions compilation logs.")
+            ) {
+                terminalLogsCard
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    .listRowBackground(Color.clear)
             }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Deployment Details")
         .navigationBarTitleDisplayMode(.inline)
-            .presentationDragIndicator(.visible)
+        .presentationDragIndicator(.visible)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Done") { dismiss() }
@@ -190,9 +172,11 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = true
                     do {
                         try await parentViewModel.rollbackDeployment(id: deployment.id)
+                        ToastManager.shared.showSuccess("Rolled back to deployment", icon: "arrow.counterclockwise")
                         HIGFeedback.success()
                         dismiss()
                     } catch {
+                        ToastManager.shared.showError("Failed to rollback")
                         HIGFeedback.error()
                     }
                     isActionRunning = false
@@ -208,9 +192,11 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = true
                     do {
                         try await parentViewModel.deleteDeployment(id: deployment.id)
+                        ToastManager.shared.showSuccess("Deployment Deleted", icon: "trash.fill")
                         HIGFeedback.success()
                         dismiss()
                     } catch {
+                        ToastManager.shared.showError("Failed to delete")
                         HIGFeedback.error()
                     }
                     isActionRunning = false
@@ -221,15 +207,133 @@ struct PagesDeploymentDetailView: View {
         }
     }
     
+    // MARK: - Contained Terminal Logs Card
+    
+    @State private var logSearchQuery: String = ""
+    
+    private var filteredLogs: [PagesDeploymentLog] {
+        if logSearchQuery.isEmpty { return viewModel.logs }
+        return viewModel.logs.filter { $0.line.localizedStandardContains(logSearchQuery) }
+    }
+    
+    private var allLogsString: String {
+        viewModel.logs.map(\.line).joined(separator: "\n")
+    }
+    
+    @ViewBuilder
+    private var terminalLogsCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Search / Filter sub-bar (if logs exist)
+            if !viewModel.logs.isEmpty {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    
+                    TextField("Filter build logs...", text: $logSearchQuery)
+                        .font(.caption)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    
+                    if !logSearchQuery.isEmpty {
+                        Button {
+                            logSearchQuery = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    Button {
+                        UIPasteboard.general.string = allLogsString
+                        ToastManager.shared.showCopied("All Logs Copied")
+                        HIGFeedback.impact(.light)
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.doc")
+                            .font(.caption2.weight(.medium))
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.secondarySystemGroupedBackground))
+                
+                Divider()
+            }
+            
+            // Vertically scrollable console with natural text wrapping (No horizontal scrolling!)
+            if viewModel.isLoadingLogs {
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .controlSize(.regular)
+                    Text("Loading build logs from Cloudflare edge...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 200)
+            } else if viewModel.logs.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "text.line.magnify")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                    Text("No logs recorded for this deployment.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+            } else if filteredLogs.isEmpty && !logSearchQuery.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                    Text("No log lines matching '\(logSearchQuery)'")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+            } else {
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        ForEach(Array(filteredLogs.enumerated()), id: \.element.id) { idx, log in
+                            HStack(alignment: .top, spacing: 8) {
+                                Text(String(format: "%2d", idx + 1))
+                                    .font(.caption2.monospacedDigit())
+                                    .foregroundStyle(Color(.tertiaryLabel))
+                                    .frame(width: 24, alignment: .trailing)
+                                
+                                Text(log.line)
+                                    .font(.caption2.monospaced())
+                                    .foregroundStyle(logColor(log.line))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(height: 280)
+                .textSelection(.enabled)
+            }
+        }
+        .background(Color(.secondarySystemGroupedBackground))
+    }
+    
     private func logColor(_ line: String) -> Color {
         let lower = line.lowercased()
-        if lower.contains("error") || lower.contains("failed") || lower.contains("fatal") {
+        if lower.contains("error") || lower.contains("failed") || lower.contains("fatal") || lower.contains("exception") {
             return .red
         } else if lower.contains("warn") {
             return .orange
-        } else if lower.contains("success") || lower.contains("complete") {
+        } else if lower.contains("success") || lower.contains("complete") || lower.contains("published") || lower.contains("ready") {
             return .green
+        } else if lower.contains("info") || lower.contains("building") || lower.contains("deploying") {
+            return .blue
         }
-        return .white.opacity(0.85)
+        return .primary
     }
 }

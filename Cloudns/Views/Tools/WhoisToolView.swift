@@ -80,10 +80,14 @@ struct WhoisToolView: View {
             }
             
             if viewModel.isLoading && viewModel.info == nil {
-                Section(header: Text("Domain Registration")) {
-                    registrationRows(info: WhoisInfo.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Querying Whois Database...")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let info = viewModel.info {
                 // 2. Registration Hero Section
                 Section(header: Text("Domain Registration")) {

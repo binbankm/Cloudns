@@ -19,16 +19,9 @@ struct QueuesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(CFQueue.placeholders) { placeholderQueue in
-                        queueRow(placeholderQueue)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredQueues.isEmpty {
+            if !viewModel.queues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
-                    ForEach(viewModel.filteredQueues) { queue in
+                    ForEach(viewModel.queues) { queue in
                         NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
                             queueRow(queue)
                         }
@@ -54,12 +47,6 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Queues"
-        )
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -96,7 +83,9 @@ struct QueuesView: View {
             await viewModel.fetchQueues()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Message Queues..."))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
                     HIGContentState(
                         .error(
@@ -114,8 +103,6 @@ struct QueuesView: View {
                             action: { showingCreateSheet = true }
                         )
                     )
-                } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
                 }
             }
         }
