@@ -155,7 +155,7 @@ struct TurnstileDetailView: View {
                 
                 VStack(alignment: .leading, spacing: 6) {
                     ScrollView(.horizontal) {
-                        Text(snippetCode)
+                        Text(verbatim: snippetCode)
                             .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
                             .padding(.vertical, 4)

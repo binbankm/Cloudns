@@ -94,6 +94,7 @@ struct CFTraceToolView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
+            .buttonStyle(.higPressable)
             .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
     }
@@ -192,7 +193,7 @@ struct CFTraceToolView: View {
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }
@@ -267,7 +268,7 @@ struct CFTraceToolView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }

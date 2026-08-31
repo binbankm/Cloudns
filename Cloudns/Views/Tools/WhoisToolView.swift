@@ -55,7 +55,7 @@ struct WhoisToolView: View {
                                     .foregroundStyle(.teal)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -76,6 +76,7 @@ struct WhoisToolView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
             }
             
@@ -253,7 +254,7 @@ struct WhoisToolView: View {
                         .font(.caption)
                         .foregroundStyle(.blue)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }

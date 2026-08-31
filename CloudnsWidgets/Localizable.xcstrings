@@ -2779,7 +2779,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ms"
+            "value": "%@ مللي ثانية"
           }
         },
         "de": {
@@ -2833,19 +2833,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ms"
+            "value": "%@ мс"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ms"
+            "value": "%@ 毫秒"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ms"
+            "value": "%@ 毫秒"
           }
         }
       }
@@ -32963,7 +32963,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "فشلت المصادقة. يرجى التحقق من رمز Cloudflare API أو المفتاح العام في الإعدادات."
+            "value": "فشلت المصادقة. يُرجى التحقق من رمز Cloudflare API أو المفتاح العام في الإعدادات."
           }
         },
         "de": {
@@ -32981,19 +32981,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error de autenticación. Verifique su token de API de Cloudflare o clave global en Configuración."
+            "value": "Error de autenticación. Verifique su token de API de Cloudflare o clave global en Ajustes."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l'authentification. Veuillez vérifier votre jeton d'API Cloudflare ou votre clé globale dans les paramètres."
+            "value": "Échec de l'authentification. Veuillez vérifier votre jeton API Cloudflare ou votre clé globale dans les paramètres."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Autenticazione non riuscita. Verifica il token API Cloudflare o la chiave globale nelle Impostazioni."
+            "value": "Autenticazione non riuscita. Verifica il token API Cloudflare o la chiave globale in Impostazioni."
           }
         },
         "ja": {
@@ -33011,25 +33011,25 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falha na autenticação. Verifique seu token de API ou chave global do Cloudflare nas Configurações."
+            "value": "Falha na autenticação. Verifique seu token de API Cloudflare ou chave global em Configurações."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ошибка аутентификации. Проверьте токен API Cloudflare или глобальный ключ в Настройках."
+            "value": "Сбой аутентификации. Проверьте ваш API токен Cloudflare или глобальный ключ в Настройках."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "身份验证失败。请在“设置”中验证您的 Cloudflare API 令牌或全局密钥。"
+            "value": "身份验证失败。请在设置中检查您的 Cloudflare API 令牌或全局密钥。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "身分驗證失敗。請在「設定」中驗證您的 Cloudflare API 權杖或全域金鑰。"
+            "value": "身份驗證失敗。請在設定中檢查您的 Cloudflare API 權杖或全域金鑰。"
           }
         }
       }
@@ -53907,73 +53907,73 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "جارٍ التهيئة…"
+            "value": "جارٍ التكوين..."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wird konfiguriert…"
+            "value": "Konfigurieren..."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configuring…"
+            "value": "Configuring..."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurando…"
+            "value": "Configurando..."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configuration…"
+            "value": "Configuration..."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurazione…"
+            "value": "Configurazione..."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定中…"
+            "value": "設定中..."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구성 중…"
+            "value": "구성 중..."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurando…"
+            "value": "Configurando..."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройка…"
+            "value": "Настройка..."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配置中…"
+            "value": "配置中..."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "配置中…"
+            "value": "設定中..."
           }
         }
       }
@@ -89096,13 +89096,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشفير شامل من البداية إلى النهاية (يُسمح بالشهادات الموقعة ذاتيًا)."
+            "value": "مشفر من البداية إلى النهاية (يُسمح بالشهادات الموقعة ذاتيًا)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ende-zu-Ende-Verschlüsselung (selbstsigniert erlaubt)."
+            "value": "Ende-zu-Ende verschlüsselt (selbstsigniert erlaubt)."
           }
         },
         "en": {
@@ -89114,43 +89114,43 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cifrado de extremo a extremo (se permite autofirmado)."
+            "value": "Cifrado de extremo a extremo (permite autofirmado)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chiffrement de bout en bout (autosigné autorisé)."
+            "value": "Chiffré de bout en bout (auto-signé autorisé)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Crittografia end-to-end (consentiti certificati autofirmati)."
+            "value": "Crittografato end-to-end (autofirmato consentito)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "エンドツーエンドで暗号化（自己署名証明書を許可）。"
+            "value": "エンドツーエンドで暗号化（自己署名証明書許可）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "엔드투엔드 암호화 (자체 서명 인증서 허용)."
+            "value": "엔드투엔드 암호화(자체 서명 허용)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Criptografia de ponta a ponta (autoassinado permitido)."
+            "value": "Criptografado de ponta a ponta (autoassinado permitido)."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сквозное шифрование (допускается самоподписанный сертификат)."
+            "value": "Сквозное шифрование (разрешены самоподписанные сертификаты)."
           }
         },
         "zh-Hans": {
@@ -89162,7 +89162,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "端到端加密（允許自我簽署憑證）。"
+            "value": "端對端加密（允許自簽名憑證）。"
           }
         }
       }
@@ -89173,13 +89173,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشفير شامل مع شهادة CA موثقة."
+            "value": "مشفر من البداية إلى النهاية باستخدام شهادة CA موثقة."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ende-zu-Ende-Verschlüsselung mit verifiziertem CA-Zertifikat."
+            "value": "Ende-zu-Ende verschlüsselt mit verifiziertem CA-Zertifikat."
           }
         },
         "en": {
@@ -89197,31 +89197,31 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chiffrement de bout en bout avec certificat CA vérifié."
+            "value": "Chiffré de bout en bout avec certificat CA vérifié."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Crittografia end-to-end con certificato CA verificato."
+            "value": "Crittografato end-to-end con certificato CA verificato."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "エンドツーエンドで暗号化（有効な CA 証明書が必要）。"
+            "value": "エンドツーエンドで暗号化（信頼できる CA 証明書必須）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "엔드투엔드 암호화 (유효한 CA 인증서 필요)."
+            "value": "엔드투엔드 암호화(공인 CA 인증서 필요)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Criptografia de ponta a ponta com certificado CA verificado."
+            "value": "Criptografado de ponta a ponta com certificado CA verificado."
           }
         },
         "ru": {
@@ -89233,13 +89233,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "端到端加密（需要有效的 CA 证书）。"
+            "value": "端到端加密（需受信任 CA 证书）。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "端到端加密（需要有效的 CA 憑證）。"
+            "value": "端對端加密（需受信任 CA 憑證）。"
           }
         }
       }
@@ -89481,13 +89481,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مشفر حتى الحافة، HTTP عادي إلى الخادم الأصلي."
+            "value": "مشفر إلى الحافة، وHTTP نص عادي إلى الخادم الأصلي."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bis zum Edge verschlüsselt, reines HTTP zum Origin."
+            "value": "Verschlüsselt zum Edge, Klartext-HTTP zum Origin."
           }
         },
         "en": {
@@ -89499,13 +89499,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cifrado en el borde, HTTP sin cifrar al origen."
+            "value": "Cifrado hasta el Edge, HTTP en texto plano al origen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chiffré jusqu'au Edge, HTTP en clair vers l'origine."
+            "value": "Chiffré vers l'Edge, HTTP en clair vers l'origine."
           }
         },
         "it": {
@@ -89523,7 +89523,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "에지까지 암호화, 원본에는 일반 HTTP 전송."
+            "value": "엣지까지 암호화, 원본 서버는 일반 HTTP."
           }
         },
         "pt-BR": {
@@ -89535,19 +89535,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Шифрование до Edge, обычный HTTP к серверу источника."
+            "value": "Шифрование до Edge, обычный HTTP до источника."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "边缘加密，到源服务器使用明文 HTTP。"
+            "value": "访客到边缘加密，边缘到源站明文 HTTP。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "邊緣加密，到源伺服器使用明文 HTTP。"
+            "value": "訪客至邊緣加密，邊緣至源站明文 HTTP。"
           }
         }
       }
@@ -105213,25 +105213,25 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Élevé (Plus sécurisé)"
+            "value": "Élevé (Le plus sécurisé)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alto (Massima sicurezza)"
+            "value": "Alto (Più sicuro)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高 (高セキュリティ)"
+            "value": "高（最も安全）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "높음 (가장 안전)"
+            "value": "높음(가장 안전함)"
           }
         },
         "pt-BR": {
@@ -105243,19 +105243,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Высокий (Макс. безопасность)"
+            "value": "Высокий (Наиболее безопасный)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "高（最安全）"
+            "value": "高（最高安全性）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "高（最安全）"
+            "value": "高（最高安全性）"
           }
         }
       }
@@ -108346,73 +108346,73 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/asset.js, https://…"
+            "value": "https://example.com/asset.js, https://..."
           }
         }
       }
@@ -108423,73 +108423,73 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://example.com/static/, …"
+            "value": "https://example.com/static/, ..."
           }
         }
       }
@@ -109501,7 +109501,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أنا أتعرض لهجوم!"
+            "value": "أنا تحت الهجوم!"
           }
         },
         "de": {
@@ -109555,7 +109555,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сайт атакован!"
+            "value": "Я под атакой!"
           }
         },
         "zh-Hans": {
@@ -109567,7 +109567,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "我正受到攻擊！"
+            "value": "我正遭受攻擊！"
           }
         }
       }
@@ -113582,7 +113582,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "عنوان URL الخاص بواجهة برمجة التطبيقات غير صالح."
+            "value": "عنوان URL لواجهة برمجة التطبيقات غير صالح."
           }
         },
         "de": {
@@ -113606,13 +113606,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL de l'API invalide."
+            "value": "URL d'API non valide."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL dell'API non valido."
+            "value": "URL API non valido."
           }
         },
         "ja": {
@@ -113630,25 +113630,25 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL da API inválida."
+            "value": "URL de API inválida."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Неверный URL-адрес API."
+            "value": "Недействительный URL-адрес API."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "API URL 无效。"
+            "value": "无效的 API URL 地址。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "API URL 無效。"
+            "value": "無效的 API URL 位址。"
           }
         }
       }
@@ -113831,13 +113831,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Respuesta no válida del servidor Cloudflare."
+            "value": "Respuesta no válida del servidor de Cloudflare."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réponse invalide du serveur Cloudflare."
+            "value": "Réponse non valide du serveur Cloudflare."
           }
         },
         "it": {
@@ -113849,13 +113849,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare サーバーからの無効な応答です。"
+            "value": "Cloudflare サーバーからの応答が無効です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare 서버의 응답이 유효하지 않습니다."
+            "value": "Cloudflare 서버의 응답이 잘못되었습니다."
           }
         },
         "pt-BR": {
@@ -113867,19 +113867,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Недопустимый ответ от сервера Cloudflare."
+            "value": "Неверный ответ от сервера Cloudflare."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare 服务器返回无效响应。"
+            "value": "来自 Cloudflare 服务器的响应无效。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare 伺服器傳回無效回應。"
+            "value": "來自 Cloudflare 伺服器的回應無效。"
           }
         }
       }
@@ -129906,13 +129906,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "منخفض (أقل عدد من التحديات)"
+            "value": "منخفض (أقل تحديات)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Niedrig (Wenige Challenges)"
+            "value": "Niedrig (Wenigste Abfragen)"
           }
         },
         "en": {
@@ -129936,19 +129936,19 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Basso (Meno controlli)"
+            "value": "Basso (Meno verifiche)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "低 (最も少ないチャレンジ)"
+            "value": "低（チャレンジ最少）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "낮음 (최소 챌린지)"
+            "value": "낮음(가장 적은 챌린지)"
           }
         },
         "pt-BR": {
@@ -129966,13 +129966,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "低（最少质询）"
+            "value": "低（最少验证）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "低（最少質詢）"
+            "value": "低（最少驗證）"
           }
         }
       }
@@ -133099,13 +133099,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "中 (標準バランス)"
+            "value": "中（バランス）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "중간 (균형 권장)"
+            "value": "중간(균형)"
           }
         },
         "pt-BR": {
@@ -133123,13 +133123,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中（平衡推荐）"
+            "value": "中（平衡模式）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "中（平衡推薦）"
+            "value": "中（平衡模式）"
           }
         }
       }
@@ -147036,13 +147036,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ビジターとオリジン間は暗号化されません。"
+            "value": "ビジターとオリジン間に暗号化なし。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "방문자와 원본 서버 간에 암호화되지 않습니다."
+            "value": "방문자와 원본 서버 간에 암호화가 없습니다."
           }
         },
         "pt-BR": {
@@ -147054,19 +147054,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Без шифрования между посетителем и сервером источника."
+            "value": "Нет шифрования между посетителем и источником."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "访客与源服务器之间完全不加密。"
+            "value": "访客与源站之间无加密。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "訪客與源伺服器之間完全不加密。"
+            "value": "訪客與源站之間無加密。"
           }
         }
       }
@@ -165172,7 +165172,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى التحقق من تحديثات التطبيق لدعم أحدث مخطط Cloudflare API."
+            "value": "يُرجى التحقق من تحديثات التطبيق لدعم أحدث مخطط لـ Cloudflare API."
           }
         },
         "de": {
@@ -165196,7 +165196,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez rechercher des mises à jour de l'application pour prendre en charge le dernier schéma d'API Cloudflare."
+            "value": "Veuillez vérifier les mises à jour de l'application pour prendre en charge le dernier schéma d'API Cloudflare."
           }
         },
         "it": {
@@ -165208,7 +165208,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新の Cloudflare API スキーマをサポートするためにアプリのアップデートを確認してください。"
+            "value": "最新の Cloudflare API スキーマをサポートするため、アプリのアップデートを確認してください。"
           }
         },
         "ko": {
@@ -165220,25 +165220,25 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique se há atualizações do aplicativo para oferecer suporte ao esquema mais recente da API Cloudflare."
+            "value": "Verifique se há atualizações do aplicativo para oferecer suporte ao esquema de API Cloudflare mais recente."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, проверьте наличие обновлений приложения для поддержки последней схемы API Cloudflare."
+            "value": "Проверьте наличие обновлений приложения для поддержки последней схемы API Cloudflare."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请检查应用更新以支持最新的 Cloudflare API 数据结构。"
+            "value": "请检查应用更新以支持最新的 Cloudflare API 规范。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請檢查應用程式更新以支援最新的 Cloudflare API 資料架構。"
+            "value": "請檢查應用程式更新以支援最新的 Cloudflare API 規格。"
           }
         }
       }
@@ -165249,13 +165249,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى التحقق من إعدادات نقطة النهاية وتنسيق اسم المجال."
+            "value": "يُرجى التحقق من إعدادات نقطة النهاية وتنسيق اسم النطاق."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitte überprüfen Sie Ihre Endpunkteinstellungen und das Domainnamenformat."
+            "value": "Bitte überprüfen Sie Ihre Endpunkteinstellungen und das Domainnamen-Format."
           }
         },
         "en": {
@@ -165267,25 +165267,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique la configuración de su punto final y el formato del nombre de dominio."
+            "value": "Verifique la configuración del extremo y el formato del nombre de dominio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez vérifier vos paramètres de point de terminaison et le format de votre nom de domaine."
+            "value": "Veuillez vérifier les paramètres de votre point de terminaison et le format du nom de domaine."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Controlla le impostazioni dell'endpoint e il formato del nome di dominio."
+            "value": "Verifica le impostazioni dell'endpoint e il formato del nome di dominio."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "エンドポイント設定とドメイン名形式を確認してください。"
+            "value": "エンドポイント設定とドメイン名の形式を確認してください。"
           }
         },
         "ko": {
@@ -165303,19 +165303,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, проверьте настройки конечной точки и формат доменного имени."
+            "value": "Проверьте настройки конечной точки и формат доменного имени."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请检查您的终结点设置和域名格式。"
+            "value": "请检查您的接口设置和域名格式。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請檢查您的端點設定和網域稱格式。"
+            "value": "請檢查您的端點設定和網域名稱格式。"
           }
         }
       }
@@ -165326,7 +165326,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى."
+            "value": "يُرجى التحقق من اتصال الشبكة وإعادة المحاولة."
           }
         },
         "de": {
@@ -165344,7 +165344,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique su conexión de red e intente nuevamente."
+            "value": "Compruebe su conexión de red e inténtelo de nuevo."
           }
         },
         "fr": {
@@ -165356,7 +165356,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Controlla la tua connessione di rete e riprova."
+            "value": "Verifica la tua connessione di rete e riprova."
           }
         },
         "ja": {
@@ -165380,7 +165380,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, проверьте подключение к сети и повторите попытку."
+            "value": "Проверьте подключение к сети и повторите попытку."
           }
         },
         "zh-Hans": {
@@ -165557,13 +165557,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى إعادة إدخال بيانات اعتماد واجهة برمجة التطبيقات في إعدادات الحساب."
+            "value": "يُرجى إعادة إدخال بيانات اعتماد API في إعدادات الحساب."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitte geben Sie Ihre API-Anmeldeinformationen in den Kontoeinstellungen erneut ein."
+            "value": "Bitte geben Sie Ihre API-Anmeldedaten in den Kontoeinstellungen erneut ein."
           }
         },
         "en": {
@@ -165575,19 +165575,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vuelva a ingresar sus credenciales de API en la configuración de la cuenta."
+            "value": "Vuelva a introducir sus credenciales de API en los Ajustes de la cuenta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez saisir à nouveau vos identifiants d'API dans les paramètres du compte."
+            "value": "Veuillez saisir à nouveau vos identifiants API dans les paramètres du compte."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reinserisci le tue credenziali API nelle Impostazioni account."
+            "value": "Reinserisci le tue credenziali API in Impostazioni account."
           }
         },
         "ja": {
@@ -165611,7 +165611,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, повторно введите свои учетные данные API в настройках аккаунта."
+            "value": "Повторно введите свои учетные данные API в настройках учетной записи."
           }
         },
         "zh-Hans": {
@@ -165623,7 +165623,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在帳戶設定中重新輸入您的 API 憑證。"
+            "value": "請在帳號設定中重新輸入您的 API 憑證。"
           }
         }
       }
@@ -165634,7 +165634,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى المحاولة مرة أخرى لاحقًا أو التحقق من حالة Cloudflare."
+            "value": "يُرجى المحاولة مرة أخرى لاحقًا أو التحقق من حالة Cloudflare."
           }
         },
         "de": {
@@ -165652,13 +165652,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Intente nuevamente más tarde o consulte el estado de Cloudflare."
+            "value": "Inténtelo de nuevo más tarde o consulte el estado de Cloudflare."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez réessayer plus tard ou vérifier l'état de Cloudflare."
+            "value": "Veuillez réessayer plus tard ou vérifier l'état du service Cloudflare."
           }
         },
         "it": {
@@ -165670,7 +165670,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "後でもう一度試すか、Cloudflare のステータスを確認してください。"
+            "value": "後でもう一度お試しいただくか、Cloudflare のステータスページを確認してください。"
           }
         },
         "ko": {
@@ -165682,13 +165682,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tente novamente mais tarde ou verifique o status do Cloudflare."
+            "value": "Tente novamente mais tarde ou verifique o Cloudflare Status."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, повторите попытку позже или проверьте статус Cloudflare."
+            "value": "Повторите попытку позже или проверьте статус Cloudflare."
           }
         },
         "zh-Hans": {
@@ -165711,7 +165711,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يرجى التحقق من معلمات الإدخال والأذونات الخاصة بك."
+            "value": "يُرجى التحقق من معلمات الإدخال والأذونات."
           }
         },
         "de": {
@@ -165729,19 +165729,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique sus parámetros de entrada y permisos."
+            "value": "Verifique los parámetros de entrada y los permisos."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez vérifier vos paramètres d'entrée et vos autorisations."
+            "value": "Veuillez vérifier vos paramètres de saisie et vos autorisations."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifica i parametri di input e le autorizzazioni."
+            "value": "Verifica i parametri di input e i permessi."
           }
         },
         "ja": {
@@ -165765,19 +165765,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пожалуйста, проверьте входные параметры и разрешения."
+            "value": "Проверьте входные параметры и права доступа."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请验证您的输入参数和权限。"
+            "value": "请验证您的输入参数和权限设置。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請驗證您的輸入參數和權限。"
+            "value": "請驗證您的輸入參數和權限設定。"
           }
         }
       }
@@ -173648,7 +173648,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle zwischengespeicherten Ressourcen löschen, die mit URL-Präfixen übereinstimmen (Enterprise)."
+            "value": "Alle zwischengespeicherten Ressourcen bereinigen, die mit URL-Präfixen übereinstimmen (Enterprise)."
           }
         },
         "en": {
@@ -173660,37 +173660,37 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purgar todos los recursos en caché que coincidan con prefijos de URL (Enterprise)."
+            "value": "Purgar todos los recursos en caché que coincidan con los prefijos de URL (Enterprise)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purger toutes les ressources en cache correspondant aux préfixes d'URL (Enterprise)."
+            "value": "Purger toutes les ressources en cache correspondant aux préfixes d'URL (Entreprise)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina tutte le risorse memorizzate nella cache corrispondenti ai prefissi URL (Enterprise)."
+            "value": "Elimina tutte le risorse nella cache corrispondenti ai prefissi URL (Enterprise)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL プレフィックスに一致するすべてのキャッシュをパージします (Enterprise)。"
+            "value": "URL プレフィックスに一致するすべてのキャッシュリソースをパージ（Enterprise）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL 접두사와 일치하는 모든 캐시 리소스를 제거합니다 (Enterprise)."
+            "value": "URL 접두사와 일치하는 모든 캐시 리소스 제거(Enterprise)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpar todos os recursos em cache que correspondam a prefixos de URL (Enterprise)."
+            "value": "Limpar todos os recursos em cache correspondentes aos prefixos de URL (Enterprise)."
           }
         },
         "ru": {
@@ -173708,7 +173708,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除符合 URL 字首的所有快取資源（企業版）。"
+            "value": "清除符合 URL 前綴的所有快取資源（企業版）。"
           }
         }
       }
@@ -173719,13 +173719,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مسح جميع الموارد المخزنة مؤقتًا على أسماء مضيفين محددين (Enterprise)."
+            "value": "مسح جميع الموارد المخزنة مؤقتًا على أسماء مضيفين محددة (Enterprise)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle zwischengespeicherten Ressourcen auf bestimmten Hostnamen leeren (Enterprise)."
+            "value": "Alle zwischengespeicherten Ressourcen auf bestimmten Hostnamen bereinigen (Enterprise)."
           }
         },
         "en": {
@@ -173737,31 +173737,31 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purgar todos los recursos en caché de nombres de host específicos (Enterprise)."
+            "value": "Purgar todos los recursos almacenados en caché en nombres de host específicos (Enterprise)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purger toutes les ressources en cache sur des noms d'hôte spécifiques (Enterprise)."
+            "value": "Purger toutes les ressources en cache sur des noms d'hôte spécifiques (Entreprise)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina tutte le risorse memorizzate nella cache per host specifici (Enterprise)."
+            "value": "Elimina tutte le risorse memorizzate nella cache su nomi host specifici (Enterprise)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "指定したホスト名のすべてのキャッシュをパージします (Enterprise)。"
+            "value": "特定のホスト名上のすべてのキャッシュリソースをパージ（Enterprise）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "특정 호스트명의 모든 캐시 리소스를 제거합니다 (Enterprise)."
+            "value": "특정 호스트 이름의 모든 캐시 리소스 제거(Enterprise)."
           }
         },
         "pt-BR": {
@@ -173773,19 +173773,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Очистить все кэшированные ресурсы на определенных хостах (Enterprise)."
+            "value": "Очистить все кэшированные ресурсы для определенных имен хостов (Enterprise)."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除指定主机名上的所有缓存资源（企业版）。"
+            "value": "清除特定主机名上的所有缓存资源（企业版）。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除指定主機名稱上的所有快取資源（企業版）。"
+            "value": "清除特定主機名稱上的所有快取資源（企業版）。"
           }
         }
       }
@@ -174412,13 +174412,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مسح الموارد المخزنة مؤقتًا حسب قيم رأس Cache-Tag (Enterprise)."
+            "value": "مسح الموارد المخزنة مؤقتًا حسب قيم ترويسة Cache-Tag (Enterprise)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zwischengespeicherte Ressourcen nach Cache-Tag-Header-Werten leeren (Enterprise)."
+            "value": "Zwischengespeicherte Ressourcen nach Cache-Tag-Header-Werten bereinigen (Enterprise)."
           }
         },
         "en": {
@@ -174430,37 +174430,37 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purgar recursos en caché según los valores del encabezado Cache-Tag (Enterprise)."
+            "value": "Purgar recursos en caché por valores de encabezado Cache-Tag (Enterprise)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purger les ressources en cache par les valeurs d'en-tête Cache-Tag (Enterprise)."
+            "value": "Purger les ressources en cache par les valeurs d'en-tête Cache-Tag (Entreprise)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina le risorse memorizzate nella cache per valori di intestazione Cache-Tag (Enterprise)."
+            "value": "Elimina le risorse memorizzate nella cache in base ai valori dell'intestazione Cache-Tag (Enterprise)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cache-Tag ヘッダー値によってキャッシュされたリソースをパージします (Enterprise)。"
+            "value": "Cache-Tag ヘッダー値でキャッシュリソースをパージ（Enterprise）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cache-Tag 헤더 값으로 캐시된 리소스를 제거합니다 (Enterprise)."
+            "value": "Cache-Tag 헤더 값으로 캐시된 리소스 제거(Enterprise)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpar recursos em cache por valores de cabeçalho Cache-Tag (Enterprise)."
+            "value": "Limpar recursos em cache pelos valores do cabeçalho Cache-Tag (Enterprise)."
           }
         },
         "ru": {
@@ -174472,13 +174472,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "根据 Cache-Tag 响应头标签清除缓存资源（企业版）。"
+            "value": "按 Cache-Tag 响应头标签清除缓存资源（企业版）。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "根據 Cache-Tag 回應標頭標籤清除快取資源（企業版）。"
+            "value": "按 Cache-Tag 回應標頭標籤清除快取資源（企業版）。"
           }
         }
       }
@@ -174720,13 +174720,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مسح عناوين URL الكاملة والدقيقة (مفصولة بفواصل)."
+            "value": "مسح عناوين URL الكاملة الدقيقة (مفصولة بفواصل)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exakte vollständige URLs leeren (kommagetrennt)."
+            "value": "Genaue vollständige URLs bereinigen (kommagetrennt)."
           }
         },
         "en": {
@@ -174738,37 +174738,37 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purgar URL exactas completas (separadas por comas)."
+            "value": "Purgar URL completas exactas (separadas por comas)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purger les URL exactes complètes (séparées par des virgules)."
+            "value": "Purger les URL complètes exactes (séparées par des virgules)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina URL esatti completi (separati da virgola)."
+            "value": "Elimina URL completi esatti (separati da virgole)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完全一致する URL をパージします (カンマ区切り)。"
+            "value": "完全な URL を指定してパージ（カンマ区切り）。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "정확한 전체 URL을 제거합니다 (쉼표로 구분)."
+            "value": "정확한 전체 URL 제거(쉼표로 구분)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpar URLs exatas completas (separadas por vírgulas)."
+            "value": "Limpar URLs completas exatas (separadas por vírgula)."
           }
         },
         "ru": {
@@ -174780,13 +174780,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除完全匹配的完整 URL（逗号分隔）。"
+            "value": "清除指定精确完整 URL（英文逗号分隔）。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除完全相符的完整 URL（逗號分隔）。"
+            "value": "清除指定精確完整 URL（英文逗號分隔）。"
           }
         }
       }
@@ -209293,7 +209293,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "سلسلة استعلام قياسية"
+            "value": "سلسلة الاستعلام القياسية"
           }
         },
         "de": {
@@ -209329,7 +209329,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "標準クエリ文字列"
+            "value": "標準のクエリ文字列"
           }
         },
         "ko": {
@@ -209353,13 +209353,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标准查询字符串缓存"
+            "value": "标准查询字符串"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "標準查詢字串快取"
+            "value": "標準查詢字串"
           }
         }
       }
@@ -216762,7 +216762,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تم رفض رمز واجهة برمجة التطبيقات أو المفتاح المقدم أو انتهت صلاحيته."
+            "value": "تم رفض رمز أو مفتاح API المقدم أو انتهت صلاحيته."
           }
         },
         "de": {
@@ -216780,25 +216780,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El token o la clave de API proporcionados fueron rechazados o han caducado."
+            "value": "El token o clave de API proporcionado ha sido rechazado o ha expirado."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le jeton ou la clé d'API fourni(e) a été rejeté(e) ou a expiré."
+            "value": "Le jeton ou la clé API fourni(e) a été rejeté(e) ou a expiré."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il token API o la chiave forniti sono stati rifiutati o sono scaduti."
+            "value": "Il token o la chiave API forniti sono stati rifiutati o sono scaduti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "提供された API トークンまたはキーが拒否されたか、期限切れです。"
+            "value": "指定された API トークンまたはキーが拒否されたか、期限切れです。"
           }
         },
         "ko": {
@@ -216810,25 +216810,25 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O token de API ou chave fornecida foi rejeitada ou expirou."
+            "value": "O token ou chave de API fornecido foi rejeitado ou expirou."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Предоставленный токен API или ключ был отклонен или истек срок его действия."
+            "value": "Предоставленный API токен или ключ отклонен или истек."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "提供的 API 令牌或密钥被拒绝或已过期。"
+            "value": "提供的 API 令牌或密钥已被拒绝或已过期。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "提供的 API 權杖或金鑰被拒絕或已過期。"
+            "value": "提供的 API 權杖或金鑰已被拒絕或已過期。"
           }
         }
       }
@@ -216839,7 +216839,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "عنوان URL الذي تم إنشاؤه غير صالح أو تعذر تحليله."
+            "value": "كان عنوان URL الذي تم إنشاؤه مشوهًا أو تعذر تحليله."
           }
         },
         "de": {
@@ -216863,25 +216863,25 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'URL construite était mal formée ou n'a pas pu être analysée."
+            "value": "L'URL construite était malformée ou n'a pas pu être analysée."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'URL costruito non è valido o non è stato possibile analizzarlo."
+            "value": "L'URL creato non è valido o non è stato possibile analizzarlo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作成された URL の形式が正しくないか、解析できませんでした。"
+            "value": "構築された URL の形式が正しくないか、解析できませんでした。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구성된 URL이 잘못되었거나 구문 분석할 수 없습니다."
+            "value": "생성된 URL의 형식이 잘못되었거나 구문 분석할 수 없습니다."
           }
         },
         "pt-BR": {
@@ -216893,13 +216893,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сформированный URL-адрес был поврежден или не может быть проанализирован."
+            "value": "Сформированный URL-адрес имеет неверный формат или не может быть проанализирован."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "构造的 URL 格式错误或无法解析。"
+            "value": "构建的 URL 格式错误或无法解析。"
           }
         },
         "zh-Hant": {
@@ -217183,13 +217183,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サーバーが非標準の HTTP ステータスコードまたは空の応答本文を返しました。"
+            "value": "サーバーが非標準の HTTP ステータスコードまたは空のレスポンス本文を返しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "서버가 비표준 HTTP 상태 코드 또는 빈 응답 본문을 반환했습니다."
+            "value": "서버에서 비표준 HTTP 상태 코드 또는 빈 응답 본문을 반환했습니다."
           }
         },
         "pt-BR": {
@@ -246397,6 +246397,1238 @@
           "stringUnit": {
             "state": "translated",
             "value": "شهادات الأصل"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete row with rowid '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete row with rowid '%@'?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要删除 rowid 为“%@”的行吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除 rowid 為「%@」的資料列嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rowid '%@' の行を削除してもよろしいですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rowid '%@' 행을 삭제하시겠습니까?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sind Sie sicher, dass Sie die Zeile mit rowid '%@' löschen möchten?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir supprimer la ligne avec rowid '%@' ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Seguro que desea eliminar la fila con rowid '%@'?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler eliminare la riga con rowid '%@'?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza de que deseja excluir a linha com rowid '%@'?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы уверены, что хотите удалить строку с rowid '%@'?"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل أنت متأكد من رغبتك في حذف الصف ذي rowid '%@'؟"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete secret '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete secret '%@'?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要删除机密“%@”吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除密鑰「%@」嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シークレット '%@' を削除してもよろしいですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시크릿 '%@'을(를) 삭제하시겠습니까?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sind Sie sicher, dass Sie das Secret '%@' löschen möchten?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir supprimer le secret '%@' ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Seguro que desea eliminar el secreto '%@'?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler eliminare il segreto '%@'?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza de que deseja excluir o segredo '%@'?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы уверены, что хотите удалить секрет '%@'?"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل أنت متأكد من رغبتك في حذف السر '%@'؟"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete variable '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete variable '%@'?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要删除环境变量“%@”吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除環境變數「%@」嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "環境変数 '%@' を削除してもよろしいですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "환경 변수 '%@'을(를) 삭제하시겠습니까?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sind Sie sicher, dass Sie die Variable '%@' löschen möchten?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir supprimer la variable '%@' ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Seguro que desea eliminar la variable '%@'?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler eliminare la variabile '%@'?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza de que deseja excluir a variável '%@'?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы уверены, что хотите удалить переменную '%@'?"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل أنت متأكد من رغبتك في حذف المتغير '%@'؟"
+          }
+        }
+      }
+    },
+    "%@ Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 快取"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ キャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 캐시"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Cache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache do %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ذاكرة التخزين المؤقت لـ %@"
+          }
+        }
+      }
+    },
+    "Total (24h)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total (24h)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近 24 小时总量"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近 24 小時總量"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計（24時間）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "총계(24시간)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesamt (24 Std.)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total (24 h)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total (24 h)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Totale (24h)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total (24h)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всего (24 ч)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإجمالي (24 ساعة)"
+          }
+        }
+      }
+    },
+    "%@ subrequests / req": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ subrequests / req"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 次子请求 / 请求"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 次子請求 / 請求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ サブリクエスト / リクエスト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 하위 요청 / 요청"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Unteranfragen / Anfrage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sous-requêtes / requête"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ subsolicitudes / solicitud"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sottorichieste / richiesta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sub-requisições / requisição"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ подзапросов / запрос"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ طلب فرعي / طلب"
+          }
+        }
+      }
+    },
+    "%lld Consumers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Consumers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个消费者"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 個取用者"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 個のコンシューマー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 소비자"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Consumer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld consommateurs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld consumidores"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld consumer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld consumidores"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld потребителей"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld مستهلك"
+          }
+        }
+      }
+    },
+    "Active Issues & Maintenance (%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Issues & Maintenance (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前故障与维护 (%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "當前問題與維護 (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "発生中の障害・メンテナンス (%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "활성 문제 및 유지 관리 (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktive Probleme & Wartung (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incidents actifs et maintenance (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incidencias activas y mantenimiento (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problemi attivi e manutenzione (%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problemas ativos e manutenção (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Активные проблемы и обслуживание (%lld)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المشكلات الجارية والصيانة (%lld)"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete environment variable '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete environment variable '%@'?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要删除环境变量“%@”吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除環境變數「%@」嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "環境変数 '%@' を削除してもよろしいですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "환경 변수 '%@'을(를) 삭제하시겠습니까?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sind Sie sicher, dass Sie die Umgebungsvariable '%@' löschen möchten?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir supprimer la variable d'environnement '%@' ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Seguro que desea eliminar la variable de entorno '%@'?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler eliminare la variabile di ambiente '%@'?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza de que deseja excluir a variável de ambiente '%@'?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы уверены, что хотите удалить переменную окружения '%@'?"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل أنت متأكد من رغبتك في حذف متغير البيئة '%@'؟"
+          }
+        }
+      }
+    },
+    "CIDR Calculator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR Calculator"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR 计算器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR 計算機"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR 計算ツール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR 계산기"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CIDR-Rechner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculateur CIDR"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculadora CIDR"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcolatore CIDR"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculadora CIDR"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Калькулятор CIDR"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حاسبة CIDR"
+          }
+        }
+      }
+    },
+    "Core Services & APIs (%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core Services & APIs (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心服务与 API (%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心服務與 API (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コアサービスと API (%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "핵심 서비스 및 API (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kerndienste & APIs (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Services essentiels et API (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicios principales y API (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servizi principali e API (%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serviços principais e APIs (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Основные службы и API (%lld)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الخدمات الأساسية وواجهات برمجة التطبيقات (%lld)"
+          }
+        }
+      }
+    },
+    "Data formatting error: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data formatting error: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据格式化错误：%@ "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "資料格式化錯誤：%@ "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データフォーマットエラー: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터 서식 오류: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenformatierungsfehler: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur de formatage des données : %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error de formato de datos: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errore di formattazione dati: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erro de formatação de dados: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибка форматирования данных: %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خطأ في تنسيق البيانات: %@"
+          }
+        }
+      }
+    },
+    "Default: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认：%@ "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預設：%@ "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デフォルト: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본값: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par défaut : %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predeterminado: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predefinito: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Padrão: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По умолчанию: %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتراضي: %@"
+          }
+        }
+      }
+    },
+    "Expired: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expired: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已过期：%@ "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已過期：%@ "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効期限切れ: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만료됨: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgelaufen: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expiré : %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expirado: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scaduto: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expirado: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Истек: %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "منتهي الصلاحية: %@"
+          }
+        }
+      }
+    },
+    "Global Edge PoP Locations (%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global Edge PoP Locations (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球边缘 PoP 节点分布 (%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球邊緣 PoP 節點分佈 (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グローバルエッジ PoP ロケーション (%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "글로벌 엣지 PoP 위치 (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Globale Edge-PoP-Standorte (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emplacements PoP Edge mondiaux (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicaciones PoP de Edge globales (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizioni PoP Edge globali (%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locais de PoP de borda globais (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Глобальные точки присутствия Edge (%lld)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مواقع نقاط تواجد الحافة العالمية (%lld)"
+          }
+        }
+      }
+    },
+    "Network Error: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network Error: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络错误：%@ "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網路錯誤：%@ "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ネットワークエラー: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네트워크 오류: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netzwerkfehler: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur réseau : %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error de red: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errore di rete: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erro de rede: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сетевая ошибка: %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خطأ في الشبكة: %@"
           }
         }
       }

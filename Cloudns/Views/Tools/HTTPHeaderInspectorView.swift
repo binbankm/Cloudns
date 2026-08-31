@@ -67,6 +67,7 @@ struct HTTPHeaderInspectorView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
             }
             
@@ -243,7 +244,7 @@ struct HTTPHeaderInspectorView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .higTouchTarget()
                 }
                 

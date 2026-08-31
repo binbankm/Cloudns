@@ -211,7 +211,7 @@ struct DashboardView: View {
                     badge: "Domains"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
             NavigationLink {
                 DeveloperHubView()
@@ -225,7 +225,7 @@ struct DashboardView: View {
                     badge: "Compute"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -243,7 +243,7 @@ struct DashboardView: View {
                     badge: "Storage"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -261,7 +261,7 @@ struct DashboardView: View {
                     badge: "Tunnel"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
         }
     }
     
@@ -291,42 +291,42 @@ struct DashboardView: View {
                 NavigationLink(destination: AddZoneView()) {
                     QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: DNSDigToolView()) {
                     QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DoH Dig")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CFTraceToolView()) {
                     QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CertInspectToolView()) {
                     QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Inspect")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: IPLookupToolView()) {
                     QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: WhoisToolView()) {
                     QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "WHOIS")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: EdgeLatencyTestView()) {
                     QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CIDRCalculatorView()) {
                     QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .green, title: "CIDR Calc")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
             }
             .padding(.vertical, 14)
             .padding(.horizontal, 10)
@@ -493,7 +493,7 @@ struct DashboardMetricCardView: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
 

@@ -64,7 +64,7 @@ struct CIDRCalculatorView: View {
                                     .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -113,7 +113,7 @@ struct CIDRCalculatorView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.higPressable)
                         .higTouchTarget()
                     }
                 }
@@ -124,15 +124,18 @@ struct CIDRCalculatorView: View {
                             .foregroundStyle(.red)
                         Text(verbatim: error)
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.red)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("Subnet & CIDR Calculator")
+        .navigationTitle("CIDR Calculator")
         .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
+        .task {
+            viewModel.calculateSubnet()
+        }
     }
     
     @ViewBuilder
@@ -154,7 +157,7 @@ struct CIDRCalculatorView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higPressable)
             .higTouchTarget()
         }
     }

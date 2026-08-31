@@ -52,6 +52,7 @@ struct IPLookupToolView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
             }
             
@@ -137,7 +138,7 @@ struct IPLookupToolView: View {
                     .font(.caption)
                     .foregroundStyle(.teal)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higPressable)
             .higTouchTarget()
         }
         

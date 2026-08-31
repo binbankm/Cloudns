@@ -57,7 +57,7 @@ struct AppIconPickerView: View {
                         .padding(.vertical, 4)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                 }
             } header: {
                 Text("Select Home Screen Icon")

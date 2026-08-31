@@ -57,7 +57,7 @@ struct ZoneDetailView: View {
                                         .foregroundStyle(.blue)
                                 }
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             .higTouchTarget()
                         } label: {
                             Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")

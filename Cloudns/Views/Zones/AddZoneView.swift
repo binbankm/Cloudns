@@ -142,6 +142,7 @@ struct AddZoneView: View {
                                 Spacer()
                             }
                         }
+                        .buttonStyle(.higPressable)
                         .disabled(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                     }
                 }

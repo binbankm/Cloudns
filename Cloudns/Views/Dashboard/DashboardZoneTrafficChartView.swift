@@ -49,8 +49,8 @@ struct DashboardZoneTrafficChartView: View {
                         .foregroundStyle(.primary)
                         .monospacedDigit()
                     
-                    if !currentDisplaySubtitle.isEmpty {
-                        Text(currentDisplaySubtitle)
+                    if selectedPoint == nil {
+                        Text("Total (24h)")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -248,13 +248,6 @@ struct DashboardZoneTrafficChartView: View {
         case .threats:
             return Int(viewModel.totalThreats24h).formatted()
         }
-    }
-    
-    private var currentDisplaySubtitle: String {
-        if selectedPoint != nil {
-            return ""
-        }
-        return "Total (24h)"
     }
     
     private func formatCompact(_ val: Double) -> String {

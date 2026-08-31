@@ -52,6 +52,7 @@ struct CFIpRangesToolView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(testIpInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 
                 if let result = testResult {

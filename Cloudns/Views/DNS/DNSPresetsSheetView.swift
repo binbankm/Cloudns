@@ -224,7 +224,7 @@ struct DNSPresetsSheetView: View {
                                 }
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -324,7 +324,7 @@ struct DNSPresetsSheetView: View {
                         }
                         .padding(.vertical, 4)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .disabled(isApplying)
                     .listRowBackground(Color.blue)
                 }

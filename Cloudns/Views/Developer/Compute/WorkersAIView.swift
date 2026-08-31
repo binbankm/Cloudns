@@ -25,7 +25,7 @@ struct WorkersAIView: View {
                                 } label: {
                                     modelRow(model)
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.higPressable)
                             }
                         } header: {
                             categoryHeader(taskName, count: list.count)
@@ -274,6 +274,7 @@ struct WorkersAIPlaygroundSheetView: View {
                                 .font(.title2)
                         }
                     }
+                    .buttonStyle(.higPressable)
                     .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)
                 }
                 .padding(.horizontal)

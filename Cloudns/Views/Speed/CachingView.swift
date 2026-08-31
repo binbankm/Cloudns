@@ -106,7 +106,7 @@ struct CachingView: View {
                         .background(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.blue)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .disabled(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isPurging || !viewModel.hasFetchedData)
                 }
                 .padding(.vertical, 4)
@@ -319,21 +319,19 @@ struct CachingView: View {
     
     private var purgeTypeDescription: LocalizedStringKey {
         switch purgeType {
-        case "url": return "Purge exact full URLs (comma-separated)."
         case "host": return "Purge all cached resources on specific hostnames (Enterprise)."
         case "prefix": return "Purge all cached resources matching URL prefixes (Enterprise)."
         case "tag": return "Purge cached resources by Cache-Tag header values (Enterprise)."
-        default: return ""
+        default: return "Purge exact full URLs (comma-separated)."
         }
     }
     
     private var purgePlaceholder: LocalizedStringKey {
         switch purgeType {
-        case "url": return "https://example.com/asset.js, https://..."
         case "host": return "static.example.com, assets.example.com"
         case "prefix": return "https://example.com/static/, ..."
         case "tag": return "product-images, static-assets"
-        default: return ""
+        default: return "https://example.com/asset.js, https://..."
         }
     }
 }

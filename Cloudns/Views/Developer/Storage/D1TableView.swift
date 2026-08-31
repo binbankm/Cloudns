@@ -178,7 +178,7 @@ struct D1TableView: View {
                                     .font(.title3)
                                     .foregroundStyle(.blue)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             
                             Button(role: .destructive) {
                                 rowToDelete = row
@@ -188,7 +188,7 @@ struct D1TableView: View {
                                     .font(.title3)
                                     .foregroundStyle(.red.opacity(0.85))
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                         
                         Divider()
