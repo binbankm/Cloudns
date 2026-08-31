@@ -37,7 +37,7 @@ struct AddCacheRuleView: View {
                 Section(header: Text("Cache Eligibility")) {
                     Picker("Eligibility", selection: $cacheEligibility) {
                         Text("Eligible for cache").tag("eligible")
-                        Text("Bypass cache").tag("bypass")
+                        Text("Bypass Cache").tag("bypass")
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
@@ -114,7 +114,7 @@ struct AddCacheRuleView: View {
                 Group {
                     if isSubmitting {
                         Color.black.opacity(0.3).ignoresSafeArea()
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.systemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

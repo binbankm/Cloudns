@@ -35,7 +35,7 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -55,7 +55,7 @@ struct WhoisToolView: View {
                                     .foregroundStyle(.teal)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -71,19 +71,24 @@ struct WhoisToolView: View {
                         } else {
                             Image(systemName: "globe")
                         }
-                        Text(viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory")
+                        Text(viewModel.isLoading ? "Querying RDAP…" : "Query WHOIS Directory")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
             }
             
             if viewModel.isLoading && viewModel.info == nil {
-                Section(header: Text("Domain Registration")) {
-                    registrationRows(info: WhoisInfo.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Querying Whois Database…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let info = viewModel.info {
                 // 2. Registration Hero Section
                 Section(header: Text("Domain Registration")) {
@@ -108,7 +113,7 @@ struct WhoisToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -153,10 +158,26 @@ struct WhoisToolView: View {
         }
         
         if let created = info.created {
-            infoRow(title: "Created Date", value: formatDate(created))
+            HStack {
+                Text("Created Date")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(created, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.primary)
+            }
         }
         if let updated = info.updated {
-            infoRow(title: "Updated Date", value: formatDate(updated))
+            HStack {
+                Text("Updated Date")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(updated, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.primary)
+            }
         }
         if let expires = info.expires {
             HStack {
@@ -165,14 +186,20 @@ struct WhoisToolView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(formatDate(expires))
+                    Text(expires, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                     
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
-                    Text(days > 0 ? "\(days) days remaining" : "Expired")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(days > 30 ? .green : .red)
+                    if days > 0 {
+                        Text("\(days) Days Remaining")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(days > 30 ? .green : .red)
+                    } else {
+                        Text("Expired")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.red)
+                    }
                 }
             }
         }
@@ -185,7 +212,7 @@ struct WhoisToolView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(value)
+            Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
@@ -199,7 +226,7 @@ struct WhoisToolView: View {
                 Circle()
                     .fill(Color.teal)
                     .frame(width: 6, height: 6)
-                Text(status)
+                Text(verbatim: status)
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.primary)
             }
@@ -215,7 +242,7 @@ struct WhoisToolView: View {
                     .font(.caption)
                     .foregroundStyle(.teal)
                     .accessibilityHidden(true)
-                Text(ns.lowercased())
+                Text(verbatim: ns.lowercased())
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
                 Spacer()
@@ -227,13 +254,9 @@ struct WhoisToolView: View {
                         .font(.caption)
                         .foregroundStyle(.blue)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        date.formatted(date: .abbreviated, time: .shortened)
     }
 }

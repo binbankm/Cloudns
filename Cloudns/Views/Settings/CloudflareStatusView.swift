@@ -78,9 +78,10 @@ struct CloudflareStatusView: View {
         }
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Search Services or PoPs"
         )
+        .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
@@ -114,15 +115,7 @@ struct CloudflareStatusView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                // Standard Skeleton Placeholder Section
-                Section {
-                    ForEach(CFComponentItem.placeholders) { comp in
-                        componentRow(comp)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if let summary = viewModel.summary {
+            if let summary = viewModel.summary {
                 // MARK: - Overall Banner
                 if searchText.isEmpty {
                     Section {
@@ -153,7 +146,9 @@ struct CloudflareStatusView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading System Status…"))
+            } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.summary == nil {
                     HIGContentState(
                         .error(
@@ -218,11 +213,11 @@ struct CloudflareStatusView: View {
                 HIGBadge(.warning(inc.status.capitalized), isCompact: true)
             }
             
-            if let updated = inc.updatedAt {
+            if let updated = inc.updatedAt, let date = DateFormatters.parseISO8601(updated) {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.caption2)
-                    Text("Updated: \(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))")
+                    Text("Updated: \(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))")
                         .font(.caption2)
                 }
                 .foregroundStyle(.secondary)
@@ -278,7 +273,7 @@ struct CloudflareStatusView: View {
         return nil
     }
     
-    private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> String {
+    private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> LocalizedStringKey {
         switch tab {
         case .issues:
             return "Active Issues & Maintenance (\(count))"

@@ -40,12 +40,14 @@ struct DurableObjectNamespaceDetailView: View {
             
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
                 if isLoading && objects.isEmpty {
-                    ForEach(DurableObjectInstance.placeholders) { placeholder in
-                        instanceRow(placeholder)
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading instances…")
+                        Spacer()
                     }
-                    .redacted(reason: .placeholder)
+                    .padding(.vertical, 4)
                 } else if let err = errorMessage, objects.isEmpty {
-                    Text(err)
+                    Text(verbatim: err)
                         .font(.caption)
                         .foregroundStyle(.red)
                 } else if objects.isEmpty {

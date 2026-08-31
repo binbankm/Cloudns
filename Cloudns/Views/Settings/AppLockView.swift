@@ -35,7 +35,7 @@ struct AppLockView: View {
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .padding(.bottom, 50)
             }
         }

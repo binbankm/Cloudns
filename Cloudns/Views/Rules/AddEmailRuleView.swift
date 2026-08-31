@@ -38,7 +38,7 @@ struct AddEmailRuleView: View {
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in
-                                Text(dest.email).tag(dest.email)
+                                Text(verbatim: dest.email).tag(dest.email)
                             }
                         }
                     }
@@ -75,7 +75,7 @@ struct AddEmailRuleView: View {
                 Group {
                     if isSubmitting {
                         Color.black.opacity(0.3).ignoresSafeArea()
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.systemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

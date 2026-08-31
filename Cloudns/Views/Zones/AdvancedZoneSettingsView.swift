@@ -11,6 +11,7 @@ struct AdvancedZoneSettingsView: View {
         self.zoneName = zoneName
         self._isPaused = State(initialValue: initialPaused)
     }
+    
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State private var showDeleteConfirmation = false
@@ -19,10 +20,47 @@ struct AdvancedZoneSettingsView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        Form {
+        List {
+            // MARK: - Hero Header
+            Section {
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.gray.opacity(0.18), Color.secondary.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "gearshape.2.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 4)
+                    
+                    Text("Zone Management")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Advanced zone controls, bypass settings, and zone deletion for \(zoneName).")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
+            // MARK: - Pause Cloudflare
             Section(
                 header: Text("Pause Cloudflare"),
-                footer: Text("Pause Cloudflare on Site. This will route traffic directly to your origin server, bypassing Cloudflare's security and caching.")
+                footer: Text("Directly route traffic to your origin server, bypassing Cloudflare's security and caching proxy.")
             ) {
                 Toggle(isOn: Binding(
                     get: { isPaused },
@@ -31,41 +69,51 @@ struct AdvancedZoneSettingsView: View {
                         if newValue {
                             HIGFeedback.warning()
                         } else {
-                            HIGFeedback.impact(.light)
+                            HIGFeedback.selection()
                         }
                         Task {
                             await updatePauseStatus(paused: newValue)
                         }
                     }
                 )) {
-                    Text("Pause Cloudflare")
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "pause.circle.fill", color: isPaused ? .orange : .gray, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Pause Cloudflare on Site")
+                                .font(.body)
+                            Text(isPaused ? "Proxy paused · Direct to origin" : "Proxy active · Protected")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
             
+            // MARK: - Danger Zone
             Section(
                 header: Text("Danger Zone").foregroundStyle(.red),
-                footer: Text("Removing this site will immediately delete all its configuration and data from Cloudflare. This action cannot be undone.")
+                footer: Text("Removing this zone will permanently delete all its DNS records, firewall rules, and certificates from Cloudflare.")
             ) {
                 Button(action: {
                     HIGFeedback.impact(.medium)
                     showDeleteConfirmation = true
                 }) {
-                    HStack {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "trash.fill", color: .red, size: 28, cornerRadius: 6)
+                        Text("Remove Site from Cloudflare")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.red)
                         Spacer()
                         if isDeleting {
                             ProgressView()
-                        } else {
-                            Text("Remove Site from Cloudflare")
-                                .foregroundStyle(.red)
-                                .fontWeight(.bold)
                         }
-                        Spacer()
                     }
                 }
                 .disabled(isDeleting)
             }
         }
-        .navigationTitle("Advanced Settings")
+        .listStyle(.insetGrouped)
+        .navigationTitle("Advanced")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Remove Site from Cloudflare", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Remove \(zoneName)", role: .destructive) {
@@ -102,29 +150,29 @@ struct AdvancedZoneSettingsView: View {
     }
     
     private func updatePauseStatus(paused: Bool) async {
+        isLoading = true
+        errorMessage = nil
         do {
-            try await ZoneService.shared.updateZoneStatus(zoneId: zoneId, paused: paused)
-            NotificationCenter.default.post(name: .zoneUpdated, object: nil)
-            HIGFeedback.success()
+            try await ZoneService.shared.pauseZone(zoneId: zoneId, paused: paused)
+            ToastManager.shared.showSuccess(paused ? "Cloudflare Paused" : "Cloudflare Resumed", icon: paused ? "pause.circle.fill" : "play.circle.fill")
         } catch {
-            self.errorMessage = error.localizedDescription
-            self.isPaused = !paused
+            errorMessage = error.localizedDescription
+            isPaused = !paused
         }
+        isLoading = false
     }
     
     private func deleteZone() async {
         isDeleting = true
+        errorMessage = nil
         do {
             _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
-            RecentZonesManager.shared.removeZone(zoneId: zoneId)
-            await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
-            await SWRCacheStore.shared.remove(forKey: "zone_sparkline_\(zoneId)")
-            isDeleting = false
+            ToastManager.shared.showSuccess("Zone Deleted", icon: "trash.fill")
             NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
             dismiss()
         } catch {
+            errorMessage = error.localizedDescription
             isDeleting = false
-            self.errorMessage = error.localizedDescription
         }
     }
 }

@@ -52,11 +52,6 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable, Sendable {
         self.enabled = enabled
     }
     
-    public static let placeholders: [RedirectRuleItem] = [
-        RedirectRuleItem(id: "redir_1", description: "Redirect HTTP to HTTPS", expression: "http.request.uri.path eq \"/old-docs\"", targetUrl: "https://docs.example.com/v2", statusCode: 301),
-        RedirectRuleItem(id: "redir_2", description: "Forward Blog traffic", expression: "http.host eq \"blog.example.com\"", targetUrl: "https://example.com/blog", statusCode: 302)
-    ]
-    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)

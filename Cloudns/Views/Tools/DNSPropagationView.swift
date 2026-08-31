@@ -33,7 +33,7 @@ struct DNSPropagationView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain")
+                        .accessibilityLabel("Clear Domain")
                     }
                 }
                 
@@ -48,6 +48,7 @@ struct DNSPropagationView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 
                 HStack(spacing: 10) {
@@ -73,16 +74,17 @@ struct DNSPropagationView: View {
                         } else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
-                        Text(viewModel.isPropagationLoading ? "Probing Global Edge..." : "Probe Worldwide DNS Propagation")
+                        Text(viewModel.isPropagationLoading ? "Probing Global Edge…" : "Probe Worldwide DNS Propagation")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.propagationDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isPropagationLoading)
             }
             
             if viewModel.isPropagationLoading {
-                Section(header: Text("Querying 8 Global Edge Nodes...")) {
+                Section(header: Text("Querying 8 Global Edge Nodes…")) {
                     ForEach(0..<8, id: \.self) { _ in
                         HStack {
                             Text("🇺🇸 North America (East)")
@@ -91,7 +93,7 @@ struct DNSPropagationView: View {
                         }
                     }
                 }
-                .redacted(reason: .placeholder)
+                
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
                 Section(header: Text("Global Status")) {
@@ -147,7 +149,8 @@ struct DNSPropagationView: View {
                             }
                             
                             if let lat = node.latencyMs {
-                                Text(String(format: "Latency: %.1f ms", lat)).font(.caption.monospacedDigit())
+                                Text("Latency: \(lat.formatted(.number.precision(.fractionLength(1)))) ms")
+                                    .font(.caption.monospacedDigit())
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                                     .padding(.leading, 32)
@@ -158,7 +161,7 @@ struct DNSPropagationView: View {
                 }
             } else if let error = viewModel.propagationError {
                 Section {
-                    Text(error)
+                    Text(verbatim: error)
                         .font(.subheadline)
                         .foregroundStyle(.red)
                 }

@@ -8,172 +8,204 @@ struct SecuritySettingsView: View {
     
     var body: some View {
         List {
-            if viewModel.hasFetchedData {
-                // Danger Zone: Under Attack Mode
-                Section(header: Text("Danger Zone")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "shield.lefthalf.filled")
-                                .foregroundStyle(viewModel.securityLevel == "under_attack" ? .white : .red)
-                                .font(.title2)
-                                .accessibilityHidden(true)
-                            Text("I'm Under Attack Mode")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(viewModel.securityLevel == "under_attack" ? .white : .red)
-                            
-                            Spacer()
-                            
-                            if viewModel.securityLevel == "under_attack" {
-                                HIGBadge(.error("ACTIVE"), isCompact: true)
-                            }
-                        }
+            // MARK: - Hero Header
+            Section {
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.red.opacity(0.18), Color.orange.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
                         
-                        Text("Use this only if your website is currently under a DDoS attack. Visitors will receive an interstitial page for a few seconds while we analyze their traffic and behavior to make sure they are a legitimate human visitor.")
-                            .font(.caption)
-                            .foregroundStyle(viewModel.securityLevel == "under_attack" ? .white.opacity(0.9) : .secondary)
-                        
-                        Button(action: {
-                            if viewModel.securityLevel == "under_attack" {
-                                HIGFeedback.impact(.medium)
-                                Task {
-                                    await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
-                                }
-                            } else {
-                                showUnderAttackAlert = true
-                            }
-                        }) {
-                            HStack {
-                                Spacer()
-                                Text(viewModel.securityLevel == "under_attack" ? "Disable Under Attack Mode" : "Enable Under Attack Mode")
-                                    .fontWeight(.bold)
-                                Spacer()
-                            }
-                            .padding()
-                            .background(viewModel.securityLevel == "under_attack" ? Color.white : Color.red)
-                            .foregroundStyle(viewModel.securityLevel == "under_attack" ? .red : .white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(!viewModel.hasFetchedData)
+                        Image(systemName: "shield.checkerboard")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.red)
                     }
-                    .padding(.vertical, 8)
-                }
-                .listRowBackground(viewModel.securityLevel == "under_attack" ? Color.red : Color(.secondarySystemGroupedBackground))
-            
-            // General Security Settings
-            Section(header: Text("General Security")) {
-                // Security Level
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Security Level")
-                        .font(.body)
-                    Text("Adjust your website's security level to determine who will receive a challenge page.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    .padding(.top, 4)
                     
+                    Text("Security Settings")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Configure threat defense, visitor challenges, and bot protection.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
+            // MARK: - Emergency Defense
+            Section(
+                header: Text("Emergency Defense"),
+                footer: Text("Under Attack Mode executes JS challenges for every visitor to stop active DDoS attacks.")
+            ) {
+                let isUnderAttack = viewModel.securityLevel == "under_attack"
+                
+                Toggle(isOn: Binding(
+                    get: { isUnderAttack },
+                    set: { enabled in
+                        if enabled {
+                            showUnderAttackAlert = true
+                        } else {
+                            HIGFeedback.selection()
+                            Task {
+                                await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
+                            }
+                        }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "flame.fill", color: .red, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Text("I'm Under Attack Mode™")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(isUnderAttack ? .red : .primary)
+                                if isUnderAttack {
+                                    HIGBadge(.error("Active"), isCompact: true)
+                                }
+                            }
+                            Text("Perform deep DDoS verification on all incoming visitors.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .tint(.red)
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Standard Threat Defense
+            Section(
+                header: Text("Threat Defense Level"),
+                footer: Text("Adjust the sensitivity threshold for presenting challenge pages to suspicious visitors.")
+            ) {
+                // Security Level
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "shield.lefthalf.filled", color: .blue, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Security Level")
+                            .font(.body)
+                        Text(securityLevelDescription(viewModel.securityLevel))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
                     Picker("Security Level", selection: Binding(
                         get: { viewModel.securityLevel },
-                        set: { newValue in
-                            Task { await viewModel.updateSecurityLevel(zoneId: zoneId, level: newValue) }
+                        set: { val in
+                            HIGFeedback.selection()
+                            Task { await viewModel.updateSecurityLevel(zoneId: zoneId, level: val) }
                         }
                     )) {
                         Text("Essentially Off").tag("essentially_off")
                         Text("Low").tag("low")
                         Text("Medium").tag("medium")
                         Text("High").tag("high")
-                        Text("Under Attack").tag("under_attack")
                     }
                     .pickerStyle(.menu)
-                    .disabled(!viewModel.hasFetchedData)
+                    .labelsHidden()
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
-                // Challenge Passage (TTL)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Challenge Passage")
-                        .font(.body)
-                    Text("How long a visitor is allowed access after successfully completing a challenge.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    Picker("TTL", selection: Binding(
+                // Challenge TTL
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "hourglass", color: .orange, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Challenge Passage TTL")
+                            .font(.body)
+                        Text("How long a visitor can access site after passing challenge.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("Challenge Passage TTL", selection: Binding(
                         get: { viewModel.challengeTTL },
-                        set: { newValue in
-                            Task { await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: newValue) }
+                        set: { val in
+                            HIGFeedback.selection()
+                            Task { await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: val) }
                         }
                     )) {
-                        Text("5 minutes").tag(300)
-                        Text("15 minutes").tag(900)
-                        Text("30 minutes").tag(1800)
+                        Text("5 mins").tag(300)
+                        Text("15 mins").tag(900)
+                        Text("30 mins").tag(1800)
+                        Text("45 mins").tag(2700)
                         Text("1 hour").tag(3600)
                         Text("2 hours").tag(7200)
-                        Text("4 hours").tag(14400)
                         Text("1 day").tag(86400)
-                        Text("1 week").tag(604800)
-                        Text("1 month").tag(2592000)
                         Text("1 year").tag(31536000)
                     }
                     .pickerStyle(.menu)
-                    .disabled(!viewModel.hasFetchedData)
+                    .labelsHidden()
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
                 // Browser Integrity Check
                 Toggle(isOn: Binding(
                     get: { viewModel.browserCheck },
-                    set: { newValue in
-                        Task { await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: newValue) }
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Browser Integrity Check")
-                            .font(.body)
-                        Text("Evaluate HTTP headers from your visitors browser for threats.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "checkmark.shield.fill", color: .teal, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Browser Integrity Check")
+                                .font(.body)
+                            Text("Inspect HTTP headers for known malicious web scrapers.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
-                // Bot Fight Mode
+            }
+            
+            // MARK: - Bot Protection
+            Section(
+                header: Text("Bot Defense"),
+                footer: Text("Cloudflare Bot Fight Mode matches IP reputation and behavioral analysis to block automated attack bots.")
+            ) {
                 Toggle(isOn: Binding(
                     get: { viewModel.botFightMode },
-                    set: { newValue in
-                        Task { await viewModel.updateBotFightMode(zoneId: zoneId, isOn: newValue) }
+                    set: { val in
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateBotFightMode(zoneId: zoneId, isOn: val) }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Text("Bot Fight Mode")
-                                .font(.body)
-                            Image(systemName: "ant.fill")
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "cpu.fill", color: .purple, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Text("Bot Fight Mode")
+                                    .font(.body)
+                                HIGBadge(.free, isCompact: true)
+                            }
+                            Text("Detects and challenges automated scrapers and malicious crawlers.")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
-                                .accessibilityHidden(true)
-                            HIGBadge(.free, isCompact: true)
+                                .foregroundStyle(.secondary)
                         }
-                        Text("Detects and challenges known bots and crawlers. Recommended for most sites.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-        } else if viewModel.isLoading {
-            Section(header: Text("Security Level")) {
-                Picker("Security Level", selection: .constant("medium")) {
-                    Text("Medium").tag("medium")
-                }
-                .redacted(reason: .placeholder)
-            }
-            Section(header: Text("Browser Integrity Check")) {
-                Toggle(isOn: .constant(true)) {
-                    Text("Browser Integrity Check")
-                }
-                .redacted(reason: .placeholder)
-            }
-        }
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Security Settings…"))
+            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 HIGContentState(
                     .error(
                         message: LocalizedStringKey(errorMessage),
@@ -201,7 +233,18 @@ struct SecuritySettingsView: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Are you sure you want to enable I'm Under Attack Mode? All visitors will be challenged. This may negatively impact legitimate traffic.")
+            Text("Are you sure you want to enable I'm Under Attack Mode? All visitors will receive challenge pages.")
+        }
+    }
+    
+    private func securityLevelDescription(_ level: String) -> LocalizedStringKey {
+        switch level {
+        case "essentially_off": return "Essentially Off"
+        case "low": return "Low (Fewest challenges)"
+        case "medium": return "Medium (Balanced)"
+        case "high": return "High (Most secure)"
+        case "under_attack": return "I'm Under Attack!"
+        default: return "Configuring…"
         }
     }
 }

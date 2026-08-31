@@ -14,7 +14,7 @@ public struct WorkerSmallWidgetView: View {
         VStack(alignment: .leading, spacing: 6) {
             // Header: Worker Icon + Name + Active Dot
             HStack(spacing: 5) {
-                Image(systemName: "bolt.badge.automatic.fill")
+                Image(systemName: "bolt.fill")
                     .font(.caption.bold())
                     .foregroundStyle(.orange)
                 
@@ -114,7 +114,7 @@ public struct WorkerMediumWidgetView: View {
             // Left Column: Worker Identity & Badge
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 6) {
-                    Image(systemName: "bolt.badge.automatic.fill")
+                    Image(systemName: "bolt.fill")
                         .font(.body.weight(.bold))
                         .foregroundStyle(.orange)
                     

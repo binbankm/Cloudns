@@ -41,41 +41,20 @@ struct WorkerBindingsView: View {
     private var otherBindings: [WorkerBinding] { resourceBindings.filter { !["kv_namespace", "d1", "r2_bucket", "queue", "ai"].contains($0.type) } }
     
     var body: some View {
-        let resTitle = "Resources (\(resourceBindings.count))"
-        let varsTitle = "Variables & Secrets (\(totalVariablesAndSecretsCount))"
-        
-        VStack(spacing: 0) {
-            Picker("Category", selection: $selectedTab) {
-                Text(resTitle).tag("resources")
-                Text(varsTitle).tag("variables")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+        contentList
             .background(Color(.systemGroupedBackground))
-            .onChange(of: selectedTab) { _ in
-                HIGFeedback.selection()
-            }
-            
-            contentList
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Bindings & Variables")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if selectedTab == "resources" {
+            .navigationTitle("Resource Bindings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         showingAttachResourceSheet = true
-                    } else {
-                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
                     }
-                } label: {
-                    Image(systemName: "plus")
+                    .accessibilityLabel("Attach Resource")
                 }
-                .accessibilityLabel(selectedTab == "resources" ? "Attach Resource" : "Add Variable or Secret")
             }
-        }
         .sheet(isPresented: $showingAttachResourceSheet) {
             WorkerAttachResourceBindingSheetView(accountId: accountId, viewModel: secretsViewModel)
              .higToast()
@@ -95,7 +74,7 @@ struct WorkerBindingsView: View {
                         try await secretsViewModel.deleteResourceBinding(name: binding.name)
                         ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
                     } catch {
-                        ToastManager.shared.showError("Failed to unbind resource")
+                        ToastManager.shared.showError("Failed to Unbind Resource")
                     }
                 }
             }
@@ -112,15 +91,19 @@ struct WorkerBindingsView: View {
                         } else {
                             try await secretsViewModel.deletePlainVariable(name: item.name)
                         }
-                        ToastManager.shared.showSuccess("\(item.isSecret ? "Secret" : "Variable") Deleted", icon: "trash.fill")
+                        ToastManager.shared.showSuccess(item.isSecret ? "Secret Deleted" : "Variable Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete item")
+                        ToastManager.shared.showError("Failed to Delete Item")
                     }
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: { item in
-            Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
+            if item.isSecret {
+                Text("Are you sure you want to delete secret '\(item.name)'?")
+            } else {
+                Text("Are you sure you want to delete environment variable '\(item.name)'?")
+            }
         }
         .refreshable {
             await secretsViewModel.fetchSecrets()
@@ -135,36 +118,22 @@ struct WorkerBindingsView: View {
     @ViewBuilder
     private var contentList: some View {
         List {
-            if selectedTab == "resources" {
-                resourcesSection
-            } else {
-                variablesSection
-            }
+            resourcesSection
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if secretsViewModel.hasFetchedData {
-                if selectedTab == "resources" && resourceBindings.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Resource Bindings",
-                            systemImage: "link.badge.plus",
-                            description: "Bind Cloudflare KV, D1, R2, Queues, or AI directly to this Worker.",
-                            actionTitle: "Attach Resource",
-                            action: { showingAttachResourceSheet = true }
-                        )
+            if !secretsViewModel.hasFetchedData && secretsViewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Bindings…"))
+            } else if secretsViewModel.hasFetchedData && resourceBindings.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Resource Bindings",
+                        systemImage: "link.badge.plus",
+                        description: "Bind Cloudflare KV, D1, R2, Queues, or AI directly to this Worker.",
+                        actionTitle: "Attach Resource",
+                        action: { showingAttachResourceSheet = true }
                     )
-                } else if selectedTab == "variables" && totalVariablesAndSecretsCount == 0 {
-                    HIGContentState(
-                        .empty(
-                            title: "No Variables or Secrets",
-                            systemImage: "slider.horizontal.3",
-                            description: "Configure plaintext environment variables and encrypted secrets.",
-                            actionTitle: "Add Variable",
-                            action: { showingAddSheet = true }
-                        )
-                    )
-                }
+                )
             }
         }
     }
@@ -274,13 +243,7 @@ struct WorkerBindingsView: View {
     @ViewBuilder
     private func bindingRow(_ binding: WorkerBinding) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: bindingIcon(for: binding.type))
-                .font(.title3)
-                .foregroundStyle(bindingColor(for: binding.type))
-                .frame(width: 32, height: 32)
-                .background(bindingColor(for: binding.type).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: bindingIcon(for: binding.type), color: bindingColor(for: binding.type), size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(binding.name)
@@ -373,6 +336,15 @@ struct WorkerAttachResourceBindingSheetView: View {
     @State private var bindingType = "kv_namespace"
     @State private var bindingName = ""
     @State private var targetIdentifier = ""
+    @State private var isCustomInput = false
+    
+    // Existing Account Resources
+    @State private var kvNamespaces: [KVNamespace] = []
+    @State private var d1Databases: [D1Database] = []
+    @State private var r2Buckets: [R2Bucket] = []
+    @State private var queues: [CFQueue] = []
+    @State private var isLoadingResources = false
+    
     @State private var isSaving = false
     @State private var errorMessage: String?
     
@@ -390,28 +362,61 @@ struct WorkerAttachResourceBindingSheetView: View {
                 Section(header: Text("Binding Type")) {
                     Picker("Resource Type", selection: $bindingType) {
                         ForEach(bindingTypes, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
+                    }
+                    .onChange(of: bindingType) { newType in
+                        targetIdentifier = ""
+                        autoSelectFirstResource(for: newType)
                     }
                 }
                 
-                Section(header: Text("Configuration")) {
-                    TextField("Binding Name (e.g. MY_KV)", text: $bindingName)
-                        .keyboardType(.asciiCapable)
-                        .textInputAutocapitalization(.characters)
-                        .autocorrectionDisabled()
-                    
-                    if bindingType != "ai" {
+                Section(header: Text("Resource Selection")) {
+                    if bindingType == "ai" {
+                        HStack(spacing: 10) {
+                            Image(systemName: "brain.head.profile")
+                                .foregroundStyle(.pink)
+                            Text("Workers AI runtime binding requires no external ID.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    } else if !isCustomInput && hasExistingResources(for: bindingType) {
+                        Picker(resourcePickerLabel, selection: $targetIdentifier) {
+                            ForEach(resourcePickerOptions(for: bindingType), id: \.id) { opt in
+                                Text(opt.title).tag(opt.id)
+                            }
+                        }
+                        .onChange(of: targetIdentifier) { newId in
+                            updateBindingNameForSelectedTarget(targetId: newId, type: bindingType)
+                        }
+                    } else {
                         TextField(targetPlaceholder, text: $targetIdentifier)
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                        
+                        if hasExistingResources(for: bindingType) {
+                            Button {
+                                isCustomInput = false
+                                autoSelectFirstResource(for: bindingType)
+                            } label: {
+                                Text("Choose from existing account resources")
+                                    .font(.caption)
+                            }
+                        }
                     }
+                }
+                
+                Section(header: Text("Binding Variable Name"), footer: Text("The JavaScript global identifier to access this resource in your code (e.g. env.\(bindingName.isEmpty ? "MY_RESOURCE" : bindingName)).")) {
+                    TextField("Variable Name (e.g. MY_KV)", text: $bindingName)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -445,6 +450,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                             
                             do {
                                 try await viewModel.saveResourceBinding(binding: binding)
+                                ToastManager.shared.showSuccess("Resource Attached", icon: "link.badge.plus")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -458,6 +464,19 @@ struct WorkerAttachResourceBindingSheetView: View {
                 }
             }
             .interactiveDismissDisabled(isSaving)
+            .task {
+                await fetchAccountResources()
+            }
+        }
+    }
+    
+    private var resourcePickerLabel: String {
+        switch bindingType {
+        case "kv_namespace": return "KV Namespace"
+        case "d1": return "D1 Database"
+        case "r2_bucket": return "R2 Bucket"
+        case "queue": return "Queue"
+        default: return "Resource"
         }
     }
     
@@ -468,6 +487,104 @@ struct WorkerAttachResourceBindingSheetView: View {
         case "r2_bucket": return "R2 Bucket Name"
         case "queue": return "Queue Name"
         default: return "Target ID"
+        }
+    }
+    
+    private func hasExistingResources(for type: String) -> Bool {
+        switch type {
+        case "kv_namespace": return !kvNamespaces.isEmpty
+        case "d1": return !d1Databases.isEmpty
+        case "r2_bucket": return !r2Buckets.isEmpty
+        case "queue": return !queues.isEmpty
+        default: return false
+        }
+    }
+    
+    private func resourcePickerOptions(for type: String) -> [(id: String, title: String)] {
+        switch type {
+        case "kv_namespace":
+            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))…)") }
+        case "d1":
+            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))…)") }
+        case "r2_bucket":
+            return r2Buckets.map { (id: $0.name, title: $0.name) }
+        case "queue":
+            return queues.map { (id: $0.queueName, title: $0.queueName) }
+        default:
+            return []
+        }
+    }
+    
+    private func autoSelectFirstResource(for type: String) {
+        switch type {
+        case "kv_namespace":
+            if let first = kvNamespaces.first {
+                targetIdentifier = first.id
+                if bindingName.isEmpty { bindingName = first.title.uppercased().replacingOccurrences(of: "-", with: "_") }
+            }
+        case "d1":
+            if let first = d1Databases.first {
+                targetIdentifier = first.uuid
+                if bindingName.isEmpty { bindingName = "DB" }
+            }
+        case "r2_bucket":
+            if let first = r2Buckets.first {
+                targetIdentifier = first.name
+                if bindingName.isEmpty { bindingName = "\(first.name.uppercased().replacingOccurrences(of: "-", with: "_"))_BUCKET" }
+            }
+        case "queue":
+            if let first = queues.first {
+                targetIdentifier = first.queueName
+                if bindingName.isEmpty { bindingName = "\(first.queueName.uppercased().replacingOccurrences(of: "-", with: "_"))_QUEUE" }
+            }
+        case "ai":
+            if bindingName.isEmpty { bindingName = "AI" }
+        default:
+            break
+        }
+    }
+    
+    private func updateBindingNameForSelectedTarget(targetId: String, type: String) {
+        switch type {
+        case "kv_namespace":
+            if let item = kvNamespaces.first(where: { $0.id == targetId }) {
+                bindingName = item.title.uppercased().replacingOccurrences(of: "-", with: "_")
+            }
+        case "d1":
+            if let item = d1Databases.first(where: { $0.uuid == targetId }) {
+                bindingName = item.name.uppercased().replacingOccurrences(of: "-", with: "_")
+            }
+        case "r2_bucket":
+            if let item = r2Buckets.first(where: { $0.name == targetId }) {
+                bindingName = "\(item.name.uppercased().replacingOccurrences(of: "-", with: "_"))_BUCKET"
+            }
+        case "queue":
+            if let item = queues.first(where: { $0.queueName == targetId }) {
+                bindingName = "\(item.queueName.uppercased().replacingOccurrences(of: "-", with: "_"))_QUEUE"
+            }
+        default:
+            break
+        }
+    }
+    
+    private func fetchAccountResources() async {
+        isLoadingResources = true
+        async let kvTask = try? KVService.shared.getKVNamespaces(accountId: accountId)
+        async let d1Task = try? D1Service.shared.getD1Databases(accountId: accountId)
+        async let r2Task = try? R2Service.shared.getR2Buckets(accountId: accountId)
+        async let queueTask = try? QueueService.shared.getQueues(accountId: accountId)
+        
+        let (kvRes, d1Res, r2Res, queueRes) = await (kvTask, d1Task, r2Task, queueTask)
+        
+        await MainActor.run {
+            self.kvNamespaces = kvRes ?? []
+            self.d1Databases = d1Res ?? []
+            self.r2Buckets = r2Res ?? []
+            self.queues = queueRes ?? []
+            self.isLoadingResources = false
+            if targetIdentifier.isEmpty {
+                autoSelectFirstResource(for: bindingType)
+            }
         }
     }
 }

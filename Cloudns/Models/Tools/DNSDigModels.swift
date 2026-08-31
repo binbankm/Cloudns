@@ -17,10 +17,6 @@ public struct DNSAnswerItem: Identifiable, Equatable, Sendable {
         self.data = data
     }
     
-    public static let placeholders: [DNSAnswerItem] = [
-        DNSAnswerItem(name: "example.com", typeName: "A", ttl: 300, data: "93.184.216.34"),
-        DNSAnswerItem(name: "example.com", typeName: "AAAA", ttl: 300, data: "2606:2800:220:1:248:1893:25c8:1946")
-    ]
 }
 
 public struct DNSLookupResult: Equatable, Sendable {

@@ -48,26 +48,12 @@ struct D1ConsoleView: View {
             // MARK: - Database Tables
             Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
-                    ForEach(["users", "sessions", "analytics"], id: \.self) { placeholderName in
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.12))
-                                    .frame(width: 32, height: 32)
-                                Image(systemName: "tablecells")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(.blue)
-                            }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(placeholderName)
-                                    .font(.body.weight(.medium))
-                                Text("Table schema")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading Tables…")
+                        Spacer()
                     }
-                    .redacted(reason: .placeholder)
+                    .padding(.vertical, 4)
                 } else if viewModel.tables.isEmpty {
                     Text("No tables found. Create a table using SQL below.")
                         .font(.subheadline)
@@ -156,7 +142,7 @@ struct D1ConsoleView: View {
                 Section(header: HStack {
                     Text("Query Results (\(result.rows.count) rows)")
                     Spacer()
-                    HIGBadge(.active(String(format: "%.1f ms", result.durationMs)), isCompact: true)
+                    HIGBadge(.active("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                 }) {
                     if result.rows.isEmpty {
                         Text("Query executed successfully. 0 rows returned.")
@@ -186,7 +172,7 @@ struct D1ConsoleView: View {
                 }
             } else if let error = viewModel.errorMessage {
                 Section {
-                    Text(error)
+                    Text(verbatim: error)
                         .font(.subheadline)
                         .foregroundStyle(.red)
                 }

@@ -56,7 +56,7 @@ struct D1TableView: View {
                 
                 if viewModel.isLoading && !viewModel.hasFetchedData {
                     cardsView
-                        .redacted(reason: .placeholder)
+                        
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
                     HIGContentState(
                         .error(
@@ -143,7 +143,8 @@ struct D1TableView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { row in
-            Text(verbatim: "Are you sure you want to delete row with rowid \(row["_rowid_"] ?? "")?")
+            let rowIdVal = row["_rowid_"] ?? "-"
+            Text("Are you sure you want to delete row with rowid '\(rowIdVal)'?")
         }
         .refreshable {
             await viewModel.loadTable()
@@ -177,7 +178,7 @@ struct D1TableView: View {
                                     .font(.title3)
                                     .foregroundStyle(.blue)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             
                             Button(role: .destructive) {
                                 rowToDelete = row
@@ -187,7 +188,7 @@ struct D1TableView: View {
                                     .font(.title3)
                                     .foregroundStyle(.red.opacity(0.85))
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                         
                         Divider()

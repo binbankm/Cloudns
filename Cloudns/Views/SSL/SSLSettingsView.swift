@@ -5,227 +5,300 @@ struct SSLSettingsView: View {
     @StateObject private var viewModel = SSLSettingsViewModel()
     
     var body: some View {
-        Form {
-            if viewModel.hasFetchedData {
-                Section(header: Text("SSL/TLS Encryption Mode"), footer: Text("Choose the encryption mode for your website. Full or Strict is recommended if your origin server has an SSL certificate.")) {
-                    Picker("Encryption Mode", selection: $viewModel.sslMode) {
-                        Text("Off (Not Secure)").tag("off")
+        List {
+            // MARK: - Hero Header
+            Section {
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.green.opacity(0.18), Color.teal.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "lock.shield.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.green)
+                    }
+                    .padding(.top, 4)
+                    
+                    Text("SSL / TLS Encryption")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Manage end-to-end encryption, edge certificates, and security protocols.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
+            // MARK: - Encryption Mode
+            Section(
+                header: Text("SSL/TLS Encryption Mode"),
+                footer: Text("Full or Full (Strict) is recommended if your origin server has an active SSL certificate.")
+            ) {
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "lock.fill", color: .green, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Encryption Mode")
+                            .font(.body)
+                        Text(modeDescription(viewModel.sslMode))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("Encryption Mode", selection: Binding(
+                        get: { viewModel.sslMode },
+                        set: { newValue in
+                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            HIGFeedback.selection()
+                            Task { await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue) }
+                        }
+                    )) {
+                        Text("Off").tag("off")
                         Text("Flexible").tag("flexible")
                         Text("Full").tag("full")
                         Text("Full (Strict)").tag("strict")
                     }
                     .pickerStyle(.menu)
-                    .disabled(!viewModel.hasFetchedData)
-                    .onChange(of: viewModel.sslMode) { newValue in
+                    .labelsHidden()
+                }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Edge Certificates
+            Section(
+                header: Text("Edge Certificates"),
+                footer: Text("Redirect all incoming HTTP requests to HTTPS and prevent mixed content warnings.")
+            ) {
+                // Always Use HTTPS
+                Toggle(isOn: Binding(
+                    get: { viewModel.alwaysUseHTTPS },
+                    set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                         HIGFeedback.selection()
-                        Task {
-                            await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue)
+                        Task { await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "arrow.triangle.swap", color: .blue, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Always Use HTTPS")
+                                .font(.body)
+                            Text("Redirect all HTTP requests to HTTPS automatically.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
                 
-                Section(header: Text("Edge Certificates"), footer: Text("Redirect all requests with scheme 'http' to 'https'. This applies to all http requests to the zone.")) {
-                    Toggle(isOn: $viewModel.alwaysUseHTTPS) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Always Use HTTPS")
-                            .font(.body)
-                        Text("Redirect all HTTP requests to HTTPS.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.alwaysUseHTTPS) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue)
-                    }
-                }
-                
-                Toggle(isOn: $viewModel.automaticHTTPSRewrites) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Automatic HTTPS Rewrites")
-                            .font(.body)
-                        Text("Automatically rewrite HTTP resources to HTTPS to avoid mixed content warnings.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.automaticHTTPSRewrites) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue)
-                    }
-                }
-            }
-            
-            Section(header: Text("Advanced SSL/TLS Settings"), footer: Text("Configure TLS versions and opportunistic encryption features for legacy or specialized clients.")) {
-                Picker("Minimum TLS Version", selection: $viewModel.minTLSVersion) {
-                    Text("TLS 1.0").tag("1.0")
-                    Text("TLS 1.1").tag("1.1")
-                    Text("TLS 1.2").tag("1.2")
-                    Text("TLS 1.3").tag("1.3")
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.minTLSVersion) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue)
-                    }
-                }
-                
-                Toggle(isOn: $viewModel.tls13) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("TLS 1.3")
-                            .font(.body)
-                        Text("Enable the latest version of the TLS protocol for improved security and performance.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.tls13) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue)
-                    }
-                }
-                
-                Toggle(isOn: $viewModel.opportunisticEncryption) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Opportunistic Encryption")
-                            .font(.body)
-                        Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.opportunisticEncryption) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue)
-                    }
-                }
-                
-                Toggle(isOn: $viewModel.opportunisticOnion) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Opportunistic Onion")
-                            .font(.body)
-                        Text("Route Tor users through the Cloudflare Onion service to improve privacy.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.opportunisticOnion) { newValue in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    HIGFeedback.impact(.light)
-                    Task {
-                        await viewModel.updateOpportunisticOnion(zoneId: zoneId, isOn: newValue)
-                    }
-                }
-            }
-            
-            Section(header: Text("HSTS (Strict Transport Security)"), footer: Text("DANGER: Enabling HSTS will force browsers to connect via HTTPS only. If your origin server loses HTTPS support, your site will be inaccessible until the Max-Age expires.")) {
-                Toggle(isOn: $viewModel.hstsEnabled) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Enable HSTS")
-                            .font(.body)
-                            .foregroundStyle(viewModel.hstsEnabled ? .red : .primary)
-                        Text("Strict Transport Security (HSTS)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .tint(.red)
-                .disabled(!viewModel.hasFetchedData)
-                .onChange(of: viewModel.hstsEnabled) { enabled in
-                    guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                    if enabled {
-                        HIGFeedback.warning()
-                    } else {
+                // Automatic HTTPS Rewrites
+                Toggle(isOn: Binding(
+                    get: { viewModel.automaticHTTPSRewrites },
+                    set: { newValue in
+                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                         HIGFeedback.selection()
+                        Task { await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "arrow.counterclockwise.circle.fill", color: .teal, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Automatic HTTPS Rewrites")
+                                .font(.body)
+                            Text("Rewrite insecure HTTP URLs in HTML to secure HTTPS.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - Advanced SSL/TLS
+            Section(
+                header: Text("Advanced SSL/TLS Settings"),
+                footer: Text("Configure minimum TLS cipher versions and privacy routing features.")
+            ) {
+                // Min TLS Version
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "shield.lefthalf.filled", color: .indigo, size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Minimum TLS Version")
+                            .font(.body)
+                        Text("Only allow HTTPS connections using this TLS version or higher.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("Minimum TLS Version", selection: Binding(
+                        get: { viewModel.minTLSVersion },
+                        set: { newValue in
+                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            HIGFeedback.selection()
+                            Task { await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue) }
+                        }
+                    )) {
+                        Text("TLS 1.0").tag("1.0")
+                        Text("TLS 1.1").tag("1.1")
+                        Text("TLS 1.2").tag("1.2")
+                        Text("TLS 1.3").tag("1.3")
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                }
+                .disabled(!viewModel.hasFetchedData)
+                
+                // TLS 1.3
+                Toggle(isOn: Binding(
+                    get: { viewModel.tls13 },
+                    set: { newValue in
+                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "bolt.shield.fill", color: .purple, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Text("TLS 1.3")
+                                    .font(.body)
+                                HIGBadge(.active("Fast 1-RTT"), isCompact: true)
+                            }
+                            Text("Fastest and most modern TLS connection handshake protocol.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+                
+                // Opportunistic Encryption
+                Toggle(isOn: Binding(
+                    get: { viewModel.opportunisticEncryption },
+                    set: { newValue in
+                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        HIGFeedback.selection()
+                        Task { await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue) }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "key.fill", color: .orange, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Opportunistic Encryption")
+                                .font(.body)
+                            Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
+            }
+            
+            // MARK: - HSTS
+            Section(
+                header: Text("HSTS (Strict Transport Security)"),
+                footer: Text("Enforcing HSTS tells browsers to never load your site over plain HTTP.")
+            ) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.hstsEnabled },
+                    set: { enabled in
+                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        viewModel.hstsEnabled = enabled
+                        if enabled { HIGFeedback.warning() } else { HIGFeedback.selection() }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "checkmark.seal.fill", color: viewModel.hstsEnabled ? .red : .gray, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Enable HSTS")
+                                .font(.body)
+                            Text("HTTP Strict Transport Security")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!viewModel.hasFetchedData)
                 
                 if viewModel.hstsEnabled {
-                    Picker("Max-Age (Seconds)", selection: $viewModel.hstsMaxAge) {
-                        Text("1 Month (2592000)").tag(2592000)
-                        Text("3 Months (7776000)").tag(7776000)
-                        Text("6 Months (15552000)").tag(15552000)
-                        Text("12 Months (31536000)").tag(31536000)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "clock.fill", color: .indigo, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Max-Age")
+                                .font(.body)
+                            Text("Duration browser enforces HTTPS.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Picker("Max-Age", selection: $viewModel.hstsMaxAge) {
+                            Text("1 Month").tag(2592000)
+                            Text("3 Months").tag(7776000)
+                            Text("6 Months").tag(15552000)
+                            Text("12 Months").tag(31536000)
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                     .disabled(!viewModel.hasFetchedData)
                     
-                    Toggle("Include Subdomains", isOn: $viewModel.hstsIncludeSubdomains)
-                        .disabled(!viewModel.hasFetchedData)
-                    Toggle("No-Sniff", isOn: $viewModel.hstsNoSniff)
-                        .disabled(!viewModel.hasFetchedData)
-                    Toggle("Preload (HSTS Preload List)", isOn: $viewModel.hstsPreload)
-                        .disabled(!viewModel.hasFetchedData)
+                    Toggle(isOn: $viewModel.hstsIncludeSubdomains) {
+                        Text("Include Subdomains")
+                            .font(.body)
+                    }
+                    .disabled(!viewModel.hasFetchedData)
                     
-                    Button("Save HSTS Configuration") {
+                    Toggle(isOn: $viewModel.hstsNoSniff) {
+                        Text("No-Sniff Header")
+                            .font(.body)
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                    
+                    Toggle(isOn: $viewModel.hstsPreload) {
+                        Text("Preload Approval")
+                            .font(.body)
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                    
+                    Button("Save HSTS Settings") {
                         HIGFeedback.impact(.medium)
                         Task {
-                            await viewModel.updateHSTS(zoneId: zoneId, enabled: viewModel.hstsEnabled, maxAge: viewModel.hstsMaxAge, subdomains: viewModel.hstsIncludeSubdomains, nosniff: viewModel.hstsNoSniff, preload: viewModel.hstsPreload)
+                            await viewModel.updateHSTS(
+                                zoneId: zoneId,
+                                enabled: viewModel.hstsEnabled,
+                                maxAge: viewModel.hstsMaxAge,
+                                subdomains: viewModel.hstsIncludeSubdomains,
+                                nosniff: viewModel.hstsNoSniff,
+                                preload: viewModel.hstsPreload
+                            )
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    .foregroundStyle(.blue)
-                } else {
-                    Button("Save HSTS (Disable)") {
-                        HIGFeedback.impact(.medium)
-                        Task {
-                            await viewModel.updateHSTS(zoneId: zoneId, enabled: false, maxAge: 0, subdomains: false, nosniff: false, preload: false)
-                        }
-                    }
-                    .disabled(!viewModel.hasFetchedData)
-                    .foregroundStyle(.blue)
-                }
-            }
-        } else if viewModel.isLoading {
-            Section(header: Text("SSL/TLS Encryption Mode")) {
-                    Picker("Encryption Mode", selection: .constant("full")) {
-                        Text("Full").tag("full")
-                    }
-                    .redacted(reason: .placeholder)
-                }
-                
-                Section(header: Text("Edge Certificates")) {
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Always Use HTTPS")
-                            Text("Redirect all HTTP requests to HTTPS.")
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                    
-                    Toggle(isOn: .constant(true)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Automatic HTTPS Rewrites")
-                            Text("Automatically rewrite HTTP resources to HTTPS.")
-                        }
-                    }
-                    .redacted(reason: .placeholder)
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading SSL/TLS Settings…"))
+            }
+        }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
@@ -235,12 +308,24 @@ struct SSLSettingsView: View {
         ), actions: {
             Button("OK", role: .cancel) { }
         }, message: {
-            Text(viewModel.errorMessage ?? "")
+            if let errorMsg = viewModel.errorMessage {
+                Text(verbatim: errorMsg)
+            }
         })
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
+        }
+    }
+    
+    private func modeDescription(_ mode: String) -> LocalizedStringKey {
+        switch mode {
+        case "off": return "No encryption between visitor and origin."
+        case "flexible": return "Encrypted to edge, plain HTTP to origin."
+        case "full": return "Encrypted end-to-end (self-signed allowed)."
+        case "strict": return "Encrypted end-to-end with verified CA cert."
+        default: return "Configuring…"
         }
     }
 }

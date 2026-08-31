@@ -7,7 +7,6 @@ struct CacheRulesView: View {
     
     @StateObject private var viewModel: CacheRulesViewModel
     @State private var showingAddSheet = false
-    @State private var searchText = ""
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
     
@@ -16,26 +15,11 @@ struct CacheRulesView: View {
         _viewModel = StateObject(wrappedValue: CacheRulesViewModel(zoneId: zoneId))
     }
     
-    private var displayedRules: [WAFRule] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            $0.expression.localizedStandardContains(searchText)
-        }
-    }
-    
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+            if !viewModel.rules.isEmpty {
                 Section {
-                    ForEach(WAFRule.placeholders) { placeholderRule in
-                        CacheRuleCardView(rule: placeholderRule, onToggle: {})
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedRules.isEmpty {
-                Section {
-                    ForEach(displayedRules) { rule in
+                    ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
                             HIGFeedback.selection()
                             Task {
@@ -56,41 +40,33 @@ struct CacheRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Cache Rules"
-        )
         .refreshable {
             await viewModel.fetchCacheRules()
         }
         .navigationTitle("Cache Rules")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchCacheRules() }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Cache Rules…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchCacheRules() }
+                        }
                     )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Cache Rules",
-                            systemImage: "bolt.badge.clock",
-                            description: "You haven't created any custom cache rules yet.",
-                            actionTitle: "Add Cache Rule",
-                            action: { showingAddSheet = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Cache Rules",
+                        systemImage: "bolt.badge.clock",
+                        description: "You haven't created any custom cache rules yet.",
+                        actionTitle: "Add Cache Rule",
+                        action: { showingAddSheet = true }
                     )
-                } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
         .toolbar {
@@ -156,7 +132,7 @@ struct CacheRuleCardView: View {
                 .labelsHidden()
             }
             
-            Text(rule.expression)
+            Text(verbatim: rule.expression)
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(6)

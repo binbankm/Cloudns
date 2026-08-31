@@ -56,7 +56,7 @@ struct KVBrowserView: View {
         }
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: viewModel.selectedSegment == 0 ? "Search KV Namespaces" : "Search D1 Databases"
         )
         .background(Color(.systemGroupedBackground))
@@ -91,7 +91,7 @@ struct KVBrowserView: View {
                         try await viewModel.deleteNamespace(namespaceId: ns.id)
                         ToastManager.shared.showSuccess("KV Namespace Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete namespace")
+                        ToastManager.shared.showError("Failed to Delete Namespace")
                     }
                 }
             }
@@ -106,7 +106,7 @@ struct KVBrowserView: View {
                         try await viewModel.deleteDatabase(databaseId: db.uuid)
                         ToastManager.shared.showSuccess("D1 Database Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete database")
+                        ToastManager.shared.showError("Failed to Delete Database")
                     }
                 }
             }
@@ -127,20 +127,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    if viewModel.selectedSegment == 0 {
-                        ForEach(KVNamespace.placeholders) { ns in
-                            kvRow(ns)
-                        }
-                    } else {
-                        ForEach(D1Database.placeholders) { db in
-                            d1Row(db)
-                        }
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if viewModel.selectedSegment == 0 {
+            if viewModel.selectedSegment == 0 {
                 if !filteredNamespaces.isEmpty {
                     Section {
                         ForEach(filteredNamespaces) { ns in
@@ -186,15 +173,17 @@ struct KVBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchData() } }
-                        )
+            if viewModel.isLoading && ((viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty) || (viewModel.selectedSegment == 1 && viewModel.d1Databases.isEmpty)) {
+                HIGContentState(.loading(message: "Loading Storage…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchData() } }
                     )
-                } else if viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty {
+                )
+            } else if viewModel.hasFetchedData {
+                if viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty {
                     HIGContentState(
                         .empty(
                             title: "No KV Namespaces",
@@ -224,13 +213,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private func kvRow(_ ns: KVNamespace) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "key.horizontal.fill")
-                .font(.body)
-                .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "key.horizontal.fill", color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(ns.title)
@@ -249,13 +232,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private func d1Row(_ db: D1Database) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "cylinder.split.1x2.fill")
-                .font(.body)
-                .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
@@ -310,7 +287,7 @@ struct KVCreateNamespaceSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -370,7 +347,7 @@ struct D1CreateDatabaseSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -433,14 +410,7 @@ struct KVNamespaceKeysView: View {
     
     var body: some View {
         List {
-            if viewModel.isLoading && viewModel.keys.isEmpty {
-                Section {
-                    ForEach(0..<5, id: \.self) { _ in
-                        Text("KEY_PLACEHOLDER_NAME")
-                            .redacted(reason: .placeholder)
-                    }
-                }
-            } else if !filteredKeys.isEmpty {
+            if !filteredKeys.isEmpty {
                 Section(header: Text("Keys (\(filteredKeys.count))")) {
                     ForEach(filteredKeys) { k in
                         NavigationLink {
@@ -452,7 +422,8 @@ struct KVNamespaceKeysView: View {
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 if let exp = k.expiration {
-                                    Text("Expires \(DateFormatters.formatISO8601ToDisplay(String(exp), style: DateFormatters.dateOnly))")
+                                    let date = Date(timeIntervalSince1970: Double(exp))
+                                    Text("Expires \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
@@ -526,7 +497,7 @@ struct KVKeyValueDetailView: View {
                 if viewModel.isValueLoading {
                     ProgressView()
                 } else if let val = viewModel.selectedKeyValue {
-                    Text(val)
+                    Text(verbatim: val)
                         .font(.caption.monospaced())
                         .textSelection(.enabled)
                 } else {
@@ -573,7 +544,7 @@ struct KVAddKeySheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

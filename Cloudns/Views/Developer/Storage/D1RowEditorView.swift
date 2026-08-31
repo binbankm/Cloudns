@@ -90,7 +90,7 @@ struct D1RowEditorView: View {
                                 .submitLabel(.done)
                                 
                                 if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
-                                    Text(verbatim: "Default: \(dflt)")
+                                    Text("Default: \(dflt)")
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }

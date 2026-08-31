@@ -45,7 +45,7 @@ struct DNSDigToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain")
+                        .accessibilityLabel("Clear Domain")
                     }
                 }
                 
@@ -63,6 +63,7 @@ struct DNSDigToolView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                     
                     Toggle("DNSSEC Validation", isOn: $viewModel.dnssecEnabled)
@@ -80,23 +81,26 @@ struct DNSDigToolView: View {
                         } else {
                             Image(systemName: "magnifyingglass")
                         }
-                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers..." : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
+                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers…" : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDnsLoading || viewModel.isBenchmarkLoading)
             }
             
             // 2. Results Sections
             if queryMode == 0 {
                 if viewModel.isDnsLoading {
-                    Section(header: Text("Resolved Answers")) {
-                        ForEach(DNSAnswerItem.placeholders) { item in
-                            DNSAnswerRowView(item: item)
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView("Resolving DNS Records…")
+                            Spacer()
                         }
+                        .padding(.vertical, 8)
                     }
-                    .redacted(reason: .placeholder)
                 } else if let result = viewModel.dnsResult {
                     Section(header: Text("Resolved Answers (\(result.answers.count))")) {
                         HStack {
@@ -107,7 +111,7 @@ struct DNSDigToolView: View {
                             if result.isDNSSECValidated {
                                 HIGBadge(.custom(color: .green, text: "DNSSEC Validated"), isCompact: true)
                             }
-                            HIGBadge(.custom(color: .blue, text: String(format: "%.1f ms", result.latencyMs)), isCompact: true)
+                            HIGBadge(.custom(color: .blue, text: "\(result.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                         }
                         
                         if result.answers.isEmpty {
@@ -131,11 +135,11 @@ struct DNSDigToolView: View {
                 }
             } else {
                 if viewModel.isBenchmarkLoading {
-                    Section(header: Text("Benchmarking Public Resolvers...")) {
+                    Section(header: Text("Benchmarking Public Resolvers…")) {
                         HStack(spacing: 8) {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("Probing Cloudflare, Google, Quad9, OpenDNS...")
+                            Text("Probing Cloudflare, Google, Quad9, OpenDNS…")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -154,7 +158,7 @@ struct DNSDigToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -216,10 +220,10 @@ struct DNSDigToolView: View {
             }
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.resolverName)
+                Text(verbatim: item.resolverName)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                Text(item.resolverIP)
+                Text(verbatim: item.resolverIP)
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
@@ -227,7 +231,7 @@ struct DNSDigToolView: View {
             Spacer()
             
             if item.status == "OK", let lat = item.latencyMs {
-                HIGBadge(.custom(color: rank == 1 ? .green : .blue, text: String(format: "%.1f ms", lat)), isCompact: true)
+                HIGBadge(.custom(color: rank == 1 ? .green : .blue, text: "\(lat.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
             } else {
                 HIGBadge(.custom(color: .red, text: "TIMEOUT"), isCompact: true)
             }
@@ -255,7 +259,7 @@ struct DNSAnswerRowView: View {
         HStack(alignment: .center, spacing: 10) {
             HIGBadge(.custom(color: .indigo, text: item.typeName), isCompact: true)
             
-            Text(item.data)
+            Text(verbatim: item.data)
                 .font(.body.monospaced())
                 .foregroundStyle(.primary)
                 .lineLimit(1)

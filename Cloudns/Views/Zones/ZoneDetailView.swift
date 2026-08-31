@@ -57,7 +57,7 @@ struct ZoneDetailView: View {
                                         .foregroundStyle(.blue)
                                 }
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             .higTouchTarget()
                         } label: {
                             Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
@@ -72,7 +72,7 @@ struct ZoneDetailView: View {
             Section(header: Text("Analytics")) {
                 ZoneNavRowView(
                     title: "Traffic",
-                    subtitle: "Requests, bandwidth & threats",
+                    subtitle: "Requests, bandwidth, and threats",
                     icon: "chart.xyaxis.line",
                     color: .indigo,
                     destination: ZoneAnalyticsView(zoneId: zone.id, zoneName: zone.name)
@@ -83,7 +83,7 @@ struct ZoneDetailView: View {
             Section(header: Text("DNS")) {
                 ZoneNavRowView(
                     title: "Records",
-                    subtitle: "A, CNAME, MX, TXT and more",
+                    subtitle: "A, CNAME, MX, and TXT records",
                     icon: "server.rack",
                     color: .blue,
                     destination: DNSRecordsView(zoneId: zone.id, zoneName: zone.name)
@@ -101,14 +101,14 @@ struct ZoneDetailView: View {
             Section(header: Text("Security")) {
                 ZoneNavRowView(
                     title: "Security Events",
-                    subtitle: "Firewall activity & triggered rules",
+                    subtitle: "Firewall activity and triggered rules",
                     icon: "exclamationmark.shield.fill",
                     color: .purple,
                     destination: SecurityEventsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "WAF",
-                    subtitle: "Custom rules, managed rules",
+                    subtitle: "Custom and managed rules",
                     icon: "shield.lefthalf.filled",
                     color: .red,
                     destination: WAFCustomRulesView(zoneId: zone.id)
@@ -122,14 +122,14 @@ struct ZoneDetailView: View {
                 )
                 ZoneNavRowView(
                     title: "IP Access Rules",
-                    subtitle: "Allow or block by IP, ASN, country",
+                    subtitle: "Allow or block by IP, ASN, and country",
                     icon: "network.badge.shield.half.filled",
                     color: .blue,
                     destination: IPAccessRulesView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Settings",
-                    subtitle: "Security level, Bot Fight Mode",
+                    subtitle: "Security level and Bot Fight Mode",
                     icon: "slider.horizontal.3",
                     color: .gray,
                     destination: SecuritySettingsView(zoneId: zone.id)
@@ -140,14 +140,14 @@ struct ZoneDetailView: View {
             Section(header: Text("SSL/TLS")) {
                 ZoneNavRowView(
                     title: "Overview",
-                    subtitle: "Encryption mode & HTTPS settings",
+                    subtitle: "Encryption mode and HTTPS settings",
                     icon: "lock.shield.fill",
                     color: .orange,
                     destination: SSLSettingsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Edge Certificates",
-                    subtitle: "Universal, ACM & custom certificates",
+                    subtitle: "Universal, ACM, and custom certificates",
                     icon: "checkmark.seal.fill",
                     color: .orange,
                     destination: EdgeCertificatesView(zoneId: zone.id)
@@ -158,21 +158,21 @@ struct ZoneDetailView: View {
             Section(header: Text("Performance")) {
                 ZoneNavRowView(
                     title: "Speed",
-                    subtitle: "Minification, Brotli, HTTP/2",
+                    subtitle: "Minification, Brotli, and HTTP/2",
                     icon: "speedometer",
                     color: .yellow,
                     destination: SpeedSettingsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Caching",
-                    subtitle: "Cache level, browser TTL, purge cache",
+                    subtitle: "Cache level, browser TTL, and cache purge",
                     icon: "memorychip",
                     color: .cyan,
                     destination: CachingView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Rules",
-                    subtitle: "Transform, Cache, Redirect, Snippets",
+                    subtitle: "Transform, cache, redirect, and snippets",
                     icon: "slider.horizontal.3",
                     color: .teal,
                     destination: RulesHubView(zoneId: zone.id)
@@ -183,7 +183,7 @@ struct ZoneDetailView: View {
             Section(header: Text("Network")) {
                 ZoneNavRowView(
                     title: "Network",
-                    subtitle: "WebSockets, QUIC, gRPC",
+                    subtitle: "WebSockets, QUIC, and gRPC",
                     icon: "network",
                     color: .purple,
                     destination: NetworkCenterView(zoneId: zone.id, zoneName: zone.name)
@@ -213,7 +213,7 @@ struct ZoneDetailView: View {
             Section(header: Text("Content")) {
                 ZoneNavRowView(
                     title: "Scrape Shield",
-                    subtitle: "Email obfuscation & hotlink protection",
+                    subtitle: "Email obfuscation and hotlink protection",
                     icon: "eye.slash.fill",
                     color: .gray,
                     destination: ScrapeShieldView(zoneId: zone.id)
@@ -224,7 +224,7 @@ struct ZoneDetailView: View {
             Section(header: Text("Advanced")) {
                 ZoneNavRowView(
                     title: "Advanced",
-                    subtitle: "Pause Cloudflare, remove site",
+                    subtitle: "Pause proxy and delete domain",
                     icon: "gearshape.2.fill",
                     color: .red,
                     destination: AdvancedZoneSettingsView(zoneId: zone.id, zoneName: zone.name, initialPaused: zone.paused)
@@ -303,13 +303,7 @@ struct ZoneNavRowView<Destination: View>: View {
     var body: some View {
         NavigationLink(destination: destination) {
             HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.body)
-                    .foregroundStyle(color)
-                    .frame(width: 32, height: 32)
-                    .background(color.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                    .accessibilityHidden(true)
+                ListRowIcon(icon: icon, color: color, size: 32, cornerRadius: 8)
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {

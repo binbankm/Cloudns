@@ -14,6 +14,7 @@ public enum HIGBadgeType: Equatable {
     case warning(String = "Warning")
     case error(String = "Error")
     case custom(color: Color, text: String, icon: String? = nil)
+    case raw(color: Color, text: String, icon: String? = nil)
     
     public static var proxied: HIGBadgeType {
         .proxied("Proxied")
@@ -40,7 +41,7 @@ public struct HIGBadge: View {
     public var body: some View {
         HStack(spacing: isCompact ? 3 : 4) {
             badgeIcon
-            Text(badgeText)
+            badgeContent
                 .font(isCompact ? .caption2.weight(.medium) : .caption.weight(.medium))
                 .foregroundStyle(badgeColor)
         }
@@ -50,19 +51,21 @@ public struct HIGBadge: View {
         .clipShape(Capsule())
     }
     
-    private var badgeText: LocalizedStringKey {
+    @ViewBuilder
+    private var badgeContent: some View {
         switch type {
-        case .proxied(let text): return LocalizedStringKey(text)
-        case .dnsOnly(let text): return LocalizedStringKey(text)
-        case .active(let text): return LocalizedStringKey(text)
-        case .free: return "FREE"
-        case .paid: return "PAID"
-        case .pro: return "PRO"
-        case .business: return "BIZ"
-        case .enterprise: return "ENT"
-        case .warning(let msg): return LocalizedStringKey(msg)
-        case .error(let msg): return LocalizedStringKey(msg)
-        case .custom(_, let text, _): return LocalizedStringKey(text)
+        case .proxied(let text): Text(LocalizedStringKey(text))
+        case .dnsOnly(let text): Text(LocalizedStringKey(text))
+        case .active(let text): Text(LocalizedStringKey(text))
+        case .free: Text("FREE")
+        case .paid: Text("PAID")
+        case .pro: Text("PRO")
+        case .business: Text("BIZ")
+        case .enterprise: Text("ENT")
+        case .warning(let msg): Text(LocalizedStringKey(msg))
+        case .error(let msg): Text(LocalizedStringKey(msg))
+        case .custom(_, let text, _): Text(LocalizedStringKey(text))
+        case .raw(_, let text, _): Text(verbatim: text)
         }
     }
     
@@ -78,7 +81,7 @@ public struct HIGBadge: View {
         case .enterprise: return .indigo
         case .warning: return .orange
         case .error: return .red
-        case .custom(let color, _, _): return color
+        case .custom(let color, _, _), .raw(let color, _, _): return color
         }
     }
     
@@ -109,7 +112,7 @@ public struct HIGBadge: View {
             Circle()
                 .fill(Color.red)
                 .frame(width: isCompact ? 5 : 6, height: isCompact ? 5 : 6)
-        case .custom(_, _, let icon):
+        case .custom(_, _, let icon), .raw(_, _, let icon):
             if let icon {
                 Image(systemName: icon)
                     .font(isCompact ? .caption2 : .caption)

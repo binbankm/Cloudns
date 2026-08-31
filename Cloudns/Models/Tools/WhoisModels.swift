@@ -29,14 +29,4 @@ public struct WhoisInfo: Identifiable, Sendable {
         self.expires = expires
         self.nameservers = nameservers
     }
-    
-    public static let placeholder = WhoisInfo(
-        domain: "example.com",
-        statuses: ["clientTransferProhibited", "active"],
-        registrar: "Cloudflare, Inc.",
-        created: Date(timeIntervalSince1970: 800000000),
-        updated: Date(timeIntervalSince1970: 1700000000),
-        expires: Date(timeIntervalSince1970: 1800000000),
-        nameservers: ["ns1.cloudflare.com", "ns2.cloudflare.com"]
-    )
 }

@@ -265,7 +265,7 @@ struct DNSRecordFormView: View {
                 
                 if let error = errorMessage {
                     Section {
-                        Text(error)
+                        Text(verbatim: error)
                             .foregroundStyle(.red)
                             .font(.caption)
                     }
@@ -298,7 +298,7 @@ struct DNSRecordFormView: View {
                 if isSaving {
                     ZStack {
                         Color.black.opacity(0.3).ignoresSafeArea()
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

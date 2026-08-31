@@ -34,9 +34,7 @@ struct DNSRecordsView: View {
     
     var body: some View {
         List(selection: $multiSelection) {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                skeletonSection
-            } else if !displayRecords.isEmpty {
+            if !displayRecords.isEmpty {
                 recordsSections
 
                 if viewModel.canLoadMore && viewModel.hasFetchedData {
@@ -57,8 +55,8 @@ struct DNSRecordsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchQuery,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: viewModel.totalCount > 0 ? "Search \(viewModel.totalCount) records" : "Search records"
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Search Records"
         )
         .navigationTitle("DNS Records")
         .navigationBarTitleDisplayMode(.inline)
@@ -128,29 +126,29 @@ struct DNSRecordsView: View {
             }
         }
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchRecords(isRefresh: true) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading DNS Records…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchRecords(isRefresh: true) }
+                        }
                     )
-                } else if viewModel.records.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No DNS Records",
-                            systemImage: "server.rack",
-                            description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
-                            actionTitle: "Add Record",
-                            action: { showingForm = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.records.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No DNS Records",
+                        systemImage: "list.bullet.rectangle",
+                        description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
+                        actionTitle: "Add Record",
+                        action: { showingForm = true }
                     )
-                } else if displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchQuery))
-                }
+                )
+            } else if viewModel.hasFetchedData && displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
+                HIGContentState(.search(query: viewModel.searchQuery))
             }
         }
         .sheet(isPresented: $showingForm) {
@@ -173,7 +171,7 @@ struct DNSRecordsView: View {
                             try await viewModel.deleteRecord(recordId: record.id)
                             ToastManager.shared.showSuccess("DNS Record Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete record")
+                            ToastManager.shared.showError("Failed to Delete Record")
                         }
                         recordToDelete = nil
                     }
@@ -336,7 +334,7 @@ struct DNSRecordsView: View {
                     Button {
                         showingPresetsSheet = true
                     } label: {
-                        Label("1-Click Presets", systemImage: "wand.and.stars")
+                        Label("DNS Presets", systemImage: "wand.and.stars")
                     }
                     
                     Button {
@@ -364,16 +362,6 @@ struct DNSRecordsView: View {
             }
             .accessibilityLabel("Add DNS Record")
         }
-    }
-    
-    @ViewBuilder
-    private var skeletonSection: some View {
-        Section {
-            ForEach(DNSRecord.placeholders) { (placeholderRecord: DNSRecord) in
-                DNSRecordRowView(record: placeholderRecord)
-            }
-        }
-        .redacted(reason: .placeholder)
     }
     
     @ViewBuilder
@@ -470,7 +458,7 @@ struct DNSRecordRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .center, spacing: 8) {
-                Text(record.type)
+                Text(verbatim: record.type)
                     .font(.caption.monospacedDigit().weight(.bold))
                     .frame(width: 48)
                     .padding(.vertical, 2.5)
@@ -478,7 +466,7 @@ struct DNSRecordRowView: View {
                     .foregroundStyle(recordTypeColor)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
-                Text(record.name)
+                Text(verbatim: record.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)

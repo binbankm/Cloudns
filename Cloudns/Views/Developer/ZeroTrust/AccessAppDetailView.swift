@@ -35,12 +35,14 @@ struct AccessAppDetailView: View {
             
             Section(header: Text("Access Policies (\(policies.count))")) {
                 if isLoadingPolicies && policies.isEmpty {
-                    ForEach(AccessPolicy.placeholders) { placeholder in
-                        policyRow(placeholder)
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading Policies…")
+                        Spacer()
                     }
-                    .redacted(reason: .placeholder)
+                    .padding(.vertical, 4)
                 } else if let err = errorMessage, policies.isEmpty {
-                    Text(err)
+                    Text(verbatim: err)
                         .font(.caption)
                         .foregroundStyle(.red)
                 } else if policies.isEmpty {

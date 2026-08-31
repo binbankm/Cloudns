@@ -27,18 +27,9 @@ public struct D1Database: Codable, Identifiable, Equatable, Sendable {
         self.createdAt = createdAt
     }
     
-    public static let placeholders: [D1Database] = (0..<4).map { idx in
-        D1Database(uuid: "d1-uuid-\(idx + 1)-db", name: "production-users-db-\(idx + 1)")
-    }
-    
     public var formattedSize: String {
         guard let size = fileSize else { return "0 B" }
-        let b = Double(size)
-        if b < 1024 { return "\(size) B" }
-        let kb = b / 1024.0
-        if kb < 1024 { return String(format: "%.1f KB", kb) }
-        let mb = kb / 1024.0
-        return String(format: "%.2f MB", mb)
+        return ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
     }
 }
 

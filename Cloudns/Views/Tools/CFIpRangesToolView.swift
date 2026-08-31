@@ -38,7 +38,7 @@ struct CFIpRangesToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -52,6 +52,7 @@ struct CFIpRangesToolView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(testIpInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 
                 if let result = testResult {
@@ -159,7 +160,12 @@ struct CFIpRangesToolView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-             .higToast()
+            .higToast()
+        }
+        .overlay {
+            if viewModel.isLoading && viewModel.ipv4List.isEmpty {
+                HIGContentState(.loading(message: "Loading Cloudflare IP Ranges…"))
+            }
         }
         .task {
             if viewModel.ipv4List.isEmpty {

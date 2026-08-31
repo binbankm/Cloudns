@@ -43,7 +43,7 @@ final class R2Service: R2ServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets")
         let rawData = try await client.performDataRequest(request)
         
-        // 1. { "result": { "buckets": [...] }, "success": true }
+        // 1. { "result": { "buckets": […] }, "success": true }
         struct ResWithBuckets: Codable {
             let result: BucketsContainer?
             struct BucketsContainer: Codable {
@@ -105,7 +105,7 @@ final class R2Service: R2ServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects", queryItems: queryItems)
         let rawData = try await client.performDataRequest(request)
         
-        // Strategy 1: { "result": { "objects": [...], "cursor": "...", "truncated": false } }
+        // Strategy 1: { "result": { "objects": […], "cursor": "...", "truncated": false } }
         struct R2WrappedResult: Codable {
             let result: R2ObjectsListRes?
             struct R2ObjectsListRes: Codable {

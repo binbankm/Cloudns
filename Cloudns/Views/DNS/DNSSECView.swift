@@ -15,34 +15,132 @@ struct DNSSECView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 16) {
-                    if let dnssec = viewModel.dnssec {
-                        statusCard(dnssec)
+        List {
+            // MARK: - Hero Header
+            Section {
+                VStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.blue.opacity(0.18), Color.indigo.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
                         
-                        if dnssec.status == "active" || dnssec.status == "pending" {
-                            dsRecordCard(dnssec)
-                        }
-                    } else if viewModel.isLoading {
-                        VStack(spacing: 16) {
-                            statusCard(DNSSEC.placeholder)
-                            dsRecordCard(DNSSEC.placeholder)
-                        }
-                        .redacted(reason: .placeholder)
+                        Image(systemName: "key.horizontal.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.blue)
+                    }
+                    .padding(.top, 4)
+                    
+                    Text("DNSSEC")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Cryptographically sign DNS records to prevent spoofing for \(zoneName).")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            
+            // MARK: - Protection Status
+            Section(
+                header: Text("Status"),
+                footer: Text("When enabled, Cloudflare generates DS records to be registered at your domain registrar.")
+            ) {
+                let status = viewModel.dnssec?.status ?? "disabled"
+                
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "shield.lefthalf.filled", color: statusColor(for: status), size: 28, cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("DNSSEC Status")
+                            .font(.body)
+                        Text(status.capitalized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if status == "active" {
+                        HIGBadge(.active, isCompact: true)
+                    } else if status == "pending" {
+                        HIGBadge(.warning("Pending"), isCompact: true)
+                    } else {
+                        HIGBadge(.custom(color: .secondary, text: "Disabled"), isCompact: true)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .disabled(viewModel.dnssec == nil)
+                
+                Toggle(isOn: Binding(
+                    get: { status == "active" || status == "pending" },
+                    set: { _ in
+                        HIGFeedback.selection()
+                        Task { await viewModel.toggleDNSSEC() }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "checkmark.shield.fill", color: .blue, size: 28, cornerRadius: 6)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Enable DNSSEC")
+                                .font(.body)
+                            Text("Sign zone records with DNSSEC keys.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(viewModel.dnssec == nil)
             }
-            .refreshable {
-                await viewModel.fetchDNSSEC()
+            
+            // MARK: - DS Records (if active/pending)
+            if let dnssec = viewModel.dnssec, dnssec.status == "active" || dnssec.status == "pending" {
+                Section(
+                    header: HStack {
+                        Text("DS Record Details")
+                        Spacer()
+                        Button {
+                            let fullConfig = """
+                            Zone: \(zoneName)
+                            DS Record: \(dnssec.ds ?? "")
+                            Digest: \(dnssec.digest ?? "")
+                            Digest Type: \(dnssec.digest_type ?? "")
+                            Algorithm: \(dnssec.algorithm ?? "")
+                            Key Tag: \(dnssec.key_tag.map(String.init) ?? "")
+                            Flags: \(dnssec.flags.map(String.init) ?? "")
+                            Public Key: \(dnssec.public_key ?? "")
+                            """
+                            UIPasteboard.general.string = fullConfig
+                            ToastManager.shared.showCopied("Configuration Copied")
+                        } label: {
+                            Label("Copy All", systemImage: "doc.on.doc")
+                                .font(.caption.weight(.semibold))
+                        }
+                    },
+                    footer: Text("Add these DS record details to your domain registrar settings to complete verification.")
+                ) {
+                    dsFieldRow(label: "DS Record", value: dnssec.ds)
+                    dsFieldRow(label: "Digest", value: dnssec.digest)
+                    dsFieldRow(label: "Digest Type", value: dnssec.digest_type)
+                    dsFieldRow(label: "Algorithm", value: dnssec.algorithm)
+                    dsFieldRow(label: "Key Tag", value: dnssec.key_tag.map(String.init))
+                    dsFieldRow(label: "Flags", value: dnssec.flags.map(String.init))
+                    dsFieldRow(label: "Public Key", value: dnssec.public_key)
+                }
             }
         }
+        .listStyle(.insetGrouped)
         .overlay {
-            if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
+            if viewModel.dnssec == nil && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading DNSSEC Status…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
                 HIGContentState(
                     .error(
                         message: LocalizedStringKey(errorMessage),
@@ -51,6 +149,9 @@ struct DNSSECView: View {
                 )
             }
         }
+        .refreshable {
+            await viewModel.fetchDNSSEC()
+        }
         .navigationTitle("DNSSEC")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -58,156 +159,37 @@ struct DNSSECView: View {
         }
     }
     
-    // MARK: - 1. Hero Status Card
     @ViewBuilder
-    private func statusCard(_ dnssec: DNSSEC) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+    private func dsFieldRow(label: LocalizedStringKey, value: String?) -> some View {
+        if let val = value, !val.isEmpty {
             HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(statusColor(for: dnssec.status).opacity(0.14))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "lock.shield.fill")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(statusColor(for: dnssec.status))
-                }
-                .accessibilityHidden(true)
-                
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("DNSSEC Protection")
-                        .font(.headline)
+                    Text(label)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(verbatim: val)
+                        .font(.body.monospaced())
                         .foregroundStyle(.primary)
-                    Text(zoneName)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
                 }
-                
                 Spacer()
-                
-                HIGBadge(
-                    dnssec.status == "active" ? .active : (dnssec.status == "pending" ? .warning("Pending") : .custom(color: .secondary, text: dnssec.status.capitalized)),
-                    isCompact: false
-                )
-            }
-            
-            Divider()
-            
-            Toggle(isOn: Binding(
-                get: { dnssec.status == "active" || dnssec.status == "pending" },
-                set: { _ in
-                    HIGFeedback.selection()
-                    Task { await viewModel.toggleDNSSEC() }
-                }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Enable DNSSEC")
-                        .font(.subheadline.weight(.semibold))
-                    Text("Cryptographically sign DNS records to prevent DNS spoofing and cache poisoning.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .disabled(viewModel.isLoading)
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-    
-    // MARK: - 2. DS Record Configuration Card
-    @ViewBuilder
-    private func dsRecordCard(_ dnssec: DNSSEC) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("DS Record Details")
-                        .font(.headline)
-                    Text("Add this DS record to your domain registrar.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-                
                 Button {
-                    let fullConfig = """
-                    Zone: \(zoneName)
-                    DS Record: \(dnssec.ds ?? "")
-                    Digest: \(dnssec.digest ?? "")
-                    Digest Type: \(dnssec.digest_type ?? "")
-                    Algorithm: \(dnssec.algorithm ?? "")
-                    Key Tag: \(dnssec.key_tag.map(String.init) ?? "")
-                    Flags: \(dnssec.flags.map(String.init) ?? "")
-                    Public Key: \(dnssec.public_key ?? "")
-                    """
-                    UIPasteboard.general.string = fullConfig
-                    ToastManager.shared.showCopied("DNSSEC Configuration Copied")
+                    UIPasteboard.general.string = val
+                    ToastManager.shared.showCopied()
                 } label: {
-                    Label("Copy All", systemImage: "doc.on.doc")
-                        .font(.caption.weight(.semibold))
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.blue)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+                .accessibilityLabel("Copy")
             }
-            
-            Divider()
-            
-            VStack(spacing: 10) {
-                DNSSECDetailRowView(title: "DS Record", value: dnssec.ds)
-                DNSSECDetailRowView(title: "Digest", value: dnssec.digest)
-                DNSSECDetailRowView(title: "Digest Type", value: dnssec.digest_type)
-                DNSSECDetailRowView(title: "Algorithm", value: dnssec.algorithm)
-                DNSSECDetailRowView(title: "Key Tag", value: dnssec.key_tag.map(String.init))
-                DNSSECDetailRowView(title: "Flags", value: dnssec.flags.map(String.init))
-                DNSSECDetailRowView(title: "Public Key", value: dnssec.public_key, isLast: true)
-            }
+            .padding(.vertical, 2)
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private func statusColor(for status: String) -> Color {
         switch status {
         case "active": return .green
         case "pending": return .orange
-        case "disabled": return .gray
         default: return .gray
-        }
-    }
-}
-
-// MARK: - DNSSECDetailRowView (Inlined & Cohesive)
-
-struct DNSSECDetailRowView: View {
-    let title: String
-    let value: String?
-    var isLast: Bool = false
-    
-    var body: some View {
-        if let validValue = value, !validValue.isEmpty {
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringKey(title))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(validValue)
-                        .font(.body.monospacedDigit())
-                        .foregroundStyle(.primary)
-                }
-                .padding(.vertical, 4)
-                
-                Spacer()
-                
-                Button {
-                    UIPasteboard.general.string = validValue
-                    ToastManager.shared.showCopied("\(title) Copied")
-                } label: {
-                    Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.blue)
-                }
-                .accessibilityLabel("Copy \(title)")
-            }
         }
     }
 }

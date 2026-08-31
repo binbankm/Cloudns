@@ -62,8 +62,4 @@ public struct AlertingPolicy: Codable, Identifiable, Equatable, Sendable {
         self.modified = modified
     }
     
-    public static let placeholders: [AlertingPolicy] = [
-        AlertingPolicy(id: "pol_1", name: "High HTTP 5xx Error Rate Alert", description: "Notifies Ops team on Slack when origin errors exceed 5%", enabled: true, alertType: "http_alert_origin_error_rate"),
-        AlertingPolicy(id: "pol_2", name: "DDoS Mitigation Triggered", description: "Immediate paging when volumetric DDoS is detected", enabled: true, alertType: "dos_attack_l7")
-    ]
 }

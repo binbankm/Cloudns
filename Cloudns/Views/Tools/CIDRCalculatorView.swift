@@ -43,7 +43,7 @@ struct CIDRCalculatorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -64,7 +64,7 @@ struct CIDRCalculatorView: View {
                                     .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -113,7 +113,7 @@ struct CIDRCalculatorView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.higPressable)
                         .higTouchTarget()
                     }
                 }
@@ -122,17 +122,20 @@ struct CIDRCalculatorView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.red)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("Subnet & CIDR Calculator")
+        .navigationTitle("CIDR Calculator")
         .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
+        .task {
+            viewModel.calculateSubnet()
+        }
     }
     
     @ViewBuilder
@@ -142,7 +145,7 @@ struct CIDRCalculatorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(value)
+            Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
             
@@ -154,7 +157,7 @@ struct CIDRCalculatorView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higPressable)
             .higTouchTarget()
         }
     }

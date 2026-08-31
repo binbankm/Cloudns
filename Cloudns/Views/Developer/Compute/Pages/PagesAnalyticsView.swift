@@ -46,16 +46,7 @@ public struct PagesAnalyticsView: View {
                 .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        metricsGrid
-                            .redacted(reason: .placeholder)
-                        deploymentsBreakdownCard
-                            .redacted(reason: .placeholder)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 28)
-                }
+                HIGContentState(.loading(message: "Loading Pages Analytics…"))
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty && viewModel.deployments.isEmpty {
                 ScrollView {
                     VStack {
@@ -177,14 +168,14 @@ public struct PagesAnalyticsView: View {
                     value: formatNumber(viewModel.totalErrors),
                     icon: "exclamationmark.triangle.fill",
                     color: viewModel.totalErrors > 0 ? .red : .green,
-                    badge: "\(String(format: "%.1f%%", viewModel.errorRatePercentage)) Error Rate"
+                    badge: "\((viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1)))) Error Rate"
                 )
             }
             
             GridRow {
                 metricCard(
                     title: "Deploy Success Rate",
-                    value: String(format: "%.0f%%", viewModel.deploymentSuccessRate),
+                    value: (viewModel.deploymentSuccessRate / 100.0).formatted(.percent.precision(.fractionLength(0))),
                     icon: "checkmark.seal.fill",
                     color: .green,
                     badge: "\(viewModel.deployments.count) Total Deploys"
@@ -262,7 +253,7 @@ public struct PagesAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
+                        Text(verbatim: formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -285,7 +276,7 @@ public struct PagesAnalyticsView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -387,7 +378,7 @@ public struct PagesAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(formatNumber(count))
+                            Text(verbatim: formatNumber(count))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -445,7 +436,7 @@ public struct PagesAnalyticsView: View {
                     
                     if let selected = selectedCpuPoint {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", selected.cpuP50))
+                            Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("P50")
@@ -455,7 +446,7 @@ public struct PagesAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", selected.cpuP99))
+                            Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("P99")
@@ -464,7 +455,7 @@ public struct PagesAnalyticsView: View {
                         }
                     } else {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", viewModel.avgCpuP50))
+                            Text("\(viewModel.avgCpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("avg P50")
@@ -474,7 +465,7 @@ public struct PagesAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", viewModel.maxCpuP99))
+                            Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("max P99")
@@ -492,7 +483,7 @@ public struct PagesAnalyticsView: View {
                         Circle()
                             .fill(Color.cyan)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -577,7 +568,7 @@ public struct PagesAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
-                            Text(String(format: "%.1f ms", ms)).font(.caption.monospacedDigit())
+                            Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms").font(.caption.monospacedDigit())
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -688,7 +679,7 @@ public struct PagesAnalyticsView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
-                Text(String(format: "%.1f subrequests / req", ratio))
+                Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
             
@@ -710,8 +701,7 @@ public struct PagesAnalyticsView: View {
                 Text("Deployment Pipeline")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer()
-                (Text(verbatim: String(format: "%.1f%% ", viewModel.deploymentSuccessRate)) + Text("Success Rate"))
+                Text("\((viewModel.deploymentSuccessRate / 100.0).formatted(.percent.precision(.fractionLength(1)))) Success Rate")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.green)
             }
@@ -723,10 +713,11 @@ public struct PagesAnalyticsView: View {
     
     // MARK: - Helpers
     private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
+        let loc = DateFormatters.currentAppLocale
         if isHourlyData {
-            return point.date.formatted(date: .omitted, time: .shortened)
+            return point.date.formatted(.dateTime.locale(loc).hour().minute())
         } else {
-            return point.date.formatted(.dateTime.month().day())
+            return point.date.formatted(.dateTime.locale(loc).month().day())
         }
     }
     
@@ -738,10 +729,10 @@ public struct PagesAnalyticsView: View {
     }
     
     private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return "\(num)" }
+        if num < 1000 { return num.formatted(.number) }
         let k = Double(num) / 1000.0
-        if k < 1000 { return String(format: "%.1fK", k) }
+        if k < 1000 { return "\(k.formatted(.number.precision(.fractionLength(1))))K" }
         let m = k / 1000.0
-        return String(format: "%.2fM", m)
+        return "\(m.formatted(.number.precision(.fractionLength(2))))M"
     }
 }

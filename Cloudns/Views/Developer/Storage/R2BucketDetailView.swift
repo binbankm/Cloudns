@@ -22,9 +22,9 @@ struct R2BucketDetailView: View {
         List {
             if !viewModel.objects.isEmpty {
                 Section(header: Text("Bucket Information")) {
-                    if let created = bucket.creationDate {
+                    if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                         LabeledContent("Created") {
-                            Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
                                 .font(.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
@@ -40,14 +40,7 @@ struct R2BucketDetailView: View {
                 }
             }
             
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Objects")) {
-                    ForEach(R2Object.placeholders) { placeholder in
-                        R2ObjectRowView(object: placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredObjects.isEmpty {
+            if !viewModel.filteredObjects.isEmpty {
                 Section(header: Text("Objects (\(viewModel.filteredObjects.count))")) {
                     ForEach(viewModel.filteredObjects) { obj in
                         Button {
@@ -72,7 +65,7 @@ struct R2BucketDetailView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Objects in Bucket"
         )
         .navigationTitle(bucket.name)
@@ -115,7 +108,7 @@ struct R2BucketDetailView: View {
                             try await viewModel.deleteObject(key: obj.key)
                             ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete object")
+                            ToastManager.shared.showError("Failed to Delete Object")
                         }
                         objectToDelete = nil
                     }
@@ -130,7 +123,9 @@ struct R2BucketDetailView: View {
             }
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Objects…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
                     HIGContentState(
                         .error(
@@ -144,7 +139,7 @@ struct R2BucketDetailView: View {
                     HIGContentState(
                         .empty(
                             title: "No Objects in Bucket",
-                            systemImage: "externaldrive.badge.icloud",
+                            systemImage: "tray.and.arrow.up",
                             description: "This R2 bucket is currently empty. Upload objects to get started.",
                             actionTitle: "Upload Object",
                             action: { showingUploadSheet = true }
@@ -183,13 +178,7 @@ struct R2ObjectRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: fileIcon)
-                .foregroundStyle(.blue)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: fileIcon, color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(object.key)
@@ -202,8 +191,8 @@ struct R2ObjectRowView: View {
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                     
-                    if let uploaded = object.uploaded {
-                        Text(DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.dateOnly))
+                    if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -253,7 +242,7 @@ struct R2UploadObjectSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -312,8 +301,10 @@ struct R2ObjectDetailSheetView: View {
                     if let etag = object.etag {
                         LabeledContent("ETag", value: etag)
                     }
-                    if let uploaded = object.uploaded {
-                        LabeledContent("Uploaded", value: DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.fullDateTime))
+                    if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
+                        LabeledContent("Uploaded") {
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .standard))
+                        }
                     }
                     if let storageClass = object.storageClass {
                         LabeledContent("Storage Class", value: storageClass)

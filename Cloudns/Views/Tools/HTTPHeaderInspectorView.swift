@@ -62,19 +62,24 @@ struct HTTPHeaderInspectorView: View {
                         } else {
                             Image(systemName: "arrow.up.right.circle.fill")
                         }
-                        Text(viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response")
+                        Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
             }
             
             if viewModel.isHttpLoading {
-                Section(header: Text("Edge Response Summary")) {
-                    edgeSummaryRows(result: HTTPInspectionResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Inspecting Edge Response…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.httpResult {
                 // 2. Edge & Performance Hero Section
                 Section(header: Text("Edge Response Summary")) {
@@ -90,7 +95,7 @@ struct HTTPHeaderInspectorView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -114,7 +119,7 @@ struct HTTPHeaderInspectorView: View {
                     } label: {
                         Image(systemName: "doc.on.doc")
                     }
-                    .accessibilityLabel("Copy all headers")
+                    .accessibilityLabel("Copy All Headers")
                 }
             }
         }
@@ -203,7 +208,7 @@ struct HTTPHeaderInspectorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms", result.ttfbMs))
+            Text("\(result.ttfbMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.weight(.semibold).monospacedDigit())
                 .foregroundStyle(.green)
         }
@@ -213,7 +218,7 @@ struct HTTPHeaderInspectorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms", result.durationMs))
+            Text("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
@@ -239,7 +244,7 @@ struct HTTPHeaderInspectorView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .higTouchTarget()
                 }
                 

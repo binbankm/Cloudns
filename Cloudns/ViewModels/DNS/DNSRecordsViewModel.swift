@@ -209,7 +209,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 rollback.proxied = currentProxied
                 records[idx] = rollback
             }
-            ToastManager.shared.showError("Failed to update proxy status")
+            ToastManager.shared.showError("Failed to Update Proxy Status")
         }
     }
     

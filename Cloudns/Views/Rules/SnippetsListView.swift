@@ -12,28 +12,9 @@ struct SnippetsListView: View {
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteSnippetAlert = false
     @State private var showingDeleteRuleAlert = false
-    @State private var searchText = ""
-    
-    private var displayedSnippets: [SnippetItem] {
-        if searchText.isEmpty { return viewModel.snippets }
-        return viewModel.snippets.filter { $0.snippet_name.localizedStandardContains(searchText) }
-    }
-    
-    private var displayedRules: [WAFRule] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            $0.expression.localizedStandardContains(searchText)
-        }
-    }
     
     var body: some View {
         contentView
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .automatic),
-                prompt: "Search Snippets & Rules"
-            )
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Edge Snippets")
             .navigationBarTitleDisplayMode(.inline)
@@ -104,60 +85,48 @@ struct SnippetsListView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section(header: Text("Snippets")) {
-                    ForEach(SnippetItem.placeholders) { placeholderSnippet in
-                        snippetRow(placeholderSnippet)
+            if !viewModel.snippets.isEmpty {
+                Section(header: Text("JavaScript Snippets (\(viewModel.snippets.count))")) {
+                    ForEach(viewModel.snippets) { snip in
+                        snippetRow(snip)
                     }
                 }
-                .redacted(reason: .placeholder)
-            } else {
-                if !displayedSnippets.isEmpty {
-                    Section(header: Text("JavaScript Snippets (\(displayedSnippets.count))")) {
-                        ForEach(displayedSnippets) { snip in
-                            snippetRow(snip)
-                        }
-                    }
-                }
-                
-                if !displayedRules.isEmpty {
-                    Section(header: Text("Trigger Rules (\(displayedRules.count))")) {
-                        ForEach(displayedRules) { rule in
-                            ruleRow(rule)
-                        }
+            }
+            
+            if !viewModel.rules.isEmpty {
+                Section(header: Text("Trigger Rules (\(viewModel.rules.count))")) {
+                    ForEach(viewModel.rules) { rule in
+                        ruleRow(rule)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchSnippets(zoneId: zoneId) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Snippets…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchSnippets(zoneId: zoneId) }
+                        }
                     )
-                } else if viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Snippets",
-                            systemImage: "curlybraces",
-                            description: "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge.",
-                            actionTitle: "Create Snippet",
-                            action: {
-                                editingSnippet = nil
-                                showingEditorSheet = true
-                            }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Snippets",
+                        systemImage: "curlybraces",
+                        description: "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge.",
+                        actionTitle: "Create Snippet",
+                        action: {
+                            editingSnippet = nil
+                            showingEditorSheet = true
+                        }
                     )
-                } else if displayedSnippets.isEmpty && displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
     }
@@ -181,12 +150,12 @@ struct SnippetsListView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(snip.snippet_name)
+                    Text(verbatim: snip.snippet_name)
                         .font(.body)
                         .foregroundStyle(.primary)
 
-                    if let modified = snip.modifiedOn {
-                        Text("Modified: \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                    if let modified = snip.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
+                        Text("Modified: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -240,7 +209,7 @@ struct SnippetsListView: View {
                 }
             }
             
-            Text(rule.expression)
+            Text(verbatim: rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
@@ -310,7 +279,7 @@ struct SnippetEditorSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -379,7 +348,7 @@ struct BindSnippetRuleSheetView: View {
                 Section(header: Text("Target Snippet")) {
                     Picker("Select Snippet", selection: $selectedSnippetName) {
                         ForEach(snippets) { snip in
-                            Text(snip.snippet_name).tag(snip.snippet_name)
+                            Text(verbatim: snip.snippet_name).tag(snip.snippet_name)
                         }
                     }
                 }
@@ -400,7 +369,7 @@ struct BindSnippetRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

@@ -224,7 +224,7 @@ struct DNSPresetsSheetView: View {
                                 }
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                         }
                     }
                 }
@@ -274,7 +274,7 @@ struct DNSPresetsSheetView: View {
                     ForEach(group.items) { item in
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text(item.type)
+                                Text(verbatim: item.type)
                                     .font(.caption.monospacedDigit().weight(.bold))
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -295,7 +295,7 @@ struct DNSPresetsSheetView: View {
                                 }
                             }
                             
-                            Text(item.content)
+                            Text(verbatim: item.content)
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
@@ -317,14 +317,14 @@ struct DNSPresetsSheetView: View {
                                     .tint(.white)
                                     .padding(.trailing, 6)
                             }
-                            Text(isApplying ? "Adding Records..." : "Apply Preset to \(zoneName)")
+                            Text(isApplying ? "Adding Records…" : "Apply Preset to \(zoneName)")
                                 .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
                         }
                         .padding(.vertical, 4)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .disabled(isApplying)
                     .listRowBackground(Color.blue)
                 }
@@ -376,7 +376,7 @@ struct DNSPresetsSheetView: View {
             ToastManager.shared.showSuccess("DNS Presets Applied (\(successCount))", icon: "wand.and.stars")
             dismiss()
         } else {
-            ToastManager.shared.showError("Failed to apply presets")
+            ToastManager.shared.showError("Failed to Apply Presets")
         }
     }
 }

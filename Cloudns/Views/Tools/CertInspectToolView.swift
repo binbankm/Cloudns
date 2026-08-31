@@ -33,7 +33,7 @@ struct CertInspectToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain input")
+                        .accessibilityLabel("Clear Domain Input")
                     }
                 }
                 
@@ -47,19 +47,24 @@ struct CertInspectToolView: View {
                         } else {
                             Image(systemName: "checkmark.seal.fill")
                         }
-                        Text(viewModel.isLoading ? "Inspecting Handshake..." : "Inspect SSL/TLS Certificate")
+                        Text(viewModel.isLoading ? "Inspecting Handshake…" : "Inspect SSL/TLS Certificate")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
             }
             
             if viewModel.isLoading && viewModel.certDetails == nil {
-                Section(header: Text("Certificate Validity")) {
-                    validityRows(details: SSLCertDetails.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Inspecting SSL Certificate…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let details = viewModel.certDetails {
                 // 2. Validity Hero Section
                 Section(header: Text("Certificate Validity")) {
@@ -85,7 +90,7 @@ struct CertInspectToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -245,7 +250,7 @@ struct CertInspectToolView: View {
                         .font(.caption)
                         .foregroundStyle(.blue)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }

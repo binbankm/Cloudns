@@ -34,14 +34,7 @@ struct EdgeCertificatesView: View {
                 ))
             }
             
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(EdgeCertificateModel.dummyData) { placeholderCert in
-                        EdgeCertificateCardView(certificate: placeholderCert)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedCertificates.isEmpty {
+            if !displayedCertificates.isEmpty {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
@@ -63,11 +56,13 @@ struct EdgeCertificatesView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Certificates"
         )
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Certificates…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
                     HIGContentState(
                         .error(
@@ -207,23 +202,29 @@ struct EdgeCertificateCardView: View {
                     
                     Spacer()
                     
-                    Text(formatDate(certificate.expiresOn))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    expiryDateView(for: certificate.expiresOn)
                 }
             }
         }
         .padding(.vertical, 4)
     }
     
-    private func formatDate(_ dateStr: String) -> String {
-        guard let date = DateFormatters.parseISO8601(dateStr) else {
-            return dateStr.isEmpty ? "" : "Expires: \(dateStr)"
+    @ViewBuilder
+    private func expiryDateView(for dateStr: String) -> some View {
+        if let date = DateFormatters.parseISO8601(dateStr) {
+            if date < Date() {
+                Text("Expired: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Expires: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } else if !dateStr.isEmpty {
+            Text("Expires: \(dateStr)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        let formattedDate = date.formatted(date: .abbreviated, time: .omitted)
-        if date < Date() {
-            return "Expired: \(formattedDate)"
-        }
-        return "Expires: \(formattedDate)"
     }
 }

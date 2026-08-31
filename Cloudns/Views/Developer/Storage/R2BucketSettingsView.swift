@@ -92,20 +92,14 @@ struct R2BucketSettingsView: View {
                         }
                     }
                 }
-            } else if viewModel.isLoading {
-                Section(header: Text("Public Access (r2.dev)")) {
-                    Toggle("Enable r2.dev Subdomain", isOn: .constant(false))
-                        .redacted(reason: .placeholder)
-                }
-                Section(header: Text("Connected Custom Domains")) {
-                    ForEach(R2CustomDomain.placeholders) { ph in
-                        customDomainRow(ph)
-                    }
-                    .redacted(reason: .placeholder)
-                }
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Bucket Settings…"))
+            }
+        }
         .navigationTitle("Bucket Settings")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddCORSSheet) {
@@ -270,7 +264,7 @@ struct AddCORSRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

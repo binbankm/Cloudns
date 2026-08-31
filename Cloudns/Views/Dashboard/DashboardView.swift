@@ -7,6 +7,7 @@ struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var showingAccountSheet = false
+    @State private var showingAddZone = false
     
     var body: some View {
         NavigationStack {
@@ -56,6 +57,9 @@ struct DashboardView: View {
                 AccountsView()
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $showingAddZone) {
+                AddZoneView()
             }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
@@ -147,7 +151,7 @@ struct DashboardView: View {
                 Spacer(minLength: 4)
                 
                 HStack(spacing: 5) {
-                    Image(systemName: "shield.checkered")
+                    Image(systemName: "shield.checkerboard")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.blue)
                     
@@ -199,53 +203,69 @@ struct DashboardView: View {
     // MARK: - 2. Resources Overview Cards Grid (2x2)
     private var resourcesOverviewGridView: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)], spacing: 12) {
-            NavigationLink(destination: ZonesListView()) {
+            NavigationLink {
+                ZonesListView()
+            } label: {
                 DashboardMetricCardView(
                     icon: "globe",
                     iconColor: .blue,
-                    title: "Active Zones",
+                    title: "Active Domains",
                     value: viewModel.hasFetchedData ? "\(viewModel.activeZonesCount)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.zones.count) Total Zones" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.zones.count) Total Domains" : "Loading…",
                     badge: "Domains"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
-            NavigationLink(destination: DeveloperHubView()) {
+            NavigationLink {
+                DeveloperHubView()
+            } label: {
                 DashboardMetricCardView(
                     icon: "bolt.fill",
                     iconColor: .orange,
-                    title: "Workers & Compute",
+                    title: "Workers & Pages",
                     value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) W · \(viewModel.pages.count) P" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading…",
                     badge: "Compute"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
-            NavigationLink(destination: KVBrowserView(accountId: viewModel.selectedAccount?.id ?? "")) {
+            NavigationLink {
+                if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
+                    KVBrowserView(accountId: accId)
+                } else {
+                    KVBrowserView(accountId: "current")
+                }
+            } label: {
                 DashboardMetricCardView(
                     icon: "cylinder.split.1x2.fill",
                     iconColor: .purple,
-                    title: "Storage & DB",
+                    title: "Storage & Databases",
                     value: viewModel.hasFetchedData ? "\(viewModel.totalStorageCount)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "Loading…",
                     badge: "Storage"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
             
-            NavigationLink(destination: TunnelsListView(accountId: viewModel.selectedAccount?.id ?? "")) {
+            NavigationLink {
+                if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
+                    TunnelsListView(accountId: accId)
+                } else {
+                    TunnelsListView(accountId: "current")
+                }
+            } label: {
                 DashboardMetricCardView(
                     icon: "shield.righthalf.filled",
                     iconColor: .green,
                     title: "Zero Trust Tunnels",
                     value: viewModel.hasFetchedData ? "\(viewModel.tunnels.count)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy" : "Loading…",
                     badge: "Tunnel"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higCard)
         }
     }
     
@@ -262,7 +282,7 @@ struct DashboardView: View {
                 NavigationLink(destination: NetworkToolsView()) {
                     HStack(spacing: 4) {
                         Text("All Tools")
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.caption2.weight(.bold))
                     }
                     .font(.subheadline)
@@ -275,42 +295,42 @@ struct DashboardView: View {
                 NavigationLink(destination: AddZoneView()) {
                     QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: DNSDigToolView()) {
-                    QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DoH Dig")
+                    QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DNS Dig")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CFTraceToolView()) {
                     QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CertInspectToolView()) {
-                    QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Inspect")
+                    QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Check")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: IPLookupToolView()) {
                     QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: WhoisToolView()) {
                     QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "WHOIS")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: EdgeLatencyTestView()) {
-                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency")
+                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency Test")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CIDRCalculatorView()) {
                     QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .green, title: "CIDR Calc")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
             }
             .padding(.vertical, 14)
             .padding(.horizontal, 10)
@@ -342,46 +362,22 @@ struct DashboardView: View {
             .padding(.horizontal, 4)
             
             if !viewModel.hasFetchedData {
-                VStack(spacing: 0) {
-                    ForEach(Array(Zone.placeholders.prefix(3).enumerated()), id: \.element.id) { index, placeholderZone in
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(Color(.tertiarySystemFill))
-                                .frame(width: 36, height: 36)
-                            
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(placeholderZone.name)
-                                    .font(.body.weight(.medium))
-                                    .lineLimit(1)
-                                
-                                Text(placeholderZone.plan?.name ?? "Free Plan")
-                                    .font(.caption2)
-                            }
-                            
-                            Spacer()
-                            
-                            HIGBadge(.active, isCompact: true)
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 11)
-                        
-                        if index < 2 {
-                            Divider()
-                                .padding(.leading, 62)
-                        }
-                    }
+                HStack {
+                    Spacer()
+                    ProgressView("Loading Domains…")
+                        .padding(.vertical, 32)
+                    Spacer()
                 }
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .redacted(reason: .placeholder)
             } else if viewModel.zones.isEmpty {
                 HIGContentState(
                     .empty(
                         title: "No Domains Added",
-                        systemImage: "globe.badge.chevron.backward",
+                        systemImage: "globe.badge.plus",
                         description: "Add your first domain to start managing DNS records and edge security.",
                         actionTitle: "Add Domain",
-                        action: {}
+                        action: { showingAddZone = true }
                     )
                 )
                 .padding(.vertical, 16)
@@ -402,7 +398,7 @@ struct DashboardView: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(zone.name)
+                                    Text(verbatim: zone.name)
                                         .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
@@ -501,7 +497,7 @@ struct DashboardMetricCardView: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
 

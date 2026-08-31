@@ -268,9 +268,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.fleetMetrics = metrics
                 let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
                 await SWRCacheStore.shared.set(metrics, forKey: chartKey)
-            } else if self.fleetMetrics.isEmpty {
-                // 若没有网络或解析数据为空，回退到平滑确定性占位
-                self.fleetMetrics = FleetHourlyMetric.placeholder24h
             }
         }
     }

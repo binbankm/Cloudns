@@ -19,16 +19,9 @@ struct QueuesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(CFQueue.placeholders) { placeholderQueue in
-                        queueRow(placeholderQueue)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredQueues.isEmpty {
+            if !viewModel.queues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
-                    ForEach(viewModel.filteredQueues) { queue in
+                    ForEach(viewModel.queues) { queue in
                         NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
                             queueRow(queue)
                         }
@@ -54,12 +47,6 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Queues"
-        )
         .navigationTitle("Queues")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -96,7 +83,9 @@ struct QueuesView: View {
             await viewModel.fetchQueues()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Message Queues…"))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
                     HIGContentState(
                         .error(
@@ -114,8 +103,6 @@ struct QueuesView: View {
                             action: { showingCreateSheet = true }
                         )
                     )
-                } else if viewModel.filteredQueues.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
                 }
             }
         }
@@ -129,13 +116,7 @@ struct QueuesView: View {
     @ViewBuilder
     private func queueRow(_ queue: CFQueue) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "tray.2.fill")
-                .foregroundStyle(.orange)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "tray.2.fill", color: .indigo, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(queue.queueName)
@@ -144,13 +125,13 @@ struct QueuesView: View {
                 
                 HStack(spacing: 8) {
                     if let consumers = queue.consumers {
-                        Text("\(consumers.count) consumer\(consumers.count == 1 ? "" : "s")")
+                        Text("\(consumers.count) Consumers")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
-                    if let created = queue.createdOn {
-                        Text("• Created \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
+                    if let created = queue.createdOn, let date = DateFormatters.parseISO8601(created) {
+                        Text("• Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -160,7 +141,7 @@ struct QueuesView: View {
             Spacer()
             
             if let producers = queue.producers, !producers.isEmpty {
-                HIGBadge(.custom(color: .orange, text: "\(producers.count) producers"), isCompact: true)
+                HIGBadge(.custom(color: .orange, text: String(localized: "\(producers.count) producers")), isCompact: true)
             } else {
                 HIGBadge(.active, isCompact: true)
             }

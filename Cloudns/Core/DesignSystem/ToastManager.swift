@@ -9,7 +9,11 @@ public struct ToastItem: Identifiable, Equatable {
     public let icon: String
     public let iconColor: Color
     public let duration: TimeInterval
-    
+
+    public static func == (lhs: ToastItem, rhs: ToastItem) -> Bool {
+        lhs.id == rhs.id
+    }
+
     public init(
         message: LocalizedStringKey,
         icon: String = "checkmark.circle.fill",
@@ -28,12 +32,12 @@ public struct ToastItem: Identifiable, Equatable {
 @MainActor
 public final class ToastManager: ObservableObject {
     public static let shared = ToastManager()
-    
+
     @Published public private(set) var currentToast: ToastItem?
     private var dismissTask: Task<Void, Never>?
-    
+
     private init() { }
-    
+
     /// 显示普通提示
     public func show(
         _ message: LocalizedStringKey,
@@ -44,28 +48,28 @@ public final class ToastManager: ObservableObject {
         let item = ToastItem(message: message, icon: icon, iconColor: iconColor, duration: duration)
         present(item)
     }
-    
+
     /// 显示成功提示
     public func showSuccess(_ message: LocalizedStringKey, icon: String = "checkmark.circle.fill") {
         HIGFeedback.success()
         let item = ToastItem(message: message, icon: icon, iconColor: .green, duration: 2.0)
         present(item)
     }
-    
+
     /// 显示已复制提示
     public func showCopied(_ message: LocalizedStringKey = "Copied to Clipboard") {
         HIGFeedback.success()
         let item = ToastItem(message: message, icon: "doc.on.doc.fill", iconColor: .blue, duration: 1.8)
         present(item)
     }
-    
+
     /// 显示错误提示
     public func showError(_ message: LocalizedStringKey, icon: String = "exclamationmark.triangle.fill") {
         HIGFeedback.error()
         let item = ToastItem(message: message, icon: icon, iconColor: .red, duration: 2.5)
         present(item)
     }
-    
+
     /// 关闭当前提示
     public func dismiss() {
         dismissTask?.cancel()
@@ -73,14 +77,14 @@ public final class ToastManager: ObservableObject {
             self.currentToast = nil
         }
     }
-    
+
     private func present(_ toast: ToastItem) {
         dismissTask?.cancel()
-        
+
         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
             self.currentToast = toast
         }
-        
+
         dismissTask = Task {
             try? await Task.sleep(nanoseconds: UInt64(toast.duration * 1_000_000_000))
             guard !Task.isCancelled else { return }
@@ -97,9 +101,9 @@ public final class ToastManager: ObservableObject {
 
 public struct HIGToastOverlay: View {
     @ObservedObject private var toastManager = ToastManager.shared
-    
+
     public init() { }
-    
+
     public var body: some View {
         Group {
             if let toast = toastManager.currentToast {
@@ -107,7 +111,7 @@ public struct HIGToastOverlay: View {
                     Image(systemName: toast.icon)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(toast.iconColor)
-                    
+
                     Text(toast.message)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.primary)

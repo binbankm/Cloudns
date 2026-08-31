@@ -80,9 +80,4 @@ struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
         self.ruleId = ruleId
     }
     
-    static let placeholders: [SecurityEvent] = [
-        SecurityEvent(action: "block", clientIP: "198.51.100.4", clientCountryName: "US", ruleId: "1"),
-        SecurityEvent(action: "managed_challenge", clientIP: "203.0.113.19", clientCountryName: "DE", ruleId: "2"),
-        SecurityEvent(action: "js_challenge", clientIP: "192.0.2.88", clientCountryName: "JP", ruleId: "3")
-    ]
 }

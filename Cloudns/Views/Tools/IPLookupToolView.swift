@@ -33,7 +33,7 @@ struct IPLookupToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -47,19 +47,24 @@ struct IPLookupToolView: View {
                         } else {
                             Image(systemName: "location.fill")
                         }
-                        Text(viewModel.isLoading ? "Querying BGP & Geo..." : "Lookup IP Geolocation & ASN")
+                        Text(viewModel.isLoading ? "Querying BGP & Geo…" : "Lookup IP Geolocation & ASN")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
             }
             
             if viewModel.isLoading && viewModel.lookupResult == nil {
-                Section(header: Text("IP Identification")) {
-                    identificationRows(result: IPLookupResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Querying IP…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.lookupResult {
                 // 2. Identification Hero Section
                 Section(header: Text("IP Identification")) {
@@ -80,7 +85,7 @@ struct IPLookupToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -133,7 +138,7 @@ struct IPLookupToolView: View {
                     .font(.caption)
                     .foregroundStyle(.teal)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.higPressable)
             .higTouchTarget()
         }
         
@@ -191,7 +196,7 @@ struct IPLookupToolView: View {
             geoRow(title: "Timezone", value: tz)
         }
         if let lat = result.latitude, let lon = result.longitude {
-            geoRow(title: "Coordinates (Lat/Lon)", value: String(format: "%.4f, %.4f", lat, lon), isMono: true)
+            geoRow(title: "Coordinates (Lat/Lon)", value: "\(lat.formatted(.number.precision(.fractionLength(4)))), \(lon.formatted(.number.precision(.fractionLength(4))))", isMono: true)
         }
     }
     

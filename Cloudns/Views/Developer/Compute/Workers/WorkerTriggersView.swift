@@ -50,7 +50,7 @@ struct WorkerTriggersView: View {
                             try await viewModel.deleteSchedule(cron: cron.cron)
                             ToastManager.shared.showSuccess("Cron Trigger Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete trigger")
+                            ToastManager.shared.showError("Failed to Delete Trigger")
                         }
                     }
                 }
@@ -69,7 +69,7 @@ struct WorkerTriggersView: View {
                         cronRow(WorkerSchedule(cron: "*/5 * * * *", createdOn: nil, modifiedOn: nil))
                     }
                 }
-                .redacted(reason: .placeholder)
+                
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
@@ -91,7 +91,9 @@ struct WorkerTriggersView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Triggers…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     HIGContentState(
                         .error(
@@ -117,21 +119,15 @@ struct WorkerTriggersView: View {
     @ViewBuilder
     private func cronRow(_ schedule: WorkerSchedule) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "clock.arrow.2.circlepath")
-                .foregroundStyle(.blue)
-                .font(.body)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.cron)
                     .font(.body.monospaced())
                     .foregroundStyle(.primary)
                 
-                if let modified = schedule.modifiedOn ?? schedule.createdOn {
-                    Text("Configured: \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                if let modified = schedule.modifiedOn ?? schedule.createdOn, let date = DateFormatters.parseISO8601(modified) {
+                    Text("Configured: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -193,7 +189,7 @@ struct AddCronTriggerSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

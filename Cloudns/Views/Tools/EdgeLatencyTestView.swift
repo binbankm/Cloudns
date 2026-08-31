@@ -33,7 +33,7 @@ struct EdgeLatencyTestView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -50,19 +50,24 @@ struct EdgeLatencyTestView: View {
                         } else {
                             Image(systemName: "bolt.horizontal.fill")
                         }
-                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark")
+                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings…" : "Start Latency & Jitter Benchmark")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .buttonStyle(.higPressable)
                 .disabled(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading)
             }
             
             if viewModel.isLatencyLoading {
-                Section(header: Text("Latency & Jitter Summary")) {
-                    metricsRows(result: EdgeLatencyResult.placeholder)
+                Section {
+                    HStack {
+                        Spacer()
+                        ProgressView("Testing Edge Latency…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 }
-                .redacted(reason: .placeholder)
             } else if let result = viewModel.latencyResult {
                 // 2. Metrics Hero Section
                 Section(header: Text("Latency & Jitter Summary")) {
@@ -83,7 +88,7 @@ struct EdgeLatencyTestView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -115,7 +120,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms", result.avgMs))
+            Text("\(result.avgMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.green)
         }
@@ -125,7 +130,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms / %.1f ms", result.minMs, result.maxMs))
+            Text("\(result.minMs.formatted(.number.precision(.fractionLength(1)))) ms / \(result.maxMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
@@ -135,7 +140,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "±%.1f ms", result.jitterMs))
+            Text("±\(result.jitterMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.weight(.semibold).monospacedDigit())
                 .foregroundStyle(.orange)
         }
@@ -145,7 +150,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(verbatim: String(format: "%.0f%%", result.packetLossPercent))
+            Text((result.packetLossPercent / 100.0), format: .percent.precision(.fractionLength(0)))
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
         }
@@ -187,7 +192,7 @@ struct EdgeLatencyTestView: View {
                 Spacer()
                 
                 if ping.isSuccess {
-                    Text(String(format: "%.1f ms", ping.latencyMs))
+                    Text("\(ping.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms")
                         .font(.subheadline.weight(.semibold).monospacedDigit())
                         .foregroundStyle(ping.latencyMs < 50 ? .green : (ping.latencyMs < 120 ? .orange : .red))
                 } else {

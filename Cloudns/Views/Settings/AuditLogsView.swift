@@ -8,21 +8,14 @@ struct AuditLogsView: View {
     @State private var selectedLog: AuditLog?
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
-    init(accountId: String) {
+    init(accountId: String = "") {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AuditLogsViewModel(accountId: accountId))
     }
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AuditLog.placeholders) { placeholderLog in
-                        AuditLogRowView(log: placeholderLog)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredLogs.isEmpty {
+            if !viewModel.filteredLogs.isEmpty {
                 Section {
                     ForEach(viewModel.filteredLogs) { log in
                         Button {
@@ -40,7 +33,7 @@ struct AuditLogsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Logs"
         )
         .navigationTitle("Audit Logs")
@@ -58,25 +51,25 @@ struct AuditLogsView: View {
              .higToast()
         }
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchLogs() } }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Audit Logs…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: { Task { await viewModel.fetchLogs() } }
                     )
-                } else if viewModel.logs.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Audit Logs",
-                            systemImage: "list.clipboard.fill",
-                            description: "No recent account audit logs or modification records found."
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.logs.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Audit Logs",
+                        systemImage: "list.clipboard.fill",
+                        description: "No recent account audit logs or modification records found."
                     )
-                } else if viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
+                )
+            } else if viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
+                HIGContentState(.search(query: viewModel.searchText))
             }
         }
         .task {
@@ -153,8 +146,8 @@ struct AuditLogRowView: View {
                     
                     Spacer()
                     
-                    if let when = log.when {
-                        Text(DateFormatters.formatISO8601ToDisplay(when, style: DateFormatters.mediumDateTime))
+                    if let when = log.when, let date = DateFormatters.parseISO8601(when) {
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
@@ -224,7 +217,17 @@ struct AuditLogDetailSheetView: View {
                     detailRow(label: "Interface", value: iface)
                 }
                 if let when = log.when {
-                    detailRow(label: "Time (Local)", value: DateFormatters.formatISO8601ToDisplay(when, style: DateFormatters.mediumDateTime))
+                    if let date = DateFormatters.parseISO8601(when) {
+                        HStack {
+                            Text("Time (Local)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.primary)
+                        }
+                    }
                     detailRow(label: "Time (UTC)", value: when)
                 }
             }
@@ -269,7 +272,7 @@ struct AuditLogDetailSheetView: View {
                 Section("Metadata & Context") {
                     ForEach(Array(meta.keys.sorted()), id: \.self) { key in
                         if let val = meta[key] {
-                            detailRow(label: LocalizedStringKey(key), value: val.description, isCopyable: true)
+                            detailRow(verbatimLabel: key, value: val.description, isCopyable: true)
                         }
                     }
                 }
@@ -350,14 +353,22 @@ struct AuditLogDetailSheetView: View {
     }
     
     private func detailRow(label: LocalizedStringKey, value: String, isCopyable: Bool = false) -> some View {
+        detailRowContent(labelView: Text(label), value: value, isCopyable: isCopyable)
+    }
+    
+    private func detailRow(verbatimLabel: String, value: String, isCopyable: Bool = false) -> some View {
+        detailRowContent(labelView: Text(verbatim: verbatimLabel), value: value, isCopyable: isCopyable)
+    }
+    
+    private func detailRowContent<V: View>(labelView: V, value: String, isCopyable: Bool) -> some View {
         HStack {
-            Text(label)
+            labelView
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
             Spacer(minLength: 12)
             
-            Text(value)
+            Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.trailing)

@@ -126,15 +126,15 @@ struct AddLoadBalancerView: View {
                         Picker("Select Fallback Pool", selection: $fallbackPool) {
                             Text("None Selected").tag("")
                             ForEach(viewModel.pools) { pool in
-                                Text(pool.name ?? pool.id).tag(pool.id)
+                                Text(verbatim: pool.name ?? pool.id).tag(pool.id)
                             }
                         }
                     }
                 }
                 
-                if let error = viewModel.errorMessage {
+                if let error = viewModel.errorMessage, !error.isEmpty {
                     Section {
-                        Text(error)
+                        Text(verbatim: error)
                             .foregroundStyle(.red)
                             .font(.caption)
                     }

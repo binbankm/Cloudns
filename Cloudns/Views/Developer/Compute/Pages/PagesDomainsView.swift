@@ -52,14 +52,7 @@ struct PagesDomainsView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(PagesDomain.placeholders) { placeholder in
-                        domainRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.domains.isEmpty {
+            if !viewModel.domains.isEmpty {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
                         domainRow(domain)
@@ -78,7 +71,9 @@ struct PagesDomainsView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData && viewModel.domains.isEmpty {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Custom Domains…"))
+            } else if viewModel.hasFetchedData && viewModel.domains.isEmpty {
                 HIGContentState(
                     .empty(
                         title: "No Custom Domains",
@@ -149,7 +144,7 @@ struct AddPagesDomainSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

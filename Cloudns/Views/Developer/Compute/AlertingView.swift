@@ -42,14 +42,7 @@ struct AlertingView: View {
     private var contentList: some View {
         List {
             if selectedTab == "policies" {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(AlertingPolicy.placeholders) { placeholder in
-                            policyRow(placeholder)
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                } else if !viewModel.policies.isEmpty {
+                if !viewModel.policies.isEmpty {
                     Section(header: Text("Configured Policies (\(viewModel.policies.count))")) {
                         ForEach(viewModel.policies) { p in
                             policyRow(p)
@@ -105,7 +98,9 @@ struct AlertingView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Notification Policies…"))
+        } else if viewModel.hasFetchedData {
                 if selectedTab == "policies" && viewModel.policies.isEmpty {
                     HIGContentState(
                         .empty(

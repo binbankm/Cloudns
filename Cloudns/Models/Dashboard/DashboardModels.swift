@@ -80,26 +80,4 @@ public struct FleetHourlyMetric: Identifiable, Codable, Equatable, Sendable {
         self.cachedRequests = cachedRequests
         self.threats = threats
     }
-    
-    public static var placeholder24h: [FleetHourlyMetric] {
-        let calendar = Calendar.current
-        let now = Date()
-        return (0..<24).map { idx in
-            let date = calendar.date(byAdding: .hour, value: -(23 - idx), to: now) ?? now
-            let hourStr = DateFormatters.formatHour(date)
-            let wave = sin(Double(idx) / 24.0 * .pi * 2.0) * 12000.0
-            let baseReq = max(10000, 50000.0 + wave)
-            let baseBytes = baseReq * 18000.0
-            let baseCached = baseReq * 0.85
-            let baseThreats = 150.0
-            return FleetHourlyMetric(
-                date: date,
-                timeString: hourStr,
-                requests: baseReq,
-                bytes: baseBytes,
-                cachedRequests: baseCached,
-                threats: baseThreats
-            )
-        }
-    }
 }

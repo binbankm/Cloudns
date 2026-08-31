@@ -33,17 +33,8 @@ struct RedirectListDetailView: View {
                 }
             }
             
-            Section(header: Text("Redirect Items (\(filteredItems.count))")) {
-                if isLoading && items.isEmpty {
-                    ForEach(RedirectListItem.placeholders) { placeholder in
-                        redirectItemRow(placeholder)
-                    }
-                    .redacted(reason: .placeholder)
-                } else if filteredItems.isEmpty {
-                    Text(searchText.isEmpty ? "No redirect items in this list." : "No redirect items matching '\(searchText)'")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
+            if !filteredItems.isEmpty {
+                Section(header: Text("Redirect Items (\(filteredItems.count))")) {
                     ForEach(filteredItems) { item in
                         redirectItemRow(item)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -59,10 +50,29 @@ struct RedirectListDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .overlay {
+            if isLoading && items.isEmpty {
+                HIGContentState(.loading(message: "Loading Redirect Items…"))
+            } else if !isLoading {
+                if items.isEmpty {
+                    HIGContentState(
+                        .empty(
+                            title: "No Redirect Items",
+                            systemImage: "arrow.triangle.swap",
+                            description: "Add URL redirect rules to this list.",
+                            actionTitle: "Add Redirect Item",
+                            action: { showingAddSheet = true }
+                        )
+                    )
+                } else if filteredItems.isEmpty && !searchText.isEmpty {
+                    HIGContentState(.search(query: searchText))
+                }
+            }
+        }
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Redirect Items"
         )
         .navigationTitle(list.name)
@@ -131,7 +141,7 @@ struct RedirectListDetailView: View {
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(item.redirect.sourceUrl)
+                Text(verbatim: item.redirect.sourceUrl)
                     .font(.caption.monospaced())
                 Spacer()
                 Text("\(item.redirect.statusCode ?? 301)")
@@ -144,7 +154,7 @@ struct RedirectListDetailView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
-                Text(item.redirect.targetUrl)
+                Text(verbatim: item.redirect.targetUrl)
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
@@ -200,7 +210,7 @@ struct AddRedirectItemSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

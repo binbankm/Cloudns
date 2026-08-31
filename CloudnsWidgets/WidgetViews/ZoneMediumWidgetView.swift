@@ -95,7 +95,7 @@ public struct ZoneMediumWidgetView: View {
                     metricTile(
                         title: "Threats Blocked",
                         value: "\(snapshot.threats24h)",
-                        icon: "shield.checkered",
+                        icon: "shield.checkerboard",
                         color: .green
                     )
                 }

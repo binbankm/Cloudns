@@ -16,14 +16,7 @@ struct AIGatewayView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIGateway.placeholders) { placeholder in
-                        gatewayRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredGateways.isEmpty {
+            if !viewModel.filteredGateways.isEmpty {
                 Section(header: Text("Configured Gateways (\(viewModel.gateways.count))"), footer: Text("AI Gateway provides observability, caching, rate limiting, and fallback for OpenAI, Anthropic, Workers AI, and more.")) {
                     ForEach(viewModel.filteredGateways) { gw in
                         NavigationLink(destination: AIGatewayDetailView(accountId: viewModel.accountId, gateway: gw)) {
@@ -46,7 +39,7 @@ struct AIGatewayView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Gateways"
         )
         .navigationTitle("AI Gateway")
@@ -85,7 +78,9 @@ struct AIGatewayView: View {
             await viewModel.fetchGateways()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading AI Gateways…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
                     HIGContentState(
                         .error(
@@ -120,13 +115,7 @@ struct AIGatewayView: View {
     @ViewBuilder
     private func gatewayRow(_ gw: AIGateway) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "brain.head.profile")
-                .foregroundStyle(.purple)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "brain.head.profile", color: .pink, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(gw.name ?? gw.id)
@@ -170,7 +159,7 @@ struct AIGatewayCreateSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

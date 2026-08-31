@@ -16,14 +16,7 @@ struct WorkersListView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(WorkerScript.placeholders) { (script: WorkerScript) in
-                        WorkerRowView(worker: script)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredWorkers.isEmpty {
+            if !viewModel.filteredWorkers.isEmpty {
                 Section(header: Text("Workers Scripts (\(viewModel.filteredWorkers.count))")) {
                     ForEach(viewModel.filteredWorkers) { worker in
                         NavigationLink {
@@ -46,7 +39,9 @@ struct WorkersListView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Workers…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty {
                     HIGContentState(
                         .error(
@@ -71,7 +66,7 @@ struct WorkersListView: View {
         }
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Workers"
         )
         .navigationTitle("Workers")
@@ -117,21 +112,15 @@ struct WorkerRowView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "bolt.fill")
-                .font(.body)
-                .foregroundStyle(.orange)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "bolt.fill", color: .orange, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let modified = worker.modifiedOn {
-                    Text("Updated \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                if let modified = worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
+                    Text("Updated \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -175,7 +164,7 @@ struct WorkerCreateSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

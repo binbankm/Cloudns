@@ -14,13 +14,6 @@ public struct CFStatusSummary: Codable, Equatable, Sendable {
         self.components = components
         self.incidents = incidents
     }
-    
-    public static let placeholder = CFStatusSummary(
-        page: CFStatusPage(name: "Cloudflare Status", url: "https://www.cloudflarestatus.com"),
-        status: CFOverallStatus(indicator: "none", description: "All Systems Operational"),
-        components: CFComponentItem.placeholders,
-        incidents: []
-    )
 }
 
 public struct CFStatusPage: Codable, Equatable, Sendable {
@@ -66,15 +59,6 @@ public struct CFComponentItem: Codable, Identifiable, Equatable, Sendable {
         self.description = description
         self.position = position
     }
-    
-    public static let placeholders: [CFComponentItem] = [
-        CFComponentItem(id: "1", name: "Authoritative DNS"),
-        CFComponentItem(id: "2", name: "Cloudflare Dashboard"),
-        CFComponentItem(id: "3", name: "Cloudflare Workers"),
-        CFComponentItem(id: "4", name: "Cloudflare Pages"),
-        CFComponentItem(id: "5", name: "R2 Object Storage"),
-        CFComponentItem(id: "6", name: "D1 SQL Database")
-    ]
 }
 
 public struct CFIncidentItem: Codable, Identifiable, Equatable, Sendable {

@@ -12,14 +12,7 @@ struct DurableObjectsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(DurableObjectNamespace.placeholders) { placeholder in
-                        nsRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredNamespaces.isEmpty {
+            if !viewModel.filteredNamespaces.isEmpty {
                 Section(header: Text("Namespaces (\(viewModel.namespaces.count))")) {
                     ForEach(viewModel.filteredNamespaces) { ns in
                         NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
@@ -33,7 +26,7 @@ struct DurableObjectsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Namespaces"
         )
         .navigationTitle("Durable Objects")
@@ -42,7 +35,9 @@ struct DurableObjectsView: View {
             await viewModel.fetchNamespaces()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Durable Objects…"))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
                     HIGContentState(
                         .error(
@@ -75,13 +70,7 @@ struct DurableObjectsView: View {
     @ViewBuilder
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "cube.fill")
-                .foregroundStyle(.cyan)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.cyan.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "cube.fill", color: .cyan, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(ns.displayName)

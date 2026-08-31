@@ -148,12 +148,37 @@ enum DateFormatters {
         return nil
     }
     
-    /// 将 ISO8601 字符串格式化为用户友好的展示文本
+    /// 当前 App 实际生效的本地化语言 Locale（动态响应系统语言、应用独立语言设置）
+    static var currentAppLocale: Locale {
+        if let preferred = Bundle.main.preferredLocalizations.first {
+            return Locale(identifier: preferred)
+        }
+        return Locale.autoupdatingCurrent
+    }
+    
+    /// 将 ISO8601 字符串格式化为用户友好的展示文本（使用 Apple 现代 Foundation 格式化，严格绑定当前 App 语言）
     static func formatISO8601ToDisplay(_ string: String, style: DateFormatter = mediumDateTime) -> String {
         guard let date = parseISO8601(string) else {
             return string
         }
-        return style.string(from: date)
+        let loc = currentAppLocale
+        if style === dateOnly {
+            return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day())
+        } else if style === fullDateTime {
+            return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day().hour().minute().second())
+        } else if style === timeOnly {
+            return date.formatted(.dateTime.locale(loc).hour().minute())
+        } else {
+            return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day().hour().minute())
+        }
+    }
+    
+    /// 将 ISO8601 字符串格式化为相对时间（如 "2 hours ago" 或 "2小时前"）
+    static func formatRelative(from string: String) -> String {
+        guard let date = parseISO8601(string) else {
+            return string.prefix(10).description
+        }
+        return date.formatted(.relative(presentation: .named).locale(currentAppLocale))
     }
     
     /// 将时间戳（毫秒）格式化为日志时间字符串

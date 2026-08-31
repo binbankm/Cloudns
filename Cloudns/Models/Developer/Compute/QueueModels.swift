@@ -30,10 +30,6 @@ public struct CFQueue: Codable, Identifiable, Equatable, Sendable {
         self.consumers = consumers
     }
     
-    public static let placeholders: [CFQueue] = [
-        CFQueue(queueId: "q_1", queueName: "auth-events-queue", createdOn: "2024-01-01T00:00:00Z"),
-        CFQueue(queueId: "q_2", queueName: "email-notifications-queue", createdOn: "2024-01-01T00:00:00Z")
-    ]
 }
 
 public struct CFQueueSettings: Codable, Equatable, Sendable {

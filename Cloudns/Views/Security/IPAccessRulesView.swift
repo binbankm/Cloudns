@@ -7,32 +7,14 @@ struct IPAccessRulesView: View {
     
     @StateObject private var viewModel = IPAccessRulesViewModel()
     @State private var showingAddRule = false
-    @State private var searchText = ""
     @State private var ruleToDelete: IPAccessRule?
     @State private var showingDeleteConfirm = false
     
-    private var displayedRules: [IPAccessRule] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            $0.configuration.value.localizedStandardContains(searchText) ||
-            $0.configuration.target.localizedStandardContains(searchText) ||
-            $0.mode.localizedStandardContains(searchText) ||
-            ($0.notes ?? "").localizedStandardContains(searchText)
-        }
-    }
-    
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+            if !viewModel.rules.isEmpty {
                 Section {
-                    ForEach(IPAccessRule.placeholders) { placeholderRule in
-                        IPAccessRuleRowView(rule: placeholderRule)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedRules.isEmpty {
-                Section {
-                    ForEach(displayedRules) { rule in
+                    ForEach(viewModel.rules) { rule in
                         IPAccessRuleRowView(rule: rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -47,41 +29,33 @@ struct IPAccessRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search IP Rules"
-        )
         .refreshable {
             await viewModel.fetchRules(zoneId: zoneId)
         }
         .navigationTitle("IP Access Rules")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchRules(zoneId: zoneId) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading IP Access Rules…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchRules(zoneId: zoneId) }
+                        }
                     )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No IP Access Rules",
-                            systemImage: "network.badge.shield.half.filled",
-                            description: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                            actionTitle: "Add IP Rule",
-                            action: { showingAddRule = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No IP Access Rules",
+                        systemImage: "network.badge.shield.half.filled",
+                        description: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                        actionTitle: "Add IP Rule",
+                        action: { showingAddRule = true }
                     )
-                } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
         .toolbar {

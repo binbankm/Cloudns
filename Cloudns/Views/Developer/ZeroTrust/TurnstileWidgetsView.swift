@@ -16,16 +16,9 @@ struct TurnstileWidgetsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+            if !viewModel.widgets.isEmpty {
                 Section {
-                    ForEach(TurnstileWidget.placeholders) { placeholder in
-                        TurnstileWidgetRowView(widget: placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredWidgets.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredWidgets) { widget in
+                    ForEach(viewModel.widgets) { widget in
                         NavigationLink(destination: TurnstileDetailView(widget: widget, viewModel: viewModel)) {
                             TurnstileWidgetRowView(widget: widget)
                         }
@@ -44,11 +37,6 @@ struct TurnstileWidgetsView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Widgets"
-        )
         .navigationTitle("Turnstile")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -84,7 +72,9 @@ struct TurnstileWidgetsView: View {
             await viewModel.fetchWidgets()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Turnstile Widgets…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
                     HIGContentState(
                         .error(
@@ -104,8 +94,6 @@ struct TurnstileWidgetsView: View {
                             action: { showingCreateSheet = true }
                         )
                     )
-                } else if viewModel.filteredWidgets.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
                 }
             }
         }
@@ -124,13 +112,7 @@ struct TurnstileWidgetRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "checkmark.shield.fill")
-                .foregroundStyle(.blue)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "checkmark.shield.fill", color: .green, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(widget.name)
@@ -191,7 +173,7 @@ struct CreateTurnstileWidgetSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

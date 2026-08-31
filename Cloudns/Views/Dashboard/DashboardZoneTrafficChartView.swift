@@ -31,7 +31,7 @@ struct DashboardZoneTrafficChartView: View {
                                 .fill(Color.green)
                                 .frame(width: 5, height: 5)
                             
-                            Text(String(format: "%.1f%% Cache", viewModel.averageCacheHitRate24h * 100))
+                            Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(.green)
                         }
@@ -49,8 +49,8 @@ struct DashboardZoneTrafficChartView: View {
                         .foregroundStyle(.primary)
                         .monospacedDigit()
                     
-                    if !currentDisplaySubtitle.isEmpty {
-                        Text(currentDisplaySubtitle)
+                    if selectedPoint == nil {
+                        Text("Total (24h)")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -92,13 +92,21 @@ struct DashboardZoneTrafficChartView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
-    // MARK: - Chart View
     @ViewBuilder
     private var chartBodyView: some View {
-        let metrics = viewModel.fleetMetrics.isEmpty ? FleetHourlyMetric.placeholder24h : viewModel.fleetMetrics
-        let themeColor = metricColor(viewModel.selectedChartMetric)
-        
-        Chart {
+        if viewModel.fleetMetrics.isEmpty {
+            HStack {
+                Spacer()
+                ProgressView("Loading Analytics…")
+                    .font(.subheadline)
+                Spacer()
+            }
+            .frame(height: 160)
+        } else {
+            let metrics = viewModel.fleetMetrics
+            let themeColor = metricColor(viewModel.selectedChartMetric)
+            
+            Chart {
             ForEach(metrics) { item in
                 let value = valueForMetric(item, metric: viewModel.selectedChartMetric)
                 
@@ -198,6 +206,7 @@ struct DashboardZoneTrafficChartView: View {
             }
         }
     }
+    }
     
     // MARK: - Helpers
     private func valueForMetric(_ item: FleetHourlyMetric, metric: DashboardChartMetric) -> Double {
@@ -241,21 +250,14 @@ struct DashboardZoneTrafficChartView: View {
         }
     }
     
-    private var currentDisplaySubtitle: String {
-        if selectedPoint != nil {
-            return ""
-        }
-        return "Total (24h)"
-    }
-    
     private func formatCompact(_ val: Double) -> String {
         if val >= 1_000_000_000 {
-            return String(format: "%.2fB", val / 1_000_000_000)
+            return "\((val / 1_000_000_000).formatted(.number.precision(.fractionLength(2))))B"
         } else if val >= 1_000_000 {
-            return String(format: "%.2fM", val / 1_000_000)
+            return "\((val / 1_000_000).formatted(.number.precision(.fractionLength(2))))M"
         } else if val >= 1_000 {
-            return String(format: "%.1fK", val / 1_000)
+            return "\((val / 1_000).formatted(.number.precision(.fractionLength(1))))K"
         }
-        return String(format: "%.0f", val)
+        return val.formatted(.number.precision(.fractionLength(0)))
     }
 }

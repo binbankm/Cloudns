@@ -16,14 +16,7 @@ struct R2BucketsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(R2Bucket.placeholders) { placeholderBucket in
-                        R2BucketRowView(bucket: placeholderBucket)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredBuckets.isEmpty {
+            if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
                         NavigationLink {
@@ -48,7 +41,7 @@ struct R2BucketsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search R2 Buckets"
         )
         .navigationTitle("R2 Object Storage")
@@ -80,7 +73,9 @@ struct R2BucketsView: View {
             Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading R2 Buckets…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
                     HIGContentState(
                         .error(
@@ -92,7 +87,7 @@ struct R2BucketsView: View {
                     HIGContentState(
                         .empty(
                             title: "No R2 Buckets",
-                            systemImage: "externaldrive.badge.icloud",
+                            systemImage: "archivebox",
                             description: "You haven't created any R2 storage buckets in this account yet.",
                             actionTitle: "Create Bucket",
                             action: { showingCreateSheet = true }
@@ -118,21 +113,15 @@ struct R2BucketRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "archivebox.fill")
-                .foregroundStyle(.orange)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "archivebox.fill", color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(bucket.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let created = bucket.creationDate {
-                    Text("Created \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
+                if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
+                    Text("Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -181,14 +170,14 @@ struct R2CreateBucketSheetView: View {
                 Section(header: Text("Location Hint")) {
                     Picker("Region", selection: $locationHint) {
                         ForEach(locationHints, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

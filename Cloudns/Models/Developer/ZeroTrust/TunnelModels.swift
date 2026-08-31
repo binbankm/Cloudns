@@ -48,9 +48,6 @@ public struct CFTunnel: Codable, Identifiable, Equatable, Sendable {
         self.connections = connections
     }
     
-    public static let placeholders: [CFTunnel] = (0..<5).map { idx in
-        CFTunnel(id: "tunnel-uuid-\(idx + 1)-abcd", name: "edge-gateway-\(idx + 1)", status: "healthy")
-    }
 }
 
 public struct TunnelConnection: Codable, Identifiable, Equatable, Sendable {

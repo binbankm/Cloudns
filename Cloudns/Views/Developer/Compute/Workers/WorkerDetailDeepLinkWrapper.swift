@@ -16,8 +16,7 @@ struct WorkerDetailDeepLinkWrapper: View {
             if let worker = loadedWorker, !accountId.isEmpty {
                 WorkerDetailView(accountId: accountId, worker: worker)
             } else if isLoading {
-                WorkerDetailView(accountId: "placeholder", worker: WorkerScript.placeholders.first ?? WorkerScript(id: "worker-demo"))
-                    .redacted(reason: .placeholder)
+                HIGContentState(.loading(message: "Loading Worker…"))
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle.fill")

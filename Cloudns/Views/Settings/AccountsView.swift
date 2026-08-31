@@ -27,7 +27,7 @@ struct AccountsView: View {
                             } label: {
                                 accountRow(email: email, isActive: false)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     emailToRemove = email
@@ -75,7 +75,7 @@ struct AccountsView: View {
                         .padding(.vertical, 2)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                 }
                 
                 // 4. Security & Keychain Footer Section
@@ -147,7 +147,7 @@ struct AccountsView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.higPressable)
                     .higTouchTarget()
                 }
                 

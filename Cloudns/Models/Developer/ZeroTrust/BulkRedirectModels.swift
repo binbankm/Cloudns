@@ -27,10 +27,6 @@ public struct RedirectList: Codable, Identifiable, Equatable, Sendable {
         self.modifiedOn = modifiedOn
     }
     
-    public static let placeholders: [RedirectList] = [
-        RedirectList(id: "list_1", name: "marketing-campaign-redirects", description: "URL shortlinks and promo campaign redirects", count: 24),
-        RedirectList(id: "list_2", name: "legacy-v1-api-redirects", description: "Permanent redirects for deprecated REST endpoints", count: 88)
-    ]
 }
 
 public struct RedirectListItem: Codable, Identifiable, Equatable, Sendable {
@@ -52,10 +48,6 @@ public struct RedirectListItem: Codable, Identifiable, Equatable, Sendable {
         self.modifiedOn = modifiedOn
     }
     
-    public static let placeholders: [RedirectListItem] = [
-        RedirectListItem(id: "item_1", redirect: RedirectItemDetail(sourceUrl: "example.com/old-blog", targetUrl: "example.com/blog", statusCode: 301)),
-        RedirectListItem(id: "item_2", redirect: RedirectItemDetail(sourceUrl: "example.com/docs/v1", targetUrl: "docs.example.com", statusCode: 302))
-    ]
 }
 
 public struct RedirectItemDetail: Codable, Equatable, Sendable {

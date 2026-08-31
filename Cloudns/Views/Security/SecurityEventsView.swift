@@ -21,14 +21,7 @@ struct SecurityEventsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(SecurityEvent.placeholders) { placeholderEvent in
-                        SecurityEventCardView(event: placeholderEvent)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedEvents.isEmpty {
+            if !displayedEvents.isEmpty {
                 Section {
                     ForEach(displayedEvents) { event in
                         SecurityEventCardView(event: event)
@@ -40,33 +33,33 @@ struct SecurityEventsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search IP, Country or Action"
         )
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchEvents(zoneId: zoneId) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Security Events…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchEvents(zoneId: zoneId) }
+                        }
                     )
-                } else if viewModel.events.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Security Events",
-                            systemImage: "checkmark.shield",
-                            description: "Your site hasn't blocked any threats recently. Everything is secure!"
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.events.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Security Events",
+                        systemImage: "checkmark.shield",
+                        description: "Your site hasn't blocked any threats recently. Everything is secure!"
                     )
-                } else if displayedEvents.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
+            } else if viewModel.hasFetchedData && displayedEvents.isEmpty && !searchText.isEmpty {
+                HIGContentState(.search(query: searchText))
             }
         }
         .task {
@@ -90,11 +83,15 @@ struct SecurityEventCardView: View {
             HStack {
                 HIGBadge(.custom(color: colorForAction(event.action), text: actionDisplayName(event.action)), isCompact: true)
                 
-                Spacer()
-                
-                Text(formatDate(event.datetime))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if let date = DateFormatters.parseISO8601(event.datetime) {
+                    Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(event.datetime)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             
             HStack {
@@ -168,9 +165,5 @@ struct SecurityEventCardView: View {
     
     private func countryFlag(countryCode: String) -> String {
         CountryCoordinates.flag(for: countryCode)
-    }
-    
-    private func formatDate(_ isoString: String) -> String {
-        DateFormatters.formatISO8601ToDisplay(isoString, style: DateFormatters.mediumDateTime)
     }
 }

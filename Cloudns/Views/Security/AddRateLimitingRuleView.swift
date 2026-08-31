@@ -78,7 +78,7 @@ struct AddRateLimitingRuleView: View {
                     }
                 }
                 
-                Section(header: Text("Then...")) {
+                Section(header: Text("Then…")) {
                     Picker("Take Action", selection: $action) {
                         ForEach(actions, id: \.1) { name, val in
                             Text(name).tag(val)
@@ -121,7 +121,7 @@ struct AddRateLimitingRuleView: View {
                 Group {
                     if isSubmitting {
                         Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.systemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -165,7 +165,7 @@ struct AddRateLimitingRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
-            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkered")
+            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkerboard")
             dismiss()
         } else {
             HIGFeedback.error()

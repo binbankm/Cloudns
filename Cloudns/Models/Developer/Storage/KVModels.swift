@@ -25,9 +25,6 @@ public struct KVNamespace: Codable, Identifiable, Equatable, Sendable {
         self.supportsUrlEncoding = supportsUrlEncoding
     }
     
-    public static let placeholders: [KVNamespace] = (0..<4).map { idx in
-        KVNamespace(id: "kv-ns-uuid-\(idx + 1)-abcd", title: "SESSION_CACHE_\(idx + 1)")
-    }
 }
 
 public struct KVKey: Codable, Identifiable, Equatable, Sendable {
@@ -46,7 +43,4 @@ public struct KVKey: Codable, Identifiable, Equatable, Sendable {
         self.metadata = metadata
     }
     
-    public static let placeholders: [KVKey] = (0..<6).map { idx in
-        KVKey(name: "user:session:token_\(idx + 1)")
-    }
 }

@@ -56,20 +56,7 @@ struct ZoneAnalyticsView: View {
                 .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        metricsGrid
-                            .redacted(reason: .placeholder)
-                        
-                        requestsLineChartCard
-                            .redacted(reason: .placeholder)
-                        
-                        bandwidthBarChartCard
-                            .redacted(reason: .placeholder)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 28)
-                }
+                HIGContentState(.loading(message: "Loading Analytics…"))
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack {
@@ -151,7 +138,7 @@ struct ZoneAnalyticsView: View {
                 .foregroundStyle(.blue)
                 .font(.title3)
             
-            Text(zoneName)
+            Text(verbatim: zoneName)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -197,14 +184,14 @@ struct ZoneAnalyticsView: View {
                     value: formatNumber(viewModel.totalCachedRequests),
                     icon: "bolt.fill",
                     color: .orange,
-                    badge: "\(String(format: "%.1f%%", viewModel.cachedRatio * 100)) Cache Rate"
+                    badge: "\(viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1)))) Cache Rate"
                 )
             }
             
             GridRow {
                 metricCard(
                     title: "Cache Hit Ratio",
-                    value: String(format: "%.1f%%", viewModel.cachedRatio * 100),
+                    value: viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1))),
                     icon: "chart.pie.fill",
                     color: .green,
                     badge: "Edge Served"
@@ -282,7 +269,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
+                        Text(verbatim: formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -299,7 +286,7 @@ struct ZoneAnalyticsView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -394,7 +381,7 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(formatNumber(count))
+                            Text(verbatim: formatNumber(count))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -451,7 +438,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
+                        Text(verbatim: viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedBandwidthPoint != nil ? "transferred" : "total")
@@ -468,7 +455,7 @@ struct ZoneAnalyticsView: View {
                         Circle()
                             .fill(Color.purple)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -540,7 +527,7 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let bytes = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(viewModel.formatBytes(bytes))
+                            Text(verbatim: viewModel.formatBytes(bytes))
                                 .frame(width: 52, alignment: .trailing)
                         }
                     }
@@ -685,7 +672,7 @@ struct ZoneAnalyticsView: View {
                 .foregroundStyle(.blue)
             
             LabeledContent {
-                Text(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
+                Text(verbatim: viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
                     .font(.caption.weight(.semibold).monospacedDigit())
             } label: {
                 Text("Origin Bandwidth Saved")
@@ -696,7 +683,7 @@ struct ZoneAnalyticsView: View {
             Divider()
             
             LabeledContent {
-                Text(verbatim: String(format: "%.1f%%", viewModel.cachedRatio * 100))
+                Text(viewModel.cachedRatio, format: .percent.precision(.fractionLength(1)))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.cachedRatio > 0.5 ? Color.green : Color.orange)
             } label: {
@@ -717,10 +704,11 @@ struct ZoneAnalyticsView: View {
     
     private func formattedPointDate(_ point: AnalyticsDataPoint) -> String {
         let date = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
+        let loc = DateFormatters.currentAppLocale
         if isHourlyData {
-            return date.formatted(date: .omitted, time: .shortened)
+            return date.formatted(.dateTime.locale(loc).hour().minute())
         } else {
-            return date.formatted(.dateTime.month().day())
+            return date.formatted(.dateTime.locale(loc).month().day())
         }
     }
     
@@ -734,11 +722,11 @@ struct ZoneAnalyticsView: View {
     }
     
     private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return "\(num)" }
+        if num < 1000 { return num.formatted(.number) }
         let k = Double(num) / 1000.0
-        if k < 1000 { return String(format: "%.1fK", k) }
+        if k < 1000 { return "\((k).formatted(.number.precision(.fractionLength(1))))K" }
         let m = k / 1000.0
-        return String(format: "%.2fM", m)
+        return "\((m).formatted(.number.precision(.fractionLength(2))))M"
     }
 }
 

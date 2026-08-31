@@ -17,14 +17,7 @@ struct AccessAppsView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AccessApp.placeholders) { placeholder in
-                        appRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredApps.isEmpty {
+            if !viewModel.filteredApps.isEmpty {
                 Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
                     ForEach(viewModel.filteredApps) { app in
                         NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
@@ -71,7 +64,7 @@ struct AccessAppsView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Applications"
         )
         .navigationTitle("Access Applications")
@@ -102,7 +95,9 @@ struct AccessAppsView: View {
             await viewModel.fetchApps()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Access Applications…"))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
                     HIGContentState(
                         .error(
@@ -135,13 +130,7 @@ struct AccessAppsView: View {
     @ViewBuilder
     private func appRow(_ app: AccessApp) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "lock.shield.fill")
-                .foregroundStyle(.purple)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "lock.shield.fill", color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(app.name)
@@ -201,14 +190,14 @@ struct AddAccessAppSheetView: View {
                 Section(header: Text("Session Settings")) {
                     Picker("Session Duration", selection: $sessionDuration) {
                         ForEach(durationOptions, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

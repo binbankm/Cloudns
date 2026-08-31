@@ -70,10 +70,12 @@ struct WorkerRoutesView: View {
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
             ) {
                 if !hasFetchedData && isLoading {
-                    ForEach(WorkerCustomDomain.placeholders) { dom in
-                        domainRow(dom)
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading Routes…")
+                        Spacer()
                     }
-                    .redacted(reason: .placeholder)
+                    .padding(.vertical, 4)
                 } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(.subheadline)
@@ -102,13 +104,7 @@ struct WorkerRoutesView: View {
                 ) {
                     ForEach(fallbackRoutes, id: \.self) { route in
                         HStack {
-                            Image(systemName: "arrow.triangle.swap")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 30, height: 30)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "arrow.triangle.swap", color: .blue, size: 32, cornerRadius: 8)
                             
                             Text(route)
                                 .font(.caption.monospaced())
@@ -147,13 +143,7 @@ struct WorkerRoutesView: View {
     @ViewBuilder
     private func domainRow(_ dom: WorkerCustomDomain) -> some View {
         HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "link")
-                .font(.body)
-                .foregroundStyle(.orange)
-                .frame(width: 30, height: 30)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "link", color: .teal, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(dom.hostname)
@@ -211,7 +201,7 @@ struct WorkerAttachDomainSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

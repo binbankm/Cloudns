@@ -14,14 +14,7 @@ struct WorkersAIView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(AIModel.placeholders) { placeholder in
-                        modelRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredModels.isEmpty {
+            if !viewModel.filteredModels.isEmpty {
                 ForEach(viewModel.groupedModels.keys.sorted(), id: \.self) { taskName in
                     if let list = viewModel.groupedModels[taskName], !list.isEmpty {
                         Section {
@@ -32,7 +25,7 @@ struct WorkersAIView: View {
                                 } label: {
                                     modelRow(model)
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.higPressable)
                             }
                         } header: {
                             categoryHeader(taskName, count: list.count)
@@ -45,7 +38,7 @@ struct WorkersAIView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search AI Models"
         )
         .navigationTitle("Workers AI")
@@ -114,13 +107,7 @@ struct WorkersAIView: View {
     @ViewBuilder
     private func modelRow(_ model: AIModel) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: iconForTask(model.taskName))
-                .font(.body)
-                .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: iconForTask(model.taskName), color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -264,7 +251,7 @@ struct WorkersAIPlaygroundSheetView: View {
                 Divider()
                 
                 HStack(spacing: 10) {
-                    TextField("Ask \(model.shortName)...", text: $viewModel.promptInput)
+                    TextField("Ask \(model.shortName)…", text: $viewModel.promptInput)
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.send)
                         .onSubmit {
@@ -279,8 +266,10 @@ struct WorkersAIPlaygroundSheetView: View {
                         } else {
                             Image(systemName: "arrow.up.circle.fill")
                                 .font(.title2)
+                                .foregroundStyle(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.tertiaryLabel) : Color.accentColor)
                         }
                     }
+                    .buttonStyle(.higPressable)
                     .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)
                 }
                 .padding(.horizontal)

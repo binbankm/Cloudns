@@ -75,7 +75,7 @@ struct CFTraceToolView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Clear host")
+                    .accessibilityLabel("Clear Host")
                 }
             }
             
@@ -89,11 +89,12 @@ struct CFTraceToolView: View {
                     } else {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                     }
-                    Text(viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP")
+                    Text(viewModel.isLoading ? "Tracing Edge PoP…" : "Trace Edge PoP")
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
+            .buttonStyle(.higPressable)
             .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
         }
     }
@@ -104,7 +105,7 @@ struct CFTraceToolView: View {
         if viewModel.isLoading && viewModel.traceFields.isEmpty {
             Section(header: Text("Resolved Edge PoP")) {
                 popCard(colo: "SJC", loc: "San Jose, United States")
-                    .redacted(reason: .placeholder)
+                    
             }
         } else if !viewModel.traceFields.isEmpty {
             Section(header: Text("Resolved Edge PoP")) {
@@ -123,7 +124,7 @@ struct CFTraceToolView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.red)
-                    Text(error)
+                    Text(verbatim: error)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -192,7 +193,7 @@ struct CFTraceToolView: View {
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }
@@ -267,7 +268,7 @@ struct CFTraceToolView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.higPressable)
                 .higTouchTarget()
             }
         }

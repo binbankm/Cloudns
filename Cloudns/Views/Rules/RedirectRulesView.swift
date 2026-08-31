@@ -8,24 +8,9 @@ struct RedirectRulesView: View {
     @State private var showingAddSheet = false
     @State private var ruleToDelete: RedirectRuleItem?
     @State private var showingDeleteAlert = false
-    @State private var searchText = ""
-    
-    private var displayedRules: [RedirectRuleItem] {
-        if searchText.isEmpty { return viewModel.rules }
-        return viewModel.rules.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            ($0.expression ?? "").localizedStandardContains(searchText) ||
-            ($0.targetUrl ?? "").localizedStandardContains(searchText)
-        }
-    }
     
     var body: some View {
         contentView
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .automatic),
-                prompt: "Search Redirect Rules"
-            )
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Redirect Rules")
             .navigationBarTitleDisplayMode(.inline)
@@ -67,16 +52,9 @@ struct RedirectRulesView: View {
     @ViewBuilder
     private var contentView: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(RedirectRuleItem.placeholders) { placeholderRule in
-                        redirectRuleRow(placeholderRule)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !displayedRules.isEmpty {
-                Section(header: Text("Configured Rules (\(displayedRules.count))")) {
-                    ForEach(displayedRules) { rule in
+            if !viewModel.rules.isEmpty {
+                Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
+                    ForEach(viewModel.rules) { rule in
                         redirectRuleRow(rule)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -91,31 +69,28 @@ struct RedirectRulesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchRules(zoneId: zoneId) }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Redirect Rules…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchRules(zoneId: zoneId) }
+                        }
                     )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Redirect Rules",
-                            systemImage: "arrow.triangle.swap",
-                            description: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
-                            actionTitle: "Add Rule",
-                            action: { showingAddSheet = true }
-                        )
+                )
+            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
+                HIGContentState(
+                    .empty(
+                        title: "No Redirect Rules",
+                        systemImage: "arrow.triangle.swap",
+                        description: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
+                        actionTitle: "Add Rule",
+                        action: { showingAddSheet = true }
                     )
-                } else if displayedRules.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+                )
             }
         }
     }
@@ -212,7 +187,7 @@ struct AddRedirectRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

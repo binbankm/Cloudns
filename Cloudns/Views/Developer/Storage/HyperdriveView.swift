@@ -17,16 +17,9 @@ struct HyperdriveView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(HyperdriveConfig.placeholders) { placeholder in
-                        configRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredConfigs.isEmpty {
+            if !viewModel.configs.isEmpty {
                 Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
-                    ForEach(viewModel.filteredConfigs) { config in
+                    ForEach(viewModel.configs) { config in
                         NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
                             configRow(config)
                         }
@@ -44,12 +37,6 @@ struct HyperdriveView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Hyperdrive"
-        )
         .navigationTitle("Hyperdrive")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -80,7 +67,9 @@ struct HyperdriveView: View {
             await viewModel.fetchConfigs()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Hyperdrive Configs…"))
+        } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
                     HIGContentState(
                         .error(
@@ -98,8 +87,6 @@ struct HyperdriveView: View {
                             action: { showingCreateSheet = true }
                         )
                     )
-                } else if viewModel.filteredConfigs.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
                 }
             }
         }
@@ -113,13 +100,7 @@ struct HyperdriveView: View {
     @ViewBuilder
     private func configRow(_ config: HyperdriveConfig) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "bolt.horizontal.fill")
-                .font(.body)
-                .foregroundStyle(.yellow)
-                .frame(width: 32, height: 32)
-                .background(Color.yellow.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "bolt.horizontal.fill", color: .green, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(config.name)
@@ -127,7 +108,10 @@ struct HyperdriveView: View {
                     .foregroundStyle(.primary)
                 
                 if let origin = config.origin, let host = origin.host {
-                    Text("\(origin.scheme ?? "postgres")://\(host):\(origin.port ?? 5432)/\(origin.database ?? "")")
+                    let dbName = origin.database ?? ""
+                    let dbScheme = origin.scheme ?? "postgres"
+                    let dbPort = origin.port ?? 5432
+                    Text(verbatim: "\(dbScheme)://\(host):\(dbPort)/\(dbName)")
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

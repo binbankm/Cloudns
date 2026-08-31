@@ -50,20 +50,4 @@ public struct SSLCertDetails: Identifiable, Equatable, Sendable {
         self.keyTypeAndBits = keyTypeAndBits
         self.isExpired = isExpired
     }
-    
-    public static let placeholder = SSLCertDetails(
-        commonName: "cloudflare.com",
-        issuer: "GTS CA 1P5 (Google Trust Services)",
-        validityDaysRemaining: 84,
-        protocolNegotiated: "TLSv1.3",
-        cipherSuite: "TLS_AES_256_GCM_SHA384",
-        chainCount: 3,
-        chainNames: ["cloudflare.com", "GTS CA 1P5", "GTS Root R1"],
-        isCloudflareEdge: true,
-        validFrom: "2024-01-01 00:00:00 UTC",
-        validUntil: "2024-12-31 23:59:59 UTC",
-        sans: ["cloudflare.com", "*.cloudflare.com"],
-        signatureAlgorithm: "SHA-256 with ECDSA",
-        keyTypeAndBits: "ECDSA 256 bits (P-256)"
-    )
 }

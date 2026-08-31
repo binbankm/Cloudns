@@ -52,111 +52,98 @@ struct DNSExportSheetView: View {
     @State private var showingFileExporter = false
     @State private var showingShareSheet = false
     
+    private var contentLines: [String] {
+        exportedContent.components(separatedBy: "\n")
+    }
+    
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            List {
                 if isLoading {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("; BIND Zone File Export Preview")
-                            Text("$ORIGIN example.com.")
-                            Text("$TTL 3600")
-                            Text("@ IN SOA ns1.cloudflare.com. dns.cloudflare.com. ( 2024010101 10000 2400 604800 3600 )")
-                            Text("@ IN NS ns1.cloudflare.com.")
-                            Text("@ IN A 192.0.2.1")
-                            Text("www IN CNAME example.com.")
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView("Generating BIND Zone File…")
+                            Spacer()
                         }
-                        .font(.caption.monospaced())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
+                        .padding(.vertical, 16)
                     }
-                    .redacted(reason: .placeholder)
                 } else {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: "doc.text.fill")
-                                        .foregroundStyle(.blue)
-                                    Text("BIND RFC 1035 Zone File")
-                                        .font(.headline)
-                                    Spacer()
-                                    Text("\(records.count) Records")
-                                        .font(.caption.weight(.semibold))
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 3)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .clipShape(Capsule())
-                                }
-                                
-                                Text("Standard zone file format compatible with Cloudflare, BIND, Route 53, and standard DNS servers.")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(14)
-                            .background(Color(.secondarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            
-                            HStack(spacing: 10) {
-                                Button {
-                                    UIPasteboard.general.string = exportedContent
-                                    ToastManager.shared.showCopied("BIND Zone File Copied")
-                                } label: {
-                                    Label("Copy", systemImage: "doc.on.doc")
-                                        .font(.subheadline.weight(.medium))
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
-                                        .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                        .foregroundStyle(.white)
-                                }
-                                
-                                Button {
-                                    HIGFeedback.impact(.light)
-                                    showingShareSheet = true
-                                } label: {
-                                    Label("Share", systemImage: "square.and.arrow.up")
-                                        .font(.subheadline.weight(.medium))
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                }
-                                
-                                Button {
-                                    HIGFeedback.impact(.light)
-                                    showingFileExporter = true
-                                } label: {
-                                    Label("Save", systemImage: "folder")
-                                        .font(.subheadline.weight(.medium))
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                }
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Preview")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(.secondary)
-                                
-                                Text(exportedContent)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.primary)
-                                    .padding(12)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color(.secondarySystemGroupedBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                    .textSelection(.enabled)
-                            }
+                    // MARK: - Summary Section
+                    Section(header: Text("Zone File Summary")) {
+                        LabeledContent {
+                            HIGBadge(.active("\(records.count) Records"), isCompact: true)
+                        } label: {
+                            Label("Zone Name", systemImage: "globe")
                         }
-                        .padding(16)
+                        
+                        LabeledContent("Format", value: "BIND RFC 1035")
+                    }
+                    
+                    // MARK: - Export Actions
+                    Section(header: Text("Actions")) {
+                        Button {
+                            UIPasteboard.general.string = exportedContent
+                            ToastManager.shared.showCopied("BIND Zone File Copied")
+                            HIGFeedback.impact(.light)
+                        } label: {
+                            Label("Copy All Records", systemImage: "doc.on.doc")
+                                .foregroundStyle(.blue)
+                        }
+                        
+                        Button {
+                            HIGFeedback.impact(.light)
+                            showingShareSheet = true
+                        } label: {
+                            Label("Share Zone File", systemImage: "square.and.arrow.up")
+                                .foregroundStyle(.blue)
+                        }
+                        
+                        Button {
+                            HIGFeedback.impact(.light)
+                            showingFileExporter = true
+                        } label: {
+                            Label("Save to Files", systemImage: "folder")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                    
+                    // MARK: - Zone File Content Preview (Vertically Scrollable, Natural Wrap)
+                    Section(
+                        header: HStack {
+                            Text("Zone File Content")
+                            Spacer()
+                            Text("\(contentLines.count) lines")
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        },
+                        footer: Text("Standard RFC 1035 format. Text wraps naturally without horizontal overflow.")
+                    ) {
+                        ScrollView(.vertical, showsIndicators: true) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(Array(contentLines.enumerated()), id: \.offset) { idx, line in
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Text("\(idx + 1)")
+                                            .font(.caption2.monospacedDigit())
+                                            .foregroundStyle(Color(.tertiaryLabel))
+                                            .frame(width: 24, alignment: .trailing)
+                                        
+                                        Text(verbatim: line)
+                                            .font(.caption.monospaced())
+                                            .foregroundStyle(lineColor(for: line))
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .frame(height: 300)
+                        .textSelection(.enabled)
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("Export Zone File")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -177,8 +164,10 @@ struct DNSExportSheetView: View {
             ) { result in
                 switch result {
                 case .success:
+                    ToastManager.shared.showSuccess("Zone File Saved", icon: "folder.fill")
                     HIGFeedback.success()
                 case .failure:
+                    ToastManager.shared.showError("Failed to Save File")
                     HIGFeedback.error()
                 }
             }
@@ -189,6 +178,18 @@ struct DNSExportSheetView: View {
             }
         }
         .higToast()
+    }
+    
+    private func lineColor(for line: String) -> Color {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        if trimmed.hasPrefix(";") {
+            return .secondary
+        } else if trimmed.hasPrefix("$") {
+            return .purple
+        } else if trimmed.contains(" IN ") {
+            return .primary
+        }
+        return .primary
     }
     
     private func loadExportedContent() async {

@@ -17,14 +17,7 @@ struct GatewayRulesView: View {
     
     var body: some View {
         List {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                Section {
-                    ForEach(GatewayRule.placeholders) { placeholder in
-                        ruleRow(placeholder)
-                    }
-                }
-                .redacted(reason: .placeholder)
-            } else if !viewModel.filteredRules.isEmpty {
+            if !viewModel.filteredRules.isEmpty {
                 Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
@@ -71,7 +64,7 @@ struct GatewayRulesView: View {
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
+            placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Rules"
         )
         .navigationTitle("Gateway Rules")
@@ -105,7 +98,9 @@ struct GatewayRulesView: View {
             await viewModel.fetchRules()
         }
         .overlay {
-            if viewModel.hasFetchedData {
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+            HIGContentState(.loading(message: "Loading Gateway Rules…"))
+        } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     HIGContentState(
                         .error(
@@ -138,13 +133,7 @@ struct GatewayRulesView: View {
     @ViewBuilder
     private func ruleRow(_ rule: GatewayRule) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: rule.enabled ? "shield.fill" : "shield.slash")
-                .font(.body)
-                .foregroundStyle(rule.enabled ? .blue : .secondary)
-                .frame(width: 32, height: 32)
-                .background((rule.enabled ? Color.blue : Color.secondary).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? .green : .gray, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(rule.name)
@@ -205,7 +194,7 @@ struct AddGatewayRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

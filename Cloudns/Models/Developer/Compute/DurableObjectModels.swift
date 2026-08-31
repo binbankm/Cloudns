@@ -26,10 +26,6 @@ public struct DurableObjectNamespace: Codable, Identifiable, Equatable, Sendable
         self.class = `class`
     }
     
-    public static let placeholders: [DurableObjectNamespace] = [
-        DurableObjectNamespace(id: "do_1", name: "UserSessionCoordinator", script: "auth-worker", class: "SessionCoordinator"),
-        DurableObjectNamespace(id: "do_2", name: "RoomPresenceManager", script: "chat-worker", class: "RoomPresence")
-    ]
 }
 
 public struct DurableObjectInstance: Codable, Identifiable, Equatable, Sendable {
@@ -46,8 +42,4 @@ public struct DurableObjectInstance: Codable, Identifiable, Equatable, Sendable 
         self.hasStoredData = hasStoredData
     }
     
-    public static let placeholders: [DurableObjectInstance] = [
-        DurableObjectInstance(id: "inst_1a2b3c4d", hasStoredData: true),
-        DurableObjectInstance(id: "inst_5e6f7g8h", hasStoredData: false)
-    ]
 }

@@ -257,13 +257,7 @@ struct DeveloperHubRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(iconColor)
-                .frame(width: 32, height: 32)
-                .background(iconColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: icon, color: iconColor, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {

@@ -33,8 +33,4 @@ public struct GatewayRule: Codable, Identifiable, Equatable, Sendable {
         self.updatedAt = nil
     }
     
-    public static let placeholders: [GatewayRule] = [
-        GatewayRule(id: "gw_1", name: "Block Malware & Phishing", action: "block", enabled: true, traffic: "dns.security.category in {1 2 3}"),
-        GatewayRule(id: "gw_2", name: "Isolate Social Media", action: "isolate", enabled: true, traffic: "http.request.host in {\"facebook.com\" \"twitter.com\"}")
-    ]
 }

@@ -69,6 +69,11 @@ struct TunnelDetailView: View {
             .refreshable {
                 await viewModel.fetchConfiguration()
             }
+            .overlay {
+                if !viewModel.hasFetchedData && viewModel.isLoading {
+                    HIGContentState(.loading(message: "Loading Tunnel Config…"))
+                }
+            }
             .task {
                 if !viewModel.hasFetchedData {
                     await viewModel.fetchConfiguration()
@@ -95,18 +100,7 @@ struct TunnelDetailView: View {
             }
             
             // MARK: - Connector Token / Install Command
-            if !viewModel.hasFetchedData {
-                Section(header: Text("Connector Token")) {
-                    HStack {
-                        Image(systemName: "terminal")
-                            .foregroundStyle(.blue)
-                        Text("cloudflared tunnel run --token ••••••••••••••••••••••••")
-                            .font(.caption.monospaced())
-                        Spacer()
-                    }
-                    .redacted(reason: .placeholder)
-                }
-            } else if let token = viewModel.token, !token.isEmpty {
+            if let token = viewModel.token, !token.isEmpty {
                 Section(
                     header: Text("Connector Token"),
                     footer: Text("Run this command on your server or container to attach cloudflared to this tunnel.")
@@ -164,26 +158,7 @@ struct TunnelDetailView: View {
                 },
                 footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
             ) {
-                if !viewModel.hasFetchedData {
-                    ForEach(0..<2, id: \.self) { idx in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Image(systemName: "globe")
-                                    .foregroundStyle(.blue)
-                                Text("app\(idx + 1).example.com")
-                                    .font(.body.weight(.medium))
-                            }
-                            HStack {
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .foregroundStyle(.green)
-                                Text("http://localhost:\(8080 + idx)")
-                                    .font(.caption.monospaced())
-                            }
-                        }
-                        .padding(.vertical, 3)
-                    }
-                    .redacted(reason: .placeholder)
-                } else if viewModel.ingressRules.isEmpty {
+                if viewModel.ingressRules.isEmpty {
                     Text("No public ingress hostnames configured.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)

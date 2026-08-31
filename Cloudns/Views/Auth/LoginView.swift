@@ -275,6 +275,7 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
+                        .buttonStyle(.higPressable)
                         .disabled(isButtonDisabled)
                     }
                     .padding(16)

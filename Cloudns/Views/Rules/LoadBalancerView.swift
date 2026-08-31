@@ -8,7 +8,6 @@ struct LoadBalancerView: View {
     @StateObject private var viewModel: LoadBalancerViewModel
     @State private var selectedTab = 0
     @State private var showingAddSheet = false
-    @State private var searchText = ""
     @State private var lbToDelete: LoadBalancer?
     @State private var poolToDelete: LBPool?
     @State private var monitorToDelete: LBMonitor?
@@ -17,27 +16,6 @@ struct LoadBalancerView: View {
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: LoadBalancerViewModel(zoneId: zoneId))
-    }
-    
-    private var displayedLoadBalancers: [LoadBalancer] {
-        if searchText.isEmpty { return viewModel.loadBalancers }
-        return viewModel.loadBalancers.filter { ($0.name ?? "").localizedStandardContains(searchText) }
-    }
-    
-    private var displayedPools: [LBPool] {
-        if searchText.isEmpty { return viewModel.pools }
-        return viewModel.pools.filter {
-            ($0.name ?? "").localizedStandardContains(searchText) ||
-            ($0.description ?? "").localizedStandardContains(searchText)
-        }
-    }
-    
-    private var displayedMonitors: [LBMonitor] {
-        if searchText.isEmpty { return viewModel.monitors }
-        return viewModel.monitors.filter {
-            ($0.description ?? "").localizedStandardContains(searchText) ||
-            ($0.path ?? "").localizedStandardContains(searchText)
-        }
     }
     
     var body: some View {
@@ -54,11 +32,6 @@ struct LoadBalancerView: View {
             
             contentList
         }
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search Load Balancers, Pools, Monitors"
-        )
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Load Balancing")
         .navigationBarTitleDisplayMode(.inline)
@@ -142,16 +115,9 @@ struct LoadBalancerView: View {
     private var contentList: some View {
         List {
             if selectedTab == 0 {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(LoadBalancer.placeholders) { placeholderLB in
-                            lbRow(placeholderLB)
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                } else if !displayedLoadBalancers.isEmpty {
-                    Section(header: Text("Load Balancers (\(displayedLoadBalancers.count))")) {
-                        ForEach(displayedLoadBalancers) { lb in
+                if !viewModel.loadBalancers.isEmpty {
+                    Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
+                        ForEach(viewModel.loadBalancers) { lb in
                             lbRow(lb)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -167,16 +133,9 @@ struct LoadBalancerView: View {
                     }
                 }
             } else if selectedTab == 1 {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(LBPool.placeholders) { placeholderPool in
-                            poolRow(placeholderPool)
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                } else if !displayedPools.isEmpty {
-                    Section(header: Text("Origin Pools (\(displayedPools.count))")) {
-                        ForEach(displayedPools) { pool in
+                if !viewModel.pools.isEmpty {
+                    Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
+                        ForEach(viewModel.pools) { pool in
                             poolRow(pool)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -192,16 +151,9 @@ struct LoadBalancerView: View {
                     }
                 }
             } else {
-                if !viewModel.hasFetchedData && viewModel.isLoading {
-                    Section {
-                        ForEach(LBMonitor.placeholders) { placeholderMon in
-                            monRow(placeholderMon)
-                        }
-                    }
-                    .redacted(reason: .placeholder)
-                } else if !displayedMonitors.isEmpty {
-                    Section(header: Text("Health Monitors (\(displayedMonitors.count))")) {
-                        ForEach(displayedMonitors) { mon in
+                if !viewModel.monitors.isEmpty {
+                    Section(header: Text("Health Monitors (\(viewModel.monitors.count))")) {
+                        ForEach(viewModel.monitors) { mon in
                             monRow(mon)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
@@ -220,17 +172,19 @@ struct LoadBalancerView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchData() }
-                            }
-                        )
+            if !viewModel.hasFetchedData && viewModel.isLoading {
+                HIGContentState(.loading(message: "Loading Load Balancers…"))
+            } else if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage),
+                        retryAction: {
+                            Task { await viewModel.fetchData() }
+                        }
                     )
-                } else if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
+                )
+            } else if viewModel.hasFetchedData {
+                if selectedTab == 0 && viewModel.loadBalancers.isEmpty {
                     HIGContentState(
                         .empty(
                             title: "No Load Balancers",
@@ -260,8 +214,6 @@ struct LoadBalancerView: View {
                             action: { showingAddSheet = true }
                         )
                     )
-                } else if !searchText.isEmpty && ((selectedTab == 0 && displayedLoadBalancers.isEmpty) || (selectedTab == 1 && displayedPools.isEmpty) || (selectedTab == 2 && displayedMonitors.isEmpty)) {
-                    HIGContentState(.search(query: searchText))
                 }
             }
         }
@@ -306,7 +258,7 @@ struct LoadBalancerView: View {
             if let origins = pool.origins, !origins.isEmpty {
                 HStack(spacing: 6) {
                     ForEach(origins.prefix(3), id: \.idResolved) { o in
-                        Text(o.name ?? o.address ?? "")
+                        Text(verbatim: o.name ?? o.address ?? "-")
                             .font(.caption2.monospaced())
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
