@@ -68,7 +68,7 @@ struct HyperdriveView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Hyperdrive Configs..."))
+            HIGContentState(.loading(message: "Loading Hyperdrive Configs…"))
         } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
                     HIGContentState(
@@ -100,13 +100,7 @@ struct HyperdriveView: View {
     @ViewBuilder
     private func configRow(_ config: HyperdriveConfig) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "bolt.horizontal.fill")
-                .font(.body)
-                .foregroundStyle(.yellow)
-                .frame(width: 32, height: 32)
-                .background(Color.yellow.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "bolt.horizontal.fill", color: .green, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(config.name)

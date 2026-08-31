@@ -46,7 +46,7 @@ public struct PagesAnalyticsView: View {
                 .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Pages Analytics..."))
+                HIGContentState(.loading(message: "Loading Pages Analytics…"))
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty && viewModel.deployments.isEmpty {
                 ScrollView {
                     VStack {

@@ -56,7 +56,7 @@ struct ZoneAnalyticsView: View {
                 .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Analytics..."))
+                HIGContentState(.loading(message: "Loading Analytics…"))
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack {

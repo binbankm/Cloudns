@@ -204,7 +204,7 @@ struct SecuritySettingsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Security Settings..."))
+                HIGContentState(.loading(message: "Loading Security Settings…"))
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isLoading {
                 HIGContentState(
                     .error(
@@ -244,7 +244,7 @@ struct SecuritySettingsView: View {
         case "medium": return "Medium (Balanced)"
         case "high": return "High (Most secure)"
         case "under_attack": return "I'm Under Attack!"
-        default: return "Configuring..."
+        default: return "Configuring…"
         }
     }
 }

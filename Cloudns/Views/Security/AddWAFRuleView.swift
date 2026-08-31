@@ -135,7 +135,7 @@ struct AddWAFRuleView: View {
                 
                 if editorMode == 0 {
                     // Visual Builder Section
-                    Section(header: Text("When incoming requests match...")) {
+                    Section(header: Text("When incoming requests match…")) {
                         Picker("Field", selection: $field) {
                             ForEach(fields, id: \.1) { name, val in
                                 Text(name).tag(val)
@@ -196,7 +196,7 @@ struct AddWAFRuleView: View {
                     }
                 }
                 
-                Section(header: Text("Then...")) {
+                Section(header: Text("Then…")) {
                     Picker("Take Action", selection: $action) {
                         ForEach(actions, id: \.1) { name, val in
                             Text(name).tag(val)
@@ -245,7 +245,7 @@ struct AddWAFRuleView: View {
                 Group {
                     if isSubmitting {
                         Color.black.opacity(0.3).ignoresSafeArea()
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.systemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

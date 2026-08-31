@@ -99,7 +99,7 @@ struct GatewayRulesView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Gateway Rules..."))
+            HIGContentState(.loading(message: "Loading Gateway Rules…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     HIGContentState(
@@ -133,13 +133,7 @@ struct GatewayRulesView: View {
     @ViewBuilder
     private func ruleRow(_ rule: GatewayRule) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: rule.enabled ? "shield.fill" : "shield.slash")
-                .font(.body)
-                .foregroundStyle(rule.enabled ? .blue : .secondary)
-                .frame(width: 32, height: 32)
-                .background((rule.enabled ? Color.blue : Color.secondary).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? .green : .gray, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(rule.name)

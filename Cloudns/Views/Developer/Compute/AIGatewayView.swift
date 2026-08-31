@@ -79,7 +79,7 @@ struct AIGatewayView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading AI Gateways..."))
+            HIGContentState(.loading(message: "Loading AI Gateways…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
                     HIGContentState(
@@ -115,13 +115,7 @@ struct AIGatewayView: View {
     @ViewBuilder
     private func gatewayRow(_ gw: AIGateway) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "brain.head.profile")
-                .foregroundStyle(.purple)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "brain.head.profile", color: .pink, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(gw.name ?? gw.id)

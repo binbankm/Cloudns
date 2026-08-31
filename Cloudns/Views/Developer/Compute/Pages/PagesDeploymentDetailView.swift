@@ -172,11 +172,11 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = true
                     do {
                         try await parentViewModel.rollbackDeployment(id: deployment.id)
-                        ToastManager.shared.showSuccess("Rolled back to deployment", icon: "arrow.counterclockwise")
+                        ToastManager.shared.showSuccess("Rolled Back to Deployment", icon: "arrow.counterclockwise")
                         HIGFeedback.success()
                         dismiss()
                     } catch {
-                        ToastManager.shared.showError("Failed to rollback")
+                        ToastManager.shared.showError("Failed to Roll Back")
                         HIGFeedback.error()
                     }
                     isActionRunning = false
@@ -196,7 +196,7 @@ struct PagesDeploymentDetailView: View {
                         HIGFeedback.success()
                         dismiss()
                     } catch {
-                        ToastManager.shared.showError("Failed to delete")
+                        ToastManager.shared.showError("Failed to Delete")
                         HIGFeedback.error()
                     }
                     isActionRunning = false
@@ -230,7 +230,7 @@ struct PagesDeploymentDetailView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     
-                    TextField("Filter build logs...", text: $logSearchQuery)
+                    TextField("Filter build logs…", text: $logSearchQuery)
                         .font(.caption)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -268,7 +268,7 @@ struct PagesDeploymentDetailView: View {
                 VStack(spacing: 12) {
                     ProgressView()
                         .controlSize(.regular)
-                    Text("Loading build logs from Cloudflare edge...")
+                    Text("Loading build logs from Cloudflare edge…")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

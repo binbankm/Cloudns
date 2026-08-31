@@ -216,13 +216,7 @@ struct PagesBindingsView: View {
                 Section(header: Text("KV Namespaces (\(currentKV.count))")) {
                     ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
                         HStack(spacing: 12) {
-                            Image(systemName: "key.fill")
-                                .font(.body)
-                                .foregroundStyle(.purple)
-                                .frame(width: 32, height: 32)
-                                .background(Color.purple.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "key.fill", color: .purple, size: 32, cornerRadius: 8)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(key)
@@ -273,13 +267,7 @@ struct PagesBindingsView: View {
                 Section(header: Text("D1 Databases (\(currentD1.count))")) {
                     ForEach(Array(currentD1.keys.sorted()), id: \.self) { key in
                         HStack(spacing: 12) {
-                            Image(systemName: "cylinder.split.1x2.fill")
-                                .font(.body)
-                                .foregroundStyle(.indigo)
-                                .frame(width: 32, height: 32)
-                                .background(Color.indigo.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal, size: 32, cornerRadius: 8)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(key)
@@ -330,13 +318,7 @@ struct PagesBindingsView: View {
                 Section(header: Text("R2 Buckets (\(currentR2.count))")) {
                     ForEach(Array(currentR2.keys.sorted()), id: \.self) { key in
                         HStack(spacing: 12) {
-                            Image(systemName: "externaldrive.fill")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "externaldrive.fill", color: .blue, size: 32, cornerRadius: 8)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(key)
@@ -387,13 +369,7 @@ struct PagesBindingsView: View {
                 Section(header: Text("Workers AI (\(currentAI.count))")) {
                     ForEach(Array(currentAI.keys.sorted()), id: \.self) { key in
                         HStack(spacing: 12) {
-                            Image(systemName: "brain.head.profile")
-                                .font(.body)
-                                .foregroundStyle(.pink)
-                                .frame(width: 32, height: 32)
-                                .background(Color.pink.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "brain.head.profile", color: .pink, size: 32, cornerRadius: 8)
                             
                             Text(key)
                                 .font(.body.monospaced().weight(.semibold))
@@ -851,9 +827,9 @@ struct PagesAttachResourceBindingSheetView: View {
     private func resourcePickerOptions(for type: String) -> [(id: String, title: String)] {
         switch type {
         case "kv":
-            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))...)") }
+            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))…)") }
         case "d1":
-            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))...)") }
+            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))…)") }
         case "r2":
             return r2Buckets.map { (id: $0.name, title: $0.name) }
         default:

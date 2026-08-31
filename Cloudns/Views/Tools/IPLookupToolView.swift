@@ -33,7 +33,7 @@ struct IPLookupToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -47,7 +47,7 @@ struct IPLookupToolView: View {
                         } else {
                             Image(systemName: "location.fill")
                         }
-                        Text(viewModel.isLoading ? "Querying BGP & Geo..." : "Lookup IP Geolocation & ASN")
+                        Text(viewModel.isLoading ? "Querying BGP & Geo…" : "Lookup IP Geolocation & ASN")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -60,7 +60,7 @@ struct IPLookupToolView: View {
                 Section {
                     HStack {
                         Spacer()
-                        ProgressView("Querying IP...")
+                        ProgressView("Querying IP…")
                         Spacer()
                     }
                     .padding(.vertical, 8)

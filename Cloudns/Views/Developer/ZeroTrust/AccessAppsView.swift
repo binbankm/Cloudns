@@ -96,7 +96,7 @@ struct AccessAppsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Access Applications..."))
+            HIGContentState(.loading(message: "Loading Access Applications…"))
         } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
                     HIGContentState(
@@ -130,13 +130,7 @@ struct AccessAppsView: View {
     @ViewBuilder
     private func appRow(_ app: AccessApp) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "lock.shield.fill")
-                .foregroundStyle(.purple)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "lock.shield.fill", color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(app.name)

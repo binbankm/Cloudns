@@ -82,12 +82,12 @@ struct ZonesListView: View {
             }
         }
         .confirmationDialog(
-            "Remove Zone",
+            "Delete Domain",
             isPresented: $showingDeleteAlert,
             titleVisibility: .visible,
             presenting: zoneToDelete
         ) { zone in
-            Button("Remove \(zone.name)", role: .destructive) {
+            Button("Delete \(zone.name)", role: .destructive) {
                 HIGFeedback.impact(.medium)
                 Task {
                     await viewModel.deleteZone(zoneId: zone.id)
@@ -95,7 +95,7 @@ struct ZonesListView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { zone in
-            Text("Are you sure you want to remove \(zone.name) from your Cloudflare account? This action cannot be undone.")
+            Text("Are you sure you want to delete \(zone.name) from your Cloudflare account? This action cannot be undone.")
         }
     }
     
@@ -113,7 +113,7 @@ struct ZonesListView: View {
                         zoneToDelete = zone
                         showingDeleteAlert = true
                     } label: {
-                        Label("Remove", systemImage: "trash")
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
@@ -136,7 +136,7 @@ struct ZonesListView: View {
     @ViewBuilder
     private var emptyStateOverlay: some View {
         if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Domains..."))
+            HIGContentState(.loading(message: "Loading Domains…"))
         } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
             HIGContentState(
                 .error(

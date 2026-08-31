@@ -274,7 +274,7 @@ struct PagesVariablesView: View {
                 await MainActor.run {
                     isDeleting = false
                     varNameToDelete = nil
-                    ToastManager.shared.showError("Failed to delete variable")
+                    ToastManager.shared.showError("Failed to Delete Variable")
                     HIGFeedback.error()
                 }
             }

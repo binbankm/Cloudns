@@ -38,7 +38,7 @@ struct CFIpRangesToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -164,7 +164,7 @@ struct CFIpRangesToolView: View {
         }
         .overlay {
             if viewModel.isLoading && viewModel.ipv4List.isEmpty {
-                HIGContentState(.loading(message: "Loading Cloudflare IP Ranges..."))
+                HIGContentState(.loading(message: "Loading Cloudflare IP Ranges…"))
             }
         }
         .task {

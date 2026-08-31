@@ -15,7 +15,7 @@ struct ZoneDetailDeepLinkWrapper: View {
             if let zone = loadedZone {
                 ZoneDetailView(zone: zone)
             } else if isLoading {
-                HIGContentState(.loading(message: "Loading Domain..."))
+                HIGContentState(.loading(message: "Loading Domain…"))
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle.fill")

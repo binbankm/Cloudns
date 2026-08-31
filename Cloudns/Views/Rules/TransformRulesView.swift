@@ -98,7 +98,7 @@ struct TransformRulesView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Transform Rules..."))
+                HIGContentState(.loading(message: "Loading Transform Rules…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

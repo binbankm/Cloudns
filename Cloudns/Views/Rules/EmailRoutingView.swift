@@ -204,7 +204,7 @@ struct EmailRoutingView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Email Routing..."))
+                HIGContentState(.loading(message: "Loading Email Routing…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty && viewModel.destinations.isEmpty {
                 HIGContentState(
                     .error(

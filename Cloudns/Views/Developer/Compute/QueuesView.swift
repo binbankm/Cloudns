@@ -84,7 +84,7 @@ struct QueuesView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Message Queues..."))
+            HIGContentState(.loading(message: "Loading Message Queues…"))
         } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
                     HIGContentState(
@@ -116,13 +116,7 @@ struct QueuesView: View {
     @ViewBuilder
     private func queueRow(_ queue: CFQueue) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "tray.2.fill")
-                .foregroundStyle(.orange)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "tray.2.fill", color: .indigo, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(queue.queueName)

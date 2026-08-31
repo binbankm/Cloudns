@@ -37,7 +37,7 @@ struct AccessAppDetailView: View {
                 if isLoadingPolicies && policies.isEmpty {
                     HStack {
                         Spacer()
-                        ProgressView("Loading Policies...")
+                        ProgressView("Loading Policies…")
                         Spacer()
                     }
                     .padding(.vertical, 4)

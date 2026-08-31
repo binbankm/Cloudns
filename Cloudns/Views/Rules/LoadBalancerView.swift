@@ -173,7 +173,7 @@ struct LoadBalancerView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Load Balancers..."))
+                HIGContentState(.loading(message: "Loading Load Balancers…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.loadBalancers.isEmpty && viewModel.pools.isEmpty && viewModel.monitors.isEmpty {
                 HIGContentState(
                     .error(

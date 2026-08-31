@@ -42,7 +42,7 @@ struct DurableObjectNamespaceDetailView: View {
                 if isLoading && objects.isEmpty {
                     HStack {
                         Spacer()
-                        ProgressView("Loading instances...")
+                        ProgressView("Loading instances…")
                         Spacer()
                     }
                     .padding(.vertical, 4)

@@ -74,7 +74,7 @@ struct WorkerBindingsView: View {
                         try await secretsViewModel.deleteResourceBinding(name: binding.name)
                         ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
                     } catch {
-                        ToastManager.shared.showError("Failed to unbind resource")
+                        ToastManager.shared.showError("Failed to Unbind Resource")
                     }
                 }
             }
@@ -93,7 +93,7 @@ struct WorkerBindingsView: View {
                         }
                         ToastManager.shared.showSuccess(item.isSecret ? "Secret Deleted" : "Variable Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete item")
+                        ToastManager.shared.showError("Failed to Delete Item")
                     }
                 }
             }
@@ -123,7 +123,7 @@ struct WorkerBindingsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !secretsViewModel.hasFetchedData && secretsViewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Bindings..."))
+                HIGContentState(.loading(message: "Loading Bindings…"))
             } else if secretsViewModel.hasFetchedData && resourceBindings.isEmpty {
                 HIGContentState(
                     .empty(
@@ -243,13 +243,7 @@ struct WorkerBindingsView: View {
     @ViewBuilder
     private func bindingRow(_ binding: WorkerBinding) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: bindingIcon(for: binding.type))
-                .font(.title3)
-                .foregroundStyle(bindingColor(for: binding.type))
-                .frame(width: 32, height: 32)
-                .background(bindingColor(for: binding.type).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: bindingIcon(for: binding.type), color: bindingColor(for: binding.type), size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(binding.name)
@@ -509,9 +503,9 @@ struct WorkerAttachResourceBindingSheetView: View {
     private func resourcePickerOptions(for type: String) -> [(id: String, title: String)] {
         switch type {
         case "kv_namespace":
-            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))...)") }
+            return kvNamespaces.map { (id: $0.id, title: "\($0.title) (\($0.id.prefix(8))…)") }
         case "d1":
-            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))...)") }
+            return d1Databases.map { (id: $0.uuid, title: "\($0.name) (\($0.uuid.prefix(8))…)") }
         case "r2_bucket":
             return r2Buckets.map { (id: $0.name, title: $0.name) }
         case "queue":

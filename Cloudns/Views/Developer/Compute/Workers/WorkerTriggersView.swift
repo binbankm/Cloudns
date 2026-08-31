@@ -50,7 +50,7 @@ struct WorkerTriggersView: View {
                             try await viewModel.deleteSchedule(cron: cron.cron)
                             ToastManager.shared.showSuccess("Cron Trigger Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete trigger")
+                            ToastManager.shared.showError("Failed to Delete Trigger")
                         }
                     }
                 }
@@ -92,7 +92,7 @@ struct WorkerTriggersView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Triggers..."))
+            HIGContentState(.loading(message: "Loading Triggers…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     HIGContentState(
@@ -119,13 +119,7 @@ struct WorkerTriggersView: View {
     @ViewBuilder
     private func cronRow(_ schedule: WorkerSchedule) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "clock.arrow.2.circlepath")
-                .foregroundStyle(.blue)
-                .font(.body)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.cron)

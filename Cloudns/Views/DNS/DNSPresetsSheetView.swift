@@ -317,7 +317,7 @@ struct DNSPresetsSheetView: View {
                                     .tint(.white)
                                     .padding(.trailing, 6)
                             }
-                            Text(isApplying ? "Adding Records..." : "Apply Preset to \(zoneName)")
+                            Text(isApplying ? "Adding Records…" : "Apply Preset to \(zoneName)")
                                 .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
@@ -376,7 +376,7 @@ struct DNSPresetsSheetView: View {
             ToastManager.shared.showSuccess("DNS Presets Applied (\(successCount))", icon: "wand.and.stars")
             dismiss()
         } else {
-            ToastManager.shared.showError("Failed to apply presets")
+            ToastManager.shared.showError("Failed to Apply Presets")
         }
     }
 }

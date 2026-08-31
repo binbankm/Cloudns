@@ -62,7 +62,7 @@ struct HTTPHeaderInspectorView: View {
                         } else {
                             Image(systemName: "arrow.up.right.circle.fill")
                         }
-                        Text(viewModel.isHttpLoading ? "Connecting Edge..." : "Inspect Edge Response")
+                        Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -75,7 +75,7 @@ struct HTTPHeaderInspectorView: View {
                 Section {
                     HStack {
                         Spacer()
-                        ProgressView("Inspecting Edge Response...")
+                        ProgressView("Inspecting Edge Response…")
                         Spacer()
                     }
                     .padding(.vertical, 8)
@@ -119,7 +119,7 @@ struct HTTPHeaderInspectorView: View {
                     } label: {
                         Image(systemName: "doc.on.doc")
                     }
-                    .accessibilityLabel("Copy all headers")
+                    .accessibilityLabel("Copy All Headers")
                 }
             }
         }

@@ -40,7 +40,7 @@ struct PagesProjectsListView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Pages Projects..."))
+            HIGContentState(.loading(message: "Loading Pages Projects…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.pages.isEmpty {
                     HIGContentState(
@@ -107,13 +107,7 @@ struct PagesProjectsListView: View {
     @ViewBuilder
     private func pagesRow(_ page: PagesProject) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "macwindow")
-                .font(.body)
-                .foregroundStyle(.blue)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "macwindow", color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(page.name)

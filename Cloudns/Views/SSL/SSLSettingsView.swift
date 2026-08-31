@@ -296,7 +296,7 @@ struct SSLSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading SSL/TLS Settings..."))
+                HIGContentState(.loading(message: "Loading SSL/TLS Settings…"))
             }
         }
         .refreshable {
@@ -325,7 +325,7 @@ struct SSLSettingsView: View {
         case "flexible": return "Encrypted to edge, plain HTTP to origin."
         case "full": return "Encrypted end-to-end (self-signed allowed)."
         case "strict": return "Encrypted end-to-end with verified CA cert."
-        default: return "Configuring..."
+        default: return "Configuring…"
         }
     }
 }

@@ -50,7 +50,7 @@ struct D1ConsoleView: View {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
                     HStack {
                         Spacer()
-                        ProgressView("Loading Tables...")
+                        ProgressView("Loading Tables…")
                         Spacer()
                     }
                     .padding(.vertical, 4)

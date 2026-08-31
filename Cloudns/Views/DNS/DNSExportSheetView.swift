@@ -63,7 +63,7 @@ struct DNSExportSheetView: View {
                     Section {
                         HStack {
                             Spacer()
-                            ProgressView("Generating BIND Zone File...")
+                            ProgressView("Generating BIND Zone File…")
                             Spacer()
                         }
                         .padding(.vertical, 16)
@@ -167,7 +167,7 @@ struct DNSExportSheetView: View {
                     ToastManager.shared.showSuccess("Zone File Saved", icon: "folder.fill")
                     HIGFeedback.success()
                 case .failure:
-                    ToastManager.shared.showError("Failed to save file")
+                    ToastManager.shared.showError("Failed to Save File")
                     HIGFeedback.error()
                 }
             }

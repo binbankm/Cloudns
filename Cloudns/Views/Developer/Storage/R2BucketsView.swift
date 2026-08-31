@@ -74,7 +74,7 @@ struct R2BucketsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading R2 Buckets..."))
+            HIGContentState(.loading(message: "Loading R2 Buckets…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
                     HIGContentState(
@@ -87,7 +87,7 @@ struct R2BucketsView: View {
                     HIGContentState(
                         .empty(
                             title: "No R2 Buckets",
-                            systemImage: "externaldrive.badge.icloud",
+                            systemImage: "archivebox",
                             description: "You haven't created any R2 storage buckets in this account yet.",
                             actionTitle: "Create Bucket",
                             action: { showingCreateSheet = true }
@@ -113,13 +113,7 @@ struct R2BucketRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "archivebox.fill")
-                .foregroundStyle(.orange)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "archivebox.fill", color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(bucket.name)

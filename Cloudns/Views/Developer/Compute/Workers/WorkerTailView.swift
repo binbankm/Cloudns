@@ -49,7 +49,7 @@ struct WorkerTailView: View {
         .searchable(
             text: $viewModel.searchText,
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search logs & URLs"
+            prompt: "Search Logs & URLs"
         )
         .navigationTitle("Live Tail Logs")
         .navigationBarTitleDisplayMode(.inline)
@@ -62,7 +62,7 @@ struct WorkerTailView: View {
                     } label: {
                         Image(systemName: "trash")
                     }
-                    .accessibilityLabel("Clear logs")
+                    .accessibilityLabel("Clear Logs")
                     .disabled(viewModel.events.isEmpty)
                     
                     Button {
@@ -76,7 +76,7 @@ struct WorkerTailView: View {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
                             .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
-                    .accessibilityLabel(viewModel.isStreaming ? "Pause stream" : "Resume Stream")
+                    .accessibilityLabel(viewModel.isStreaming ? "Pause Stream" : "Resume Stream")
                 }
             }
         }
@@ -124,7 +124,7 @@ struct WorkerTailView: View {
     private var emptyState: some View {
         if viewModel.isStreaming {
             HIGContentState(
-                .loading(message: "Listening for live Worker events...")
+                .loading(message: "Listening for live Worker events…")
             )
         } else {
             HIGContentState(

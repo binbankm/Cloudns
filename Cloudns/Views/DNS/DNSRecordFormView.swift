@@ -298,7 +298,7 @@ struct DNSRecordFormView: View {
                 if isSaving {
                     ZStack {
                         Color.black.opacity(0.3).ignoresSafeArea()
-                        ProgressView("Saving...")
+                        ProgressView("Saving…")
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

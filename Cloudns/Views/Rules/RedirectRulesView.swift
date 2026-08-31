@@ -71,7 +71,7 @@ struct RedirectRulesView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Redirect Rules..."))
+                HIGContentState(.loading(message: "Loading Redirect Rules…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

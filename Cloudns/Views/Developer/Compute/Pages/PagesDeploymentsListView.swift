@@ -131,7 +131,7 @@ struct PagesDeploymentsListView: View {
         .searchable(
             text: $searchText,
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search by commit, branch, or ID"
+            prompt: "Search by Commit, Branch, or ID"
         )
         .navigationTitle("Deployments History")
         .navigationBarTitleDisplayMode(.inline)
@@ -140,7 +140,7 @@ struct PagesDeploymentsListView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Deployments..."))
+                HIGContentState(.loading(message: "Loading Deployments…"))
             } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.deployments.isEmpty {
                     HIGContentState(

@@ -238,7 +238,7 @@ struct SpeedSettingsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Speed Settings..."))
+                HIGContentState(.loading(message: "Loading Speed Settings…"))
             }
         }
         .refreshable {

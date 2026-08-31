@@ -99,7 +99,7 @@ struct AlertingView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Notification Policies..."))
+            HIGContentState(.loading(message: "Loading Notification Policies…"))
         } else if viewModel.hasFetchedData {
                 if selectedTab == "policies" && viewModel.policies.isEmpty {
                     HIGContentState(

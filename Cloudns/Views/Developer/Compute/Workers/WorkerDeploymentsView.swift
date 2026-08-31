@@ -104,7 +104,7 @@ struct WorkerDeploymentsView: View {
                         ToastManager.shared.showSuccess("Rolled back to Version #\(dep.number ?? 1)", icon: "arrow.counterclockwise")
                         HIGFeedback.success()
                     } else {
-                        ToastManager.shared.showError("Failed to rollback")
+                        ToastManager.shared.showError("Failed to Roll Back")
                         HIGFeedback.error()
                     }
                 }
@@ -115,7 +115,7 @@ struct WorkerDeploymentsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Deployments..."))
+                HIGContentState(.loading(message: "Loading Deployments…"))
             } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.deployments.isEmpty {
                     HIGContentState(

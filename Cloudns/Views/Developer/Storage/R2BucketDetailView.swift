@@ -108,7 +108,7 @@ struct R2BucketDetailView: View {
                             try await viewModel.deleteObject(key: obj.key)
                             ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete object")
+                            ToastManager.shared.showError("Failed to Delete Object")
                         }
                         objectToDelete = nil
                     }
@@ -124,7 +124,7 @@ struct R2BucketDetailView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Objects..."))
+                HIGContentState(.loading(message: "Loading Objects…"))
             } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
                     HIGContentState(
@@ -139,7 +139,7 @@ struct R2BucketDetailView: View {
                     HIGContentState(
                         .empty(
                             title: "No Objects in Bucket",
-                            systemImage: "externaldrive.badge.icloud",
+                            systemImage: "tray.and.arrow.up",
                             description: "This R2 bucket is currently empty. Upload objects to get started.",
                             actionTitle: "Upload Object",
                             action: { showingUploadSheet = true }
@@ -178,13 +178,7 @@ struct R2ObjectRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: fileIcon)
-                .foregroundStyle(.blue)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: fileIcon, color: .blue, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(object.key)

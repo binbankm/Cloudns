@@ -40,7 +40,7 @@ struct SecurityEventsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Security Events..."))
+                HIGContentState(.loading(message: "Loading Security Events…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
                 HIGContentState(
                     .error(

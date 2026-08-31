@@ -72,7 +72,7 @@ struct PagesDomainsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Custom Domains..."))
+                HIGContentState(.loading(message: "Loading Custom Domains…"))
             } else if viewModel.hasFetchedData && viewModel.domains.isEmpty {
                 HIGContentState(
                     .empty(

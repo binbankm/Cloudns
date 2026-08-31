@@ -40,7 +40,7 @@ struct WorkersListView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Workers..."))
+            HIGContentState(.loading(message: "Loading Workers…"))
         } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty {
                     HIGContentState(
@@ -112,13 +112,7 @@ struct WorkerRowView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "bolt.fill")
-                .font(.body)
-                .foregroundStyle(.orange)
-                .frame(width: 32, height: 32)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "bolt.fill", color: .orange, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(worker.id)

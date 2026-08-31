@@ -5,7 +5,7 @@ import SwiftUI
 /// 统一遵循 Apple HIG 标准的空状态/无数据/错误占位视图
 public struct HIGContentState: View {
     public enum Kind {
-        case loading(message: LocalizedStringKey = "Loading...")
+        case loading(message: LocalizedStringKey = "Loading…")
         case empty(title: LocalizedStringKey, systemImage: String, description: LocalizedStringKey? = nil, actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil)
         case search(query: String)
         case error(title: LocalizedStringKey = "Unable to Load", message: LocalizedStringKey, retryAction: (() -> Void)? = nil)

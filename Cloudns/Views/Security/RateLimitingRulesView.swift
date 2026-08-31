@@ -40,7 +40,7 @@ struct RateLimitingRulesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Rate Limiting Rules..."))
+                HIGContentState(.loading(message: "Loading Rate Limiting Rules…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

@@ -45,7 +45,7 @@ struct DNSDigToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain")
+                        .accessibilityLabel("Clear Domain")
                     }
                 }
                 
@@ -81,7 +81,7 @@ struct DNSDigToolView: View {
                         } else {
                             Image(systemName: "magnifyingglass")
                         }
-                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers..." : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
+                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers…" : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -96,7 +96,7 @@ struct DNSDigToolView: View {
                     Section {
                         HStack {
                             Spacer()
-                            ProgressView("Resolving DNS Records...")
+                            ProgressView("Resolving DNS Records…")
                             Spacer()
                         }
                         .padding(.vertical, 8)
@@ -135,11 +135,11 @@ struct DNSDigToolView: View {
                 }
             } else {
                 if viewModel.isBenchmarkLoading {
-                    Section(header: Text("Benchmarking Public Resolvers...")) {
+                    Section(header: Text("Benchmarking Public Resolvers…")) {
                         HStack(spacing: 8) {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("Probing Cloudflare, Google, Quad9, OpenDNS...")
+                            Text("Probing Cloudflare, Google, Quad9, OpenDNS…")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }

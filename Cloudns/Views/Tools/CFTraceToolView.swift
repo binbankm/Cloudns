@@ -75,7 +75,7 @@ struct CFTraceToolView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Clear host")
+                    .accessibilityLabel("Clear Host")
                 }
             }
             
@@ -89,7 +89,7 @@ struct CFTraceToolView: View {
                     } else {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                     }
-                    Text(viewModel.isLoading ? "Tracing Edge PoP..." : "Trace Edge PoP")
+                    Text(viewModel.isLoading ? "Tracing Edge PoP…" : "Trace Edge PoP")
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)

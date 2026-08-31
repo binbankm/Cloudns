@@ -33,7 +33,7 @@ struct DNSPropagationView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain")
+                        .accessibilityLabel("Clear Domain")
                     }
                 }
                 
@@ -74,7 +74,7 @@ struct DNSPropagationView: View {
                         } else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
-                        Text(viewModel.isPropagationLoading ? "Probing Global Edge..." : "Probe Worldwide DNS Propagation")
+                        Text(viewModel.isPropagationLoading ? "Probing Global Edge…" : "Probe Worldwide DNS Propagation")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -84,7 +84,7 @@ struct DNSPropagationView: View {
             }
             
             if viewModel.isPropagationLoading {
-                Section(header: Text("Querying 8 Global Edge Nodes...")) {
+                Section(header: Text("Querying 8 Global Edge Nodes…")) {
                     ForEach(0..<8, id: \.self) { _ in
                         HStack {
                             Text("🇺🇸 North America (East)")

@@ -211,7 +211,7 @@ struct NetworkCenterView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Network Settings..."))
+                HIGContentState(.loading(message: "Loading Network Settings…"))
             }
         }
         .refreshable {

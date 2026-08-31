@@ -262,7 +262,7 @@ final class WorkerService: WorkerServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/deployments")
         let rawData = try await client.performDataRequest(request)
         
-        // 1. { "result": { "deployments": [...] } }
+        // 1. { "result": { "deployments": […] } }
         struct ResWithDeployments: Codable {
             let result: WorkerDeploymentsResult?
         }

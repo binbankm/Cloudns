@@ -43,7 +43,7 @@ struct AddZoneView: View {
                                 }
                                 .buttonStyle(.plain)
                                 .higTouchTarget()
-                                .accessibilityLabel("Copy nameserver \(ns)")
+                                .accessibilityLabel("Copy Nameserver \(ns)")
                             }
                         }
 
@@ -137,7 +137,7 @@ struct AddZoneView: View {
                                     ProgressView()
                                         .padding(.trailing, 4)
                                 }
-                                Text(isSubmitting ? "Adding..." : "Add Domain")
+                                Text(isSubmitting ? "Adding…" : "Add Domain")
                                     .fontWeight(.semibold)
                                 Spacer()
                             }

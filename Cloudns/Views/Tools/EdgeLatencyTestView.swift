@@ -33,7 +33,7 @@ struct EdgeLatencyTestView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -50,7 +50,7 @@ struct EdgeLatencyTestView: View {
                         } else {
                             Image(systemName: "bolt.horizontal.fill")
                         }
-                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings..." : "Start Latency & Jitter Benchmark")
+                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings…" : "Start Latency & Jitter Benchmark")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -63,7 +63,7 @@ struct EdgeLatencyTestView: View {
                 Section {
                     HStack {
                         Spacer()
-                        ProgressView("Testing Edge Latency...")
+                        ProgressView("Testing Edge Latency…")
                         Spacer()
                     }
                     .padding(.vertical, 8)

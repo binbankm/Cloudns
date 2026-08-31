@@ -139,7 +139,7 @@ struct DNSSECView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if viewModel.dnssec == nil && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading DNSSEC Status..."))
+                HIGContentState(.loading(message: "Loading DNSSEC Status…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.dnssec == nil && !viewModel.isLoading {
                 HIGContentState(
                     .error(

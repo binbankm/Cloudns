@@ -91,7 +91,7 @@ struct KVBrowserView: View {
                         try await viewModel.deleteNamespace(namespaceId: ns.id)
                         ToastManager.shared.showSuccess("KV Namespace Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete namespace")
+                        ToastManager.shared.showError("Failed to Delete Namespace")
                     }
                 }
             }
@@ -106,7 +106,7 @@ struct KVBrowserView: View {
                         try await viewModel.deleteDatabase(databaseId: db.uuid)
                         ToastManager.shared.showSuccess("D1 Database Deleted", icon: "trash.fill")
                     } catch {
-                        ToastManager.shared.showError("Failed to delete database")
+                        ToastManager.shared.showError("Failed to Delete Database")
                     }
                 }
             }
@@ -174,7 +174,7 @@ struct KVBrowserView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if viewModel.isLoading && ((viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty) || (viewModel.selectedSegment == 1 && viewModel.d1Databases.isEmpty)) {
-                HIGContentState(.loading(message: "Loading Storage..."))
+                HIGContentState(.loading(message: "Loading Storage…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.namespaces.isEmpty && viewModel.d1Databases.isEmpty {
                 HIGContentState(
                     .error(
@@ -213,13 +213,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private func kvRow(_ ns: KVNamespace) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "key.horizontal.fill")
-                .font(.body)
-                .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "key.horizontal.fill", color: .purple, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(ns.title)
@@ -238,13 +232,7 @@ struct KVBrowserView: View {
     @ViewBuilder
     private func d1Row(_ db: D1Database) -> some View {
         HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "cylinder.split.1x2.fill")
-                .font(.body)
-                .foregroundStyle(.purple)
-                .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {

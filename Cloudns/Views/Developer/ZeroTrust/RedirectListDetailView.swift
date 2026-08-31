@@ -52,7 +52,7 @@ struct RedirectListDetailView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if isLoading && items.isEmpty {
-                HIGContentState(.loading(message: "Loading Redirect Items..."))
+                HIGContentState(.loading(message: "Loading Redirect Items…"))
             } else if !isLoading {
                 if items.isEmpty {
                     HIGContentState(

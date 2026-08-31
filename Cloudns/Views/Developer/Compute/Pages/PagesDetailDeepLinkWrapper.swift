@@ -16,7 +16,7 @@ struct PagesDetailDeepLinkWrapper: View {
             if let project = loadedProject, !accountId.isEmpty {
                 PagesProjectDetailView(accountId: accountId, project: project)
             } else if isLoading {
-                HIGContentState(.loading(message: "Loading Pages Project..."))
+                HIGContentState(.loading(message: "Loading Pages Project…"))
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle.fill")

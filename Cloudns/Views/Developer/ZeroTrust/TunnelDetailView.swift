@@ -71,7 +71,7 @@ struct TunnelDetailView: View {
             }
             .overlay {
                 if !viewModel.hasFetchedData && viewModel.isLoading {
-                    HIGContentState(.loading(message: "Loading Tunnel Config..."))
+                    HIGContentState(.loading(message: "Loading Tunnel Config…"))
                 }
             }
             .task {

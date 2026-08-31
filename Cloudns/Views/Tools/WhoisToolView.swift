@@ -35,7 +35,7 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel("Clear Input")
                     }
                 }
                 
@@ -71,7 +71,7 @@ struct WhoisToolView: View {
                         } else {
                             Image(systemName: "globe")
                         }
-                        Text(viewModel.isLoading ? "Querying RDAP..." : "Query WHOIS Directory")
+                        Text(viewModel.isLoading ? "Querying RDAP…" : "Query WHOIS Directory")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -84,7 +84,7 @@ struct WhoisToolView: View {
                 Section {
                     HStack {
                         Spacer()
-                        ProgressView("Querying Whois Database...")
+                        ProgressView("Querying Whois Database…")
                         Spacer()
                     }
                     .padding(.vertical, 8)

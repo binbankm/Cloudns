@@ -97,7 +97,7 @@ struct DashboardZoneTrafficChartView: View {
         if viewModel.fleetMetrics.isEmpty {
             HStack {
                 Spacer()
-                ProgressView("Loading Analytics...")
+                ProgressView("Loading Analytics…")
                     .font(.subheadline)
                 Spacer()
             }

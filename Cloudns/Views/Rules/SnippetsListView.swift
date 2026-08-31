@@ -104,7 +104,7 @@ struct SnippetsListView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Snippets..."))
+                HIGContentState(.loading(message: "Loading Snippets…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

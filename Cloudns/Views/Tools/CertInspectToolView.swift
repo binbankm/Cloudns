@@ -33,7 +33,7 @@ struct CertInspectToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear domain input")
+                        .accessibilityLabel("Clear Domain Input")
                     }
                 }
                 
@@ -47,7 +47,7 @@ struct CertInspectToolView: View {
                         } else {
                             Image(systemName: "checkmark.seal.fill")
                         }
-                        Text(viewModel.isLoading ? "Inspecting Handshake..." : "Inspect SSL/TLS Certificate")
+                        Text(viewModel.isLoading ? "Inspecting Handshake…" : "Inspect SSL/TLS Certificate")
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -60,7 +60,7 @@ struct CertInspectToolView: View {
                 Section {
                     HStack {
                         Spacer()
-                        ProgressView("Inspecting SSL Certificate...")
+                        ProgressView("Inspecting SSL Certificate…")
                         Spacer()
                     }
                     .padding(.vertical, 8)

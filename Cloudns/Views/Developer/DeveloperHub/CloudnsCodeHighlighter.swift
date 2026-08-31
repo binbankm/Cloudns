@@ -54,7 +54,7 @@ enum CloudnsCodeHighlighter {
         let nsString = code as NSString
         let fullRange = NSRange(location: 0, length: nsString.length)
         
-        // 1. Strings: '...', "...", `...`
+        // 1. Strings: '…', "...", `…`
         let stringPattern = #"\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*'|`([^`\\]|\\.)*`"#
         if let regex = try? NSRegularExpression(pattern: stringPattern, options: []) {
             regex.enumerateMatches(in: code, options: [], range: fullRange) { match, _, _ in

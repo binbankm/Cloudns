@@ -79,8 +79,9 @@ struct CloudflareStatusView: View {
         .searchable(
             text: $searchText,
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search Services or PoPs (e.g. DNS, Workers, HKG)"
+            prompt: "Search Services or PoPs"
         )
+        .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
@@ -146,7 +147,7 @@ struct CloudflareStatusView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading System Status..."))
+                HIGContentState(.loading(message: "Loading System Status…"))
             } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.summary == nil {
                     HIGContentState(

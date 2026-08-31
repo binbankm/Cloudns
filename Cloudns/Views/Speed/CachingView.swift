@@ -255,7 +255,7 @@ struct CachingView: View {
         .scrollDismissesKeyboard(.interactively)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Caching Settings..."))
+                HIGContentState(.loading(message: "Loading Caching Settings…"))
             } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging && !viewModel.isLoading {
                 HIGContentState(
                     .error(
@@ -313,7 +313,7 @@ struct CachingView: View {
         case "basic": return "No Query String"
         case "simplified": return "Ignore Query String"
         case "aggressive": return "Standard Query String"
-        default: return "Configuring..."
+        default: return "Configuring…"
         }
     }
     

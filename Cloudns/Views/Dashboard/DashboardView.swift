@@ -7,6 +7,7 @@ struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var showingAccountSheet = false
+    @State private var showingAddZone = false
     
     var body: some View {
         NavigationStack {
@@ -56,6 +57,9 @@ struct DashboardView: View {
                 AccountsView()
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $showingAddZone) {
+                AddZoneView()
             }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
@@ -205,9 +209,9 @@ struct DashboardView: View {
                 DashboardMetricCardView(
                     icon: "globe",
                     iconColor: .blue,
-                    title: "Active Zones",
+                    title: "Active Domains",
                     value: viewModel.hasFetchedData ? "\(viewModel.activeZonesCount)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.zones.count) Total Zones" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.zones.count) Total Domains" : "Loading…",
                     badge: "Domains"
                 )
             }
@@ -221,7 +225,7 @@ struct DashboardView: View {
                     iconColor: .orange,
                     title: "Workers & Pages",
                     value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading…",
                     badge: "Compute"
                 )
             }
@@ -239,7 +243,7 @@ struct DashboardView: View {
                     iconColor: .purple,
                     title: "Storage & Databases",
                     value: viewModel.hasFetchedData ? "\(viewModel.totalStorageCount)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "Loading…",
                     badge: "Storage"
                 )
             }
@@ -257,7 +261,7 @@ struct DashboardView: View {
                     iconColor: .green,
                     title: "Zero Trust Tunnels",
                     value: viewModel.hasFetchedData ? "\(viewModel.tunnels.count)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy" : "Loading…",
                     badge: "Tunnel"
                 )
             }
@@ -278,7 +282,7 @@ struct DashboardView: View {
                 NavigationLink(destination: NetworkToolsView()) {
                     HStack(spacing: 4) {
                         Text("All Tools")
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.caption2.weight(.bold))
                     }
                     .font(.subheadline)
@@ -294,7 +298,7 @@ struct DashboardView: View {
                 .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: DNSDigToolView()) {
-                    QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DoH Dig")
+                    QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DNS Dig")
                 }
                 .buttonStyle(.higPressable)
                 
@@ -304,7 +308,7 @@ struct DashboardView: View {
                 .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: CertInspectToolView()) {
-                    QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Inspect")
+                    QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Check")
                 }
                 .buttonStyle(.higPressable)
                 
@@ -319,7 +323,7 @@ struct DashboardView: View {
                 .buttonStyle(.higPressable)
                 
                 NavigationLink(destination: EdgeLatencyTestView()) {
-                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency")
+                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency Test")
                 }
                 .buttonStyle(.higPressable)
                 
@@ -360,7 +364,7 @@ struct DashboardView: View {
             if !viewModel.hasFetchedData {
                 HStack {
                     Spacer()
-                    ProgressView("Loading Domains...")
+                    ProgressView("Loading Domains…")
                         .padding(.vertical, 32)
                     Spacer()
                 }
@@ -370,10 +374,10 @@ struct DashboardView: View {
                 HIGContentState(
                     .empty(
                         title: "No Domains Added",
-                        systemImage: "globe.badge.chevron.backward",
+                        systemImage: "globe.badge.plus",
                         description: "Add your first domain to start managing DNS records and edge security.",
                         actionTitle: "Add Domain",
-                        action: {}
+                        action: { showingAddZone = true }
                     )
                 )
                 .padding(.vertical, 16)

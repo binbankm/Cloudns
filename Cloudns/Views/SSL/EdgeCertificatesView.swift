@@ -61,7 +61,7 @@ struct EdgeCertificatesView: View {
         )
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Certificates..."))
+                HIGContentState(.loading(message: "Loading Certificates…"))
             } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
                     HIGContentState(

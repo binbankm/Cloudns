@@ -53,7 +53,7 @@ struct WorkerSecretsView: View {
                                 ToastManager.shared.showSuccess("Deleted '\(item.name)'", icon: "trash.fill")
                                 HIGFeedback.success()
                             } catch {
-                                ToastManager.shared.showError("Failed to delete")
+                                ToastManager.shared.showError("Failed to Delete")
                                 HIGFeedback.error()
                             }
                         }
@@ -171,7 +171,7 @@ struct WorkerSecretsView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Variables & Secrets..."))
+                HIGContentState(.loading(message: "Loading Variables & Secrets…"))
             } else if viewModel.hasFetchedData && viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
                 HIGContentState(
                     .empty(

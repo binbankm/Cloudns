@@ -47,7 +47,7 @@ struct CacheRulesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Cache Rules..."))
+                HIGContentState(.loading(message: "Loading Cache Rules…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

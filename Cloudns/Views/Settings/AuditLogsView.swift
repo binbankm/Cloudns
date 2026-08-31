@@ -52,7 +52,7 @@ struct AuditLogsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Audit Logs..."))
+                HIGContentState(.loading(message: "Loading Audit Logs…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
                 HIGContentState(
                     .error(

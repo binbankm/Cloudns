@@ -56,7 +56,7 @@ struct DNSRecordsView: View {
         .searchable(
             text: $viewModel.searchQuery,
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search records"
+            prompt: "Search Records"
         )
         .navigationTitle("DNS Records")
         .navigationBarTitleDisplayMode(.inline)
@@ -127,7 +127,7 @@ struct DNSRecordsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading DNS Records..."))
+                HIGContentState(.loading(message: "Loading DNS Records…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
                 HIGContentState(
                     .error(
@@ -141,7 +141,7 @@ struct DNSRecordsView: View {
                 HIGContentState(
                     .empty(
                         title: "No DNS Records",
-                        systemImage: "server.rack",
+                        systemImage: "list.bullet.rectangle",
                         description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
                         actionTitle: "Add Record",
                         action: { showingForm = true }
@@ -171,7 +171,7 @@ struct DNSRecordsView: View {
                             try await viewModel.deleteRecord(recordId: record.id)
                             ToastManager.shared.showSuccess("DNS Record Deleted", icon: "trash.fill")
                         } catch {
-                            ToastManager.shared.showError("Failed to delete record")
+                            ToastManager.shared.showError("Failed to Delete Record")
                         }
                         recordToDelete = nil
                     }
@@ -334,7 +334,7 @@ struct DNSRecordsView: View {
                     Button {
                         showingPresetsSheet = true
                     } label: {
-                        Label("1-Click Presets", systemImage: "wand.and.stars")
+                        Label("DNS Presets", systemImage: "wand.and.stars")
                     }
                     
                     Button {

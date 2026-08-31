@@ -36,7 +36,7 @@ struct IPAccessRulesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading IP Access Rules..."))
+                HIGContentState(.loading(message: "Loading IP Access Rules…"))
             } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                 HIGContentState(
                     .error(

@@ -72,7 +72,7 @@ struct WorkerRoutesView: View {
                 if !hasFetchedData && isLoading {
                     HStack {
                         Spacer()
-                        ProgressView("Loading Routes...")
+                        ProgressView("Loading Routes…")
                         Spacer()
                     }
                     .padding(.vertical, 4)
@@ -104,13 +104,7 @@ struct WorkerRoutesView: View {
                 ) {
                     ForEach(fallbackRoutes, id: \.self) { route in
                         HStack {
-                            Image(systemName: "arrow.triangle.swap")
-                                .font(.body)
-                                .foregroundStyle(.blue)
-                                .frame(width: 30, height: 30)
-                                .background(Color.blue.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .accessibilityHidden(true)
+                            ListRowIcon(icon: "arrow.triangle.swap", color: .blue, size: 32, cornerRadius: 8)
                             
                             Text(route)
                                 .font(.caption.monospaced())
@@ -149,13 +143,7 @@ struct WorkerRoutesView: View {
     @ViewBuilder
     private func domainRow(_ dom: WorkerCustomDomain) -> some View {
         HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "link")
-                .font(.body)
-                .foregroundStyle(.orange)
-                .frame(width: 30, height: 30)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "link", color: .teal, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(dom.hostname)

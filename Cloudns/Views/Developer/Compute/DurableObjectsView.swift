@@ -36,7 +36,7 @@ struct DurableObjectsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Durable Objects..."))
+            HIGContentState(.loading(message: "Loading Durable Objects…"))
         } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
                     HIGContentState(
@@ -70,13 +70,7 @@ struct DurableObjectsView: View {
     @ViewBuilder
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "cube.fill")
-                .foregroundStyle(.cyan)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-                .background(Color.cyan.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+            ListRowIcon(icon: "cube.fill", color: .cyan, size: 32, cornerRadius: 8)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(ns.displayName)
