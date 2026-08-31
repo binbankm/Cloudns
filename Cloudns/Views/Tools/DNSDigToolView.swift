@@ -63,6 +63,7 @@ struct DNSDigToolView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                     
                     Toggle("DNSSEC Validation", isOn: $viewModel.dnssecEnabled)
@@ -109,7 +110,7 @@ struct DNSDigToolView: View {
                             if result.isDNSSECValidated {
                                 HIGBadge(.custom(color: .green, text: "DNSSEC Validated"), isCompact: true)
                             }
-                            HIGBadge(.custom(color: .blue, text: String(format: "%.1f ms", result.latencyMs)), isCompact: true)
+                            HIGBadge(.custom(color: .blue, text: "\(result.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                         }
                         
                         if result.answers.isEmpty {
@@ -229,7 +230,7 @@ struct DNSDigToolView: View {
             Spacer()
             
             if item.status == "OK", let lat = item.latencyMs {
-                HIGBadge(.custom(color: rank == 1 ? .green : .blue, text: String(format: "%.1f ms", lat)), isCompact: true)
+                HIGBadge(.custom(color: rank == 1 ? .green : .blue, text: "\(lat.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
             } else {
                 HIGBadge(.custom(color: .red, text: "TIMEOUT"), isCompact: true)
             }

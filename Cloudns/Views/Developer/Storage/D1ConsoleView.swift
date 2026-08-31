@@ -142,7 +142,7 @@ struct D1ConsoleView: View {
                 Section(header: HStack {
                     Text("Query Results (\(result.rows.count) rows)")
                     Spacer()
-                    HIGBadge(.active(String(format: "%.1f ms", result.durationMs)), isCompact: true)
+                    HIGBadge(.active("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                 }) {
                     if result.rows.isEmpty {
                         Text("Query executed successfully. 0 rows returned.")

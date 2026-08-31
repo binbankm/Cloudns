@@ -131,13 +131,13 @@ struct QueuesView: View {
                 
                 HStack(spacing: 8) {
                     if let consumers = queue.consumers {
-                        Text("\(consumers.count) consumer\(consumers.count == 1 ? "" : "s")")
+                        Text("\(consumers.count) Consumers")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
-                    if let created = queue.createdOn {
-                        Text("• Created \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
+                    if let created = queue.createdOn, let date = DateFormatters.parseISO8601(created) {
+                        Text("• Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }

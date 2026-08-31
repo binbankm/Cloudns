@@ -259,11 +259,11 @@ struct PagesDeploymentsListView: View {
             
             // Footer: Timestamp + Preview URL indicator
             HStack(spacing: 8) {
-                if let created = dep.createdOn {
+                if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
                             .font(.caption2)
-                        Text(DateFormatters.formatRelative(from: created))
+                        Text(date, format: Date.RelativeFormatStyle(presentation: .named))
                             .font(.caption)
                     }
                     .foregroundStyle(.secondary)

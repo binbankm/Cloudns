@@ -11,15 +11,15 @@ enum APIError: Error, LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid API URL."
+            return String(localized: "Invalid API URL.")
         case .networkError(let message):
-            return "Network Error: \(message)"
+            return String(localized: "Network Error: \(message)")
         case .unauthorized:
-            return "Authentication failed. Please verify your Cloudflare API Token or Global Key in Settings."
+            return String(localized: "Authentication failed. Please verify your Cloudflare API Token or Global Key in Settings.")
         case .invalidResponse:
-            return "Invalid response from Cloudflare server."
+            return String(localized: "Invalid response from Cloudflare server.")
         case .decodingError(let message):
-            return "Data formatting error: \(message)"
+            return String(localized: "Data formatting error: \(message)")
         case .cloudflareError(let message):
             return message
         }
@@ -28,13 +28,13 @@ enum APIError: Error, LocalizedError, Sendable {
     var failureReason: String? {
         switch self {
         case .invalidURL:
-            return "The constructed URL was malformed or could not be parsed."
+            return String(localized: "The constructed URL was malformed or could not be parsed.")
         case .networkError(let message):
             return message
         case .unauthorized:
-            return "The API token or key provided was rejected or has expired."
+            return String(localized: "The API token or key provided was rejected or has expired.")
         case .invalidResponse:
-            return "The server returned a non-standard HTTP status code or empty response body."
+            return String(localized: "The server returned a non-standard HTTP status code or empty response body.")
         case .decodingError(let message):
             return message
         case .cloudflareError(let message):
@@ -45,17 +45,17 @@ enum APIError: Error, LocalizedError, Sendable {
     var recoverySuggestion: String? {
         switch self {
         case .invalidURL:
-            return "Please check your endpoint settings and domain name format."
+            return String(localized: "Please check your endpoint settings and domain name format.")
         case .networkError:
-            return "Please check your network connection and try again."
+            return String(localized: "Please check your network connection and try again.")
         case .unauthorized:
-            return "Please re-enter your API credentials in Account Settings."
+            return String(localized: "Please re-enter your API credentials in Account Settings.")
         case .invalidResponse:
-            return "Please try again later or check Cloudflare Status."
+            return String(localized: "Please try again later or check Cloudflare Status.")
         case .decodingError:
-            return "Please check for app updates to support the latest Cloudflare API schema."
+            return String(localized: "Please check for app updates to support the latest Cloudflare API schema.")
         case .cloudflareError:
-            return "Please verify your input parameters and permissions."
+            return String(localized: "Please verify your input parameters and permissions.")
         }
     }
     

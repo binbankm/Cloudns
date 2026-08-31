@@ -57,7 +57,7 @@ struct SSLSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Encryption Mode", selection: Binding(
                         get: { viewModel.sslMode },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
@@ -71,6 +71,7 @@ struct SSLSettingsView: View {
                         Text("Full (Strict)").tag("strict")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
@@ -141,7 +142,7 @@ struct SSLSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Minimum TLS Version", selection: Binding(
                         get: { viewModel.minTLSVersion },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
@@ -155,6 +156,7 @@ struct SSLSettingsView: View {
                         Text("TLS 1.3").tag("1.3")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
                 
@@ -243,13 +245,14 @@ struct SSLSettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Picker("", selection: $viewModel.hstsMaxAge) {
+                        Picker("Max-Age", selection: $viewModel.hstsMaxAge) {
                             Text("1 Month").tag(2592000)
                             Text("3 Months").tag(7776000)
                             Text("6 Months").tag(15552000)
                             Text("12 Months").tag(31536000)
                         }
                         .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                     .disabled(!viewModel.hasFetchedData)
                     
@@ -314,7 +317,7 @@ struct SSLSettingsView: View {
         }
     }
     
-    private func modeDescription(_ mode: String) -> String {
+    private func modeDescription(_ mode: String) -> LocalizedStringKey {
         switch mode {
         case "off": return "No encryption between visitor and origin."
         case "flexible": return "Encrypted to edge, plain HTTP to origin."

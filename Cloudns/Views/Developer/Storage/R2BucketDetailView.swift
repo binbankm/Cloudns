@@ -22,9 +22,9 @@ struct R2BucketDetailView: View {
         List {
             if !viewModel.objects.isEmpty {
                 Section(header: Text("Bucket Information")) {
-                    if let created = bucket.creationDate {
+                    if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                         LabeledContent("Created") {
-                            Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
                                 .font(.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
@@ -197,8 +197,8 @@ struct R2ObjectRowView: View {
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                     
-                    if let uploaded = object.uploaded {
-                        Text(DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.dateOnly))
+                    if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -307,8 +307,10 @@ struct R2ObjectDetailSheetView: View {
                     if let etag = object.etag {
                         LabeledContent("ETag", value: etag)
                     }
-                    if let uploaded = object.uploaded {
-                        LabeledContent("Uploaded", value: DateFormatters.formatISO8601ToDisplay(uploaded, style: DateFormatters.fullDateTime))
+                    if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
+                        LabeledContent("Uploaded") {
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .standard))
+                        }
                     }
                     if let storageClass = object.storageClass {
                         LabeledContent("Storage Class", value: storageClass)

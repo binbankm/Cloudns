@@ -126,8 +126,8 @@ struct R2BucketRowView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let created = bucket.creationDate {
-                    Text("Created \(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))")
+                if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
+                    Text("Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

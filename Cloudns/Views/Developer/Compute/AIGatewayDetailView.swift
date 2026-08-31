@@ -35,9 +35,9 @@ struct AIGatewayDetailView: View {
                         .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
                 }
                 
-                if let created = gateway.createdOn {
+                if let created = gateway.createdOn, let date = DateFormatters.parseISO8601(created) {
                     LabeledContent("Created") {
-                        Text(DateFormatters.formatISO8601ToDisplay(created, style: DateFormatters.dateOnly))
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

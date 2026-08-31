@@ -192,7 +192,7 @@ struct NetworkCenterView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Origin Max Protocol", selection: Binding(
                         get: { viewModel.originMaxHttpVersion },
                         set: { val in
                             HIGFeedback.selection()
@@ -203,6 +203,7 @@ struct NetworkCenterView: View {
                         Text("HTTP/1.1").tag("1")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
             }

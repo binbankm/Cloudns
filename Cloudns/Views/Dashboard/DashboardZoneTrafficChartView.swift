@@ -31,7 +31,7 @@ struct DashboardZoneTrafficChartView: View {
                                 .fill(Color.green)
                                 .frame(width: 5, height: 5)
                             
-                            Text(String(format: "%.1f%% Cache", viewModel.averageCacheHitRate24h * 100))
+                            Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(.green)
                         }
@@ -259,12 +259,12 @@ struct DashboardZoneTrafficChartView: View {
     
     private func formatCompact(_ val: Double) -> String {
         if val >= 1_000_000_000 {
-            return String(format: "%.2fB", val / 1_000_000_000)
+            return "\((val / 1_000_000_000).formatted(.number.precision(.fractionLength(2))))B"
         } else if val >= 1_000_000 {
-            return String(format: "%.2fM", val / 1_000_000)
+            return "\((val / 1_000_000).formatted(.number.precision(.fractionLength(2))))M"
         } else if val >= 1_000 {
-            return String(format: "%.1fK", val / 1_000)
+            return "\((val / 1_000).formatted(.number.precision(.fractionLength(1))))K"
         }
-        return String(format: "%.0f", val)
+        return val.formatted(.number.precision(.fractionLength(0)))
     }
 }

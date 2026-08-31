@@ -48,6 +48,7 @@ struct DNSPropagationView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 
                 HStack(spacing: 10) {
@@ -147,7 +148,8 @@ struct DNSPropagationView: View {
                             }
                             
                             if let lat = node.latencyMs {
-                                Text(String(format: "Latency: %.1f ms", lat)).font(.caption.monospacedDigit())
+                                Text("Latency: \(lat.formatted(.number.precision(.fractionLength(1)))) ms")
+                                    .font(.caption.monospacedDigit())
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                                     .padding(.leading, 32)

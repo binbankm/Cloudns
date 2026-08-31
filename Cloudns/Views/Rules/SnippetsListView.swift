@@ -154,8 +154,8 @@ struct SnippetsListView: View {
                         .font(.body)
                         .foregroundStyle(.primary)
 
-                    if let modified = snip.modifiedOn {
-                        Text("Modified: \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                    if let modified = snip.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
+                        Text("Modified: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }

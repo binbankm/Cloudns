@@ -162,7 +162,7 @@ public struct WorkerAnalyticsView: View {
                 
                 metricCard(
                     title: "Error Rate",
-                    value: String(format: "%.1f%%", viewModel.errorRatePercentage),
+                    value: (viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1))),
                     icon: "exclamationmark.triangle.fill",
                     color: viewModel.errorRatePercentage > 0 ? .red : .green,
                     badge: "\(formatNumber(viewModel.totalErrors)) Errors"
@@ -172,7 +172,7 @@ public struct WorkerAnalyticsView: View {
             GridRow {
                 metricCard(
                     title: "Median CPU",
-                    value: String(format: "%.2f ms", viewModel.avgCpuP50),
+                    value: "\(viewModel.avgCpuP50.formatted(.number.precision(.fractionLength(2)))) ms",
                     icon: "timer",
                     color: .cyan,
                     badge: "50th Percentile"
@@ -180,7 +180,7 @@ public struct WorkerAnalyticsView: View {
                 
                 metricCard(
                     title: "Max CPU (P99)",
-                    value: String(format: "%.2f ms", viewModel.maxCpuP99),
+                    value: "\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms",
                     icon: "speedometer",
                     color: .orange,
                     badge: "99th Percentile"
@@ -433,7 +433,7 @@ public struct WorkerAnalyticsView: View {
                     
                     if let selected = selectedCpuPoint {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", selected.cpuP50))
+                            Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("P50")
@@ -443,7 +443,7 @@ public struct WorkerAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", selected.cpuP99))
+                            Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("P99")
@@ -452,7 +452,7 @@ public struct WorkerAnalyticsView: View {
                         }
                     } else {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
-                            Text(String(format: "%.2f ms", viewModel.avgCpuP50))
+                            Text("\(viewModel.avgCpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("avg P50")
@@ -462,7 +462,7 @@ public struct WorkerAnalyticsView: View {
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
-                            Text(String(format: "%.2f ms", viewModel.maxCpuP99))
+                            Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("max P99")
@@ -565,7 +565,7 @@ public struct WorkerAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
-                            Text(String(format: "%.1f ms", ms)).font(.caption.monospacedDigit())
+                            Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms").font(.caption.monospacedDigit())
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -617,7 +617,7 @@ public struct WorkerAnalyticsView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
-                Text(String(format: "%.1f subrequests / req", ratio))
+                Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
             
@@ -640,10 +640,11 @@ public struct WorkerAnalyticsView: View {
     
     // MARK: - Helpers
     private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
+        let loc = DateFormatters.currentAppLocale
         if isHourlyData {
-            return point.date.formatted(date: .omitted, time: .shortened)
+            return point.date.formatted(.dateTime.locale(loc).hour().minute())
         } else {
-            return point.date.formatted(.dateTime.month().day())
+            return point.date.formatted(.dateTime.locale(loc).month().day())
         }
     }
     
@@ -655,10 +656,10 @@ public struct WorkerAnalyticsView: View {
     }
     
     private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return "\(num)" }
+        if num < 1000 { return num.formatted(.number) }
         let k = Double(num) / 1000.0
-        if k < 1000 { return String(format: "%.1fK", k) }
+        if k < 1000 { return "\(k.formatted(.number.precision(.fractionLength(1))))K" }
         let m = k / 1000.0
-        return String(format: "%.2fM", m)
+        return "\(m.formatted(.number.precision(.fractionLength(2))))M"
     }
 }

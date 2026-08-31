@@ -160,7 +160,7 @@ struct DNSSECView: View {
     }
     
     @ViewBuilder
-    private func dsFieldRow(label: String, value: String?) -> some View {
+    private func dsFieldRow(label: LocalizedStringKey, value: String?) -> some View {
         if let val = value, !val.isEmpty {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -174,12 +174,12 @@ struct DNSSECView: View {
                 Spacer()
                 Button {
                     UIPasteboard.general.string = val
-                    ToastManager.shared.showCopied("\(label) Copied")
+                    ToastManager.shared.showCopied()
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .foregroundStyle(.blue)
                 }
-                .accessibilityLabel("Copy \(label)")
+                .accessibilityLabel("Copy")
             }
             .padding(.vertical, 2)
         }

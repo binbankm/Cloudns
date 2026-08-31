@@ -123,7 +123,7 @@ struct DNSExportSheetView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 ForEach(Array(contentLines.enumerated()), id: \.offset) { idx, line in
                                     HStack(alignment: .top, spacing: 8) {
-                                        Text(String(format: "%2d", idx + 1))
+                                        Text("\(idx + 1)")
                                             .font(.caption2.monospacedDigit())
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)

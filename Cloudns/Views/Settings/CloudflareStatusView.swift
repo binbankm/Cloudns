@@ -212,11 +212,11 @@ struct CloudflareStatusView: View {
                 HIGBadge(.warning(inc.status.capitalized), isCompact: true)
             }
             
-            if let updated = inc.updatedAt {
+            if let updated = inc.updatedAt, let date = DateFormatters.parseISO8601(updated) {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.caption2)
-                    Text("Updated: \(DateFormatters.formatISO8601ToDisplay(updated, style: DateFormatters.mediumDateTime))")
+                    Text("Updated: \(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))")
                         .font(.caption2)
                 }
                 .foregroundStyle(.secondary)
@@ -272,7 +272,7 @@ struct CloudflareStatusView: View {
         return nil
     }
     
-    private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> String {
+    private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> LocalizedStringKey {
         switch tab {
         case .issues:
             return "Active Issues & Maintenance (\(count))"

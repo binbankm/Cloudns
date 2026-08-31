@@ -165,9 +165,9 @@ struct WorkerDetailView: View {
                     }
                 }
                 
-                if let modified = viewModel.worker.modifiedOn {
+                if let modified = viewModel.worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                     LabeledContent {
-                        Text(DateFormatters.formatISO8601ToDisplay(modified))
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
                             .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     } label: {
@@ -314,12 +314,6 @@ struct WorkerDetailView: View {
     }
     
     private func formatBytes(_ bytes: Int) -> String {
-        if bytes < 1024 {
-            return "\(bytes) B"
-        } else if bytes < 1024 * 1024 {
-            return String(format: "%.1f KB", Double(bytes) / 1024.0)
-        } else {
-            return String(format: "%.2f MB", Double(bytes) / (1024.0 * 1024.0))
-        }
+        return ByteCountFormatters.format(Int64(bytes))
     }
 }

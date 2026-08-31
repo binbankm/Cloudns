@@ -146,8 +146,8 @@ struct AuditLogRowView: View {
                     
                     Spacer()
                     
-                    if let when = log.when {
-                        Text(DateFormatters.formatISO8601ToDisplay(when, style: DateFormatters.mediumDateTime))
+                    if let when = log.when, let date = DateFormatters.parseISO8601(when) {
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
@@ -217,7 +217,17 @@ struct AuditLogDetailSheetView: View {
                     detailRow(label: "Interface", value: iface)
                 }
                 if let when = log.when {
-                    detailRow(label: "Time (Local)", value: DateFormatters.formatISO8601ToDisplay(when, style: DateFormatters.mediumDateTime))
+                    if let date = DateFormatters.parseISO8601(when) {
+                        HStack {
+                            Text("Time (Local)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.primary)
+                        }
+                    }
                     detailRow(label: "Time (UTC)", value: when)
                 }
             }

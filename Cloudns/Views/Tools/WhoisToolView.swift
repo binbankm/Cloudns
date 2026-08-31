@@ -157,10 +157,26 @@ struct WhoisToolView: View {
         }
         
         if let created = info.created {
-            infoRow(title: "Created Date", value: formatDate(created))
+            HStack {
+                Text("Created Date")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(created, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.primary)
+            }
         }
         if let updated = info.updated {
-            infoRow(title: "Updated Date", value: formatDate(updated))
+            HStack {
+                Text("Updated Date")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(updated, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.primary)
+            }
         }
         if let expires = info.expires {
             HStack {
@@ -169,14 +185,20 @@ struct WhoisToolView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(formatDate(expires))
+                    Text(expires, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                     
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
-                    Text(days > 0 ? "\(days) days remaining" : "Expired")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(days > 30 ? .green : .red)
+                    if days > 0 {
+                        Text("\(days) days remaining")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(days > 30 ? .green : .red)
+                    } else {
+                        Text("Expired")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.red)
+                    }
                 }
             }
         }
@@ -235,9 +257,5 @@ struct WhoisToolView: View {
                 .higTouchTarget()
             }
         }
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        date.formatted(date: .abbreviated, time: .shortened)
     }
 }

@@ -207,7 +207,7 @@ struct HTTPHeaderInspectorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms", result.ttfbMs))
+            Text("\(result.ttfbMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.weight(.semibold).monospacedDigit())
                 .foregroundStyle(.green)
         }
@@ -217,7 +217,7 @@ struct HTTPHeaderInspectorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(String(format: "%.1f ms", result.durationMs))
+            Text("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms")
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }

@@ -202,23 +202,29 @@ struct EdgeCertificateCardView: View {
                     
                     Spacer()
                     
-                    Text(formatDate(certificate.expiresOn))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    expiryDateView(for: certificate.expiresOn)
                 }
             }
         }
         .padding(.vertical, 4)
     }
     
-    private func formatDate(_ dateStr: String) -> String {
-        guard let date = DateFormatters.parseISO8601(dateStr) else {
-            return dateStr.isEmpty ? "" : "Expires: \(dateStr)"
+    @ViewBuilder
+    private func expiryDateView(for dateStr: String) -> some View {
+        if let date = DateFormatters.parseISO8601(dateStr) {
+            if date < Date() {
+                Text("Expired: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Expires: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } else if !dateStr.isEmpty {
+            Text("Expires: \(dateStr)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        let formattedDate = date.formatted(date: .abbreviated, time: .omitted)
-        if date < Date() {
-            return "Expired: \(formattedDate)"
-        }
-        return "Expires: \(formattedDate)"
     }
 }

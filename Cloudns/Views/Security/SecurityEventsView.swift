@@ -83,11 +83,15 @@ struct SecurityEventCardView: View {
             HStack {
                 HIGBadge(.custom(color: colorForAction(event.action), text: actionDisplayName(event.action)), isCompact: true)
                 
-                Spacer()
-                
-                Text(formatDate(event.datetime))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if let date = DateFormatters.parseISO8601(event.datetime) {
+                    Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(event.datetime)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             
             HStack {
@@ -161,9 +165,5 @@ struct SecurityEventCardView: View {
     
     private func countryFlag(countryCode: String) -> String {
         CountryCoordinates.flag(for: countryCode)
-    }
-    
-    private func formatDate(_ isoString: String) -> String {
-        DateFormatters.formatISO8601ToDisplay(isoString, style: DateFormatters.mediumDateTime)
     }
 }

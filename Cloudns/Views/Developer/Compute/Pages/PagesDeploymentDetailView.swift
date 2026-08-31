@@ -301,7 +301,7 @@ struct PagesDeploymentDetailView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         ForEach(Array(filteredLogs.enumerated()), id: \.element.id) { idx, log in
                             HStack(alignment: .top, spacing: 8) {
-                                Text(String(format: "%2d", idx + 1))
+                                Text("\(idx + 1)")
                                     .font(.caption2.monospacedDigit())
                                     .foregroundStyle(Color(.tertiaryLabel))
                                     .frame(width: 24, alignment: .trailing)

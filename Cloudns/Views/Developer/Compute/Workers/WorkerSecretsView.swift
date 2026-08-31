@@ -62,7 +62,11 @@ struct WorkerSecretsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 if let item = itemToDelete {
-                    Text("Are you sure you want to delete \(item.isSecret ? "secret" : "variable") '\(item.name)'?")
+                    if item.isSecret {
+                        Text("Are you sure you want to delete secret '\(item.name)'?")
+                    } else {
+                        Text("Are you sure you want to delete variable '\(item.name)'?")
+                    }
                 }
             }
             .refreshable {

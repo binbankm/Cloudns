@@ -402,11 +402,11 @@ public struct ZoneRowSparklineView: View {
     
     private func formatMetric(_ value: Int) -> String {
         if value >= 1_000_000 {
-            return String(format: "%.1fM", Double(value) / 1_000_000.0)
+            return "\((Double(value) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
         } else if value >= 1_000 {
-            return String(format: "%.1fK", Double(value) / 1_000.0)
+            return "\((Double(value) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return "\(value)"
+            return value.formatted(.number)
         }
     }
 }

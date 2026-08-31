@@ -132,8 +132,8 @@ struct WorkerTriggersView: View {
                     .font(.body.monospaced())
                     .foregroundStyle(.primary)
                 
-                if let modified = schedule.modifiedOn ?? schedule.createdOn {
-                    Text("Configured: \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                if let modified = schedule.modifiedOn ?? schedule.createdOn, let date = DateFormatters.parseISO8601(modified) {
+                    Text("Configured: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

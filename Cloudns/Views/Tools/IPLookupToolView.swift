@@ -195,7 +195,7 @@ struct IPLookupToolView: View {
             geoRow(title: "Timezone", value: tz)
         }
         if let lat = result.latitude, let lon = result.longitude {
-            geoRow(title: "Coordinates (Lat/Lon)", value: String(format: "%.4f, %.4f", lat, lon), isMono: true)
+            geoRow(title: "Coordinates (Lat/Lon)", value: "\(lat.formatted(.number.precision(.fractionLength(4)))), \(lon.formatted(.number.precision(.fractionLength(4))))", isMono: true)
         }
     }
     

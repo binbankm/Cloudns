@@ -91,7 +91,7 @@ struct WorkerBindingsView: View {
                         } else {
                             try await secretsViewModel.deletePlainVariable(name: item.name)
                         }
-                        ToastManager.shared.showSuccess("\(item.isSecret ? "Secret" : "Variable") Deleted", icon: "trash.fill")
+                        ToastManager.shared.showSuccess(item.isSecret ? "Secret Deleted" : "Variable Deleted", icon: "trash.fill")
                     } catch {
                         ToastManager.shared.showError("Failed to delete item")
                     }
@@ -99,7 +99,11 @@ struct WorkerBindingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { item in
-            Text("Are you sure you want to delete \(item.isSecret ? "secret" : "environment variable") '\(item.name)'?")
+            if item.isSecret {
+                Text("Are you sure you want to delete secret '\(item.name)'?")
+            } else {
+                Text("Are you sure you want to delete environment variable '\(item.name)'?")
+            }
         }
         .refreshable {
             await secretsViewModel.fetchSecrets()

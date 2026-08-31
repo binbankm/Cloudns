@@ -143,7 +143,7 @@ struct D1TableView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { row in
-            Text(verbatim: "Are you sure you want to delete row with rowid \(row["_rowid_"] ?? "")?")
+            Text("Are you sure you want to delete row with rowid '\(row["_rowid_"] ?? "")'?")
         }
         .refreshable {
             await viewModel.loadTable()

@@ -434,7 +434,8 @@ struct KVNamespaceKeysView: View {
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 if let exp = k.expiration {
-                                    Text("Expires \(DateFormatters.formatISO8601ToDisplay(String(exp), style: DateFormatters.dateOnly))")
+                                    let date = Date(timeIntervalSince1970: Double(exp))
+                                    Text("Expires \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }

@@ -184,14 +184,14 @@ struct ZoneAnalyticsView: View {
                     value: formatNumber(viewModel.totalCachedRequests),
                     icon: "bolt.fill",
                     color: .orange,
-                    badge: "\(String(format: "%.1f%%", viewModel.cachedRatio * 100)) Cache Rate"
+                    badge: "\(viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1)))) Cache Rate"
                 )
             }
             
             GridRow {
                 metricCard(
                     title: "Cache Hit Ratio",
-                    value: String(format: "%.1f%%", viewModel.cachedRatio * 100),
+                    value: viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1))),
                     icon: "chart.pie.fill",
                     color: .green,
                     badge: "Edge Served"
@@ -683,7 +683,7 @@ struct ZoneAnalyticsView: View {
             Divider()
             
             LabeledContent {
-                Text(verbatim: String(format: "%.1f%%", viewModel.cachedRatio * 100))
+                Text(viewModel.cachedRatio, format: .percent.precision(.fractionLength(1)))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.cachedRatio > 0.5 ? Color.green : Color.orange)
             } label: {
@@ -704,10 +704,11 @@ struct ZoneAnalyticsView: View {
     
     private func formattedPointDate(_ point: AnalyticsDataPoint) -> String {
         let date = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
+        let loc = DateFormatters.currentAppLocale
         if isHourlyData {
-            return date.formatted(date: .omitted, time: .shortened)
+            return date.formatted(.dateTime.locale(loc).hour().minute())
         } else {
-            return date.formatted(.dateTime.month().day())
+            return date.formatted(.dateTime.locale(loc).month().day())
         }
     }
     
@@ -721,11 +722,11 @@ struct ZoneAnalyticsView: View {
     }
     
     private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return "\(num)" }
+        if num < 1000 { return num.formatted(.number) }
         let k = Double(num) / 1000.0
-        if k < 1000 { return String(format: "%.1fK", k) }
+        if k < 1000 { return "\((k).formatted(.number.precision(.fractionLength(1))))K" }
         let m = k / 1000.0
-        return String(format: "%.2fM", m)
+        return "\((m).formatted(.number.precision(.fractionLength(2))))M"
     }
 }
 

@@ -22,7 +22,7 @@ struct SecuritySettingsView: View {
                             )
                             .frame(width: 64, height: 64)
                         
-                        Image(systemName: "shield.checkered")
+                        Image(systemName: "shield.checkerboard")
                             .font(.system(size: 30, weight: .semibold))
                             .foregroundStyle(.red)
                     }
@@ -101,7 +101,7 @@ struct SecuritySettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Security Level", selection: Binding(
                         get: { viewModel.securityLevel },
                         set: { val in
                             HIGFeedback.selection()
@@ -114,6 +114,7 @@ struct SecuritySettingsView: View {
                         Text("High").tag("high")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
                 
@@ -128,7 +129,7 @@ struct SecuritySettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Challenge Passage TTL", selection: Binding(
                         get: { viewModel.challengeTTL },
                         set: { val in
                             HIGFeedback.selection()
@@ -145,6 +146,7 @@ struct SecuritySettingsView: View {
                         Text("1 year").tag(31536000)
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
                 
@@ -235,7 +237,7 @@ struct SecuritySettingsView: View {
         }
     }
     
-    private func securityLevelDescription(_ level: String) -> String {
+    private func securityLevelDescription(_ level: String) -> LocalizedStringKey {
         switch level {
         case "essentially_off": return "Essentially Off"
         case "low": return "Low (Fewest challenges)"

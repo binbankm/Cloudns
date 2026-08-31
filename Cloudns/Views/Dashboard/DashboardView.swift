@@ -147,7 +147,7 @@ struct DashboardView: View {
                 Spacer(minLength: 4)
                 
                 HStack(spacing: 5) {
-                    Image(systemName: "shield.checkered")
+                    Image(systemName: "shield.checkerboard")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.blue)
                     

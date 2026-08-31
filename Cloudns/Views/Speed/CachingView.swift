@@ -128,7 +128,7 @@ struct CachingView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Cache Level", selection: Binding(
                         get: { viewModel.cacheLevel },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
@@ -141,6 +141,7 @@ struct CachingView: View {
                         Text("Standard").tag("aggressive")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
                 
@@ -155,7 +156,7 @@ struct CachingView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Browser Cache TTL", selection: Binding(
                         get: { viewModel.browserCacheTTL },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
@@ -172,6 +173,7 @@ struct CachingView: View {
                         Text("1 year").tag(31536000)
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
@@ -306,7 +308,7 @@ struct CachingView: View {
         }
     }
     
-    private func cacheLevelDescription(_ level: String) -> String {
+    private func cacheLevelDescription(_ level: String) -> LocalizedStringKey {
         switch level {
         case "basic": return "No Query String"
         case "simplified": return "Ignore Query String"
@@ -315,7 +317,7 @@ struct CachingView: View {
         }
     }
     
-    private var purgeTypeDescription: String {
+    private var purgeTypeDescription: LocalizedStringKey {
         switch purgeType {
         case "url": return "Purge exact full URLs (comma-separated)."
         case "host": return "Purge all cached resources on specific hostnames (Enterprise)."
@@ -325,7 +327,7 @@ struct CachingView: View {
         }
     }
     
-    private var purgePlaceholder: String {
+    private var purgePlaceholder: LocalizedStringKey {
         switch purgeType {
         case "url": return "https://example.com/asset.js, https://..."
         case "host": return "static.example.com, assets.example.com"

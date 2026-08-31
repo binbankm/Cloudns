@@ -21,7 +21,7 @@ struct SpeedSettingsView: View {
                             )
                             .frame(width: 64, height: 64)
                         
-                        Image(systemName: "bolt.badge.automatic")
+                        Image(systemName: "bolt.badge.clock.fill")
                             .font(.system(size: 30, weight: .semibold))
                             .foregroundStyle(.purple)
                     }
@@ -210,6 +210,7 @@ struct SpeedSettingsView: View {
                         HStack(spacing: 6) {
                             Text("Polish (WebP)")
                                 .font(.body)
+                                .lineLimit(1)
                             HIGBadge(.pro, isCompact: true)
                         }
                         Text("Automatic image compression and modern WebP conversion.")
@@ -217,7 +218,7 @@ struct SpeedSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("", selection: Binding(
+                    Picker("Polish", selection: Binding(
                         get: { viewModel.polish },
                         set: { val in
                             HIGFeedback.selection()
@@ -229,6 +230,7 @@ struct SpeedSettingsView: View {
                         Text("Lossy").tag("lossy")
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
             }

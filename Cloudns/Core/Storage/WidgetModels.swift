@@ -43,29 +43,20 @@ public struct ZoneWidgetSnapshot: Codable, Identifiable, Sendable {
     
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return String(format: "%.1fM", Double(requests24h) / 1_000_000.0)
+            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
         } else if requests24h >= 1_000 {
-            return String(format: "%.1fK", Double(requests24h) / 1_000.0)
+            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return "\(requests24h)"
+            return requests24h.formatted(.number)
         }
     }
     
     public var formattedBytes: String {
-        let b = Double(bytes24h)
-        if b >= 1_073_741_824 {
-            return String(format: "%.1f GB", b / 1_073_741_824.0)
-        } else if b >= 1_048_576 {
-            return String(format: "%.1f MB", b / 1_048_576.0)
-        } else if b >= 1_024 {
-            return String(format: "%.1f KB", b / 1_024.0)
-        } else {
-            return "\(bytes24h) B"
-        }
+        return ByteCountFormatter.string(fromByteCount: Int64(bytes24h), countStyle: .file)
     }
     
     public var formattedCachedRatio: String {
-        return "\(Int(cachedRatio * 100))%"
+        return cachedRatio.formatted(.percent.precision(.fractionLength(0)))
     }
     
     public static let placeholder = ZoneWidgetSnapshot(
@@ -113,23 +104,23 @@ public struct WorkerWidgetSnapshot: Codable, Identifiable, Sendable {
     
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return String(format: "%.1fM", Double(requests24h) / 1_000_000.0)
+            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
         } else if requests24h >= 1_000 {
-            return String(format: "%.1fK", Double(requests24h) / 1_000.0)
+            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return "\(requests24h)"
+            return requests24h.formatted(.number)
         }
     }
     
     public var formattedSuccessRate: String {
-        return String(format: "%.1f%%", successRate * 100)
+        return successRate.formatted(.percent.precision(.fractionLength(1)))
     }
     
     public var formattedCpuTime: String {
         if cpuTimeMs >= 1000 {
-            return String(format: "%.1fs", cpuTimeMs / 1000.0)
+            return "\((cpuTimeMs / 1000.0).formatted(.number.precision(.fractionLength(1))))s"
         } else {
-            return String(format: "%.1fms", cpuTimeMs)
+            return "\(cpuTimeMs.formatted(.number.precision(.fractionLength(1))))ms"
         }
     }
     
@@ -177,11 +168,11 @@ public struct PagesWidgetSnapshot: Codable, Identifiable, Sendable {
     
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return String(format: "%.1fM", Double(requests24h) / 1_000_000.0)
+            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
         } else if requests24h >= 1_000 {
-            return String(format: "%.1fK", Double(requests24h) / 1_000.0)
+            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return "\(requests24h)"
+            return requests24h.formatted(.number)
         }
     }
     

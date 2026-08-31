@@ -26,6 +26,7 @@ struct WorkerTestView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .labelsHidden()
                     .onChange(of: viewModel.selectedMethod) { _ in
                         HIGFeedback.impact(.light)
                     }
@@ -129,7 +130,7 @@ struct WorkerTestView: View {
                             Text("Latency / Time")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            HIGBadge(.active(String(format: "%.1f ms", dur)), isCompact: true)
+                            HIGBadge(.active("\(dur.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                         }
                     }
                 } header: {

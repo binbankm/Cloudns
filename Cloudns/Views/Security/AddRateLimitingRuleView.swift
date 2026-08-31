@@ -165,7 +165,7 @@ struct AddRateLimitingRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
-            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkered")
+            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkerboard")
             dismiss()
         } else {
             HIGFeedback.error()

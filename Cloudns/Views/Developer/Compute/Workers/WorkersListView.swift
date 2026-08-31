@@ -125,8 +125,8 @@ struct WorkerRowView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                if let modified = worker.modifiedOn {
-                    Text("Updated \(DateFormatters.formatISO8601ToDisplay(modified, style: DateFormatters.dateOnly))")
+                if let modified = worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
+                    Text("Updated \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
