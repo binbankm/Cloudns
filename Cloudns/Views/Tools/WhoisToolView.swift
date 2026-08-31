@@ -112,7 +112,7 @@ struct WhoisToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -191,7 +191,7 @@ struct WhoisToolView: View {
                     
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
                     if days > 0 {
-                        Text("\(days) days remaining")
+                        Text("\(days) Days Remaining")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(days > 30 ? .green : .red)
                     } else {
@@ -211,7 +211,7 @@ struct WhoisToolView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(value)
+            Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
@@ -225,7 +225,7 @@ struct WhoisToolView: View {
                 Circle()
                     .fill(Color.teal)
                     .frame(width: 6, height: 6)
-                Text(status)
+                Text(verbatim: status)
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.primary)
             }
@@ -241,7 +241,7 @@ struct WhoisToolView: View {
                     .font(.caption)
                     .foregroundStyle(.teal)
                     .accessibilityHidden(true)
-                Text(ns.lowercased())
+                Text(verbatim: ns.lowercased())
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
                 Spacer()

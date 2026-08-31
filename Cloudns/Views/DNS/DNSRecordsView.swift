@@ -458,7 +458,7 @@ struct DNSRecordRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .center, spacing: 8) {
-                Text(record.type)
+                Text(verbatim: record.type)
                     .font(.caption.monospacedDigit().weight(.bold))
                     .frame(width: 48)
                     .padding(.vertical, 2.5)
@@ -466,7 +466,7 @@ struct DNSRecordRowView: View {
                     .foregroundStyle(recordTypeColor)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
-                Text(record.name)
+                Text(verbatim: record.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)

@@ -37,7 +37,7 @@ struct AddCacheRuleView: View {
                 Section(header: Text("Cache Eligibility")) {
                     Picker("Eligibility", selection: $cacheEligibility) {
                         Text("Eligible for cache").tag("eligible")
-                        Text("Bypass cache").tag("bypass")
+                        Text("Bypass Cache").tag("bypass")
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }

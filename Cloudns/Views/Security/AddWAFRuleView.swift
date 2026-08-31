@@ -212,7 +212,7 @@ struct AddWAFRuleView: View {
                 
                 if let error = viewModel.errorMessage {
                     Section {
-                        Text(error)
+                        Text(verbatim: error)
                             .foregroundStyle(.red)
                             .font(.caption)
                     }

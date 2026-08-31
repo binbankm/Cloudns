@@ -274,7 +274,7 @@ struct DNSPresetsSheetView: View {
                     ForEach(group.items) { item in
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text(item.type)
+                                Text(verbatim: item.type)
                                     .font(.caption.monospacedDigit().weight(.bold))
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -295,7 +295,7 @@ struct DNSPresetsSheetView: View {
                                 }
                             }
                             
-                            Text(item.content)
+                            Text(verbatim: item.content)
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)

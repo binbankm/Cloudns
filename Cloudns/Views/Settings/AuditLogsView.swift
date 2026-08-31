@@ -8,7 +8,7 @@ struct AuditLogsView: View {
     @State private var selectedLog: AuditLog?
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     
-    init(accountId: String) {
+    init(accountId: String = "") {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AuditLogsViewModel(accountId: accountId))
     }
@@ -272,7 +272,7 @@ struct AuditLogDetailSheetView: View {
                 Section("Metadata & Context") {
                     ForEach(Array(meta.keys.sorted()), id: \.self) { key in
                         if let val = meta[key] {
-                            detailRow(label: LocalizedStringKey(key), value: val.description, isCopyable: true)
+                            detailRow(verbatimLabel: key, value: val.description, isCopyable: true)
                         }
                     }
                 }
@@ -353,14 +353,22 @@ struct AuditLogDetailSheetView: View {
     }
     
     private func detailRow(label: LocalizedStringKey, value: String, isCopyable: Bool = false) -> some View {
+        detailRowContent(labelView: Text(label), value: value, isCopyable: isCopyable)
+    }
+    
+    private func detailRow(verbatimLabel: String, value: String, isCopyable: Bool = false) -> some View {
+        detailRowContent(labelView: Text(verbatim: verbatimLabel), value: value, isCopyable: isCopyable)
+    }
+    
+    private func detailRowContent<V: View>(labelView: V, value: String, isCopyable: Bool) -> some View {
         HStack {
-            Text(label)
+            labelView
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
             Spacer(minLength: 12)
             
-            Text(value)
+            Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.trailing)

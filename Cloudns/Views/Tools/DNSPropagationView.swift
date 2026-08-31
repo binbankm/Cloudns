@@ -160,7 +160,7 @@ struct DNSPropagationView: View {
                 }
             } else if let error = viewModel.propagationError {
                 Section {
-                    Text(error)
+                    Text(verbatim: error)
                         .font(.subheadline)
                         .foregroundStyle(.red)
                 }

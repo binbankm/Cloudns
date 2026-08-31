@@ -172,7 +172,7 @@ struct D1ConsoleView: View {
                 }
             } else if let error = viewModel.errorMessage {
                 Section {
-                    Text(error)
+                    Text(verbatim: error)
                         .font(.subheadline)
                         .foregroundStyle(.red)
                 }

@@ -299,7 +299,7 @@ struct KVCreateNamespaceSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -359,7 +359,7 @@ struct D1CreateDatabaseSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -509,7 +509,7 @@ struct KVKeyValueDetailView: View {
                 if viewModel.isValueLoading {
                     ProgressView()
                 } else if let val = viewModel.selectedKeyValue {
-                    Text(val)
+                    Text(verbatim: val)
                         .font(.caption.monospaced())
                         .textSelection(.enabled)
                 } else {
@@ -556,7 +556,7 @@ struct KVAddKeySheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

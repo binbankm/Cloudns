@@ -132,7 +132,7 @@ struct CacheRuleCardView: View {
                 .labelsHidden()
             }
             
-            Text(rule.expression)
+            Text(verbatim: rule.expression)
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(6)

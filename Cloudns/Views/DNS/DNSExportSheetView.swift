@@ -128,7 +128,7 @@ struct DNSExportSheetView: View {
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)
                                         
-                                        Text(line)
+                                        Text(verbatim: line)
                                             .font(.caption.monospaced())
                                             .foregroundStyle(lineColor(for: line))
                                             .fixedSize(horizontal: false, vertical: true)

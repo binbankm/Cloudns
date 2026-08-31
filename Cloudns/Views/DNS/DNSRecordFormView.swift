@@ -265,7 +265,7 @@ struct DNSRecordFormView: View {
                 
                 if let error = errorMessage {
                     Section {
-                        Text(error)
+                        Text(verbatim: error)
                             .foregroundStyle(.red)
                             .font(.caption)
                     }

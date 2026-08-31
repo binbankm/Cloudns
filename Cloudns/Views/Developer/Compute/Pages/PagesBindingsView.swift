@@ -611,7 +611,7 @@ struct PagesAddVariableSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -702,7 +702,7 @@ struct PagesAttachResourceBindingSheetView: View {
                 Section(header: Text("Resource Type")) {
                     Picker("Binding Type", selection: $bindingType) {
                         ForEach(bindingTypes, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                     .onChange(of: bindingType) { newType in
@@ -756,7 +756,7 @@ struct PagesAttachResourceBindingSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

@@ -199,7 +199,9 @@ struct DashboardView: View {
     // MARK: - 2. Resources Overview Cards Grid (2x2)
     private var resourcesOverviewGridView: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)], spacing: 12) {
-            NavigationLink(destination: ZonesListView()) {
+            NavigationLink {
+                ZonesListView()
+            } label: {
                 DashboardMetricCardView(
                     icon: "globe",
                     iconColor: .blue,
@@ -211,23 +213,31 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             
-            NavigationLink(destination: DeveloperHubView()) {
+            NavigationLink {
+                DeveloperHubView()
+            } label: {
                 DashboardMetricCardView(
                     icon: "bolt.fill",
                     iconColor: .orange,
-                    title: "Workers & Compute",
+                    title: "Workers & Pages",
                     value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "-",
-                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) W · \(viewModel.pages.count) P" : "Loading...",
+                    subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading...",
                     badge: "Compute"
                 )
             }
             .buttonStyle(.plain)
             
-            NavigationLink(destination: KVBrowserView(accountId: viewModel.selectedAccount?.id ?? "")) {
+            NavigationLink {
+                if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
+                    KVBrowserView(accountId: accId)
+                } else {
+                    KVBrowserView(accountId: "current")
+                }
+            } label: {
                 DashboardMetricCardView(
                     icon: "cylinder.split.1x2.fill",
                     iconColor: .purple,
-                    title: "Storage & DB",
+                    title: "Storage & Databases",
                     value: viewModel.hasFetchedData ? "\(viewModel.totalStorageCount)" : "-",
                     subtitle: viewModel.hasFetchedData ? "\(viewModel.kvCount) KV · \(viewModel.r2Count) R2 · \(viewModel.d1Count) D1" : "Loading...",
                     badge: "Storage"
@@ -235,7 +245,13 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             
-            NavigationLink(destination: TunnelsListView(accountId: viewModel.selectedAccount?.id ?? "")) {
+            NavigationLink {
+                if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
+                    TunnelsListView(accountId: accId)
+                } else {
+                    TunnelsListView(accountId: "current")
+                }
+            } label: {
                 DashboardMetricCardView(
                     icon: "shield.righthalf.filled",
                     iconColor: .green,
@@ -378,7 +394,7 @@ struct DashboardView: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(zone.name)
+                                    Text(verbatim: zone.name)
                                         .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)

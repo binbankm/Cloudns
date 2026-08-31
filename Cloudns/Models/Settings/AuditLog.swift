@@ -344,9 +344,9 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
             
             if let type = recordType, let name = recordName ?? zoneName, let c = content {
-                Text("\(type) Record • \(name) ➔ \(c)")
+                Text(verbatim: "\(type) Record • \(name) ➔ \(c)")
             } else if let name = recordName ?? zoneName {
-                Text(name)
+                Text(verbatim: name)
             } else {
                 Text(LocalizedStringKey(friendlyResourceTypeKey))
             }
@@ -357,14 +357,14 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             
             if let ip = ipVal, !ip.isEmpty {
                 if let name = listName, !name.isEmpty {
-                    Text("\(name) • \(ip)")
+                    Text(verbatim: "\(name) • \(ip)")
                 } else {
-                    Text("IP List Item: \(ip)")
+                    Text(verbatim: "IP List Item: \(ip)")
                 }
             } else if let name = listName, !name.isEmpty {
-                Text(name)
+                Text(verbatim: name)
             } else if let com = comment, !com.isEmpty {
-                Text(com)
+                Text(verbatim: com)
             } else {
                 Text(LocalizedStringKey(friendlyResourceTypeKey))
             }
@@ -377,15 +377,15 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             
             if let z = zoneName, !z.isEmpty {
                 if let s = sKey, let v = vKey {
-                    Text("\(z) • ") + Text(LocalizedStringKey(s)) + Text(": ") + Text(LocalizedStringKey(v))
+                    Text(verbatim: "\(z) • ") + Text(LocalizedStringKey(s)) + Text(verbatim: ": ") + Text(LocalizedStringKey(v))
                 } else if let s = sKey {
-                    Text("\(z) • ") + Text(LocalizedStringKey(s))
+                    Text(verbatim: "\(z) • ") + Text(LocalizedStringKey(s))
                 } else {
-                    Text(z)
+                    Text(verbatim: z)
                 }
             } else if let s = sKey {
                 if let v = vKey {
-                    Text(LocalizedStringKey(s)) + Text(": ") + Text(LocalizedStringKey(v))
+                    Text(LocalizedStringKey(s)) + Text(verbatim: ": ") + Text(LocalizedStringKey(v))
                 } else {
                     Text(LocalizedStringKey(s))
                 }
@@ -397,9 +397,9 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             let env = extractString(keys: ["environment", "tag", "branch"])
             if let s = scriptName, !s.isEmpty {
                 if let e = env, !e.isEmpty {
-                    Text("\(s) (\(e))")
+                    Text(verbatim: "\(s) (\(e))")
                 } else {
-                    Text(s)
+                    Text(verbatim: s)
                 }
             } else {
                 Text(LocalizedStringKey(friendlyResourceTypeKey))
@@ -407,20 +407,20 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         } else if resType.contains("waf") || resType.contains("rule") || resType.contains("firewall") {
             let ruleName = extractString(keys: ["description", "rule_name", "name", "action"])
             if let r = ruleName, !r.isEmpty {
-                Text(r)
+                Text(verbatim: r)
             } else {
                 Text(LocalizedStringKey(friendlyResourceTypeKey))
             }
         } else {
             if let name = extractString(keys: ["name", "title", "description"]), !name.isEmpty, !name.isHexHash {
-                Text(name)
+                Text(verbatim: name)
             } else if let zoneName = zone?.name, !zoneName.isEmpty {
-                Text(zoneName)
+                Text(verbatim: zoneName)
             } else if let resId = resource?.id, !resId.isEmpty {
                 if resId.isHexHash {
                     Text("\(Text(LocalizedStringKey(friendlyResourceTypeKey))) (ID: \(shortId(resId)))")
                 } else {
-                    Text(resId)
+                    Text(verbatim: resId)
                 }
             } else {
                 Text("Audit Event \(shortId(id))")
@@ -440,10 +440,10 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
                 Text("Domain: \(z)")
             }
             if let l = listName, !l.isEmpty {
-                Text("List: \(l)")
+                Text(verbatim: "List: \(l)")
             }
             if let inf = info, !inf.isEmpty {
-                Text(inf)
+                Text(verbatim: inf)
             }
             if let r = resId, !r.isEmpty, r.isHexHash {
                 Text("Resource: \(shortId(r))")
@@ -509,7 +509,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         case "automatic_https_rewrites": return "Automatic HTTPS Rewrites"
         case "ip_geolocation": return "IP Geolocation"
         case "email_obfuscation": return "Email Obfuscation"
-        case "server_side_exclude": return "Server-side Excludes"
+        case "server_side_exclude": return "Server-Side Excludes"
         case "hotlink_protection": return "Hotlink Protection"
         case "rocket_loader": return "Rocket Loader"
         case "polish": return "Polish Image Optimization"

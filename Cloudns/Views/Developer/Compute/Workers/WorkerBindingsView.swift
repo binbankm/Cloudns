@@ -368,7 +368,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                 Section(header: Text("Binding Type")) {
                     Picker("Resource Type", selection: $bindingType) {
                         ForEach(bindingTypes, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                     .onChange(of: bindingType) { newType in
@@ -422,7 +422,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

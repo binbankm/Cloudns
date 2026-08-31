@@ -72,7 +72,7 @@ struct SettingsView: View {
                         .padding(.vertical, 2)
                     }
                     
-                    NavigationLink(destination: AuditLogsView(accountId: "")) {
+                    NavigationLink(destination: AuditLogsView()) {
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue, size: 28, cornerRadius: 6)
                             

@@ -165,12 +165,12 @@ struct CachingView: View {
                         }
                     )) {
                         Text("Respect Header").tag(0)
-                        Text("30 mins").tag(1800)
-                        Text("1 hour").tag(3600)
-                        Text("4 hours").tag(14400)
-                        Text("1 day").tag(86400)
-                        Text("1 month").tag(2678400)
-                        Text("1 year").tag(31536000)
+                        Text("30 Mins").tag(1800)
+                        Text("1 Hour").tag(3600)
+                        Text("4 Hours").tag(14400)
+                        Text("1 Day").tag(86400)
+                        Text("1 Month").tag(2678400)
+                        Text("1 Year").tag(31536000)
                     }
                     .pickerStyle(.menu)
                     .labelsHidden()

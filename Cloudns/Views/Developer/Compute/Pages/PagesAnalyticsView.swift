@@ -253,7 +253,7 @@ public struct PagesAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
+                        Text(verbatim: formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -276,7 +276,7 @@ public struct PagesAnalyticsView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -378,7 +378,7 @@ public struct PagesAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(formatNumber(count))
+                            Text(verbatim: formatNumber(count))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -483,7 +483,7 @@ public struct PagesAnalyticsView: View {
                         Circle()
                             .fill(Color.cyan)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }

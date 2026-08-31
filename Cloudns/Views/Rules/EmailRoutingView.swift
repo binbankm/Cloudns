@@ -292,7 +292,7 @@ struct EmailRoutingView: View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "envelope.fill", color: dest.isVerified ? .blue : .orange, size: 28, cornerRadius: 6)
             VStack(alignment: .leading, spacing: 3) {
-                Text(dest.email)
+                Text(verbatim: dest.email)
                     .font(.body)
                     .foregroundStyle(.primary)
                 Text(dest.isVerified ? "Verified" : "Pending Verification")

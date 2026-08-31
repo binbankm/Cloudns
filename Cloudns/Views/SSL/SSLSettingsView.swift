@@ -308,7 +308,9 @@ struct SSLSettingsView: View {
         ), actions: {
             Button("OK", role: .cancel) { }
         }, message: {
-            Text(viewModel.errorMessage ?? "")
+            if let errorMsg = viewModel.errorMessage {
+                Text(verbatim: errorMsg)
+            }
         })
         .task {
             if !viewModel.hasFetchedData {

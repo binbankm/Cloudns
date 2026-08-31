@@ -151,7 +151,7 @@ struct TransformRuleCardView: View {
                 .labelsHidden()
             }
             
-            Text(rule.expression)
+            Text(verbatim: rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(6)

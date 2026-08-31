@@ -76,7 +76,7 @@ struct WorkerTailView: View {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
                             .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
-                    .accessibilityLabel(viewModel.isStreaming ? "Pause stream" : "Resume stream")
+                    .accessibilityLabel(viewModel.isStreaming ? "Pause stream" : "Resume Stream")
                 }
             }
         }
@@ -270,8 +270,10 @@ struct TailEventDetailSheetView: View {
                                 Text(ex.name ?? "Exception")
                                     .font(.caption.bold())
                                     .foregroundStyle(.red)
-                                Text(ex.message ?? "")
-                                    .font(.caption2.monospaced())
+                                if let msg = ex.message, !msg.isEmpty {
+                                    Text(verbatim: msg)
+                                        .font(.caption2.monospaced())
+                                }
                             }
                             .padding(.vertical, 2)
                         }

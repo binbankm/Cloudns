@@ -196,14 +196,14 @@ struct AddAccessAppSheetView: View {
                 Section(header: Text("Session Settings")) {
                     Picker("Session Duration", selection: $sessionDuration) {
                         ForEach(durationOptions, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

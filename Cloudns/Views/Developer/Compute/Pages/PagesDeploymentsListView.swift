@@ -275,7 +275,7 @@ struct PagesDeploymentsListView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "globe")
                             .font(.caption2)
-                        Text(urlStr.replacingOccurrences(of: "https://", with: ""))
+                        Text(verbatim: urlStr.replacingOccurrences(of: "https://", with: ""))
                             .font(.caption2.monospaced())
                             .lineLimit(1)
                     }

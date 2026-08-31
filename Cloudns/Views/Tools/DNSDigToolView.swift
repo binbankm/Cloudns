@@ -157,7 +157,7 @@ struct DNSDigToolView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -219,10 +219,10 @@ struct DNSDigToolView: View {
             }
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.resolverName)
+                Text(verbatim: item.resolverName)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                Text(item.resolverIP)
+                Text(verbatim: item.resolverIP)
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
@@ -258,7 +258,7 @@ struct DNSAnswerRowView: View {
         HStack(alignment: .center, spacing: 10) {
             HIGBadge(.custom(color: .indigo, text: item.typeName), isCompact: true)
             
-            Text(item.data)
+            Text(verbatim: item.data)
                 .font(.body.monospaced())
                 .foregroundStyle(.primary)
                 .lineLimit(1)

@@ -115,7 +115,7 @@ struct BulkRedirectListsView: View {
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.name)
+                Text(verbatim: item.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 

@@ -258,7 +258,7 @@ struct LoadBalancerView: View {
             if let origins = pool.origins, !origins.isEmpty {
                 HStack(spacing: 6) {
                     ForEach(origins.prefix(3), id: \.idResolved) { o in
-                        Text(o.name ?? o.address ?? "")
+                        Text(verbatim: o.name ?? o.address ?? "-")
                             .font(.caption2.monospaced())
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)

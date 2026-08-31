@@ -114,7 +114,10 @@ struct HyperdriveView: View {
                     .foregroundStyle(.primary)
                 
                 if let origin = config.origin, let host = origin.host {
-                    Text("\(origin.scheme ?? "postgres")://\(host):\(origin.port ?? 5432)/\(origin.database ?? "")")
+                    let dbName = origin.database ?? ""
+                    let dbScheme = origin.scheme ?? "postgres"
+                    let dbPort = origin.port ?? 5432
+                    Text(verbatim: "\(dbScheme)://\(host):\(dbPort)/\(dbName)")
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

@@ -167,7 +167,7 @@ struct DNSSECView: View {
                     Text(label)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text(val)
+                    Text(verbatim: val)
                         .font(.body.monospaced())
                         .foregroundStyle(.primary)
                 }

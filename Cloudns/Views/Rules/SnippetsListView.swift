@@ -150,7 +150,7 @@ struct SnippetsListView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(snip.snippet_name)
+                    Text(verbatim: snip.snippet_name)
                         .font(.body)
                         .foregroundStyle(.primary)
 
@@ -209,7 +209,7 @@ struct SnippetsListView: View {
                 }
             }
             
-            Text(rule.expression)
+            Text(verbatim: rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
@@ -279,7 +279,7 @@ struct SnippetEditorSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
@@ -348,7 +348,7 @@ struct BindSnippetRuleSheetView: View {
                 Section(header: Text("Target Snippet")) {
                     Picker("Select Snippet", selection: $selectedSnippetName) {
                         ForEach(snippets) { snip in
-                            Text(snip.snippet_name).tag(snip.snippet_name)
+                            Text(verbatim: snip.snippet_name).tag(snip.snippet_name)
                         }
                     }
                 }
@@ -369,7 +369,7 @@ struct BindSnippetRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

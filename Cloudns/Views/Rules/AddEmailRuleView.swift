@@ -38,7 +38,7 @@ struct AddEmailRuleView: View {
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in
-                                Text(dest.email).tag(dest.email)
+                                Text(verbatim: dest.email).tag(dest.email)
                             }
                         }
                     }

@@ -26,7 +26,7 @@ struct ZonesListView: View {
             .searchable(
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search domains"
+                prompt: "Search Domains"
             )
             .navigationTitle("My Domains")
             .navigationBarTitleDisplayMode(.large)
@@ -197,7 +197,7 @@ struct ZoneRowView: View {
             .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 3) {
-                Text(zone.name)
+                Text(verbatim: zone.name)
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundStyle(.primary)

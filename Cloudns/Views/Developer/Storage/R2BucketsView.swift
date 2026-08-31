@@ -176,14 +176,14 @@ struct R2CreateBucketSheetView: View {
                 Section(header: Text("Location Hint")) {
                     Picker("Region", selection: $locationHint) {
                         ForEach(locationHints, id: \.1) { label, value in
-                            Text(label).tag(value)
+                            Text(verbatim: label).tag(value)
                         }
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

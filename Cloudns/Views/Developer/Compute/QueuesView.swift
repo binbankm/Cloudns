@@ -147,7 +147,7 @@ struct QueuesView: View {
             Spacer()
             
             if let producers = queue.producers, !producers.isEmpty {
-                HIGBadge(.custom(color: .orange, text: "\(producers.count) producers"), isCompact: true)
+                HIGBadge(.custom(color: .orange, text: String(localized: "\(producers.count) producers")), isCompact: true)
             } else {
                 HIGBadge(.active, isCompact: true)
             }

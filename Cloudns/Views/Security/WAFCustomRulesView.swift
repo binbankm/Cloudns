@@ -143,7 +143,7 @@ struct WAFRuleCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 
-                Text(rule.expression)
+                Text(verbatim: rule.expression)
                     .font(.footnote.monospaced())
                     .foregroundStyle(.primary)
                     .padding(8)

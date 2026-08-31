@@ -48,7 +48,7 @@ struct SpeedSettingsView: View {
                 Section {
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "exclamationmark.triangle.fill", color: .red, size: 28, cornerRadius: 6)
-                        Text(errorMessage)
+                        Text(verbatim: errorMessage)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
                     }

@@ -141,7 +141,7 @@ struct RedirectListDetailView: View {
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(item.redirect.sourceUrl)
+                Text(verbatim: item.redirect.sourceUrl)
                     .font(.caption.monospaced())
                 Spacer()
                 Text("\(item.redirect.statusCode ?? 301)")
@@ -154,7 +154,7 @@ struct RedirectListDetailView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
-                Text(item.redirect.targetUrl)
+                Text(verbatim: item.redirect.targetUrl)
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
@@ -210,7 +210,7 @@ struct AddRedirectItemSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.caption)
                             .foregroundStyle(.red)
                     }

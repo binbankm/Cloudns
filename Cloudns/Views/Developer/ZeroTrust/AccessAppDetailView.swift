@@ -42,7 +42,7 @@ struct AccessAppDetailView: View {
                     }
                     .padding(.vertical, 4)
                 } else if let err = errorMessage, policies.isEmpty {
-                    Text(err)
+                    Text(verbatim: err)
                         .font(.caption)
                         .foregroundStyle(.red)
                 } else if policies.isEmpty {

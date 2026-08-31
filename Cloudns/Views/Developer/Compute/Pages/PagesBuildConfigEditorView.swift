@@ -90,7 +90,7 @@ struct PagesBuildConfigEditorView: View {
                 
                 if let error = errorMessage {
                     Section {
-                        Text(error)
+                        Text(verbatim: error)
                             .font(.footnote)
                             .foregroundStyle(.red)
                     }

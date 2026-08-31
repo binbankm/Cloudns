@@ -138,7 +138,7 @@ struct ZoneAnalyticsView: View {
                 .foregroundStyle(.blue)
                 .font(.title3)
             
-            Text(zoneName)
+            Text(verbatim: zoneName)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -269,7 +269,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
+                        Text(verbatim: formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -286,7 +286,7 @@ struct ZoneAnalyticsView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -381,7 +381,7 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(formatNumber(count))
+                            Text(verbatim: formatNumber(count))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -438,7 +438,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
+                        Text(verbatim: viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedBandwidthPoint != nil ? "transferred" : "total")
@@ -455,7 +455,7 @@ struct ZoneAnalyticsView: View {
                         Circle()
                             .fill(Color.purple)
                             .frame(width: 6, height: 6)
-                        Text(dateStr)
+                        Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
@@ -527,7 +527,7 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let bytes = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(viewModel.formatBytes(bytes))
+                            Text(verbatim: viewModel.formatBytes(bytes))
                                 .frame(width: 52, alignment: .trailing)
                         }
                     }
@@ -672,7 +672,7 @@ struct ZoneAnalyticsView: View {
                 .foregroundStyle(.blue)
             
             LabeledContent {
-                Text(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
+                Text(verbatim: viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
                     .font(.caption.weight(.semibold).monospacedDigit())
             } label: {
                 Text("Origin Bandwidth Saved")

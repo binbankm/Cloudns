@@ -122,7 +122,8 @@ struct WorkerTestView: View {
                         Text("HTTP Status")
                             .foregroundStyle(.secondary)
                         Spacer()
-                        HIGBadge((200...299).contains(status) ? .active("\(status) \(viewModel.responseStatusText ?? "")") : .error("\(status) \(viewModel.responseStatusText ?? "")"), isCompact: true)
+                        let statusText = [String(status), viewModel.responseStatusText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
+                        HIGBadge(.raw(color: (200...299).contains(status) ? .green : .red, text: statusText), isCompact: true)
                     }
                     
                     if let dur = viewModel.responseDurationMs {
@@ -130,7 +131,7 @@ struct WorkerTestView: View {
                             Text("Latency / Time")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            HIGBadge(.active("\(dur.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
+                            HIGBadge(.raw(color: .green, text: "\(dur.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
                         }
                     }
                 } header: {
@@ -168,7 +169,7 @@ struct WorkerTestView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
                             .accessibilityHidden(true)
-                        Text(err)
+                        Text(verbatim: err)
                             .font(.subheadline)
                             .foregroundStyle(.red)
                     }
