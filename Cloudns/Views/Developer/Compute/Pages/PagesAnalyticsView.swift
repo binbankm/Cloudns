@@ -274,7 +274,7 @@ public struct PagesAnalyticsView: View {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(Color.accentColor)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
@@ -282,7 +282,7 @@ public struct PagesAnalyticsView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.12))
+                    .background(Color.accentColor.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
@@ -300,7 +300,7 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
+                            colors: [Color.accentColor.opacity(0.32), Color.accentColor.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -311,7 +311,7 @@ public struct PagesAnalyticsView: View {
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
                     )
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(Color.accentColor)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                     
@@ -328,7 +328,7 @@ public struct PagesAnalyticsView: View {
                 
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
-                        .foregroundStyle(Color.blue.opacity(0.6))
+                        .foregroundStyle(Color.accentColor.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -338,14 +338,14 @@ public struct PagesAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(Color.blue.opacity(0.25))
+                                .fill(Color.accentColor.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: Color.blue, radius: 4)
+                                .shadow(color: Color.accentColor, radius: 4)
                             Circle()
-                                .stroke(Color.blue, lineWidth: 2)
+                                .stroke(Color.accentColor, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }

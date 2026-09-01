@@ -121,6 +121,7 @@ struct WorkerSecretsView: View {
                             } label: {
                                 Label("Delete Variable", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -130,6 +131,7 @@ struct WorkerSecretsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -154,6 +156,7 @@ struct WorkerSecretsView: View {
                                 } label: {
                                     Label("Delete Secret", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -163,6 +166,7 @@ struct WorkerSecretsView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                     }
                 }

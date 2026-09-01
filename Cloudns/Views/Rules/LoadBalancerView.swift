@@ -128,6 +128,7 @@ struct LoadBalancerView: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                 }
                         }
                     }
@@ -146,6 +147,7 @@ struct LoadBalancerView: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                 }
                         }
                     }
@@ -164,6 +166,7 @@ struct LoadBalancerView: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                 }
                         }
                     }

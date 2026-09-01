@@ -23,6 +23,7 @@ struct IPAccessRulesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                     }
                 }

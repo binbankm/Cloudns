@@ -222,9 +222,9 @@ struct DashboardZoneTrafficChartView: View {
     
     private func metricColor(_ metric: DashboardChartMetric) -> Color {
         switch metric {
-        case .requests: return .blue
+        case .requests: return Color.accentColor
         case .bandwidth: return .purple
-        case .threats: return .orange
+        case .threats: return .red
         }
     }
     

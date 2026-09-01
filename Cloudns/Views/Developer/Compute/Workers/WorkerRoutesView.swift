@@ -91,6 +91,7 @@ struct WorkerRoutesView: View {
                                 } label: {
                                     Label("Detach", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                     }
                 }

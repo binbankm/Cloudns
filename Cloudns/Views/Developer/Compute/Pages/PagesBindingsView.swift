@@ -249,6 +249,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind KV Namespace", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -257,6 +258,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -300,6 +302,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind D1 Database", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -308,6 +311,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -351,6 +355,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind R2 Bucket", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -359,6 +364,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -393,6 +399,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind AI Binding", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -401,6 +408,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

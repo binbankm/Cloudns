@@ -143,6 +143,7 @@ struct AddZoneView: View {
                                     .fontWeight(.semibold)
                                 Spacer()
                             }
+                            .foregroundStyle(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting ? Color(.tertiaryLabel) : Color.accentColor)
                         }
                         .buttonStyle(.higPressable)
                         .disabled(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)

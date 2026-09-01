@@ -66,6 +66,7 @@ struct HTTPHeaderInspectorView: View {
                         Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)

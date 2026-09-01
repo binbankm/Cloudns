@@ -84,6 +84,7 @@ struct WorkerTriggersView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                     }
                 }

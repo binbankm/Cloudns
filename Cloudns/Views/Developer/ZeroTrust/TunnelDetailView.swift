@@ -207,6 +207,7 @@ struct TunnelDetailView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                         }
                     }
@@ -268,6 +269,7 @@ struct TunnelDetailView: View {
                         Spacer()
                     }
                 }
+                .tint(.red)
             }
         }
         .listStyle(.insetGrouped)

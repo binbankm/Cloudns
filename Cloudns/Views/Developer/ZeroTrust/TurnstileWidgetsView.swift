@@ -30,6 +30,7 @@ struct TurnstileWidgetsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

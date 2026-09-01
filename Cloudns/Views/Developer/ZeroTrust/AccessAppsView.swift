@@ -46,6 +46,7 @@ struct AccessAppsView: View {
                             } label: {
                                 Label("Delete Application", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -55,6 +56,7 @@ struct AccessAppsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

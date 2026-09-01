@@ -149,6 +149,7 @@ struct EmailRoutingView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                 }
             }
@@ -187,6 +188,7 @@ struct EmailRoutingView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                 }
             }

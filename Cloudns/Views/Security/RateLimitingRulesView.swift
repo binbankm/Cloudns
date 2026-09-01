@@ -27,6 +27,7 @@ struct RateLimitingRulesView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

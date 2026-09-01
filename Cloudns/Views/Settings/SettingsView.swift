@@ -14,6 +14,7 @@ struct SettingsView: View {
     @ObservedObject private var accountManager = AccountManager.shared
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         NavigationStack {
@@ -133,19 +134,39 @@ struct SettingsView: View {
                         HIGFeedback.impact(.light)
                     }
                     
-                    NavigationLink(destination: AppIconPickerView()) {
-                        HStack {
-                            SettingsRowView(
-                                icon: "app.badge.fill",
-                                color: .pink,
-                                title: "App Icon"
-                            )
-                            Spacer()
-                            Text(iconManager.currentIcon.displayName)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                    Picker(selection: Binding(
+                        get: { themeManager.currentColor },
+                        set: { themeManager.setThemeColor($0) }
+                    )) {
+                        ForEach(AppThemeColor.allCases) { theme in
+                            Text(theme.displayName).tag(theme)
                         }
+                    } label: {
+                        SettingsRowView(
+                            icon: "paintpalette.fill",
+                            color: themeManager.currentColor.color,
+                            title: "Theme Color"
+                        )
                     }
+                    .pickerStyle(.menu)
+                    .tint(.secondary)
+                    
+                    Picker(selection: Binding(
+                        get: { iconManager.currentIcon },
+                        set: { iconManager.setIcon($0) }
+                    )) {
+                        ForEach(AppIconOption.allCases) { icon in
+                            Text(icon.displayName).tag(icon)
+                        }
+                    } label: {
+                        SettingsRowView(
+                            icon: "app.badge.fill",
+                            color: .pink,
+                            title: "App Icon"
+                        )
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.secondary)
                     
                     Picker(selection: $appLanguage) {
                         Text("Follow System").tag("system")

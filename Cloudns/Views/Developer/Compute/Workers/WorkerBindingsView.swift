@@ -206,6 +206,7 @@ struct WorkerBindingsView: View {
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
+                        .tint(.red)
                     }
                 }
             }
@@ -234,6 +235,7 @@ struct WorkerBindingsView: View {
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
+                        .tint(.red)
                     }
                 }
             }
@@ -272,6 +274,7 @@ struct WorkerBindingsView: View {
             } label: {
                 Label("Unbind", systemImage: "link.badge.plus")
             }
+            .tint(.red)
         }
     }
     

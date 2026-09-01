@@ -79,6 +79,7 @@ struct DNSRecordsView: View {
                         Text("Delete Selected (\(selectedCount))")
                             .foregroundStyle(.red)
                     }
+                    .tint(.red)
                 }
             }
         }
@@ -325,6 +326,7 @@ struct DNSRecordsView: View {
                     } label: {
                         Label("Reset All Filters", systemImage: "arrow.counterclockwise")
                     }
+                    .tint(.red)
                 }
                 
                 Divider()
@@ -418,6 +420,7 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .tint(.red)
             
             Button {
                 recordToEdit = record

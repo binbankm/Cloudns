@@ -56,6 +56,7 @@ struct R2BucketDetailView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -326,6 +327,7 @@ struct R2ObjectDetailSheetView: View {
                             Spacer()
                         }
                     }
+                    .tint(.red)
                 }
             }
             .listStyle(.insetGrouped)

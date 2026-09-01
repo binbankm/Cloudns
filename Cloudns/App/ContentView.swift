@@ -18,6 +18,7 @@ struct ContentView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     @ObservedObject private var router = DeepLinkRouter.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     var currentLocale: Locale {
         if appLanguage == "system" {
@@ -97,6 +98,7 @@ struct ContentView: View {
         }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
+        .tint(themeManager.currentColor.color)
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared

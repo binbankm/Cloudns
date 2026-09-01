@@ -293,7 +293,7 @@ struct DashboardView: View {
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
                 NavigationLink(destination: AddZoneView()) {
-                    QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
+                    QuickDeckButton(icon: "plus.circle.fill", color: Color.accentColor, title: "Add Domain")
                 }
                 .buttonStyle(.higPressable)
                 

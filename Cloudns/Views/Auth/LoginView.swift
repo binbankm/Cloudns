@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     // Manage keyboard focus
     enum Field {
@@ -272,13 +273,13 @@ struct LoginView: View {
                                 LinearGradient(
                                     colors: isButtonDisabled
                                         ? [Color.gray.opacity(0.4), Color.gray.opacity(0.5)]
-                                        : [Color.orange, Color.orange.opacity(0.85)],
+                                        : [themeManager.currentColor.color, themeManager.currentColor.color.opacity(0.85)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .shadow(color: isButtonDisabled ? Color.clear : themeManager.currentColor.color.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .buttonStyle(.higPressable)
                         .disabled(isButtonDisabled)
