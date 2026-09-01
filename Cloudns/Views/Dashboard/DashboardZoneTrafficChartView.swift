@@ -32,7 +32,7 @@ struct DashboardZoneTrafficChartView: View {
                                 .frame(width: 5, height: 5)
                             
                             Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.caption2.weight(.semibold))
                                 .foregroundStyle(.green)
                         }
                         .padding(.horizontal, 7)
@@ -160,7 +160,7 @@ struct DashboardZoneTrafficChartView: View {
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2, 2]))
                     .foregroundStyle(Color(.separator).opacity(0.3))
                 AxisValueLabel(format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-                    .font(.system(size: 9, weight: .medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
             }
         }
@@ -171,7 +171,7 @@ struct DashboardZoneTrafficChartView: View {
                 AxisValueLabel {
                     if let dVal = value.as(Double.self) {
                         Text(formatCompact(dVal))
-                            .font(.system(size: 9, weight: .medium).monospacedDigit())
+                            .font(.caption2.weight(.medium).monospacedDigit())
                             .foregroundStyle(Color(.tertiaryLabel))
                     }
                 }

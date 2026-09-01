@@ -127,7 +127,7 @@ struct TurnstileDetailView: View {
                 .pickerStyle(.segmented)
                 .padding(.vertical, 2)
                 .onChange(of: selectedTab) { _ in
-                    HIGFeedback.impact(.light)
+                    HIGFeedback.selection()
                 }
                 
                 if selectedTab == "frontend" {
@@ -138,7 +138,7 @@ struct TurnstileDetailView: View {
                     .pickerStyle(.segmented)
                     .padding(.vertical, 2)
                     .onChange(of: frontendFramework) { _ in
-                        HIGFeedback.impact(.light)
+                        HIGFeedback.selection()
                     }
                 } else {
                     Picker("Language", selection: $backendLang) {
@@ -149,7 +149,7 @@ struct TurnstileDetailView: View {
                     .pickerStyle(.segmented)
                     .padding(.vertical, 2)
                     .onChange(of: backendLang) { _ in
-                        HIGFeedback.impact(.light)
+                        HIGFeedback.selection()
                     }
                 }
                 
@@ -163,9 +163,9 @@ struct TurnstileDetailView: View {
                     .scrollIndicators(.hidden)
                     
                     Button {
+                        HIGFeedback.copied()
                         UIPasteboard.general.string = snippetCode
                         ToastManager.shared.showCopied()
-                        HIGFeedback.impact(.light)
                     } label: {
                         Label("Copy Code Snippet", systemImage: "doc.on.doc")
                             .font(.caption.weight(.semibold))

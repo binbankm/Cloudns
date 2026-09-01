@@ -155,7 +155,7 @@ struct WorkerDeploymentsView: View {
             HStack(alignment: .center, spacing: 8) {
                 HStack(spacing: 4) {
                     Image(systemName: isLatest ? "checkmark.circle.fill" : "circle.fill")
-                        .font(.system(size: 8))
+                        .font(.caption2)
                         .foregroundStyle(isLatest ? .green : .secondary)
                     
                     Text("v\(dep.number ?? 1)")

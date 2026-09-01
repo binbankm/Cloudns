@@ -21,7 +21,7 @@ struct SSLSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.green)
                     }
                     .padding(.top, 4)

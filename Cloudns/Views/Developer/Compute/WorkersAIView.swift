@@ -118,7 +118,7 @@ struct WorkersAIView: View {
                     
                     if let vendor = vendorFromModel(model) {
                         Text(vendor)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1.5)
                             .background(Color(.tertiarySystemFill))

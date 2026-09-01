@@ -33,6 +33,7 @@ struct IPLookupToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -131,6 +132,7 @@ struct IPLookupToolView: View {
             Spacer()
             
             Button {
+                HIGFeedback.copied()
                 UIPasteboard.general.string = result.ip
                 ToastManager.shared.showCopied()
             } label: {
@@ -140,6 +142,7 @@ struct IPLookupToolView: View {
             }
             .buttonStyle(.higPressable)
             .higTouchTarget()
+            .accessibilityLabel("Copy IP Address")
         }
         
         if let cloud = result.cloudProvider {

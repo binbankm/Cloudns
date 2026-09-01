@@ -35,6 +35,7 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -247,6 +248,7 @@ struct WhoisToolView: View {
                     .foregroundStyle(.primary)
                 Spacer()
                 Button {
+                    HIGFeedback.copied()
                     UIPasteboard.general.string = ns.lowercased()
                     ToastManager.shared.showCopied()
                 } label: {

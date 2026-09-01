@@ -31,7 +31,7 @@ struct CachingView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "internaldrive.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
                     .padding(.top, 4)

@@ -36,7 +36,7 @@ struct AdvancedZoneSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "gearshape.2.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 4)

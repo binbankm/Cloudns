@@ -144,7 +144,7 @@ struct CFTraceToolView: View {
         let popInfo = CloudflarePoPDatabase.shared.getPoP(code: colo)
         HStack(spacing: 14) {
             Text(popInfo?.flag ?? "🌐")
-                .font(.system(size: 36))
+                .font(.largeTitle)
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {

@@ -127,6 +127,8 @@ struct LoginView: View {
                                             .foregroundStyle(.tertiary)
                                     }
                                     .buttonStyle(.plain)
+                                    .higTouchTarget(36)
+                                    .accessibilityLabel("Clear email")
                                 }
                             }
                             .padding(.horizontal, 14)
@@ -152,11 +154,12 @@ struct LoginView: View {
                                     Button("Paste") {
                                         if let clip = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !clip.isEmpty {
                                             viewModel.apiKey = clip
-                                            HIGFeedback.impact(.light)
+                                            HIGFeedback.copied()
                                         }
                                     }
                                     .font(.caption2.weight(.semibold))
                                     .foregroundStyle(.orange)
+                                    .higTouchTarget(36)
                                 }
                             }
                             
@@ -199,13 +202,15 @@ struct LoginView: View {
                                 
                                 Button {
                                     isShowingApiKey.toggle()
-                                    HIGFeedback.selection()
+                                    HIGFeedback.toggled()
                                 } label: {
                                     Image(systemName: isShowingApiKey ? "eye.slash.fill" : "eye.fill")
                                         .font(.caption)
                                         .foregroundStyle(.tertiary)
                                 }
                                 .buttonStyle(.plain)
+                                .higTouchTarget(36)
+                                .accessibilityLabel(isShowingApiKey ? "Hide API key" : "Show API key")
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)

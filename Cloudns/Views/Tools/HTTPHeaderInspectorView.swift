@@ -41,6 +41,7 @@ struct HTTPHeaderInspectorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear URL")
                     }
                 }
@@ -237,6 +238,7 @@ struct HTTPHeaderInspectorView: View {
                     Spacer()
                     
                     Button {
+                        HIGFeedback.copied()
                         UIPasteboard.general.string = "\(header.key): \(header.value)"
                         ToastManager.shared.showCopied()
                     } label: {
@@ -246,6 +248,7 @@ struct HTTPHeaderInspectorView: View {
                     }
                     .buttonStyle(.higPressable)
                     .higTouchTarget()
+                    .accessibilityLabel("Copy \(header.key) header")
                 }
                 
                 Text(header.value)
@@ -279,6 +282,7 @@ struct HTTPHeaderInspectorView: View {
     }
     
     private func copyAllHeaders(_ result: HTTPInspectionResult) {
+        HIGFeedback.copied()
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
         ToastManager.shared.showCopied()

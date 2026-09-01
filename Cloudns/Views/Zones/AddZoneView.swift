@@ -35,6 +35,7 @@ struct AddZoneView: View {
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 Button {
+                                    HIGFeedback.copied()
                                     UIPasteboard.general.string = ns
                                     ToastManager.shared.showCopied("Nameserver Copied")
                                 } label: {
@@ -48,6 +49,7 @@ struct AddZoneView: View {
                         }
 
                         Button {
+                            HIGFeedback.copied()
                             UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
                             ToastManager.shared.showCopied("All Nameservers Copied")
                         } label: {

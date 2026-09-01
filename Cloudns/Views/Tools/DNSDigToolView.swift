@@ -45,6 +45,7 @@ struct DNSDigToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Domain")
                     }
                 }
@@ -192,6 +193,7 @@ struct DNSDigToolView: View {
                             }
                             ToolbarItem(placement: .primaryAction) {
                                 Button {
+                                    HIGFeedback.copied()
                                     UIPasteboard.general.string = result.rawResponseRFC
                                     ToastManager.shared.showCopied()
                                 } label: {
@@ -269,6 +271,19 @@ struct DNSAnswerRowView: View {
             Text("TTL \(item.ttl)s")
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.secondary)
+            
+            Button {
+                HIGFeedback.copied()
+                UIPasteboard.general.string = item.data
+                ToastManager.shared.showCopied()
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.higPressable)
+            .higTouchTarget()
+            .accessibilityLabel("Copy \(item.typeName) record: \(item.data)")
         }
         .padding(.vertical, 4)
     }

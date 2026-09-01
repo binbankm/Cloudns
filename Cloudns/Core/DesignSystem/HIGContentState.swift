@@ -83,7 +83,8 @@ public struct HIGContentState: View {
                     .foregroundStyle(.secondary)
             case .search(let query):
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 44, weight: .light))
+                    .font(.system(.largeTitle).weight(.light))
+                    .imageScale(.large)
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 4)
                 Text("No Results for \"\(query)\"")
@@ -95,7 +96,8 @@ public struct HIGContentState: View {
                     .multilineTextAlignment(.center)
             case .error(let title, let message, let retryAction):
                 Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 44, weight: .light))
+                    .font(.system(.largeTitle).weight(.light))
+                    .imageScale(.large)
                     .foregroundStyle(.orange)
                     .padding(.bottom, 4)
                 Text(title)
@@ -113,7 +115,8 @@ public struct HIGContentState: View {
                 }
             case .empty(let title, let systemImage, let description, let actionTitle, let action):
                 Image(systemName: systemImage)
-                    .font(.system(size: 44, weight: .light))
+                    .font(.system(.largeTitle).weight(.light))
+                    .imageScale(.large)
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 4)
                 Text(title)

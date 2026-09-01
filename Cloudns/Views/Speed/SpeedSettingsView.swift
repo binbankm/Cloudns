@@ -22,7 +22,7 @@ struct SpeedSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "bolt.badge.clock.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.purple)
                     }
                     .padding(.top, 4)

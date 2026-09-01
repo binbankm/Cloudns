@@ -38,7 +38,7 @@ struct EmailRoutingView: View {
                         .frame(width: 64, height: 64)
                     
                     Image(systemName: "envelope.badge.shield.half.filled")
-                        .font(.system(size: 30, weight: .semibold))
+                        .font(.title.weight(.semibold))
                         .foregroundStyle(.orange)
                 }
                 .padding(.top, 4)

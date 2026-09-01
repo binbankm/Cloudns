@@ -23,7 +23,7 @@ struct NetworkCenterView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "globe.asia.australia.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
                     .padding(.top, 4)
