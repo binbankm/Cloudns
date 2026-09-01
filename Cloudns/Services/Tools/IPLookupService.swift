@@ -28,16 +28,156 @@ final class IPLookupService: IPLookupServiceProtocol {
         let clean = target.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { throw APIError.invalidURL }
         
+        // Tier 1: ipwho.is (Primary, high availability, HTTPS, generous limits)
+        if let result = try? await queryIPWhois(clean: clean) {
+            return result
+        }
+        
+        // Tier 2: freeipapi.com (Secondary fallback)
+        if let result = try? await queryFreeIPAPI(clean: clean) {
+            return result
+        }
+        
+        // Tier 3: ipapi.co (Tertiary fallback)
+        if let result = try? await queryIPAPICo(clean: clean) {
+            return result
+        }
+        
+        throw APIError.cloudflareError("All IP intelligence lookup providers are currently unreachable or rate limited. Please check your network connection.")
+    }
+    
+    // MARK: - Provider 1: ipwho.is
+    private func queryIPWhois(clean: String) async throws -> IPLookupResult {
+        guard let url = URL(string: "https://ipwho.is/\(clean)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.setValue("Cloudns-App/1.0", forHTTPHeaderField: "User-Agent")
+        
+        let (data, response) = try await diagnosticSession.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw APIError.invalidResponse
+        }
+        
+        struct IPWhoisConnection: Codable {
+            let asn: Int?
+            let org: String?
+            let isp: String?
+            let domain: String?
+        }
+        
+        struct IPWhoisTimezone: Codable {
+            let id: String?
+            let utc: String?
+        }
+        
+        struct IPWhoisResponse: Codable {
+            let ip: String?
+            let success: Bool?
+            let country: String?
+            let country_code: String?
+            let region: String?
+            let city: String?
+            let latitude: Double?
+            let longitude: Double?
+            let connection: IPWhoisConnection?
+            let timezone: IPWhoisTimezone?
+        }
+        
+        let res = try JSONDecoder().decode(IPWhoisResponse.self, from: data)
+        guard res.success ?? true else { throw APIError.invalidResponse }
+        
+        let asnStr: String?
+        if let connAsn = res.connection?.asn {
+            asnStr = "AS\(connAsn)"
+        } else {
+            asnStr = nil
+        }
+        let orgName = res.connection?.org ?? res.connection?.isp ?? ""
+        let isCF = orgName.lowercased().contains("cloudflare") || (asnStr?.uppercased().contains("AS13335") ?? false)
+        
+        return IPLookupResult(
+            query: clean,
+            ip: res.ip ?? clean,
+            asn: asnStr,
+            org: orgName.isEmpty ? nil : orgName,
+            country: res.country,
+            countryCode: res.country_code,
+            city: res.city,
+            region: res.region,
+            timezone: res.timezone?.id ?? res.timezone?.utc,
+            latitude: res.latitude,
+            longitude: res.longitude,
+            isCloudflareAnycast: isCF,
+            cloudProvider: isCF ? "Cloudflare Anycast Global Edge" : (orgName.isEmpty ? "Standard ISP/Host" : orgName)
+        )
+    }
+    
+    // MARK: - Provider 2: freeipapi.com
+    private func queryFreeIPAPI(clean: String) async throws -> IPLookupResult {
+        guard let url = URL(string: "https://freeipapi.com/api/json/\(clean)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.setValue("Cloudns-App/1.0", forHTTPHeaderField: "User-Agent")
+        
+        let (data, response) = try await diagnosticSession.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw APIError.invalidResponse
+        }
+        
+        struct FreeIPResponse: Codable {
+            let ipAddress: String?
+            let countryName: String?
+            let countryCode: String?
+            let timeZone: String?
+            let cityName: String?
+            let regionName: String?
+            let latitude: Double?
+            let longitude: Double?
+            let asn: String?
+        }
+        
+        let res = try JSONDecoder().decode(FreeIPResponse.self, from: data)
+        let asnStr: String?
+        if let rawAsn = res.asn, !rawAsn.isEmpty {
+            asnStr = rawAsn.uppercased().starts(with: "AS") ? rawAsn : "AS\(rawAsn)"
+        } else {
+            asnStr = nil
+        }
+        let isCF = asnStr?.uppercased().contains("AS13335") ?? false
+        
+        return IPLookupResult(
+            query: clean,
+            ip: res.ipAddress ?? clean,
+            asn: asnStr,
+            org: nil,
+            country: res.countryName,
+            countryCode: res.countryCode,
+            city: res.cityName,
+            region: res.regionName,
+            timezone: res.timeZone,
+            latitude: res.latitude,
+            longitude: res.longitude,
+            isCloudflareAnycast: isCF,
+            cloudProvider: isCF ? "Cloudflare Anycast Global Edge" : "Standard ISP/Host"
+        )
+    }
+    
+    // MARK: - Provider 3: ipapi.co
+    private func queryIPAPICo(clean: String) async throws -> IPLookupResult {
         guard let url = URL(string: "https://ipapi.co/\(clean)/json/") else {
             throw APIError.invalidURL
         }
         
         var request = URLRequest(url: url)
-        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15", forHTTPHeaderField: "User-Agent")
+        request.setValue("Cloudns-App/1.0", forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await diagnosticSession.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw APIError.cloudflareError("IP intelligence lookup rate limited or unavailable.")
+            throw APIError.invalidResponse
         }
         
         struct IPAPIResponse: Codable {

@@ -68,12 +68,12 @@ private struct HIGCardBody: View {
 
 /// Primary Action Button Style with Apple-standard filled pill/rounded rectangle and medium impact
 public struct HIGPrimaryActionButtonStyle: ButtonStyle {
-    let backgroundColor: Color
+    let backgroundColor: Color?
     let foregroundColor: Color
     let cornerRadius: CGFloat
     
     public init(
-        backgroundColor: Color = .blue,
+        backgroundColor: Color? = nil,
         foregroundColor: Color = .white,
         cornerRadius: CGFloat = 12
     ) {
@@ -94,11 +94,16 @@ public struct HIGPrimaryActionButtonStyle: ButtonStyle {
 
 private struct HIGPrimaryActionBody: View {
     let configuration: ButtonStyle.Configuration
-    let backgroundColor: Color
+    let backgroundColor: Color?
     let foregroundColor: Color
     let cornerRadius: CGFloat
     
     @Environment(\.isEnabled) private var isEnabled
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
+    private var effectiveBackground: Color {
+        backgroundColor ?? themeManager.currentColor.color
+    }
     
     var body: some View {
         configuration.label
@@ -107,7 +112,7 @@ private struct HIGPrimaryActionBody: View {
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
-            .background(isEnabled ? backgroundColor : Color(.systemGray5))
+            .background(isEnabled ? effectiveBackground : Color(.systemGray5))
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .scaleEffect(configuration.isPressed && isEnabled ? 0.96 : 1.0)
             .opacity(configuration.isPressed && isEnabled ? 0.88 : 1.0)
@@ -137,7 +142,7 @@ public extension ButtonStyle where Self == HIGPrimaryActionButtonStyle {
         HIGPrimaryActionButtonStyle()
     }
     
-    static func higPrimaryAction(backgroundColor: Color = .blue, cornerRadius: CGFloat = 12) -> HIGPrimaryActionButtonStyle {
+    static func higPrimaryAction(backgroundColor: Color? = nil, cornerRadius: CGFloat = 12) -> HIGPrimaryActionButtonStyle {
         HIGPrimaryActionButtonStyle(backgroundColor: backgroundColor, cornerRadius: cornerRadius)
     }
 }

@@ -9,8 +9,6 @@ struct AccessAppDetailView: View {
     @State private var isLoadingPolicies = false
     @State private var errorMessage: String?
     
-    private let accessService = AccessService.shared
-    
     var body: some View {
         List {
             Section(header: Text("Application Details")) {

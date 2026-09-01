@@ -180,6 +180,7 @@ struct SnippetsListView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .tint(.red)
         }
     }
     
@@ -223,6 +224,7 @@ struct SnippetsListView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .tint(.red)
         }
     }
 }

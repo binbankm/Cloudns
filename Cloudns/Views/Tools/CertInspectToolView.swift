@@ -50,6 +50,7 @@ struct CertInspectToolView: View {
                         Text(viewModel.isLoading ? "Inspecting Handshake…" : "Inspect SSL/TLS Certificate")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)

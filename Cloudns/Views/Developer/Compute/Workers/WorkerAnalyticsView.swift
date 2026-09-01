@@ -154,10 +154,10 @@ public struct WorkerAnalyticsView: View {
             GridRow {
                 metricCard(
                     title: "Invocations",
-                    value: formatNumber(viewModel.totalRequests),
+                    value: MetricFormatters.compactNumber(viewModel.totalRequests),
                     icon: "bolt.horizontal.fill",
                     color: .purple,
-                    badge: "\(formatNumber(viewModel.totalSubrequests)) Subrequests"
+                    badge: "\(MetricFormatters.compactNumber(viewModel.totalSubrequests)) Subrequests"
                 )
                 
                 metricCard(
@@ -165,7 +165,7 @@ public struct WorkerAnalyticsView: View {
                     value: (viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1))),
                     icon: "exclamationmark.triangle.fill",
                     color: viewModel.errorRatePercentage > 0 ? .red : .green,
-                    badge: "\(formatNumber(viewModel.totalErrors)) Errors"
+                    badge: "\(MetricFormatters.compactNumber(viewModel.totalErrors)) Errors"
                 )
             }
             
@@ -250,7 +250,7 @@ public struct WorkerAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(verbatim: formatNumber(selectedPoint?.requests ?? viewModel.totalRequests))
+                        Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -360,13 +360,12 @@ public struct WorkerAnalyticsView: View {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
                         .foregroundStyle(Color.secondary.opacity(0.2))
-                    if isHourlyData {
-                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    } else {
-                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    }
+                    AxisValueLabel(
+                        format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
+                        collisionResolution: .greedy
+                    )
+                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
             .chartYAxis {
@@ -375,7 +374,9 @@ public struct WorkerAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(verbatim: formatNumber(count))
+                            Text(verbatim: MetricFormatters.compactNumber(count))
+                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -550,13 +551,12 @@ public struct WorkerAnalyticsView: View {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
                         .foregroundStyle(Color.secondary.opacity(0.2))
-                    if isHourlyData {
-                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    } else {
-                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    }
+                    AxisValueLabel(
+                        format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
+                        collisionResolution: .greedy
+                    )
+                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
             .chartYAxis {
@@ -565,7 +565,9 @@ public struct WorkerAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
-                            Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms").font(.caption.monospacedDigit())
+                            Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms")
+                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -640,12 +642,7 @@ public struct WorkerAnalyticsView: View {
     
     // MARK: - Helpers
     private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
-        let loc = DateFormatters.currentAppLocale
-        if isHourlyData {
-            return point.date.formatted(.dateTime.locale(loc).hour().minute())
-        } else {
-            return point.date.formatted(.dateTime.locale(loc).month().day())
-        }
+        DateFormatters.formatChartDetailDate(point.date, isHourly: isHourlyData)
     }
     
     private func findClosestWorkerPoint(for date: Date, in points: [AggregatedWorkerDataPoint]) -> AggregatedWorkerDataPoint? {
@@ -653,13 +650,5 @@ public struct WorkerAnalyticsView: View {
         return points.min(by: {
             abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date))
         })
-    }
-    
-    private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return num.formatted(.number) }
-        let k = Double(num) / 1000.0
-        if k < 1000 { return "\(k.formatted(.number.precision(.fractionLength(1))))K" }
-        let m = k / 1000.0
-        return "\(m.formatted(.number.precision(.fractionLength(2))))M"
     }
 }

@@ -33,12 +33,16 @@ struct EdgeLatencyTestView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Input")
                     }
                 }
                 
                 Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
                     .font(.subheadline)
+                    .onChange(of: viewModel.latencyRounds) { _ in
+                        HIGFeedback.selection()
+                    }
                 
                 Button {
                     performTest()
@@ -53,6 +57,7 @@ struct EdgeLatencyTestView: View {
                         Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings…" : "Start Latency & Jitter Benchmark")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)

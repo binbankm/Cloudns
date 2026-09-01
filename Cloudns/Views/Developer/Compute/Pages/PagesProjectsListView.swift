@@ -32,6 +32,7 @@ struct PagesProjectsListView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

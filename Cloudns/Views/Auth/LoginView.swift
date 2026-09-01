@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = true
+    
     @StateObject private var viewModel = LoginViewModel()
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     // Manage keyboard focus
     enum Field {
@@ -38,9 +42,53 @@ struct LoginView: View {
             }
             .ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    Spacer(minLength: 16)
+            VStack(spacing: 0) {
+                // Top Navigation Bar
+                HStack {
+                    if onLoginSuccess == nil {
+                        Button {
+                            HIGFeedback.impact(.light)
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                hasSeenOnboarding = false
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.subheadline.weight(.semibold))
+                                Text("Introduction")
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(Color(.tertiarySystemFill))
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button {
+                            HIGFeedback.impact(.light)
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(8)
+                                .background(Color(.tertiarySystemFill))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Spacer(minLength: 12)
                     
                     // 2. Glowing Hero Logo & Header
                     VStack(spacing: 12) {
@@ -127,6 +175,8 @@ struct LoginView: View {
                                             .foregroundStyle(.tertiary)
                                     }
                                     .buttonStyle(.plain)
+                                    .higTouchTarget(36)
+                                    .accessibilityLabel("Clear email")
                                 }
                             }
                             .padding(.horizontal, 14)
@@ -152,11 +202,12 @@ struct LoginView: View {
                                     Button("Paste") {
                                         if let clip = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !clip.isEmpty {
                                             viewModel.apiKey = clip
-                                            HIGFeedback.impact(.light)
+                                            HIGFeedback.copied()
                                         }
                                     }
                                     .font(.caption2.weight(.semibold))
                                     .foregroundStyle(.orange)
+                                    .higTouchTarget(36)
                                 }
                             }
                             
@@ -199,13 +250,15 @@ struct LoginView: View {
                                 
                                 Button {
                                     isShowingApiKey.toggle()
-                                    HIGFeedback.selection()
+                                    HIGFeedback.toggled()
                                 } label: {
                                     Image(systemName: isShowingApiKey ? "eye.slash.fill" : "eye.fill")
                                         .font(.caption)
                                         .foregroundStyle(.tertiary)
                                 }
                                 .buttonStyle(.plain)
+                                .higTouchTarget(36)
+                                .accessibilityLabel(isShowingApiKey ? "Hide API key" : "Show API key")
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
@@ -267,13 +320,13 @@ struct LoginView: View {
                                 LinearGradient(
                                     colors: isButtonDisabled
                                         ? [Color.gray.opacity(0.4), Color.gray.opacity(0.5)]
-                                        : [Color.orange, Color.orange.opacity(0.85)],
+                                        : [themeManager.currentColor.color, themeManager.currentColor.color.opacity(0.85)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .shadow(color: isButtonDisabled ? Color.clear : Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .shadow(color: isButtonDisabled ? Color.clear : themeManager.currentColor.color.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .buttonStyle(.higPressable)
                         .disabled(isButtonDisabled)
@@ -314,10 +367,11 @@ struct LoginView: View {
                 }
             }
             .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = nil
+                .scrollDismissesKeyboard(.interactively)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    focusedField = nil
+                }
             }
         }
         .task {

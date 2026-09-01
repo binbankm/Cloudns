@@ -126,5 +126,3 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         )
     }
 }
-
-public typealias BaseViewModel = BaseLoadableViewModel

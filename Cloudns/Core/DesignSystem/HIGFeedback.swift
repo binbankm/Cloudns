@@ -62,6 +62,21 @@ public enum HIGFeedback {
         generator.prepare()
         generator.notificationOccurred(type)
     }
+    
+    /// 触发复制成功触感
+    public static func copied() {
+        impact(.light)
+    }
+    
+    /// 触发开关/选择切换触感
+    public static func toggled() {
+        selection()
+    }
+    
+    /// 触发破坏性/危险操作触感
+    public static func destructive() {
+        impact(.medium)
+    }
 }
 
 // MARK: - Legacy Compatibility

@@ -31,7 +31,7 @@ struct DNSSECView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "key.horizontal.fill")
-                            .font(.system(size: 30, weight: .semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
                     .padding(.top, 4)

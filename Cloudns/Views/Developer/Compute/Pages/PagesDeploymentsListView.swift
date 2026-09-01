@@ -190,7 +190,7 @@ struct PagesDeploymentsListView: View {
                 // Status Indicator Badge
                 HStack(spacing: 4) {
                     Image(systemName: isSuccess ? "checkmark.circle.fill" : (isFailure ? "xmark.circle.fill" : "arrow.triangle.2.circlepath"))
-                        .font(.system(size: 8))
+                        .font(.caption2)
                         .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
                     
                     Text(isSuccess ? "Success" : (isFailure ? "Failed" : status.capitalized))

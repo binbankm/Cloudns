@@ -33,6 +33,7 @@ struct IPLookupToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -50,6 +51,7 @@ struct IPLookupToolView: View {
                         Text(viewModel.isLoading ? "Querying BGP & Geo…" : "Lookup IP Geolocation & ASN")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)
@@ -131,6 +133,7 @@ struct IPLookupToolView: View {
             Spacer()
             
             Button {
+                HIGFeedback.copied()
                 UIPasteboard.general.string = result.ip
                 ToastManager.shared.showCopied()
             } label: {
@@ -140,6 +143,7 @@ struct IPLookupToolView: View {
             }
             .buttonStyle(.higPressable)
             .higTouchTarget()
+            .accessibilityLabel("Copy IP Address")
         }
         
         if let cloud = result.cloudProvider {

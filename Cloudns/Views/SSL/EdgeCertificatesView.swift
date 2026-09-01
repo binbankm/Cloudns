@@ -46,6 +46,7 @@ struct EdgeCertificatesView: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                 }
                             }
                     }

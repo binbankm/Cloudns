@@ -77,6 +77,7 @@ struct DNSPropagationView: View {
                         Text(viewModel.isPropagationLoading ? "Probing Global Edge…" : "Probe Worldwide DNS Propagation")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.propagationDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isPropagationLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)

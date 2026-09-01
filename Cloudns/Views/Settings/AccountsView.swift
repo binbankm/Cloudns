@@ -35,6 +35,7 @@ struct AccountsView: View {
                                 } label: {
                                     Label("Remove", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                         }
                     }
@@ -109,10 +110,12 @@ struct AccountsView: View {
                     isShowingAddAccount = false
                     ToastManager.shared.showSuccess("Account Added", icon: "person.crop.circle.badge.plus")
                 })
+                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
             .confirmationDialog("Remove Account", isPresented: $showingRemoveAccountAlert, titleVisibility: .visible, presenting: emailToRemove) { email in
                 Button("Remove '\(email)'", role: .destructive) {
+                    HIGFeedback.destructive()
                     withAnimation {
                         accountManager.removeAccount(email: email)
                         ToastManager.shared.showSuccess("Account Removed", icon: "person.crop.circle.badge.minus")
@@ -140,6 +143,7 @@ struct AccountsView: View {
                         .lineLimit(1)
                     
                     Button {
+                        HIGFeedback.copied()
                         UIPasteboard.general.string = email
                         ToastManager.shared.showCopied()
                     } label: {
@@ -206,7 +210,7 @@ struct AccountsView: View {
     }
     
     private func switchAccount(to email: String) {
-        HIGFeedback.impact(.light)
+        HIGFeedback.selection()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             accountManager.switchAccount(to: email)
             ToastManager.shared.showSuccess("Switched to \(email)", icon: "person.crop.circle.badge.checkmark")

@@ -57,14 +57,6 @@ struct PagesBindingsView: View {
         selectedEnv == "production" ? productionEnvVars : previewEnvVars
     }
     
-    private var plainVariables: [String: PagesEnvVarValue] {
-        currentEnvVars.filter { !$0.value.isSecret }
-    }
-    
-    private var secretVariables: [String: PagesEnvVarValue] {
-        currentEnvVars.filter { $0.value.isSecret }
-    }
-    
     private var currentKV: [String: PagesKVBinding] {
         selectedEnv == "production" ? productionKV : previewKV
     }
@@ -83,10 +75,6 @@ struct PagesBindingsView: View {
     
     private var currentStorageResourcesCount: Int {
         currentKV.count + currentD1.count + currentR2.count + currentAI.count
-    }
-    
-    private var totalBindingsCount: Int {
-        currentEnvVars.count + currentStorageResourcesCount
     }
     
     private var currentConfig: PagesEnvConfig? {
@@ -249,6 +237,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind KV Namespace", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -257,6 +246,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -300,6 +290,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind D1 Database", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -308,6 +299,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -351,6 +343,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind R2 Bucket", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -359,6 +352,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }
@@ -393,6 +387,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind AI Binding", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -401,6 +396,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

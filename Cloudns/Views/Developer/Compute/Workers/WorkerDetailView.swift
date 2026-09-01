@@ -139,7 +139,7 @@ struct WorkerDetailView: View {
             Section(header: Text("Script Details")) {
                 if !viewModel.scriptContent.isEmpty {
                     LabeledContent {
-                        Text(verbatim: formatBytes(viewModel.scriptContent.utf8.count))
+                        Text(verbatim: ByteCountFormatters.format(viewModel.scriptContent.utf8.count))
                             .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     } label: {
@@ -207,7 +207,7 @@ struct WorkerDetailView: View {
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.scriptContent.isEmpty {
-                            Text(verbatim: formatBytes(viewModel.scriptContent.utf8.count))
+                            Text(verbatim: ByteCountFormatters.format(viewModel.scriptContent.utf8.count))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -311,9 +311,5 @@ struct WorkerDetailView: View {
                 }
             }
             .listStyle(.insetGrouped)
-    }
-    
-    private func formatBytes(_ bytes: Int) -> String {
-        return ByteCountFormatters.format(Int64(bytes))
     }
 }

@@ -14,6 +14,7 @@ struct SettingsView: View {
     @ObservedObject private var accountManager = AccountManager.shared
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         NavigationStack {
@@ -133,7 +134,25 @@ struct SettingsView: View {
                         HIGFeedback.impact(.light)
                     }
                     
-                    NavigationLink(destination: AppIconPickerView()) {
+                    NavigationLink {
+                        ThemeColorPickerView()
+                    } label: {
+                        HStack {
+                            SettingsRowView(
+                                icon: "paintpalette.fill",
+                                color: themeManager.currentColor.color,
+                                title: "Theme Color"
+                            )
+                            Spacer()
+                            Text(themeManager.currentColor.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    NavigationLink {
+                        AppIconPickerView()
+                    } label: {
                         HStack {
                             SettingsRowView(
                                 icon: "app.badge.fill",

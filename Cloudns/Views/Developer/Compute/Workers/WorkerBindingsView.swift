@@ -8,13 +8,8 @@ struct WorkerBindingsView: View {
     let bindings: [WorkerBinding]
     
     @StateObject private var secretsViewModel: WorkerSecretsViewModel
-    @State private var selectedTab: String = "resources" // "resources" | "variables"
-    @State private var showingAddSheet = false
     @State private var showingAttachResourceSheet = false
-    @State private var variableToEdit: WorkerBinding?
-    @State private var itemToDelete: (name: String, isSecret: Bool)?
     @State private var bindingToDelete: WorkerBinding?
-    @State private var showingDeleteAlert = false
     @State private var showingUnbindAlert = false
     
     init(accountId: String, scriptName: String, bindings: [WorkerBinding]) {
@@ -26,10 +21,6 @@ struct WorkerBindingsView: View {
     
     private var resourceBindings: [WorkerBinding] {
         secretsViewModel.hasFetchedData ? secretsViewModel.resourceBindings : bindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
-    }
-    
-    private var totalVariablesAndSecretsCount: Int {
-        secretsViewModel.plainVariables.count + secretsViewModel.secrets.count
     }
     
     // Grouped Resources
@@ -59,14 +50,6 @@ struct WorkerBindingsView: View {
             WorkerAttachResourceBindingSheetView(accountId: accountId, viewModel: secretsViewModel)
              .higToast()
         }
-        .sheet(isPresented: $showingAddSheet) {
-            WorkerAddVariableOrSecretSheetView(viewModel: secretsViewModel)
-             .higToast()
-        }
-        .sheet(item: $variableToEdit) { v in
-            WorkerEditVariableSheetView(viewModel: secretsViewModel, variable: v)
-             .higToast()
-        }
         .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: bindingToDelete) { binding in
             Button("Unbind '\(binding.name)'", role: .destructive) {
                 Task {
@@ -81,29 +64,6 @@ struct WorkerBindingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: { binding in
             Text("Are you sure you want to unbind resource '\(binding.name)' from Worker '\(scriptName)'?")
-        }
-        .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: itemToDelete) { item in
-            Button("Delete '\(item.name)'", role: .destructive) {
-                Task {
-                    do {
-                        if item.isSecret {
-                            try await secretsViewModel.deleteSecret(name: item.name)
-                        } else {
-                            try await secretsViewModel.deletePlainVariable(name: item.name)
-                        }
-                        ToastManager.shared.showSuccess(item.isSecret ? "Secret Deleted" : "Variable Deleted", icon: "trash.fill")
-                    } catch {
-                        ToastManager.shared.showError("Failed to Delete Item")
-                    }
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { item in
-            if item.isSecret {
-                Text("Are you sure you want to delete secret '\(item.name)'?")
-            } else {
-                Text("Are you sure you want to delete environment variable '\(item.name)'?")
-            }
         }
         .refreshable {
             await secretsViewModel.fetchSecrets()
@@ -173,74 +133,6 @@ struct WorkerBindingsView: View {
     }
     
     @ViewBuilder
-    private var variablesSection: some View {
-        if !secretsViewModel.plainVariables.isEmpty {
-            Section(header: Text("Plaintext Variables (\(secretsViewModel.plainVariables.count))")) {
-                ForEach(secretsViewModel.plainVariables) { v in
-                    Button {
-                        variableToEdit = v
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(v.name)
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                if let text = v.text {
-                                    Text(text)
-                                        .font(.caption.monospaced())
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
-                                }
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            HIGFeedback.impact(.medium)
-                            itemToDelete = (name: v.name, isSecret: false)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                }
-            }
-        }
-        
-        if !secretsViewModel.secrets.isEmpty {
-            Section(header: Text("Encrypted Secrets (\(secretsViewModel.secrets.count))")) {
-                ForEach(secretsViewModel.secrets) { s in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(s.name)
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(.primary)
-                            Text("••••••••••••••••")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        HIGBadge(.custom(color: .indigo, text: "Secret"), isCompact: true)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            HIGFeedback.impact(.medium)
-                            itemToDelete = (name: s.name, isSecret: true)
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
     private func bindingRow(_ binding: WorkerBinding) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: bindingIcon(for: binding.type), color: bindingColor(for: binding.type), size: 32, cornerRadius: 8)
@@ -272,6 +164,7 @@ struct WorkerBindingsView: View {
             } label: {
                 Label("Unbind", systemImage: "link.badge.plus")
             }
+            .tint(.red)
         }
     }
     

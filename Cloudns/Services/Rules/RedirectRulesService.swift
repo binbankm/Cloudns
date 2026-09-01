@@ -11,8 +11,6 @@ protocol RedirectRulesServiceProtocol: Sendable {
 final class RedirectRulesService: RedirectRulesServiceProtocol {
     static let shared = RedirectRulesService()
     
-    private let client = HTTPNetworkClient.shared
-    private let factory = AuthenticatedRequestFactory.shared
     private let wafRulesService = WAFRulesService.shared
     
     private init() {}

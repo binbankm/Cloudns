@@ -118,13 +118,13 @@ struct DashboardView: View {
             HStack(spacing: 8) {
                 if let accountId = viewModel.selectedAccount?.id, !accountId.isEmpty {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HIGFeedback.copied()
                         UIPasteboard.general.string = accountId
                         ToastManager.shared.showCopied("Account ID Copied")
                     } label: {
                         HStack(spacing: 5) {
                             Text("ID")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .font(.caption2.weight(.bold).monospaced())
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
                                 .background(Color.orange.opacity(0.18))
@@ -136,7 +136,7 @@ struct DashboardView: View {
                                 .foregroundStyle(.secondary)
                             
                             Image(systemName: "doc.on.doc")
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .foregroundStyle(.secondary.opacity(0.8))
                         }
                         .padding(.horizontal, 8)
@@ -152,11 +152,11 @@ struct DashboardView: View {
                 
                 HStack(spacing: 5) {
                     Image(systemName: "shield.checkerboard")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(.blue)
                     
                     Text("Zero Trust Edge")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
                 .padding(.horizontal, 8)
@@ -293,7 +293,7 @@ struct DashboardView: View {
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
                 NavigationLink(destination: AddZoneView()) {
-                    QuickDeckButton(icon: "plus.circle.fill", color: .blue, title: "Add Domain")
+                    QuickDeckButton(icon: "plus.circle.fill", color: Color.accentColor, title: "Add Domain")
                 }
                 .buttonStyle(.higPressable)
                 
@@ -516,13 +516,13 @@ struct QuickDeckButton: View {
                     .frame(width: 44, height: 44)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 19, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(color)
             }
             .accessibilityHidden(true)
             
             Text(title)
-                .font(.system(size: 11, weight: .medium))
+                .font(.caption2.weight(.medium))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)

@@ -35,6 +35,7 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(36)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -74,6 +75,7 @@ struct WhoisToolView: View {
                         Text(viewModel.isLoading ? "Querying RDAP…" : "Query WHOIS Directory")
                             .fontWeight(.semibold)
                     }
+                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)
@@ -205,19 +207,6 @@ struct WhoisToolView: View {
         }
     }
     
-    @ViewBuilder
-    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(verbatim: value)
-                .font(.subheadline.monospacedDigit())
-                .foregroundStyle(.primary)
-        }
-    }
-    
     // MARK: - 3. Statuses Rows
     @ViewBuilder
     private func statusesRows(info: WhoisInfo) -> some View {
@@ -247,6 +236,7 @@ struct WhoisToolView: View {
                     .foregroundStyle(.primary)
                 Spacer()
                 Button {
+                    HIGFeedback.copied()
                     UIPasteboard.general.string = ns.lowercased()
                     ToastManager.shared.showCopied()
                 } label: {

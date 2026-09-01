@@ -18,6 +18,7 @@ struct ContentView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     @ObservedObject private var router = DeepLinkRouter.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     var currentLocale: Locale {
         if appLanguage == "system" {
@@ -97,6 +98,8 @@ struct ContentView: View {
         }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
+        .tint(themeManager.currentColor.color)
+        .monospacedDigit()
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
@@ -162,6 +165,9 @@ struct ContentView: View {
                 }
             }
             .environment(\.locale, currentLocale)
+            .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
+            .tint(themeManager.currentColor.color)
+            .monospacedDigit()
         }
     }
     
@@ -172,13 +178,31 @@ struct ContentView: View {
         if horizontalSizeClass == .regular {
             // iPad / Mac / 宽屏：原生 NavigationSplitView 侧边栏模式
             NavigationSplitView {
-                List {
+                List(selection: Binding(
+                    get: { selectedTab },
+                    set: { newTab in
+                        if let newTab {
+                            selectedTab = newTab
+                            HIGFeedback.selection()
+                        }
+                    }
+                )) {
                     Section {
-                        sidebarRow(tab: .dashboard, title: "Dashboard", icon: "square.grid.2x2", activeIcon: "square.grid.2x2.fill", color: .orange)
-                        sidebarRow(tab: .domains, title: "Domains", icon: "globe.asia.australia", activeIcon: "globe.asia.australia.fill", color: .blue)
-                        sidebarRow(tab: .developer, title: "Developer", icon: "cpu", activeIcon: "cpu.fill", color: .purple)
-                        sidebarRow(tab: .tools, title: "Tools", icon: "terminal", activeIcon: "terminal.fill", color: .teal)
-                        sidebarRow(tab: .settings, title: "Settings", icon: "gearshape", activeIcon: "gearshape.fill", color: .gray)
+                        NavigationLink(value: AppTab.dashboard) {
+                            Label("Dashboard", systemImage: "square.grid.2x2")
+                        }
+                        NavigationLink(value: AppTab.domains) {
+                            Label("Domains", systemImage: "globe.asia.australia")
+                        }
+                        NavigationLink(value: AppTab.developer) {
+                            Label("Developer", systemImage: "cpu")
+                        }
+                        NavigationLink(value: AppTab.tools) {
+                            Label("Tools", systemImage: "terminal")
+                        }
+                        NavigationLink(value: AppTab.settings) {
+                            Label("Settings", systemImage: "gearshape")
+                        }
                     } header: {
                         Text("Cloudns")
                             .font(.headline)
@@ -196,60 +220,35 @@ struct ContentView: View {
             TabView(selection: $selectedTab) {
                 DashboardView()
                     .tabItem {
-                        Label("Dashboard", systemImage: selectedTab == .dashboard ? "square.grid.2x2.fill" : "square.grid.2x2")
+                        Label("Dashboard", systemImage: "square.grid.2x2")
                     }
                     .tag(AppTab.dashboard)
                 
                 ZonesListView()
                     .tabItem {
-                        Label("Domains", systemImage: selectedTab == .domains ? "globe.asia.australia.fill" : "globe.asia.australia")
+                        Label("Domains", systemImage: "globe.asia.australia")
                     }
                     .tag(AppTab.domains)
                 
                 DeveloperHubView()
                     .tabItem {
-                        Label("Developer", systemImage: selectedTab == .developer ? "cpu.fill" : "cpu")
+                        Label("Developer", systemImage: "cpu")
                     }
                     .tag(AppTab.developer)
                 
                 NetworkToolsView()
                     .tabItem {
-                        Label("Tools", systemImage: selectedTab == .tools ? "terminal.fill" : "terminal")
+                        Label("Tools", systemImage: "terminal")
                     }
                     .tag(AppTab.tools)
                 
                 SettingsView()
                     .tabItem {
-                        Label("Settings", systemImage: selectedTab == .settings ? "gearshape.fill" : "gearshape")
+                        Label("Settings", systemImage: "gearshape")
                     }
                     .tag(AppTab.settings)
             }
         }
-    }
-    
-    @ViewBuilder
-    private func sidebarRow(tab: AppTab, title: LocalizedStringKey, icon: String, activeIcon: String, color: Color) -> some View {
-        Button {
-            selectedTab = tab
-            HIGFeedback.selection()
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: selectedTab == tab ? activeIcon : icon)
-                    .foregroundStyle(selectedTab == tab ? color : .secondary)
-                    .font(.body.weight(.medium))
-                    .frame(width: 24, height: 24)
-                
-                Text(title)
-                    .font(.body.weight(selectedTab == tab ? .semibold : .regular))
-                    .foregroundStyle(selectedTab == tab ? .primary : .secondary)
-                
-                Spacer()
-            }
-            .padding(.vertical, 6)
-            .padding(.horizontal, 8)
-            .background(selectedTab == tab ? color.opacity(0.12) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
     
     @ViewBuilder

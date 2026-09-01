@@ -46,7 +46,9 @@ struct ZonesListView: View {
             }
             .sheet(isPresented: $showAddZoneSheet) {
                 AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
-                 .higToast()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .higToast()
             }
             .overlay {
                 emptyStateOverlay
@@ -115,6 +117,7 @@ struct ZonesListView: View {
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
+                    .tint(.red)
                 }
             }
 

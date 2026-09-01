@@ -32,7 +32,7 @@ struct DashboardZoneTrafficChartView: View {
                                 .frame(width: 5, height: 5)
                             
                             Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.caption2.weight(.semibold))
                                 .foregroundStyle(.green)
                         }
                         .padding(.horizontal, 7)
@@ -159,9 +159,12 @@ struct DashboardZoneTrafficChartView: View {
             AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2, 2]))
                     .foregroundStyle(Color(.separator).opacity(0.3))
-                AxisValueLabel(format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-                    .font(.system(size: 9, weight: .medium).monospacedDigit())
-                    .foregroundStyle(Color(.tertiaryLabel))
+                AxisValueLabel(
+                    format: DateFormatters.chartXAxisHourly,
+                    collisionResolution: .greedy
+                )
+                .font(.caption2.weight(.medium).monospacedDigit())
+                .foregroundStyle(Color(.tertiaryLabel))
             }
         }
         .chartYAxis {
@@ -170,8 +173,8 @@ struct DashboardZoneTrafficChartView: View {
                     .foregroundStyle(Color(.separator).opacity(0.2))
                 AxisValueLabel {
                     if let dVal = value.as(Double.self) {
-                        Text(formatCompact(dVal))
-                            .font(.system(size: 9, weight: .medium).monospacedDigit())
+                        Text(MetricFormatters.compactNumber(dVal))
+                            .font(.caption2.weight(.medium).monospacedDigit())
                             .foregroundStyle(Color(.tertiaryLabel))
                     }
                 }
@@ -222,9 +225,9 @@ struct DashboardZoneTrafficChartView: View {
     
     private func metricColor(_ metric: DashboardChartMetric) -> Color {
         switch metric {
-        case .requests: return .blue
+        case .requests: return Color.accentColor
         case .bandwidth: return .purple
-        case .threats: return .orange
+        case .threats: return .red
         }
     }
     
@@ -232,7 +235,7 @@ struct DashboardZoneTrafficChartView: View {
         if let selected = selectedPoint {
             switch viewModel.selectedChartMetric {
             case .requests:
-                return formatCompact(selected.requests)
+                return MetricFormatters.compactNumber(selected.requests)
             case .bandwidth:
                 return ByteCountFormatter.string(fromByteCount: Int64(selected.bytes), countStyle: .binary)
             case .threats:
@@ -242,22 +245,11 @@ struct DashboardZoneTrafficChartView: View {
         
         switch viewModel.selectedChartMetric {
         case .requests:
-            return formatCompact(viewModel.totalFleetRequests24h)
+            return MetricFormatters.compactNumber(viewModel.totalFleetRequests24h)
         case .bandwidth:
             return ByteCountFormatter.string(fromByteCount: Int64(viewModel.totalFleetBandwidth24h), countStyle: .binary)
         case .threats:
             return Int(viewModel.totalThreats24h).formatted()
         }
-    }
-    
-    private func formatCompact(_ val: Double) -> String {
-        if val >= 1_000_000_000 {
-            return "\((val / 1_000_000_000).formatted(.number.precision(.fractionLength(2))))B"
-        } else if val >= 1_000_000 {
-            return "\((val / 1_000_000).formatted(.number.precision(.fractionLength(2))))M"
-        } else if val >= 1_000 {
-            return "\((val / 1_000).formatted(.number.precision(.fractionLength(1))))K"
-        }
-        return val.formatted(.number.precision(.fractionLength(0)))
     }
 }

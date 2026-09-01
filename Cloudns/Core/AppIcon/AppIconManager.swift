@@ -42,6 +42,16 @@ public enum AppIconOption: String, CaseIterable, Identifiable {
         }
     }
     
+    public var rawDisplayName: String {
+        switch self {
+        case .primary: return "Classic Orange"
+        case .cyber:   return "Cyber Cyan"
+        case .dark:    return "Stealth Dark"
+        case .gold:    return "Golden Amber"
+        case .purple:  return "Midnight Violet"
+        }
+    }
+    
     public var subtitle: LocalizedStringKey {
         switch self {
         case .primary:
@@ -88,6 +98,12 @@ public final class AppIconManager: ObservableObject {
             self.currentIcon = match
         } else {
             self.currentIcon = .primary
+        }
+    }
+    
+    public func setIcon(_ icon: AppIconOption) {
+        Task {
+            await selectIcon(icon)
         }
     }
     

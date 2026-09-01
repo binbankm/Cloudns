@@ -173,15 +173,15 @@ struct ZoneAnalyticsView: View {
             GridRow {
                 metricCard(
                     title: "Total Requests",
-                    value: formatNumber(viewModel.totalRequests),
+                    value: MetricFormatters.compactNumber(viewModel.totalRequests),
                     icon: "globe",
                     color: .blue,
-                    badge: "\(viewModel.formatBytes(viewModel.totalBandwidthBytes)) Transferred"
+                    badge: "\(ByteCountFormatters.format(viewModel.totalBandwidthBytes)) Transferred"
                 )
                 
                 metricCard(
                     title: "Cached Requests",
-                    value: formatNumber(viewModel.totalCachedRequests),
+                    value: MetricFormatters.compactNumber(viewModel.totalCachedRequests),
                     icon: "bolt.fill",
                     color: .orange,
                     badge: "\(viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1)))) Cache Rate"
@@ -199,10 +199,10 @@ struct ZoneAnalyticsView: View {
                 
                 metricCard(
                     title: "Data Transferred",
-                    value: viewModel.formatBytes(viewModel.totalBandwidthBytes),
+                    value: ByteCountFormatters.format(viewModel.totalBandwidthBytes),
                     icon: "arrow.up.arrow.down",
                     color: .purple,
-                    badge: "\(viewModel.formatBytes(viewModel.totalCachedBandwidthBytes)) Saved by Cache"
+                    badge: "\(ByteCountFormatters.format(viewModel.totalCachedBandwidthBytes)) Saved by Cache"
                 )
             }
         }
@@ -269,7 +269,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(verbatim: formatNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
+                        Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
@@ -284,7 +284,7 @@ struct ZoneAnalyticsView: View {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(Color.accentColor)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
@@ -292,7 +292,7 @@ struct ZoneAnalyticsView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.12))
+                    .background(Color.accentColor.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
@@ -312,7 +312,7 @@ struct ZoneAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
+                            colors: [Color.accentColor.opacity(0.32), Color.accentColor.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -323,7 +323,7 @@ struct ZoneAnalyticsView: View {
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(Color.accentColor)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
@@ -331,7 +331,7 @@ struct ZoneAnalyticsView: View {
                 if let selected = selectedPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
-                        .foregroundStyle(Color.blue.opacity(0.6))
+                        .foregroundStyle(Color.accentColor.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -341,14 +341,14 @@ struct ZoneAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(Color.blue.opacity(0.25))
+                                .fill(Color.accentColor.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: Color.blue, radius: 4)
+                                .shadow(color: Color.accentColor, radius: 4)
                             Circle()
-                                .stroke(Color.blue, lineWidth: 2)
+                                .stroke(Color.accentColor, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -366,13 +366,12 @@ struct ZoneAnalyticsView: View {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
                         .foregroundStyle(Color.secondary.opacity(0.2))
-                    if isHourlyData {
-                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    } else {
-                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    }
+                    AxisValueLabel(
+                        format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
+                        collisionResolution: .greedy
+                    )
+                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
             .chartYAxis {
@@ -381,7 +380,9 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(verbatim: formatNumber(count))
+                            Text(verbatim: MetricFormatters.compactNumber(count))
+                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
                     }
@@ -438,7 +439,7 @@ struct ZoneAnalyticsView: View {
                     }
                     
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
-                        Text(verbatim: viewModel.formatBytes(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
+                        Text(verbatim: ByteCountFormatters.format(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
                             .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedBandwidthPoint != nil ? "transferred" : "total")
@@ -512,13 +513,12 @@ struct ZoneAnalyticsView: View {
                 AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
                         .foregroundStyle(Color.secondary.opacity(0.2))
-                    if isHourlyData {
-                        AxisValueLabel(format: .dateTime.hour(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    } else {
-                        AxisValueLabel(format: .dateTime.month().day(), collisionResolution: .greedy)
-                            .font(.caption2)
-                    }
+                    AxisValueLabel(
+                        format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
+                        collisionResolution: .greedy
+                    )
+                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
             .chartYAxis {
@@ -527,7 +527,9 @@ struct ZoneAnalyticsView: View {
                         .foregroundStyle(Color.secondary.opacity(0.2))
                     if let bytes = value.as(Int.self) {
                         AxisValueLabel {
-                            Text(verbatim: viewModel.formatBytes(bytes))
+                            Text(verbatim: ByteCountFormatters.format(bytes))
+                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 52, alignment: .trailing)
                         }
                     }
@@ -640,7 +642,7 @@ struct ZoneAnalyticsView: View {
                         Text("Country: \(item.countryCode)")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
-                        Text("\(formatNumber(item.requests)) Requests")
+                        Text("\(MetricFormatters.compactNumber(item.requests)) Requests")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -672,7 +674,7 @@ struct ZoneAnalyticsView: View {
                 .foregroundStyle(.blue)
             
             LabeledContent {
-                Text(verbatim: viewModel.formatBytes(viewModel.totalCachedBandwidthBytes))
+                Text(verbatim: ByteCountFormatters.format(viewModel.totalCachedBandwidthBytes))
                     .font(.caption.weight(.semibold).monospacedDigit())
             } label: {
                 Text("Origin Bandwidth Saved")
@@ -704,12 +706,7 @@ struct ZoneAnalyticsView: View {
     
     private func formattedPointDate(_ point: AnalyticsDataPoint) -> String {
         let date = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
-        let loc = DateFormatters.currentAppLocale
-        if isHourlyData {
-            return date.formatted(.dateTime.locale(loc).hour().minute())
-        } else {
-            return date.formatted(.dateTime.locale(loc).month().day())
-        }
+        return DateFormatters.formatChartDetailDate(date, isHourly: isHourlyData)
     }
     
     private func findClosestPoint(for date: Date, in points: [AnalyticsDataPoint]) -> AnalyticsDataPoint? {
@@ -719,14 +716,6 @@ struct ZoneAnalyticsView: View {
             let d2 = abs(dateFromString($1.dimensions.datetime ?? $1.dimensions.date ?? "").timeIntervalSince(date))
             return d1 < d2
         })
-    }
-    
-    private func formatNumber(_ num: Int) -> String {
-        if num < 1000 { return num.formatted(.number) }
-        let k = Double(num) / 1000.0
-        if k < 1000 { return "\((k).formatted(.number.precision(.fractionLength(1))))K" }
-        let m = k / 1000.0
-        return "\((m).formatted(.number.precision(.fractionLength(2))))M"
     }
 }
 

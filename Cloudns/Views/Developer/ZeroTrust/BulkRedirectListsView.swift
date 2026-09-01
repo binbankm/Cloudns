@@ -31,6 +31,7 @@ struct BulkRedirectListsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                         }
                     }
                 }

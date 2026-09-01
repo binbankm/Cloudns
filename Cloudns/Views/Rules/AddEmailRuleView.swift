@@ -33,8 +33,12 @@ struct AddEmailRuleView: View {
                 
                 Section(header: Text("Destination"), footer: Text("The verified destination address where messages will be forwarded.")) {
                     if viewModel.destinations.isEmpty {
-                        Text("No verified destinations available.")
-                            .foregroundStyle(.red)
+                        HStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.circle.fill")
+                            Text("No verified destinations available.")
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.orange)
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in

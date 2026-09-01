@@ -16,6 +16,24 @@ enum DateFormatters {
         date.ISO8601Format()
     }
     
+    // MARK: - Standard Chart Formatters (12-Language Adaptive & DevOps Standards)
+    
+    /// 适用于图表 X 轴 24h 走势刻度（严格 24 小时制且补零，如 "08:00", "14:00"）
+    static let chartXAxisHourly: Date.FormatStyle = .dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+    
+    /// 适用于图表 X 轴多天刻度（自适应 12 种语言月日缩写，如 中文"9月1日", 英文"Sep 1", 德文"1. Sept."）
+    static let chartXAxisDaily: Date.FormatStyle = .dateTime.month(.abbreviated).day()
+    
+    /// 图表交互选中（Scrubbing）详情时间格式化：24h 模式下显示 "HH:mm"，多天模式下显示带星期缩写（如 "9月1日 周二" / "Tue, Sep 1"）
+    static func formatChartDetailDate(_ date: Date, isHourly: Bool) -> String {
+        let loc = currentAppLocale
+        if isHourly {
+            return date.formatted(.dateTime.locale(loc).hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        } else {
+            return date.formatted(.dateTime.locale(loc).month(.abbreviated).day().weekday(.short))
+        }
+    }
+    
     // MARK: - Display Formatters
     
     /// 中等日期 + 简短时间（如 "2023年10月1日 14:30" / "Oct 1, 2023 at 2:30 PM"）
@@ -75,14 +93,6 @@ enum DateFormatters {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter
-    }()
-    
-    /// "yyyy-MM-dd HH:mm" 日期格式化器
-    static let yearMonthDayHourMinute: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
         return formatter
     }()
     
@@ -150,6 +160,10 @@ enum DateFormatters {
     
     /// 当前 App 实际生效的本地化语言 Locale（动态响应系统语言、应用独立语言设置）
     static var currentAppLocale: Locale {
+        let appLang = UserDefaults.standard.string(forKey: AppStorageKey.appLanguage) ?? "system"
+        if appLang != "system" && !appLang.isEmpty {
+            return Locale(identifier: appLang)
+        }
         if let preferred = Bundle.main.preferredLocalizations.first {
             return Locale(identifier: preferred)
         }
@@ -193,9 +207,31 @@ enum DateFormatters {
     }
 }
 
+/// 集中提供的度量数字紧凑格式化器（如 1.2K, 3.4M, 5.6B）
+enum MetricFormatters {
+    static func compactNumber<T: BinaryInteger>(_ num: T) -> String {
+        compactNumber(Double(num))
+    }
+    
+    static func compactNumber(_ val: Double) -> String {
+        if val >= 1_000_000_000 {
+            return "\((val / 1_000_000_000).formatted(.number.precision(.fractionLength(2))))B"
+        } else if val >= 1_000_000 {
+            return "\((val / 1_000_000).formatted(.number.precision(.fractionLength(2))))M"
+        } else if val >= 1_000 {
+            return "\((val / 1_000).formatted(.number.precision(.fractionLength(1))))K"
+        }
+        return val.formatted(.number.precision(.fractionLength(0)))
+    }
+}
+
 /// 集中提供的字节/大小格式化器，使用 Foundation 线程安全静态方法
 enum ByteCountFormatters {
     static func format(_ bytes: Int64) -> String {
         ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+    
+    static func format<T: BinaryInteger>(_ bytes: T) -> String {
+        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
     }
 }

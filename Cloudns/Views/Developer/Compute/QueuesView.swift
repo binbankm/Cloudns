@@ -33,6 +33,7 @@ struct QueuesView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                            .tint(.red)
                             Button {
                                 HIGFeedback.impact(.light)
                                 queueToPurge = queue
