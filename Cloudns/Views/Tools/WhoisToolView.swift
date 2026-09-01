@@ -207,19 +207,6 @@ struct WhoisToolView: View {
         }
     }
     
-    @ViewBuilder
-    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(verbatim: value)
-                .font(.subheadline.monospacedDigit())
-                .foregroundStyle(.primary)
-        }
-    }
-    
     // MARK: - 3. Statuses Rows
     @ViewBuilder
     private func statusesRows(info: WhoisInfo) -> some View {

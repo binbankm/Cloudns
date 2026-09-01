@@ -7,7 +7,6 @@ struct WorkerTailView: View {
     let scriptName: String
     
     @StateObject private var viewModel: WorkerTailViewModel
-    @State private var autoScroll = true
     @State private var selectedEvent: TailTraceItem?
     
     init(accountId: String, scriptName: String) {

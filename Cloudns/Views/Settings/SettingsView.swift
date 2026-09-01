@@ -134,39 +134,37 @@ struct SettingsView: View {
                         HIGFeedback.impact(.light)
                     }
                     
-                    Picker(selection: Binding(
-                        get: { themeManager.currentColor },
-                        set: { themeManager.setThemeColor($0) }
-                    )) {
-                        ForEach(AppThemeColor.allCases) { theme in
-                            Text(theme.displayName).tag(theme)
-                        }
+                    NavigationLink {
+                        ThemeColorPickerView()
                     } label: {
-                        SettingsRowView(
-                            icon: "paintpalette.fill",
-                            color: themeManager.currentColor.color,
-                            title: "Theme Color"
-                        )
+                        HStack {
+                            SettingsRowView(
+                                icon: "paintpalette.fill",
+                                color: themeManager.currentColor.color,
+                                title: "Theme Color"
+                            )
+                            Spacer()
+                            Text(themeManager.currentColor.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    .pickerStyle(.menu)
-                    .tint(.secondary)
                     
-                    Picker(selection: Binding(
-                        get: { iconManager.currentIcon },
-                        set: { iconManager.setIcon($0) }
-                    )) {
-                        ForEach(AppIconOption.allCases) { icon in
-                            Text(icon.displayName).tag(icon)
-                        }
+                    NavigationLink {
+                        AppIconPickerView()
                     } label: {
-                        SettingsRowView(
-                            icon: "app.badge.fill",
-                            color: .pink,
-                            title: "App Icon"
-                        )
+                        HStack {
+                            SettingsRowView(
+                                icon: "app.badge.fill",
+                                color: .pink,
+                                title: "App Icon"
+                            )
+                            Spacer()
+                            Text(iconManager.currentIcon.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    .pickerStyle(.menu)
-                    .tint(.secondary)
                     
                     Picker(selection: $appLanguage) {
                         Text("Follow System").tag("system")

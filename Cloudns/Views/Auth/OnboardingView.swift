@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - OnboardingView
 
 struct OnboardingView: View {
-    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @State private var currentPage = 0
     
     private let totalPages = 4
@@ -15,6 +16,13 @@ struct OnboardingView: View {
         case 2: return .orange
         default: return .purple
         }
+    }
+    
+    private func completeOnboarding() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            hasSeenOnboarding = true
+        }
+        dismiss()
     }
     
     var body: some View {
@@ -63,9 +71,7 @@ struct OnboardingView: View {
                     
                     Button("Skip") {
                         HIGFeedback.impact(.light)
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            hasSeenOnboarding = true
-                        }
+                        completeOnboarding()
                     }
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -140,9 +146,7 @@ struct OnboardingView: View {
                             }
                         } else {
                             HIGFeedback.impact(.medium)
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                hasSeenOnboarding = true
-                            }
+                            completeOnboarding()
                         }
                     }) {
                         HStack(spacing: 8) {

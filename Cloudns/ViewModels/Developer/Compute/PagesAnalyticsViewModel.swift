@@ -2,15 +2,6 @@ import Foundation
 import SwiftUI
 import Combine
 
-nonisolated struct PagesDeploymentStat: Identifiable, Equatable, Sendable {
-    var id: String { deploymentId }
-    let deploymentId: String
-    let environment: String
-    let status: String
-    let date: Date
-    let isSuccess: Bool
-}
-
 nonisolated struct PagesAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AggregatedWorkerDataPoint]
     let totalRequests: Int

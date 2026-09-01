@@ -99,6 +99,7 @@ struct ContentView: View {
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
         .tint(themeManager.currentColor.color)
+        .monospacedDigit()
         .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
@@ -164,6 +165,9 @@ struct ContentView: View {
                 }
             }
             .environment(\.locale, currentLocale)
+            .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
+            .tint(themeManager.currentColor.color)
+            .monospacedDigit()
         }
     }
     

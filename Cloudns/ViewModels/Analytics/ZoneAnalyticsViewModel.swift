@@ -49,10 +49,6 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
         return Double(totalCachedRequests) / Double(totalRequests)
     }
     
-    func formatBytes(_ bytes: Int) -> String {
-        ByteCountFormatters.format(Int64(bytes))
-    }
-    
     private func cacheKey(zoneTag: String, days: Int) -> String {
         "zone_analytics_\(zoneTag)_\(days)"
     }

@@ -10,7 +10,6 @@ struct WorkerSourceCodeView: View {
     
     @State private var selectedModule: WorkerModuleItem?
     @State private var currentCode: String = ""
-    @State private var isEditing = false
     @State private var isSaving = false
     @State private var errorMessage: String?
     

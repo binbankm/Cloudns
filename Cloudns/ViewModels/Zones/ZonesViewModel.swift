@@ -57,6 +57,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
                 self.zones = freshZones
                 self.totalCount = freshZones.count
                 self.fetchBatchSparklines(for: freshZones)
+                self.syncFirstZoneToWidget(zones: freshZones)
                 self.currentPage = 2
                 self.canLoadMore = freshZones.count >= 50
             }

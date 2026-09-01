@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = true
+    
     @StateObject private var viewModel = LoginViewModel()
     @ObservedObject private var themeManager = ThemeManager.shared
     
@@ -39,9 +42,53 @@ struct LoginView: View {
             }
             .ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    Spacer(minLength: 16)
+            VStack(spacing: 0) {
+                // Top Navigation Bar
+                HStack {
+                    if onLoginSuccess == nil {
+                        Button {
+                            HIGFeedback.impact(.light)
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                hasSeenOnboarding = false
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.subheadline.weight(.semibold))
+                                Text("Introduction")
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(Color(.tertiarySystemFill))
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button {
+                            HIGFeedback.impact(.light)
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(8)
+                                .background(Color(.tertiarySystemFill))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Spacer(minLength: 12)
                     
                     // 2. Glowing Hero Logo & Header
                     VStack(spacing: 12) {
@@ -320,10 +367,11 @@ struct LoginView: View {
                 }
             }
             .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = nil
+                .scrollDismissesKeyboard(.interactively)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    focusedField = nil
+                }
             }
         }
         .task {
