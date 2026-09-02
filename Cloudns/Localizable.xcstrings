@@ -66112,6 +66112,82 @@
         }
       }
     },
+    "Design System Showcase": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Design System Showcase"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设计系统展示"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設計系統展示"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デザインシステムショーケース"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디자인 시스템 쇼케이스"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Design-System-Vorschau"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitrine du système de design"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muestra del sistema de diseño"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostruário do Sistema de Design"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vetrina del Design System"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Витрина дизайн-системы"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض نظام التصميم"
+          }
+        }
+      }
+    },
     "Designed for Cloudflare Edge & Zero Trust": {
       "extractionState": "manual",
       "localizations": {
@@ -70483,6 +70559,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "DNS、HTTP 與網路防火牆策略"
+          }
+        }
+      }
+    },
+    "dns.fqdn == \"malicious.com\"": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dns.fqdn == \"malicious.com\""
           }
         }
       }
@@ -193417,6 +193569,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "值 (例如：letsencrypt.org)"
+          }
+        }
+      }
+    },
+    "Value / Params (e.g. alpn=\"h3,h2\" port=443)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value / Params (e.g. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值 / 参数（例如 alpn=\"h3,h2\" port=443）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值 / 參數（例如 alpn=\"h3,h2\" port=443）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "値 / パラメータ（例: alpn=\"h3,h2\" port=443）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "값 / 매개변수 (예: alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wert / Parameter (z.B. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valeur / Paramètres (ex. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valor / Parámetros (ej. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valor / Parâmetros (ex: alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valore / Parametri (es. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Значение / Параметры (напр. alpn=\"h3,h2\" port=443)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "القيمة / المعلمات (مثل alpn=\"h3,h2\" port=443)"
           }
         }
       }
