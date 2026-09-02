@@ -9,7 +9,7 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
-    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
+    @ObservedObject private var languageManager = LanguageManager.shared
     @State private var selectedTab: AppTab = .dashboard
     @State private var tabViewResetId = UUID()
     @ObservedObject private var authManager = AppAuthManager.shared
@@ -19,13 +19,6 @@ struct ContentView: View {
     
     @ObservedObject private var router = DeepLinkRouter.shared
     @ObservedObject private var themeManager = ThemeManager.shared
-    
-    var currentLocale: Locale {
-        if appLanguage == "system" {
-            return Locale.autoupdatingCurrent
-        }
-        return Locale(identifier: appLanguage)
-    }
     
     // MARK: - Body
     
@@ -96,11 +89,11 @@ struct ContentView: View {
         .overlay(alignment: .top) {
             HIGToastOverlay()
         }
-        .environment(\.locale, currentLocale)
+        .environment(\.locale, languageManager.currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
         .tint(themeManager.currentColor.color)
         .monospacedDigit()
-        .id(appLanguage)
+        .id(languageManager.currentLanguage)
         .onAppear {
             _ = AccountManager.shared
             WidgetDataStore.shared.notifyWidgetsToReload()
@@ -164,7 +157,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .environment(\.locale, currentLocale)
+            .environment(\.locale, languageManager.currentLocale)
             .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
             .tint(themeManager.currentColor.color)
             .monospacedDigit()
@@ -176,7 +169,6 @@ struct ContentView: View {
     @ViewBuilder
     private var mainRootLayout: some View {
         if horizontalSizeClass == .regular {
-            // iPad / Mac / 宽屏：原生 NavigationSplitView 侧边栏模式
             NavigationSplitView {
                 List(selection: Binding(
                     get: { selectedTab },
@@ -216,7 +208,6 @@ struct ContentView: View {
                 detailViewForTab(selectedTab)
             }
         } else {
-            // iPhone / 紧凑屏：原生经典 5-Tab 栏模式
             TabView(selection: $selectedTab) {
                 DashboardView()
                     .tabItem {
