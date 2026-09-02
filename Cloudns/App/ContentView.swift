@@ -9,7 +9,7 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
-    @ObservedObject private var languageManager = LanguageManager.shared
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var selectedTab: AppTab = .dashboard
     @State private var tabViewResetId = UUID()
     @ObservedObject private var authManager = AppAuthManager.shared
@@ -19,6 +19,13 @@ struct ContentView: View {
     
     @ObservedObject private var router = DeepLinkRouter.shared
     @ObservedObject private var themeManager = ThemeManager.shared
+    
+    var currentLocale: Locale {
+        if appLanguage == "system" {
+            return Locale.autoupdatingCurrent
+        }
+        return Locale(identifier: appLanguage)
+    }
     
     // MARK: - Body
     
@@ -89,11 +96,11 @@ struct ContentView: View {
         .overlay(alignment: .top) {
             HIGToastOverlay()
         }
-        .environment(\.locale, languageManager.currentLocale)
+        .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
         .tint(themeManager.currentColor.color)
         .monospacedDigit()
-        .id(languageManager.currentLanguage)
+        .id(appLanguage)
         .onAppear {
             _ = AccountManager.shared
             WidgetDataStore.shared.notifyWidgetsToReload()
@@ -157,7 +164,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .environment(\.locale, languageManager.currentLocale)
+            .environment(\.locale, currentLocale)
             .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
             .tint(themeManager.currentColor.color)
             .monospacedDigit()

@@ -6,6 +6,7 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
+    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @AppStorage(AppStorageKey.hapticsEnabled) private var hapticsEnabled = true
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
     @Environment(\.openURL) private var openURL
@@ -17,7 +18,6 @@ struct SettingsView: View {
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
     @ObservedObject private var themeManager = ThemeManager.shared
-    @ObservedObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         NavigationStack {
@@ -169,7 +169,7 @@ struct SettingsView: View {
                         }
                     }
                     
-                    Picker(selection: $languageManager.currentLanguage) {
+                    Picker(selection: $appLanguage) {
                         Text("Follow System").tag("system")
                         Text("English").tag("en")
                         Text("简体中文").tag("zh-Hans")
@@ -192,9 +192,8 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(.secondary)
-                    .onChange(of: languageManager.currentLanguage) { _ in
+                    .onChange(of: appLanguage) { _ in
                         HIGFeedback.selection()
-                        ToastManager.shared.show("Language Changed", icon: "globe", iconColor: .blue)
                     }
                     
                     Toggle(isOn: $hapticsEnabled) {

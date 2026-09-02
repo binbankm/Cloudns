@@ -6,7 +6,6 @@ struct CloudnsApp: App {
     
     init() {
         _ = AccountManager.shared
-        _ = LanguageManager.shared
         NetworkPreheater.warmup()
         
         let appearance = UITabBarAppearance()

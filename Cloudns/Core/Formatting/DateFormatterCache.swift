@@ -151,6 +151,9 @@ enum DateFormatters {
         if appLang != "system" && !appLang.isEmpty {
             return Locale(identifier: appLang)
         }
+        if let preferred = Bundle.main.preferredLocalizations.first {
+            return Locale(identifier: preferred)
+        }
         return Locale.autoupdatingCurrent
     }
     
