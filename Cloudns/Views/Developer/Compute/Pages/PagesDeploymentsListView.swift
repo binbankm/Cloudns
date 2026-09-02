@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesDeploymentsListView
+// Apple HIG Compliant Cloudflare Pages Deployment Timeline & Pipeline History
 
 struct PagesDeploymentsListView: View {
     let accountId: String
@@ -49,8 +50,8 @@ struct PagesDeploymentsListView: View {
                 Text("Preview (\(previewDeployments.count))").tag("preview")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, HIGTokens.Spacing.md)
+            .padding(.vertical, HIGTokens.Spacing.sm)
             .background(Color(.systemGroupedBackground))
             .onChange(of: selectedEnvFilter) { _ in
                 HIGFeedback.selection()
@@ -78,8 +79,8 @@ struct PagesDeploymentsListView: View {
                                     
                                     Button {
                                         UIPasteboard.general.string = urlStr
-                                        ToastManager.shared.showCopied()
-                                        HIGFeedback.impact(.light)
+                                        ToastManager.shared.showCopied("Preview URL Copied")
+                                        HIGFeedback.copied()
                                     } label: {
                                         Label("Copy Preview URL", systemImage: "doc.on.doc")
                                     }
@@ -88,8 +89,8 @@ struct PagesDeploymentsListView: View {
                                 if let hash = dep.deploymentTrigger?.metadata?.commitHash {
                                     Button {
                                         UIPasteboard.general.string = hash
-                                        ToastManager.shared.showCopied()
-                                        HIGFeedback.impact(.light)
+                                        ToastManager.shared.showCopied("Commit Hash Copied")
+                                        HIGFeedback.copied()
                                     } label: {
                                         Label("Copy Commit Hash", systemImage: "number")
                                     }
@@ -97,8 +98,8 @@ struct PagesDeploymentsListView: View {
                                 
                                 Button {
                                     UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Deployment ID Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy Deployment ID", systemImage: "doc.on.doc")
                                 }
@@ -113,8 +114,8 @@ struct PagesDeploymentsListView: View {
                                 
                                 Button {
                                     UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Deployment ID Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy ID", systemImage: "doc.on.doc")
                                 }
@@ -184,23 +185,23 @@ struct PagesDeploymentsListView: View {
         let isSuccess = status == "success"
         let isFailure = status == "failure" || status == "error"
         
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
             // Header: Status + Environment Badge + Branch + Commit Hash
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
                 // Status Indicator Badge
-                HStack(spacing: 4) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Image(systemName: isSuccess ? "checkmark.circle.fill" : (isFailure ? "xmark.circle.fill" : "arrow.triangle.2.circlepath"))
-                        .font(.caption2)
-                        .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
+                        .font(HIGTypography.caption2)
+                        .foregroundStyle(isSuccess ? HIGColors.success : (isFailure ? HIGColors.error : .orange))
                     
                     Text(isSuccess ? "Success" : (isFailure ? "Failed" : status.capitalized))
-                        .font(.caption2.weight(.bold))
+                        .font(HIGTypography.caption2.weight(.bold))
                 }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2.5)
-                .background(isSuccess ? Color.green.opacity(0.12) : (isFailure ? Color.red.opacity(0.12) : Color.orange.opacity(0.12)))
-                .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                .padding(.vertical, HIGTokens.Spacing.xxs + 0.5)
+                .background(isSuccess ? HIGColors.success.opacity(0.12) : (isFailure ? HIGColors.error.opacity(0.12) : Color.orange.opacity(0.12)))
+                .foregroundStyle(isSuccess ? HIGColors.success : (isFailure ? HIGColors.error : .orange))
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                 
                 // Environment Badge
                 HIGBadge(
@@ -215,32 +216,32 @@ struct PagesDeploymentsListView: View {
                 
                 // Git Branch
                 if let branch = dep.deploymentTrigger?.metadata?.branch, !branch.isEmpty {
-                    HStack(spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.xxs + 1) {
                         Image(systemName: "arrow.triangle.branch")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                         Text(branch)
-                            .font(.caption2.monospaced())
+                            .font(HIGTypography.caption2.monospaced())
                     }
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2.5)
+                    .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs + 0.5)
                     .background(Color(.secondarySystemFill))
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                 }
                 
                 // Commit Hash
                 if let hash = dep.deploymentTrigger?.metadata?.commitHash, !hash.isEmpty {
                     Text(String(hash.prefix(7)))
-                        .font(.caption2.monospacedDigit())
+                        .font(HIGTypography.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2.5)
+                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs + 0.5)
                         .background(Color(.secondarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                 }
                 
                 Image(systemName: "chevron.right")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
@@ -248,23 +249,23 @@ struct PagesDeploymentsListView: View {
             // Commit Message
             if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
                 Text(msg)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
             } else {
                 Text("Direct Deployment via Cloudflare Pages")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
             }
             
             // Footer: Timestamp + Preview URL indicator
-            HStack(spacing: 8) {
+            HStack(spacing: HIGTokens.Spacing.sm) {
                 if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Image(systemName: "clock")
-                            .font(.caption2)
-                        Text(date, format: Date.RelativeFormatStyle(presentation: .named))
-                            .font(.caption)
+                            .font(HIGTypography.caption2)
+                        Text(date.relativeFormatted())
+                            .font(HIGTypography.caption)
                     }
                     .foregroundStyle(.secondary)
                 }
@@ -272,18 +273,18 @@ struct PagesDeploymentsListView: View {
                 Spacer()
                 
                 if let urlStr = dep.url, !urlStr.isEmpty {
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Image(systemName: "globe")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                         Text(verbatim: urlStr.replacingOccurrences(of: "https://", with: ""))
-                            .font(.caption2.monospaced())
+                            .font(HIGTypography.caption2.monospaced())
                             .lineLimit(1)
                     }
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color.higAccent)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xs)
         .contentShape(Rectangle())
     }
 }

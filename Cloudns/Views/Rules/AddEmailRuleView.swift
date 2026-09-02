@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AddEmailRuleView
+// Apple HIG Compliant Cloudflare Email Routing Rule Creator
+
 struct AddEmailRuleView: View {
     @ObservedObject var viewModel: EmailRoutingViewModel
     let zoneName: String
@@ -21,24 +24,26 @@ struct AddEmailRuleView: View {
                 Section(header: Text("Custom Address"), footer: Text("The email address on your domain that will receive messages.")) {
                     HStack {
                         TextField("e.g. info", text: $customAddress)
+                            .font(HIGTypography.body)
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .submitLabel(.done)
                             .focused($isCustomAddressFocused)
                         Text(zoneName.isEmpty ? "@yourdomain.com" : "@\(zoneName)")
+                            .font(HIGTypography.body)
                             .foregroundStyle(.secondary)
                     }
                 }
                 
                 Section(header: Text("Destination"), footer: Text("The verified destination address where messages will be forwarded.")) {
                     if viewModel.destinations.isEmpty {
-                        HStack(spacing: 6) {
+                        HStack(spacing: HIGTokens.Spacing.xs) {
                             Image(systemName: "exclamationmark.circle.fill")
                             Text("No verified destinations available.")
                         }
-                        .font(.subheadline)
-                        .foregroundStyle(.orange)
+                        .font(HIGTypography.subheadline)
+                        .foregroundStyle(HIGColors.warning)
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
                             ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in
@@ -56,6 +61,7 @@ struct AddEmailRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -67,6 +73,7 @@ struct AddEmailRuleView: View {
                     }
                     .fontWeight(.semibold)
                     .disabled(customAddress.trimmingCharacters(in: .whitespaces).isEmpty || destinationAddress.isEmpty || isSubmitting)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -81,8 +88,8 @@ struct AddEmailRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .background(Color.higCardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                     }
                 }
             )

@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AddLoadBalancerView
+// Apple HIG Compliant Cloudflare Load Balancer Wizard
+
 struct AddLoadBalancerView: View {
     let zoneId: String
     @ObservedObject var viewModel: LoadBalancerViewModel
@@ -42,19 +45,20 @@ struct AddLoadBalancerView: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "info.circle.fill")
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.purple)
                         Text("Cloudflare Load Balancing is a paid add-on service. Make sure it is active on your Cloudflare account.")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 }
                 
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -66,8 +70,10 @@ struct AddLoadBalancerView: View {
                     if !proxied {
                         HStack {
                             Text("TTL (seconds)")
+                                .font(HIGTypography.body)
                             Spacer()
                             TextField("30", text: $ttl)
+                                .font(HIGTypography.body.monospacedDigit())
                                 .keyboardType(.numberPad)
                                 .autocorrectionDisabled()
                                 .multilineTextAlignment(.trailing)
@@ -96,10 +102,11 @@ struct AddLoadBalancerView: View {
                     if viewModel.pools.isEmpty {
                         Text("No origin pools available in this account.")
                             .foregroundStyle(.secondary)
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                     } else {
                         ForEach(viewModel.pools) { pool in
                             Button(action: {
+                                HIGFeedback.selection()
                                 if selectedPools.contains(pool.id) {
                                     selectedPools.remove(pool.id)
                                 } else {
@@ -108,15 +115,18 @@ struct AddLoadBalancerView: View {
                             }) {
                                 HStack {
                                     Text(pool.name ?? pool.id)
+                                        .font(HIGTypography.body)
                                         .foregroundStyle(.primary)
                                     Spacer()
                                     if selectedPools.contains(pool.id) {
                                         Image(systemName: "checkmark")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(Color.higAccent)
+                                            .fontWeight(.semibold)
                                     }
                                 }
                             }
                             .buttonStyle(.plain)
+                            .higTouchTarget(44)
                         }
                     }
                 }
@@ -135,8 +145,8 @@ struct AddLoadBalancerView: View {
                 if let error = viewModel.errorMessage, !error.isEmpty {
                     Section {
                         Text(verbatim: error)
-                            .foregroundStyle(.red)
-                            .font(.caption)
+                            .foregroundStyle(HIGColors.error)
+                            .font(HIGTypography.caption)
                     }
                 }
             }
@@ -149,6 +159,7 @@ struct AddLoadBalancerView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
@@ -159,6 +170,7 @@ struct AddLoadBalancerView: View {
                         }
                     }
                     .disabled(!isValid || isSubmitting)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -170,7 +182,6 @@ struct AddLoadBalancerView: View {
         isSubmitting = true
         HIGFeedback.impact(.medium)
         
-        // Convert selected set to array
         let poolsArray = Array(selectedPools)
         
         let payload = LoadBalancerUpdate(

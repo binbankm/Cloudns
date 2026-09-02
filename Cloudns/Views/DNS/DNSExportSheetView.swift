@@ -1,8 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import UIKit
 
-// MARK: - TextDocument
+// MARK: - TextDocument (FileDocument for Export)
 
 struct TextDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.plainText] }
@@ -25,19 +24,8 @@ struct TextDocument: FileDocument {
     }
 }
 
-// MARK: - ShareSheet
-
-private struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
 // MARK: - DNSExportSheetView
+// Apple HIG Compliant DNS Zone File Exporter (iOS 16+ ShareLink Integrated)
 
 struct DNSExportSheetView: View {
     let zoneName: String
@@ -50,7 +38,6 @@ struct DNSExportSheetView: View {
     @State private var exportedFileURL: URL?
     @State private var isLoading = true
     @State private var showingFileExporter = false
-    @State private var showingShareSheet = false
     
     private var contentLines: [String] {
         exportedContent.components(separatedBy: "\n")
@@ -66,7 +53,7 @@ struct DNSExportSheetView: View {
                             ProgressView("Generating BIND Zone File…")
                             Spacer()
                         }
-                        .padding(.vertical, 16)
+                        .padding(.vertical, HIGTokens.Spacing.lg)
                     }
                 } else {
                     // MARK: - Summary Section
@@ -85,18 +72,21 @@ struct DNSExportSheetView: View {
                         Button {
                             UIPasteboard.general.string = exportedContent
                             ToastManager.shared.showCopied("BIND Zone File Copied")
-                            HIGFeedback.impact(.light)
+                            HIGFeedback.copied()
                         } label: {
                             Label("Copy All Records", systemImage: "doc.on.doc")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color.higAccent)
                         }
                         
-                        Button {
-                            HIGFeedback.impact(.light)
-                            showingShareSheet = true
-                        } label: {
-                            Label("Share Zone File", systemImage: "square.and.arrow.up")
-                                .foregroundStyle(.blue)
+                        if let url = exportedFileURL {
+                            ShareLink(
+                                item: url,
+                                subject: Text("\(zoneName) DNS Zone File"),
+                                message: Text("Cloudflare BIND zone file exported via Cloudns")
+                            ) {
+                                Label("Share Zone File", systemImage: "square.and.arrow.up")
+                                    .foregroundStyle(Color.higAccent)
+                            }
                         }
                         
                         Button {
@@ -104,38 +94,38 @@ struct DNSExportSheetView: View {
                             showingFileExporter = true
                         } label: {
                             Label("Save to Files", systemImage: "folder")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color.higAccent)
                         }
                     }
                     
-                    // MARK: - Zone File Content Preview (Vertically Scrollable, Natural Wrap)
+                    // MARK: - Zone File Content Preview
                     Section(
                         header: HStack {
                             Text("Zone File Content")
                             Spacer()
                             Text("\(contentLines.count) lines")
-                                .font(.caption2.monospacedDigit())
+                                .font(HIGTypography.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         },
                         footer: Text("Standard RFC 1035 format. Text wraps naturally without horizontal overflow.")
                     ) {
                         ScrollView(.vertical, showsIndicators: true) {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                                 ForEach(Array(contentLines.enumerated()), id: \.offset) { idx, line in
-                                    HStack(alignment: .top, spacing: 8) {
+                                    HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
                                         Text("\(idx + 1)")
-                                            .font(.caption2.monospacedDigit())
+                                            .font(HIGTypography.caption2.monospacedDigit())
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)
                                         
                                         Text(verbatim: line)
-                                            .font(.caption.monospaced())
+                                            .font(HIGTypography.caption.monospaced())
                                             .foregroundStyle(lineColor(for: line))
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
                                 }
                             }
-                            .padding(.vertical, 8)
+                            .padding(.vertical, HIGTokens.Spacing.sm)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .frame(height: 300)
@@ -169,11 +159,6 @@ struct DNSExportSheetView: View {
                 case .failure:
                     ToastManager.shared.showError("Failed to Save File")
                     HIGFeedback.error()
-                }
-            }
-            .sheet(isPresented: $showingShareSheet) {
-                if let url = exportedFileURL {
-                    ShareSheet(items: [url])
                 }
             }
         }

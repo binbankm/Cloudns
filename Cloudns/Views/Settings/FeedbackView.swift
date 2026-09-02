@@ -1,6 +1,9 @@
 import SwiftUI
 import Combine
 
+// MARK: - FeedbackView
+// Apple HIG Compliant Diagnostic Reporter & Feedback Hub
+
 struct FeedbackView: View {
     @StateObject private var accountManager = AccountManager.shared
     @State private var feedbackText = ""
@@ -37,6 +40,7 @@ struct FeedbackView: View {
         Form {
             Section(header: Text("Feedback & Issue Description")) {
                 TextEditor(text: $feedbackText)
+                    .font(HIGTypography.body)
                     .frame(minHeight: 120)
             }
             
@@ -46,36 +50,39 @@ struct FeedbackView: View {
             ) {
                 LabeledContent("App Version") {
                     Text("v\(appVersion) (\(buildNumber))")
-                        .font(.subheadline.monospacedDigit())
+                        .font(HIGTypography.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
                 LabeledContent("iOS System", value: "iOS \(systemVersion)")
+                    .font(HIGTypography.body)
                 
                 LabeledContent("Account") {
                     Text(accountManager.activeEmail)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
                 
                 LabeledContent("Local Time") {
                     Text(DateFormatters.formatLocalDiagnosticTimestamp())
-                        .font(.caption.monospacedDigit())
+                        .font(HIGTypography.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 
                 Button {
                     UIPasteboard.general.string = diagnosticSummary
-                    ToastManager.shared.showCopied()
-                    HIGFeedback.impact(.light)
+                    ToastManager.shared.showCopied("Diagnostic Summary Copied")
+                    HIGFeedback.copied()
                 } label: {
-                    HStack {
-                        Image(systemName: "doc.on.doc").font(.subheadline)
+                    HStack(spacing: HIGTokens.Spacing.sm) {
+                        Image(systemName: "doc.on.doc")
+                            .font(HIGTypography.subheadline)
                         Text("Copy Diagnostic Info")
+                            .font(HIGTypography.subheadline.weight(.medium))
                     }
-                    .font(.subheadline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color.higAccent)
                 }
+                .higTouchTarget(44)
             }
             
             Section {
@@ -89,11 +96,12 @@ struct FeedbackView: View {
                         Spacer()
                         Image(systemName: "ladybug.fill")
                         Text("Submit Issue on GitHub")
-                            .fontWeight(.semibold)
+                            .font(HIGTypography.body.weight(.semibold))
                         Spacer()
                     }
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color.higAccent)
                 }
+                .higTouchTarget(44)
             }
         }
         .scrollDismissesKeyboard(.interactively)

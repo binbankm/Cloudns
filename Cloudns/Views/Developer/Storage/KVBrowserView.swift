@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - KVBrowserView
+// Apple HIG Compliant Cloudflare Workers KV & D1 SQL Storage Hub
 
 struct KVBrowserView: View {
     let accountId: String
@@ -45,8 +46,8 @@ struct KVBrowserView: View {
                 Text(d1Title).tag(1)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, HIGTokens.Spacing.md)
+            .padding(.vertical, HIGTokens.Spacing.sm)
             .background(Color(.systemGroupedBackground))
             .onChange(of: viewModel.selectedSegment) { _ in
                 HIGFeedback.selection()
@@ -74,15 +75,16 @@ struct KVBrowserView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Storage")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingCreateKVSheet) {
             KVCreateNamespaceSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .sheet(isPresented: $showingCreateD1Sheet) {
             D1CreateDatabaseSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
             Button("Delete '\(ns.title)'", role: .destructive) {
@@ -90,8 +92,10 @@ struct KVBrowserView: View {
                     do {
                         try await viewModel.deleteNamespace(namespaceId: ns.id)
                         ToastManager.shared.showSuccess("KV Namespace Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                     } catch {
                         ToastManager.shared.showError("Failed to Delete Namespace")
+                        HIGFeedback.error()
                     }
                 }
             }
@@ -105,8 +109,10 @@ struct KVBrowserView: View {
                     do {
                         try await viewModel.deleteDatabase(databaseId: db.uuid)
                         ToastManager.shared.showSuccess("D1 Database Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                     } catch {
                         ToastManager.shared.showError("Failed to Delete Database")
+                        HIGFeedback.error()
                     }
                 }
             }
@@ -136,6 +142,33 @@ struct KVBrowserView: View {
                             } label: {
                                 kvRow(ns)
                             }
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = ns.title
+                                    ToastManager.shared.showCopied("Namespace Title Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Title", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    UIPasteboard.general.string = ns.id
+                                    ToastManager.shared.showCopied("Namespace ID Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy ID", systemImage: "link")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    namespaceToDelete = ns
+                                    showingDeleteKVAlert = true
+                                } label: {
+                                    Label("Delete Namespace", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -144,7 +177,7 @@ struct KVBrowserView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }
@@ -158,6 +191,33 @@ struct KVBrowserView: View {
                             } label: {
                                 d1Row(db)
                             }
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = db.name
+                                    ToastManager.shared.showCopied("Database Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Name", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    UIPasteboard.general.string = db.uuid
+                                    ToastManager.shared.showCopied("Database UUID Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy UUID", systemImage: "link")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    databaseToDelete = db
+                                    showingDeleteD1Alert = true
+                                } label: {
+                                    Label("Delete Database", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -166,7 +226,7 @@ struct KVBrowserView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }
@@ -214,32 +274,32 @@ struct KVBrowserView: View {
     
     @ViewBuilder
     private func kvRow(_ ns: KVNamespace) -> some View {
-        HStack(alignment: .center, spacing: 14) {
-            ListRowIcon(icon: "key.horizontal.fill", color: .purple, size: 32, cornerRadius: 8)
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "key.horizontal.fill", color: .purple)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(ns.title)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text(ns.id)
-                    .font(.caption.monospacedDigit())
+                    .font(HIGTypography.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     @ViewBuilder
     private func d1Row(_ db: D1Database) -> some View {
-        HStack(alignment: .center, spacing: 14) {
-            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal, size: 32, cornerRadius: 8)
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal)
             
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                HStack(spacing: HIGTokens.Spacing.xs + 2) {
                     Text(db.name)
-                        .font(.body.weight(.medium))
+                        .font(HIGTypography.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
                     if let version = db.version {
@@ -247,9 +307,9 @@ struct KVBrowserView: View {
                     }
                 }
                 
-                HStack(spacing: 8) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Text(db.uuid)
-                        .font(.caption2.monospacedDigit())
+                        .font(HIGTypography.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                     
@@ -257,13 +317,13 @@ struct KVBrowserView: View {
                         Text("·")
                             .foregroundStyle(.secondary)
                         Text(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file))
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -282,6 +342,7 @@ struct KVCreateNamespaceSheetView: View {
             Form {
                 Section(header: Text("Namespace Title"), footer: Text("Name your KV namespace (e.g. USER_SESSIONS).")) {
                     TextField("MY_KV_NAMESPACE", text: $title)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
@@ -289,9 +350,13 @@ struct KVCreateNamespaceSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -302,6 +367,7 @@ struct KVCreateNamespaceSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -310,6 +376,7 @@ struct KVCreateNamespaceSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createNamespace(title: title.trimmingCharacters(in: .whitespaces))
+                                ToastManager.shared.showSuccess("Namespace Created", icon: "key.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -320,6 +387,7 @@ struct KVCreateNamespaceSheetView: View {
                         }
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)
@@ -342,6 +410,7 @@ struct D1CreateDatabaseSheetView: View {
             Form {
                 Section(header: Text("Database Name"), footer: Text("Unique SQLite database name across your account.")) {
                     TextField("prod-users-db", text: $name)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -349,9 +418,13 @@ struct D1CreateDatabaseSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -362,6 +435,7 @@ struct D1CreateDatabaseSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -370,6 +444,7 @@ struct D1CreateDatabaseSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createDatabase(name: name.trimmingCharacters(in: .whitespaces))
+                                ToastManager.shared.showSuccess("Database Created", icon: "cylinder.split.1x2.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -380,6 +455,7 @@ struct D1CreateDatabaseSheetView: View {
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)
@@ -420,15 +496,34 @@ struct KVNamespaceKeysView: View {
                         } label: {
                             HStack {
                                 Text(k.name)
-                                    .font(.body.monospaced())
+                                    .font(HIGTypography.body.monospaced())
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 if let exp = k.expiration {
                                     let date = Date(timeIntervalSince1970: Double(exp))
-                                    Text("Expires \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                                        .font(.caption2)
+                                    Text("Expires \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                                        .font(HIGTypography.caption2)
                                         .foregroundStyle(.secondary)
                                 }
+                            }
+                        }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = k.name
+                                ToastManager.shared.showCopied("Key Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Key Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                keyToDelete = k.name
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Key", systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -439,7 +534,7 @@ struct KVNamespaceKeysView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -456,17 +551,24 @@ struct KVNamespaceKeysView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddKeySheet) {
             KVAddKeySheetView(viewModel: viewModel, namespaceId: namespace.id)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete Key", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: keyToDelete) { key in
             Button("Delete '\(key)'", role: .destructive) {
                 Task {
-                    try? await viewModel.deleteKey(namespaceId: namespace.id, key: key)
-                    HIGFeedback.success()
+                    do {
+                        try await viewModel.deleteKey(namespaceId: namespace.id, key: key)
+                        ToastManager.shared.showSuccess("Key Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
+                    } catch {
+                        ToastManager.shared.showError("Failed to Delete Key")
+                        HIGFeedback.error()
+                    }
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -492,20 +594,49 @@ struct KVKeyValueDetailView: View {
     var body: some View {
         List {
             Section(header: Text("Key")) {
-                Text(keyName)
-                    .font(.body.monospaced())
+                HStack {
+                    Text(keyName)
+                        .font(HIGTypography.body.monospaced())
+                    Spacer()
+                    Button {
+                        UIPasteboard.general.string = keyName
+                        ToastManager.shared.showCopied("Key Name Copied")
+                        HIGFeedback.copied()
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .higTouchTarget(44)
+                }
             }
             
             Section(header: Text("Value")) {
                 if viewModel.isValueLoading {
                     ProgressView()
                 } else if let val = viewModel.selectedKeyValue {
-                    Text(verbatim: val)
-                        .font(.caption.monospaced())
-                        .textSelection(.enabled)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+                        Text(verbatim: val)
+                            .font(HIGTypography.caption.monospaced())
+                            .textSelection(.enabled)
+                        
+                        Button {
+                            UIPasteboard.general.string = val
+                            ToastManager.shared.showCopied("Value Copied")
+                            HIGFeedback.copied()
+                        } label: {
+                            Label("Copy Value", systemImage: "doc.on.doc")
+                                .font(HIGTypography.caption.weight(.medium))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .higTouchTarget(44)
+                    }
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 } else {
                     Text("No value retrieved")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -536,20 +667,26 @@ struct KVAddKeySheetView: View {
             Form {
                 Section(header: Text("Key Name")) {
                     TextField("user_1001", text: $key)
+                        .font(HIGTypography.body.monospaced())
                         .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
                 }
                 
                 Section(header: Text("Value")) {
                     TextEditor(text: $value)
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .frame(minHeight: 120)
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -560,6 +697,7 @@ struct KVAddKeySheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -568,6 +706,7 @@ struct KVAddKeySheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.saveKey(namespaceId: namespaceId, key: key.trimmingCharacters(in: .whitespaces), value: value)
+                                ToastManager.shared.showSuccess("Key Saved", icon: "key.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -578,6 +717,7 @@ struct KVAddKeySheetView: View {
                         }
                     }
                     .disabled(key.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

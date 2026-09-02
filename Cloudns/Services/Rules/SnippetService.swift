@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare Snippets 边缘代码片段领域服务抽象协议
+/// Protocol defining Cloudflare Snippets domain service
 protocol SnippetServiceProtocol: Sendable {
     func getSnippets(zoneId: String) async throws -> [SnippetItem]
     func getSnippetRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [WAFRule])
@@ -11,7 +11,7 @@ protocol SnippetServiceProtocol: Sendable {
     func bindSnippetRule(zoneId: String, snippetName: String, expression: String, description: String?) async throws
 }
 
-/// 统一的 Cloudflare Snippets 边缘代码片段领域服务
+/// Concrete domain service for Cloudflare Snippets
 final class SnippetService: SnippetServiceProtocol {
     static let shared = SnippetService()
     

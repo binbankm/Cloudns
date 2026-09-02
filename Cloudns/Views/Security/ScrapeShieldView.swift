@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ScrapeShieldView
+// Apple HIG Compliant Cloudflare Content Scrape Shield & Obfuscation Settings
 
 struct ScrapeShieldView: View {
     let zoneId: String
@@ -11,7 +12,7 @@ struct ScrapeShieldView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(
@@ -24,23 +25,23 @@ struct ScrapeShieldView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "eye.slash.fill")
-                            .font(.title.weight(.semibold))
+                            .font(HIGTypography.title2.weight(.semibold))
                             .foregroundStyle(.purple)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, HIGTokens.Spacing.xs)
                     
                     Text("Scrape Shield")
-                        .font(.title2.weight(.bold))
+                        .font(HIGTypography.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Protect your content from scrapers, hotlinkers, and email harvesters.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, HIGTokens.Spacing.md)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -56,16 +57,19 @@ struct ScrapeShieldView: View {
                     set: { val in
                         HIGFeedback.selection()
                         viewModel.emailObfuscationEnabled = val
-                        Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off") }
+                        Task {
+                            await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off")
+                            ToastManager.shared.showSuccess("Email Obfuscation Updated", icon: "envelope.badge.shield.half.filled.fill")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "envelope.badge.shield.half.filled.fill", color: .blue, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "envelope.badge.shield.half.filled.fill", color: .blue)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Email Obfuscation")
-                                .font(.body)
+                                .font(HIGTypography.body)
                             Text("Hides plaintext email addresses from automated bots.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -78,16 +82,19 @@ struct ScrapeShieldView: View {
                     set: { val in
                         HIGFeedback.selection()
                         viewModel.serverSideExcludesEnabled = val
-                        Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_excludes", value: val ? "on" : "off") }
+                        Task {
+                            await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_excludes", value: val ? "on" : "off")
+                            ToastManager.shared.showSuccess("Server-Side Excludes Updated", icon: "server.rack")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "server.rack", color: .orange, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "server.rack", color: .orange)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Server-Side Excludes")
-                                .font(.body)
+                                .font(HIGTypography.body)
                             Text("Hides sensitive HTML markup tags from suspicious visitors.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -100,16 +107,19 @@ struct ScrapeShieldView: View {
                     set: { val in
                         HIGFeedback.selection()
                         viewModel.hotlinkProtectionEnabled = val
-                        Task { await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off") }
+                        Task {
+                            await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off")
+                            ToastManager.shared.showSuccess("Hotlink Protection Updated", icon: "photo.fill")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "photo.fill", color: .red, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "photo.fill", color: HIGColors.error)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Hotlink Protection")
-                                .font(.body)
+                                .font(HIGTypography.body)
                             Text("Prevents external websites from embedding your images.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }

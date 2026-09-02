@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare R2 对象存储领域服务抽象协议
 protocol R2ServiceProtocol: Sendable {
     func getR2Buckets(accountId: String) async throws -> [R2Bucket]
     func listR2Buckets(accountId: String) async throws -> [R2Bucket]
@@ -20,7 +19,6 @@ protocol R2ServiceProtocol: Sendable {
     func deleteR2CORS(accountId: String, bucketName: String) async throws
 }
 
-/// 统一的 Cloudflare R2 对象存储领域服务
 final class R2Service: R2ServiceProtocol {
     static let shared = R2Service()
     

@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerDeploymentsView
+// Apple HIG Compliant Cloudflare Worker Deployment Timeline & Rollback Engine
 
 struct WorkerDeploymentsView: View {
     let accountId: String
@@ -37,8 +38,8 @@ struct WorkerDeploymentsView: View {
                                 
                                 Button {
                                     UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Deployment ID Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy Deployment ID", systemImage: "doc.on.doc")
                                 }
@@ -46,8 +47,8 @@ struct WorkerDeploymentsView: View {
                                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                                     Button {
                                         UIPasteboard.general.string = author
-                                        ToastManager.shared.showCopied()
-                                        HIGFeedback.impact(.light)
+                                        ToastManager.shared.showCopied("Author Email Copied")
+                                        HIGFeedback.copied()
                                     } label: {
                                         Label("Copy Author Email", systemImage: "envelope")
                                     }
@@ -67,8 +68,8 @@ struct WorkerDeploymentsView: View {
                                 
                                 Button {
                                     UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Deployment ID Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy ID", systemImage: "doc.on.doc")
                                 }
@@ -147,25 +148,24 @@ struct WorkerDeploymentsView: View {
     }
     
     // MARK: - Row Subview
-    
     @ViewBuilder
     private func deploymentRow(_ dep: WorkerDeployment, isLatest: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
             // Header: Version + Status + Source
-            HStack(alignment: .center, spacing: 8) {
-                HStack(spacing: 4) {
+            HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: HIGTokens.Spacing.xxs) {
                     Image(systemName: isLatest ? "checkmark.circle.fill" : "circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(isLatest ? .green : .secondary)
+                        .font(HIGTypography.caption2)
+                        .foregroundStyle(isLatest ? HIGColors.success : .secondary)
                     
                     Text("v\(dep.number ?? 1)")
-                        .font(.subheadline.monospacedDigit().weight(.bold))
+                        .font(HIGTypography.subheadline.monospacedDigit().weight(.bold))
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(isLatest ? Color.green.opacity(0.12) : Color(.secondarySystemFill))
-                .foregroundStyle(isLatest ? Color.green : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .padding(.horizontal, HIGTokens.Spacing.sm)
+                .padding(.vertical, HIGTokens.Spacing.xxs + 1)
+                .background(isLatest ? HIGColors.success.opacity(0.12) : Color(.secondarySystemFill))
+                .foregroundStyle(isLatest ? HIGColors.success : Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                 
                 if isLatest {
                     HIGBadge(.active("Active"), isCompact: true)
@@ -173,49 +173,49 @@ struct WorkerDeploymentsView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 4) {
+                HStack(spacing: HIGTokens.Spacing.xxs) {
                     Image(systemName: sourceIcon(for: dep.source))
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                     Text(dep.displaySource)
-                        .font(.caption2.weight(.medium))
+                        .font(HIGTypography.caption2.weight(.medium))
                 }
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2.5)
+                .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                .padding(.vertical, HIGTokens.Spacing.xxs)
                 .background(Color(.secondarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
             }
             
             // Annotation message
             if let msg = dep.annotations?.message, !msg.isEmpty {
                 Text(msg)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
             }
             
             // Footer: Timestamp + Author + ID
-            HStack(spacing: 8) {
+            HStack(spacing: HIGTokens.Spacing.sm) {
                 if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xxs) {
                         Image(systemName: "clock")
-                            .font(.caption2)
-                        Text(date, format: Date.RelativeFormatStyle(presentation: .named))
-                            .font(.caption)
+                            .font(HIGTypography.caption2)
+                        Text(date.relativeFormatted())
+                            .font(HIGTypography.caption)
                     }
                     .foregroundStyle(.secondary)
                 }
                 
                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                     Text("•")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.tertiary)
                     
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xxs) {
                         Image(systemName: "person.circle")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                         Text(author)
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .lineLimit(1)
                     }
                     .foregroundStyle(.secondary)
@@ -224,11 +224,11 @@ struct WorkerDeploymentsView: View {
                 Spacer()
                 
                 Text(dep.id.prefix(7))
-                    .font(.caption2.monospacedDigit())
+                    .font(HIGTypography.caption2.monospacedDigit())
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     private func sourceIcon(for source: String?) -> String {

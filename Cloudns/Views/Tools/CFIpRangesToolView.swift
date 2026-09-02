@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - CFIpRangesToolView
+// Apple HIG Compliant Cloudflare IP Range Matcher & Firewall Exporter
+
 struct CFIpRangesToolView: View {
     @StateObject private var viewModel = CFIpRangesViewModel()
     @State private var testIpInput = ""
@@ -13,17 +16,17 @@ struct CFIpRangesToolView: View {
         List {
             // 1. IP Range Tester
             Section(header: Text("Cloudflare IP Matcher & Calculator"), footer: Text("Verifies if an IP address belongs to Cloudflare's official proxy edge CIDR network blocks.")) {
-                HStack(spacing: 10) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "checkmark.shield.fill")
-                        .font(.body)
-                        .foregroundStyle(.cyan)
+                        .font(HIGTypography.body)
+                        .foregroundStyle(Color.higAccent)
                         .accessibilityHidden(true)
                     
                     TextField("Enter IP e.g. 104.21.45.12", text: $testIpInput)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             testIP()
@@ -38,6 +41,7 @@ struct CFIpRangesToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -45,7 +49,7 @@ struct CFIpRangesToolView: View {
                 Button {
                     testIP()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Image(systemName: "shield.righthalf.filled")
                         Text("Test If IP Is Cloudflare Proxy")
                             .fontWeight(.semibold)
@@ -56,12 +60,12 @@ struct CFIpRangesToolView: View {
                 .disabled(testIpInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 
                 if let result = testResult {
-                    HStack {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Image(systemName: result.contains("Official") ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundStyle(result.contains("Official") ? .green : .red)
+                            .foregroundStyle(result.contains("Official") ? HIGColors.success : HIGColors.error)
                         Text(result)
-                            .font(.subheadline)
-                            .foregroundStyle(result.contains("Official") ? .green : .red)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(result.contains("Official") ? HIGColors.success : HIGColors.error)
                     }
                 }
             }
@@ -73,17 +77,26 @@ struct CFIpRangesToolView: View {
                 Button {
                     copyList(viewModel.ipv4List, title: "IPv4 Ranges")
                 } label: {
-                    Label("Copy", systemImage: "doc.on.doc")
-                        .font(.caption)
+                    Label("Copy All", systemImage: "doc.on.doc")
+                        .font(HIGTypography.caption.weight(.semibold))
                 }
             }) {
                 ForEach(viewModel.ipv4List, id: \.self) { cidr in
                     HStack {
                         Text(cidr)
-                            .font(.subheadline.monospaced())
+                            .font(HIGTypography.subheadline.monospaced())
                             .foregroundStyle(.primary)
                         Spacer()
                         HIGBadge(.active("IPv4"), isCompact: true)
+                    }
+                    .contextMenu {
+                        Button {
+                            UIPasteboard.general.string = cidr
+                            ToastManager.shared.showCopied("CIDR Copied")
+                            HIGFeedback.copied()
+                        } label: {
+                            Label("Copy CIDR", systemImage: "doc.on.doc")
+                        }
                     }
                 }
             }
@@ -95,17 +108,26 @@ struct CFIpRangesToolView: View {
                 Button {
                     copyList(viewModel.ipv6List, title: "IPv6 Ranges")
                 } label: {
-                    Label("Copy", systemImage: "doc.on.doc")
-                        .font(.caption)
+                    Label("Copy All", systemImage: "doc.on.doc")
+                        .font(HIGTypography.caption.weight(.semibold))
                 }
             }) {
                 ForEach(viewModel.ipv6List, id: \.self) { cidr in
                     HStack {
                         Text(cidr)
-                            .font(.subheadline.monospaced())
+                            .font(HIGTypography.subheadline.monospaced())
                             .foregroundStyle(.primary)
                         Spacer()
                         HIGBadge(.proxied("IPv6"), isCompact: true)
+                    }
+                    .contextMenu {
+                        Button {
+                            UIPasteboard.general.string = cidr
+                            ToastManager.shared.showCopied("CIDR Copied")
+                            HIGFeedback.copied()
+                        } label: {
+                            Label("Copy CIDR", systemImage: "doc.on.doc")
+                        }
                     }
                 }
             }
@@ -121,6 +143,7 @@ struct CFIpRangesToolView: View {
                 } label: {
                     Label("Export Rules", systemImage: "square.and.arrow.up")
                 }
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingExportSheet) {
@@ -132,12 +155,12 @@ struct CFIpRangesToolView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                    .padding()
+                    .padding(HIGTokens.Spacing.lg)
                     
                     ScrollView {
                         Text(generateExportCode())
-                            .font(.footnote.monospaced())
-                            .padding()
+                            .font(HIGTypography.caption.monospaced())
+                            .padding(HIGTokens.Spacing.lg)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -150,8 +173,8 @@ struct CFIpRangesToolView: View {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             UIPasteboard.general.string = generateExportCode()
-                            ToastManager.shared.showCopied()
-                            HIGFeedback.impact(.light)
+                            ToastManager.shared.showCopied("Rules Copied")
+                            HIGFeedback.copied()
                         } label: {
                             Image(systemName: "doc.on.doc")
                         }
@@ -261,7 +284,7 @@ struct CFIpRangesToolView: View {
     
     private func copyList(_ list: [String], title: String) {
         UIPasteboard.general.string = list.joined(separator: "\n")
-        ToastManager.shared.showCopied()
-        HIGFeedback.impact()
+        ToastManager.shared.showCopied("\(title) Copied")
+        HIGFeedback.copied()
     }
 }

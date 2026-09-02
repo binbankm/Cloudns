@@ -1,6 +1,7 @@
 import SwiftUI
 
-// MARK: - PagesVariablesView (Dedicated Variables & Secrets)
+// MARK: - PagesVariablesView
+// Apple HIG Compliant Cloudflare Pages Environment Variables & Secrets Vault
 
 struct PagesVariablesView: View {
     let accountId: String
@@ -42,19 +43,7 @@ struct PagesVariablesView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Environment Segmented Switcher
-            Picker("Environment", selection: $selectedEnv) {
-                Text("Production (\(prodCount))").tag("production")
-                Text("Preview (\(prevCount))").tag("preview")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
-            .onChange(of: selectedEnv) { _ in
-                HIGFeedback.selection()
-            }
-            
+            envPickerBar
             contentList
         }
         .background(Color(.systemGroupedBackground))
@@ -68,6 +57,7 @@ struct PagesVariablesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Variable or Secret")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
@@ -131,6 +121,21 @@ struct PagesVariablesView: View {
     }
     
     @ViewBuilder
+    private var envPickerBar: some View {
+        Picker("Environment", selection: $selectedEnv) {
+            Text("Production (\(prodCount))").tag("production")
+            Text("Preview (\(prevCount))").tag("preview")
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, HIGTokens.Spacing.md)
+        .padding(.vertical, HIGTokens.Spacing.sm)
+        .background(Color(.systemGroupedBackground))
+        .onChange(of: selectedEnv) { _ in
+            HIGFeedback.selection()
+        }
+    }
+    
+    @ViewBuilder
     private var contentList: some View {
         List {
             if !plainVariables.isEmpty {
@@ -144,6 +149,35 @@ struct PagesVariablesView: View {
                                 variableRow(key: key, value: val)
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = key
+                                    ToastManager.shared.showCopied("Variable Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Name", systemImage: "doc.on.doc")
+                                }
+                                
+                                if let v = val.value, !v.isEmpty {
+                                    Button {
+                                        UIPasteboard.general.string = v
+                                        ToastManager.shared.showCopied("Variable Value Copied")
+                                        HIGFeedback.copied()
+                                    } label: {
+                                        Label("Copy Value", systemImage: "doc.on.doc.fill")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    varNameToDelete = key
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -152,7 +186,7 @@ struct PagesVariablesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }
@@ -170,6 +204,25 @@ struct PagesVariablesView: View {
                                 variableRow(key: key, value: val)
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = key
+                                    ToastManager.shared.showCopied("Secret Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Name", systemImage: "doc.on.doc")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    varNameToDelete = key
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete Secret", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -178,7 +231,7 @@ struct PagesVariablesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }
@@ -203,18 +256,16 @@ struct PagesVariablesView: View {
     
     @ViewBuilder
     private func variableRow(key: String, value: PagesEnvVarValue) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: HIGTokens.Spacing.md) {
             ListRowIcon(
                 icon: value.isSecret ? "lock.fill" : "textformat",
-                color: value.isSecret ? .purple : .blue,
-                size: 28,
-                cornerRadius: 6
+                color: value.isSecret ? .purple : .blue
             )
             
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                HStack(spacing: HIGTokens.Spacing.xs + 2) {
                     Text(key)
-                        .font(.body.monospaced().weight(.semibold))
+                        .font(HIGTypography.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
                     
                     if value.isSecret {
@@ -224,11 +275,11 @@ struct PagesVariablesView: View {
                 
                 if value.isSecret {
                     Text("••••••••••••••••")
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
                 } else if let txt = value.value, !txt.isEmpty {
                     Text(txt)
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -237,11 +288,11 @@ struct PagesVariablesView: View {
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption2)
+                .font(HIGTypography.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
         .contentShape(Rectangle())
     }
     
@@ -290,4 +341,124 @@ private struct EditVarItem: Identifiable {
     let id: String
     let name: String
     let value: PagesEnvVarValue
+}
+
+// MARK: - PagesAddVariableSheetView (Reusable across Pages module)
+
+struct PagesAddVariableSheetView: View {
+    let accountId: String
+    let projectName: String
+    let environment: String
+    let existingEnvVars: [String: PagesEnvVarValue]
+    var initialName: String = ""
+    var initialValue: String = ""
+    var initialIsSecret: Bool = false
+    let onSave: ([String: PagesEnvVarValue]) -> Void
+    
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+    @State private var value: String
+    @State private var isSecret: Bool
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+    
+    init(
+        accountId: String,
+        projectName: String,
+        environment: String,
+        existingEnvVars: [String: PagesEnvVarValue],
+        initialName: String = "",
+        initialValue: String = "",
+        initialIsSecret: Bool = false,
+        onSave: @escaping ([String: PagesEnvVarValue]) -> Void
+    ) {
+        self.accountId = accountId
+        self.projectName = projectName
+        self.environment = environment
+        self.existingEnvVars = existingEnvVars
+        self.initialName = initialName
+        self.initialValue = initialValue
+        self.initialIsSecret = initialIsSecret
+        self.onSave = onSave
+        _name = State(initialValue: initialName)
+        _value = State(initialValue: initialValue)
+        _isSecret = State(initialValue: initialIsSecret)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Variable Details")) {
+                    TextField("Variable Name (e.g. API_KEY)", text: $name)
+                        .font(HIGTypography.body.monospaced())
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .disabled(!initialName.isEmpty)
+                    
+                    TextField("Value", text: $value)
+                        .font(HIGTypography.body)
+                        .autocorrectionDisabled()
+                    
+                    Toggle("Encrypt Value (Secret)", isOn: $isSecret)
+                }
+                
+                if let err = errorMessage {
+                    Section {
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
+                    }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle(initialName.isEmpty ? "Add Variable" : "Edit Variable")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            isSaving = true
+                            errorMessage = nil
+                            var updated = existingEnvVars
+                            let varKey = name.trimmingCharacters(in: .whitespaces)
+                            let varVal = PagesEnvVarValue(
+                                value: value,
+                                type: isSecret ? "secret_text" : "plain_text"
+                            )
+                            updated[varKey] = varVal
+                            do {
+                                try await PagesService.shared.updatePagesEnvVars(
+                                    accountId: accountId,
+                                    projectName: projectName,
+                                    environment: environment,
+                                    envVars: updated
+                                )
+                                onSave(updated)
+                                ToastManager.shared.showSuccess("Variable Saved", icon: "key.fill")
+                                HIGFeedback.success()
+                                dismiss()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                HIGFeedback.error()
+                            }
+                            isSaving = false
+                        }
+                    }
+                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
+                }
+            }
+            .interactiveDismissDisabled(isSaving)
+        }
+    }
 }

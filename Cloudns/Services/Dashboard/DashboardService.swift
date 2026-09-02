@@ -1,12 +1,12 @@
 import Foundation
 
-/// Cloudflare 控制台与全局数据聚合领域服务协议
+/// Protocol defining Cloudflare Dashboard and global aggregation service
 protocol DashboardServiceProtocol: Sendable {
     func getFleetMetrics(zoneTags: [String]) async throws -> [FleetHourlyMetric]
     func getSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache]
 }
 
-/// 统一的 Cloudflare 控制台与全局数据聚合领域服务
+/// Concrete domain service for Cloudflare Dashboard and global data aggregation
 final class DashboardService: DashboardServiceProtocol {
     static let shared = DashboardService()
     
@@ -16,12 +16,12 @@ final class DashboardService: DashboardServiceProtocol {
         self.analyticsService = analyticsService
     }
     
-    /// 获取全账号所有活跃域名的 24 小时逐小时聚合趋势
+    /// Fetches 24-hour hourly aggregated traffic trends across all active account domains
     func getFleetMetrics(zoneTags: [String]) async throws -> [FleetHourlyMetric] {
         try await analyticsService.getFleetAnalytics(zoneTags: zoneTags)
     }
     
-    /// 获取多个域名的 24 小时微图 Sparkline 点位
+    /// Fetches 24-hour sparkline data points for multiple domains
     func getSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {
         try await analyticsService.getBatchZonesSparklines(zoneTags: zoneTags)
     }

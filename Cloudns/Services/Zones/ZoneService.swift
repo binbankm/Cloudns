@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare Zone（域名）管理领域服务抽象协议
+/// Protocol defining Cloudflare Zone domain service
 protocol ZoneServiceProtocol: Sendable {
     func getZones(page: Int, perPage: Int, name: String?, status: String?) async throws -> ([Zone], ResultInfo?)
     func getAccounts() async throws -> [Account]
@@ -19,7 +19,7 @@ extension ZoneServiceProtocol {
     }
 }
 
-/// 统一的 Cloudflare Zone（域名）管理领域服务
+/// Concrete domain service for Cloudflare Zone management
 final class ZoneService: ZoneServiceProtocol {
     static let shared = ZoneService()
     
@@ -28,7 +28,7 @@ final class ZoneService: ZoneServiceProtocol {
     
     private init() {}
     
-    /// 获取用户账号下的所有 Zone 列表
+    /// Fetches all zones under user account
     func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
         var queryItems = [
             URLQueryItem(name: "page", value: "\(page)"),
@@ -48,14 +48,14 @@ final class ZoneService: ZoneServiceProtocol {
         return (zones ?? [], resultInfo)
     }
     
-    /// 获取账号列表
+    /// Fetches account list
     func getAccounts() async throws -> [Account] {
         let request = try factory.createAuthenticatedRequest(path: "accounts")
         let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)
         return accounts ?? []
     }
     
-    /// 获取单个 Zone 详情
+    /// Fetches single zone details
     func getZoneDetails(zoneId: String) async throws -> Zone {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)")
         let (zone, _): (Zone?, ResultInfo?) = try await client.performRequest(request)
@@ -65,7 +65,7 @@ final class ZoneService: ZoneServiceProtocol {
         return zone
     }
     
-    /// 创建新的 Zone
+    /// Creates new zone
     func createZone(name: String, accountId: String, jumpStart: Bool = false) async throws -> Zone {
         let payload: [String: Any] = [
             "name": name,
@@ -82,7 +82,7 @@ final class ZoneService: ZoneServiceProtocol {
         return zone
     }
     
-    /// 删除 Zone
+    /// Deletes zone
     func deleteZone(zoneId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)", method: "DELETE")
         struct DeleteResult: Codable { let id: String }
@@ -90,7 +90,7 @@ final class ZoneService: ZoneServiceProtocol {
         return res?.id ?? zoneId
     }
     
-    /// 暂停/恢复 Zone
+    /// Pauses or resumes zone
     func updateZoneStatus(zoneId: String, paused: Bool) async throws {
         let payload = ["paused": paused]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -102,7 +102,7 @@ final class ZoneService: ZoneServiceProtocol {
         try await updateZoneStatus(zoneId: zoneId, paused: paused)
     }
     
-    /// 清除全站缓存 (Purge Everything)
+    /// Purges all cached assets (Purge Everything)
     func purgeCache(zoneId: String) async throws {
         let payload = ["purge_everything": true]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -111,7 +111,7 @@ final class ZoneService: ZoneServiceProtocol {
         let (_, _): (PurgeResult?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    /// 获取账户审计日志 (Audit Logs)
+    /// Fetches account audit logs
     func getAuditLogs(accountId: String) async throws -> [AuditLog] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/audit_logs")
         let (logs, _): ([AuditLog]?, ResultInfo?) = try await client.performRequest(request)

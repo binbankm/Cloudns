@@ -1,6 +1,6 @@
 import Foundation
 
-/// 开发者网络诊断与安全分析领域服务抽象协议
+/// Protocol defining developer network diagnostics and security analysis service
 protocol DevToolsServiceProtocol: Sendable {
     func performDNSLookup(domain: String, type: String) async throws -> DNSLookupResult
     func performDNSBenchmark(domain: String, type: String) async throws -> DNSBenchmarkResult
@@ -29,7 +29,7 @@ extension DevToolsServiceProtocol {
     }
 }
 
-/// 统一的开发者工具聚合领域服务
+/// Concrete aggregated service for developer network diagnostic tools
 final class DevToolsService: DevToolsServiceProtocol {
     static let shared = DevToolsService()
     

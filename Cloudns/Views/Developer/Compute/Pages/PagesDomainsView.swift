@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesDomainsView
+// Apple HIG Compliant Cloudflare Pages Custom Domains Management
 
 struct PagesDomainsView: View {
     let accountId: String
@@ -23,6 +24,7 @@ struct PagesDomainsView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Custom Domain")
+                    .higTouchTarget(44)
                 }
             }
             .refreshable {
@@ -30,15 +32,17 @@ struct PagesDomainsView: View {
             }
             .sheet(isPresented: $showingAddDomainSheet) {
                 AddPagesDomainSheetView(viewModel: viewModel)
-                 .higToast()
+                    .higToast()
             }
             .confirmationDialog("Delete Domain", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: domainToDelete) { dom in
                 Button("Delete '\(dom.name)'", role: .destructive) {
                     Task {
                         do {
                             try await viewModel.deleteDomain(name: dom.name)
+                            ToastManager.shared.showSuccess("Custom Domain Removed", icon: "trash.fill")
                             HIGFeedback.success()
                         } catch {
+                            ToastManager.shared.showError("Failed to Remove Domain")
                             HIGFeedback.error()
                         }
                     }
@@ -56,6 +60,31 @@ struct PagesDomainsView: View {
                 Section(header: Text("Connected Domains (\(viewModel.domains.count))")) {
                     ForEach(viewModel.domains) { domain in
                         domainRow(domain)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = domain.name
+                                    ToastManager.shared.showCopied("Domain Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Domain", systemImage: "doc.on.doc")
+                                }
+                                
+                                if let url = URL(string: "https://\(domain.name)") {
+                                    Link(destination: url) {
+                                        Label("Open Domain in Safari", systemImage: "safari")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    domainToDelete = domain
+                                    showingDeleteAlert = true
+                                    HIGFeedback.impact(.medium)
+                                } label: {
+                                    Label("Delete Domain", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -64,7 +93,7 @@ struct PagesDomainsView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -90,22 +119,18 @@ struct PagesDomainsView: View {
     
     @ViewBuilder
     private func domainRow(_ domain: PagesDomain) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "globe")
-                .font(.title3)
-                .foregroundStyle(.blue)
-                .frame(width: 28)
-                .accessibilityHidden(true)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "globe", color: .blue)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(domain.name)
-                    .font(.body)
+                    .font(HIGTypography.body)
                     .foregroundStyle(.primary)
                 
                 if let status = domain.status {
                     Text(status.capitalized)
-                        .font(.caption2)
-                        .foregroundStyle(status.lowercased() == "active" ? .green : .orange)
+                        .font(HIGTypography.caption2)
+                        .foregroundStyle(status.lowercased() == "active" ? HIGColors.success : .orange)
                 }
             }
             
@@ -115,7 +140,7 @@ struct PagesDomainsView: View {
                 HIGBadge(status.lowercased() == "active" ? .active : .warning(status.capitalized), isCompact: true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -137,6 +162,7 @@ struct AddPagesDomainSheetView: View {
                     footer: Text("Enter the custom domain or subdomain you want to route to this project (e.g. blog.example.com).")
                 ) {
                     TextField("blog.example.com", text: $domain)
+                        .font(HIGTypography.body)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -145,9 +171,13 @@ struct AddPagesDomainSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -158,6 +188,7 @@ struct AddPagesDomainSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
@@ -166,6 +197,7 @@ struct AddPagesDomainSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.addDomain(name: domain.trimmingCharacters(in: .whitespaces))
+                                ToastManager.shared.showSuccess("Domain Connected", icon: "globe")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -176,6 +208,7 @@ struct AddPagesDomainSheetView: View {
                         }
                     }
                     .disabled(domain.trimmingCharacters(in: .whitespaces).isEmpty || isAdding)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isAdding)

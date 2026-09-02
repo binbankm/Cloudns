@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Turnstile 验证码领域服务抽象协议
 protocol TurnstileServiceProtocol: Sendable {
     func getTurnstileWidgets(accountId: String) async throws -> [TurnstileWidget]
     func createTurnstileWidget(accountId: String, input: TurnstileCreateInput) async throws -> TurnstileWidget
@@ -9,7 +8,6 @@ protocol TurnstileServiceProtocol: Sendable {
     func rotateTurnstileSecret(accountId: String, sitekey: String, invalidateImmediately: Bool) async throws -> String
 }
 
-/// 统一的 Cloudflare Turnstile 验证码领域服务
 final class TurnstileService: TurnstileServiceProtocol {
     static let shared = TurnstileService()
     

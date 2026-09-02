@@ -84,14 +84,12 @@ final class ZonesViewModel: BaseLoadableViewModel {
         }
     }
     
-    /// 一次性批量拉取当前列表中所有活跃 Zone 的 24h 流量走势微图（单次 GraphQL 网络请求）
     public func fetchBatchSparklines(for zones: [Zone]) {
         let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
         guard !activeZoneIds.isEmpty else { return }
         
         Task { [weak self] in
             guard let self = self else { return }
-            // 1. 优先读取已有的 SWR 本地缓存，极速呈现
             var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeZoneIds {
                 let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
@@ -103,7 +101,6 @@ final class ZonesViewModel: BaseLoadableViewModel {
                 self.sparklines.merge(cachedMap) { _, new in new }
             }
             
-            // 2. 单次聚合请求拉取全部域名的最新 24 小时点位
             if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeZoneIds) {
                 self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
@@ -156,7 +153,6 @@ final class ZonesViewModel: BaseLoadableViewModel {
             if let index = zones.firstIndex(where: { $0.id == zoneId }) {
                 zones.remove(at: index)
                 totalCount = max(0, totalCount - 1)
-                // 同步刷新本地缓存
                 await SWRCacheStore.shared.set(zones, forKey: SWRCacheStore.accountScopedKey("cloudflare_zones_list"))
             }
             NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])

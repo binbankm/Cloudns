@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AddRateLimitingRuleView
+// Apple HIG Compliant Cloudflare Rate Limiting Rule Editor
+
 struct AddRateLimitingRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: RateLimitingViewModel
@@ -47,10 +50,12 @@ struct AddRateLimitingRuleView: View {
             Form {
                 Section(header: Text("Rule Details"), footer: Text("Protect your site from DDoS and brute force attacks.")) {
                     TextField("Rule Name (e.g. Protect login)", text: $ruleName)
+                        .font(HIGTypography.body)
                         .submitLabel(.next)
                         .focused($focusedField, equals: .name)
                         .onSubmit { focusedField = .path }
                     TextField("Path Filter (optional, e.g. /login)", text: $pathFilter)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -68,8 +73,10 @@ struct AddRateLimitingRuleView: View {
                     
                     HStack {
                         Text("Requests Per Window")
+                            .font(HIGTypography.body)
                         Spacer()
                         TextField("50", text: $requests)
+                            .font(HIGTypography.body.monospacedDigit())
                             .keyboardType(.numberPad)
                             .autocorrectionDisabled()
                             .multilineTextAlignment(.trailing)
@@ -103,6 +110,7 @@ struct AddRateLimitingRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -114,17 +122,18 @@ struct AddRateLimitingRuleView: View {
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || requests.isEmpty || Int(requests) == nil || isSubmitting)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
             .overlay(
                 Group {
                     if isSubmitting {
-                        Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                        Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .background(Color.higCardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                     }
                 }
             )
@@ -165,7 +174,7 @@ struct AddRateLimitingRuleView: View {
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HIGFeedback.success()
-            ToastManager.shared.showSuccess("Rate Limiting Rule Created", icon: "shield.checkerboard")
+            ToastManager.shared.showSuccess("Rate Limit Created", icon: "speedometer")
             dismiss()
         } else {
             HIGFeedback.error()

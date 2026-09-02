@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare 网页加载与传输加速领域服务协议
+/// Protocol defining Cloudflare web performance and speed optimization service
 protocol SpeedSettingsServiceProtocol: Sendable {
     func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String)
     func updateBrotli(zoneId: String, isOn: Bool) async throws
@@ -12,7 +12,7 @@ protocol SpeedSettingsServiceProtocol: Sendable {
     func updatePolish(zoneId: String, value: String) async throws
 }
 
-/// 统一的 Cloudflare 网页加速领域服务
+/// Concrete domain service for Cloudflare web optimization
 final class SpeedSettingsService: SpeedSettingsServiceProtocol {
     static let shared = SpeedSettingsService()
     

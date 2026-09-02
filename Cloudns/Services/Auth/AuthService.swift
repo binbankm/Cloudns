@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare 登录认证与账户管理领域服务协议
+/// Protocol defining Cloudflare authentication and account management service
 protocol AuthServiceProtocol: Sendable {
     @discardableResult
     func verifyCredentials(email: String, apiKey: String) async throws -> [Zone]
@@ -8,7 +8,7 @@ protocol AuthServiceProtocol: Sendable {
     func getAccounts() async throws -> [Account]
 }
 
-/// 统一的 Cloudflare 登录认证与账户管理领域服务
+/// Concrete domain service for Cloudflare authentication and account management
 final class AuthService: AuthServiceProtocol {
     static let shared = AuthService()
     
@@ -17,7 +17,7 @@ final class AuthService: AuthServiceProtocol {
     
     private init() {}
     
-    /// 显式校验用户输入的邮箱与 Global API Key 是否合法有效
+    /// Validates user email and Global API Key credentials
     @discardableResult
     func verifyCredentials(email: String, apiKey: String) async throws -> [Zone] {
         let request = try factory.createExplicitAuthenticatedRequest(
@@ -33,12 +33,12 @@ final class AuthService: AuthServiceProtocol {
         return zones ?? []
     }
     
-    /// 验证当前凭证并获取关联的 Cloudflare 账户列表
+    /// Verifies credentials and retrieves associated Cloudflare accounts
     func verifyToken() async throws -> [Account] {
         try await getAccounts()
     }
     
-    /// 获取当前凭证下的所有账户列表
+    /// Fetches all accounts associated with active credentials
     func getAccounts() async throws -> [Account] {
         let request = try factory.createAuthenticatedRequest(path: "accounts")
         let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)

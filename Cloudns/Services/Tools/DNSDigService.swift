@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-/// DoH DNS 解析与全球传播分析领域服务协议
+/// Protocol defining DoH DNS resolution and global propagation service
 protocol DNSDigServiceProtocol: Sendable {
     func performDNSLookup(domain: String, type: String) async throws -> DNSLookupResult
     func performDNSBenchmark(domain: String, type: String) async throws -> DNSBenchmarkResult

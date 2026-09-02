@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - EdgeLatencyTestView
+// Apple HIG Compliant Edge Latency & Jitter Benchmark
+
 struct EdgeLatencyTestView: View {
     @StateObject private var viewModel = EdgeLatencyViewModel()
     @FocusState private var isFieldFocused: Bool
@@ -8,10 +11,10 @@ struct EdgeLatencyTestView: View {
         List {
             // 1. Input & Rounds Section
             Section(header: Text("Target Host"), footer: Text("Sends consecutive HTTP/HTTPS HEAD probes to measure edge latency, round-trip time jitter & packet consistency.")) {
-                HStack(spacing: 10) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "speedometer")
-                        .font(.body)
-                        .foregroundStyle(.purple)
+                        .font(HIGTypography.body)
+                        .foregroundStyle(Color.higAccent)
                         .accessibilityHidden(true)
                     
                     TextField("https://example.com", text: $viewModel.latencyHostInput)
@@ -19,7 +22,7 @@ struct EdgeLatencyTestView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .submitLabel(.go)
                         .onSubmit {
                             performTest()
@@ -33,13 +36,13 @@ struct EdgeLatencyTestView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(36)
+                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
                 
                 Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .onChange(of: viewModel.latencyRounds) { _ in
                         HIGFeedback.selection()
                     }
@@ -47,7 +50,7 @@ struct EdgeLatencyTestView: View {
                 Button {
                     performTest()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         if viewModel.isLatencyLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -57,7 +60,7 @@ struct EdgeLatencyTestView: View {
                         Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings…" : "Start Latency & Jitter Benchmark")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading ? Color(.tertiaryLabel) : Color.accentColor)
+                    .foregroundStyle(viewModel.latencyHostInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLatencyLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)
@@ -69,9 +72,10 @@ struct EdgeLatencyTestView: View {
                     HStack {
                         Spacer()
                         ProgressView("Testing Edge Latency…")
+                            .font(HIGTypography.subheadline)
                         Spacer()
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.latencyResult {
                 // 2. Metrics Hero Section
@@ -90,12 +94,12 @@ struct EdgeLatencyTestView: View {
                 }
             } else if let error = viewModel.latencyError {
                 Section(header: Text("Error")) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                         Text(verbatim: error)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -122,42 +126,42 @@ struct EdgeLatencyTestView: View {
     private func metricsRows(result: EdgeLatencyResult) -> some View {
         HStack {
             Text("Average Latency")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text("\(result.avgMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(.subheadline.weight(.bold).monospacedDigit())
-                .foregroundStyle(.green)
+                .font(HIGTypography.subheadline.weight(.bold).monospacedDigit())
+                .foregroundStyle(HIGColors.success)
         }
         
         HStack {
             Text("Min / Max Latency")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text("\(result.minMs.formatted(.number.precision(.fractionLength(1)))) ms / \(result.maxMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(.subheadline.monospacedDigit())
+                .font(HIGTypography.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
         
         HStack {
             Text("Jitter")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text("±\(result.jitterMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(.subheadline.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.orange)
+                .font(HIGTypography.subheadline.weight(.semibold).monospacedDigit())
+                .foregroundStyle(HIGColors.warning)
         }
         
         HStack {
             Text("Packet Loss")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text((result.packetLossPercent / 100.0), format: .percent.precision(.fractionLength(0)))
-                .font(.subheadline.weight(.bold).monospacedDigit())
-                .foregroundStyle(result.packetLossPercent == 0 ? .green : .red)
+                .font(HIGTypography.subheadline.weight(.bold).monospacedDigit())
+                .foregroundStyle(result.packetLossPercent == 0 ? HIGColors.success : HIGColors.error)
         }
     }
     
@@ -166,7 +170,7 @@ struct EdgeLatencyTestView: View {
     private func protocolRows(result: EdgeLatencyResult) -> some View {
         HStack {
             Text("Protocol")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             HIGBadge(.active(result.httpProtocol), isCompact: true)
@@ -175,11 +179,11 @@ struct EdgeLatencyTestView: View {
         if !result.serverHeader.isEmpty {
             HStack {
                 Text("Server Banner")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(result.serverHeader)
-                    .font(.subheadline.monospaced())
+                    .font(HIGTypography.subheadline.monospaced())
                     .foregroundStyle(.primary)
             }
         }
@@ -191,19 +195,19 @@ struct EdgeLatencyTestView: View {
         ForEach(result.pings) { ping in
             HStack {
                 Text("Round \(ping.id)")
-                    .font(.subheadline.weight(.medium))
+                    .font(HIGTypography.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 if ping.isSuccess {
                     Text("\(ping.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                        .font(.subheadline.weight(.semibold).monospacedDigit())
-                        .foregroundStyle(ping.latencyMs < 50 ? .green : (ping.latencyMs < 120 ? .orange : .red))
+                        .font(HIGTypography.subheadline.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(ping.latencyMs < 50 ? HIGColors.success : (ping.latencyMs < 120 ? HIGColors.warning : HIGColors.error))
                 } else {
                     Text("Failed")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.red)
+                        .font(HIGTypography.subheadline.weight(.medium))
+                        .foregroundStyle(HIGColors.error)
                 }
             }
         }

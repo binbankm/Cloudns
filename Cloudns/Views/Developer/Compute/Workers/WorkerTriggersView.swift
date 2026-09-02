@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerTriggersView
+// Apple HIG Compliant Cloudflare Worker Scheduled Cron Triggers
 
 struct WorkerTriggersView: View {
     let accountId: String
@@ -29,6 +30,7 @@ struct WorkerTriggersView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Cron Trigger")
+                    .higTouchTarget(44)
                 }
             }
             .refreshable {
@@ -41,7 +43,7 @@ struct WorkerTriggersView: View {
             }
             .sheet(isPresented: $showingAddCronSheet) {
                 AddCronTriggerSheetView(viewModel: viewModel)
-                 .higToast()
+                    .higToast()
             }
             .confirmationDialog("Delete Cron Trigger", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: cronToDelete) { cron in
                 Button("Delete", role: .destructive) {
@@ -49,8 +51,10 @@ struct WorkerTriggersView: View {
                         do {
                             try await viewModel.deleteSchedule(cron: cron.cron)
                             ToastManager.shared.showSuccess("Cron Trigger Deleted", icon: "trash.fill")
+                            HIGFeedback.success()
                         } catch {
                             ToastManager.shared.showError("Failed to Delete Trigger")
+                            HIGFeedback.error()
                         }
                     }
                 }
@@ -69,7 +73,6 @@ struct WorkerTriggersView: View {
                         cronRow(WorkerSchedule(cron: "*/5 * * * *", createdOn: nil, modifiedOn: nil))
                     }
                 }
-                
             } else if !viewModel.schedules.isEmpty {
                 Section(
                     header: Text("Scheduled Triggers (\(viewModel.schedules.count))"),
@@ -77,14 +80,34 @@ struct WorkerTriggersView: View {
                 ) {
                     ForEach(viewModel.schedules) { schedule in
                         cronRow(schedule)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = schedule.cron
+                                    ToastManager.shared.showCopied("Cron Expression Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Cron Expression", systemImage: "doc.on.doc")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    cronToDelete = schedule
+                                    showingDeleteAlert = true
+                                    HIGFeedback.impact(.medium)
+                                } label: {
+                                    Label("Delete Trigger", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     cronToDelete = schedule
                                     showingDeleteAlert = true
+                                    HIGFeedback.impact(.medium)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -93,8 +116,8 @@ struct WorkerTriggersView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Triggers…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Triggers…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.schedules.isEmpty {
                     HIGContentState(
                         .error(
@@ -119,24 +142,24 @@ struct WorkerTriggersView: View {
     
     @ViewBuilder
     private func cronRow(_ schedule: WorkerSchedule) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(schedule.cron)
-                    .font(.body.monospaced())
+                    .font(HIGTypography.body.monospaced())
                     .foregroundStyle(.primary)
                 
                 if let modified = schedule.modifiedOn ?? schedule.createdOn, let date = DateFormatters.parseISO8601(modified) {
-                    Text("Configured: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                        .font(.caption2)
+                    Text("Configured: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
             
             Spacer()
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -164,7 +187,7 @@ struct AddCronTriggerSheetView: View {
             Form {
                 Section(header: Text("Cron Expression"), footer: Text("Standard 5-segment cron format: minute hour day-of-month month day-of-week (UTC).")) {
                     TextField("*/15 * * * *", text: $cronExpression)
-                        .font(.body.monospaced())
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -178,10 +201,11 @@ struct AddCronTriggerSheetView: View {
                         } label: {
                             HStack {
                                 Text(name)
+                                    .font(HIGTypography.body)
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 Text(expr)
-                                    .font(.caption.monospaced())
+                                    .font(HIGTypography.caption.monospaced())
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -190,9 +214,13 @@ struct AddCronTriggerSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -203,6 +231,7 @@ struct AddCronTriggerSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -211,6 +240,7 @@ struct AddCronTriggerSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.addSchedule(cron: cronExpression)
+                                ToastManager.shared.showSuccess("Cron Trigger Added", icon: "checkmark.circle.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -221,6 +251,7 @@ struct AddCronTriggerSheetView: View {
                         }
                     }
                     .disabled(cronExpression.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

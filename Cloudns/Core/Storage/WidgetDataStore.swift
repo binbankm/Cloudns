@@ -51,10 +51,8 @@ public final class WidgetDataStore {
         }
     }
     
-    /// 切换当前活跃账户并即时刷新小组件，彻底杜绝跨账号数据泄露
     public func syncActiveAccount(_ email: String) {
         userDefaults.set(email, forKey: Keys.activeAccount)
-        // 切换后立即触发防抖重载
         notifyWidgetsToReload()
     }
     
@@ -88,7 +86,6 @@ public final class WidgetDataStore {
     public func syncZoneWithAnalytics(zone: Zone) {
         let current = loadZoneSnapshot()
         
-        // 1. [Immediate Stage] 立即写入基础快照（保留当前已有的流量或设为轻量初始态，确保 0ms 域名与套餐即刻更新）
         let initialSnap = ZoneWidgetSnapshot(
             id: zone.id,
             name: zone.name,
@@ -104,9 +101,7 @@ public final class WidgetDataStore {
         )
         saveZoneSnapshot(initialSnap)
         
-        // 2. [Background Stage] 异步自动拉取该域名的 24 小时真实流量分析数据并更新小组件
         Task {
-            // A. 先检查本地 SWR 是否已有 24h 分析缓存
             let scopedKey = SWRCacheStore.accountScopedKey("zone_analytics_\(zone.id)_1")
             if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneAnalyticsSnapshot.self) {
                 var totalReq = 0
@@ -136,7 +131,6 @@ public final class WidgetDataStore {
                 self.saveZoneSnapshot(fullSnap)
             }
             
-            // B. 异步轻量请求 GraphQL 24h 流量快照
             if let analytics = try? await AnalyticsService.shared.getDashboardAnalytics(zoneTag: zone.id, days: 1),
                let zoneObj = analytics.viewer.zones?.first {
                 let groups = zoneObj.httpRequests1hGroups ?? []

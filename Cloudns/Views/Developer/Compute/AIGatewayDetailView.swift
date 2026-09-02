@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AIGatewayDetailView
+// Apple HIG Compliant AI Gateway Endpoint & Code Generator
+
 struct AIGatewayDetailView: View {
     let accountId: String
     let gateway: AIGateway
@@ -25,20 +28,20 @@ struct AIGatewayDetailView: View {
             Section(header: Text("Gateway Overview")) {
                 LabeledContent("Gateway Slug") {
                     Text(gateway.id)
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
                 LabeledContent("Logging") {
                     Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
+                        .font(HIGTypography.subheadline.weight(.medium))
+                        .foregroundStyle(gateway.collectLogs == true ? HIGColors.success : .secondary)
                 }
                 
                 if let created = gateway.createdOn, let date = DateFormatters.parseISO8601(created) {
                     LabeledContent("Created") {
-                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
-                            .font(.subheadline)
+                        Text(date.displayFormatted(date: .abbreviated, time: .omitted))
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -58,27 +61,29 @@ struct AIGatewayDetailView: View {
                     HIGFeedback.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
                     Text(universalEndpoint)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.blue)
+                        .font(HIGTypography.caption.monospaced())
+                        .foregroundStyle(Color.higAccent)
                         .lineLimit(2)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                     
                     Button {
                         UIPasteboard.general.string = universalEndpoint
-                        ToastManager.shared.showCopied()
-                        HIGFeedback.impact(.light)
+                        ToastManager.shared.showCopied("Base URL Copied")
+                        HIGFeedback.copied()
                     } label: {
-                        HStack {
-                            Image(systemName: "doc.on.doc").font(.subheadline)
+                        HStack(spacing: HIGTokens.Spacing.xs) {
+                            Image(systemName: "doc.on.doc")
+                                .font(HIGTypography.subheadline)
                             Text("Copy Base URL")
                         }
-                        .font(.subheadline.weight(.semibold))
+                        .font(HIGTypography.subheadline.weight(.semibold))
                     }
                     .buttonStyle(.bordered)
+                    .higTouchTarget(44)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, HIGTokens.Spacing.xxs)
             }
             
             // MARK: - Integration Code Examples
@@ -89,30 +94,31 @@ struct AIGatewayDetailView: View {
                     Text("Node.js").tag("node")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, 2)
+                .padding(.vertical, HIGTokens.Spacing.xxs)
                 .onChange(of: selectedCodeLanguage) { _ in
                     HIGFeedback.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                     ScrollView(.horizontal) {
                         Text(verbatim: codeSnippet)
-                            .font(.caption2.monospaced())
+                            .font(HIGTypography.caption2.monospaced())
                             .foregroundStyle(.primary)
-                            .padding(.vertical, 4)
+                            .padding(.vertical, HIGTokens.Spacing.xxs)
                     }
                     .scrollIndicators(.hidden)
                     
                     Button {
                         UIPasteboard.general.string = codeSnippet
-                        ToastManager.shared.showCopied()
-                        HIGFeedback.impact(.light)
+                        ToastManager.shared.showCopied("Code Snippet Copied")
+                        HIGFeedback.copied()
                     } label: {
                         Label("Copy Code", systemImage: "doc.on.doc")
-                            .font(.caption.weight(.semibold))
+                            .font(HIGTypography.caption.weight(.semibold))
                     }
+                    .higTouchTarget(44)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, HIGTokens.Spacing.xxs)
             }
         }
         .listStyle(.insetGrouped)

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare Load Balancing 负载均衡领域服务抽象协议
+/// Protocol defining Cloudflare Load Balancing domain service
 protocol LoadBalancerServiceProtocol: Sendable {
     func getLoadBalancers(zoneId: String) async throws -> [LoadBalancer]
     func getLBPools(accountId: String) async throws -> [LBPool]
@@ -13,7 +13,7 @@ protocol LoadBalancerServiceProtocol: Sendable {
     func deleteLBMonitor(accountId: String, monitorId: String) async throws
 }
 
-/// 统一的 Cloudflare Load Balancing 负载均衡领域服务
+/// Concrete domain service for Cloudflare Load Balancing
 final class LoadBalancerService: LoadBalancerServiceProtocol {
     static let shared = LoadBalancerService()
     

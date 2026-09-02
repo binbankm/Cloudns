@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Workers 脚本、触发器与 Secrets 领域服务抽象协议
 protocol WorkerServiceProtocol: Sendable {
     func getWorkers(accountId: String) async throws -> [WorkerScript]
     func listWorkers(accountId: String) async throws -> [WorkerScript]
@@ -27,7 +26,7 @@ protocol WorkerServiceProtocol: Sendable {
     func rollbackWorkerDeployment(accountId: String, scriptName: String, deploymentId: String) async throws
 }
 
-/// 统一的 Cloudflare Workers 脚本、触发器与 Secrets 领域服务
+/// Concrete domain service for Cloudflare Workers scripts, triggers, and secrets
 final class WorkerService: WorkerServiceProtocol {
     static let shared = WorkerService()
     
@@ -227,7 +226,7 @@ final class WorkerService: WorkerServiceProtocol {
         var headerItems: [HTTPHeaderItem] = []
         for (k, v) in httpResponse.allHeaderFields { headerItems.append(HTTPHeaderItem(key: "\(k)", value: "\(v)")) }
         
-        // 内存安全防护：限制最大读取 1MB (1,048,576 字节)，杜绝大文件耗尽内存
+        // Memory safety guard: cap maximum read to 1MB to prevent out-of-memory on large files
         let maxBytes = 1024 * 1024
         var collectedData = Data()
         var isTruncated = false

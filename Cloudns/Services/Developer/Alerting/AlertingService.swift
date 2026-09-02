@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Alerting 告警与通知策略领域服务抽象协议
 protocol AlertingServiceProtocol: Sendable {
     func listAvailableAlertTypes(accountId: String) async throws -> [AlertingAvailableType]
     func listAlertingWebhooks(accountId: String) async throws -> [AlertingWebhookDestination]
@@ -8,7 +7,6 @@ protocol AlertingServiceProtocol: Sendable {
     func deleteAlertingPolicy(accountId: String, policyId: String) async throws
 }
 
-/// 统一的 Cloudflare Alerting 告警与通知策略领域服务
 final class AlertingService: AlertingServiceProtocol {
     static let shared = AlertingService()
     

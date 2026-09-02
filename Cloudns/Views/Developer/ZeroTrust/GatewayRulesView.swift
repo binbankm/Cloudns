@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - GatewayRulesView
+// Apple HIG Compliant Cloudflare Zero Trust Gateway Security Policies (DNS/HTTP)
 
 struct GatewayRulesView: View {
     let accountId: String
@@ -25,7 +26,8 @@ struct GatewayRulesView: View {
                             .contextMenu {
                                 Button {
                                     UIPasteboard.general.string = rule.name
-                                    ToastManager.shared.showCopied()
+                                    ToastManager.shared.showCopied("Rule Name Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "doc.on.doc")
                                 }
@@ -33,11 +35,14 @@ struct GatewayRulesView: View {
                                 if let traffic = rule.traffic, !traffic.isEmpty {
                                     Button {
                                         UIPasteboard.general.string = traffic
-                                        ToastManager.shared.showCopied()
+                                        ToastManager.shared.showCopied("Traffic Expression Copied")
+                                        HIGFeedback.copied()
                                     } label: {
-                                        Label("Copy Traffic Expression", systemImage: "doc.on.doc")
+                                        Label("Copy Traffic Expression", systemImage: "curlybraces")
                                     }
                                 }
+                                
+                                Divider()
                                 
                                 Button(role: .destructive) {
                                     HIGFeedback.impact(.medium)
@@ -46,7 +51,6 @@ struct GatewayRulesView: View {
                                 } label: {
                                     Label("Delete Rule", systemImage: "trash")
                                 }
-                                .tint(.red)
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -56,7 +60,7 @@ struct GatewayRulesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -79,16 +83,18 @@ struct GatewayRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Gateway Rule")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddGatewayRuleSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name)'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(id: rule.id)
+                    ToastManager.shared.showSuccess("Gateway Rule Deleted", icon: "trash.fill")
                     HIGFeedback.success()
                 }
             }
@@ -101,8 +107,8 @@ struct GatewayRulesView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Gateway Rules…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Gateway Rules…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
                     HIGContentState(
                         .error(
@@ -134,17 +140,17 @@ struct GatewayRulesView: View {
     
     @ViewBuilder
     private func ruleRow(_ rule: GatewayRule) -> some View {
-        HStack(alignment: .center, spacing: 14) {
-            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? .green : .gray, size: 32, cornerRadius: 8)
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? HIGColors.success : .gray)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(rule.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let traffic = rule.traffic, !traffic.isEmpty {
                     Text(traffic)
-                        .font(.caption2.monospaced())
+                        .font(HIGTypography.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -152,10 +158,10 @@ struct GatewayRulesView: View {
             
             Spacer()
             
-            let actionColor: Color = rule.action.lowercased() == "block" ? .red : (rule.action.lowercased() == "allow" ? .green : .orange)
+            let actionColor: Color = rule.action.lowercased() == "block" ? HIGColors.error : (rule.action.lowercased() == "allow" ? HIGColors.success : .orange)
             HIGBadge(.custom(color: actionColor, text: rule.action.uppercased()), isCompact: true)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -178,6 +184,7 @@ struct AddGatewayRuleSheetView: View {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Block Malware)", text: $name)
+                        .font(HIGTypography.body)
                     
                     Picker("Action", selection: $action) {
                         ForEach(actions, id: \.self) { act in
@@ -189,6 +196,7 @@ struct AddGatewayRuleSheetView: View {
                 
                 Section(header: Text("Traffic Expression"), footer: Text("Wirefilter expression matching network traffic.")) {
                     TextField("dns.fqdn == \"malicious.com\"", text: $traffic)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -197,8 +205,8 @@ struct AddGatewayRuleSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -209,6 +217,7 @@ struct AddGatewayRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -222,6 +231,7 @@ struct AddGatewayRuleSheetView: View {
                                     traffic: traffic.trimmingCharacters(in: .whitespaces)
                                 )
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Gateway Rule Created", icon: "shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -231,6 +241,7 @@ struct AddGatewayRuleSheetView: View {
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || traffic.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

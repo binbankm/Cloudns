@@ -1,6 +1,6 @@
 import Foundation
 
-/// Anycast 边缘延迟与抖动测速服务协议
+/// Protocol defining Anycast edge latency and jitter testing service
 protocol EdgeLatencyServiceProtocol: Sendable {
     func performEdgeLatencyTest(host: String, rounds: Int) async throws -> EdgeLatencyResult
 }

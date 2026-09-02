@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - LoadBalancerView
+// Apple HIG Compliant Cloudflare Global Load Balancers, Origin Server Pools & Health Monitors
 
 struct LoadBalancerView: View {
     let zoneId: String
@@ -26,8 +27,8 @@ struct LoadBalancerView: View {
                 Text("Monitors").tag(2)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, HIGTokens.Spacing.md)
+            .padding(.vertical, HIGTokens.Spacing.sm)
             .background(Color(.systemGroupedBackground))
             
             contentList
@@ -51,6 +52,7 @@ struct LoadBalancerView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Load Balancing Resource")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -75,6 +77,7 @@ struct LoadBalancerView: View {
                     Task {
                         await viewModel.deleteLoadBalancer(id: lb.id)
                         ToastManager.shared.showSuccess("Load Balancer Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         lbToDelete = nil
                     }
                 }
@@ -83,6 +86,7 @@ struct LoadBalancerView: View {
                     Task {
                         await viewModel.deletePool(poolId: pool.id)
                         ToastManager.shared.showSuccess("Origin Pool Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         poolToDelete = nil
                     }
                 }
@@ -91,6 +95,7 @@ struct LoadBalancerView: View {
                     Task {
                         await viewModel.deleteMonitor(monitorId: mon.id)
                         ToastManager.shared.showSuccess("Health Monitor Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         monitorToDelete = nil
                     }
                 }
@@ -119,16 +124,36 @@ struct LoadBalancerView: View {
                     Section(header: Text("Load Balancers (\(viewModel.loadBalancers.count))")) {
                         ForEach(viewModel.loadBalancers) { lb in
                             lbRow(lb)
+                                .contextMenu {
+                                    if let name = lb.name {
+                                        Button {
+                                            UIPasteboard.general.string = name
+                                            ToastManager.shared.showCopied("Hostname Copied")
+                                            HIGFeedback.copied()
+                                        } label: {
+                                            Label("Copy Hostname", systemImage: "doc.on.doc")
+                                        }
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        lbToDelete = lb
+                                        showingDeleteDialog = true
+                                        HIGFeedback.impact(.medium)
+                                    } label: {
+                                        Label("Delete Load Balancer", systemImage: "trash")
+                                    }
+                                }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
+                                        lbToDelete = lb
+                                        showingDeleteDialog = true
                                         HIGFeedback.impact(.medium)
-                                        Task {
-                                            await viewModel.deleteLoadBalancer(id: lb.id)
-                                        }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(HIGColors.error)
                                 }
                         }
                     }
@@ -138,16 +163,36 @@ struct LoadBalancerView: View {
                     Section(header: Text("Origin Pools (\(viewModel.pools.count))")) {
                         ForEach(viewModel.pools) { pool in
                             poolRow(pool)
+                                .contextMenu {
+                                    if let name = pool.name {
+                                        Button {
+                                            UIPasteboard.general.string = name
+                                            ToastManager.shared.showCopied("Pool Name Copied")
+                                            HIGFeedback.copied()
+                                        } label: {
+                                            Label("Copy Pool Name", systemImage: "doc.on.doc")
+                                        }
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        poolToDelete = pool
+                                        showingDeleteDialog = true
+                                        HIGFeedback.impact(.medium)
+                                    } label: {
+                                        Label("Delete Pool", systemImage: "trash")
+                                    }
+                                }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
+                                        poolToDelete = pool
+                                        showingDeleteDialog = true
                                         HIGFeedback.impact(.medium)
-                                        Task {
-                                            await viewModel.deletePool(poolId: pool.id)
-                                        }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(HIGColors.error)
                                 }
                         }
                     }
@@ -157,16 +202,36 @@ struct LoadBalancerView: View {
                     Section(header: Text("Health Monitors (\(viewModel.monitors.count))")) {
                         ForEach(viewModel.monitors) { mon in
                             monRow(mon)
+                                .contextMenu {
+                                    if let desc = mon.description {
+                                        Button {
+                                            UIPasteboard.general.string = desc
+                                            ToastManager.shared.showCopied("Monitor Description Copied")
+                                            HIGFeedback.copied()
+                                        } label: {
+                                            Label("Copy Description", systemImage: "doc.on.doc")
+                                        }
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        monitorToDelete = mon
+                                        showingDeleteDialog = true
+                                        HIGFeedback.impact(.medium)
+                                    } label: {
+                                        Label("Delete Monitor", systemImage: "trash")
+                                    }
+                                }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
+                                        monitorToDelete = mon
+                                        showingDeleteDialog = true
                                         HIGFeedback.impact(.medium)
-                                        Task {
-                                            await viewModel.deleteMonitor(monitorId: mon.id)
-                                        }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(HIGColors.error)
                                 }
                         }
                     }
@@ -224,81 +289,81 @@ struct LoadBalancerView: View {
     
     @ViewBuilder
     private func lbRow(_ lb: LoadBalancer) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(lb.name ?? lb.id)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
                 HIGBadge(lb.enabled == true ? .active : .custom(color: .secondary, text: "Inactive"), isCompact: true)
             }
             if let fallback = lb.fallbackPool {
                 Text("Fallback: \(fallback)")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     @ViewBuilder
     private func poolRow(_ pool: LBPool) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(pool.name ?? pool.id)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
                 Text("\(pool.origins?.count ?? 0) Origins")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
             }
             if let desc = pool.description, !desc.isEmpty {
                 Text(desc)
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
             }
             if let origins = pool.origins, !origins.isEmpty {
-                HStack(spacing: 6) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     ForEach(origins.prefix(3), id: \.idResolved) { o in
                         Text(verbatim: o.name ?? o.address ?? "-")
-                            .font(.caption2.monospaced())
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .font(HIGTypography.caption2.monospaced())
+                            .padding(.horizontal, HIGTokens.Spacing.xs)
+                            .padding(.vertical, HIGTokens.Spacing.xxs)
                             .background(Color(.secondarySystemFill))
-                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                     }
                 }
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     @ViewBuilder
     private func monRow(_ monitor: LBMonitor) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(monitor.description ?? monitor.id)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
                 HIGBadge(.custom(color: .blue, text: monitor.type?.uppercased() ?? "HTTP"), isCompact: true)
             }
             HStack {
                 Text(monitor.method ?? "GET")
-                    .font(.caption)
+                    .font(HIGTypography.caption.weight(.semibold))
                 Text(monitor.path ?? "/")
-                    .font(.caption.monospaced())
+                    .font(HIGTypography.caption.monospaced())
                 Spacer()
                 if let codes = monitor.expectedCodes {
                     Text("Expect: \(codes)")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
             .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -320,21 +385,25 @@ struct AddLBPoolSheetView: View {
             Form {
                 Section(header: Text("Pool Details")) {
                     TextField("Pool Name (e.g. primary-cluster)", text: $poolName)
+                        .font(HIGTypography.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     TextField("Description (Optional)", text: $description)
+                        .font(HIGTypography.body)
                         .submitLabel(.next)
                 }
                 
                 Section(header: Text("Initial Origin Server")) {
                     TextField("Origin Name (e.g. srv-01)", text: $originName)
+                        .font(HIGTypography.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     TextField("IP or Hostname (e.g. 192.0.2.1)", text: $originAddress)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -348,6 +417,7 @@ struct AddLBPoolSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -365,6 +435,7 @@ struct AddLBPoolSheetView: View {
                             let success = await viewModel.createPool(payload: update)
                             if success {
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Origin Pool Created", icon: "server.rack")
                                 dismiss()
                             } else {
                                 HIGFeedback.error()
@@ -373,6 +444,7 @@ struct AddLBPoolSheetView: View {
                         }
                     }
                     .disabled(poolName.isEmpty || originAddress.isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
@@ -409,11 +481,13 @@ struct AddLBMonitorSheetView: View {
                 
                 Section(header: Text("Health Check Request")) {
                     TextField("Path (e.g. /healthz)", text: $path)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     TextField("Expected Status Code (e.g. 200 or 2xx)", text: $expectedCodes)
+                        .font(HIGTypography.body.monospacedDigit())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -433,6 +507,7 @@ struct AddLBMonitorSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -452,6 +527,7 @@ struct AddLBMonitorSheetView: View {
                             let success = await viewModel.createMonitor(payload: update)
                             if success {
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Health Monitor Created", icon: "waveform.path.ecg")
                                 dismiss()
                             } else {
                                 HIGFeedback.error()
@@ -460,6 +536,7 @@ struct AddLBMonitorSheetView: View {
                         }
                     }
                     .disabled(path.isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

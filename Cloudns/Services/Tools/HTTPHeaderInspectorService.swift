@@ -1,6 +1,6 @@
 import Foundation
 
-/// HTTP/HTTPS 响应头诊断与性能检测领域服务协议
+/// Protocol defining HTTP/HTTPS response header inspection service
 protocol HTTPHeaderInspectorServiceProtocol: Sendable {
     func inspectHTTPHeaders(urlString: String, method: String) async throws -> HTTPInspectionResult
 }

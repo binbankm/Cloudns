@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - TunnelsListView
+// Apple HIG Compliant Cloudflare Zero Trust Tunnels Overview
 
 struct TunnelsListView: View {
     let accountId: String
@@ -22,6 +23,23 @@ struct TunnelsListView: View {
                         } label: {
                             TunnelRowView(tunnel: tunnel)
                         }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = tunnel.id
+                                ToastManager.shared.showCopied("Tunnel ID Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Tunnel ID", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                UIPasteboard.general.string = tunnel.name
+                                ToastManager.shared.showCopied("Tunnel Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Tunnel Name", systemImage: "character.textbox")
+                            }
+                        }
                     }
                 }
             }
@@ -42,16 +60,20 @@ struct TunnelsListView: View {
                     showingCreateTunnelSheet = true
                 } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Create Tunnel")
+                .higTouchTarget()
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreateTunnelSheet) {
             CreateTunnelSheetView(viewModel: viewModel)
-             .higToast()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .higToast()
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Cloudflare Tunnels…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Cloudflare Tunnels…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
                     HIGContentState(
                         .error(
@@ -99,16 +121,19 @@ struct TunnelRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "network.badge.shield.half.filled", color: isHealthy ? .green : .orange, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(
+                icon: "network.badge.shield.half.filled",
+                color: isHealthy ? HIGColors.success : HIGColors.warning
+            )
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(tunnel.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text("ID: \(tunnel.id)")
-                    .font(.caption2.monospaced())
+                    .font(HIGTypography.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -117,7 +142,7 @@ struct TunnelRowView: View {
             
             HIGBadge(isHealthy ? .active : .warning(tunnel.status?.capitalized ?? "Inactive"), isCompact: true)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -157,6 +182,7 @@ struct CreateTunnelSheetView: View {
                             isCreating = true
                             let success = await viewModel.createTunnel(name: tunnelName.trimmingCharacters(in: .whitespaces))
                             if success {
+                                ToastManager.shared.showSuccess("Tunnel Created", icon: "network.badge.shield.half.filled")
                                 HIGFeedback.success()
                                 dismiss()
                             } else {
@@ -165,6 +191,7 @@ struct CreateTunnelSheetView: View {
                             isCreating = false
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(tunnelName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }

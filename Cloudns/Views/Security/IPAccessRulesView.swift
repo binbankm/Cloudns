@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - IPAccessRulesView
+// Apple HIG Compliant IP Access Rules Management
 
 struct IPAccessRulesView: View {
     let zoneId: String
@@ -16,6 +17,24 @@ struct IPAccessRulesView: View {
                 Section {
                     ForEach(viewModel.rules) { rule in
                         IPAccessRuleRowView(rule: rule)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = rule.configuration.value
+                                    ToastManager.shared.showCopied("Target Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Target", systemImage: "doc.on.doc")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    ruleToDelete = rule
+                                    showingDeleteConfirm = true
+                                } label: {
+                                    Label("Delete Rule", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     ruleToDelete = rule
@@ -23,7 +42,7 @@ struct IPAccessRulesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -67,11 +86,15 @@ struct IPAccessRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add IP Rule")
+                .higTouchTarget()
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingAddRule) {
             AddIPAccessRuleView(zoneId: zoneId, viewModel: viewModel, isPresented: $showingAddRule)
-             .higToast()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .higToast()
         }
         .confirmationDialog(
             "Delete IP Access Rule",
@@ -83,6 +106,7 @@ struct IPAccessRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("IP Rule Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         ruleToDelete = nil
                     }
                 }
@@ -109,39 +133,39 @@ struct IPAccessRuleRowView: View {
     let rule: IPAccessRule
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(rule.configuration.value)
-                    .font(.body.monospacedDigit())
+                    .font(HIGTypography.body.monospacedDigit().weight(.medium))
                 
                 Spacer()
                 
                 HIGBadge(.custom(color: colorForMode(rule.mode), text: rule.mode.uppercased()), isCompact: true)
             }
             
-            HStack {
+            HStack(spacing: HIGTokens.Spacing.xs) {
                 Text(rule.configuration.target.uppercased().replacingOccurrences(of: "_", with: " "))
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                 
                 if let notes = rule.notes, !notes.isEmpty {
                     Text("•")
                         .foregroundStyle(.secondary)
                     Text(notes)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     private func colorForMode(_ mode: String) -> Color {
         switch mode {
-        case "block": return .red
-        case "challenge", "js_challenge", "managed_challenge": return .orange
-        case "whitelist": return .green
+        case "block": return HIGColors.error
+        case "challenge", "js_challenge", "managed_challenge": return HIGColors.warning
+        case "whitelist": return HIGColors.success
         default: return .blue
         }
     }
@@ -158,9 +182,14 @@ struct AddIPAccessRuleView: View {
     @State private var value = ""
     @State private var mode = "block"
     @State private var notes = ""
+    @State private var showingDiscardAlert = false
     
     enum Field { case value, notes }
     @FocusState private var focusedField: Field?
+    
+    private var hasChanges: Bool {
+        !value.isEmpty || !notes.isEmpty
+    }
     
     var body: some View {
         NavigationStack {
@@ -204,10 +233,15 @@ struct AddIPAccessRuleView: View {
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Rule")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        isPresented = false
+                        if hasChanges {
+                            showingDiscardAlert = true
+                        } else {
+                            isPresented = false
+                        }
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -222,12 +256,19 @@ struct AddIPAccessRuleView: View {
                                 notes: notes
                             )
                             if success {
+                                ToastManager.shared.showSuccess("IP Rule Added", icon: "network.badge.shield.half.filled")
                                 isPresented = false
                             }
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(value.isEmpty || viewModel.isCreating)
                 }
+            }
+            .interactiveDismissDisabled(hasChanges && !viewModel.isCreating)
+            .confirmationDialog("Discard Rule?", isPresented: $showingDiscardAlert, titleVisibility: .visible) {
+                Button("Discard", role: .destructive) { isPresented = false }
+                Button("Keep Editing", role: .cancel) { }
             }
         }
     }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ZonesListView
+// Apple HIG Compliant Domain Management View
 
 struct ZonesListView: View {
     @StateObject private var viewModel = ZonesViewModel()
@@ -42,6 +43,8 @@ struct ZonesListView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Domain")
+                    .higTouchTarget()
+                    .keyboardShortcut("n", modifiers: .command)
                 }
             }
             .sheet(isPresented: $showAddZoneSheet) {
@@ -109,6 +112,23 @@ struct ZonesListView: View {
                 NavigationLink(destination: ZoneDetailView(zone: zone)) {
                     ZoneRowView(zone: zone, sparkline: viewModel.sparklines[zone.id])
                 }
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = zone.name
+                        ToastManager.shared.showCopied("Domain Copied")
+                    } label: {
+                        Label("Copy Domain", systemImage: "doc.on.doc")
+                    }
+                    
+                    Divider()
+                    
+                    Button(role: .destructive) {
+                        zoneToDelete = zone
+                        showingDeleteAlert = true
+                    } label: {
+                        Label("Delete Domain", systemImage: "trash")
+                    }
+                }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         HIGFeedback.impact(.medium)
@@ -117,7 +137,7 @@ struct ZonesListView: View {
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    .tint(.red)
+                    .tint(HIGColors.error)
                 }
             }
 
@@ -182,60 +202,57 @@ struct ZoneRowView: View {
     }
     
     private var avatarColor: Color {
-        let palette: [Color] = [.blue, .indigo, .purple, .teal, .mint, .cyan, .orange, .pink]
-        let hash = abs(zone.name.hashValue)
-        return palette[hash % palette.count]
+        AccountAvatarView.color(for: zone.name)
     }
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
             ZStack {
                 Circle()
                     .fill(avatarColor.opacity(0.14))
-                    .frame(width: 36, height: 36)
+                    .frame(width: HIGTokens.Size.avatarSmall + 2, height: HIGTokens.Size.avatarSmall + 2)
                 Text(initialChar)
-                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .font(HIGTypography.subheadline.weight(.bold))
                     .foregroundStyle(avatarColor)
             }
             .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 1) {
                 Text(verbatim: zone.name)
-                    .font(.body)
-                    .fontWeight(.medium)
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 if zone.paused || (zone.developmentMode ?? 0) > 0 {
-                    HStack(spacing: 5) {
+                    HStack(spacing: HIGTokens.Spacing.xs + 1) {
                         if zone.paused {
                             Text("Paused")
-                                .font(.caption2.weight(.medium))
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 1.5)
-                                .background(Color.red.opacity(0.15))
-                                .foregroundStyle(.red)
-                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                .font(HIGTypography.caption2.weight(.medium))
+                                .padding(.horizontal, HIGTokens.Spacing.xs + 1)
+                                .padding(.vertical, HIGTokens.Spacing.xxs)
+                                .background(HIGColors.error.opacity(0.15))
+                                .foregroundStyle(HIGColors.error)
+                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                         }
                         
                         if (zone.developmentMode ?? 0) > 0 {
                             Text("Dev Mode")
-                                .font(.caption2.weight(.medium))
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 1.5)
+                                .font(HIGTypography.caption2.weight(.medium))
+                                .padding(.horizontal, HIGTokens.Spacing.xs + 1)
+                                .padding(.vertical, HIGTokens.Spacing.xxs)
                                 .background(Color.orange.opacity(0.15))
                                 .foregroundStyle(.orange)
-                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                         }
                     }
                 }
             }
             
-            Spacer(minLength: 8)
+            Spacer(minLength: HIGTokens.Spacing.sm)
             
             ZoneRowSparklineView(zoneId: zone.id, cached: sparkline)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -373,24 +390,24 @@ public struct ZoneRowSparklineView: View {
         let points = cached?.points ?? []
         let total = cached?.totalRequests ?? 0
         
-        HStack(spacing: 5) {
-                ZoneTrafficSparklineView(
-                    data: points,
-                    lineColor: sparklineColor(total: total),
-                    lineWidth: 1.5
-                )
-                .frame(width: 44, height: 22)
-                
-                if total > 0 {
-                    Text(formatMetric(total))
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                }
+        HStack(spacing: HIGTokens.Spacing.xs + 1) {
+            ZoneTrafficSparklineView(
+                data: points,
+                lineColor: sparklineColor(total: total),
+                lineWidth: 1.5
+            )
+            .frame(width: 44, height: 22)
+            
+            if total > 0 {
+                Text(formatMetric(total))
+                    .font(HIGTypography.caption2.weight(.bold))
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
-            .accessibilityHidden(true)
+        }
+        .accessibilityHidden(true)
     }
     
     private func sparklineColor(total: Int) -> Color {

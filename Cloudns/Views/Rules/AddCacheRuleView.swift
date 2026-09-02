@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AddCacheRuleView
+// Apple HIG Compliant Cloudflare Cache Rule Editor
+
 struct AddCacheRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: CacheRulesViewModel
@@ -22,16 +25,13 @@ struct AddCacheRuleView: View {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Cache static assets)", text: $ruleName)
+                        .font(HIGTypography.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                         .focused($focusedField, equals: "ruleName")
                         .onSubmit { focusedField = "edgeTtl" }
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.next)
-                        .focused($focusedField, equals: "name")
                 }
                 
                 Section(header: Text("Cache Eligibility")) {
@@ -53,8 +53,10 @@ struct AddCacheRuleView: View {
                         if edgeTtlMode == "override_origin" {
                             HStack {
                                 Text("Seconds")
+                                    .font(HIGTypography.body)
                                 Spacer()
                                 TextField("e.g. 3600", text: $edgeTtlValue)
+                                    .font(HIGTypography.body.monospacedDigit())
                                     .keyboardType(.numberPad)
                                     .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
@@ -75,8 +77,10 @@ struct AddCacheRuleView: View {
                         if browserTtlMode == "override_origin" {
                             HStack {
                                 Text("Seconds")
+                                    .font(HIGTypography.body)
                                 Spacer()
                                 TextField("e.g. 14400", text: $browserTtlValue)
+                                    .font(HIGTypography.body.monospacedDigit())
                                     .keyboardType(.numberPad)
                                     .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
@@ -96,6 +100,7 @@ struct AddCacheRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -107,6 +112,7 @@ struct AddCacheRuleView: View {
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || isSubmitting)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -116,8 +122,8 @@ struct AddCacheRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color(UIColor.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .background(Color.higCardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                     }
                 }
             )

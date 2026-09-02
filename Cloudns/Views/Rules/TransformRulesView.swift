@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - TransformRulesView
+// Apple HIG Compliant Cloudflare Transform Rules (URL Rewrite & Header Manipulation)
 
 struct TransformRulesView: View {
     let zoneId: String
@@ -23,8 +24,8 @@ struct TransformRulesView: View {
                 Text("Response Headers").tag("http_response_headers_transform")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, HIGTokens.Spacing.md)
+            .padding(.vertical, HIGTokens.Spacing.sm)
             .background(Color(.systemGroupedBackground))
             
             contentList
@@ -43,17 +44,19 @@ struct TransformRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Transform Rule")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
                     ToastManager.shared.showSuccess("Transform Rule Deleted", icon: "trash.fill")
+                    HIGFeedback.success()
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -81,16 +84,47 @@ struct TransformRulesView: View {
                             HIGFeedback.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
+                                ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "slider.horizontal.3")
+                            }
+                        }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = rule.expression
+                                ToastManager.shared.showCopied("Expression Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Expression", systemImage: "doc.on.doc")
+                            }
+                            
+                            if let desc = rule.description {
+                                Button {
+                                    UIPasteboard.general.string = desc
+                                    ToastManager.shared.showCopied("Rule Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Rule Name", systemImage: "tag")
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                ruleToDelete = rule
+                                showingDeleteAlert = true
+                                HIGFeedback.impact(.medium)
+                            } label: {
+                                Label("Delete Rule", systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
+                                HIGFeedback.impact(.medium)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -140,10 +174,10 @@ struct TransformRuleCardView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
@@ -153,54 +187,13 @@ struct TransformRuleCardView: View {
             }
             
             Text(verbatim: rule.expression)
-                .font(.caption2.monospaced())
+                .font(HIGTypography.caption2.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(6)
+                .padding(HIGTokens.Spacing.xs)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                .lineLimit(2)
-            
-            if let uri = rule.action_parameters?.uri {
-                if let path = uri.path?.value {
-                    HStack(spacing: 4) {
-                        Image(systemName: "link")
-                            .foregroundStyle(.blue)
-                            .font(.caption2)
-                            .accessibilityHidden(true)
-                        Text("Rewrite Path -> \(path)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                if let query = uri.query?.value {
-                    HStack(spacing: 4) {
-                        Image(systemName: "questionmark.circle")
-                            .foregroundStyle(.indigo)
-                            .font(.caption2)
-                            .accessibilityHidden(true)
-                        Text("Rewrite Query -> \(query)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            
-            if let headers = rule.action_parameters?.headers {
-                ForEach(Array(headers.keys), id: \.self) { headerKey in
-                    if let item = headers[headerKey] {
-                        HStack(spacing: 4) {
-                            Image(systemName: item.operation == "remove" ? "minus.circle.fill" : "plus.circle.fill")
-                                .foregroundStyle(item.operation == "remove" ? .red : .green)
-                                .font(.caption2)
-                                .accessibilityHidden(true)
-                            Text("\(item.operation.capitalized) '\(headerKey)': \(item.value ?? "(removed)")")
-                                .font(.caption)
-                                .foregroundStyle(item.operation == "remove" ? .red : .primary)
-                        }
-                    }
-                }
-            }
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                .textSelection(.enabled)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }

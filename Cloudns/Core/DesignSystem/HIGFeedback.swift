@@ -3,11 +3,11 @@ import UIKit
 
 // MARK: - Apple HIG Feedback & Haptics
 
-/// 统一遵循 Apple HIG 规范的触感与反馈管理器
+/// Unified Taptic Engine feedback manager adhering to Apple HIG
 @MainActor
 public enum HIGFeedback {
     
-    /// 检查用户在设置中是否开启了触感反馈（默认 true）
+    /// Checks whether haptics are enabled in user settings (defaults to true)
     public static var isHapticsEnabled: Bool {
         if UserDefaults.standard.object(forKey: AppStorageKey.hapticsEnabled) == nil {
             return true
@@ -15,7 +15,7 @@ public enum HIGFeedback {
         return UserDefaults.standard.bool(forKey: AppStorageKey.hapticsEnabled)
     }
     
-    /// 触发轻微点按触感（用于切换、选择、轻量交互）
+    /// Triggers subtle selection feedback (toggles, pickers, light taps)
     public static func selection() {
         guard isHapticsEnabled else { return }
         let generator = UISelectionFeedbackGenerator()
@@ -23,7 +23,7 @@ public enum HIGFeedback {
         generator.selectionChanged()
     }
     
-    /// 触发撞击触感
+    /// Triggers impact haptic feedback
     public static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
         guard isHapticsEnabled else { return }
         let generator = UIImpactFeedbackGenerator(style: style)
@@ -31,7 +31,7 @@ public enum HIGFeedback {
         generator.impactOccurred()
     }
     
-    /// 触发成功通知触感
+    /// Triggers success notification haptic feedback
     public static func success() {
         guard isHapticsEnabled else { return }
         let generator = UINotificationFeedbackGenerator()
@@ -39,7 +39,7 @@ public enum HIGFeedback {
         generator.notificationOccurred(.success)
     }
     
-    /// 触发警告通知触感
+    /// Triggers warning notification haptic feedback
     public static func warning() {
         guard isHapticsEnabled else { return }
         let generator = UINotificationFeedbackGenerator()
@@ -47,7 +47,7 @@ public enum HIGFeedback {
         generator.notificationOccurred(.warning)
     }
     
-    /// 触发错误通知触感
+    /// Triggers error notification haptic feedback
     public static func error() {
         guard isHapticsEnabled else { return }
         let generator = UINotificationFeedbackGenerator()
@@ -55,7 +55,7 @@ public enum HIGFeedback {
         generator.notificationOccurred(.error)
     }
     
-    /// 触发通知触感快捷通道
+    /// Triggers notification haptic feedback of specified type
     public static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         guard isHapticsEnabled else { return }
         let generator = UINotificationFeedbackGenerator()
@@ -63,17 +63,17 @@ public enum HIGFeedback {
         generator.notificationOccurred(type)
     }
     
-    /// 触发复制成功触感
+    /// Triggers copy-to-clipboard haptic feedback
     public static func copied() {
         impact(.light)
     }
     
-    /// 触发开关/选择切换触感
+    /// Triggers toggle/selection changed haptic feedback
     public static func toggled() {
         selection()
     }
     
-    /// 触发破坏性/危险操作触感
+    /// Triggers destructive action haptic feedback
     public static func destructive() {
         impact(.medium)
     }
@@ -93,27 +93,5 @@ public enum HapticManager {
     
     public static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         HIGFeedback.notification(type)
-    }
-}
-
-// MARK: - HIG Touch Target Standard (44x44pt)
-
-public struct HIGTouchTargetModifier: ViewModifier {
-    public let minSize: CGFloat
-    
-    public init(minSize: CGFloat = 44) {
-        self.minSize = minSize
-    }
-    
-    public func body(content: Content) -> some View {
-        content
-            .frame(minWidth: minSize, minHeight: minSize)
-            .contentShape(Rectangle())
-    }
-}
-
-public extension View {
-    func higTouchTarget(_ minSize: CGFloat = 44) -> some View {
-        self.modifier(HIGTouchTargetModifier(minSize: minSize))
     }
 }

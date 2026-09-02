@@ -1,6 +1,9 @@
 import SwiftUI
 import Charts
 
+// MARK: - PagesAnalyticsView
+// Apple HIG Compliant Cloudflare Pages Analytics, Functions Invocations, CPU Time & Pipeline Telemetry
+
 public struct PagesAnalyticsView: View {
     public let accountId: String
     public let projectName: String
@@ -41,9 +44,9 @@ public struct PagesAnalyticsView: View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
             headerBar
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 12)
+                .padding(.horizontal, HIGTokens.Spacing.md)
+                .padding(.top, HIGTokens.Spacing.sm)
+                .padding(.bottom, HIGTokens.Spacing.sm)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 HIGContentState(.loading(message: "Loading Pages Analytics…"))
@@ -72,31 +75,31 @@ public struct PagesAnalyticsView: View {
                         Spacer(minLength: 80)
                     }
                     .frame(minHeight: 450)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, HIGTokens.Spacing.md)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(isRefresh: true)
                 }
             } else {
                 ScrollView {
-                    VStack(spacing: 16) {
-                        // 2. 4 Key Metrics Cards Grid (Non-lazy Grid for rock-solid stability)
+                    VStack(spacing: HIGTokens.Spacing.md) {
+                        // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
-                        // 3. Pages Functions Invocations 折线图 (Line & Area Chart)
+                        // 3. Pages Functions Invocations Line & Area Chart
                         if !viewModel.dataPoints.isEmpty {
                             functionsLineChartCard
                             cpuLatencyLineChartCard
                         }
                         
-                        // 4. Deployments Pipeline Distribution (生产 vs 预览 分布)
+                        // 4. Deployments Pipeline Distribution
                         deploymentsBreakdownCard
                         
                         // 5. Pages Architecture & Deployment Insights Card
                         insightsCard
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 28)
+                    .padding(.horizontal, HIGTokens.Spacing.md)
+                    .padding(.bottom, HIGTokens.Spacing.xl)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
@@ -117,13 +120,13 @@ public struct PagesAnalyticsView: View {
     
     // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.sm + 2) {
             Image(systemName: "square.stack.3d.up.fill")
                 .foregroundStyle(.purple)
-                .font(.title3)
+                .font(HIGTypography.title3)
             
             Text(projectName)
-                .font(.headline.weight(.semibold))
+                .font(HIGTypography.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -146,14 +149,14 @@ public struct PagesAnalyticsView: View {
                 }
             }
         }
-        .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(HIGTokens.Spacing.sm + 4)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
     // MARK: - 2. Key Metrics Grid
     private var metricsGrid: some View {
-        Grid(horizontalSpacing: 12, verticalSpacing: 12) {
+        Grid(horizontalSpacing: HIGTokens.Spacing.sm + 2, verticalSpacing: HIGTokens.Spacing.sm + 2) {
             GridRow {
                 metricCard(
                     title: "Functions Invocations",
@@ -167,7 +170,7 @@ public struct PagesAnalyticsView: View {
                     title: "Functions Errors",
                     value: MetricFormatters.compactNumber(viewModel.totalErrors),
                     icon: "exclamationmark.triangle.fill",
-                    color: viewModel.totalErrors > 0 ? .red : .green,
+                    color: viewModel.totalErrors > 0 ? HIGColors.error : HIGColors.success,
                     badge: "\((viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1)))) Error Rate"
                 )
             }
@@ -177,7 +180,7 @@ public struct PagesAnalyticsView: View {
                     title: "Deploy Success Rate",
                     value: (viewModel.deploymentSuccessRate / 100.0).formatted(.percent.precision(.fractionLength(0))),
                     icon: "checkmark.seal.fill",
-                    color: .green,
+                    color: HIGColors.success,
                     badge: "\(viewModel.deployments.count) Total Deploys"
                 )
                 
@@ -193,20 +196,20 @@ public struct PagesAnalyticsView: View {
     }
     
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs + 2) {
+            HStack(spacing: HIGTokens.Spacing.xs + 2) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
                         .frame(width: 22, height: 22)
                     Image(systemName: icon)
-                        .font(.caption2.weight(.semibold))
+                        .font(HIGTypography.caption2.weight(.semibold))
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)
                 
                 Text(title)
-                    .font(.caption.weight(.medium))
+                    .font(HIGTypography.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 
@@ -216,7 +219,7 @@ public struct PagesAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(value)
-                .font(.system(.title2, design: .rounded).weight(.bold).monospacedDigit())
+                .font(HIGTypography.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -224,46 +227,46 @@ public struct PagesAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(badge)
-                .font(.caption2)
+                .font(HIGTypography.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .padding(12)
+        .padding(HIGTokens.Spacing.sm + 2)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
-    // MARK: - 3. Functions Invocations 折线图 (Line Chart with Live Scrubbing)
+    // MARK: - 3. Functions Invocations Line Chart
     private var functionsLineChartCard: some View {
         let maxReq = viewModel.dataPoints.map { $0.requests }.max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 1) {
+                    HStack(spacing: HIGTokens.Spacing.xs + 2) {
                         Image(systemName: "chart.xyaxis.line")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(.blue)
+                            .font(HIGTypography.caption.weight(.bold))
+                            .foregroundStyle(Color.higAccent)
                         Text("Functions Traffic")
-                            .font(.caption.weight(.semibold))
+                            .font(HIGTypography.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
-                    HStack(alignment: .lastTextBaseline, spacing: 6) {
+                    HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs + 2) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
-                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
+                            .font(HIGTypography.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
-                            .font(.caption.weight(.medium))
+                            .font(HIGTypography.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                         
                         if let selected = selectedPoint, selected.errors > 0 {
                             Text("(\(selected.errors) errors)")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.red)
+                                .font(HIGTypography.caption.weight(.bold))
+                                .foregroundStyle(HIGColors.error)
                         }
                     }
                 }
@@ -272,21 +275,21 @@ public struct PagesAnalyticsView: View {
                 
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Circle()
-                            .fill(Color.accentColor)
+                            .fill(Color.higAccent)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.12))
+                    .padding(.horizontal, HIGTokens.Spacing.sm)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .background(Color.higAccent.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
-                        .font(.caption2.weight(.medium))
+                        .font(HIGTypography.caption2.weight(.medium))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -300,7 +303,7 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.accentColor.opacity(0.32), Color.accentColor.opacity(0.01)],
+                            colors: [Color.higAccent.opacity(0.32), Color.higAccent.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -311,7 +314,7 @@ public struct PagesAnalyticsView: View {
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
                     )
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.higAccent)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                     
@@ -321,14 +324,14 @@ public struct PagesAnalyticsView: View {
                             y: .value("Errors", pt.errors),
                             width: .fixed(6)
                         )
-                        .foregroundStyle(Color.red.opacity(0.85))
-                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                        .foregroundStyle(HIGColors.error.opacity(0.85))
+                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                     }
                 }
                 
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
-                        .foregroundStyle(Color.accentColor.opacity(0.6))
+                        .foregroundStyle(Color.higAccent.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -338,14 +341,14 @@ public struct PagesAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(Color.accentColor.opacity(0.25))
+                                .fill(Color.higAccent.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: Color.accentColor, radius: 4)
+                                .shadow(color: Color.higAccent, radius: 4)
                             Circle()
-                                .stroke(Color.accentColor, lineWidth: 2)
+                                .stroke(Color.higAccent, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -367,7 +370,7 @@ public struct PagesAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -378,7 +381,7 @@ public struct PagesAnalyticsView: View {
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
                             Text(verbatim: MetricFormatters.compactNumber(count))
-                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
@@ -413,64 +416,64 @@ public struct PagesAnalyticsView: View {
                 }
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(HIGTokens.Spacing.md)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
-    // MARK: - 4. CPU Execution Latency 双折线图 (Line Chart with Live Scrubbing)
+    // MARK: - 4. CPU Execution Latency Chart
     private var cpuLatencyLineChartCard: some View {
         let maxCpu = viewModel.dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
         let yUpper = max(2.0, maxCpu * 1.18)
         
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 1) {
+                    HStack(spacing: HIGTokens.Spacing.xs + 2) {
                         Image(systemName: "bolt.fill")
-                            .font(.caption.weight(.bold))
+                            .font(HIGTypography.caption.weight(.bold))
                             .foregroundStyle(.cyan)
                         Text("CPU Execution Time")
-                            .font(.caption.weight(.semibold))
+                            .font(HIGTypography.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
                     if let selected = selectedCpuPoint {
-                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                        HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.sm) {
                             Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
+                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("P50")
-                                .font(.caption.weight(.bold))
+                                .font(HIGTypography.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                             
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
                             Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
+                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("P99")
-                                .font(.caption.weight(.bold))
+                                .font(HIGTypography.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                         }
                     } else {
-                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                        HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.sm) {
                             Text("\(viewModel.avgCpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
+                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("avg P50")
-                                .font(.caption.weight(.medium))
+                                .font(HIGTypography.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
                             
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
                             Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
+                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("max P99")
-                                .font(.caption.weight(.medium))
+                                .font(HIGTypography.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -480,25 +483,25 @@ public struct PagesAnalyticsView: View {
                 
                 if let selected = selectedCpuPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: 4) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Circle()
                             .fill(Color.cyan)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(.caption2.monospacedDigit().weight(.semibold))
+                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, HIGTokens.Spacing.sm)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                     .background(Color.cyan.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
-                    HStack(spacing: 8) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Label("P50", systemImage: "circle.fill")
-                            .font(.caption2.weight(.medium))
+                            .font(HIGTypography.caption2.weight(.medium))
                             .foregroundStyle(.cyan)
                         Label("P99", systemImage: "circle.fill")
-                            .font(.caption2.weight(.medium))
+                            .font(HIGTypography.caption2.weight(.medium))
                             .foregroundStyle(.orange)
                     }
                 }
@@ -558,7 +561,7 @@ public struct PagesAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(.caption2.weight(.medium).monospacedDigit())
+                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -569,7 +572,7 @@ public struct PagesAnalyticsView: View {
                     if let ms = value.as(Double.self) {
                         AxisValueLabel {
                             Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms")
-                                .font(.caption2.weight(.medium).monospacedDigit())
+                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
@@ -604,113 +607,113 @@ public struct PagesAnalyticsView: View {
                 }
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(HIGTokens.Spacing.md)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
     // MARK: - 5. Deployments Pipeline Card
     private var deploymentsBreakdownCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 4) {
             HStack {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.purple)
                 Text("Deployments Pipeline")
-                    .font(.subheadline.weight(.semibold))
+                    .font(HIGTypography.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
                 Text("Branch Breakdown")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.secondary)
             }
             
-            HStack(spacing: 16) {
+            HStack(spacing: HIGTokens.Spacing.md) {
                 // Production Bar
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs + 2) {
                     HStack {
                         Circle().fill(Color.purple).frame(width: 8, height: 8)
                         Text("Production")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text("\(viewModel.productionDeploymentsCount)")
-                            .font(.headline.monospacedDigit())
+                            .font(HIGTypography.headline.monospacedDigit())
                     }
                     ProgressView(value: Double(viewModel.productionDeploymentsCount), total: max(1, Double(viewModel.deployments.count)))
                         .tint(.purple)
                 }
-                .padding(12)
+                .padding(HIGTokens.Spacing.sm + 4)
                 .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm + 2, style: .continuous))
                 
                 // Preview Bar
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs + 2) {
                     HStack {
                         Circle().fill(Color.blue).frame(width: 8, height: 8)
                         Text("Preview")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text("\(viewModel.previewDeploymentsCount)")
-                            .font(.headline.monospacedDigit())
+                            .font(HIGTypography.headline.monospacedDigit())
                     }
                     ProgressView(value: Double(viewModel.previewDeploymentsCount), total: max(1, Double(viewModel.deployments.count)))
                         .tint(.blue)
                 }
-                .padding(12)
+                .padding(HIGTokens.Spacing.sm + 4)
                 .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm + 2, style: .continuous))
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(HIGTokens.Spacing.md)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
     // MARK: - 6. Insights & Summary
     private var insightsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
             Label("Pages Edge & Pipeline Summary", systemImage: "sparkles")
-                .font(.subheadline.weight(.semibold))
+                .font(HIGTypography.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
             
             HStack {
                 Text("Subrequest Ratio")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
                 Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
-                    .font(.caption.weight(.semibold).monospacedDigit())
+                    .font(HIGTypography.caption.weight(.semibold).monospacedDigit())
             }
             
             Divider()
             
             HStack {
                 Text("Edge Functions Status")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Invocations Failed")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
+                    .font(HIGTypography.caption.weight(.medium))
+                    .foregroundStyle(viewModel.totalErrors == 0 ? HIGColors.success : .orange)
             }
             
             Divider()
             
             HStack {
                 Text("Deployment Pipeline")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                 Text("\((viewModel.deploymentSuccessRate / 100.0).formatted(.percent.precision(.fractionLength(1)))) Success Rate")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.green)
+                    .font(HIGTypography.caption.weight(.medium))
+                    .foregroundStyle(HIGColors.success)
             }
         }
-        .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(HIGTokens.Spacing.sm + 6)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
     }
     
     // MARK: - Helpers

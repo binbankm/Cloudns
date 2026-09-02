@@ -1,11 +1,9 @@
 import Foundation
 
-/// Cloudflare 官方系统可用性与组件运行状态服务协议
 protocol CloudflareStatusServiceProtocol: Sendable {
     func fetchCloudflareStatus() async throws -> CFStatusSummary
 }
 
-/// 统一的 Cloudflare 官方系统运行状态服务
 final class CloudflareStatusService: CloudflareStatusServiceProtocol {
     static let shared = CloudflareStatusService()
     
