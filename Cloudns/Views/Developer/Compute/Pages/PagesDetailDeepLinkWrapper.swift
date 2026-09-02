@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesDetailDeepLinkWrapper
+// Apple HIG Compliant Pages Deep Link Context Resolver
 
 struct PagesDetailDeepLinkWrapper: View {
     let projectId: String
@@ -18,18 +19,12 @@ struct PagesDetailDeepLinkWrapper: View {
             } else if isLoading {
                 HIGContentState(.loading(message: "Loading Pages Project…"))
             } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load project")
-                        .font(.headline)
-                    Button("Close") {
-                        onDismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage ?? "Unable to load project"),
+                        retryAction: { Task { await loadProject() } }
+                    )
+                )
             }
         }
         .toolbar {
@@ -37,6 +32,7 @@ struct PagesDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
+                .higTouchTarget(44)
             }
         }
         .task {
@@ -51,6 +47,7 @@ struct PagesDetailDeepLinkWrapper: View {
         }
         
         isLoading = true
+        errorMessage = nil
         
         // 1. Resolve Account ID
         if let accounts = try? await ZoneService.shared.getAccounts(), let firstAcc = accounts.first {

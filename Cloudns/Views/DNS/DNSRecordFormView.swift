@@ -1,6 +1,9 @@
 import SwiftUI
 import Network
 
+// MARK: - DNSRecordFormView
+// Apple HIG Compliant DNS Record Creation and Editing Form
+
 struct DNSRecordFormView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -34,6 +37,7 @@ struct DNSRecordFormView: View {
     
     @State private var isSaving = false
     @State private var errorMessage: String?
+    @State private var showingDiscardConfirmation = false
     
     enum FocusField {
         case name, content, comment, tags, priority, srvService, srvPort, srvWeight, srvTarget, caaFlags, caaValue, httpsTarget, httpsParams
@@ -48,6 +52,18 @@ struct DNSRecordFormView: View {
         (3600, "1 hr"),
         (86400, "1 day")
     ]
+    
+    private var hasUnsavedChanges: Bool {
+        if let record = existingRecord {
+            return name != record.name ||
+                   content != (record.content ?? "") ||
+                   proxied != (record.proxied ?? false) ||
+                   ttl != record.ttl ||
+                   comment != (record.comment ?? "")
+        } else {
+            return !name.isEmpty || !content.isEmpty || !comment.isEmpty || !tagsText.isEmpty
+        }
+    }
     
     init(viewModel: DNSRecordsViewModel, existingRecord: DNSRecord? = nil) {
         self.viewModel = viewModel
@@ -82,7 +98,7 @@ struct DNSRecordFormView: View {
     }
     
     var isProxySupported: Bool {
-        return type == "A" || type == "AAAA" || type == "CNAME" || type == "HTTPS" || type == "SVCB"
+        type == "A" || type == "AAAA" || type == "CNAME" || type == "HTTPS" || type == "SVCB"
     }
     
     var body: some View {
@@ -219,14 +235,14 @@ struct DNSRecordFormView: View {
                     
                     if isProxySupported {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                                HStack(spacing: HIGTokens.Spacing.sm) {
                                     Text("Proxy Status")
-                                        .font(.body.weight(.medium))
+                                        .font(HIGTypography.body.weight(.medium))
                                     HIGBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
                                 }
                                 Text(proxied ? "Accelerated & Protected by Cloudflare" : "Bypasses Cloudflare proxy")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -266,8 +282,8 @@ struct DNSRecordFormView: View {
                 if let error = errorMessage {
                     Section {
                         Text(verbatim: error)
-                            .foregroundStyle(.red)
-                            .font(.caption)
+                            .foregroundStyle(HIGColors.error)
+                            .font(HIGTypography.caption)
                     }
                 }
             }
@@ -278,7 +294,11 @@ struct DNSRecordFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        dismiss()
+                        if hasUnsavedChanges {
+                            showingDiscardConfirmation = true
+                        } else {
+                            dismiss()
+                        }
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -292,16 +312,27 @@ struct DNSRecordFormView: View {
                     .disabled(name.isEmpty || isSaving)
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
-            .interactiveDismissDisabled(isSaving)
+            .interactiveDismissDisabled(hasUnsavedChanges && !isSaving)
+            .confirmationDialog(
+                "Discard Changes?",
+                isPresented: $showingDiscardConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Discard Changes", role: .destructive) {
+                    dismiss()
+                }
+                Button("Keep Editing", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to discard your unsaved DNS record changes?")
+            }
             .overlay {
                 if isSaving {
                     ZStack {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .padding(HIGTokens.Spacing.lg)
+                            .background(Color.higCardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                     }
                 }
             }

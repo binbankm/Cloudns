@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - CachingView
+// Apple HIG Compliant Cloudflare Edge Caching, TTL Configuration & Granular Purge
+
 struct CachingView: View {
     let zoneId: String
     let zoneName: String
@@ -18,7 +21,7 @@ struct CachingView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(
@@ -31,23 +34,23 @@ struct CachingView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "internaldrive.fill")
-                            .font(.title.weight(.semibold))
+                            .font(HIGTypography.title2.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, HIGTokens.Spacing.xs)
                     
                     Text("Caching")
-                        .font(.title2.weight(.bold))
+                        .font(HIGTypography.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Manage edge cache levels, TTL expiration, and purge cache assets.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, HIGTokens.Spacing.md)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -72,11 +75,12 @@ struct CachingView: View {
                     Text("Tag (Ent)").tag("tag")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, 2)
+                .padding(.vertical, HIGTokens.Spacing.xxs)
                 .disabled(!viewModel.hasFetchedData)
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
                     TextField(purgePlaceholder, text: $purgeInputText)
+                        .font(HIGTypography.body.monospaced())
                         .textFieldStyle(.roundedBorder)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -95,21 +99,22 @@ struct CachingView: View {
                             if viewModel.isPurging {
                                 ProgressView()
                                     .tint(.white)
-                                    .padding(.trailing, 4)
+                                    .padding(.trailing, HIGTokens.Spacing.xs)
                             }
                             Text("Purge by \(purgeType.capitalized)")
-                                .fontWeight(.semibold)
+                                .font(HIGTypography.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
                         }
-                        .padding(.vertical, 10)
-                        .background(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
+                        .background(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.higAccent)
+                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                     }
                     .buttonStyle(.higPressable)
                     .disabled(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isPurging || !viewModel.hasFetchedData)
+                    .higTouchTarget(44)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, HIGTokens.Spacing.xs)
             }
             
             // MARK: - Cache Level & TTL
@@ -118,13 +123,13 @@ struct CachingView: View {
                 footer: Text("Determine how much of your website's static content you want Cloudflare to cache at the edge.")
             ) {
                 // Cache Level
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "archivebox.fill", color: .blue, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "archivebox.fill", color: .blue)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Cache Level")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text(cacheLevelDescription(viewModel.cacheLevel))
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -133,7 +138,10 @@ struct CachingView: View {
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                             HIGFeedback.selection()
-                            Task { await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue) }
+                            Task {
+                                await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue)
+                                ToastManager.shared.showSuccess("Cache Level Updated", icon: "archivebox.fill")
+                            }
                         }
                     )) {
                         Text("Basic").tag("basic")
@@ -146,13 +154,13 @@ struct CachingView: View {
                 .disabled(!viewModel.hasFetchedData)
                 
                 // Browser Cache TTL
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "clock.fill", color: .indigo, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "clock.fill", color: .indigo)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Browser Cache TTL")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text("Length of time visitor's browser caches files.")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -161,44 +169,46 @@ struct CachingView: View {
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                             HIGFeedback.selection()
-                            Task { await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue) }
+                            Task {
+                                await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue)
+                                ToastManager.shared.showSuccess("Browser TTL Updated", icon: "clock.fill")
+                            }
                         }
                     )) {
-                        Text("Respect Header").tag(0)
-                        Text("30 Mins").tag(1800)
+                        Text("Respect Existing Headers").tag(0)
+                        Text("30 Minutes").tag(1800)
                         Text("1 Hour").tag(3600)
                         Text("4 Hours").tag(14400)
+                        Text("8 Hours").tag(28800)
                         Text("1 Day").tag(86400)
-                        Text("1 Month").tag(2678400)
+                        Text("8 Days").tag(691200)
+                        Text("1 Month").tag(2592000)
                         Text("1 Year").tag(31536000)
                     }
                     .pickerStyle(.menu)
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-            }
-            
-            // MARK: - Features
-            Section(
-                header: Text("Cache Features"),
-                footer: Text("Development mode temporarily bypasses all caching to see origin changes instantly.")
-            ) {
+                
                 // Always Online
                 Toggle(isOn: Binding(
                     get: { viewModel.alwaysOnline },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                         HIGFeedback.selection()
-                        Task { await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue) }
+                        Task {
+                            await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
+                            ToastManager.shared.showSuccess(newValue ? "Always Online Enabled" : "Always Online Disabled", icon: "cloud.fill")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "wifi.circle.fill", color: .green, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Always Online™")
-                                .font(.body)
-                            Text("Serve cached pages when origin server is down.")
-                                .font(.caption)
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "cloud.fill", color: .teal)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            Text("Always Online")
+                                .font(HIGTypography.body)
+                            Text("Serve cached pages to visitors if your origin goes down.")
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -211,16 +221,24 @@ struct CachingView: View {
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                         HIGFeedback.selection()
-                        Task { await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue) }
+                        Task {
+                            await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
+                            ToastManager.shared.showSuccess(newValue ? "Dev Mode Enabled (Bypassing Cache)" : "Dev Mode Disabled", icon: "hammer.fill")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "hammer.fill", color: .orange, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Development Mode")
-                                .font(.body)
-                            Text("Temporarily bypass cache to test origin changes.")
-                                .font(.caption)
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "hammer.fill", color: .orange)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
+                                Text("Development Mode")
+                                    .font(HIGTypography.body)
+                                if viewModel.developmentMode {
+                                    HIGBadge(.warning("3 Hours"), isCompact: true)
+                                }
+                            }
+                            Text("Temporarily bypass edge cache to see immediate changes.")
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -228,110 +246,113 @@ struct CachingView: View {
                 .disabled(!viewModel.hasFetchedData)
             }
             
-            // MARK: - Danger Zone: Purge Everything
+            // MARK: - Quick Action (Purge Everything)
             Section(
-                header: Text("Danger Zone").foregroundStyle(.red),
-                footer: Text("Purging everything forces Cloudflare to re-fetch all assets from origin, which may increase server load.")
+                header: Text("Purge Cache"),
+                footer: Text("Purging everything removes all cached resources from Cloudflare's global edge network immediately.")
             ) {
-                Button(action: {
-                    HIGFeedback.impact(.medium)
+                Button(role: .destructive) {
+                    HIGFeedback.warning()
                     showingPurgeAlert = true
-                }) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "trash.fill", color: .red, size: 28, cornerRadius: 6)
-                        Text("Purge Everything")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.red)
+                } label: {
+                    HStack {
                         Spacer()
-                        if viewModel.isPurging {
+                        if viewModel.isPurging && purgeInputText.isEmpty {
                             ProgressView()
+                                .tint(HIGColors.error)
+                                .padding(.trailing, HIGTokens.Spacing.xs)
                         }
+                        Text("Purge Everything")
+                            .font(HIGTypography.body.weight(.medium))
+                        Spacer()
                     }
                 }
                 .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
+                .higTouchTarget(44)
             }
         }
         .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle("Caching")
+        .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
                 HIGContentState(.loading(message: "Loading Caching Settings…"))
-            } else if let errorMessage = viewModel.errorMessage, !viewModel.hasFetchedData && !viewModel.isPurging && !viewModel.isLoading {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: { Task { await viewModel.fetchSettings(zoneId: zoneId) } }
-                    )
-                )
             }
         }
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .navigationTitle("Caching")
-        .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Purge Everything?",
+            isPresented: $showingPurgeAlert,
+            titleVisibility: .visible
+        ) {
+            Button("Purge Everything", role: .destructive) {
+                Task {
+                    await viewModel.purgeCacheEverything(zoneId: zoneId)
+                    ToastManager.shared.showSuccess("Cache Purged Completely", icon: "trash.fill")
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Purging all cached resources can temporarily degrade origin server performance while assets re-cache.")
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSettings(zoneId: zoneId)
             }
         }
-        .confirmationDialog("Purge Everything?", isPresented: $showingPurgeAlert, titleVisibility: .visible) {
-            Button("Purge All Cached Resources", role: .destructive) {
-                HIGFeedback.warning()
-                Task {
-                    await viewModel.purgeCacheEverything(zoneId: zoneId)
-                }
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Are you sure you want to purge all cached resources? This may temporarily degrade your website's performance and increase load on your origin server.")
+    }
+    
+    private var purgePlaceholder: String {
+        switch purgeType {
+        case "url": return "https://\(zoneName.isEmpty ? "example.com" : zoneName)/style.css"
+        case "host": return "assets.\(zoneName.isEmpty ? "example.com" : zoneName)"
+        case "prefix": return "https://\(zoneName.isEmpty ? "example.com" : zoneName)/images/"
+        case "tag": return "static-v1"
+        default: return "Input value"
+        }
+    }
+    
+    private var purgeTypeDescription: String {
+        switch purgeType {
+        case "url": return "Purge single or multiple exact URL files on Free, Pro, Business & Enterprise plans."
+        case "host": return "Purge all cached resources for a specific hostname (Enterprise only)."
+        case "prefix": return "Purge all files within a specific path prefix (Enterprise only)."
+        case "tag": return "Purge all cached assets with a given Cache-Tag header (Enterprise only)."
+        default: return ""
         }
     }
     
     private func submitPurge() {
-        let clean = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !clean.isEmpty && !viewModel.isPurging else { return }
-        let items = clean.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        
+        let text = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
         HIGFeedback.impact(.medium)
         Task {
-            if purgeType == "url" {
-                await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: items)
-            } else if purgeType == "host" {
-                await viewModel.purgeCacheByHosts(zoneId: zoneId, hosts: items)
-            } else if purgeType == "prefix" {
-                await viewModel.purgeCacheByPrefixes(zoneId: zoneId, prefixes: items)
-            } else if purgeType == "tag" {
-                await viewModel.purgeCacheByTags(zoneId: zoneId, tags: items)
+            switch purgeType {
+            case "url":
+                let urls = text.components(separatedBy: CharacterSet(charactersIn: ",\n ")).filter { !$0.isEmpty }
+                await viewModel.purgeCacheByURLs(zoneId: zoneId, urls: urls)
+            case "host":
+                await viewModel.purgeCacheByHosts(zoneId: zoneId, hosts: [text])
+            case "prefix":
+                await viewModel.purgeCacheByPrefixes(zoneId: zoneId, prefixes: [text])
+            case "tag":
+                await viewModel.purgeCacheByTags(zoneId: zoneId, tags: [text])
+            default:
+                break
             }
             purgeInputText = ""
+            ToastManager.shared.showSuccess("Purge Request Sent", icon: "arrow.counterclockwise.circle.fill")
         }
     }
     
-    private func cacheLevelDescription(_ level: String) -> LocalizedStringKey {
+    private func cacheLevelDescription(_ level: String) -> String {
         switch level {
-        case "basic": return "No Query String"
-        case "simplified": return "Ignore Query String"
-        case "aggressive": return "Standard Query String"
+        case "basic": return "Ignores query string and serves cached static file."
+        case "simplified": return "Serves same file to all visitors regardless of query string."
+        case "aggressive": return "Delivers different asset for each unique query string."
         default: return "Configuring…"
-        }
-    }
-    
-    private var purgeTypeDescription: LocalizedStringKey {
-        switch purgeType {
-        case "host": return "Purge all cached resources on specific hostnames (Enterprise)."
-        case "prefix": return "Purge all cached resources matching URL prefixes (Enterprise)."
-        case "tag": return "Purge cached resources by Cache-Tag header values (Enterprise)."
-        default: return "Purge exact full URLs (comma-separated)."
-        }
-    }
-    
-    private var purgePlaceholder: LocalizedStringKey {
-        switch purgeType {
-        case "host": return "static.example.com, assets.example.com"
-        case "prefix": return "https://example.com/static/, ..."
-        case "tag": return "product-images, static-assets"
-        default: return "https://example.com/asset.js, https://..."
         }
     }
 }

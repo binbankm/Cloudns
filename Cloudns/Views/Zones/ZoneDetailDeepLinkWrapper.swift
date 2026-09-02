@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ZoneDetailDeepLinkWrapper
+// Apple HIG Compliant Deep Link Loader for Domains
 
 struct ZoneDetailDeepLinkWrapper: View {
     let zoneId: String
@@ -17,18 +18,14 @@ struct ZoneDetailDeepLinkWrapper: View {
             } else if isLoading {
                 HIGContentState(.loading(message: "Loading Domain…"))
             } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load domain")
-                        .font(.headline)
-                    Button("Close") {
-                        onDismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage ?? "Unable to load domain"),
+                        retryAction: {
+                            Task { await loadZone() }
+                        }
+                    )
+                )
             }
         }
         .toolbar {
@@ -36,6 +33,7 @@ struct ZoneDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
+                .fontWeight(.semibold)
             }
         }
         .task {

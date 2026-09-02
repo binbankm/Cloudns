@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare 域名安全与防御领域服务抽象协议
+/// Protocol defining Cloudflare domain security and defense service
 protocol SecuritySettingsServiceProtocol: Sendable {
     func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting]
     func getSecuritySettings(zoneId: String) async throws -> (level: String, challengeTTL: Int, browserCheck: Bool, botFightMode: Bool)
@@ -19,7 +19,7 @@ protocol SecuritySettingsServiceProtocol: Sendable {
     func updateScrapeShieldSetting(zoneId: String, settingId: String, value: String) async throws
 }
 
-/// 统一的 Cloudflare 域名安全与防御领域服务
+/// Concrete domain service for Cloudflare domain security
 final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     static let shared = SecuritySettingsService()
     

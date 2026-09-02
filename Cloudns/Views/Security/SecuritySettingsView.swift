@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - SecuritySettingsView
+// Apple HIG Compliant Cloudflare Threat Defense, Security Level & Bot Management
+
 struct SecuritySettingsView: View {
     let zoneId: String
     
@@ -10,12 +13,12 @@ struct SecuritySettingsView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.red.opacity(0.18), Color.orange.opacity(0.12)],
+                                    colors: [HIGColors.error.opacity(0.18), Color.orange.opacity(0.12)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -23,23 +26,23 @@ struct SecuritySettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "shield.checkerboard")
-                            .font(.title.weight(.semibold))
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.title2.weight(.semibold))
+                            .foregroundStyle(HIGColors.error)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, HIGTokens.Spacing.xs)
                     
                     Text("Security Settings")
-                        .font(.title2.weight(.bold))
+                        .font(HIGTypography.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Configure threat defense, visitor challenges, and bot protection.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, HIGTokens.Spacing.md)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -60,28 +63,29 @@ struct SecuritySettingsView: View {
                             HIGFeedback.selection()
                             Task {
                                 await viewModel.updateSecurityLevel(zoneId: zoneId, level: "medium")
+                                ToastManager.shared.showSuccess("Under Attack Mode Disabled", icon: "shield.slash")
                             }
                         }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "flame.fill", color: .red, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "flame.fill", color: HIGColors.error)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
                                 Text("I'm Under Attack Mode™")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(isUnderAttack ? .red : .primary)
+                                    .font(HIGTypography.body.weight(.semibold))
+                                    .foregroundStyle(isUnderAttack ? HIGColors.error : .primary)
                                 if isUnderAttack {
                                     HIGBadge(.error("Active"), isCompact: true)
                                 }
                             }
                             Text("Perform deep DDoS verification on all incoming visitors.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
-                .tint(.red)
+                .tint(HIGColors.error)
                 .disabled(!viewModel.hasFetchedData)
             }
             
@@ -91,13 +95,13 @@ struct SecuritySettingsView: View {
                 footer: Text("Adjust the sensitivity threshold for presenting challenge pages to suspicious visitors.")
             ) {
                 // Security Level
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "shield.lefthalf.filled", color: .blue, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "shield.lefthalf.filled", color: .blue)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Security Level")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text(securityLevelDescription(viewModel.securityLevel))
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -105,7 +109,10 @@ struct SecuritySettingsView: View {
                         get: { viewModel.securityLevel },
                         set: { val in
                             HIGFeedback.selection()
-                            Task { await viewModel.updateSecurityLevel(zoneId: zoneId, level: val) }
+                            Task {
+                                await viewModel.updateSecurityLevel(zoneId: zoneId, level: val)
+                                ToastManager.shared.showSuccess("Security Level Updated", icon: "shield.lefthalf.filled")
+                            }
                         }
                     )) {
                         Text("Essentially Off").tag("essentially_off")
@@ -119,13 +126,13 @@ struct SecuritySettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 
                 // Challenge TTL
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "hourglass", color: .orange, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "hourglass", color: .orange)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Challenge Passage TTL")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text("How long a visitor can access site after passing challenge.")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -133,7 +140,10 @@ struct SecuritySettingsView: View {
                         get: { viewModel.challengeTTL },
                         set: { val in
                             HIGFeedback.selection()
-                            Task { await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: val) }
+                            Task {
+                                await viewModel.updateChallengeTTL(zoneId: zoneId, ttl: val)
+                                ToastManager.shared.showSuccess("Challenge TTL Updated", icon: "hourglass")
+                            }
                         }
                     )) {
                         Text("5 mins").tag(300)
@@ -155,16 +165,19 @@ struct SecuritySettingsView: View {
                     get: { viewModel.browserCheck },
                     set: { val in
                         HIGFeedback.selection()
-                        Task { await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: val) }
+                        Task {
+                            await viewModel.updateBrowserCheck(zoneId: zoneId, isOn: val)
+                            ToastManager.shared.showSuccess("Browser Integrity Check Updated", icon: "checkmark.shield")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "checkmark.shield.fill", color: .teal, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "checkmark.shield.fill", color: .teal)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Browser Integrity Check")
-                                .font(.body)
+                                .font(HIGTypography.body)
                             Text("Inspect HTTP headers for known malicious web scrapers.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -181,19 +194,22 @@ struct SecuritySettingsView: View {
                     get: { viewModel.botFightMode },
                     set: { val in
                         HIGFeedback.selection()
-                        Task { await viewModel.updateBotFightMode(zoneId: zoneId, isOn: val) }
+                        Task {
+                            await viewModel.updateBotFightMode(zoneId: zoneId, isOn: val)
+                            ToastManager.shared.showSuccess("Bot Fight Mode Updated", icon: "cpu.fill")
+                        }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "cpu.fill", color: .purple, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "cpu.fill", color: .purple)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
                                 Text("Bot Fight Mode")
-                                    .font(.body)
+                                    .font(HIGTypography.body)
                                 HIGBadge(.free, isCompact: true)
                             }
                             Text("Detects and challenges automated scrapers and malicious crawlers.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -229,6 +245,7 @@ struct SecuritySettingsView: View {
                 Task {
                     HIGFeedback.warning()
                     await viewModel.updateSecurityLevel(zoneId: zoneId, level: "under_attack")
+                    ToastManager.shared.showSuccess("Under Attack Mode Enabled", icon: "flame.fill")
                 }
             }
             Button("Cancel", role: .cancel) { }

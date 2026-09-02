@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - PagesBuildConfigEditorView
+// Apple HIG Compliant Cloudflare Pages Build & Deployment Settings Form
+
 struct PagesBuildConfigEditorView: View {
     let accountId: String
     let project: PagesProject
@@ -29,70 +32,74 @@ struct PagesBuildConfigEditorView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Build Settings"), footer: Text("Configure build commands and directories executed during automated deployment.")) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Build Command")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         TextField("npm run build / hugo / next build", text: $buildCommand)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(.body)
+                            .font(HIGTypography.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "command")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Build Output Directory")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         TextField("dist / public / .next", text: $destinationDir)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(.body)
+                            .font(HIGTypography.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "output")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Root Directory (Optional)")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         TextField("/", text: $rootDir)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(.body)
+                            .font(HIGTypography.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "root")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 }
                 
                 Section(header: Text("Source Configuration")) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Production Branch")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         TextField("main / master", text: $productionBranch)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(.body)
+                            .font(HIGTypography.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "branch")
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 }
                 
                 if let error = errorMessage {
                     Section {
-                        Text(verbatim: error)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: error)
+                                .font(HIGTypography.footnote)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -103,6 +110,7 @@ struct PagesBuildConfigEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -119,6 +127,7 @@ struct PagesBuildConfigEditorView: View {
                                     rootDir: rootDir.isEmpty ? nil : rootDir,
                                     productionBranch: productionBranch.isEmpty ? nil : productionBranch
                                 )
+                                ToastManager.shared.showSuccess("Configuration Saved", icon: "gearshape.fill")
                                 HIGFeedback.success()
                                 await parentViewModel.fetchProjectDetails()
                                 dismiss()
@@ -131,8 +140,10 @@ struct PagesBuildConfigEditorView: View {
                     }
                     .fontWeight(.semibold)
                     .disabled(isSaving)
+                    .higTouchTarget(44)
                 }
             }
+            .interactiveDismissDisabled(isSaving)
         }
         .higToast()
     }

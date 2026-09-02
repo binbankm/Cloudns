@@ -4,7 +4,7 @@ private struct PurgeCacheResponse: Codable, Sendable {
     let id: String?
 }
 
-/// Cloudflare 边缘缓存与清理领域服务协议
+/// Protocol defining Cloudflare edge cache and purge domain service
 protocol CachingServiceProtocol: Sendable {
     func getCachingSettings(zoneId: String) async throws -> (cacheLevel: String, browserTTL: Int, alwaysOnline: Bool, devMode: Bool)
     func updateCacheLevel(zoneId: String, level: String) async throws
@@ -19,7 +19,7 @@ protocol CachingServiceProtocol: Sendable {
     func purgeCacheByTags(zoneId: String, tags: [String]) async throws
 }
 
-/// 统一的 Cloudflare 边缘缓存领域服务
+/// Concrete domain service for Cloudflare edge cache management
 final class CachingService: CachingServiceProtocol {
     static let shared = CachingService()
     

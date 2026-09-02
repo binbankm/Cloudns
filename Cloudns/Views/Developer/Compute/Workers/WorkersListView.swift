@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkersListView (Pure List - No Tags)
+// Apple HIG Compliant Cloudflare Workers Overview
 
 struct WorkersListView: View {
     let accountId: String
@@ -24,6 +25,25 @@ struct WorkersListView: View {
                         } label: {
                             WorkerRowView(worker: worker)
                         }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = worker.id
+                                ToastManager.shared.showCopied("Worker Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                workerToDelete = worker
+                                showingDeleteWorkerAlert = true
+                            } label: {
+                                Label("Delete Worker", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
@@ -32,7 +52,7 @@ struct WorkersListView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -41,8 +61,8 @@ struct WorkersListView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Workers…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Workers…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty {
                     HIGContentState(
                         .error(
@@ -80,16 +100,21 @@ struct WorkersListView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Worker")
+                .higTouchTarget()
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreateWorkerSheet) {
             WorkerCreateSheetView(viewModel: viewModel)
-             .higToast()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .higToast()
         }
         .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
             Button("Delete '\(worker.id)'", role: .destructive) {
                 Task {
                     await viewModel.deleteWorker(name: worker.id)
+                    ToastManager.shared.showSuccess("Worker Deleted", icon: "trash.fill")
                     HIGFeedback.success()
                 }
             }
@@ -112,17 +137,17 @@ struct WorkerRowView: View {
     let worker: WorkerScript
     
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
-            ListRowIcon(icon: "bolt.fill", color: .orange, size: 32, cornerRadius: 8)
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "bolt.fill", color: Color.higAccent)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(worker.id)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let modified = worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
-                    Text("Updated \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                        .font(.caption2)
+                    Text("Updated \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -131,7 +156,7 @@ struct WorkerRowView: View {
             
             HIGBadge(.active, isCompact: true)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -166,8 +191,8 @@ struct WorkerCreateSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -186,6 +211,7 @@ struct WorkerCreateSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.createWorker(name: name.trimmingCharacters(in: .whitespaces), code: templateCode)
+                                ToastManager.shared.showSuccess("Worker Created", icon: "bolt.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -195,6 +221,7 @@ struct WorkerCreateSheetView: View {
                             isCreating = false
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }

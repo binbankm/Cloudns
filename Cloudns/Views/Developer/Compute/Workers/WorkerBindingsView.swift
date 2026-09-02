@@ -1,6 +1,7 @@
 import SwiftUI
 
-// MARK: - Professional WorkerBindingsView
+// MARK: - WorkerBindingsView
+// Apple HIG Compliant Cloudflare Worker Multi-Service Resource Binding Hub
 
 struct WorkerBindingsView: View {
     let accountId: String
@@ -44,35 +45,38 @@ struct WorkerBindingsView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Attach Resource")
+                    .higTouchTarget(44)
                 }
             }
-        .sheet(isPresented: $showingAttachResourceSheet) {
-            WorkerAttachResourceBindingSheetView(accountId: accountId, viewModel: secretsViewModel)
-             .higToast()
-        }
-        .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: bindingToDelete) { binding in
-            Button("Unbind '\(binding.name)'", role: .destructive) {
-                Task {
-                    do {
-                        try await secretsViewModel.deleteResourceBinding(name: binding.name)
-                        ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
-                    } catch {
-                        ToastManager.shared.showError("Failed to Unbind Resource")
+            .sheet(isPresented: $showingAttachResourceSheet) {
+                WorkerAttachResourceBindingSheetView(accountId: accountId, viewModel: secretsViewModel)
+                    .higToast()
+            }
+            .confirmationDialog("Unbind Resource", isPresented: $showingUnbindAlert, titleVisibility: .visible, presenting: bindingToDelete) { binding in
+                Button("Unbind '\(binding.name)'", role: .destructive) {
+                    Task {
+                        do {
+                            try await secretsViewModel.deleteResourceBinding(name: binding.name)
+                            ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
+                            HIGFeedback.success()
+                        } catch {
+                            ToastManager.shared.showError("Failed to Unbind Resource")
+                            HIGFeedback.error()
+                        }
                     }
                 }
+                Button("Cancel", role: .cancel) {}
+            } message: { binding in
+                Text("Are you sure you want to unbind resource '\(binding.name)' from Worker '\(scriptName)'?")
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { binding in
-            Text("Are you sure you want to unbind resource '\(binding.name)' from Worker '\(scriptName)'?")
-        }
-        .refreshable {
-            await secretsViewModel.fetchSecrets()
-        }
-        .task {
-            if !secretsViewModel.hasFetchedData {
+            .refreshable {
                 await secretsViewModel.fetchSecrets()
             }
-        }
+            .task {
+                if !secretsViewModel.hasFetchedData {
+                    await secretsViewModel.fetchSecrets()
+                }
+            }
     }
     
     @ViewBuilder
@@ -134,18 +138,18 @@ struct WorkerBindingsView: View {
     
     @ViewBuilder
     private func bindingRow(_ binding: WorkerBinding) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: bindingIcon(for: binding.type), color: bindingColor(for: binding.type), size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: bindingIcon(for: binding.type), color: bindingColor(for: binding.type))
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(binding.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 let detail = bindingDetail(binding)
                 if !detail.isEmpty {
                     Text(detail)
-                        .font(.caption2.monospaced())
+                        .font(HIGTypography.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -155,7 +159,37 @@ struct WorkerBindingsView: View {
             
             HIGBadge(.custom(color: bindingColor(for: binding.type), text: bindingBadgeTitle(for: binding.type)), isCompact: true)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .contextMenu {
+            Button {
+                UIPasteboard.general.string = binding.name
+                ToastManager.shared.showCopied("Variable Name Copied")
+                HIGFeedback.copied()
+            } label: {
+                Label("Copy Variable Name", systemImage: "doc.on.doc")
+            }
+            
+            let detail = bindingDetail(binding)
+            if !detail.isEmpty {
+                Button {
+                    UIPasteboard.general.string = detail
+                    ToastManager.shared.showCopied("Resource Target Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy Target ID", systemImage: "link")
+                }
+            }
+            
+            Divider()
+            
+            Button(role: .destructive) {
+                bindingToDelete = binding
+                showingUnbindAlert = true
+                HIGFeedback.impact(.medium)
+            } label: {
+                Label("Unbind Resource", systemImage: "link.badge.plus")
+            }
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 HIGFeedback.impact(.medium)
@@ -164,7 +198,7 @@ struct WorkerBindingsView: View {
             } label: {
                 Label("Unbind", systemImage: "link.badge.plus")
             }
-            .tint(.red)
+            .tint(HIGColors.error)
         }
     }
     
@@ -212,7 +246,7 @@ struct WorkerBindingsView: View {
         case "queue": return .orange
         case "service": return .teal
         case "durable_object_namespace": return .cyan
-        case "hyperdrive": return .green
+        case "hyperdrive": return HIGColors.success
         case "ai": return .pink
         default: return .secondary
         }
@@ -266,11 +300,11 @@ struct WorkerAttachResourceBindingSheetView: View {
                 
                 Section(header: Text("Resource Selection")) {
                     if bindingType == "ai" {
-                        HStack(spacing: 10) {
+                        HStack(spacing: HIGTokens.Spacing.sm) {
                             Image(systemName: "brain.head.profile")
                                 .foregroundStyle(.pink)
                             Text("Workers AI runtime binding requires no external ID.")
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     } else if !isCustomInput && hasExistingResources(for: bindingType) {
@@ -287,6 +321,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .font(HIGTypography.body.monospaced())
                         
                         if hasExistingResources(for: bindingType) {
                             Button {
@@ -294,7 +329,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                                 autoSelectFirstResource(for: bindingType)
                             } label: {
                                 Text("Choose from existing account resources")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                             }
                         }
                     }
@@ -305,13 +340,18 @@ struct WorkerAttachResourceBindingSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
+                        .font(HIGTypography.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -322,6 +362,7 @@ struct WorkerAttachResourceBindingSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Attach") {
@@ -354,6 +395,7 @@ struct WorkerAttachResourceBindingSheetView: View {
                         }
                     }
                     .disabled(bindingName.trimmingCharacters(in: .whitespaces).isEmpty || (bindingType != "ai" && targetIdentifier.trimmingCharacters(in: .whitespaces).isEmpty) || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

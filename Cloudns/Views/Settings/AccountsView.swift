@@ -35,7 +35,7 @@ struct AccountsView: View {
                                 } label: {
                                     Label("Remove", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }

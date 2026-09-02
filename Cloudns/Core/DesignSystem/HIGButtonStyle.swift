@@ -1,8 +1,9 @@
 import SwiftUI
 
 // MARK: - Apple HIG Standard Button Styles
+// Interactive spring press animation, haptic integration, and Reduce-Motion fallback
 
-/// Apple-style interactive scale animation button style (0.96 scale on press with spring)
+/// Canonical interactive pressable button style (0.96 scale + haptics)
 public struct HIGPressableButtonStyle: ButtonStyle {
     let scale: CGFloat
     let opacity: Double
@@ -26,12 +27,13 @@ private struct HIGPressableBody: View {
     let haptic: Bool
     
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         configuration.label
-            .scaleEffect(configuration.isPressed && isEnabled ? scale : 1.0)
+            .scaleEffect(configuration.isPressed && isEnabled && !reduceMotion ? scale : 1.0)
             .opacity(isEnabled ? (configuration.isPressed ? opacity : 1.0) : 0.38)
-            .animation(.spring(response: 0.28, dampingFraction: 0.72), value: configuration.isPressed)
+            .animation(HIGMotion.interactiveSpring(reduceMotion: reduceMotion), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
                 if isPressed && haptic && isEnabled {
                     HIGFeedback.selection()
@@ -40,7 +42,7 @@ private struct HIGPressableBody: View {
     }
 }
 
-/// Card Pressable Style tailored for Bento Grid and Metric Cards
+/// Bento Grid and card button interactive style
 public struct HIGCardButtonStyle: ButtonStyle {
     public init() {}
     
@@ -52,12 +54,13 @@ public struct HIGCardButtonStyle: ButtonStyle {
 private struct HIGCardBody: View {
     let configuration: ButtonStyle.Configuration
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         configuration.label
-            .scaleEffect(configuration.isPressed && isEnabled ? 0.97 : 1.0)
+            .scaleEffect(configuration.isPressed && isEnabled && !reduceMotion ? 0.97 : 1.0)
             .opacity(isEnabled ? (configuration.isPressed ? 0.92 : 1.0) : 0.45)
-            .animation(.spring(response: 0.25, dampingFraction: 0.75), value: configuration.isPressed)
+            .animation(HIGMotion.interactiveSpring(reduceMotion: reduceMotion), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
                 if isPressed && isEnabled {
                     HIGFeedback.selection()
@@ -66,7 +69,7 @@ private struct HIGCardBody: View {
     }
 }
 
-/// Primary Action Button Style with Apple-standard filled pill/rounded rectangle and medium impact
+/// Canonical prominent primary action button style
 public struct HIGPrimaryActionButtonStyle: ButtonStyle {
     let backgroundColor: Color?
     let foregroundColor: Color
@@ -75,7 +78,7 @@ public struct HIGPrimaryActionButtonStyle: ButtonStyle {
     public init(
         backgroundColor: Color? = nil,
         foregroundColor: Color = .white,
-        cornerRadius: CGFloat = 12
+        cornerRadius: CGFloat = HIGTokens.Radius.card
     ) {
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
@@ -99,24 +102,24 @@ private struct HIGPrimaryActionBody: View {
     let cornerRadius: CGFloat
     
     @Environment(\.isEnabled) private var isEnabled
-    @ObservedObject private var themeManager = ThemeManager.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     private var effectiveBackground: Color {
-        backgroundColor ?? themeManager.currentColor.color
+        backgroundColor ?? HIGColors.accent
     }
     
     var body: some View {
         configuration.label
-            .font(.body.weight(.semibold))
+            .font(HIGTypography.headline.weight(.semibold))
             .foregroundStyle(isEnabled ? foregroundColor : Color(.tertiaryLabel))
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
+            .padding(.vertical, HIGTokens.Spacing.md)
+            .padding(.horizontal, HIGTokens.Spacing.lg)
             .frame(maxWidth: .infinity)
             .background(isEnabled ? effectiveBackground : Color(.systemGray5))
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .scaleEffect(configuration.isPressed && isEnabled ? 0.96 : 1.0)
+            .scaleEffect(configuration.isPressed && isEnabled && !reduceMotion ? 0.96 : 1.0)
             .opacity(configuration.isPressed && isEnabled ? 0.88 : 1.0)
-            .animation(.spring(response: 0.28, dampingFraction: 0.72), value: configuration.isPressed)
+            .animation(HIGMotion.interactiveSpring(reduceMotion: reduceMotion), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
                 if isPressed && isEnabled {
                     HIGFeedback.impact(.medium)
@@ -142,7 +145,7 @@ public extension ButtonStyle where Self == HIGPrimaryActionButtonStyle {
         HIGPrimaryActionButtonStyle()
     }
     
-    static func higPrimaryAction(backgroundColor: Color? = nil, cornerRadius: CGFloat = 12) -> HIGPrimaryActionButtonStyle {
+    static func higPrimaryAction(backgroundColor: Color? = nil, cornerRadius: CGFloat = HIGTokens.Radius.card) -> HIGPrimaryActionButtonStyle {
         HIGPrimaryActionButtonStyle(backgroundColor: backgroundColor, cornerRadius: cornerRadius)
     }
 }

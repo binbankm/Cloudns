@@ -1,7 +1,7 @@
 import Foundation
 
-/// 统一的高性能 HTTP 基础网络客户端
-/// 负责 URLSession 配置、15s 超时控制、连接池管理与响应解析
+/// High-performance HTTP network client infrastructure
+/// Handles URLSession configuration, 15s timeout control, connection pooling, and response parsing
 final class HTTPNetworkClient: Sendable {
     static let shared = HTTPNetworkClient()
     
@@ -14,7 +14,7 @@ final class HTTPNetworkClient: Sendable {
             self.session = session
         } else {
             let config = URLSessionConfiguration.default
-            // 15 秒严格超时时间，避免在弱网/断网环境下死锁阻塞
+            // 15-second strict timeout to prevent deadlock on slow/unstable networks
             config.timeoutIntervalForRequest = 15.0
             config.timeoutIntervalForResource = 30.0
             config.waitsForConnectivity = false
@@ -24,7 +24,7 @@ final class HTTPNetworkClient: Sendable {
         }
     }
     
-    /// 执行泛型 API 请求并反序列化 CloudflareResponse 结构（具备 HTTP 429 弹性退避重试）
+    /// Executes generic API request and decodes CloudflareResponse with automatic HTTP 429 retry backoff
     func performRequest<T: Codable & Sendable>(_ request: URLRequest) async throws -> (T?, ResultInfo?) {
         let (data, httpResponse) = try await executeWithResilience(request)
         
@@ -51,7 +51,7 @@ final class HTTPNetworkClient: Sendable {
         }
     }
     
-    /// 执行返回原始 Data 的请求（具备 HTTP 429 弹性退避重试）
+    /// Executes API request returning raw Data with automatic HTTP 429 retry backoff
     public func performDataRequest(_ request: URLRequest) async throws -> Data {
         let (data, httpResponse) = try await executeWithResilience(request)
         if httpResponse.statusCode == 401 {
@@ -63,12 +63,12 @@ final class HTTPNetworkClient: Sendable {
         return data
     }
     
-    /// 执行原始 HTTP 请求并返回 (Data, HTTPURLResponse)（具备 HTTP 429 弹性退避重试）
+    /// Executes raw HTTP request returning (Data, HTTPURLResponse) with automatic HTTP 429 retry backoff
     public func performRawRequest(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         return try await executeWithResilience(request)
     }
     
-    /// 弹性请求执行核心：自动拦截 HTTP 429 并根据 Retry-After / 指数抖动退避重试
+    /// Resilient execution core: intercepts HTTP 429 and performs exponential jittered backoff based on Retry-After
     private func executeWithResilience(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         var currentAttempt = 0
         
@@ -89,13 +89,13 @@ final class HTTPNetworkClient: Sendable {
                 throw APIError.invalidResponse
             }
             
-            // 检查 HTTP 429 (Rate Limit)
+            // Check HTTP 429 (Rate Limit)
             if httpResponse.statusCode == 429 && currentAttempt < maxRetries {
                 currentAttempt += 1
                 let retryDelay: TimeInterval
                 if let retryAfterHeader = httpResponse.value(forHTTPHeaderField: "Retry-After"),
                    let seconds = TimeInterval(retryAfterHeader), seconds > 0 {
-                    retryDelay = min(seconds, 10.0) // 最多等待 10s
+                    retryDelay = min(seconds, 10.0) // Max retry delay: 10s
                 } else {
                     // Exponential Backoff with Jitter: 2^attempt * 0.5 + jitter (0.1 ~ 0.5s)
                     let base = pow(2.0, Double(currentAttempt)) * 0.5

@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - D1ConsoleView
+// Apple HIG Compliant Cloudflare D1 Serverless SQL Query Console & Schema Explorer
+
 struct D1ConsoleView: View {
     let accountId: String
     let database: D1Database
@@ -18,28 +21,41 @@ struct D1ConsoleView: View {
             Section(header: Text("Database Overview")) {
                 HStack {
                     Text("Database Name")
+                        .font(HIGTypography.body)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(database.name)
-                        .font(.body)
+                        .font(HIGTypography.body.weight(.medium))
                         .foregroundStyle(.primary)
                 }
                 
                 HStack {
                     Text("UUID")
+                        .font(HIGTypography.body)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(database.uuid)
-                        .font(.caption2.monospacedDigit())
+                        .font(HIGTypography.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
+                }
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = database.uuid
+                        ToastManager.shared.showCopied("Database UUID Copied")
+                        HIGFeedback.copied()
+                    } label: {
+                        Label("Copy UUID", systemImage: "doc.on.doc")
+                    }
                 }
                 
                 if database.fileSize != nil {
                     HStack {
                         Text("Storage Size")
+                            .font(HIGTypography.body)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text(database.formattedSize)
+                            .font(HIGTypography.body.monospacedDigit())
                             .foregroundStyle(.primary)
                     }
                 }
@@ -51,33 +67,43 @@ struct D1ConsoleView: View {
                     HStack {
                         Spacer()
                         ProgressView("Loading Tables…")
+                            .font(HIGTypography.caption)
                         Spacer()
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if viewModel.tables.isEmpty {
                     Text("No tables found. Create a table using SQL below.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.tables, id: \.self) { tableName in
                         NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Color.purple.opacity(0.12)
-                                    Image(systemName: "tablecells")
-                                        .foregroundStyle(.purple)
-                                        .font(.body)
-                                        .accessibilityHidden(true)
-                                }
-                                .frame(width: 32, height: 32)
-                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            HStack(spacing: HIGTokens.Spacing.md) {
+                                ListRowIcon(icon: "tablecells", color: .purple)
                                 
                                 Text(tableName)
-                                    .font(.body.weight(.medium))
+                                    .font(HIGTypography.body.monospaced().weight(.medium))
+                                    .foregroundStyle(.primary)
                                 
                                 Spacer()
                             }
-                            .padding(.vertical, 2)
+                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                        }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = tableName
+                                ToastManager.shared.showCopied("Table Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Table Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                viewModel.sqlInput = "SELECT * FROM \(tableName) LIMIT 20;"
+                                HIGFeedback.selection()
+                            } label: {
+                                Label("Query Table", systemImage: "play.circle")
+                            }
                         }
                     }
                 }
@@ -87,29 +113,31 @@ struct D1ConsoleView: View {
             Section(header: Text("SQL Query Console")) {
                 // Presets
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         ForEach(viewModel.sqlPresets, id: \.name) { preset in
                             Button {
                                 HIGFeedback.impact(.light)
                                 viewModel.sqlInput = preset.sql
                             } label: {
                                 Text(preset.name)
-                                    .font(.caption2.weight(.medium))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
+                                    .font(HIGTypography.caption2.weight(.medium))
+                                    .padding(.horizontal, HIGTokens.Spacing.sm + 2)
+                                    .padding(.vertical, HIGTokens.Spacing.xs + 1)
                                     .background(Color(.secondarySystemFill))
                                     .foregroundStyle(.purple)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                             }
+                            .buttonStyle(.plain)
+                            .higTouchTarget(44)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 }
                 .scrollIndicators(.hidden)
                 
                 TextEditor(text: $viewModel.sqlInput)
-                    .font(.body.monospacedDigit())
-                    .frame(minHeight: 80)
+                    .font(HIGTypography.body.monospaced())
+                    .frame(minHeight: 90)
                     .keyboardType(.asciiCapable)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -118,23 +146,33 @@ struct D1ConsoleView: View {
                 Button {
                     isEditorFocused = false
                     HIGFeedback.impact(.medium)
-                    Task { await viewModel.runQuery() }
+                    Task {
+                        await viewModel.runQuery()
+                        if viewModel.queryResult != nil {
+                            ToastManager.shared.showSuccess("Query Executed", icon: "checkmark.circle.fill")
+                            HIGFeedback.success()
+                        } else if viewModel.errorMessage != nil {
+                            ToastManager.shared.showError("Query Failed")
+                            HIGFeedback.error()
+                        }
+                    }
                 } label: {
                     HStack {
                         Spacer()
                         if viewModel.isExecuting {
                             ProgressView()
-                                .padding(.trailing, 4)
+                                .padding(.trailing, HIGTokens.Spacing.xs)
                         } else {
                             Image(systemName: "play.fill")
                         }
                         Text("Execute SQL")
-                            .font(.body.weight(.medium))
+                            .font(HIGTypography.body.weight(.semibold))
                             .foregroundStyle(.purple)
                         Spacer()
                     }
                 }
                 .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
+                .higTouchTarget(44)
             }
             
             // MARK: - Results
@@ -146,35 +184,39 @@ struct D1ConsoleView: View {
                 }) {
                     if result.rows.isEmpty {
                         Text("Query executed successfully. 0 rows returned.")
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(result.rows.enumerated()), id: \.offset) { _, row in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                                 ForEach(result.columns, id: \.self) { col in
                                     HStack(alignment: .top) {
                                         Text(col)
-                                            .font(.caption2.monospacedDigit())
+                                            .font(HIGTypography.caption2.monospacedDigit())
                                             .foregroundStyle(.secondary)
                                             .frame(width: 80, alignment: .leading)
                                         
                                         Text(row[col] ?? "null")
-                                            .font(.caption.monospacedDigit())
-                                            .foregroundStyle(.primary)
+                                            .font(HIGTypography.caption.monospaced())
+                                            .foregroundStyle(row[col] == nil ? .secondary : .primary)
                                         
                                         Spacer()
                                     }
                                 }
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, HIGTokens.Spacing.xs)
                         }
                     }
                 }
             } else if let error = viewModel.errorMessage {
                 Section {
-                    Text(verbatim: error)
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
+                    HStack(spacing: HIGTokens.Spacing.sm) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(HIGColors.error)
+                        Text(verbatim: error)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(HIGColors.error)
+                    }
                 }
             }
         }

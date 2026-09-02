@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - CertInspectToolView
+// Apple HIG Compliant SSL/TLS Handshake & Chain Inspector
+
 struct CertInspectToolView: View {
     @StateObject private var viewModel = SSLCertInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
@@ -8,10 +11,10 @@ struct CertInspectToolView: View {
         List {
             // 1. Search / Input Section
             Section(header: Text("Host / Domain"), footer: Text("Inspects remote SSL/TLS certificate validity, expiration, intermediate trust chain & cryptographic cipher suites.")) {
-                HStack(spacing: 10) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "lock.shield.fill")
-                        .font(.body)
-                        .foregroundStyle(.green)
+                        .font(HIGTypography.body)
+                        .foregroundStyle(HIGColors.success)
                         .accessibilityHidden(true)
                     
                     TextField("example.com or hostname", text: $viewModel.domainInput)
@@ -19,7 +22,7 @@ struct CertInspectToolView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             performInspect()
@@ -33,6 +36,7 @@ struct CertInspectToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Domain Input")
                     }
                 }
@@ -40,7 +44,7 @@ struct CertInspectToolView: View {
                 Button {
                     performInspect()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         if viewModel.isLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -50,7 +54,7 @@ struct CertInspectToolView: View {
                         Text(viewModel.isLoading ? "Inspecting Handshake…" : "Inspect SSL/TLS Certificate")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.accentColor)
+                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)
@@ -62,9 +66,10 @@ struct CertInspectToolView: View {
                     HStack {
                         Spacer()
                         ProgressView("Inspecting SSL Certificate…")
+                            .font(HIGTypography.subheadline)
                         Spacer()
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let details = viewModel.certDetails {
                 // 2. Validity Hero Section
@@ -88,12 +93,12 @@ struct CertInspectToolView: View {
                 }
             } else if let error = viewModel.errorMessage {
                 Section(header: Text("Error")) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                         Text(verbatim: error)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -119,15 +124,15 @@ struct CertInspectToolView: View {
     @ViewBuilder
     private func validityRows(details: SSLCertDetails) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text("Validity Status")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                 
                 let days = details.validityDaysRemaining ?? 0
                 Text("\(days) Days Remaining")
-                    .font(.title3.weight(.bold).monospacedDigit())
-                    .foregroundStyle(days > 30 ? .green : (days > 7 ? .orange : .red))
+                    .font(HIGTypography.title3.weight(.bold).monospacedDigit())
+                    .foregroundStyle(days > 30 ? HIGColors.success : (days > 7 ? HIGColors.warning : HIGColors.error))
             }
             
             Spacer()
@@ -140,25 +145,25 @@ struct CertInspectToolView: View {
         }
         
         ProgressView(value: min(1.0, max(0.0, Double(details.validityDaysRemaining ?? 0) / 90.0)))
-            .tint((details.validityDaysRemaining ?? 0) > 30 ? .green : .orange)
+            .tint((details.validityDaysRemaining ?? 0) > 30 ? HIGColors.success : HIGColors.warning)
         
         HStack {
             Text("Valid From")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(details.validFrom ?? "-")
-                .font(.subheadline.monospacedDigit())
+                .font(HIGTypography.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
         
         HStack {
             Text("Valid Until")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(details.validUntil ?? "-")
-                .font(.subheadline.monospacedDigit())
+                .font(HIGTypography.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
     }
@@ -167,28 +172,37 @@ struct CertInspectToolView: View {
     @ViewBuilder
     private func chainRows(details: SSLCertDetails) -> some View {
         ForEach(Array(details.chainNames.enumerated()), id: \.offset) { index, name in
-            HStack(spacing: 12) {
+            HStack(spacing: HIGTokens.Spacing.md) {
                 ZStack {
                     Circle()
-                        .fill((index == 0 ? Color.green : Color.blue).opacity(0.12))
+                        .fill((index == 0 ? HIGColors.success : Color.higAccent).opacity(0.12))
                         .frame(width: 30, height: 30)
                     Image(systemName: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(index == 0 ? .green : .blue)
+                        .font(HIGTypography.caption.weight(.semibold))
+                        .foregroundStyle(index == 0 ? HIGColors.success : Color.higAccent)
                 }
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                     Text(name)
-                        .font(.subheadline.weight(.semibold))
+                        .font(HIGTypography.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                     
                     Text(index == 0 ? "Leaf / Server Certificate" : (index == details.chainNames.count - 1 ? "Root Authority" : "Intermediate CA"))
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
+            }
+            .contextMenu {
+                Button {
+                    UIPasteboard.general.string = name
+                    ToastManager.shared.showCopied("CA Name Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy Certificate Name", systemImage: "doc.on.doc")
+                }
             }
         }
     }
@@ -214,14 +228,14 @@ struct CertInspectToolView: View {
     private func cryptoRow(title: LocalizedStringKey, value: String, isMono: Bool = false, isBadge: Bool = false) -> some View {
         HStack {
             Text(title)
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             if isBadge {
                 HIGBadge(.active(value), isCompact: true)
             } else {
                 Text(value)
-                    .font(isMono ? .caption.monospaced() : .subheadline)
+                    .font(isMono ? HIGTypography.caption.monospaced() : HIGTypography.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
             }
@@ -234,25 +248,35 @@ struct CertInspectToolView: View {
         ForEach(details.sans, id: \.self) { san in
             HStack {
                 Image(systemName: "globe")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                 
                 Text(san)
-                    .font(.subheadline.monospaced())
+                    .font(HIGTypography.subheadline.monospaced())
                     .foregroundStyle(.primary)
                 
                 Spacer()
                 
                 Button {
                     UIPasteboard.general.string = san
-                    ToastManager.shared.showCopied()
+                    ToastManager.shared.showCopied("SAN Copied")
+                    HIGFeedback.copied()
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+                        .font(HIGTypography.caption)
+                        .foregroundStyle(Color.higAccent)
                 }
                 .buttonStyle(.higPressable)
-                .higTouchTarget()
+                .higTouchTarget(44)
+            }
+            .contextMenu {
+                Button {
+                    UIPasteboard.general.string = san
+                    ToastManager.shared.showCopied("SAN Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy Domain", systemImage: "doc.on.doc")
+                }
             }
         }
     }

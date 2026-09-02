@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerDetailDeepLinkWrapper
+// Apple HIG Compliant Deep Link & Spotlight Resolver for Cloudflare Workers
 
 struct WorkerDetailDeepLinkWrapper: View {
     let workerId: String
@@ -18,18 +19,12 @@ struct WorkerDetailDeepLinkWrapper: View {
             } else if isLoading {
                 HIGContentState(.loading(message: "Loading Worker…"))
             } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(.orange)
-                    Text(errorMessage ?? "Unable to load worker")
-                        .font(.headline)
-                    Button("Close") {
-                        onDismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
+                HIGContentState(
+                    .error(
+                        message: LocalizedStringKey(errorMessage ?? "Unable to load worker"),
+                        retryAction: { Task { await loadWorker() } }
+                    )
+                )
             }
         }
         .toolbar {
@@ -37,6 +32,7 @@ struct WorkerDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
+                .higTouchTarget(44)
             }
         }
         .task {

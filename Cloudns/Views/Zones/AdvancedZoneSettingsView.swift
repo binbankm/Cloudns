@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - AdvancedZoneSettingsView
+// Apple HIG Compliant Advanced Zone Management
+
 struct AdvancedZoneSettingsView: View {
     let zoneId: String
     let zoneName: String
@@ -23,7 +26,7 @@ struct AdvancedZoneSettingsView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(
@@ -36,23 +39,23 @@ struct AdvancedZoneSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "gearshape.2.fill")
-                            .font(.title.weight(.semibold))
+                            .font(HIGTypography.title.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, HIGTokens.Spacing.xs)
                     
                     Text("Zone Management")
-                        .font(.title2.weight(.bold))
+                        .font(HIGTypography.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Advanced zone controls, bypass settings, and zone deletion for \(zoneName).")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, HIGTokens.Spacing.lg)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -76,13 +79,13 @@ struct AdvancedZoneSettingsView: View {
                         }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "pause.circle.fill", color: isPaused ? .orange : .gray, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "pause.circle.fill", color: isPaused ? HIGColors.warning : .gray)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Pause Cloudflare on Site")
-                                .font(.body)
+                                .font(HIGTypography.body.weight(.medium))
                             Text(isPaused ? "Proxy paused · Direct to origin" : "Proxy active · Protected")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -91,18 +94,18 @@ struct AdvancedZoneSettingsView: View {
             
             // MARK: - Danger Zone
             Section(
-                header: Text("Danger Zone").foregroundStyle(.red),
+                header: Text("Danger Zone").foregroundStyle(HIGColors.error),
                 footer: Text("Removing this zone will permanently delete all its DNS records, firewall rules, and certificates from Cloudflare.")
             ) {
                 Button(action: {
                     HIGFeedback.impact(.medium)
                     showDeleteConfirmation = true
                 }) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "trash.fill", color: .red, size: 28, cornerRadius: 6)
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "trash.fill", color: HIGColors.error)
                         Text("Remove Site from Cloudflare")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.body.weight(.semibold))
+                            .foregroundStyle(HIGColors.error)
                         Spacer()
                         if isDeleting {
                             ProgressView()
@@ -147,6 +150,7 @@ struct AdvancedZoneSettingsView: View {
                 }
             }
         }
+        .higToast()
     }
     
     private func updatePauseStatus(paused: Bool) async {
@@ -158,6 +162,8 @@ struct AdvancedZoneSettingsView: View {
         } catch {
             errorMessage = error.localizedDescription
             isPaused = !paused
+            ToastManager.shared.showError("Failed to update status")
+            HIGFeedback.error()
         }
         isLoading = false
     }
@@ -168,11 +174,14 @@ struct AdvancedZoneSettingsView: View {
         do {
             _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
             ToastManager.shared.showSuccess("Zone Deleted", icon: "trash.fill")
+            HIGFeedback.success()
             NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
             dismiss()
         } catch {
             errorMessage = error.localizedDescription
-            isDeleting = false
+            ToastManager.shared.showError("Failed to delete zone")
+            HIGFeedback.error()
         }
+        isDeleting = false
     }
 }

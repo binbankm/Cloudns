@@ -1,6 +1,6 @@
 import Foundation
 
-/// 全球多节点 DNS 传播解析服务协议
+/// Protocol defining multi-node global DNS propagation service
 protocol DNSPropagationServiceProtocol: Sendable {
     func performDNSPropagation(domain: String, type: String, expectedIP: String?) async throws -> DNSPropagationResult
 }

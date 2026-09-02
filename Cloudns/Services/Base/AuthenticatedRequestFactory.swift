@@ -1,7 +1,7 @@
 import Foundation
 
-/// 统一的 Cloudflare API 认证请求构造工厂
-/// 负责从安全 Keychain 获取凭证，并拼接标准 API BaseURL 与请求头
+/// Factory for constructing authenticated Cloudflare API requests
+/// Retrieves credentials securely from Keychain and attaches API BaseURL and auth headers
 final class AuthenticatedRequestFactory: Sendable {
     static let shared = AuthenticatedRequestFactory()
     
@@ -10,7 +10,7 @@ final class AuthenticatedRequestFactory: Sendable {
     
     private init() {}
     
-    /// 构建带有 X-Auth-Email 和 X-Auth-Key 认证头部的标准 URLRequest
+    /// Builds standard URLRequest with X-Auth-Email and X-Auth-Key authentication headers
     func createAuthenticatedRequest(
         path: String,
         queryItems: [URLQueryItem]? = nil,
@@ -33,7 +33,7 @@ final class AuthenticatedRequestFactory: Sendable {
         )
     }
     
-    /// 构建显式指定凭证的 URLRequest（用于安全登录验证，无需提前写入 Keychain）
+    /// Builds URLRequest with explicit credentials for authentication verification
     func createExplicitAuthenticatedRequest(
         email: String,
         apiKey: String,

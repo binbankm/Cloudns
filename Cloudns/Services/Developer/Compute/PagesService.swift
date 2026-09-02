@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Pages 项目与部署领域服务抽象协议
 protocol PagesServiceProtocol: Sendable {
     func getPagesProjects(accountId: String) async throws -> [PagesProject]
     func listPagesProjects(accountId: String) async throws -> [PagesProject]
@@ -19,7 +18,6 @@ protocol PagesServiceProtocol: Sendable {
     func updatePagesResourceBindings(accountId: String, projectName: String, environment: String, kvNamespaces: [String: PagesKVBinding]?, d1Databases: [String: PagesD1Binding]?, r2Buckets: [String: PagesR2Binding]?, aiBindings: [String: PagesAIBinding]?) async throws
 }
 
-/// 统一的 Cloudflare Pages 项目与部署领域服务
 final class PagesService: PagesServiceProtocol {
     static let shared = PagesService()
     

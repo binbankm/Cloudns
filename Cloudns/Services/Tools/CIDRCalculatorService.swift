@@ -1,6 +1,6 @@
 import Foundation
 
-/// CIDR / 子网掩码实时计算领域服务协议
+/// Protocol defining CIDR and subnet mask calculation service
 protocol CIDRCalculatorServiceProtocol: Sendable {
     func calculateSubnet(cidr: String) -> SubnetCalculationResult?
 }

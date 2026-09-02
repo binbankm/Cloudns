@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Access 访问控制领域服务抽象协议
 protocol AccessServiceProtocol: Sendable {
     func listAccessApps(accountId: String) async throws -> [AccessApp]
     func createAccessApp(accountId: String, name: String, domain: String, type: String, sessionDuration: String) async throws -> AccessApp
@@ -8,7 +7,6 @@ protocol AccessServiceProtocol: Sendable {
     func listAccessPolicies(accountId: String, appId: String) async throws -> [AccessPolicy]
 }
 
-/// 统一的 Cloudflare Access 访问控制领域服务
 final class AccessService: AccessServiceProtocol {
     static let shared = AccessService()
     

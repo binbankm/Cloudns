@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ZoneDetailView
+// Apple HIG Compliant Domain Overview & Navigation Hub
 
 struct ZoneDetailView: View {
     let initialZone: Zone
@@ -26,6 +27,7 @@ struct ZoneDetailView: View {
                 if let planName = zone.plan?.displayName {
                     LabeledContent("Plan") {
                         Text(planName)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -33,7 +35,7 @@ struct ZoneDetailView: View {
                 if let type = zone.type {
                     LabeledContent("Setup Type") {
                         Text(type.uppercased())
-                            .font(.subheadline.monospaced())
+                            .font(HIGTypography.subheadline.monospaced())
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -45,23 +47,23 @@ struct ZoneDetailView: View {
                                 UIPasteboard.general.string = ns
                                 ToastManager.shared.showCopied("Nameserver Copied")
                             } label: {
-                                HStack(spacing: 6) {
+                                HStack(spacing: HIGTokens.Spacing.xs) {
                                     Text(ns)
-                                        .font(.subheadline.monospaced())
+                                        .font(HIGTypography.subheadline.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.8)
                                     
                                     Image(systemName: "doc.on.doc")
-                                        .font(.caption2)
-                                        .foregroundStyle(.blue)
+                                        .font(HIGTypography.caption2)
+                                        .foregroundStyle(Color.higAccent)
                                 }
                             }
                             .buttonStyle(.higPressable)
                             .higTouchTarget()
                         } label: {
                             Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
-                                .font(.body)
+                                .font(HIGTypography.body)
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -92,7 +94,7 @@ struct ZoneDetailView: View {
                     title: "DNSSEC",
                     subtitle: "Sign DNS records to prevent spoofing",
                     icon: "lock.shield.fill",
-                    color: .green,
+                    color: HIGColors.success,
                     destination: DNSSECView(zoneId: zone.id, zoneName: zone.name)
                 )
             }
@@ -110,14 +112,14 @@ struct ZoneDetailView: View {
                     title: "WAF",
                     subtitle: "Custom and managed rules",
                     icon: "shield.lefthalf.filled",
-                    color: .red,
+                    color: HIGColors.error,
                     destination: WAFCustomRulesView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Rate Limiting",
                     subtitle: "Throttle excessive request rates",
                     icon: "speedometer",
-                    color: .orange,
+                    color: HIGColors.warning,
                     destination: RateLimitingRulesView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
@@ -142,14 +144,14 @@ struct ZoneDetailView: View {
                     title: "Overview",
                     subtitle: "Encryption mode and HTTPS settings",
                     icon: "lock.shield.fill",
-                    color: .orange,
+                    color: HIGColors.warning,
                     destination: SSLSettingsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Edge Certificates",
                     subtitle: "Universal, ACM, and custom certificates",
                     icon: "checkmark.seal.fill",
-                    color: .orange,
+                    color: HIGColors.warning,
                     destination: EdgeCertificatesView(zoneId: zone.id)
                 )
             }
@@ -226,7 +228,7 @@ struct ZoneDetailView: View {
                     title: "Advanced",
                     subtitle: "Pause proxy and delete domain",
                     icon: "gearshape.2.fill",
-                    color: .red,
+                    color: HIGColors.error,
                     destination: AdvancedZoneSettingsView(zoneId: zone.id, zoneName: zone.name, initialPaused: zone.paused)
                 )
             }
@@ -302,13 +304,13 @@ struct ZoneNavRowView<Destination: View>: View {
 
     var body: some View {
         NavigationLink(destination: destination) {
-            HStack(spacing: 12) {
-                ListRowIcon(icon: icon, color: color, size: 32, cornerRadius: 8)
+            HStack(spacing: HIGTokens.Spacing.md) {
+                ListRowIcon(icon: icon, color: color)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: HIGTokens.Spacing.xs + 2) {
                         Text(title)
-                            .font(.body)
+                            .font(HIGTypography.body)
                             .foregroundStyle(.primary)
                         
                         if let badge = badge {
@@ -317,11 +319,11 @@ struct ZoneNavRowView<Destination: View>: View {
                     }
                     
                     Text(subtitle)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, HIGTokens.Spacing.xxs)
             .accessibilityElement(children: .combine)
         }
     }

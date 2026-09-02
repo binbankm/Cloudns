@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerSecretsView
+// Apple HIG Compliant Cloudflare Worker Plaintext Environment & Encrypted Secret Keyring
 
 struct WorkerSecretsView: View {
     let accountId: String
@@ -30,6 +31,7 @@ struct WorkerSecretsView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Variable or Secret")
+                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
@@ -97,16 +99,16 @@ struct WorkerSecretsView: View {
                             if let val = item.text {
                                 Button {
                                     UIPasteboard.general.string = val
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Value Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy Value", systemImage: "doc.on.doc")
                                 }
                             }
                             Button {
                                 UIPasteboard.general.string = item.name
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
+                                ToastManager.shared.showCopied("Key Name Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Key Name", systemImage: "doc.on.doc")
                             }
@@ -121,7 +123,6 @@ struct WorkerSecretsView: View {
                             } label: {
                                 Label("Delete Variable", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -131,7 +132,7 @@ struct WorkerSecretsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -145,8 +146,8 @@ struct WorkerSecretsView: View {
                             .contextMenu {
                                 Button {
                                     UIPasteboard.general.string = secret.name
-                                    ToastManager.shared.showCopied()
-                                    HIGFeedback.impact(.light)
+                                    ToastManager.shared.showCopied("Secret Name Copied")
+                                    HIGFeedback.copied()
                                 } label: {
                                     Label("Copy Secret Name", systemImage: "doc.on.doc")
                                 }
@@ -156,7 +157,6 @@ struct WorkerSecretsView: View {
                                 } label: {
                                     Label("Delete Secret", systemImage: "trash")
                                 }
-                                .tint(.red)
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -166,7 +166,7 @@ struct WorkerSecretsView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -192,18 +192,16 @@ struct WorkerSecretsView: View {
     
     @ViewBuilder
     private func variableRow(name: String, value: String?, isSecret: Bool) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: HIGTokens.Spacing.md) {
             ListRowIcon(
                 icon: isSecret ? "lock.fill" : "textformat",
-                color: isSecret ? .purple : .blue,
-                size: 28,
-                cornerRadius: 6
+                color: isSecret ? .purple : .blue
             )
             
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Text(name)
-                        .font(.body.monospaced().weight(.semibold))
+                        .font(HIGTypography.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
                     
                     if isSecret {
@@ -213,11 +211,11 @@ struct WorkerSecretsView: View {
                 
                 if isSecret {
                     Text("••••••••••••••••")
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
                 } else if let txt = value, !txt.isEmpty {
                     Text(txt)
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -227,12 +225,12 @@ struct WorkerSecretsView: View {
             
             if !isSecret {
                 Image(systemName: "chevron.right")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
         .contentShape(Rectangle())
     }
 }
@@ -265,20 +263,27 @@ struct WorkerAddVariableOrSecretSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
+                        .font(HIGTypography.body.monospaced())
                     
                     if isSecret {
                         SecureField("Secret Value", text: $value)
+                            .font(HIGTypography.body.monospaced())
                     } else {
                         TextField("Value", text: $value)
                             .autocorrectionDisabled()
+                            .font(HIGTypography.body.monospaced())
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -289,6 +294,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -301,6 +307,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                                 } else {
                                     try await viewModel.savePlainVariable(name: name.trimmingCharacters(in: .whitespaces), value: value)
                                 }
+                                ToastManager.shared.showSuccess(isSecret ? "Secret Saved" : "Variable Saved", icon: "checkmark.circle.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -311,6 +318,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
@@ -340,20 +348,25 @@ struct WorkerEditVariableSheetView: View {
             Form {
                 Section(header: Text("Variable Name")) {
                     Text(variable.name)
-                        .font(.body.monospaced())
+                        .font(HIGTypography.body.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 
                 Section(header: Text("Value")) {
                     TextField("Value", text: $value)
                         .autocorrectionDisabled()
+                        .font(HIGTypography.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -364,6 +377,7 @@ struct WorkerEditVariableSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -372,6 +386,7 @@ struct WorkerEditVariableSheetView: View {
                             errorMessage = nil
                             do {
                                 try await viewModel.savePlainVariable(name: variable.name, value: value)
+                                ToastManager.shared.showSuccess("Variable Updated", icon: "checkmark.circle.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -382,6 +397,7 @@ struct WorkerEditVariableSheetView: View {
                         }
                     }
                     .disabled(isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

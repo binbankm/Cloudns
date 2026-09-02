@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - HTTPHeaderInspectorView
+// Apple HIG Compliant Cloudflare Edge HTTP & Cache Header Inspector
+
 struct HTTPHeaderInspectorView: View {
     @StateObject private var viewModel = HTTPHeaderInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
@@ -16,10 +19,10 @@ struct HTTPHeaderInspectorView: View {
         List {
             // 1. Target URL & Method Section
             Section(header: Text("Request Configuration"), footer: Text("Inspects live Cloudflare Edge HTTP response status, CF-Ray, caching status & custom headers.")) {
-                HStack(spacing: 10) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "link")
-                        .font(.body)
-                        .foregroundStyle(.blue)
+                        .font(HIGTypography.body)
+                        .foregroundStyle(Color.higAccent)
                         .accessibilityHidden(true)
                     
                     TextField("https://example.com", text: $viewModel.httpUrlInput)
@@ -27,7 +30,7 @@ struct HTTPHeaderInspectorView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .submitLabel(.go)
                         .onSubmit {
                             performInspect()
@@ -41,7 +44,7 @@ struct HTTPHeaderInspectorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(36)
+                        .higTouchTarget(44)
                         .accessibilityLabel("Clear URL")
                     }
                 }
@@ -56,7 +59,7 @@ struct HTTPHeaderInspectorView: View {
                 Button {
                     performInspect()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         if viewModel.isHttpLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -66,7 +69,7 @@ struct HTTPHeaderInspectorView: View {
                         Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading ? Color(.tertiaryLabel) : Color.accentColor)
+                    .foregroundStyle(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.higPressable)
@@ -78,9 +81,10 @@ struct HTTPHeaderInspectorView: View {
                     HStack {
                         Spacer()
                         ProgressView("Inspecting Edge Response…")
+                            .font(HIGTypography.subheadline)
                         Spacer()
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.httpResult {
                 // 2. Edge & Performance Hero Section
@@ -94,12 +98,12 @@ struct HTTPHeaderInspectorView: View {
                 }
             } else if let error = viewModel.httpError {
                 Section(header: Text("Error")) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                         Text(verbatim: error)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -122,6 +126,7 @@ struct HTTPHeaderInspectorView: View {
                         Image(systemName: "doc.on.doc")
                     }
                     .accessibilityLabel("Copy All Headers")
+                    .higTouchTarget(44)
                 }
             }
         }
@@ -138,15 +143,15 @@ struct HTTPHeaderInspectorView: View {
     private func edgeSummaryRows(result: HTTPInspectionResult) -> some View {
         HStack {
             Text("Status Code")
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            HStack(spacing: 6) {
+            HStack(spacing: HIGTokens.Spacing.xs) {
                 Text("\(result.statusCode)")
-                    .font(.subheadline.weight(.bold).monospacedDigit())
-                    .foregroundStyle(result.statusCode < 400 ? .green : .red)
+                    .font(HIGTypography.subheadline.weight(.bold).monospacedDigit())
+                    .foregroundStyle(result.statusCode < 400 ? HIGColors.success : HIGColors.error)
                 Text(result.statusText)
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.primary)
             }
         }
@@ -154,7 +159,7 @@ struct HTTPHeaderInspectorView: View {
         if let cache = result.cfCacheStatus {
             HStack {
                 Text("CF-Cache-Status")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 cacheStatusBadge(cache)
@@ -162,130 +167,105 @@ struct HTTPHeaderInspectorView: View {
         }
         
         if let ray = result.cfRay {
-            let coloCode = ray.split(separator: "-").last.map(String.init) ?? ""
-            let popInfo = CloudflarePoPDatabase.shared.getPoP(code: coloCode)
-            
             HStack {
-                Text("CF-Ray Trace")
-                    .font(.subheadline)
+                Text("CF-Ray ID")
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                if let info = popInfo {
-                    Text("\(info.flag) \(info.city)")
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
+                Text(ray)
+                    .font(HIGTypography.subheadline.monospaced())
+                    .foregroundStyle(.primary)
+            }
+            .contextMenu {
+                Button {
+                    UIPasteboard.general.string = ray
+                    ToastManager.shared.showCopied("CF-Ray Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy CF-Ray ID", systemImage: "doc.on.doc")
                 }
-                HIGBadge(.proxied(coloCode.isEmpty ? ray : coloCode), isCompact: true)
             }
         }
         
         HStack {
-            Text("Protocol")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-            if result.isHTTP3Supported {
-                HIGBadge(.active("HTTP/3 (QUIC)"), isCompact: true)
-            } else {
-                Text(result.httpVersion)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
-            }
-        }
-        
-        if let enc = result.contentEncoding {
-            HStack {
-                Text("Compression")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(enc.uppercased())
-                    .font(.subheadline.monospaced())
-                    .foregroundStyle(.primary)
-            }
-        }
-        
-        HStack {
-            Text("Edge TTFB")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text("\(result.ttfbMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(.subheadline.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.green)
-        }
-        
-        HStack {
-            Text("Total Duration")
-                .font(.subheadline)
+            Text("Total TTFB Latency")
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(.subheadline.monospacedDigit())
+                .font(HIGTypography.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
     }
     
-    // MARK: - 3. Headers Rows
     @ViewBuilder
     private func headersRows(result: HTTPInspectionResult) -> some View {
         ForEach(filteredHeaders) { header in
-            VStack(alignment: .leading, spacing: 3) {
-                HStack {
-                    Text(header.key)
-                        .font(.caption.weight(.bold).monospaced())
-                        .foregroundStyle(.blue)
-                    
-                    Spacer()
-                    
-                    Button {
-                        HIGFeedback.copied()
-                        UIPasteboard.general.string = "\(header.key): \(header.value)"
-                        ToastManager.shared.showCopied()
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.higPressable)
-                    .higTouchTarget()
-                    .accessibilityLabel("Copy \(header.key) header")
-                }
+            HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
+                Text(header.key)
+                    .font(HIGTypography.caption.monospaced().weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 120, alignment: .leading)
                 
                 Text(header.value)
-                    .font(.caption.monospaced())
+                    .font(HIGTypography.caption.monospaced())
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
+                
+                Spacer()
+                
+                Button {
+                    UIPasteboard.general.string = "\(header.key): \(header.value)"
+                    ToastManager.shared.showCopied("Header Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(HIGTypography.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.higPressable)
+                .higTouchTarget(44)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, HIGTokens.Spacing.xxs)
+            .contextMenu {
+                Button {
+                    UIPasteboard.general.string = "\(header.key): \(header.value)"
+                    ToastManager.shared.showCopied("Header Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy Line", systemImage: "doc.on.doc")
+                }
+                Button {
+                    UIPasteboard.general.string = header.value
+                    ToastManager.shared.showCopied("Value Copied")
+                    HIGFeedback.copied()
+                } label: {
+                    Label("Copy Value", systemImage: "text.alignleft")
+                }
+            }
         }
     }
     
     @ViewBuilder
     private func cacheStatusBadge(_ status: String) -> some View {
         let upper = status.uppercased()
-        switch upper {
-        case "HIT":
-            HIGBadge(.active("HIT (Edge Cached)"), isCompact: true)
-        case "MISS":
-            HIGBadge(.warning("MISS (Fetched Origin)"), isCompact: true)
-        case "DYNAMIC":
-            HIGBadge(.dnsOnly("DYNAMIC (No Cache)"), isCompact: true)
-        case "BYPASS":
-            HIGBadge(.warning("BYPASS (Rule Bypassed)"), isCompact: true)
-        case "EXPIRED":
-            HIGBadge(.error("EXPIRED (Stale Cache)"), isCompact: true)
-        case "REVALIDATED":
-            HIGBadge(.active("REVALIDATED"), isCompact: true)
-        default:
-            HIGBadge(.proxied(upper), isCompact: true)
+        if upper.contains("HIT") {
+            HIGBadge(.active("HIT"), isCompact: true)
+        } else if upper.contains("MISS") {
+            HIGBadge(.warning("MISS"), isCompact: true)
+        } else if upper.contains("DYNAMIC") {
+            HIGBadge(.proxied("DYNAMIC"), isCompact: true)
+        } else if upper.contains("BYPASS") {
+            HIGBadge(.dnsOnly("BYPASS"), isCompact: true)
+        } else {
+            HIGBadge(.custom(color: .secondary, text: upper), isCompact: true)
         }
     }
     
     private func copyAllHeaders(_ result: HTTPInspectionResult) {
-        HIGFeedback.copied()
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
         UIPasteboard.general.string = text
-        ToastManager.shared.showCopied()
+        ToastManager.shared.showCopied("All Headers Copied")
+        HIGFeedback.copied()
     }
 }

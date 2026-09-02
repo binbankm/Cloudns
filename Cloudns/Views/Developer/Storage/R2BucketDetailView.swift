@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - R2BucketDetailView
+// Apple HIG Compliant Cloudflare R2 Object Storage Bucket Explorer
 
 struct R2BucketDetailView: View {
     let accountId: String
@@ -24,8 +25,8 @@ struct R2BucketDetailView: View {
                 Section(header: Text("Bucket Information")) {
                     if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                         LabeledContent("Created") {
-                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
-                                .font(.body.monospacedDigit())
+                            Text(date.displayFormatted(date: .abbreviated, time: .omitted))
+                                .font(HIGTypography.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -33,7 +34,7 @@ struct R2BucketDetailView: View {
                     if let loc = bucket.location {
                         LabeledContent("Location") {
                             Text(loc.uppercased())
-                                .font(.caption.weight(.semibold))
+                                .font(HIGTypography.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -49,14 +50,34 @@ struct R2BucketDetailView: View {
                             R2ObjectRowView(object: obj)
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = obj.key
+                                ToastManager.shared.showCopied("Object Key Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Key", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                objectToDelete = obj
+                                showingDeleteConfirm = true
+                            } label: {
+                                Label("Delete Object", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
                                 objectToDelete = obj
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -76,11 +97,12 @@ struct R2BucketDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 12) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Bucket Settings")
+                    .higTouchTarget(44)
                     
                     Button {
                         showingUploadSheet = true
@@ -88,40 +110,39 @@ struct R2BucketDetailView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Upload Object")
+                    .higTouchTarget(44)
                 }
             }
         }
         .sheet(isPresented: $showingUploadSheet) {
             R2UploadObjectSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .sheet(item: $selectedObject) { obj in
             R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-             .higToast()
+                .higToast()
         }
-        .confirmationDialog("Delete Object", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
-            if let obj = objectToDelete {
-                Button("Delete '\(obj.key)'", role: .destructive) {
-                    Task {
-                        do {
-                            try await viewModel.deleteObject(key: obj.key)
-                            ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
-                        } catch {
-                            ToastManager.shared.showError("Failed to Delete Object")
-                        }
-                        objectToDelete = nil
+        .confirmationDialog("Delete Object", isPresented: $showingDeleteConfirm, titleVisibility: .visible, presenting: objectToDelete) { obj in
+            Button("Delete '\(obj.key)'", role: .destructive) {
+                Task {
+                    do {
+                        try await viewModel.deleteObject(key: obj.key)
+                        ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
+                    } catch {
+                        ToastManager.shared.showError("Failed to Delete Object")
+                        HIGFeedback.error()
                     }
+                    objectToDelete = nil
                 }
             }
             Button("Cancel", role: .cancel) {
                 objectToDelete = nil
             }
-        } message: {
-            if let obj = objectToDelete {
-                Text("Are you sure you want to delete object '\(obj.key)'? This cannot be undone.")
-            }
+        } message: { obj in
+            Text("Are you sure you want to delete object '\(obj.key)'? This cannot be undone.")
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
@@ -178,23 +199,23 @@ struct R2ObjectRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: fileIcon, color: .blue, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: fileIcon, color: .blue)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(object.key)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Text(ByteCountFormatter.string(fromByteCount: Int64(object.size), countStyle: .file))
-                        .font(.caption2.monospacedDigit())
+                        .font(HIGTypography.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                     
                     if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
-                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))
-                            .font(.caption2)
+                        Text(date.displayFormatted(date: .abbreviated, time: .omitted))
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -202,7 +223,7 @@ struct R2ObjectRowView: View {
             
             Spacer()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -223,6 +244,7 @@ struct R2UploadObjectSheetView: View {
             Form {
                 Section(header: Text("Object Key"), footer: Text("Path/filename in the bucket (e.g. assets/config.json).")) {
                     TextField("my-file.txt", text: $objectKey)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -230,6 +252,7 @@ struct R2UploadObjectSheetView: View {
                 
                 Section(header: Text("Content Type")) {
                     TextField("text/plain", text: $contentType)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -237,15 +260,19 @@ struct R2UploadObjectSheetView: View {
                 
                 Section(header: Text("Text Content")) {
                     TextEditor(text: $textContent)
-                        .font(.footnote.monospaced())
+                        .font(HIGTypography.footnote.monospaced())
                         .frame(minHeight: 140)
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -256,6 +283,7 @@ struct R2UploadObjectSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Upload") {
@@ -269,6 +297,7 @@ struct R2UploadObjectSheetView: View {
                                     data: data,
                                     contentType: contentType
                                 )
+                                ToastManager.shared.showSuccess("Object Uploaded", icon: "arrow.up.doc.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -279,6 +308,7 @@ struct R2UploadObjectSheetView: View {
                         }
                     }
                     .disabled(objectKey.trimmingCharacters(in: .whitespaces).isEmpty || isUploading)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isUploading)
@@ -304,7 +334,7 @@ struct R2ObjectDetailSheetView: View {
                     }
                     if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
                         LabeledContent("Uploaded") {
-                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .standard))
+                            Text(date.displayFormatted(date: .abbreviated, time: .standard))
                         }
                     }
                     if let storageClass = object.storageClass {
@@ -317,17 +347,20 @@ struct R2ObjectDetailSheetView: View {
                         HIGFeedback.impact(.medium)
                         Task {
                             try? await viewModel.deleteObject(key: object.key)
+                            ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
+                            HIGFeedback.success()
                             dismiss()
                         }
                     } label: {
                         HStack {
                             Spacer()
                             Text("Delete Object")
-                                .font(.body.weight(.medium))
+                                .font(HIGTypography.body.weight(.medium))
                             Spacer()
                         }
                     }
-                    .tint(.red)
+                    .tint(HIGColors.error)
+                    .higTouchTarget(44)
                 }
             }
             .listStyle(.insetGrouped)
@@ -337,6 +370,7 @@ struct R2ObjectDetailSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .higTouchTarget(44)
                 }
             }
         }

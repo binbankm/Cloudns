@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import Combine
 
-/// 统一的基础加载状态协议与类，规范所有 ViewModel 的加载、错误与刷新生命周期
 @MainActor
 public protocol LoadableViewModelProtocol: ObservableObject {
     var isLoading: Bool { get set }
@@ -17,7 +16,6 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     @Published public var errorMessage: String?
     public var lastFetchTime: Date?
     
-    /// 数据新鲜度判断：距离上次请求超过 180 秒（3 分钟）视为过期需要重新再验证
     public var isStale: Bool {
         guard let last = lastFetchTime else { return true }
         return Date().timeIntervalSince(last) > 180
@@ -25,7 +23,6 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
     
     public init() {}
     
-    /// 统一异步任务执行包装器，自动处理 loading 状态与 error 捕获，任务结束必将 hasFetchedData 置为 true
     public func executeLoadingTask(
         clearError: Bool = true,
         action: () async throws -> Void
@@ -49,7 +46,6 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         isLoading = false
     }
     
-    /// 重置加载状态与时间戳
     public func resetLoadingState() {
         self.isLoading = false
         self.hasFetchedData = false
@@ -57,10 +53,6 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         self.lastFetchTime = nil
     }
     
-    /// 统一 SWR（Stale-While-Revalidate）异步任务执行包装器：
-    /// 1. [Stale] 0ms 瞬间尝试从缓存取出旧数据回调渲染，标记 hasFetchedData = true 消除骨架屏
-    /// 2. [Revalidate] 后台静默并发向网络获取最新数据
-    /// 3. [Update] 成功后回调最新数据，并自动写入 SWRCacheStore
     public func executeSWR<T: Codable & Sendable>(
         cacheKey: String,
         targetType: T.Type,
@@ -71,7 +63,6 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
         let initialEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
-        // 1. [Stale] 0ms 内存/磁盘直出
         if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: targetType) {
             onCached(cached)
             self.hasFetchedData = true
@@ -81,20 +72,16 @@ open class BaseLoadableViewModel: ObservableObject, LoadableViewModelProtocol {
             self.isLoading = true
         }
         
-        // 2. [Revalidate] 后台静默拉取
         do {
             try Task.checkCancellation()
             let fresh = try await fetcher()
             
-            // 双重安全校验：确认请求完成时当前账号未被切换
             let currentEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
             guard currentEmail == initialEmail && !currentEmail.isEmpty else {
-                // 账号在网络飞行期间已被切换，安全丢弃旧账号响应，严禁污染新账号/旧账号缓存
                 self.isLoading = false
                 return
             }
             
-            // 3. [Update] 更新数据并落盘
             onFresh(fresh)
             self.hasFetchedData = true
             self.lastFetchTime = Date()

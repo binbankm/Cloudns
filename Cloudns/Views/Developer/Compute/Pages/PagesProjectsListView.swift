@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesProjectsListView (Pure List - No Tags)
+// Apple HIG Compliant Cloudflare Pages Overview
 
 struct PagesProjectsListView: View {
     let accountId: String
@@ -24,6 +25,35 @@ struct PagesProjectsListView: View {
                         } label: {
                             pagesRow(page)
                         }
+                        .contextMenu {
+                            if let sub = page.subdomain {
+                                Button {
+                                    UIPasteboard.general.string = sub
+                                    ToastManager.shared.showCopied("Subdomain Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Subdomain", systemImage: "link")
+                                }
+                            }
+                            
+                            Button {
+                                UIPasteboard.general.string = page.name
+                                ToastManager.shared.showCopied("Project Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Project Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                pagesProjectToDelete = page
+                                showingDeletePagesAlert = true
+                            } label: {
+                                Label("Delete Project", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
@@ -32,7 +62,7 @@ struct PagesProjectsListView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -41,8 +71,8 @@ struct PagesProjectsListView: View {
         .listStyle(.insetGrouped)
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Pages Projects…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Pages Projects…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.pages.isEmpty {
                     HIGContentState(
                         .error(
@@ -80,16 +110,21 @@ struct PagesProjectsListView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Pages Project")
+                .higTouchTarget()
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreatePagesSheet) {
             PagesCreateProjectSheetView(viewModel: viewModel)
-             .higToast()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .higToast()
         }
         .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in
             Button("Delete '\(proj.name)'", role: .destructive) {
                 Task {
                     await viewModel.deletePagesProject(name: proj.name)
+                    ToastManager.shared.showSuccess("Pages Project Deleted", icon: "trash.fill")
                     HIGFeedback.success()
                 }
             }
@@ -107,17 +142,17 @@ struct PagesProjectsListView: View {
     
     @ViewBuilder
     private func pagesRow(_ page: PagesProject) -> some View {
-        HStack(alignment: .center, spacing: 14) {
-            ListRowIcon(icon: "macwindow", color: .purple, size: 32, cornerRadius: 8)
+        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "macwindow", color: .purple)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(page.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let sub = page.subdomain {
                     Text(sub)
-                        .font(.caption.monospacedDigit())
+                        .font(HIGTypography.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
             }
@@ -128,7 +163,7 @@ struct PagesProjectsListView: View {
                 HIGBadge(.custom(color: .blue, text: branch, icon: "arrow.triangle.branch"), isCompact: true)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -163,8 +198,8 @@ struct PagesCreateProjectSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -186,6 +221,7 @@ struct PagesCreateProjectSheetView: View {
                                     name: name.trimmingCharacters(in: .whitespaces),
                                     branch: branch.trimmingCharacters(in: .whitespaces)
                                 )
+                                ToastManager.shared.showSuccess("Pages Project Created", icon: "macwindow")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -195,6 +231,7 @@ struct PagesCreateProjectSheetView: View {
                             isCreating = false
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }

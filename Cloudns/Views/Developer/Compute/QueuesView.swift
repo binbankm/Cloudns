@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - QueuesView
+// Apple HIG Compliant Cloudflare Queues Message Hub
 
 struct QueuesView: View {
     let accountId: String
@@ -18,12 +19,101 @@ struct QueuesView: View {
     }
     
     var body: some View {
+        queueListContent
+            .navigationTitle("Queues")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingCreateSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Create Queue")
+                    .higTouchTarget(44)
+                }
+            }
+            .sheet(isPresented: $showingCreateSheet) {
+                CreateQueueSheetView(viewModel: viewModel)
+                    .higToast()
+            }
+            .confirmationDialog("Delete Queue", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: queueToDelete) { q in
+                Button("Delete '\(q.queueName)'", role: .destructive) {
+                    Task {
+                        await viewModel.deleteQueue(queueId: q.id)
+                        ToastManager.shared.showSuccess("Queue Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { q in
+                Text("Are you sure you want to permanently delete '\(q.queueName)'? Producers and consumers will fail to deliver.")
+            }
+            .confirmationDialog("Purge All Messages", isPresented: $showingPurgeAlert, titleVisibility: .visible, presenting: queueToPurge) { q in
+                Button("Purge All Messages in '\(q.queueName)'", role: .destructive) {
+                    Task {
+                        await viewModel.purgeQueue(queueId: q.id)
+                        ToastManager.shared.showSuccess("Queue Purged", icon: "xmark.bin.fill")
+                        HIGFeedback.success()
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { q in
+                Text("Are you sure you want to purge all unconsumed messages in '\(q.queueName)'? This action cannot be undone.")
+            }
+            .refreshable {
+                await viewModel.fetchQueues()
+            }
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchQueues()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var queueListContent: some View {
         List {
             if !viewModel.queues.isEmpty {
                 Section(header: Text("Message Queues (\(viewModel.queues.count))")) {
                     ForEach(viewModel.queues) { queue in
                         NavigationLink(destination: QueueDetailView(accountId: accountId, queue: queue, viewModel: viewModel)) {
                             queueRow(queue)
+                        }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = queue.queueName
+                                ToastManager.shared.showCopied("Queue Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Queue Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                UIPasteboard.general.string = queue.id
+                                ToastManager.shared.showCopied("Queue ID Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Queue ID", systemImage: "link")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                queueToPurge = queue
+                                showingPurgeAlert = true
+                                HIGFeedback.impact(.medium)
+                            } label: {
+                                Label("Purge Messages", systemImage: "xmark.bin")
+                            }
+                            
+                            Button(role: .destructive) {
+                                queueToDelete = queue
+                                showingDeleteAlert = true
+                                HIGFeedback.impact(.medium)
+                            } label: {
+                                Label("Delete Queue", systemImage: "trash")
+                            }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -33,7 +123,8 @@ struct QueuesView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
+                            
                             Button {
                                 HIGFeedback.impact(.light)
                                 queueToPurge = queue
@@ -48,45 +139,10 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Queues")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingCreateSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Create Queue")
-            }
-        }
-        .sheet(isPresented: $showingCreateSheet) {
-            CreateQueueSheetView(viewModel: viewModel)
-             .higToast()
-        }
-        .confirmationDialog("Delete Queue", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: queueToDelete) { q in
-            Button("Delete '\(q.queueName)'", role: .destructive) {
-                Task { await viewModel.deleteQueue(queueId: q.id) }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { q in
-            Text("Are you sure you want to permanently delete '\(q.queueName)'? Producers and consumers will fail to deliver.")
-        }
-        .confirmationDialog("Purge All Messages", isPresented: $showingPurgeAlert, titleVisibility: .visible, presenting: queueToPurge) { q in
-            Button("Purge All Messages in '\(q.queueName)'", role: .destructive) {
-                Task { await viewModel.purgeQueue(queueId: q.id) }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { q in
-            Text("Are you sure you want to purge all unconsumed messages in '\(q.queueName)'? This action cannot be undone.")
-        }
-        .refreshable {
-            await viewModel.fetchQueues()
-        }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Message Queues…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Message Queues…"))
+            } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
                     HIGContentState(
                         .error(
@@ -107,33 +163,28 @@ struct QueuesView: View {
                 }
             }
         }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchQueues()
-            }
-        }
     }
     
     @ViewBuilder
     private func queueRow(_ queue: CFQueue) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "tray.2.fill", color: .indigo, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "tray.2.fill", color: .indigo)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(queue.queueName)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     if let consumers = queue.consumers {
                         Text("\(consumers.count) Consumers")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
                     if let created = queue.createdOn, let date = DateFormatters.parseISO8601(created) {
-                        Text("• Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                            .font(.caption2)
+                        Text("• Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -147,7 +198,7 @@ struct QueuesView: View {
                 HIGBadge(.active, isCompact: true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -168,6 +219,7 @@ struct CreateQueueSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .font(HIGTypography.body.monospaced())
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -177,6 +229,7 @@ struct CreateQueueSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -184,15 +237,18 @@ struct CreateQueueSheetView: View {
                             isCreating = true
                             let success = await viewModel.createQueue(name: queueName.trimmingCharacters(in: .whitespaces))
                             if success {
+                                ToastManager.shared.showSuccess("Queue Created", icon: "tray.2.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } else {
+                                ToastManager.shared.showError("Failed to Create Queue")
                                 HIGFeedback.error()
                             }
                             isCreating = false
                         }
                     }
                     .disabled(queueName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

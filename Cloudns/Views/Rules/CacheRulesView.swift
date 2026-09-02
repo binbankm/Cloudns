@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - CacheRulesView
+// Apple HIG Compliant Cloudflare Cache Rules & Edge TTL Engine
 
 struct CacheRulesView: View {
     let zoneId: String
@@ -18,7 +19,7 @@ struct CacheRulesView: View {
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
-                Section {
+                Section(header: Text("Configured Cache Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
                             HIGFeedback.selection()
@@ -27,14 +28,44 @@ struct CacheRulesView: View {
                                 ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "bolt.badge.clock")
                             }
                         }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = rule.expression
+                                ToastManager.shared.showCopied("Expression Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Expression", systemImage: "doc.on.doc")
+                            }
+                            
+                            if let desc = rule.description {
+                                Button {
+                                    UIPasteboard.general.string = desc
+                                    ToastManager.shared.showCopied("Rule Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Rule Name", systemImage: "tag")
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                ruleToDelete = rule
+                                showingDeleteConfirm = true
+                                HIGFeedback.impact(.medium)
+                            } label: {
+                                Label("Delete Rule", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
+                                HIGFeedback.impact(.medium)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -78,11 +109,12 @@ struct CacheRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Cache Rule")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddCacheRuleView(zoneId: zoneId, viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog(
             "Delete Cache Rule",
@@ -94,6 +126,7 @@ struct CacheRulesView: View {
                     if let index = viewModel.rules.firstIndex(where: { $0.id == rule.id }) {
                         viewModel.deleteRule(at: IndexSet(integer: index))
                         ToastManager.shared.showSuccess("Cache Rule Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                     }
                     ruleToDelete = nil
                 }
@@ -121,10 +154,10 @@ struct CacheRuleCardView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
@@ -134,17 +167,17 @@ struct CacheRuleCardView: View {
             }
             
             Text(verbatim: rule.expression)
-                .font(.caption.monospaced())
+                .font(HIGTypography.caption.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(6)
+                .padding(HIGTokens.Spacing.xs)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                 .lineLimit(2)
             
             if let cache = rule.action_parameters?.cache {
                 HIGBadge(cache ? .active : .error("Bypass Cache"), isCompact: true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }

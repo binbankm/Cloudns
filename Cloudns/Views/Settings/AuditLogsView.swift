@@ -147,7 +147,7 @@ struct AuditLogRowView: View {
                     Spacer()
                     
                     if let when = log.when, let date = DateFormatters.parseISO8601(when) {
-                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                        Text(date.displayFormatted(date: .abbreviated, time: .shortened))
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
@@ -223,7 +223,7 @@ struct AuditLogDetailSheetView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                            Text(date.displayFormatted(date: .abbreviated, time: .shortened))
                                 .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.primary)
                         }
@@ -235,33 +235,33 @@ struct AuditLogDetailSheetView: View {
             if hasChanges {
                 Section("Changes & Payload") {
                     if let oldText = formattedOldValue, !oldText.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                             Label("Previous Value (Before)", systemImage: "minus.circle.fill")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.red)
+                                .font(HIGTypography.caption.weight(.semibold))
+                                .foregroundStyle(HIGColors.error)
                             Text(oldText)
-                                .font(.caption.monospaced())
+                                .font(HIGTypography.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(10)
+                                .padding(HIGTokens.Spacing.sm)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.red.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                .background(HIGColors.error.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
                     
                     if let newText = formattedNewValue, !newText.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.green)
+                                .font(HIGTypography.caption.weight(.semibold))
+                                .foregroundStyle(HIGColors.success)
                             Text(newText)
-                                .font(.caption.monospaced())
+                                .font(HIGTypography.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(10)
+                                .padding(HIGTokens.Spacing.sm)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.green.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                .background(HIGColors.success.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }

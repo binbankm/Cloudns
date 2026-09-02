@@ -32,7 +32,6 @@ class KVViewModel: BaseLoadableViewModel {
         let kvKey = SWRCacheStore.accountScopedKey("kv_namespaces_\(accountId)")
         let d1Key = SWRCacheStore.accountScopedKey("d1_databases_\(accountId)")
         
-        // 1. [SWR Stale Cache] 优先从本地缓存秒级直出
         if !hasFetchedData {
             if let cachedKV = await SWRCacheStore.shared.get(forKey: kvKey, as: [KVNamespace].self), !cachedKV.isEmpty {
                 self.namespaces = cachedKV
@@ -52,7 +51,6 @@ class KVViewModel: BaseLoadableViewModel {
             self.namespaces = k
             self.d1Databases = d
             
-            // 2. [SWR Update Cache] 存入最新数据
             await SWRCacheStore.shared.set(k, forKey: kvKey)
             await SWRCacheStore.shared.set(d, forKey: d1Key)
         }

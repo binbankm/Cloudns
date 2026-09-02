@@ -2,8 +2,6 @@ import Foundation
 import Network
 import Combine
 
-/// 全局响应式网络连接状态监控器
-/// 基于 Apple Network.framework 的 NWPathMonitor，提供低功耗、实时的网络可达性与蜂窝网感知。
 @MainActor
 public final class NetworkMonitor: ObservableObject {
     public static let shared = NetworkMonitor()

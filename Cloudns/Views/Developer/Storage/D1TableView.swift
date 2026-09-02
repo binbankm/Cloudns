@@ -3,6 +3,7 @@ import SwiftUI
 import Combine
 
 // MARK: - D1TableView
+// Apple HIG Compliant Cloudflare D1 Table Data Explorer & Row Grid
 
 struct D1TableView: View {
     let accountId: String
@@ -28,35 +29,12 @@ struct D1TableView: View {
             
             VStack(spacing: 0) {
                 // Table stats & Display Mode Bar
-                HStack(spacing: 12) {
-                    Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    Spacer()
-                    
-                    Picker("View", selection: $displayMode) {
-                        Image(systemName: "rectangle.grid.1x2.fill").tag(D1DisplayMode.cards)
-                        Image(systemName: "tablecells.fill").tag(D1DisplayMode.table)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 90)
-                    
-                    Spacer()
-                    
-                    Label("\(viewModel.totalRowCount) Total Rows", systemImage: "list.number")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.primary)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(.secondarySystemGroupedBackground))
+                topStatsBar
                 
                 Divider()
                 
                 if viewModel.isLoading && !viewModel.hasFetchedData {
                     cardsView
-                        
                 } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
                     HIGContentState(
                         .error(
@@ -86,32 +64,7 @@ struct D1TableView: View {
                 
                 // Pagination Footer
                 if viewModel.totalPages > 1 {
-                    HStack {
-                        Button {
-                            Task { await viewModel.prevPage() }
-                        } label: {
-                            Image(systemName: "chevron.left")
-                        }
-                        .disabled(viewModel.currentPage <= 1 || viewModel.isLoading)
-                        
-                        Spacer()
-                        
-                        Text("Page \(viewModel.currentPage) of \(viewModel.totalPages)")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.secondary)
-                        
-                        Spacer()
-                        
-                        Button {
-                            Task { await viewModel.nextPage() }
-                        } label: {
-                            Image(systemName: "chevron.right")
-                        }
-                        .disabled(viewModel.currentPage >= viewModel.totalPages || viewModel.isLoading)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(Color(.secondarySystemGroupedBackground))
+                    paginationFooter
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -126,6 +79,7 @@ struct D1TableView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Insert Row")
+                .higTouchTarget(44)
             }
         }
         .sheet(item: $editorContext) { context in
@@ -133,12 +87,21 @@ struct D1TableView: View {
                 viewModel: viewModel,
                 existingRow: context.row
             )
-             .higToast()
+            .higToast()
         }
         .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
             Button("Delete Row", role: .destructive) {
                 if let rowid = row["_rowid_"] {
-                    Task { _ = await viewModel.deleteRow(rowid: rowid) }
+                    Task {
+                        let success = await viewModel.deleteRow(rowid: rowid)
+                        if success {
+                            ToastManager.shared.showSuccess("Row Deleted", icon: "trash.fill")
+                            HIGFeedback.success()
+                        } else {
+                            ToastManager.shared.showError("Failed to Delete Row")
+                            HIGFeedback.error()
+                        }
+                    }
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -156,117 +119,117 @@ struct D1TableView: View {
         }
     }
     
-    // MARK: - 1. Cards View (纵向全屏卡片视图，无需左右滑动)
+    // MARK: - Subviews
+    
+    private var topStatsBar: some View {
+        HStack(spacing: HIGTokens.Spacing.md) {
+            Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
+                .font(HIGTypography.caption)
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
+            Picker("View", selection: $displayMode) {
+                Image(systemName: "rectangle.grid.1x2.fill").tag(D1DisplayMode.cards)
+                Image(systemName: "tablecells.fill").tag(D1DisplayMode.table)
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 90)
+            
+            Spacer()
+            
+            Label("\(viewModel.totalRowCount) Total Rows", systemImage: "list.number")
+                .font(HIGTypography.caption.weight(.medium))
+                .foregroundStyle(.primary)
+        }
+        .padding(.horizontal, HIGTokens.Spacing.md)
+        .padding(.vertical, HIGTokens.Spacing.sm)
+        .background(Color.higCardBackground)
+    }
+    
+    private var paginationFooter: some View {
+        HStack {
+            Button {
+                Task { await viewModel.prevPage() }
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(viewModel.currentPage <= 1 || viewModel.isLoading)
+            .higTouchTarget(44)
+            
+            Spacer()
+            
+            Text("Page \(viewModel.currentPage) of \(viewModel.totalPages)")
+                .font(HIGTypography.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
+            Button {
+                Task { await viewModel.nextPage() }
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(viewModel.currentPage >= viewModel.totalPages || viewModel.isLoading)
+            .higTouchTarget(44)
+        }
+        .padding(.horizontal, HIGTokens.Spacing.lg)
+        .padding(.vertical, HIGTokens.Spacing.sm)
+        .background(Color.higCardBackground)
+    }
+    
+    // MARK: - 1. Cards View
     private var cardsView: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: HIGTokens.Spacing.md) {
                 ForEach(viewModel.rowItems) { item in
-                    let row = item.values
-                    VStack(alignment: .leading, spacing: 10) {
-                        // Card Header
-                        HStack {
-                            Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.secondary)
-                            
-                            Spacer()
-                            
-                            Button {
-                                editorContext = .edit(row: row)
-                            } label: {
-                                Image(systemName: "pencil.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                            }
-                            .buttonStyle(.higPressable)
-                            
-                            Button(role: .destructive) {
-                                rowToDelete = row
-                                showingDeleteAlert = true
-                            } label: {
-                                Image(systemName: "trash.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.red.opacity(0.85))
-                            }
-                            .buttonStyle(.higPressable)
+                    D1CardRowCard(
+                        item: item,
+                        columns: viewModel.columns,
+                        onEdit: { editorContext = .edit(row: item.values) },
+                        onDelete: {
+                            rowToDelete = item.values
+                            showingDeleteAlert = true
                         }
-                        
-                        Divider()
-                        
-                        // Field Rows
-                        ForEach(viewModel.columns) { col in
-                            HStack(alignment: .top, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack(spacing: 4) {
-                                        Text(col.name)
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.primary)
-                                        if col.isPrimaryKey {
-                                            Image(systemName: "key.fill")
-                                                .font(.caption2)
-                                                .foregroundStyle(.orange)
-                                        }
-                                    }
-                                    Text(col.type)
-                                        .font(.caption2.monospaced())
-                                        .foregroundStyle(.secondary)
-                                }
-                                .frame(width: 100, alignment: .leading)
-                                
-                                Spacer()
-                                
-                                let cellVal = row[col.name] ?? "NULL"
-                                Text(cellVal)
-                                    .font(.callout.monospaced())
-                                    .foregroundStyle(cellVal == "NULL" ? .secondary : .primary)
-                                    .multilineTextAlignment(.trailing)
-                                    .textSelection(.enabled)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                    .padding(14)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
+                    )
                 }
             }
-            .padding(16)
+            .padding(HIGTokens.Spacing.md)
         }
     }
     
-    // MARK: - 2. Table Grid View (经典网格表格视图)
+    // MARK: - 2. Table Grid View
     private var tableView: some View {
         ScrollView([.horizontal, .vertical], showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
                 // Header Row
                 HStack(spacing: 0) {
                     Text("#")
-                        .font(.caption2.weight(.bold))
+                        .font(HIGTypography.caption2.weight(.bold))
                         .foregroundStyle(.secondary)
                         .frame(width: 50, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, HIGTokens.Spacing.sm)
+                        .padding(.vertical, HIGTokens.Spacing.sm + 2)
                     
                     ForEach(viewModel.columns) { col in
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 4) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
                                 Text(col.name)
-                                    .font(.caption.weight(.bold))
+                                    .font(HIGTypography.caption.weight(.bold))
                                     .foregroundStyle(.primary)
                                 if col.isPrimaryKey {
                                     Image(systemName: "key.fill")
-                                        .font(.caption2)
+                                        .font(HIGTypography.caption2)
                                         .foregroundStyle(.orange)
                                 }
                             }
                             Text(col.type)
-                                .font(.caption2.monospaced().weight(.semibold))
+                                .font(HIGTypography.caption2.monospaced().weight(.semibold))
                                 .foregroundStyle(.secondary)
                         }
                         .frame(width: 140, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, HIGTokens.Spacing.sm)
+                        .padding(.vertical, HIGTokens.Spacing.sm + 2)
                     }
                 }
                 .background(Color(.tertiarySystemGroupedBackground))
@@ -281,21 +244,21 @@ struct D1TableView: View {
                     } label: {
                         HStack(spacing: 0) {
                             Text(item.rowid ?? "\(index + 1)")
-                                .font(.caption2.monospacedDigit())
+                                .font(HIGTypography.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                                 .frame(width: 50, alignment: .leading)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, HIGTokens.Spacing.sm)
+                                .padding(.vertical, HIGTokens.Spacing.sm)
                             
                             ForEach(viewModel.columns) { col in
                                 let cellValue = row[col.name] ?? "NULL"
                                 Text(cellValue)
-                                    .font(.caption.monospaced())
+                                    .font(HIGTypography.caption.monospaced())
                                     .foregroundStyle(cellValue == "NULL" ? .secondary : .primary)
                                     .frame(width: 140, alignment: .leading)
                                     .lineLimit(1)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, HIGTokens.Spacing.sm)
+                                    .padding(.vertical, HIGTokens.Spacing.sm)
                             }
                         }
                     }
@@ -322,5 +285,99 @@ struct D1TableView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+// MARK: - D1CardRowCard
+
+private struct D1CardRowCard: View {
+    let item: D1TableRow
+    let columns: [D1ColumnInfo]
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        let row = item.values
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+            // Card Header
+            HStack {
+                Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
+                    .font(HIGTypography.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Button {
+                    onEdit()
+                } label: {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(HIGTypography.title3)
+                        .foregroundStyle(Color.higAccent)
+                }
+                .buttonStyle(.plain)
+                .higTouchTarget(44)
+                
+                Button(role: .destructive) {
+                    onDelete()
+                } label: {
+                    Image(systemName: "trash.circle.fill")
+                        .font(HIGTypography.title3)
+                        .foregroundStyle(HIGColors.error.opacity(0.85))
+                }
+                .buttonStyle(.plain)
+                .higTouchTarget(44)
+            }
+            
+            Divider()
+            
+            // Field Rows
+            ForEach(columns) { col in
+                HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        HStack(spacing: HIGTokens.Spacing.xs) {
+                            Text(col.name)
+                                .font(HIGTypography.caption.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            if col.isPrimaryKey {
+                                Image(systemName: "key.fill")
+                                    .font(HIGTypography.caption2)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        Text(col.type)
+                            .font(HIGTypography.caption2.monospaced())
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(width: 100, alignment: .leading)
+                    
+                    Spacer()
+                    
+                    let cellVal = row[col.name] ?? "NULL"
+                    Text(cellVal)
+                        .font(HIGTypography.body.monospaced())
+                        .foregroundStyle(cellVal == "NULL" ? .secondary : .primary)
+                        .multilineTextAlignment(.trailing)
+                        .textSelection(.enabled)
+                }
+                .padding(.vertical, HIGTokens.Spacing.xxs)
+            }
+        }
+        .padding(HIGTokens.Spacing.sm + 4)
+        .background(Color.higCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+        .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
+        .contextMenu {
+            Button {
+                onEdit()
+            } label: {
+                Label("Edit Row", systemImage: "pencil")
+            }
+            
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Delete Row", systemImage: "trash")
+            }
+        }
     }
 }

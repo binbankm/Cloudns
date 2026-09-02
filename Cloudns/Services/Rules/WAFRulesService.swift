@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare WAF 规则集、Transform Rules 与 Cache Rules 领域服务抽象协议
+/// Protocol defining Cloudflare WAF rulesets, Transform Rules, and Cache Rules domain service
 protocol WAFRulesServiceProtocol: Sendable {
     func fetchRulesetByPhase(zoneId: String, phase: String) async throws -> Ruleset?
     func updateRulesetRules(zoneId: String, phase: String, rules: [WAFRule]) async throws -> Ruleset
@@ -52,7 +52,7 @@ extension WAFRulesServiceProtocol {
     }
 }
 
-/// 统一的 Cloudflare WAF 规则集、Transform Rules 与 Cache Rules 领域服务
+/// Concrete domain service for Cloudflare WAF rulesets, Transform Rules, and Cache Rules
 final class WAFRulesService: WAFRulesServiceProtocol {
     static let shared = WAFRulesService()
     
