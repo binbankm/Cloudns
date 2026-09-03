@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - RateLimitingRulesView
+// Apple HIG Compliant Cloudflare Rate Limiting Rules Engine
+
 struct RateLimitingRulesView: View {
     let zoneId: String
     
@@ -11,7 +14,7 @@ struct RateLimitingRulesView: View {
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
-                Section {
+                Section(header: Text("Rate Limiting Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             HIGFeedback.selection()
@@ -20,14 +23,44 @@ struct RateLimitingRulesView: View {
                                 ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "speedometer")
                             }
                         })
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = rule.expression
+                                ToastManager.shared.showCopied("Rule Expression Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Expression", systemImage: "doc.on.doc")
+                            }
+                            
+                            if let desc = rule.description {
+                                Button {
+                                    UIPasteboard.general.string = desc
+                                    ToastManager.shared.showCopied("Rule Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Rule Name", systemImage: "tag")
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                ruleToDelete = rule
+                                showingDeleteConfirm = true
+                            } label: {
+                                Label("Delete Rule", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -71,11 +104,12 @@ struct RateLimitingRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Rate Limiting Rule")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddRateLimitingRuleView(zoneId: zoneId, viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog(
             "Delete Rate Limiting Rule",
@@ -87,6 +121,7 @@ struct RateLimitingRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("Rate Limiting Rule Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         ruleToDelete = nil
                     }
                 }

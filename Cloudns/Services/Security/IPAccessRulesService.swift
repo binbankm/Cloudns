@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare IP 访问规则（黑白名单/阻止/质询）领域服务协议
+/// Protocol defining Cloudflare IP Access Rules domain service
 protocol IPAccessRulesServiceProtocol: Sendable {
     func getIPAccessRules(zoneId: String, page: Int, perPage: Int) async throws -> ([IPAccessRule], ResultInfo?)
     func createIPAccessRule(zoneId: String, mode: String, target: String, value: String, notes: String?) async throws -> IPAccessRule
@@ -13,7 +13,7 @@ extension IPAccessRulesServiceProtocol {
     }
 }
 
-/// 统一的 Cloudflare IP 访问规则领域服务
+/// Concrete domain service for Cloudflare IP Access Rules
 final class IPAccessRulesService: IPAccessRulesServiceProtocol {
     static let shared = IPAccessRulesService()
     

@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - D1RowEditorView
+// Apple HIG Compliant Cloudflare D1 SQL Row Editor & Insert Form
 
 struct D1RowEditorView: View {
     @ObservedObject var viewModel: D1TableViewModel
@@ -38,10 +39,12 @@ struct D1RowEditorView: View {
                 if let rowid = existingRow?["_rowid_"] {
                     Section(header: Text("Internal Identifier")) {
                         HStack {
-                            Text("rowid").foregroundStyle(.secondary)
+                            Text("rowid")
+                                .font(HIGTypography.body)
+                                .foregroundStyle(.secondary)
                             Spacer()
                             Text(verbatim: rowid)
-                                .font(.body.monospacedDigit())
+                                .font(HIGTypography.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -50,6 +53,7 @@ struct D1RowEditorView: View {
                 if editableColumns.isEmpty {
                     Section {
                         Text("No editable columns detected.")
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 } else {
@@ -58,22 +62,22 @@ struct D1RowEditorView: View {
                         footer: Text("Leave blank to use column defaults. Values are escaped before saving.")
                     ) {
                         ForEach(editableColumns) { col in
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                                 HStack {
                                     Text(verbatim: col.name)
-                                        .font(.subheadline.weight(.semibold))
+                                        .font(HIGTypography.subheadline.weight(.semibold))
                                     if col.isPrimaryKey {
                                         Image(systemName: "key.fill")
-                                            .font(.caption2)
+                                            .font(HIGTypography.caption2)
                                             .foregroundStyle(.orange)
                                     }
                                     Spacer()
                                     Text(verbatim: col.type)
-                                        .font(.caption2.monospaced())
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .font(HIGTypography.caption2.monospaced())
+                                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                                        .padding(.vertical, HIGTokens.Spacing.xxs)
                                         .background(Color(.secondarySystemFill))
-                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                                 }
                                 
                                 TextField(
@@ -83,7 +87,7 @@ struct D1RowEditorView: View {
                                         set: { fieldValues[col.name] = $0 }
                                     )
                                 )
-                                .font(.body.monospaced())
+                                .font(HIGTypography.body.monospaced())
                                 .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -91,31 +95,36 @@ struct D1RowEditorView: View {
                                 
                                 if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
                                     Text("Default: \(dflt)")
-                                        .font(.caption2)
+                                        .font(HIGTypography.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, HIGTokens.Spacing.xxs)
                         }
                     }
                 }
 
                 if let err = viewModel.errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-        .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
+            .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .disabled(isSaving)
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if isSaving {
@@ -124,6 +133,8 @@ struct D1RowEditorView: View {
                         Button(isNewRow ? "Insert" : "Save") {
                             saveRow()
                         }
+                        .fontWeight(.semibold)
+                        .higTouchTarget(44)
                     }
                 }
             }
@@ -148,8 +159,12 @@ struct D1RowEditorView: View {
             await MainActor.run {
                 isSaving = false
                 if success {
-                    HIGFeedback.impact(.medium)
+                    ToastManager.shared.showSuccess(isNewRow ? "Row Inserted" : "Row Updated", icon: "checkmark.circle.fill")
+                    HIGFeedback.success()
                     dismiss()
+                } else {
+                    ToastManager.shared.showError(isNewRow ? "Failed to Insert Row" : "Failed to Update Row")
+                    HIGFeedback.error()
                 }
             }
         }

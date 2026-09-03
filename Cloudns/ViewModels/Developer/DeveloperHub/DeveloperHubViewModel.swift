@@ -81,7 +81,6 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
         
         let scopedKey = SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot")
         
-        // 1. [Stale] 0ms 尝试从缓存瞬间加载旧数据
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DeveloperHubSnapshot.self) {
             self.workers = cached.workers
             self.pagesProjects = cached.pagesProjects
@@ -92,7 +91,6 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
             self.hasFetchedData = true
         }
         
-        // 2. 确保已解析出当前账户并获取最新资源
         await executeLoadingTask(clearError: true) {
             if self.selectedAccount == nil || self.accounts.isEmpty || isRefresh {
                 if let fetchedAccounts = try? await self.zoneService.getAccounts(), !fetchedAccounts.isEmpty {
@@ -108,7 +106,6 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
                 return
             }
             
-            // 3. 并发静默拉取开发者各项资源最新数据
             async let fetchWorkers = (try? await self.workerService.getWorkers(accountId: accountId)) ?? []
             async let fetchPages = (try? await self.pagesService.getPagesProjects(accountId: accountId)) ?? []
             async let fetchR2 = (try? await self.r2Service.getR2Buckets(accountId: accountId)) ?? []
@@ -127,7 +124,6 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
             self.hasFetchedData = true
             self.lastFetchTime = Date()
             
-            // 4. 持久化最新快照
             let snapshot = DeveloperHubSnapshot(
                 workers: w,
                 pagesProjects: p,
@@ -138,7 +134,6 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
             )
             await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
             
-            // 5. 自动同步首个 Worker 和 Pages 到桌面小组件
             if let firstWorker = w.first {
                 WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: accountId)
             }

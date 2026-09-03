@@ -1,23 +1,27 @@
 import SwiftUI
 
-// MARK: - ListRowIcon
+// MARK: - Apple HIG Standard List Row Icon & Account Avatar
+// Strict 30×30 pt continuous curvature container and deterministic gradient avatar
 
-/// Apple HIG 规范列表行首图标容器组件
-/// 提供统一的 30×30 pt 连续曲率圆角容器与语义颜色渲染，解决行首图标参差不齐、文字不对齐的问题
-struct ListRowIcon: View {
-    let icon: String
-    let color: Color
-    var size: CGFloat = 30
-    var cornerRadius: CGFloat = 7
+public struct ListRowIcon: View {
+    public let icon: String
+    public let color: Color
+    public var size: CGFloat = HIGTokens.Size.listRowIcon
+    public var cornerRadius: CGFloat = HIGTokens.Radius.listIcon
     
-    init(icon: String, color: Color, size: CGFloat = 30, cornerRadius: CGFloat = 7) {
+    public init(
+        icon: String,
+        color: Color,
+        size: CGFloat = HIGTokens.Size.listRowIcon,
+        cornerRadius: CGFloat = HIGTokens.Radius.listIcon
+    ) {
         self.icon = icon
         self.color = color
         self.size = size
         self.cornerRadius = cornerRadius
     }
     
-    var body: some View {
+    public var body: some View {
         Image(systemName: icon)
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(color)
@@ -30,8 +34,6 @@ struct ListRowIcon: View {
 
 // MARK: - AccountAvatarView
 
-/// Apple HIG 规范全局统一的动态账号头像组件
-/// 根据用户邮箱或标识符自动生成确定性的彩虹微渐变圆形头像，附带精致的高级光晕投影
 public struct AccountAvatarView: View {
     public let identifier: String
     public let size: CGFloat
@@ -41,7 +43,11 @@ public struct AccountAvatarView: View {
         .orange, .blue, .purple, .teal, .indigo, .pink, .green
     ]
     
-    public init(identifier: String, size: CGFloat = 34, showShadow: Bool = true) {
+    public init(
+        identifier: String,
+        size: CGFloat = HIGTokens.Size.avatarSmall,
+        showShadow: Bool = true
+    ) {
         self.identifier = identifier
         self.size = size
         self.showShadow = showShadow
@@ -61,7 +67,12 @@ public struct AccountAvatarView: View {
                     )
                 )
                 .frame(width: size, height: size)
-                .shadow(color: showShadow ? color.opacity(0.28) : .clear, radius: size > 40 ? 6 : 3, x: 0, y: 2)
+                .shadow(
+                    color: showShadow ? color.opacity(0.28) : .clear,
+                    radius: size > 40 ? 6 : 3,
+                    x: 0,
+                    y: 2
+                )
             
             Text(initial.isEmpty ? "?" : initial)
                 .font(fontSize.weight(.bold))
@@ -72,13 +83,13 @@ public struct AccountAvatarView: View {
     
     private var fontSize: Font {
         if size >= 50 {
-            return .title2
+            return HIGTypography.title2
         } else if size >= 40 {
-            return .headline
+            return HIGTypography.headline
         } else if size >= 30 {
-            return .subheadline
+            return HIGTypography.subheadline
         } else {
-            return .caption
+            return HIGTypography.caption
         }
     }
     

@@ -82,7 +82,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         
         let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
         
-        // 1. [SWR Stale Cache] 首次进入或非刷新时，优先从离线缓存毫秒级直出
         if !hasFetchedData && !isRefresh {
             if let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: [DNSRecord].self), !cached.isEmpty {
                 self.records = cached
@@ -107,7 +106,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             
             if isRefresh || self.currentPage == 1 {
                 self.records = newRecords
-                // 2. [SWR Update Cache] 成功拉取第一页最新数据后平滑存入缓存
                 await SWRCacheStore.shared.set(newRecords, forKey: scopedKey)
             } else {
                 self.records.append(contentsOf: newRecords)

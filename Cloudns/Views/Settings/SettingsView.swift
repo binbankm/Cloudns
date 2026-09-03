@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - SettingsView
+// Apple HIG Compliant Settings Hub
+
 struct SettingsView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.themePreference) private var themePreference = "system"
@@ -25,31 +28,31 @@ struct SettingsView: View {
                         HIGFeedback.impact(.light)
                         showingAccountSheet = true
                     } label: {
-                        HStack(spacing: 16) {
+                        HStack(spacing: HIGTokens.Spacing.md) {
                             AccountAvatarView(identifier: accountManager.activeEmail, size: 52)
                             
-                            VStack(alignment: .leading, spacing: 3) {
-                                HStack(spacing: 6) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                                HStack(spacing: HIGTokens.Spacing.xs) {
                                     HIGBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
                                 }
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
-                                    .font(.body.weight(.medium))
+                                    .font(HIGTypography.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                                 
                                 Text("Tap to switch or add accounts")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                                     .foregroundStyle(.secondary)
                             }
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
+                                .font(HIGTypography.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -58,35 +61,35 @@ struct SettingsView: View {
                 // MARK: - Cloudflare Operations & Status
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: .green, size: 28, cornerRadius: 6)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: HIGColors.success)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text("System Status")
-                                    .font(.body.weight(.medium))
+                                    .font(HIGTypography.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Live Cloudflare network & service health")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                     }
                     
                     NavigationLink(destination: AuditLogsView()) {
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue, size: 28, cornerRadius: 6)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text("Audit Logs")
-                                    .font(.body.weight(.medium))
+                                    .font(HIGTypography.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Account change history & actor records")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                     }
                 } header: {
                     Text("Cloudflare Services")
@@ -100,14 +103,14 @@ struct SettingsView: View {
                         HStack {
                             SettingsRowView(
                                 icon: "faceid",
-                                color: .green,
+                                color: HIGColors.success,
                                 title: "App Lock"
                             )
                             
                             Spacer()
                             
                             Text(isAppLockEnabled ? "On" : "Off")
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -145,7 +148,7 @@ struct SettingsView: View {
                             )
                             Spacer()
                             Text(themeManager.currentColor.displayName)
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -161,7 +164,7 @@ struct SettingsView: View {
                             )
                             Spacer()
                             Text(iconManager.currentIcon.displayName)
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -222,7 +225,7 @@ struct SettingsView: View {
                                     .scaleEffect(0.8)
                             } else {
                                 Text(cacheManager.formattedCacheSize)
-                                    .font(.subheadline)
+                                    .font(HIGTypography.subheadline)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -232,8 +235,16 @@ struct SettingsView: View {
                     Text("Preferences")
                 }
                 
-                // MARK: - Support & About Section
+                // MARK: - Support & Design System
                 Section {
+                    NavigationLink(destination: DesignSystemGalleryView()) {
+                        SettingsRowView(
+                            icon: "square.stack.3d.up.fill",
+                            color: Color.higAccent,
+                            title: "Design System Showcase"
+                        )
+                    }
+                    
                     NavigationLink(destination: FeedbackView()) {
                         SettingsRowView(
                             icon: "envelope.badge.fill",
@@ -324,18 +335,18 @@ struct SettingsView: View {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         
-        return VStack(spacing: 4) {
+        return VStack(spacing: HIGTokens.Spacing.xxs) {
             Text("Cloudns v\(appVersion) (\(buildNumber))")
-                .font(.caption)
+                .font(HIGTypography.caption)
                 .foregroundStyle(.secondary)
             
             Text("Designed for Cloudflare Edge & Zero Trust")
-                .font(.caption2)
+                .font(HIGTypography.caption2)
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
+        .padding(.top, HIGTokens.Spacing.md)
+        .padding(.bottom, HIGTokens.Spacing.sm)
     }
 }
 
@@ -353,11 +364,11 @@ struct SettingsRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: icon, color: color, size: 28, cornerRadius: 6)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: icon, color: color)
             
             Text(title)
-                .font(.body.weight(.medium))
+                .font(HIGTypography.body.weight(.medium))
                 .foregroundStyle(.primary)
         }
     }

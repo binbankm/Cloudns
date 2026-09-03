@@ -272,18 +272,18 @@ struct LoginView: View {
                         
                         // Error Message Banner
                         if let errorMessage = viewModel.errorMessage {
-                            HStack(spacing: 8) {
+                            HStack(spacing: HIGTokens.Spacing.sm) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(HIGColors.error)
                                 Text(LocalizedStringKey(errorMessage))
-                                    .font(.caption.weight(.medium))
-                                    .foregroundStyle(.red)
+                                    .font(HIGTypography.caption.weight(.medium))
+                                    .foregroundStyle(HIGColors.error)
                                     .multilineTextAlignment(.leading)
                             }
-                            .padding(10)
+                            .padding(HIGTokens.Spacing.sm)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.red.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .background(HIGColors.error.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
                             .onAppear {
                                 HIGFeedback.error()
                             }

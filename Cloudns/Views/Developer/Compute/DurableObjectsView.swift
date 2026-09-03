@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 
+// MARK: - DurableObjectsView
+// Apple HIG Compliant Cloudflare Durable Objects Namespace Browser
+
 struct DurableObjectsView: View {
     let accountId: String
     @StateObject private var viewModel: DurableObjectsViewModel
@@ -17,6 +20,25 @@ struct DurableObjectsView: View {
                     ForEach(viewModel.filteredNamespaces) { ns in
                         NavigationLink(destination: DurableObjectNamespaceDetailView(accountId: accountId, namespace: ns)) {
                             nsRow(ns)
+                        }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = ns.id
+                                ToastManager.shared.showCopied("Namespace ID Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Namespace ID", systemImage: "doc.on.doc")
+                            }
+                            
+                            if let s = ns.script {
+                                Button {
+                                    UIPasteboard.general.string = s
+                                    ToastManager.shared.showCopied("Script Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Script Name", systemImage: "curlybraces")
+                                }
+                            }
                         }
                     }
                 }
@@ -36,8 +58,8 @@ struct DurableObjectsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Durable Objects…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Durable Objects…"))
+            } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
                     HIGContentState(
                         .error(
@@ -69,17 +91,17 @@ struct DurableObjectsView: View {
     
     @ViewBuilder
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "cube.fill", color: .cyan, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "cube.fill", color: .cyan)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(ns.displayName)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let s = ns.script {
                     Text("Script: \(s)")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -90,6 +112,6 @@ struct DurableObjectsView: View {
                 HIGBadge(.custom(color: .cyan, text: cls), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }

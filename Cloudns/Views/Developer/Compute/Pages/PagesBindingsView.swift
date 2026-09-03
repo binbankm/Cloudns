@@ -1,6 +1,7 @@
 import SwiftUI
 
-// MARK: - Professional PagesBindingsView
+// MARK: - PagesBindingsView
+// Apple HIG Compliant Cloudflare Pages Resource Bindings (KV, D1, R2, AI) & Environment Configuration
 
 struct PagesBindingsView: View {
     let accountId: String
@@ -97,8 +98,8 @@ struct PagesBindingsView: View {
                 Text("Preview (\(previewResourcesCount))").tag("preview")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, HIGTokens.Spacing.md)
+            .padding(.vertical, HIGTokens.Spacing.sm)
             .background(Color(.systemGroupedBackground))
             .onChange(of: selectedEnv) { _ in
                 HIGFeedback.selection()
@@ -117,6 +118,7 @@ struct PagesBindingsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Attach Resource")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
@@ -156,7 +158,7 @@ struct PagesBindingsView: View {
                     previewAI = ai
                 }
             }
-             .higToast()
+            .higToast()
         }
         .sheet(item: Binding(
             get: { variableToEdit.map { EditVarWrapper(name: $0.name, value: $0.value) } },
@@ -177,6 +179,7 @@ struct PagesBindingsView: View {
                     previewEnvVars = updated
                 }
             }
+            .higToast()
         }
         .confirmationDialog("Delete Variable", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: varNameToDelete) { varName in
             Button("Delete '\(varName)'", role: .destructive) {
@@ -203,16 +206,16 @@ struct PagesBindingsView: View {
             if !currentKV.isEmpty {
                 Section(header: Text("KV Namespaces (\(currentKV.count))")) {
                     ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "key.fill", color: .purple, size: 32, cornerRadius: 8)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "key.fill", color: .purple)
                             
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
+                                    .font(HIGTypography.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let ns = currentKV[key]?.namespaceId {
                                     Text(ns)
-                                        .font(.caption2.monospaced())
+                                        .font(HIGTypography.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
@@ -221,13 +224,13 @@ struct PagesBindingsView: View {
                             Spacer()
                             HIGBadge(.custom(color: .purple, text: "KV"), isCompact: true)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
+                                ToastManager.shared.showCopied("Binding Name Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -237,7 +240,6 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind KV Namespace", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -246,26 +248,26 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
             }
             
-            // MARK: - 4. D1 Databases
+            // MARK: - 2. D1 Databases
             if !currentD1.isEmpty {
                 Section(header: Text("D1 Databases (\(currentD1.count))")) {
                     ForEach(Array(currentD1.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal, size: 32, cornerRadius: 8)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal)
                             
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
+                                    .font(HIGTypography.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let id = currentD1[key]?.id {
                                     Text(id)
-                                        .font(.caption2.monospaced())
+                                        .font(HIGTypography.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
@@ -274,13 +276,13 @@ struct PagesBindingsView: View {
                             Spacer()
                             HIGBadge(.custom(color: .indigo, text: "D1"), isCompact: true)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
+                                ToastManager.shared.showCopied("Binding Name Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -290,7 +292,6 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind D1 Database", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -299,26 +300,26 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
             }
             
-            // MARK: - 5. R2 Buckets
+            // MARK: - 3. R2 Buckets
             if !currentR2.isEmpty {
                 Section(header: Text("R2 Buckets (\(currentR2.count))")) {
                     ForEach(Array(currentR2.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "externaldrive.fill", color: .blue, size: 32, cornerRadius: 8)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "externaldrive.fill", color: .blue)
                             
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text(key)
-                                    .font(.body.monospaced().weight(.semibold))
+                                    .font(HIGTypography.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let bucket = currentR2[key]?.name {
                                     Text(bucket)
-                                        .font(.caption2.monospaced())
+                                        .font(HIGTypography.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
@@ -327,13 +328,13 @@ struct PagesBindingsView: View {
                             Spacer()
                             HIGBadge(.custom(color: .blue, text: "R2"), isCompact: true)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
+                                ToastManager.shared.showCopied("Binding Name Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -343,7 +344,6 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind R2 Bucket", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -352,32 +352,32 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
             }
             
-            // MARK: - 6. AI Models
+            // MARK: - 4. AI Models
             if !currentAI.isEmpty {
                 Section(header: Text("Workers AI (\(currentAI.count))")) {
                     ForEach(Array(currentAI.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: 12) {
-                            ListRowIcon(icon: "brain.head.profile", color: .pink, size: 32, cornerRadius: 8)
+                        HStack(spacing: HIGTokens.Spacing.md) {
+                            ListRowIcon(icon: "brain.head.profile", color: .pink)
                             
                             Text(key)
-                                .font(.body.monospaced().weight(.semibold))
+                                .font(HIGTypography.body.monospaced().weight(.semibold))
                                 .foregroundStyle(.primary)
                             Spacer()
                             HIGBadge(.custom(color: .pink, text: "AI"), isCompact: true)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied()
-                                HIGFeedback.impact(.light)
+                                ToastManager.shared.showCopied("Binding Name Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -387,7 +387,6 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind AI Binding", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -396,29 +395,30 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
             }
             
-            // MARK: - 7. Compatibility Settings
+            // MARK: - 5. Compatibility Settings
             Section(header: Text("Compatibility Settings")) {
                 HStack {
                     Text("Compatibility Date")
+                        .font(HIGTypography.body)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(currentConfig?.compatibilityDate ?? "Default")
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                 }
                 
                 if let flags = currentConfig?.compatibilityFlags, !flags.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Compatibility Flags")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         Text(flags.joined(separator: ", "))
-                            .font(.caption.monospaced())
+                            .font(HIGTypography.caption.monospaced())
                             .foregroundStyle(.primary)
                     }
                 }
@@ -460,9 +460,10 @@ struct PagesBindingsView: View {
                 environment: selectedEnv,
                 envVars: updated
             )
-            HIGFeedback.success()
+            ToastManager.shared.showSuccess("Variable Deleted", icon: "trash.fill")
             HIGFeedback.success()
         } catch {
+            ToastManager.shared.showError("Failed to Delete Variable")
             HIGFeedback.error()
         }
         isDeleting = false
@@ -507,8 +508,10 @@ struct PagesBindingsView: View {
                 r2Buckets: updatedR2,
                 aiBindings: updatedAI
             )
+            ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
             HIGFeedback.success()
         } catch {
+            ToastManager.shared.showError("Failed to Unbind Resource")
             HIGFeedback.error()
         }
         isDeleting = false
@@ -521,117 +524,6 @@ private struct EditVarWrapper: Identifiable {
     var id: String { name }
     let name: String
     let value: PagesEnvVarValue
-}
-
-// MARK: - PagesAddVariableSheetView (Inlined & Cohesive)
-
-struct PagesAddVariableSheetView: View {
-    let accountId: String
-    let projectName: String
-    let environment: String
-    let existingEnvVars: [String: PagesEnvVarValue]
-    var initialName: String = ""
-    var initialValue: String = ""
-    var initialIsSecret: Bool = false
-    let onSave: ([String: PagesEnvVarValue]) -> Void
-    
-    @Environment(\.dismiss) private var dismiss
-    @State private var name: String
-    @State private var value: String
-    @State private var isSecret: Bool
-    @State private var isSaving = false
-    @State private var errorMessage: String?
-    
-    init(
-        accountId: String,
-        projectName: String,
-        environment: String,
-        existingEnvVars: [String: PagesEnvVarValue],
-        initialName: String = "",
-        initialValue: String = "",
-        initialIsSecret: Bool = false,
-        onSave: @escaping ([String: PagesEnvVarValue]) -> Void
-    ) {
-        self.accountId = accountId
-        self.projectName = projectName
-        self.environment = environment
-        self.existingEnvVars = existingEnvVars
-        self.initialName = initialName
-        self.initialValue = initialValue
-        self.initialIsSecret = initialIsSecret
-        self.onSave = onSave
-        _name = State(initialValue: initialName)
-        _value = State(initialValue: initialValue)
-        _isSecret = State(initialValue: initialIsSecret)
-    }
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Variable Details")) {
-                    TextField("Variable Name (e.g. API_KEY)", text: $name)
-                        .keyboardType(.asciiCapable)
-                        .textInputAutocapitalization(.characters)
-                        .autocorrectionDisabled()
-                        .disabled(!initialName.isEmpty)
-                    
-                    TextField("Value", text: $value)
-                        .autocorrectionDisabled()
-                    
-                    Toggle("Encrypt Value (Secret)", isOn: $isSecret)
-                }
-                
-                if let err = errorMessage {
-                    Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(initialName.isEmpty ? "Add Variable" : "Edit Variable")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDragIndicator(.visible)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            isSaving = true
-                            errorMessage = nil
-                            var updated = existingEnvVars
-                            let varKey = name.trimmingCharacters(in: .whitespaces)
-                            let varVal = PagesEnvVarValue(
-                                value: value,
-                                type: isSecret ? "secret_text" : "plain_text"
-                            )
-                            updated[varKey] = varVal
-                            do {
-                                try await PagesService.shared.updatePagesEnvVars(
-                                    accountId: accountId,
-                                    projectName: projectName,
-                                    environment: environment,
-                                    envVars: updated
-                                )
-                                onSave(updated)
-                                HIGFeedback.success()
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                HIGFeedback.error()
-                            }
-                            isSaving = false
-                        }
-                    }
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                }
-            }
-            .interactiveDismissDisabled(isSaving)
-        }
-    }
 }
 
 // MARK: - PagesAttachResourceBindingSheetView (Inlined & Cohesive)
@@ -685,11 +577,11 @@ struct PagesAttachResourceBindingSheetView: View {
                 
                 Section(header: Text("Resource Selection")) {
                     if bindingType == "ai" {
-                        HStack(spacing: 10) {
+                        HStack(spacing: HIGTokens.Spacing.sm + 2) {
                             Image(systemName: "brain.head.profile")
                                 .foregroundStyle(.pink)
                             Text("Workers AI runtime binding requires no external ID.")
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     } else if !isCustomInput && hasExistingResources(for: bindingType) {
@@ -706,6 +598,7 @@ struct PagesAttachResourceBindingSheetView: View {
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .font(HIGTypography.body.monospaced())
                         
                         if hasExistingResources(for: bindingType) {
                             Button {
@@ -713,7 +606,7 @@ struct PagesAttachResourceBindingSheetView: View {
                                 autoSelectFirstResource(for: bindingType)
                             } label: {
                                 Text("Choose from existing account resources")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                             }
                         }
                     }
@@ -724,13 +617,18 @@ struct PagesAttachResourceBindingSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
+                        .font(HIGTypography.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        HStack(spacing: HIGTokens.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(HIGColors.error)
+                            Text(verbatim: err)
+                                .font(HIGTypography.caption)
+                                .foregroundStyle(HIGColors.error)
+                        }
                     }
                 }
             }
@@ -741,6 +639,7 @@ struct PagesAttachResourceBindingSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Attach") {
@@ -784,6 +683,7 @@ struct PagesAttachResourceBindingSheetView: View {
                         }
                     }
                     .disabled(variableName.trimmingCharacters(in: .whitespaces).isEmpty || (bindingType != "ai" && resourceTarget.trimmingCharacters(in: .whitespaces).isEmpty) || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

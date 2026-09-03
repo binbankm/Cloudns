@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - EdgeCertificatesView
+// Apple HIG Compliant Cloudflare Edge Certificates & Universal SSL
 
 struct EdgeCertificatesView: View {
     let zoneId: String
@@ -29,7 +30,10 @@ struct EdgeCertificatesView: View {
                     get: { viewModel.isUniversalSSLEnabled },
                     set: { newValue in
                         HIGFeedback.selection()
-                        Task { await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue) }
+                        Task {
+                            await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue)
+                            ToastManager.shared.showSuccess(newValue ? "Universal SSL Enabled" : "Universal SSL Disabled", icon: "lock.shield.fill")
+                        }
                     }
                 ))
             }
@@ -38,15 +42,45 @@ struct EdgeCertificatesView: View {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = cert.hosts.joined(separator: ", ")
+                                    ToastManager.shared.showCopied("Certificate Hosts Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Hosts", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    UIPasteboard.general.string = cert.id
+                                    ToastManager.shared.showCopied("Certificate ID Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Certificate ID", systemImage: "link")
+                                }
+                                
+                                if cert.type.lowercased() != "universal" {
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        certToDelete = cert
+                                        showingDeleteConfirm = true
+                                        HIGFeedback.impact(.medium)
+                                    } label: {
+                                        Label("Delete Certificate", systemImage: "trash")
+                                    }
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 if cert.type.lowercased() != "universal" {
                                     Button(role: .destructive) {
                                         certToDelete = cert
                                         showingDeleteConfirm = true
+                                        HIGFeedback.impact(.medium)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(HIGColors.error)
                                 }
                             }
                     }
@@ -97,6 +131,7 @@ struct EdgeCertificatesView: View {
                     Task {
                         await viewModel.deleteCertificate(zoneId: zoneId, cert: cert)
                         ToastManager.shared.showSuccess("Certificate Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         certToDelete = nil
                     }
                 }
@@ -141,63 +176,55 @@ struct EdgeCertificateCardView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
             HStack {
-                ZStack {
-                    iconColor.opacity(0.12)
-                    Image(systemName: iconName)
-                        .foregroundStyle(iconColor)
-                        .font(.subheadline.weight(.semibold))
-                        .accessibilityHidden(true)
-                }
-                .frame(width: 28, height: 28)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                ListRowIcon(icon: iconName, color: iconColor)
                 
                 Text(certificate.type.capitalized)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                 
                 Spacer()
                 
                 HIGBadge(certificate.status.lowercased() == "active" ? .active : .custom(color: .secondary, text: certificate.status.capitalized), isCompact: true)
             }
             
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                 HStack(alignment: .top) {
                     Text("Hosts")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         ForEach(certificate.hosts, id: \.self) { host in
                             Text(host)
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline.weight(.medium))
                         }
                     }
                 }
                 
                 HStack {
                     Text("Issuer")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     Text(certificate.issuer)
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                 }
                 
                 HStack {
                     Text("Signature")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     Text(certificate.signature)
-                        .font(.subheadline.monospacedDigit())
+                        .font(HIGTypography.subheadline.monospacedDigit())
                 }
                     
                 HStack {
                     Text(certificate.id)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .font(HIGTypography.caption2.monospaced())
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                     
@@ -207,24 +234,24 @@ struct EdgeCertificateCardView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     @ViewBuilder
     private func expiryDateView(for dateStr: String) -> some View {
         if let date = DateFormatters.parseISO8601(dateStr) {
             if date < Date() {
-                Text("Expired: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("Expired: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                    .font(HIGTypography.caption)
+                    .foregroundStyle(HIGColors.error)
             } else {
-                Text("Expires: \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                    .font(.caption)
+                Text("Expires: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
             }
         } else if !dateStr.isEmpty {
             Text("Expires: \(dateStr)")
-                .font(.caption)
+                .font(HIGTypography.caption)
                 .foregroundStyle(.secondary)
         }
     }

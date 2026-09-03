@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - R2BucketsView
+// Apple HIG Compliant R2 Object Storage Explorer
 
 struct R2BucketsView: View {
     let accountId: String
@@ -24,6 +25,25 @@ struct R2BucketsView: View {
                         } label: {
                             R2BucketRowView(bucket: bucket)
                         }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = bucket.name
+                                ToastManager.shared.showCopied("Bucket Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Bucket Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                bucketToDelete = bucket
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Bucket", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
@@ -32,7 +52,7 @@ struct R2BucketsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -52,19 +72,25 @@ struct R2BucketsView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Create R2 Bucket")
+                .higTouchTarget()
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
             R2CreateBucketSheetView(viewModel: viewModel)
-             .higToast()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .higToast()
         }
         .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in
             Button("Delete '\(bucket.name)'", role: .destructive) {
                 Task {
                     do {
                         try await viewModel.deleteBucket(bucketName: bucket.name)
+                        ToastManager.shared.showSuccess("Bucket Deleted", icon: "trash.fill")
                         HIGFeedback.success()
                     } catch {
+                        ToastManager.shared.showError("Failed to Delete Bucket")
                         HIGFeedback.error()
                     }
                 }
@@ -75,8 +101,8 @@ struct R2BucketsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading R2 Buckets…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading R2 Buckets…"))
+            } else if viewModel.hasFetchedData {
                 if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
                     HIGContentState(
                         .error(
@@ -113,17 +139,17 @@ struct R2BucketRowView: View {
     let bucket: R2Bucket
     
     var body: some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "archivebox.fill", color: .blue, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "archivebox.fill", color: .blue)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(bucket.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
-                    Text("Created \(date, format: Date.FormatStyle(date: .abbreviated, time: .omitted))")
-                        .font(.caption2)
+                    Text("Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -134,7 +160,7 @@ struct R2BucketRowView: View {
                 HIGBadge(.custom(color: .secondary, text: loc.uppercased()), isCompact: true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -179,8 +205,8 @@ struct R2CreateBucketSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -202,6 +228,7 @@ struct R2CreateBucketSheetView: View {
                                     name: bucketName.trimmingCharacters(in: .whitespaces),
                                     locationHint: locationHint == "auto" ? nil : locationHint
                                 )
+                                ToastManager.shared.showSuccess("Bucket Created", icon: "archivebox.fill")
                                 HIGFeedback.success()
                                 dismiss()
                             } catch {
@@ -211,6 +238,7 @@ struct R2CreateBucketSheetView: View {
                             isCreating = false
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(bucketName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare Analytics 分析领域服务抽象协议
+/// Protocol defining Cloudflare Analytics domain service
 protocol AnalyticsServiceProtocol: Sendable {
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData
@@ -10,7 +10,7 @@ protocol AnalyticsServiceProtocol: Sendable {
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem]
 }
 
-/// 统一的 Cloudflare Zone Analytics 分析领域服务
+/// Concrete domain service for Cloudflare Zone Analytics
 final class AnalyticsService: AnalyticsServiceProtocol {
     static let shared = AnalyticsService()
     
@@ -19,7 +19,6 @@ final class AnalyticsService: AnalyticsServiceProtocol {
     
     private init() {}
     
-    /// 获取全账号所有活跃域名的 24 小时逐小时聚合趋势数据
     func getFleetAnalytics(zoneTags: [String]) async throws -> [FleetHourlyMetric] {
         guard !zoneTags.isEmpty else { return [] }
         let targetTags = Array(zoneTags.prefix(20))
@@ -118,7 +117,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
-    /// 批量获取多个 Zone 的 24 小时流量走势微图点位（采用 GraphQL 别名聚合单次请求）
+    /// Batch-fetches 24-hour traffic sparkline data for multiple zones using GraphQL aliases
     func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {
         guard !zoneTags.isEmpty else { return [:] }
         let targetTags = Array(zoneTags.prefix(30))
@@ -181,7 +180,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         return result
     }
     
-    /// 获取 Zone 基础 Analytics 数据（过去 24 小时或指定时间跨度）
+    /// Fetches primary zone analytics data for the specified time range
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
         let query: String
         
@@ -272,7 +271,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         try await getDashboardAnalytics(zoneTag: zoneTag, days: days)
     }
     
-    /// 获取 Worker 专属调用量与性能指标数据 (GraphQL workersInvocationsAdaptive)
+    /// Fetches Worker invocation volume and performance metrics (GraphQL workersInvocationsAdaptive)
     func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
         let pastDate: Date
         if days == 1 {
@@ -363,7 +362,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
-    /// 获取 Pages Functions 专属调用量与性能指标数据 (GraphQL pagesFunctions / workersInvocations)
+    /// Fetches Pages Functions invocation volume and performance metrics
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
         // First try standard workersInvocationsAdaptive with scriptName
         let items = try? await getWorkerAnalytics(accountId: accountId, scriptName: projectName, days: days)

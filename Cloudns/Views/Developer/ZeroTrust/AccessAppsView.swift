@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - AccessAppsView
+// Apple HIG Compliant Cloudflare Zero Trust Access Protected Applications
 
 struct AccessAppsView: View {
     let accountId: String
@@ -27,17 +28,21 @@ struct AccessAppsView: View {
                         .contextMenu {
                             Button {
                                 UIPasteboard.general.string = app.domain
-                                ToastManager.shared.showCopied()
+                                ToastManager.shared.showCopied("Domain Copied")
+                                HIGFeedback.copied()
                             } label: {
                                 Label("Copy Domain", systemImage: "doc.on.doc")
                             }
                             
                             Button {
                                 UIPasteboard.general.string = app.name
-                                ToastManager.shared.showCopied()
+                                ToastManager.shared.showCopied("App Name Copied")
+                                HIGFeedback.copied()
                             } label: {
-                                Label("Copy App Name", systemImage: "doc.on.doc")
+                                Label("Copy App Name", systemImage: "tag")
                             }
+                            
+                            Divider()
                             
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
@@ -46,7 +51,6 @@ struct AccessAppsView: View {
                             } label: {
                                 Label("Delete Application", systemImage: "trash")
                             }
-                            .tint(.red)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -56,7 +60,7 @@ struct AccessAppsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -79,15 +83,20 @@ struct AccessAppsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Access Application")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddAccessAppSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
             Button("Delete '\(app.name)'", role: .destructive) {
-                Task { await viewModel.deleteApp(id: app.id) }
+                Task {
+                    await viewModel.deleteApp(id: app.id)
+                    ToastManager.shared.showSuccess("Application Deleted", icon: "trash.fill")
+                    HIGFeedback.success()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: { app in
@@ -98,8 +107,8 @@ struct AccessAppsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Access Applications…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Access Applications…"))
+            } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
                     HIGContentState(
                         .error(
@@ -131,16 +140,16 @@ struct AccessAppsView: View {
     
     @ViewBuilder
     private func appRow(_ app: AccessApp) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "lock.shield.fill", color: .blue, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "lock.shield.fill", color: .blue)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(app.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text(app.domain)
-                    .font(.caption2)
+                    .font(HIGTypography.caption2.monospaced())
                     .foregroundStyle(.secondary)
             }
             
@@ -150,7 +159,7 @@ struct AccessAppsView: View {
                 HIGBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -179,10 +188,12 @@ struct AddAccessAppSheetView: View {
             Form {
                 Section(header: Text("Application Info")) {
                     TextField("App Name (e.g. Jira Internal)", text: $name)
+                        .font(HIGTypography.body)
                         .textInputAutocapitalization(.words)
                         .submitLabel(.next)
                     
                     TextField("Domain (e.g. jira.example.com)", text: $domain)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -200,8 +211,8 @@ struct AddAccessAppSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -212,6 +223,7 @@ struct AddAccessAppSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -225,6 +237,7 @@ struct AddAccessAppSheetView: View {
                                     sessionDuration: sessionDuration
                                 )
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Access App Created", icon: "lock.shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -233,7 +246,9 @@ struct AddAccessAppSheetView: View {
                             isCreating = false
                         }
                     }
+                    .fontWeight(.semibold)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || domain.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

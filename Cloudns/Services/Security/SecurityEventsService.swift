@@ -1,11 +1,11 @@
 import Foundation
 
-/// Cloudflare 安全事件 GraphQL 遥测与拦截日志服务协议
+/// Protocol defining Cloudflare security events GraphQL telemetry service
 protocol SecurityEventsServiceProtocol: Sendable {
     func fetchSecurityEvents(zoneId: String, limit: Int) async throws -> [SecurityEvent]
 }
 
-/// 统一的 Cloudflare 安全事件领域服务
+/// Concrete domain service for Cloudflare security events
 final class SecurityEventsService: SecurityEventsServiceProtocol {
     static let shared = SecurityEventsService()
     

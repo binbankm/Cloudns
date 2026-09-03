@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - BulkRedirectListsView
+// Apple HIG Compliant Cloudflare Account-Level Bulk Redirect Lists
 
 struct BulkRedirectListsView: View {
     let accountId: String
@@ -23,6 +24,33 @@ struct BulkRedirectListsView: View {
                         NavigationLink(destination: RedirectListDetailView(accountId: accountId, list: item)) {
                             listRow(item)
                         }
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = item.name
+                                ToastManager.shared.showCopied("List Name Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy List Name", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                UIPasteboard.general.string = item.id
+                                ToastManager.shared.showCopied("List ID Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy List ID", systemImage: "link")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                listToDelete = item
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete List", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
@@ -31,7 +59,7 @@ struct BulkRedirectListsView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -54,15 +82,20 @@ struct BulkRedirectListsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create List")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateBulkRedirectListSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete List", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: listToDelete) { item in
             Button("Delete '\(item.name)'", role: .destructive) {
-                Task { await viewModel.deleteList(id: item.id) }
+                Task {
+                    await viewModel.deleteList(id: item.id)
+                    ToastManager.shared.showSuccess("Redirect List Deleted", icon: "trash.fill")
+                    HIGFeedback.success()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: { item in
@@ -73,8 +106,8 @@ struct BulkRedirectListsView: View {
         }
         .overlay {
             if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Redirect Lists…"))
-        } else if viewModel.hasFetchedData {
+                HIGContentState(.loading(message: "Loading Redirect Lists…"))
+            } else if viewModel.hasFetchedData {
                 if let err = viewModel.errorMessage, viewModel.lists.isEmpty {
                     HIGContentState(
                         .error(
@@ -106,17 +139,17 @@ struct BulkRedirectListsView: View {
     
     @ViewBuilder
     private func listRow(_ item: RedirectList) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .teal, size: 32, cornerRadius: 8)
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .teal)
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(verbatim: item.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let desc = item.description, !desc.isEmpty {
                     Text(desc)
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -126,11 +159,11 @@ struct BulkRedirectListsView: View {
             
             if let count = item.count {
                 Text("\(count) items")
-                    .font(.caption.monospacedDigit())
+                    .font(HIGTypography.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -149,12 +182,14 @@ struct CreateBulkRedirectListSheetView: View {
             Form {
                 Section(header: Text("List Information")) {
                     TextField("List Name (e.g. legacy_domains)", text: $name)
+                        .font(HIGTypography.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     
                     TextField("Description (Optional)", text: $description)
+                        .font(HIGTypography.body)
                         .submitLabel(.done)
                 }
             }
@@ -165,6 +200,7 @@ struct CreateBulkRedirectListSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -176,6 +212,7 @@ struct CreateBulkRedirectListSheetView: View {
                             )
                             if success {
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Redirect List Created", icon: "list.bullet.rectangle.portrait.fill")
                                 dismiss()
                             } else {
                                 HIGFeedback.error()
@@ -184,6 +221,7 @@ struct CreateBulkRedirectListSheetView: View {
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

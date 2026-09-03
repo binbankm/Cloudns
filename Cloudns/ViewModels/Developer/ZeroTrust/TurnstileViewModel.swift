@@ -27,6 +27,7 @@ final class TurnstileViewModel: BaseLoadableViewModel {
         }
     }
     
+    @discardableResult
     func createWidget(name: String, domains: [String], mode: String) async throws -> TurnstileWidget {
         let input = TurnstileCreateInput(name: name, domains: domains, mode: mode)
         let created = try await turnstileService.createTurnstileWidget(accountId: accountId, input: input)

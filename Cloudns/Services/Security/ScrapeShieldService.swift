@@ -1,12 +1,12 @@
 import Foundation
 
-/// Cloudflare Scrape Shield 防爬虫与隐私保护领域服务协议
+/// Protocol defining Cloudflare Scrape Shield privacy protection service
 protocol ScrapeShieldServiceProtocol: Sendable {
     func getScrapeShieldSettings(zoneId: String) async throws -> (emailObfuscation: String, serverSideExcludes: String, hotlinkProtection: String)
     func updateScrapeShieldSetting(zoneId: String, settingId: String, value: String) async throws
 }
 
-/// 统一的 Cloudflare Scrape Shield 领域服务
+/// Concrete domain service for Cloudflare Scrape Shield
 final class ScrapeShieldService: ScrapeShieldServiceProtocol {
     static let shared = ScrapeShieldService()
     

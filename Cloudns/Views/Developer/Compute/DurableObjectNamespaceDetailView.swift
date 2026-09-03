@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - DurableObjectNamespaceDetailView
+// Apple HIG Compliant Cloudflare Durable Objects Namespace Detail & Instance Inspector
 
 struct DurableObjectNamespaceDetailView: View {
     let accountId: String
@@ -16,24 +17,34 @@ struct DurableObjectNamespaceDetailView: View {
             Section(header: Text("Namespace Details")) {
                 LabeledContent("Namespace ID") {
                     Text(namespace.id)
-                        .font(.caption2.monospaced())
+                        .font(HIGTypography.caption2.monospaced())
                         .foregroundStyle(.secondary)
+                }
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = namespace.id
+                        ToastManager.shared.showCopied("Namespace ID Copied")
+                        HIGFeedback.copied()
+                    } label: {
+                        Label("Copy Namespace ID", systemImage: "doc.on.doc")
+                    }
                 }
                 
                 if let scr = namespace.script {
                     LabeledContent("Bound Worker Script") {
                         Text(scr)
-                            .font(.subheadline.monospaced())
+                            .font(HIGTypography.subheadline.monospaced())
                     }
                 }
                 
                 if let cls = namespace.class {
                     HStack {
                         Text("Exported Class")
+                            .font(HIGTypography.body)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text(cls)
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                     }
                 }
             }
@@ -43,20 +54,34 @@ struct DurableObjectNamespaceDetailView: View {
                     HStack {
                         Spacer()
                         ProgressView("Loading instances…")
+                            .font(HIGTypography.caption)
                         Spacer()
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if let err = errorMessage, objects.isEmpty {
-                    Text(verbatim: err)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                    HStack(spacing: HIGTokens.Spacing.sm) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(HIGColors.error)
+                        Text(verbatim: err)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
+                    }
                 } else if objects.isEmpty {
                     Text("No active instances discovered in this namespace.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(objects) { obj in
                         instanceRow(obj)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = obj.id
+                                    ToastManager.shared.showCopied("Instance ID Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Instance ID", systemImage: "doc.on.doc")
+                                }
+                            }
                     }
                 }
             }
@@ -74,14 +99,14 @@ struct DurableObjectNamespaceDetailView: View {
     
     @ViewBuilder
     private func instanceRow(_ obj: DurableObjectInstance) -> some View {
-        HStack {
+        HStack(spacing: HIGTokens.Spacing.sm) {
             Image(systemName: "circle.circle.fill")
-                .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
-                .font(.caption)
+                .foregroundStyle(obj.hasStoredData == true ? HIGColors.success : .secondary)
+                .font(HIGTypography.caption)
                 .accessibilityHidden(true)
             
             Text(obj.id)
-                .font(.caption.monospaced())
+                .font(HIGTypography.caption.monospaced())
                 .foregroundStyle(.primary)
             
             Spacer()
@@ -90,7 +115,7 @@ struct DurableObjectNamespaceDetailView: View {
                 HIGBadge(.active("Persistent Data"), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     private func fetchObjects() async {

@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - CIDRCalculatorView
+// Apple HIG Compliant IP Subnet & CIDR Calculator
+
 struct CIDRCalculatorView: View {
     @StateObject private var viewModel = CIDRCalculatorViewModel()
     @FocusState private var isFieldFocused: Bool
@@ -18,10 +21,10 @@ struct CIDRCalculatorView: View {
         List {
             // 1. Input & Presets Section
             Section(header: Text("CIDR Notation / IP Subnet"), footer: Text("Calculates usable IP host addresses, network broadcast bounds, netmasks & binary bitmasks.")) {
-                HStack(spacing: 10) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "number.square.fill")
-                        .font(.body)
-                        .foregroundStyle(.blue)
+                        .font(HIGTypography.body)
+                        .foregroundStyle(Color.higAccent)
                         .accessibilityHidden(true)
                     
                     TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
@@ -29,7 +32,7 @@ struct CIDRCalculatorView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(.body.monospacedDigit())
+                        .font(HIGTypography.body.monospacedDigit())
                         .onChange(of: viewModel.cidrInput) { _ in
                             viewModel.calculateSubnet()
                         }
@@ -43,13 +46,14 @@ struct CIDRCalculatorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
                 
                 // Quick Presets
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         ForEach(presetCIDRs, id: \.self) { preset in
                             Button {
                                 viewModel.cidrInput = preset
@@ -57,11 +61,11 @@ struct CIDRCalculatorView: View {
                                 HIGFeedback.selection()
                             } label: {
                                 Text(preset)
-                                    .font(.caption.weight(.medium).monospacedDigit())
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.12))
-                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
+                                    .font(HIGTypography.caption.weight(.medium).monospacedDigit())
+                                    .padding(.horizontal, HIGTokens.Spacing.sm + 2)
+                                    .padding(.vertical, HIGTokens.Spacing.xxs + 3)
+                                    .background(viewModel.cidrInput == preset ? Color.higAccent : Color.higAccent.opacity(0.12))
+                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : Color.higAccent)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.higPressable)
@@ -76,7 +80,7 @@ struct CIDRCalculatorView: View {
                 Section(header: Text("Subnet & Host Range")) {
                     HStack {
                         Text("Usable Hosts Count")
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                         Spacer()
                         HIGBadge(.active("\(result.totalUsableHosts) Hosts"), isCompact: true)
@@ -99,32 +103,33 @@ struct CIDRCalculatorView: View {
                 Section(header: Text("Binary Bitmask")) {
                     HStack {
                         Text(result.binaryMask)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.blue)
+                            .font(HIGTypography.caption.monospaced())
+                            .foregroundStyle(Color.higAccent)
                             .textSelection(.enabled)
                         
                         Spacer()
                         
                         Button {
                             UIPasteboard.general.string = result.binaryMask
-                            ToastManager.shared.showCopied()
+                            ToastManager.shared.showCopied("Binary Mask Copied")
+                            HIGFeedback.copied()
                         } label: {
                             Image(systemName: "doc.on.doc")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.higPressable)
-                        .higTouchTarget()
+                        .higTouchTarget(44)
                     }
                 }
             } else if let error = viewModel.subnetError {
                 Section(header: Text("Error")) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                         Text(verbatim: error)
-                            .font(.subheadline)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.subheadline)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -142,23 +147,33 @@ struct CIDRCalculatorView: View {
     private func calcRow(label: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(verbatim: value)
-                .font(.subheadline.monospacedDigit())
+                .font(HIGTypography.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
             
             Button {
                 UIPasteboard.general.string = value
-                ToastManager.shared.showCopied()
+                ToastManager.shared.showCopied("\(value) Copied")
+                HIGFeedback.copied()
             } label: {
                 Image(systemName: "doc.on.doc")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.higPressable)
-            .higTouchTarget()
+            .higTouchTarget(44)
+        }
+        .contextMenu {
+            Button {
+                UIPasteboard.general.string = value
+                ToastManager.shared.showCopied("Value Copied")
+                HIGFeedback.copied()
+            } label: {
+                Label("Copy Value", systemImage: "doc.on.doc")
+            }
         }
     }
 }

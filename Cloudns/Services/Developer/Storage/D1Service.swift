@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare D1 SQL 数据库领域服务抽象协议
 protocol D1ServiceProtocol: Sendable {
     func getD1Databases(accountId: String) async throws -> [D1Database]
     func listD1Databases(accountId: String) async throws -> [D1Database]
@@ -9,7 +8,6 @@ protocol D1ServiceProtocol: Sendable {
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
 }
 
-/// 统一的 Cloudflare D1 SQL 数据库领域服务
 final class D1Service: D1ServiceProtocol {
     static let shared = D1Service()
     
@@ -51,7 +49,6 @@ final class D1Service: D1ServiceProtocol {
         let rawData = try await client.performDataRequest(request)
         let jsonStr = String(data: rawData, encoding: .utf8)
         
-        // 检查顶层是否包含 Cloudflare 错误结构
         if let rootObj = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any] {
             if let errors = rootObj["errors"] as? [[String: Any]], !errors.isEmpty {
                 let msgs = errors.compactMap { $0["message"] as? String }

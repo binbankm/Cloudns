@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - Apple HIG Standard Status Badges
+// Multi-channel accessibility (Color + Distinct SF Symbol Shape)
 
 public enum HIGBadgeType: Equatable {
     case proxied(String = "Proxied")
@@ -39,14 +40,14 @@ public struct HIGBadge: View {
     }
     
     public var body: some View {
-        HStack(spacing: isCompact ? 3 : 4) {
+        HStack(spacing: isCompact ? HIGTokens.Spacing.xxs + 1 : HIGTokens.Spacing.xs) {
             badgeIcon
             badgeContent
-                .font(isCompact ? .caption2.weight(.medium) : .caption.weight(.medium))
+                .font(isCompact ? HIGTypography.caption2.weight(.medium) : HIGTypography.caption.weight(.medium))
                 .foregroundStyle(badgeColor)
         }
-        .padding(.horizontal, isCompact ? 6 : 8)
-        .padding(.vertical, isCompact ? 2 : 3)
+        .padding(.horizontal, isCompact ? HIGTokens.Spacing.sm - 2 : HIGTokens.Spacing.sm)
+        .padding(.vertical, isCompact ? HIGTokens.Spacing.xxs : HIGTokens.Spacing.xs - 1)
         .background(badgeColor.opacity(0.12))
         .clipShape(Capsule())
     }
@@ -73,14 +74,14 @@ public struct HIGBadge: View {
         switch type {
         case .proxied: return .orange
         case .dnsOnly: return .secondary
-        case .active: return .green
-        case .free: return .green
+        case .active: return HIGColors.success
+        case .free: return HIGColors.success
         case .paid: return .purple
         case .pro: return .orange
         case .business: return .teal
         case .enterprise: return .indigo
-        case .warning: return .orange
-        case .error: return .red
+        case .warning: return HIGColors.warning
+        case .error: return HIGColors.error
         case .custom(let color, _, _), .raw(let color, _, _): return color
         }
     }
@@ -106,11 +107,11 @@ public struct HIGBadge: View {
                 .foregroundStyle(badgeColor)
         case .warning:
             Circle()
-                .fill(Color.orange)
+                .fill(HIGColors.warning)
                 .frame(width: isCompact ? 5 : 6, height: isCompact ? 5 : 6)
         case .error:
             Circle()
-                .fill(Color.red)
+                .fill(HIGColors.error)
                 .frame(width: isCompact ? 5 : 6, height: isCompact ? 5 : 6)
         case .custom(_, _, let icon), .raw(_, _, let icon):
             if let icon {

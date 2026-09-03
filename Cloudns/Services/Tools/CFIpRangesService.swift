@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare 官方 IP 范围领域服务协议
+/// Protocol defining Cloudflare official IP ranges service
 protocol CFIpRangesServiceProtocol: Sendable {
     func getCloudflareIPs() async throws -> ([String], [String])
 }

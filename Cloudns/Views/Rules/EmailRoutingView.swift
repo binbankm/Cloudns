@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - EmailRoutingView
+// Apple HIG Compliant Cloudflare Email Routing & Address Forwarding Hub
+
 struct EmailRoutingView: View {
     let zoneId: String
     let zoneName: String
@@ -25,7 +28,7 @@ struct EmailRoutingView: View {
     
     private var heroHeaderSection: some View {
         Section {
-            VStack(spacing: 12) {
+            VStack(spacing: HIGTokens.Spacing.md) {
                 ZStack {
                     Circle()
                         .fill(
@@ -38,23 +41,23 @@ struct EmailRoutingView: View {
                         .frame(width: 64, height: 64)
                     
                     Image(systemName: "envelope.badge.shield.half.filled")
-                        .font(.title.weight(.semibold))
+                        .font(HIGTypography.title2.weight(.semibold))
                         .foregroundStyle(.orange)
                 }
-                .padding(.top, 4)
+                .padding(.top, HIGTokens.Spacing.xs)
                 
                 Text("Email Routing")
-                    .font(.title2.weight(.bold))
+                    .font(HIGTypography.title2.weight(.bold))
                     .foregroundStyle(.primary)
                 
                 Text("Create custom email addresses and forward them to personal inboxes.")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, HIGTokens.Spacing.md)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.vertical, HIGTokens.Spacing.sm)
         }
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
@@ -75,13 +78,13 @@ struct EmailRoutingView: View {
                     }
                 }
             )) {
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "envelope.badge.fill", color: .orange, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "envelope.badge.fill", color: .orange)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Email Routing")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text(statusDescription)
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -105,13 +108,13 @@ struct EmailRoutingView: View {
                     }
                 }
             )) {
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "tray.fill", color: .purple, size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "tray.fill", color: .purple)
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("Catch-all Email")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text(viewModel.catchAllRule?.actionSummary ?? "Drop all unmatched emails")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -132,24 +135,48 @@ struct EmailRoutingView: View {
                 }
                 .accessibilityLabel("Add Email Rule")
                 .disabled(viewModel.verifiedDestinations.isEmpty || !viewModel.hasFetchedData)
+                .higTouchTarget(44)
             },
             footer: Text(viewModel.verifiedDestinations.isEmpty ? "To create forwarding rules, you must first add and verify at least one destination address below." : "Forward custom domain addresses to your verified email inboxes.")
         ) {
             if viewModel.rules.isEmpty {
                 Text("No custom routing rules configured.")
+                    .font(HIGTypography.body)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
             } else {
                 ForEach(viewModel.rules) { rule in
                     ruleRow(rule)
+                        .contextMenu {
+                            if let match = rule.matchAddress {
+                                Button {
+                                    UIPasteboard.general.string = match
+                                    ToastManager.shared.showCopied("Match Address Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Address", systemImage: "doc.on.doc")
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                ruleToDelete = rule
+                                showingDeleteAlert = true
+                                HIGFeedback.impact(.medium)
+                            } label: {
+                                Label("Delete Rule", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
+                                HIGFeedback.impact(.medium)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                 }
             }
@@ -168,27 +195,50 @@ struct EmailRoutingView: View {
                 }
                 .accessibilityLabel("Add Destination Address")
                 .disabled(!viewModel.hasFetchedData)
+                .higTouchTarget(44)
             },
             footer: Text("Destination addresses must be verified via confirmation email before rules can forward to them.")
         ) {
             if viewModel.destinations.isEmpty {
                 Text("No destination addresses added.")
-                    .font(.body)
+                    .font(HIGTypography.body)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
             } else {
                 ForEach(viewModel.destinations) { dest in
                     destinationRow(dest)
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = dest.email
+                                ToastManager.shared.showCopied("Destination Email Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Email", systemImage: "doc.on.doc")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                Task {
+                                    await viewModel.deleteDestination(addressId: dest.id)
+                                    ToastManager.shared.showSuccess("Destination Deleted", icon: "trash.fill")
+                                }
+                            } label: {
+                                Label("Delete Destination", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 HIGFeedback.impact(.medium)
                                 Task {
                                     await viewModel.deleteDestination(addressId: dest.id)
+                                    ToastManager.shared.showSuccess("Destination Deleted", icon: "trash.fill")
                                 }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                 }
             }
@@ -222,17 +272,18 @@ struct EmailRoutingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddRuleSheet) {
             AddEmailRuleView(viewModel: viewModel, zoneName: zoneName)
-             .higToast()
+                .higToast()
         }
         .sheet(isPresented: $showingAddDestinationSheet) {
             AddDestinationAddressSheetView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog("Delete Email Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name ?? "Rule")'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
                     ToastManager.shared.showSuccess("Email Rule Deleted", icon: "trash.fill")
+                    HIGFeedback.success()
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -251,31 +302,31 @@ struct EmailRoutingView: View {
     
     @ViewBuilder
     private func ruleRow(_ rule: EmailRoutingRule) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "arrow.triangle.branch", color: rule.isEnabled ? .blue : .gray, size: 28, cornerRadius: 6)
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "arrow.triangle.branch", color: rule.isEnabled ? .blue : .gray)
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 HStack {
                     if let match = rule.matchAddress {
                         Text(match)
-                            .font(.body)
+                            .font(HIGTypography.body.weight(.medium))
                             .foregroundStyle(.primary)
                     } else if rule.isCatchAll {
                         Text("Catch-all")
-                            .font(.body)
+                            .font(HIGTypography.body.weight(.medium))
                             .foregroundStyle(.primary)
                     } else {
                         Text(rule.name ?? "Rule")
-                            .font(.body)
+                            .font(HIGTypography.body.weight(.medium))
                             .foregroundStyle(.primary)
                     }
                 }
-                HStack {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Image(systemName: "arrow.turn.down.right")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                         .accessibilityHidden(true)
                     Text(rule.actionSummary)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -286,19 +337,19 @@ struct EmailRoutingView: View {
                 HIGBadge(.custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     @ViewBuilder
     private func destinationRow(_ dest: EmailDestinationAddress) -> some View {
-        HStack(spacing: 12) {
-            ListRowIcon(icon: "envelope.fill", color: dest.isVerified ? .blue : .orange, size: 28, cornerRadius: 6)
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: HIGTokens.Spacing.md) {
+            ListRowIcon(icon: "envelope.fill", color: dest.isVerified ? .blue : .orange)
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(verbatim: dest.email)
-                    .font(.body)
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Text(dest.isVerified ? "Verified" : "Pending Verification")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(dest.isVerified ? Color.secondary : Color.orange)
             }
             Spacer()
@@ -308,7 +359,7 @@ struct EmailRoutingView: View {
                 HIGBadge(.warning("Pending"), isCompact: true)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -335,6 +386,7 @@ struct AddDestinationAddressSheetView: View {
                     footer: Text("Cloudflare will send a verification email with an activation link to this address. You must verify it before forwarding emails to it.")
                 ) {
                     TextField("name@example.com", text: $email)
+                        .font(HIGTypography.body)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -354,6 +406,7 @@ struct AddDestinationAddressSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
@@ -367,6 +420,7 @@ struct AddDestinationAddressSheetView: View {
                         }
                     }
                     .disabled(!isValidEmail || isSubmitting)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -384,6 +438,7 @@ struct AddDestinationAddressSheetView: View {
             isSubmitting = false
             if success {
                 HIGFeedback.success()
+                ToastManager.shared.showSuccess("Verification Email Sent", icon: "paperplane.fill")
                 dismiss()
             } else {
                 HIGFeedback.error()

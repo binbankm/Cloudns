@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - TunnelDetailView
+// Apple HIG Compliant Cloudflare Zero Trust Tunnel Inspector & Ingress Rules
+
 struct TunnelDetailView: View {
     let accountId: String
     let tunnel: CFTunnel
@@ -30,11 +33,12 @@ struct TunnelDetailView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Hostname Rule")
+                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingAddIngressSheet) {
                 AddIngressRuleSheetView(viewModel: viewModel)
-                 .higToast()
+                    .higToast()
             }
             .confirmationDialog("Delete Tunnel", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
                 Button("Delete '\(tunnel.name)'", role: .destructive) {
@@ -42,6 +46,7 @@ struct TunnelDetailView: View {
                         let success = await viewModel.deleteTunnel()
                         if success {
                             ToastManager.shared.showSuccess("Tunnel Deleted", icon: "trash.fill")
+                            HIGFeedback.success()
                             dismiss()
                         }
                     }
@@ -56,6 +61,7 @@ struct TunnelDetailView: View {
                         Task {
                             await viewModel.deleteIngressRule(at: idx)
                             ToastManager.shared.showSuccess("Ingress Rule Deleted", icon: "trash.fill")
+                            HIGFeedback.success()
                             ingressIndexToDelete = nil
                         }
                     }
@@ -87,6 +93,7 @@ struct TunnelDetailView: View {
             // MARK: - Overview
             Section(header: Text("Tunnel Overview")) {
                 LabeledContent("Tunnel Name", value: tunnel.name)
+                    .font(HIGTypography.body)
                 
                 LabeledContent("Status") {
                     HIGBadge(tunnel.isHealthy ? .active((tunnel.status ?? "Active").capitalized) : .error((tunnel.status ?? "Inactive").capitalized), isCompact: true)
@@ -94,7 +101,7 @@ struct TunnelDetailView: View {
                 
                 LabeledContent("UUID") {
                     Text(tunnel.id)
-                        .font(.caption2.monospacedDigit())
+                        .font(HIGTypography.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
@@ -109,24 +116,24 @@ struct TunnelDetailView: View {
                         Button {
                             let cmd = "cloudflared tunnel run --token \(token)"
                             UIPasteboard.general.string = cmd
-                            ToastManager.shared.showCopied()
-                            HIGFeedback.impact(.light)
+                            ToastManager.shared.showCopied("Install Command Copied")
+                            HIGFeedback.copied()
                         } label: {
-                            HStack(spacing: 12) {
+                            HStack(spacing: HIGTokens.Spacing.md) {
                                 ListRowIcon(icon: "terminal.fill", color: .blue)
                                 Text(isTokenRevealed ? "cloudflared tunnel run --token \(token)" : "cloudflared tunnel run --token ••••••••")
-                                    .font(.caption.monospaced())
+                                    .font(HIGTypography.caption.monospaced())
                                     .foregroundStyle(.primary)
                                     .lineLimit(isTokenRevealed ? 3 : 1)
                                 Spacer()
                                 Image(systemName: "doc.on.doc")
-                                    .font(.caption)
-                                    .foregroundStyle(.blue)
+                                    .font(HIGTypography.caption)
+                                    .foregroundStyle(Color.higAccent)
                                     .accessibilityHidden(true)
                             }
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget()
+                        .higTouchTarget(44)
                         
                         Button {
                             HIGFeedback.impact(.light)
@@ -135,7 +142,7 @@ struct TunnelDetailView: View {
                             }
                         } label: {
                             Image(systemName: isTokenRevealed ? "eye.slash" : "eye")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 28, height: 28)
                         }
@@ -155,59 +162,93 @@ struct TunnelDetailView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .higTouchTarget(44)
                 },
                 footer: Text("Traffic arriving at these public hostnames will be routed to your local private services.")
             ) {
                 if viewModel.ingressRules.isEmpty {
                     Text("No public ingress hostnames configured.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(Array(viewModel.ingressRules.enumerated()), id: \.offset) { index, rule in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             if let host = rule.hostname, !host.isEmpty {
                                 HStack {
                                     Image(systemName: "globe")
-                                        .font(.caption)
-                                        .foregroundStyle(.blue)
+                                        .font(HIGTypography.caption)
+                                        .foregroundStyle(Color.higAccent)
                                         .accessibilityHidden(true)
                                     Text(host)
-                                        .font(.body.weight(.medium))
+                                        .font(HIGTypography.body.weight(.medium))
                                         .foregroundStyle(.primary)
                                     if let p = rule.path, !p.isEmpty {
                                         Text(p)
-                                            .font(.caption.monospaced())
+                                            .font(HIGTypography.caption.monospaced())
                                             .foregroundStyle(.secondary)
                                     }
                                 }
                             } else {
                                 Text("Catch-all Fallback")
-                                    .font(.subheadline.weight(.medium))
+                                    .font(HIGTypography.subheadline.weight(.medium))
                                     .foregroundStyle(.secondary)
                             }
                             
                             if let svc = rule.service {
-                                HStack {
+                                HStack(spacing: HIGTokens.Spacing.xs) {
                                     Image(systemName: "arrow.right.circle.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(.green)
+                                        .font(HIGTypography.caption2)
+                                        .foregroundStyle(HIGColors.success)
                                         .accessibilityHidden(true)
                                     Text(svc)
-                                        .font(.caption.monospacedDigit())
+                                        .font(HIGTypography.caption.monospaced())
                                         .foregroundStyle(.secondary)
                                 }
                             }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .contextMenu {
+                            if let host = rule.hostname {
+                                Button {
+                                    UIPasteboard.general.string = host
+                                    ToastManager.shared.showCopied("Hostname Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Hostname", systemImage: "doc.on.doc")
+                                }
+                            }
+                            if let svc = rule.service {
+                                Button {
+                                    UIPasteboard.general.string = svc
+                                    ToastManager.shared.showCopied("Origin Service Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Origin Service", systemImage: "server.rack")
+                                }
+                            }
+                            
+                            if rule.hostname != nil {
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    ingressIndexToDelete = index
+                                    showingDeleteIngressAlert = true
+                                    HIGFeedback.impact(.medium)
+                                } label: {
+                                    Label("Delete Ingress Rule", systemImage: "trash")
+                                }
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if rule.hostname != nil {
                                 Button(role: .destructive) {
                                     ingressIndexToDelete = index
                                     showingDeleteIngressAlert = true
+                                    HIGFeedback.impact(.medium)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                         }
                     }
@@ -218,21 +259,21 @@ struct TunnelDetailView: View {
             if let conns = tunnel.connections, !conns.isEmpty {
                 Section(header: Text("Active Connectors (\(conns.count))")) {
                     ForEach(conns) { conn in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             HStack {
                                 if let colo = conn.coloName {
                                     Text(colo.uppercased())
-                                        .font(.caption.monospacedDigit())
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .font(HIGTypography.caption.monospaced())
+                                        .padding(.horizontal, HIGTokens.Spacing.xs)
+                                        .padding(.vertical, HIGTokens.Spacing.xxs)
                                         .background(Color.blue.opacity(0.12))
                                         .foregroundStyle(.blue)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                                 }
                                 
                                 if let ip = conn.originIp {
                                     Text(ip)
-                                        .font(.caption.monospacedDigit())
+                                        .font(HIGTypography.caption.monospaced())
                                         .foregroundStyle(.primary)
                                 }
                                 
@@ -240,18 +281,18 @@ struct TunnelDetailView: View {
                                 
                                 if let arch = conn.arch {
                                     Text(arch)
-                                        .font(.caption2)
+                                        .font(HIGTypography.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                             }
                             
                             if let ver = conn.version {
                                 Text("cloudflared v\(ver)")
-                                    .font(.caption2)
+                                    .font(HIGTypography.caption2)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 3)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                     }
                 }
             }
@@ -265,11 +306,12 @@ struct TunnelDetailView: View {
                     HStack {
                         Spacer()
                         Text("Delete Tunnel")
-                            .font(.body.weight(.medium))
+                            .font(HIGTypography.body.weight(.medium))
                         Spacer()
                     }
                 }
-                .tint(.red)
+                .tint(HIGColors.error)
+                .higTouchTarget(44)
             }
         }
         .listStyle(.insetGrouped)
@@ -292,12 +334,14 @@ struct AddIngressRuleSheetView: View {
             Form {
                 Section(header: Text("Public Hostname"), footer: Text("Incoming requests to this public domain and path will route through the tunnel.")) {
                     TextField("sub.example.com", text: $hostname)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     
                     TextField("Path (Optional, e.g. /api)", text: $path)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -306,6 +350,7 @@ struct AddIngressRuleSheetView: View {
                 
                 Section(header: Text("Internal Origin Service"), footer: Text("Service URL accessible from where cloudflared is running, e.g. http://localhost:3000, tcp://192.168.1.100:22")) {
                     TextField("http://localhost:8080", text: $service)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -319,6 +364,7 @@ struct AddIngressRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -331,6 +377,7 @@ struct AddIngressRuleSheetView: View {
                             )
                             if success {
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Ingress Rule Added", icon: "network.badge.shield.half.filled")
                                 dismiss()
                             } else {
                                 HIGFeedback.error()
@@ -339,6 +386,7 @@ struct AddIngressRuleSheetView: View {
                         }
                     }
                     .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || service.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

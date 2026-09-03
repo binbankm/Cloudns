@@ -1,8 +1,8 @@
 import SwiftUI
 
 // MARK: - Apple HIG Content State (iOS 16 Baseline + iOS 17+ Progressive Enhancement)
+// Strict HIG visual hierarchy for empty, loading, search, and error states
 
-/// 统一遵循 Apple HIG 标准的空状态/无数据/错误占位视图
 public struct HIGContentState: View {
     public enum Kind {
         case loading(message: LocalizedStringKey = "Loading…")
@@ -26,7 +26,7 @@ public struct HIGContentState: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
+        .background(Color.higGroupBackground)
     }
     
     @available(iOS 17.0, *)
@@ -46,7 +46,7 @@ public struct HIGContentState: View {
             ContentUnavailableView {
                 Label(title, systemImage: "exclamationmark.triangle")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(HIGColors.warning)
             } description: {
                 Text(message)
             } actions: {
@@ -72,71 +72,71 @@ public struct HIGContentState: View {
     
     @ViewBuilder
     private var legacyHIGFallbackView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: HIGTokens.Spacing.md) {
             switch kind {
             case .loading(let message):
                 ProgressView()
                     .controlSize(.large)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, HIGTokens.Spacing.xs)
                 Text(message)
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
             case .search(let query):
                 Image(systemName: "magnifyingglass")
                     .font(.system(.largeTitle).weight(.light))
                     .imageScale(.large)
                     .foregroundStyle(.secondary)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, HIGTokens.Spacing.xs)
                 Text("No Results for \"\(query)\"")
-                    .font(.title3.weight(.bold))
+                    .font(HIGTypography.title3.weight(.bold))
                     .foregroundStyle(.primary)
                 Text("Check the spelling or try a new search.")
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             case .error(let title, let message, let retryAction):
                 Image(systemName: "exclamationmark.triangle")
                     .font(.system(.largeTitle).weight(.light))
                     .imageScale(.large)
-                    .foregroundStyle(.orange)
-                    .padding(.bottom, 4)
+                    .foregroundStyle(HIGColors.warning)
+                    .padding(.bottom, HIGTokens.Spacing.xs)
                 Text(title)
-                    .font(.title3.weight(.bold))
+                    .font(HIGTypography.title3.weight(.bold))
                     .foregroundStyle(.primary)
                 Text(message)
-                    .font(.subheadline)
+                    .font(HIGTypography.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, HIGTokens.Spacing.xl)
                 if let retryAction {
                     Button("Try Again", action: retryAction)
                         .buttonStyle(.bordered)
-                        .padding(.top, 8)
+                        .padding(.top, HIGTokens.Spacing.sm)
                 }
             case .empty(let title, let systemImage, let description, let actionTitle, let action):
                 Image(systemName: systemImage)
                     .font(.system(.largeTitle).weight(.light))
                     .imageScale(.large)
                     .foregroundStyle(.secondary)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, HIGTokens.Spacing.xs)
                 Text(title)
-                    .font(.title3.weight(.bold))
+                    .font(HIGTypography.title3.weight(.bold))
                     .foregroundStyle(.primary)
                 if let description {
                     Text(description)
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, HIGTokens.Spacing.xxl)
                 }
                 if let actionTitle, let action {
                     Button(actionTitle, action: action)
                         .buttonStyle(.borderedProminent)
-                        .padding(.top, 8)
+                        .padding(.top, HIGTokens.Spacing.sm)
                 }
             }
         }
-        .padding(24)
+        .padding(HIGTokens.Spacing.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }

@@ -17,6 +17,7 @@ struct ThemeColorPickerView: View {
                         Button {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 themeManager.setThemeColor(theme)
+                                ToastManager.shared.showSuccess("Theme Color Updated", icon: "paintpalette.fill")
                             }
                         } label: {
                             VStack(spacing: 8) {

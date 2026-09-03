@@ -1,6 +1,6 @@
 import Foundation
 
-/// DNS 与 DNSSEC 服务抽象协议
+/// Protocol defining Cloudflare DNS and DNSSEC domain service
 protocol DNSServiceProtocol: Sendable {
     func getDNSRecords(zoneId: String, page: Int, perPage: Int, search: String?, type: String?, order: String, direction: String) async throws -> ([DNSRecord], ResultInfo?)
     func createDNSRecord(zoneId: String, payload: DNSRecordPayload) async throws -> DNSRecord
@@ -29,7 +29,7 @@ extension DNSServiceProtocol {
     }
 }
 
-/// 统一的 Cloudflare DNS 与 DNSSEC 领域服务
+/// Concrete domain service for Cloudflare DNS and DNSSEC
 final class DNSService: DNSServiceProtocol {
     static let shared = DNSService()
     
@@ -38,7 +38,7 @@ final class DNSService: DNSServiceProtocol {
     
     private init() {}
     
-    /// 获取 DNS 记录列表
+    /// Fetches DNS records list
     func getDNSRecords(
         zoneId: String,
         page: Int = 1,
@@ -66,7 +66,7 @@ final class DNSService: DNSServiceProtocol {
         return (records ?? [], resultInfo)
     }
     
-    /// 创建新的 DNS 记录 (通过 DNSRecordPayload)
+    /// Creates new DNS record using DNSRecordPayload
     func createDNSRecord(zoneId: String, payload: DNSRecordPayload) async throws -> DNSRecord {
         let encoder = JSONEncoder()
         let data = try encoder.encode(payload)
@@ -78,7 +78,7 @@ final class DNSService: DNSServiceProtocol {
         return record
     }
     
-    /// 创建新的 DNS 记录 (通过 DNSRecord)
+    /// Creates new DNS record using DNSRecord
     func createDNSRecord(zoneId: String, record: DNSRecord) async throws -> DNSRecord {
         let encoder = JSONEncoder()
         let data = try encoder.encode(record)
@@ -90,7 +90,7 @@ final class DNSService: DNSServiceProtocol {
         return record
     }
     
-    /// 更新已有的 DNS 记录 (通过 DNSRecordPayload)
+    /// Updates existing DNS record using DNSRecordPayload
     func updateDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPayload) async throws -> DNSRecord {
         let encoder = JSONEncoder()
         let data = try encoder.encode(payload)
@@ -102,7 +102,7 @@ final class DNSService: DNSServiceProtocol {
         return record
     }
     
-    /// 更新已有的 DNS 记录 (通过 DNSRecord)
+    /// Updates existing DNS record using DNSRecord
     func updateDNSRecord(zoneId: String, recordId: String, record: DNSRecord) async throws -> DNSRecord {
         let encoder = JSONEncoder()
         let data = try encoder.encode(record)
@@ -114,7 +114,7 @@ final class DNSService: DNSServiceProtocol {
         return record
     }
     
-    /// 删除 DNS 记录
+    /// Deletes DNS record
     func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/\(recordId)", method: "DELETE")
         struct DeleteResult: Codable { let id: String }
@@ -122,7 +122,7 @@ final class DNSService: DNSServiceProtocol {
         return res?.id ?? recordId
     }
     
-    /// 批量删除 DNS 记录
+    /// Batch-deletes DNS records
     func batchDNSRecords(zoneId: String, deletes: [String]) async throws {
         let payload: [String: Any] = ["deletes": deletes.map { ["id": $0] }]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -131,7 +131,7 @@ final class DNSService: DNSServiceProtocol {
         let (_, _): (BatchRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    /// 导出 BIND 格式的 DNS 记录
+    /// Exports DNS records in BIND zone file format
     func exportDNSRecords(zoneId: String) async throws -> URL {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/export", contentType: "text/plain")
         let data = try await client.performDataRequest(request)
@@ -140,7 +140,7 @@ final class DNSService: DNSServiceProtocol {
         return tempURL
     }
     
-    /// 导入 BIND 格式的 DNS 记录
+    /// Imports DNS records from BIND zone file
     func importDNSRecords(zoneId: String, fileURL: URL) async throws {
         let fileData = try Data(contentsOf: fileURL)
         let boundary = "Boundary-\(UUID().uuidString)"
@@ -161,7 +161,7 @@ final class DNSService: DNSServiceProtocol {
         let (_, _): (ImportRes?, ResultInfo?) = try await client.performRequest(request)
     }
     
-    /// 获取 DNSSEC 详情
+    /// Fetches DNSSEC details
     func getDNSSEC(zoneId: String) async throws -> DNSSEC {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec")
         let (dnssec, _): (DNSSEC?, ResultInfo?) = try await client.performRequest(request)
@@ -171,7 +171,7 @@ final class DNSService: DNSServiceProtocol {
         return dnssec
     }
     
-    /// 更新 DNSSEC 状态 (active / disabled)
+    /// Updates DNSSEC status (active / disabled)
     func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC {
         let payload = ["status": status]
         let data = try JSONSerialization.data(withJSONObject: payload)

@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - DNSRecordsView
+// Apple HIG Compliant DNS Record Management
 
 struct DNSRecordsView: View {
     let zoneId: String
@@ -77,9 +78,9 @@ struct DNSRecordsView: View {
                         showingBatchDeleteDialog = true
                     } label: {
                         Text("Delete Selected (\(selectedCount))")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                     }
-                    .tint(.red)
+                    .tint(HIGColors.error)
                 }
             }
         }
@@ -92,7 +93,7 @@ struct DNSRecordsView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-             .higToast()
+            .higToast()
         }
         .sheet(isPresented: $showingPresetsSheet) {
             DNSPresetsSheetView(
@@ -100,7 +101,7 @@ struct DNSRecordsView: View {
                 zoneId: zoneId,
                 viewModel: viewModel
             )
-             .higToast()
+            .higToast()
         }
         .fileImporter(
             isPresented: $showingImporter,
@@ -154,11 +155,11 @@ struct DNSRecordsView: View {
         }
         .sheet(isPresented: $showingForm) {
             DNSRecordFormView(viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .sheet(item: $recordToEdit) { record in
             DNSRecordFormView(viewModel: viewModel, existingRecord: record)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog(
             "Delete DNS Record",
@@ -213,7 +214,7 @@ struct DNSRecordsView: View {
     
     @ViewBuilder
     private var trailingToolbar: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: HIGTokens.Spacing.sm) {
             Menu {
                 // SubMenu 1: Filter by Type
                 Menu {
@@ -326,7 +327,7 @@ struct DNSRecordsView: View {
                     } label: {
                         Label("Reset All Filters", systemImage: "arrow.counterclockwise")
                     }
-                    .tint(.red)
+                    .tint(HIGColors.error)
                 }
                 
                 Divider()
@@ -353,9 +354,10 @@ struct DNSRecordsView: View {
                 }
             } label: {
                 Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
-                    .foregroundStyle(viewModel.isFiltered ? Color.orange : Color.accentColor)
+                    .foregroundStyle(viewModel.isFiltered ? HIGColors.warning : Color.higAccent)
             }
             .accessibilityLabel("DNS Options and Filters")
+            .higTouchTarget()
             
             Button {
                 showingForm = true
@@ -363,6 +365,8 @@ struct DNSRecordsView: View {
                 Image(systemName: "plus")
             }
             .accessibilityLabel("Add DNS Record")
+            .higTouchTarget()
+            .keyboardShortcut("n", modifiers: .command)
         }
     }
     
@@ -413,6 +417,47 @@ struct DNSRecordsView: View {
                 .buttonStyle(.plain)
             }
         }
+        .contextMenu {
+            Button {
+                UIPasteboard.general.string = record.content ?? record.name
+                ToastManager.shared.showCopied("Record Content Copied")
+            } label: {
+                Label("Copy Content", systemImage: "doc.on.doc")
+            }
+            
+            Button {
+                UIPasteboard.general.string = record.name
+                ToastManager.shared.showCopied("Record Name Copied")
+            } label: {
+                Label("Copy Name", systemImage: "character.textbox")
+            }
+            
+            if record.proxiable == true {
+                Button {
+                    Task { await viewModel.toggleProxy(for: record) }
+                } label: {
+                    Label(
+                        record.proxied == true ? "Switch to DNS Only" : "Enable Cloudflare Proxy",
+                        systemImage: record.proxied == true ? "cloud" : "cloud.fill"
+                    )
+                }
+            }
+            
+            Button {
+                recordToEdit = record
+            } label: {
+                Label("Edit Record", systemImage: "pencil")
+            }
+            
+            Divider()
+            
+            Button(role: .destructive) {
+                recordToDelete = record
+                showingSingleDeleteDialog = true
+            } label: {
+                Label("Delete Record", systemImage: "trash")
+            }
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 recordToDelete = record
@@ -420,14 +465,14 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-            .tint(.red)
+            .tint(HIGColors.error)
             
             Button {
                 recordToEdit = record
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.orange)
+            .tint(HIGColors.warning)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
@@ -436,7 +481,7 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }
-            .tint(.blue)
+            .tint(HIGColors.info)
         }
     }
 }
@@ -450,27 +495,27 @@ struct DNSRecordRowView: View {
     private var recordTypeColor: Color {
         switch record.type.uppercased() {
         case "A", "AAAA": return .blue
-        case "CNAME": return .green
+        case "CNAME": return HIGColors.success
         case "TXT": return .purple
-        case "MX": return .orange
+        case "MX": return HIGColors.warning
         case "NS", "CAA", "SRV": return .teal
         default: return .indigo
         }
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm - 2) {
+            HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
                 Text(verbatim: record.type)
-                    .font(.caption.monospacedDigit().weight(.bold))
+                    .font(HIGTypography.caption.monospacedDigit().weight(.bold))
                     .frame(width: 48)
-                    .padding(.vertical, 2.5)
+                    .padding(.vertical, HIGTokens.Spacing.xxs + 0.5)
                     .background(recordTypeColor.opacity(0.14))
                     .foregroundStyle(recordTypeColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                 
                 Text(verbatim: record.name)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -488,6 +533,7 @@ struct DNSRecordRowView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .higTouchTarget(44)
                 } else {
                     HIGBadge(.dnsOnly, isCompact: true)
                 }
@@ -495,33 +541,33 @@ struct DNSRecordRowView: View {
             
             HStack(alignment: .top) {
                 Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
-                    .font(.subheadline.monospacedDigit())
+                    .font(HIGTypography.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                 
                 Spacer()
                 
                 Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.tertiary)
             }
             
             if let comment = record.comment, !comment.isEmpty {
                 Text(comment)
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .padding(.top, 1)
             }
             
             if let tags = record.tags, !tags.isEmpty {
-                HStack(spacing: 4) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     ForEach(tags, id: \.self) { tag in
                         Text("#\(tag)")
-                            .font(.caption2.weight(.medium))
+                            .font(HIGTypography.caption2.weight(.medium))
                             .foregroundStyle(.purple)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
+                            .padding(.horizontal, HIGTokens.Spacing.xs + 1)
+                            .padding(.vertical, HIGTokens.Spacing.xxs)
                             .background(Color.purple.opacity(0.1))
                             .clipShape(Capsule())
                     }
@@ -529,7 +575,7 @@ struct DNSRecordRowView: View {
                 .padding(.top, 1)
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
         .contentShape(Rectangle())
     }
 }

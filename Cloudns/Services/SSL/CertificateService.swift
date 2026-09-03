@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare SSL / TLS 与边缘证书管理领域服务抽象协议
+/// Protocol defining Cloudflare SSL/TLS and edge certificates domain service
 protocol CertificateServiceProtocol: Sendable {
     func getSSLSettings(zoneId: String) async throws -> (
         sslMode: String,
@@ -28,7 +28,7 @@ protocol CertificateServiceProtocol: Sendable {
     func deleteCustomCertificate(zoneId: String, certificateId: String) async throws
 }
 
-/// 统一的 Cloudflare SSL / TLS 与边缘证书管理领域服务
+/// Concrete domain service for Cloudflare SSL/TLS and edge certificates
 final class CertificateService: CertificateServiceProtocol {
     static let shared = CertificateService()
     

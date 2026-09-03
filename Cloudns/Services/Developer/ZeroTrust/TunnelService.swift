@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Tunnels (Zero Trust) 领域服务抽象协议
 protocol TunnelServiceProtocol: Sendable {
     func getTunnels(accountId: String) async throws -> [CFTunnel]
     func createTunnel(accountId: String, name: String) async throws -> CFTunnel
@@ -10,7 +9,6 @@ protocol TunnelServiceProtocol: Sendable {
     func getTunnelToken(accountId: String, tunnelId: String) async throws -> String?
 }
 
-/// 统一的 Cloudflare Tunnels (Zero Trust) 领域服务
 final class TunnelService: TunnelServiceProtocol {
     static let shared = TunnelService()
     

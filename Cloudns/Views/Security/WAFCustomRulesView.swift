@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WAFCustomRulesView
+// Apple HIG Compliant Cloudflare Web Application Firewall Custom Rule Engine
 
 struct WAFCustomRulesView: View {
     let zoneId: String
@@ -22,14 +23,44 @@ struct WAFCustomRulesView: View {
                                 ToastManager.shared.showSuccess(rule.enabled ? "WAF Rule Disabled" : "WAF Rule Enabled", icon: "shield.lefthalf.filled")
                             }
                         })
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = rule.expression
+                                ToastManager.shared.showCopied("Rule Expression Copied")
+                                HIGFeedback.copied()
+                            } label: {
+                                Label("Copy Expression", systemImage: "doc.on.doc")
+                            }
+                            
+                            if let desc = rule.description {
+                                Button {
+                                    UIPasteboard.general.string = desc
+                                    ToastManager.shared.showCopied("Rule Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Rule Name", systemImage: "tag")
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
+                                ruleToDelete = rule
+                                showingDeleteConfirm = true
+                            } label: {
+                                Label("Delete Rule", systemImage: "trash")
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
+                                HIGFeedback.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(.red)
+                            .tint(HIGColors.error)
                         }
                     }
                 }
@@ -73,11 +104,12 @@ struct WAFCustomRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add WAF Rule")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddWAFRuleView(zoneId: zoneId, viewModel: viewModel)
-             .higToast()
+                .higToast()
         }
         .confirmationDialog(
             "Delete WAF Rule",
@@ -89,6 +121,7 @@ struct WAFCustomRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("WAF Rule Deleted", icon: "trash.fill")
+                        HIGFeedback.success()
                         ruleToDelete = nil
                     }
                 }
@@ -116,10 +149,10 @@ struct WAFRuleCardView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .lineLimit(2)
                 
                 Spacer()
@@ -139,43 +172,43 @@ struct WAFRuleCardView: View {
                 HIGBadge(rule.enabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text("Expression")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.secondary)
                 
                 Text(verbatim: rule.expression)
-                    .font(.footnote.monospaced())
+                    .font(HIGTypography.footnote.monospaced())
                     .foregroundStyle(.primary)
-                    .padding(8)
+                    .padding(HIGTokens.Spacing.sm)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
                     .textSelection(.enabled)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     private func actionDisplayName(_ action: String) -> String {
-        switch action {
-        case "block": return "BLOCK"
-        case "challenge": return "LEGACY CAPTCHA"
-        case "js_challenge": return "JS CHALLENGE"
-        case "managed_challenge": return "MANAGED CHALLENGE"
-        case "log": return "LOG"
-        case "skip": return "SKIP"
-        default: return action.uppercased()
+        switch action.lowercased() {
+        case "block": return "Block"
+        case "managed_challenge": return "Managed Challenge"
+        case "js_challenge": return "JS Challenge"
+        case "challenge": return "Interactive Challenge"
+        case "log": return "Log"
+        case "skip": return "Skip"
+        default: return action.capitalized
         }
     }
     
     private func colorForAction(_ action: String) -> Color {
-        switch action {
-        case "block": return .red
-        case "challenge", "js_challenge", "managed_challenge": return .orange
+        switch action.lowercased() {
+        case "block": return HIGColors.error
+        case "managed_challenge", "js_challenge", "challenge": return .orange
         case "log": return .blue
-        case "skip": return .green
-        default: return .gray
+        case "skip": return HIGColors.success
+        default: return .secondary
         }
     }
 }

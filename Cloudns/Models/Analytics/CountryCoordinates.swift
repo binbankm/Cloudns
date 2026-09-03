@@ -61,7 +61,6 @@ struct CountryCoordinates {
         "BD": CLLocationCoordinate2D(latitude: 23.68, longitude: 90.35)
     ]
     
-    /// 将 2 字母国家代码（如 "US", "cn", "JP"）转换为 Flag Emoji，非标准、未知或非法代码返回 "🌐"
     static func flag(for countryCode: String) -> String {
         let code = countryCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard code.count == 2, CountryCoordinates.map[code] != nil else { return "🌐" }

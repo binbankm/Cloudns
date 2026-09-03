@@ -145,8 +145,6 @@ public struct Zone: Codable, Identifiable, Equatable, Sendable {
         self.account = try container.decodeIfPresent(ZoneAccount.self, forKey: .account)
     }
     
-    /// HIG 骨架屏专用占位数据
-    
     public var planTier: PlanTier {
         plan?.planTier ?? .free
     }

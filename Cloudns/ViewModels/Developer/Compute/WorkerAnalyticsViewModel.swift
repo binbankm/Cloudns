@@ -61,7 +61,6 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
     public func fetchAnalytics(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
-        // 1. [Stale] 0ms 尝试从缓存恢复历史数据
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: WorkerAnalyticsSnapshot.self) {
             await MainActor.run {
                 self.dataPoints = cached.dataPoints
@@ -75,7 +74,6 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
             }
         }
         
-        // 2. [Revalidate] 执行网络请求（错误发生时不破坏已有数据）
         await executeLoadingTask(clearError: true) {
             let items = try await self.analyticsService.getWorkerAnalytics(
                 accountId: self.accountId,
@@ -85,7 +83,6 @@ final class WorkerAnalyticsViewModel: BaseLoadableViewModel {
             self.processAnalytics(items)
             self.loadedDays = self.selectedDays
             
-            // 成功后持久化最新快照
             let snapshot = WorkerAnalyticsSnapshot(
                 dataPoints: self.dataPoints,
                 totalRequests: self.totalRequests,

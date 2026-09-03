@@ -176,7 +176,6 @@ struct ContentView: View {
     @ViewBuilder
     private var mainRootLayout: some View {
         if horizontalSizeClass == .regular {
-            // iPad / Mac / 宽屏：原生 NavigationSplitView 侧边栏模式
             NavigationSplitView {
                 List(selection: Binding(
                     get: { selectedTab },
@@ -216,7 +215,6 @@ struct ContentView: View {
                 detailViewForTab(selectedTab)
             }
         } else {
-            // iPhone / 紧凑屏：原生经典 5-Tab 栏模式
             TabView(selection: $selectedTab) {
                 DashboardView()
                     .tabItem {

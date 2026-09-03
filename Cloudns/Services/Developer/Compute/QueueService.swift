@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare Queues 消息队列领域服务抽象协议
 protocol QueueServiceProtocol: Sendable {
     func listQueues(accountId: String) async throws -> [CFQueue]
     func createQueue(accountId: String, name: String) async throws -> CFQueue
@@ -8,7 +7,6 @@ protocol QueueServiceProtocol: Sendable {
     func purgeQueue(accountId: String, queueId: String) async throws
 }
 
-/// 统一的 Cloudflare Queues 消息队列领域服务
 final class QueueService: QueueServiceProtocol {
     static let shared = QueueService()
     

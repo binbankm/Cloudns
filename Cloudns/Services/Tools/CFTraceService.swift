@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare /cdn-cgi/trace 节点追踪服务协议
+/// Protocol defining Cloudflare /cdn-cgi/trace node diagnostics service
 protocol CFTraceServiceProtocol: Sendable {
     func getCFTrace(host: String) async throws -> [HTTPHeaderItem]
 }

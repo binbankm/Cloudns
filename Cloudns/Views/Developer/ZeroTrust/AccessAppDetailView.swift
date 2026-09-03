@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AccessAppDetailView
+// Apple HIG Compliant Cloudflare Access Application Inspection & Assigned Policies
 
 struct AccessAppDetailView: View {
     let accountId: String
@@ -13,8 +14,10 @@ struct AccessAppDetailView: View {
         List {
             Section(header: Text("Application Details")) {
                 LabeledContent("Name", value: app.name)
+                    .font(HIGTypography.body)
                 
                 LabeledContent("Domain", value: app.domain)
+                    .font(HIGTypography.body.monospaced())
                 
                 if let type = app.type {
                     LabeledContent("Type") {
@@ -25,7 +28,7 @@ struct AccessAppDetailView: View {
                 if let aud = app.aud {
                     LabeledContent("Audience Tag (AUD)") {
                         Text(aud)
-                            .font(.caption2.monospaced())
+                            .font(HIGTypography.caption2.monospaced())
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -38,18 +41,27 @@ struct AccessAppDetailView: View {
                         ProgressView("Loading Policies…")
                         Spacer()
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(verbatim: err)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                        .font(HIGTypography.caption)
+                        .foregroundStyle(HIGColors.error)
                 } else if policies.isEmpty {
                     Text("No policies assigned to this application.")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(policies) { p in
                         policyRow(p)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = p.name
+                                    ToastManager.shared.showCopied("Policy Name Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Policy Name", systemImage: "doc.on.doc")
+                                }
+                            }
                     }
                 }
             }
@@ -64,21 +76,22 @@ struct AccessAppDetailView: View {
     
     @ViewBuilder
     private func policyRow(_ p: AccessPolicy) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: HIGTokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(p.name)
-                    .font(.body)
+                    .font(HIGTypography.body.weight(.medium))
                 Text("Decision: \(p.decision.capitalized)")
-                    .font(.caption2)
-                    .foregroundStyle(p.decision.lowercased() == "allow" ? .green : .orange)
+                    .font(HIGTypography.caption2)
+                    .foregroundStyle(p.decision.lowercased() == "allow" ? HIGColors.success : .orange)
             }
             Spacer()
             if let prec = p.precedence {
                 Text("#\(prec)")
-                    .font(.caption2.monospaced())
+                    .font(HIGTypography.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
         }
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     private func fetchPolicies() async {

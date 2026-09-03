@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - RedirectListDetailView
+// Apple HIG Compliant Cloudflare Bulk Redirect List Inspector & URL Item Mapper
 
 struct RedirectListDetailView: View {
     let accountId: String
@@ -25,10 +26,11 @@ struct RedirectListDetailView: View {
         List {
             Section(header: Text("List Metadata")) {
                 LabeledContent("Name", value: list.name)
+                    .font(HIGTypography.body)
                 
                 LabeledContent("List ID") {
                     Text(list.id)
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
@@ -37,14 +39,42 @@ struct RedirectListDetailView: View {
                 Section(header: Text("Redirect Items (\(filteredItems.count))")) {
                     ForEach(filteredItems) { item in
                         redirectItemRow(item)
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = item.redirect.sourceUrl
+                                    ToastManager.shared.showCopied("Source URL Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Source URL", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    UIPasteboard.general.string = item.redirect.targetUrl
+                                    ToastManager.shared.showCopied("Target URL Copied")
+                                    HIGFeedback.copied()
+                                } label: {
+                                    Label("Copy Target URL", systemImage: "link")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    HIGFeedback.impact(.medium)
+                                    itemToDelete = item
+                                    showingDeleteConfirm = true
+                                } label: {
+                                    Label("Delete Redirect Item", systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     itemToDelete = item
                                     showingDeleteConfirm = true
+                                    HIGFeedback.impact(.medium)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(.red)
+                                .tint(HIGColors.error)
                             }
                     }
                 }
@@ -89,13 +119,14 @@ struct RedirectListDetailView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Redirect Item")
+                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddRedirectItemSheetView(accountId: accountId, listId: list.id) {
                 Task { await fetchItems() }
             }
-             .higToast()
+            .higToast()
         }
         .confirmationDialog("Delete Redirect Item", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
             if let item = itemToDelete {
@@ -140,27 +171,27 @@ struct RedirectListDetailView: View {
     
     @ViewBuilder
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
             HStack {
                 Text(verbatim: item.redirect.sourceUrl)
-                    .font(.caption.monospaced())
+                    .font(HIGTypography.caption.monospaced())
                 Spacer()
                 Text("\(item.redirect.statusCode ?? 301)")
-                    .font(.caption2.weight(.bold))
+                    .font(HIGTypography.caption2.weight(.bold))
                     .foregroundStyle(.indigo)
             }
             
-            HStack {
+            HStack(spacing: HIGTokens.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
                 Text(verbatim: item.redirect.targetUrl)
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+                    .font(HIGTypography.caption.monospaced())
+                    .foregroundStyle(Color.higAccent)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
 }
 
@@ -185,12 +216,14 @@ struct AddRedirectItemSheetView: View {
             Form {
                 Section(header: Text("URL Mapping")) {
                     TextField("Source URL (e.g. example.com/old)", text: $sourceUrl)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
+                        .font(HIGTypography.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -212,8 +245,8 @@ struct AddRedirectItemSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.caption)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
             }
@@ -224,6 +257,7 @@ struct AddRedirectItemSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -244,6 +278,7 @@ struct AddRedirectItemSheetView: View {
                                     items: [item]
                                 )
                                 HIGFeedback.success()
+                                ToastManager.shared.showSuccess("Redirect Item Added", icon: "arrow.triangle.swap")
                                 onSaved()
                                 dismiss()
                             } catch {
@@ -254,6 +289,7 @@ struct AddRedirectItemSheetView: View {
                         }
                     }
                     .disabled(sourceUrl.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

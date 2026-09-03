@@ -1,6 +1,5 @@
 import Foundation
 
-/// Cloudflare KV 命名空间与键值对领域服务抽象协议
 protocol KVServiceProtocol: Sendable {
     func getKVNamespaces(accountId: String) async throws -> [KVNamespace]
     func listKVNamespaces(accountId: String) async throws -> [KVNamespace]
@@ -13,7 +12,6 @@ protocol KVServiceProtocol: Sendable {
     func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws
 }
 
-/// 统一的 Cloudflare KV 命名空间与键值对领域服务
 final class KVService: KVServiceProtocol {
     static let shared = KVService()
     

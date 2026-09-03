@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerSourceCodeView
+// Apple HIG Compliant Cloudflare Worker ESM Module & Code Editor
 
 struct WorkerSourceCodeView: View {
     @ObservedObject var parentViewModel: WorkerDetailViewModel
@@ -33,30 +34,31 @@ struct WorkerSourceCodeView: View {
         VStack(spacing: 0) {
             if !modules.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         ForEach(modules) { module in
                             Button {
                                 selectedModule = module
                                 currentCode = module.code
                                 HIGFeedback.selection()
                             } label: {
-                                HStack(spacing: 4) {
+                                HStack(spacing: HIGTokens.Spacing.xxs) {
                                     Image(systemName: module.isMain ? "star.fill" : "doc.text")
-                                        .font(.caption2)
+                                        .font(HIGTypography.caption2)
                                     Text(module.name)
-                                        .font(.caption.monospaced())
+                                        .font(HIGTypography.caption.monospaced())
                                 }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(selectedModule?.id == module.id ? Color.accentColor : Color(.secondarySystemFill))
+                                .padding(.horizontal, HIGTokens.Spacing.sm + 2)
+                                .padding(.vertical, HIGTokens.Spacing.xxs + 2)
+                                .background(selectedModule?.id == module.id ? Color.higAccent : Color(.secondarySystemFill))
                                 .foregroundStyle(selectedModule?.id == module.id ? .white : .primary)
                                 .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
+                            .higTouchTarget(44)
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, HIGTokens.Spacing.md)
+                    .padding(.vertical, HIGTokens.Spacing.sm)
                 }
                 .background(Color(.secondarySystemBackground))
                 
@@ -64,23 +66,25 @@ struct WorkerSourceCodeView: View {
             }
             
             TextEditor(text: $currentCode)
-                .font(.caption.monospaced())
+                .font(HIGTypography.caption.monospaced())
                 .scrollContentBackground(.hidden)
                 .background(Color(.systemBackground))
-                .padding(8)
+                .padding(HIGTokens.Spacing.sm)
         }
         .navigationTitle(scriptName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 12) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Button {
                         UIPasteboard.general.string = currentCode
-                        ToastManager.shared.showCopied()
+                        ToastManager.shared.showCopied("Code Copied")
+                        HIGFeedback.copied()
                     } label: {
                         Image(systemName: "doc.on.doc")
                     }
                     .accessibilityLabel("Copy Code")
+                    .higTouchTarget(44)
                     
                     Button {
                         Task {
@@ -91,9 +95,11 @@ struct WorkerSourceCodeView: View {
                                     code: currentCode,
                                     isModule: !modules.isEmpty
                                 )
+                                ToastManager.shared.showSuccess("Script Deployed", icon: "arrow.up.circle.fill")
                                 HIGFeedback.success()
                             } catch {
                                 errorMessage = error.localizedDescription
+                                ToastManager.shared.showError("Deploy Failed")
                                 HIGFeedback.error()
                             }
                             isSaving = false
@@ -101,12 +107,15 @@ struct WorkerSourceCodeView: View {
                     } label: {
                         if isSaving {
                             ProgressView()
+                                .controlSize(.small)
                         } else {
                             Text("Save")
                                 .fontWeight(.semibold)
+                                .foregroundStyle(Color.higAccent)
                         }
                     }
                     .disabled(isSaving)
+                    .higTouchTarget(44)
                 }
             }
         }

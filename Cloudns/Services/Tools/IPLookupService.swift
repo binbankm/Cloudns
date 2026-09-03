@@ -1,6 +1,6 @@
 import Foundation
 
-/// IP/ASN 归属地与子网 CIDR 计算领域服务协议
+/// Protocol defining IP/ASN geolocation and subnet calculation service
 protocol IPLookupServiceProtocol: Sendable {
     func lookupIP(target: String) async throws -> IPLookupResult
     func getCloudflareIPs() async throws -> ([String], [String])

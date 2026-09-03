@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - DNSSECView
+// Apple HIG Compliant DNSSEC Status and DS Record Viewer
 
 struct DNSSECView: View {
     let zoneId: String
@@ -18,12 +19,12 @@ struct DNSSECView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.blue.opacity(0.18), Color.indigo.opacity(0.12)],
+                                    colors: [Color.higAccent.opacity(0.18), Color.indigo.opacity(0.12)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -31,23 +32,23 @@ struct DNSSECView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "key.horizontal.fill")
-                            .font(.title.weight(.semibold))
-                            .foregroundStyle(.blue)
+                            .font(HIGTypography.title.weight(.semibold))
+                            .foregroundStyle(Color.higAccent)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, HIGTokens.Spacing.xs)
                     
                     Text("DNSSEC")
-                        .font(.title2.weight(.bold))
+                        .font(HIGTypography.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Cryptographically sign DNS records to prevent spoofing for \(zoneName).")
-                        .font(.subheadline)
+                        .font(HIGTypography.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, HIGTokens.Spacing.lg)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -59,13 +60,13 @@ struct DNSSECView: View {
             ) {
                 let status = viewModel.dnssec?.status ?? "disabled"
                 
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "shield.lefthalf.filled", color: statusColor(for: status), size: 28, cornerRadius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: HIGTokens.Spacing.md) {
+                    ListRowIcon(icon: "shield.lefthalf.filled", color: statusColor(for: status))
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                         Text("DNSSEC Status")
-                            .font(.body)
+                            .font(HIGTypography.body)
                         Text(status.capitalized)
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -86,13 +87,13 @@ struct DNSSECView: View {
                         Task { await viewModel.toggleDNSSEC() }
                     }
                 )) {
-                    HStack(spacing: 12) {
-                        ListRowIcon(icon: "checkmark.shield.fill", color: .blue, size: 28, cornerRadius: 6)
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: HIGTokens.Spacing.md) {
+                        ListRowIcon(icon: "checkmark.shield.fill", color: HIGColors.success)
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                             Text("Enable DNSSEC")
-                                .font(.body)
+                                .font(HIGTypography.body)
                             Text("Sign zone records with DNSSEC keys.")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -119,9 +120,11 @@ struct DNSSECView: View {
                             """
                             UIPasteboard.general.string = fullConfig
                             ToastManager.shared.showCopied("Configuration Copied")
+                            HIGFeedback.copied()
                         } label: {
                             Label("Copy All", systemImage: "doc.on.doc")
-                                .font(.caption.weight(.semibold))
+                                .font(HIGTypography.caption.weight(.semibold))
+                                .foregroundStyle(Color.higAccent)
                         }
                     },
                     footer: Text("Add these DS record details to your domain registrar settings to complete verification.")
@@ -162,33 +165,36 @@ struct DNSSECView: View {
     @ViewBuilder
     private func dsFieldRow(label: LocalizedStringKey, value: String?) -> some View {
         if let val = value, !val.isEmpty {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: HIGTokens.Spacing.md) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                     Text(label)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                     Text(verbatim: val)
-                        .font(.body.monospaced())
+                        .font(HIGTypography.body.monospaced())
                         .foregroundStyle(.primary)
                 }
                 Spacer()
                 Button {
                     UIPasteboard.general.string = val
                     ToastManager.shared.showCopied()
+                    HIGFeedback.copied()
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.higAccent)
                 }
                 .accessibilityLabel("Copy")
+                .buttonStyle(.plain)
+                .higTouchTarget(44)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, HIGTokens.Spacing.xxs)
         }
     }
     
     private func statusColor(for status: String) -> Color {
         switch status {
-        case "active": return .green
-        case "pending": return .orange
+        case "active": return HIGColors.success
+        case "pending": return HIGColors.warning
         default: return .gray
         }
     }

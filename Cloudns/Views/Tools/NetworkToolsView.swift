@@ -1,9 +1,11 @@
 import SwiftUI
 
 // MARK: - NetworkToolsView (Top-Level Tab)
+// Apple HIG Compliant Diagnostic & Network Tools Hub with Instant Search
 
 struct NetworkToolsView: View {
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
+    @State private var searchText = ""
     
     // MARK: - Diagnostic Tool Models
     
@@ -81,12 +83,13 @@ struct NetworkToolsView: View {
             }
         }
         
+        @MainActor
         var iconColor: Color {
             switch self {
-            case .cfTrace: return .orange
+            case .cfTrace: return Color.higAccent
             case .dnsDig: return .indigo
             case .httpHeader: return .blue
-            case .certInspect: return .green
+            case .certInspect: return HIGColors.success
             case .dnsPropagation: return .indigo
             case .edgeLatency: return .purple
             case .ipLookup: return .teal
@@ -118,34 +121,64 @@ struct NetworkToolsView: View {
     private let globalProbingTools: [DiagnosticToolType] = [.dnsPropagation, .edgeLatency]
     private let ipRoutingTools: [DiagnosticToolType] = [.ipLookup, .whois, .cfIpRanges, .cidrCalc]
     
+    private var filteredTools: [DiagnosticToolType] {
+        if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            return DiagnosticToolType.allCases
+        }
+        let q = searchText.lowercased()
+        return DiagnosticToolType.allCases.filter { tool in
+            tool.id.lowercased().contains(q) ||
+            tool.searchKeywords.lowercased().contains(q)
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             List {
-                Section(header: Text("Edge Diagnostics")) {
-                    ForEach(edgeTools) { tool in
-                        toolRow(tool)
+                if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+                    Section(header: Text("Edge Diagnostics")) {
+                        ForEach(edgeTools) { tool in
+                            toolRow(tool)
+                        }
                     }
-                }
-                
-                Section(header: Text("Global Connectivity & Probing")) {
-                    ForEach(globalProbingTools) { tool in
-                        toolRow(tool)
+                    
+                    Section(header: Text("Global Connectivity & Probing")) {
+                        ForEach(globalProbingTools) { tool in
+                            toolRow(tool)
+                        }
                     }
-                }
-                
-                Section(
-                    header: Text("IP & Routing Utilities"),
-                    footer: Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
-                ) {
-                    ForEach(ipRoutingTools) { tool in
-                        toolRow(tool)
+                    
+                    Section(
+                        header: Text("IP & Routing Utilities"),
+                        footer: Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
+                    ) {
+                        ForEach(ipRoutingTools) { tool in
+                            toolRow(tool)
+                        }
+                    }
+                } else {
+                    Section(header: Text("Matching Tools (\(filteredTools.count))")) {
+                        ForEach(filteredTools) { tool in
+                            toolRow(tool)
+                        }
                     }
                 }
             }
             .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "Search Diagnostics & Tools"
+            )
             .navigationTitle("Tools")
             .navigationBarTitleDisplayMode(.large)
             .id(appLanguage)
+            .overlay {
+                if !searchText.isEmpty && filteredTools.isEmpty {
+                    HIGContentState(.search(query: searchText))
+                }
+            }
         }
     }
     
@@ -154,21 +187,21 @@ struct NetworkToolsView: View {
         NavigationLink {
             tool.destinationView
         } label: {
-            HStack(alignment: .center, spacing: 12) {
-                ListRowIcon(icon: tool.icon, color: tool.iconColor, size: 28, cornerRadius: 6)
+            HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+                ListRowIcon(icon: tool.icon, color: tool.iconColor)
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                     Text(tool.title)
-                        .font(.body.weight(.medium))
+                        .font(HIGTypography.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
                     Text(tool.subtitle)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, HIGTokens.Spacing.xxs)
         }
     }
 }

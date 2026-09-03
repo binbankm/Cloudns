@@ -1,7 +1,7 @@
 import Foundation
 import Security
 
-/// SSL/TLS 证书深度探测与握手分析领域服务协议
+/// Protocol defining SSL/TLS certificate inspection and handshake analysis service
 protocol CertInspectServiceProtocol: Sendable {
     func inspectSSLCertificate(domain: String) async throws -> SSLCertDetails
 }

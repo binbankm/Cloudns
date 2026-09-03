@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: - PagesDeploymentDetailView
+// Apple HIG Compliant Pages Deployment Inspector & Build Terminal Logs
+
 struct PagesDeploymentDetailView: View {
     let accountId: String
     let projectName: String
@@ -43,40 +46,42 @@ struct PagesDeploymentDetailView: View {
                 if let hash = deployment.deploymentTrigger?.metadata?.commitHash {
                     LabeledContent {
                         Text(String(hash.prefix(7)))
-                            .font(.body.monospacedDigit())
+                            .font(HIGTypography.body.monospacedDigit())
                     } label: {
                         Text("Commit")
                     }
                 }
                 
                 if let msg = deployment.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                         Text("Commit Message")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                         Text(msg)
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.primary)
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, HIGTokens.Spacing.xxs)
                 }
                 
                 if let urlStr = deployment.url, let url = URL(string: urlStr) {
                     Link(destination: url) {
                         HStack {
                             Text("Preview URL")
+                                .font(HIGTypography.body)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text(urlStr)
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .lineLimit(1)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color.higAccent)
                             Image(systemName: "arrow.up.right")
-                                .font(.caption)
+                                .font(HIGTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                     .buttonStyle(.plain)
+                    .higTouchTarget(44)
                 }
             }
             
@@ -86,15 +91,17 @@ struct PagesDeploymentDetailView: View {
                     HIGFeedback.impact(.medium)
                     showingRollbackAlert = true
                 } label: {
-                    HStack {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "arrow.uturn.backward.circle.fill")
                             .foregroundStyle(.blue)
                         Text("Rollback / Promote to Production")
+                            .font(HIGTypography.body)
                             .foregroundStyle(.primary)
                     }
                 }
                 .buttonStyle(.plain)
                 .disabled(isActionRunning)
+                .higTouchTarget(44)
                 
                 Button {
                     HIGFeedback.impact(.medium)
@@ -102,37 +109,43 @@ struct PagesDeploymentDetailView: View {
                         isActionRunning = true
                         do {
                             try await parentViewModel.retryDeployment(id: deployment.id)
+                            ToastManager.shared.showSuccess("Deployment Retried", icon: "arrow.clockwise")
                             HIGFeedback.success()
                             dismiss()
                         } catch {
+                            ToastManager.shared.showError("Failed to Retry Deployment")
                             HIGFeedback.error()
                         }
                         isActionRunning = false
                     }
                 } label: {
-                    HStack {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "arrow.clockwise")
                             .foregroundStyle(.orange)
                         Text("Retry Deployment")
+                            .font(HIGTypography.body)
                             .foregroundStyle(.primary)
                     }
                 }
                 .buttonStyle(.plain)
                 .disabled(isActionRunning)
+                .higTouchTarget(44)
                 
                 Button(role: .destructive) {
                     HIGFeedback.impact(.medium)
                     showingDeleteAlert = true
                 } label: {
-                    HStack {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "trash")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(HIGColors.error)
                         Text("Delete Deployment")
-                            .foregroundStyle(.red)
+                            .font(HIGTypography.body)
+                            .foregroundStyle(HIGColors.error)
                     }
                 }
                 .buttonStyle(.plain)
                 .disabled(isActionRunning)
+                .higTouchTarget(44)
             }
             
             // MARK: - Build Logs Section
@@ -142,7 +155,7 @@ struct PagesDeploymentDetailView: View {
                     Spacer()
                     if !viewModel.logs.isEmpty {
                         Text("\(viewModel.logs.count) lines")
-                            .font(.caption2.monospacedDigit())
+                            .font(HIGTypography.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                 },
@@ -160,13 +173,13 @@ struct PagesDeploymentDetailView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Done") { dismiss() }
+                    .higTouchTarget(44)
             }
         }
         .task {
             await viewModel.fetchLogs()
         }
-        .alert("Rollback to this Deployment?", isPresented: $showingRollbackAlert) {
-            Button("Cancel", role: .cancel) {}
+        .confirmationDialog("Rollback to this Deployment?", isPresented: $showingRollbackAlert, titleVisibility: .visible) {
             Button("Rollback", role: .destructive) {
                 Task {
                     isActionRunning = true
@@ -182,11 +195,11 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = false
                 }
             }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will immediately switch your production Pages traffic to this historical deployment build.")
         }
-        .alert("Delete Deployment?", isPresented: $showingDeleteAlert) {
-            Button("Cancel", role: .cancel) {}
+        .confirmationDialog("Delete Deployment?", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 Task {
                     isActionRunning = true
@@ -202,6 +215,7 @@ struct PagesDeploymentDetailView: View {
                     isActionRunning = false
                 }
             }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("Are you sure you want to delete this deployment? This action cannot be undone.")
         }
@@ -225,13 +239,13 @@ struct PagesDeploymentDetailView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Search / Filter sub-bar (if logs exist)
             if !viewModel.logs.isEmpty {
-                HStack(spacing: 8) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "magnifyingglass")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                         .foregroundStyle(.secondary)
                     
                     TextField("Filter build logs…", text: $logSearchQuery)
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
@@ -240,7 +254,7 @@ struct PagesDeploymentDetailView: View {
                             logSearchQuery = ""
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.caption2)
+                                .font(HIGTypography.caption2)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -248,89 +262,89 @@ struct PagesDeploymentDetailView: View {
                     Button {
                         UIPasteboard.general.string = allLogsString
                         ToastManager.shared.showCopied("All Logs Copied")
-                        HIGFeedback.impact(.light)
+                        HIGFeedback.copied()
                     } label: {
                         Label("Copy", systemImage: "doc.on.doc")
-                            .font(.caption2.weight(.medium))
+                            .font(HIGTypography.caption2.weight(.medium))
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color(.secondarySystemGroupedBackground))
+                .padding(.horizontal, HIGTokens.Spacing.md)
+                .padding(.vertical, HIGTokens.Spacing.sm)
+                .background(Color.higCardBackground)
                 
                 Divider()
             }
             
-            // Vertically scrollable console with natural text wrapping (No horizontal scrolling!)
+            // Vertically scrollable console with natural text wrapping
             if viewModel.isLoadingLogs {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ProgressView()
                         .controlSize(.regular)
                     Text("Loading build logs from Cloudflare edge…")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 200)
             } else if viewModel.logs.isEmpty {
-                VStack(spacing: 8) {
+                VStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "text.line.magnify")
-                        .font(.title3)
+                        .font(HIGTypography.title3)
                         .foregroundStyle(.secondary)
                     Text("No logs recorded for this deployment.")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
             } else if filteredLogs.isEmpty && !logSearchQuery.isEmpty {
-                VStack(spacing: 8) {
+                VStack(spacing: HIGTokens.Spacing.sm) {
                     Image(systemName: "magnifyingglass")
-                        .font(.title3)
+                        .font(HIGTypography.title3)
                         .foregroundStyle(.secondary)
                     Text("No log lines matching '\(logSearchQuery)'")
-                        .font(.caption)
+                        .font(HIGTypography.caption)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
             } else {
                 ScrollView(.vertical, showsIndicators: true) {
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 1) {
                         ForEach(Array(filteredLogs.enumerated()), id: \.element.id) { idx, log in
-                            HStack(alignment: .top, spacing: 8) {
+                            HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
                                 Text("\(idx + 1)")
-                                    .font(.caption2.monospacedDigit())
+                                    .font(HIGTypography.caption2.monospacedDigit())
                                     .foregroundStyle(Color(.tertiaryLabel))
                                     .frame(width: 24, alignment: .trailing)
                                 
                                 Text(log.line)
-                                    .font(.caption2.monospaced())
+                                    .font(HIGTypography.caption2.monospaced())
                                     .foregroundStyle(logColor(log.line))
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
                     }
-                    .padding(12)
+                    .padding(HIGTokens.Spacing.md)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(height: 280)
                 .textSelection(.enabled)
             }
         }
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.higCardBackground)
     }
     
     private func logColor(_ line: String) -> Color {
         let lower = line.lowercased()
         if lower.contains("error") || lower.contains("failed") || lower.contains("fatal") || lower.contains("exception") {
-            return .red
+            return HIGColors.error
         } else if lower.contains("warn") {
             return .orange
         } else if lower.contains("success") || lower.contains("complete") || lower.contains("published") || lower.contains("ready") {
-            return .green
+            return HIGColors.success
         } else if lower.contains("info") || lower.contains("building") || lower.contains("deploying") {
             return .blue
         }

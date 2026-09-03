@@ -56,7 +56,6 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
     func fetchAnalytics(zoneTag: String, days: Int, isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey(zoneTag: zoneTag, days: days))
         
-        // 1. [Stale] 0ms 尝试从缓存恢复
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneAnalyticsSnapshot.self) {
             await MainActor.run {
                 self.dataPoints = cached.dataPoints
@@ -66,7 +65,6 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
             }
         }
         
-        // 2. [Revalidate] 执行网络请求
         await executeLoadingTask(clearError: true) {
             let result = try await self.analyticsService.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
             if let zones = result.viewer.zones, let zone = zones.first {
@@ -95,7 +93,6 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
                 
                 self.loadedDays = days
                 
-                // 写入缓存快照
                 let snapshot = ZoneAnalyticsSnapshot(
                     dataPoints: self.dataPoints,
                     mapDataPoints: self.mapDataPoints,

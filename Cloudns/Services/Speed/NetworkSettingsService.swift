@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cloudflare 边缘网络协议与连接选项服务协议
+/// Protocol defining Cloudflare network protocol and connectivity options service
 protocol NetworkSettingsServiceProtocol: Sendable {
     func getNetworkSettings(zoneId: String) async throws -> (ipv6: Bool, websockets: Bool, http2: Bool, http3: Bool, ipGeolocation: Bool, originMaxHttpVersion: String)
     func updateIPv6(zoneId: String, isOn: Bool) async throws
@@ -13,7 +13,7 @@ protocol NetworkSettingsServiceProtocol: Sendable {
     func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws
 }
 
-/// 统一的 Cloudflare 边缘网络协议领域服务
+/// Concrete domain service for Cloudflare network protocols
 final class NetworkSettingsService: NetworkSettingsServiceProtocol {
     static let shared = NetworkSettingsService()
     

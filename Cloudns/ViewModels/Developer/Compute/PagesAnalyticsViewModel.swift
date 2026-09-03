@@ -65,7 +65,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     public func fetchAnalytics(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
         
-        // 1. [Stale] 0ms 尝试从缓存恢复历史数据
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: PagesAnalyticsSnapshot.self) {
             await MainActor.run {
                 self.dataPoints = cached.dataPoints
@@ -84,7 +83,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             }
         }
         
-        // 2. [Revalidate] 并发获取 Functions 性能指标、部署记录与自定义域名
         await executeLoadingTask(clearError: true) {
             async let fetchFunctions: Void = self.fetchFunctionsMetrics()
             async let fetchDeployments: Void = self.fetchDeploymentsInfo()
@@ -93,7 +91,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             _ = await (fetchFunctions, fetchDeployments, fetchDomains)
             self.loadedDays = self.selectedDays
             
-            // 成功后持久化最新快照
             let snapshot = PagesAnalyticsSnapshot(
                 dataPoints: self.dataPoints,
                 totalRequests: self.totalRequests,
@@ -121,7 +118,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             )
             self.processAnalytics(items)
         } catch {
-            // 保留已有数据，不作破坏性清空
         }
     }
     
@@ -152,7 +148,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             self.previewDeploymentsCount = prevCount
             self.deploymentSuccessRate = deps.isEmpty ? 100.0 : (Double(successCount) / Double(deps.count)) * 100.0
         } catch {
-            // 保留已有部署数据
         }
     }
     
@@ -161,7 +156,6 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             let doms = try await self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.projectName)
             self.customDomainsCount = doms.count
         } catch {
-            // 保留已有域名数量
         }
     }
     

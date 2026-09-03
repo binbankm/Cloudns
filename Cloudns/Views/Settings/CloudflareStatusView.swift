@@ -217,7 +217,7 @@ struct CloudflareStatusView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.caption2)
-                    Text("Updated: \(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))")
+                    Text("Updated: \(date.displayFormatted(date: .abbreviated, time: .shortened))")
                         .font(.caption2)
                 }
                 .foregroundStyle(.secondary)

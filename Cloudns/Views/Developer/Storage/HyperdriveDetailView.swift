@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - HyperdriveDetailView
+// Apple HIG Compliant Cloudflare Hyperdrive Database Accelerator Details
 
 struct HyperdriveDetailView: View {
     let accountId: String
@@ -14,8 +15,17 @@ struct HyperdriveDetailView: View {
                 
                 LabeledContent("Config ID") {
                     Text(config.id)
-                        .font(.caption.monospaced())
+                        .font(HIGTypography.caption.monospaced())
                         .foregroundStyle(.secondary)
+                }
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = config.id
+                        ToastManager.shared.showCopied("Config ID Copied")
+                        HIGFeedback.copied()
+                    } label: {
+                        Label("Copy ID", systemImage: "doc.on.doc")
+                    }
                 }
             }
             
@@ -26,7 +36,7 @@ struct HyperdriveDetailView: View {
                     if let host = origin.host, !host.isEmpty {
                         LabeledContent("Host") {
                             Text(host)
-                                .font(.caption.monospaced())
+                                .font(HIGTypography.caption.monospaced())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -47,7 +57,8 @@ struct HyperdriveDetailView: View {
                 Section(header: Text("Query Caching")) {
                     LabeledContent("Cache Status") {
                         Text(caching.disabled == true ? "Disabled" : "Enabled")
-                            .foregroundStyle(caching.disabled == true ? Color.secondary : Color.green)
+                            .font(HIGTypography.body.weight(.medium))
+                            .foregroundStyle(caching.disabled == true ? Color.secondary : HIGColors.success)
                     }
                     
                     if let maxAge = caching.maxAge {

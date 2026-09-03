@@ -168,7 +168,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
     func fetchDashboard(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey("dashboard_overview_snapshot")
         
-        // 1. [Stale] 0ms 尝试从缓存预加载
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DashboardSnapshot.self) {
             self.zones = cached.zones
             self.workers = cached.workers
@@ -183,16 +182,13 @@ final class DashboardViewModel: BaseLoadableViewModel {
             self.syncTopWorkerToWidget()
             self.syncTopPagesToWidget()
             
-            // 尝试恢复图表时序缓存，避免启动抖动
             let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
             if let cachedMetrics = await SWRCacheStore.shared.get(forKey: chartKey, as: [FleetHourlyMetric].self), !cachedMetrics.isEmpty {
                 self.fleetMetrics = cachedMetrics
             }
         }
         
-        // 2. [Revalidate / Refresh] 统一执行前台/后台实时拉取
         await executeLoadingTask(clearError: isRefresh) {
-            // A. 获取账户列表
             let fetchedAccounts = (try? await self.zoneService.getAccounts()) ?? []
             if !fetchedAccounts.isEmpty {
                 self.accounts = fetchedAccounts
@@ -204,18 +200,15 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 }
             }
             
-            // B. 获取域名列表
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
                 self.refreshRecentZones()
                 self.fetchRecentSparklines()
-                // Fallback: 如果 getAccounts() 无返回（如普通 Zone 权限 Token），从 Zones 列表自动提取关联的 Account
                 if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
                 }
             }
             
-            // C. 获取开发者全套资源
             if let accountId = self.selectedAccount?.id, !accountId.isEmpty {
                 async let fetchW = try? self.workerService.getWorkers(accountId: accountId)
                 async let fetchP = try? self.pagesService.getPagesProjects(accountId: accountId)
@@ -234,7 +227,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 if let d { self.d1Count = d.count }
             }
             
-            // D. 持久化最新非空快照
             if !self.zones.isEmpty || !self.workers.isEmpty || !self.pages.isEmpty || self.selectedAccount != nil {
                 let snapshot = DashboardSnapshot(
                     zones: self.zones,
@@ -254,7 +246,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
         }
     }
     
-    /// 获取全账号所有活跃域名的 24h 逐小时趋势分析
     public func fetchFleetAnalytics() {
         let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
         guard !activeZoneIds.isEmpty else { return }
@@ -263,7 +254,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
             self.isFetchingFleetAnalytics = true
             defer { self.isFetchingFleetAnalytics = false }
             
-            // 优先拉取全量 24h 时序数据
             if let metrics = try? await self.dashboardService.getFleetMetrics(zoneTags: activeZoneIds), !metrics.isEmpty {
                 self.fleetMetrics = metrics
                 let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
@@ -272,13 +262,11 @@ final class DashboardViewModel: BaseLoadableViewModel {
         }
     }
     
-    /// 获取近期活跃域名的 24h 流量 Sparkline 数据
     private func fetchRecentSparklines() {
         let activeRecentIds = recentZones.filter { $0.status.lowercased() == "active" }.map { $0.id }
         guard !activeRecentIds.isEmpty else { return }
         
         Task {
-            // 1. 优先读取已有的 SWR 本地缓存
             var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeRecentIds {
                 let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
@@ -290,7 +278,6 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.sparklines.merge(cachedMap) { _, new in new }
             }
             
-            // 2. 批量拉取实时 24h 流量点位
             if let batchMap = try? await self.dashboardService.getSparklines(zoneTags: activeRecentIds) {
                 self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
