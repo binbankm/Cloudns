@@ -86,29 +86,29 @@ struct AuditLogRowView: View {
     let log: AuditLog
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: HIGTokens.Spacing.md) {
             ZStack {
                 Circle()
                     .fill(log.actionColor.opacity(0.12))
                     .frame(width: 38, height: 38)
                 Image(systemName: log.actionIcon)
-                    .font(.subheadline.weight(.semibold))
+                    .font(HIGTypography.subheadline.weight(.semibold))
                     .foregroundStyle(log.actionColor)
             }
             .accessibilityHidden(true)
-            .padding(.top, 2)
+            .padding(.top, HIGTokens.Spacing.xxs)
             
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Text(LocalizedStringKey(log.displayActionKey))
-                        .font(.subheadline.weight(.bold))
+                        .font(HIGTypography.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text(LocalizedStringKey(log.friendlyResourceTypeKey))
-                        .font(.caption2.weight(.medium))
+                        .font(HIGTypography.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                     
@@ -120,27 +120,27 @@ struct AuditLogRowView: View {
                 }
                 
                 log.primarySummaryView
-                    .font(.subheadline.weight(.semibold))
+                    .font(HIGTypography.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                 
                 log.secondaryContextView
                 
-                HStack(spacing: 8) {
+                HStack(spacing: HIGTokens.Spacing.sm) {
                     if let email = log.actor?.email, !email.isEmpty {
                         Label(email, systemImage: "person.circle")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     } else if let actorType = log.actor?.type {
                         Text(actorType.uppercased())
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
                     if let ip = log.actor?.ip, !ip.isEmpty {
                         Text("• \(ip)")
-                            .font(.caption2.monospacedDigit())
+                            .font(HIGTypography.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                     
@@ -148,18 +148,18 @@ struct AuditLogRowView: View {
                     
                     if let when = log.when, let date = DateFormatters.parseISO8601(when) {
                         Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.tertiary)
                     }
                 }
             }
             
             Image(systemName: "chevron.right")
-                .font(.caption2.weight(.bold))
+                .font(HIGTypography.caption2.weight(.bold))
                 .foregroundStyle(.tertiary)
-                .padding(.top, 4)
+                .padding(.top, HIGTokens.Spacing.xs)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
         .contentShape(Rectangle())
     }
 }
@@ -174,27 +174,27 @@ struct AuditLogDetailSheetView: View {
     var body: some View {
         List {
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: HIGTokens.Spacing.md) {
                     ZStack {
                         Circle()
                             .fill(log.actionColor.opacity(0.15))
                             .frame(width: 56, height: 56)
                         Image(systemName: log.actionIcon)
-                            .font(.title2.weight(.semibold))
+                            .font(HIGTypography.title2.weight(.semibold))
                             .foregroundStyle(log.actionColor)
                     }
                     
-                    VStack(spacing: 4) {
-                        HStack(spacing: 4) {
+                    VStack(spacing: HIGTokens.Spacing.xs) {
+                        HStack(spacing: HIGTokens.Spacing.xs) {
                             Text(LocalizedStringKey(log.displayActionKey))
                             Text("•")
                             Text(LocalizedStringKey(log.friendlyResourceTypeKey))
                         }
-                        .font(.title3.weight(.bold))
+                        .font(HIGTypography.title3.weight(.bold))
                         .foregroundStyle(.primary)
                         
                         log.primarySummaryView
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
@@ -204,7 +204,7 @@ struct AuditLogDetailSheetView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, HIGTokens.Spacing.sm)
                 .listRowBackground(Color.clear)
             }
             
@@ -220,11 +220,11 @@ struct AuditLogDetailSheetView: View {
                     if let date = DateFormatters.parseISO8601(when) {
                         HStack {
                             Text("Time (Local)")
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                                .font(.subheadline.monospacedDigit())
+                                .font(HIGTypography.subheadline.monospacedDigit())
                                 .foregroundStyle(.primary)
                         }
                     }

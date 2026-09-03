@@ -26,14 +26,14 @@ struct AlertingView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal, HIGTokens.Spacing.md)
             .padding(.vertical, HIGTokens.Spacing.sm)
-            .background(Color(.systemGroupedBackground))
+            .background(Color.higGroupBackground)
             .onChange(of: selectedTab) { _ in
                 HIGFeedback.selection()
             }
             
             contentList
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.higGroupBackground)
         .navigationTitle("Notification Alerts")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Delete Policy", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: policyToDelete) { policy in

@@ -69,13 +69,8 @@ struct EdgeLatencyTestView: View {
             
             if viewModel.isLatencyLoading {
                 Section {
-                    HStack {
-                        Spacer()
-                        ProgressView("Testing Edge Latency…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Testing Edge Latency…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.latencyResult {
                 // 2. Metrics Hero Section

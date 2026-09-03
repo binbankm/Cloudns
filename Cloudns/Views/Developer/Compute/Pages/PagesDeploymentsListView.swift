@@ -52,7 +52,7 @@ struct PagesDeploymentsListView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal, HIGTokens.Spacing.md)
             .padding(.vertical, HIGTokens.Spacing.sm)
-            .background(Color(.systemGroupedBackground))
+            .background(Color.higGroupBackground)
             .onChange(of: selectedEnvFilter) { _ in
                 HIGFeedback.selection()
             }
@@ -70,7 +70,7 @@ struct PagesDeploymentsListView: View {
                             } label: {
                                 deploymentRow(dep)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.higPressable)
                             .contextMenu {
                                 if let urlStr = dep.url, let url = URL(string: urlStr) {
                                     Link(destination: url) {

@@ -300,6 +300,8 @@ struct DNSRecordFormView: View {
                             dismiss()
                         }
                     }
+                    .font(HIGTypography.body)
+                    .higTouchTarget()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -308,7 +310,9 @@ struct DNSRecordFormView: View {
                             await saveRecord()
                         }
                     }
-                    .fontWeight(.semibold)
+                    .font(HIGTypography.body.weight(.semibold))
+                    .foregroundStyle(Color.higAccent)
+                    .higTouchTarget()
                     .disabled(name.isEmpty || isSaving)
                 }
             }

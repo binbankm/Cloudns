@@ -52,9 +52,9 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 // Top Bar: Brand & Skip Action
                 HStack {
-                    HStack(spacing: 6) {
+                    HStack(spacing: HIGTokens.Spacing.xs) {
                         Image(systemName: "cloud.fill")
-                            .font(.subheadline.weight(.bold))
+                            .font(HIGTypography.subheadline.weight(.bold))
                             .foregroundStyle(
                                 LinearGradient(
                                     colors: [.orange, .yellow],
@@ -63,7 +63,7 @@ struct OnboardingView: View {
                                 )
                             )
                         Text("Cloudns")
-                            .font(.system(.headline, design: .rounded).weight(.bold))
+                            .font(HIGTypography.headline.weight(.bold))
                             .foregroundStyle(.primary)
                     }
                     
@@ -73,15 +73,17 @@ struct OnboardingView: View {
                         HIGFeedback.impact(.light)
                         completeOnboarding()
                     }
-                    .font(.subheadline.weight(.medium))
+                    .font(HIGTypography.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, HIGTokens.Spacing.md)
+                    .padding(.vertical, HIGTokens.Spacing.xs + 2)
                     .background(Color(.tertiarySystemFill))
                     .clipShape(Capsule())
+                    .buttonStyle(.higPressable)
+                    .higTouchTarget()
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
+                .padding(.horizontal, HIGTokens.Spacing.xxl)
+                .padding(.top, HIGTokens.Spacing.md)
                 
                 // Tab Pages
                 TabView(selection: $currentPage) {
@@ -127,8 +129,8 @@ struct OnboardingView: View {
                 }
                 
                 // Bottom Controls
-                VStack(spacing: 20) {
-                    HStack(spacing: 8) {
+                VStack(spacing: HIGTokens.Spacing.xl) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         ForEach(0..<totalPages, id: \.self) { index in
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
@@ -136,7 +138,7 @@ struct OnboardingView: View {
                                 .animation(.spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                     
                     Button(action: {
                         if currentPage < totalPages - 1 {
@@ -149,12 +151,12 @@ struct OnboardingView: View {
                             completeOnboarding()
                         }
                     }) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: HIGTokens.Spacing.sm) {
                             Text(currentPage == totalPages - 1 ? "Get Started" : "Continue")
-                                .font(.body.weight(.semibold))
+                                .font(HIGTypography.body.weight(.semibold))
                             
                             Image(systemName: currentPage == totalPages - 1 ? "checkmark" : "arrow.right")
-                                .font(.subheadline.weight(.bold))
+                                .font(HIGTypography.subheadline.weight(.bold))
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -166,12 +168,13 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
-                    .padding(.horizontal, 24)
+                    .buttonStyle(.higPressable)
+                    .padding(.horizontal, HIGTokens.Spacing.xxl)
                 }
-                .padding(.bottom, 28)
+                .padding(.bottom, HIGTokens.Spacing.xxl)
             }
         }
     }
@@ -215,12 +218,12 @@ struct OnboardingPageView: View {
                     .frame(width: 156, height: 156)
                 
                 Circle()
-                    .fill(Color(.secondarySystemGroupedBackground).opacity(0.85))
+                    .fill(Color.higCardBackground.opacity(0.85))
                     .frame(width: 140, height: 140)
                     .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
                 
                 Image(systemName: icon)
-                    .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                    .font(HIGTypography.largeTitle.weight(.semibold))
                     .imageScale(.large)
                     .foregroundStyle(
                         LinearGradient(
@@ -234,37 +237,37 @@ struct OnboardingPageView: View {
             }
             .frame(height: 230)
             
-            Spacer(minLength: 24)
+            Spacer(minLength: HIGTokens.Spacing.xxl)
             
             Text(badgeText)
-                .font(.caption2.weight(.bold))
+                .font(HIGTypography.caption2.weight(.bold))
                 .foregroundStyle(color)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+                .padding(.horizontal, HIGTokens.Spacing.md)
+                .padding(.vertical, HIGTokens.Spacing.xs)
                 .background(color.opacity(0.12))
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
                         .stroke(color.opacity(0.25), lineWidth: 1)
                 )
-                .padding(.bottom, 12)
+                .padding(.bottom, HIGTokens.Spacing.md)
             
             Text(title)
-                .font(.system(.title, design: .rounded).weight(.bold))
+                .font(HIGTypography.title.weight(.bold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 10)
+                .padding(.horizontal, HIGTokens.Spacing.xxl)
+                .padding(.bottom, HIGTokens.Spacing.md)
                 .minimumScaleFactor(0.85)
             
             Text(description)
-                .font(.subheadline)
+                .font(HIGTypography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, HIGTokens.Spacing.huge)
             
-            Spacer(minLength: 40)
+            Spacer(minLength: HIGTokens.Spacing.huge)
         }
     }
 }

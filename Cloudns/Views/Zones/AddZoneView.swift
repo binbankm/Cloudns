@@ -97,7 +97,9 @@ struct AddZoneView: View {
                                 isPresented = false
                                 dismiss()
                             }
-                            .fontWeight(.bold)
+                            .font(HIGTypography.body.weight(.bold))
+                            .foregroundStyle(Color.higAccent)
+                            .higTouchTarget()
                         }
                     }
                 }
@@ -149,12 +151,13 @@ struct AddZoneView: View {
                                             .padding(.trailing, HIGTokens.Spacing.xs)
                                     }
                                     Text(isSubmitting ? "Adding…" : "Add Domain")
-                                        .fontWeight(.semibold)
+                                        .font(HIGTypography.body.weight(.semibold))
                                     Spacer()
                                 }
                                 .foregroundStyle(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting ? Color(.tertiaryLabel) : Color.higAccent)
                             }
                             .buttonStyle(.higPressable)
+                            .higTouchTarget()
                             .disabled(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                         }
                     }
@@ -172,6 +175,8 @@ struct AddZoneView: View {
                                     dismiss()
                                 }
                             }
+                            .font(HIGTypography.body)
+                            .higTouchTarget()
                         }
                     }
                     .interactiveDismissDisabled(hasChanges && !isSubmitting)

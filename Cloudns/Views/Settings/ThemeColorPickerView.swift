@@ -6,21 +6,22 @@ struct ThemeColorPickerView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     private let columns = [
-        GridItem(.adaptive(minimum: 72, maximum: 100), spacing: 16)
+        GridItem(.adaptive(minimum: 72, maximum: 100), spacing: HIGTokens.Spacing.lg)
     ]
     
     var body: some View {
         Form {
             Section {
-                LazyVGrid(columns: columns, spacing: 18) {
+                LazyVGrid(columns: columns, spacing: HIGTokens.Spacing.lg) {
                     ForEach(AppThemeColor.allCases) { theme in
                         Button {
+                            HIGFeedback.impact(.light)
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 themeManager.setThemeColor(theme)
                                 ToastManager.shared.showSuccess("Theme Color Updated", icon: "paintpalette.fill")
                             }
                         } label: {
-                            VStack(spacing: 8) {
+                            VStack(spacing: HIGTokens.Spacing.sm) {
                                 ZStack {
                                     Circle()
                                         .fill(theme.color)
@@ -29,27 +30,28 @@ struct ThemeColorPickerView: View {
                                     
                                     if themeManager.currentColor == theme {
                                         Image(systemName: "checkmark")
-                                            .font(.headline.weight(.bold))
+                                            .font(HIGTypography.headline.weight(.bold))
                                             .foregroundStyle(.white)
                                             .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                                 
                                 Text(theme.displayName)
-                                    .font(.caption2.weight(themeManager.currentColor == theme ? .bold : .medium))
+                                    .font(HIGTypography.caption2.weight(themeManager.currentColor == theme ? .bold : .medium))
                                     .foregroundStyle(themeManager.currentColor == theme ? .primary : .secondary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, HIGTokens.Spacing.xs)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget()
                         .accessibilityLabel(theme.displayName)
                         .accessibilityHint(themeManager.currentColor == theme ? "Currently selected theme color" : "Double tap to set as theme color")
                     }
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, HIGTokens.Spacing.sm)
             } header: {
                 Text("Accent Color")
             } footer: {
@@ -57,7 +59,7 @@ struct ThemeColorPickerView: View {
             }
             
             Section("Preview") {
-                HStack(spacing: 12) {
+                HStack(spacing: HIGTokens.Spacing.md) {
                     Button("Solid Button") {}
                         .buttonStyle(.borderedProminent)
                         .tint(themeManager.currentColor.color)
@@ -72,7 +74,7 @@ struct ThemeColorPickerView: View {
                     .tint(themeManager.currentColor.color)
                     .labelsHidden()
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, HIGTokens.Spacing.xs)
             }
         }
         .navigationTitle("Theme Color")

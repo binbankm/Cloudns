@@ -51,13 +51,8 @@ struct DurableObjectNamespaceDetailView: View {
             
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
                 if isLoading && objects.isEmpty {
-                    HStack {
-                        Spacer()
-                        ProgressView("Loading instances…")
-                            .font(HIGTypography.caption)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    HIGContentState(.loading(message: "Loading instances…"))
+                        .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if let err = errorMessage, objects.isEmpty {
                     HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")

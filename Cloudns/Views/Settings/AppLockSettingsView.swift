@@ -37,7 +37,7 @@ struct AppLockSettingsView: View {
                     }
                 )) {
                     toggleLabel
-                        .font(.body)
+                        .font(HIGTypography.body)
                 }
             } footer: {
                 footerLabel
@@ -53,20 +53,21 @@ struct AppLockSettingsView: View {
                         } label: {
                             HStack {
                                 Text(option.title)
-                                    .font(.body)
+                                    .font(HIGTypography.body)
                                     .foregroundStyle(.primary)
                                 
                                 Spacer()
                                 
                                 if autoLockTimeout == option.seconds {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.title3)
-                                        .foregroundStyle(.blue)
+                                        .font(HIGTypography.title3)
+                                        .foregroundStyle(Color.higAccent)
                                 }
                             }
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget()
                     }
                 } header: {
                     Text("Auto-Lock")

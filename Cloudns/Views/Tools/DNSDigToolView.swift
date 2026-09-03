@@ -97,13 +97,8 @@ struct DNSDigToolView: View {
             if queryMode == 0 {
                 if viewModel.isDnsLoading {
                     Section {
-                        HStack {
-                            Spacer()
-                            ProgressView("Resolving DNS Records…")
-                                .font(HIGTypography.subheadline)
-                            Spacer()
-                        }
-                        .padding(.vertical, HIGTokens.Spacing.sm)
+                        HIGContentState(.loading(message: "Resolving DNS Records…"))
+                            .padding(.vertical, HIGTokens.Spacing.sm)
                     }
                 } else if let result = viewModel.dnsResult {
                     Section(header: Text("Resolved Answers (\(result.answers.count))")) {

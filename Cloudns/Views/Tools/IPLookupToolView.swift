@@ -63,13 +63,8 @@ struct IPLookupToolView: View {
             
             if viewModel.isLoading && viewModel.lookupResult == nil {
                 Section {
-                    HStack {
-                        Spacer()
-                        ProgressView("Querying IP…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Querying IP…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.lookupResult {
                 // 2. Identification Hero Section

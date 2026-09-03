@@ -364,14 +364,9 @@ struct DashboardView: View {
             .padding(.horizontal, HIGTokens.Spacing.xxs)
             
             if !viewModel.hasFetchedData {
-                HStack {
-                    Spacer()
-                    ProgressView("Loading Domains…")
-                        .padding(.vertical, HIGTokens.Spacing.xxl)
-                    Spacer()
-                }
-                .background(Color.higCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                HIGContentState(.loading(message: "Loading Domains…"))
+                    .frame(maxWidth: .infinity, minHeight: 120)
+                    .higCardStyle(isElevated: true)
             } else if viewModel.zones.isEmpty {
                 HIGContentState(
                     .empty(

@@ -221,7 +221,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         if viewModel.chatMessages.isEmpty {
                             VStack(spacing: HIGTokens.Spacing.sm) {
                                 Image(systemName: "brain.head.profile")
-                                    .font(.system(.largeTitle, design: .rounded).weight(.medium))
+                                    .font(HIGTypography.largeTitle.weight(.medium))
                                     .foregroundStyle(.purple)
                                     .padding(.top, HIGTokens.Spacing.xxl)
                                 
@@ -299,6 +299,9 @@ struct WorkersAIPlaygroundSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
+                        .font(HIGTypography.body.weight(.semibold))
+                        .foregroundStyle(Color.higAccent)
+                        .higTouchTarget()
                 }
             }
         }

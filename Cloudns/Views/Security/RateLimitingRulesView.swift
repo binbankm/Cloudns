@@ -99,12 +99,16 @@ struct RateLimitingRulesView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
+                    HIGFeedback.impact(.light)
                     showingAddSheet = true
                 }) {
                     Image(systemName: "plus")
+                        .font(HIGTypography.body.weight(.semibold))
+                        .foregroundStyle(Color.higAccent)
                 }
+                .buttonStyle(.higPressable)
                 .accessibilityLabel("Add Rate Limiting Rule")
-                .higTouchTarget(44)
+                .higTouchTarget()
             }
         }
         .sheet(isPresented: $showingAddSheet) {

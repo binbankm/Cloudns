@@ -232,6 +232,9 @@ struct DNSPresetsSheetView: View {
                     Button("Close") {
                         dismiss()
                     }
+                    .font(HIGTypography.body.weight(.semibold))
+                    .foregroundStyle(Color.higAccent)
+                    .higTouchTarget()
                 }
             }
             .sheet(item: $selectedGroup) { group in
@@ -275,7 +278,7 @@ struct DNSPresetsSheetView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
                                 
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
-                                    .font(.system(.subheadline, design: .monospaced).weight(.medium))
+                                    .font(HIGTypography.subheadline.monospaced().weight(.medium))
                                     .lineLimit(1)
                                 
                                 Spacer()
@@ -288,7 +291,7 @@ struct DNSPresetsSheetView: View {
                             }
                             
                             Text(verbatim: item.content)
-                                .font(.system(.caption, design: .monospaced))
+                                .font(HIGTypography.caption.monospaced())
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                         }
@@ -331,6 +334,9 @@ struct DNSPresetsSheetView: View {
                     Button("Done") {
                         selectedGroup = nil
                     }
+                    .font(HIGTypography.body.weight(.semibold))
+                    .foregroundStyle(Color.higAccent)
+                    .higTouchTarget()
                 }
             }
         }

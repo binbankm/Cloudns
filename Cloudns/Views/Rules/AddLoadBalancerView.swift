@@ -159,18 +159,21 @@ struct AddLoadBalancerView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .higTouchTarget(44)
+                    .font(HIGTypography.body)
+                    .higTouchTarget()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
                         if isSubmitting {
                             ProgressView().progressViewStyle(CircularProgressViewStyle())
                         } else {
-                            Text("Save").fontWeight(.semibold)
+                            Text("Save")
+                                .font(HIGTypography.body.weight(.semibold))
+                                .foregroundStyle(Color.higAccent)
                         }
                     }
                     .disabled(!isValid || isSubmitting)
-                    .higTouchTarget(44)
+                    .higTouchTarget()
                 }
             }
             .interactiveDismissDisabled(isSubmitting)

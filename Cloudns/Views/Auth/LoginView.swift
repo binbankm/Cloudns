@@ -52,39 +52,41 @@ struct LoginView: View {
                                 hasSeenOnboarding = false
                             }
                         } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
                                 Image(systemName: "chevron.left")
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(HIGTypography.subheadline.weight(.semibold))
                                 Text("Introduction")
-                                    .font(.subheadline.weight(.medium))
+                                    .font(HIGTypography.subheadline.weight(.medium))
                             }
                             .foregroundStyle(.secondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .padding(.horizontal, HIGTokens.Spacing.md)
+                            .padding(.vertical, HIGTokens.Spacing.xs + 3)
                             .background(Color(.tertiarySystemFill))
                             .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget()
                     } else {
                         Button {
                             HIGFeedback.impact(.light)
                             dismiss()
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.subheadline.weight(.semibold))
+                                .font(HIGTypography.subheadline.weight(.semibold))
                                 .foregroundStyle(.secondary)
-                                .padding(8)
+                                .padding(HIGTokens.Spacing.sm)
                                 .background(Color(.tertiarySystemFill))
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
+                        .higTouchTarget()
                     }
                     
                     Spacer()
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 4)
+                .padding(.horizontal, HIGTokens.Spacing.xl)
+                .padding(.top, HIGTokens.Spacing.md)
+                .padding(.bottom, HIGTokens.Spacing.xs)
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -127,32 +129,32 @@ struct LoginView: View {
                         }
                         .frame(height: 80)
                         
-                        VStack(spacing: 4) {
+                        VStack(spacing: HIGTokens.Spacing.xs) {
                             Text(onLoginSuccess == nil ? "Welcome to Cloudns" : "Add Account")
-                                .font(.system(.title2, design: .rounded).weight(.bold))
+                                .font(HIGTypography.title2)
                                 .foregroundStyle(.primary)
                             
                             Text(onLoginSuccess == nil ? "Connect your Cloudflare API to manage edge fleets." : "Enter your Cloudflare credentials.")
-                                .font(.subheadline)
+                                .font(HIGTypography.subheadline)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
-                                .padding(.horizontal, 24)
+                                .padding(.horizontal, HIGTokens.Spacing.xxl)
                         }
                     }
-                    .padding(.bottom, 4)
+                    .padding(.bottom, HIGTokens.Spacing.xs)
                     
                     // 3. Frosted Credentials Card
-                    VStack(spacing: 16) {
+                    VStack(spacing: HIGTokens.Spacing.lg) {
                         // Email Field
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                             Text("Account Email")
-                                .font(.caption.weight(.semibold))
+                                .font(HIGTypography.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
                             
-                            HStack(spacing: 10) {
+                            HStack(spacing: HIGTokens.Spacing.md) {
                                 Image(systemName: "envelope.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(focusedField == .email ? .orange : .gray)
+                                    .font(HIGTypography.subheadline)
+                                    .foregroundStyle(focusedField == .email ? Color.higAccent : .gray)
                                     .frame(width: 20)
                                 
                                 TextField("name@example.com", text: $viewModel.email)
@@ -175,25 +177,25 @@ struct LoginView: View {
                                             .foregroundStyle(.tertiary)
                                     }
                                     .buttonStyle(.plain)
-                                    .higTouchTarget(36)
+                                    .higTouchTarget()
                                     .accessibilityLabel("Clear email")
                                 }
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, HIGTokens.Spacing.md)
+                            .padding(.vertical, HIGTokens.Spacing.md)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(focusedField == .email ? Color.orange : Color.clear, lineWidth: 1.5)
+                                RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
+                                    .stroke(focusedField == .email ? Color.higAccent : Color.clear, lineWidth: 1.5)
                             )
                         }
                         
                         // API Key Field
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                             HStack {
                                 Text("Global API Key")
-                                    .font(.caption.weight(.semibold))
+                                    .font(HIGTypography.caption.weight(.semibold))
                                     .foregroundStyle(.secondary)
                                 
                                 Spacer()
@@ -205,16 +207,16 @@ struct LoginView: View {
                                             HIGFeedback.copied()
                                         }
                                     }
-                                    .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(.orange)
-                                    .higTouchTarget(36)
+                                    .font(HIGTypography.caption2.weight(.semibold))
+                                    .foregroundStyle(Color.higAccent)
+                                    .higTouchTarget()
                                 }
                             }
                             
-                            HStack(spacing: 10) {
+                            HStack(spacing: HIGTokens.Spacing.md) {
                                 Image(systemName: "key.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(focusedField == .apiKey ? .orange : .gray)
+                                    .font(HIGTypography.subheadline)
+                                    .foregroundStyle(focusedField == .apiKey ? Color.higAccent : .gray)
                                     .frame(width: 20)
                                 
                                 if isShowingApiKey {
@@ -253,20 +255,20 @@ struct LoginView: View {
                                     HIGFeedback.toggled()
                                 } label: {
                                     Image(systemName: isShowingApiKey ? "eye.slash.fill" : "eye.fill")
-                                        .font(.caption)
+                                        .font(HIGTypography.caption)
                                         .foregroundStyle(.tertiary)
                                 }
                                 .buttonStyle(.plain)
-                                .higTouchTarget(36)
+                                .higTouchTarget()
                                 .accessibilityLabel(isShowingApiKey ? "Hide API key" : "Show API key")
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, HIGTokens.Spacing.md)
+                            .padding(.vertical, HIGTokens.Spacing.md)
                             .background(Color(.tertiarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(focusedField == .apiKey ? Color.orange : Color.clear, lineWidth: 1.5)
+                                RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
+                                    .stroke(focusedField == .apiKey ? Color.higAccent : Color.clear, lineWidth: 1.5)
                             )
                         }
                         
@@ -305,11 +307,11 @@ struct LoginView: View {
                                     ProgressView()
                                         .tint(.white)
                                 } else {
-                                    HStack(spacing: 6) {
+                                    HStack(spacing: HIGTokens.Spacing.xs) {
                                         Text("Log In to Dashboard")
-                                            .font(.body.weight(.semibold))
+                                            .font(HIGTypography.body.weight(.semibold))
                                         Image(systemName: "arrow.right")
-                                            .font(.caption.weight(.bold))
+                                            .font(HIGTypography.caption.weight(.bold))
                                     }
                                 }
                             }
@@ -325,45 +327,46 @@ struct LoginView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
                             .shadow(color: isButtonDisabled ? Color.clear : themeManager.currentColor.color.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .buttonStyle(.higPressable)
                         .disabled(isButtonDisabled)
                     }
-                    .padding(16)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .padding(.horizontal, 16)
+                    .padding(HIGTokens.Spacing.lg)
+                    .background(Color.higCardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+                    .padding(.horizontal, HIGTokens.Spacing.lg)
                     
                     // 4. Helper Links & Guide
-                    VStack(spacing: 12) {
+                    VStack(spacing: HIGTokens.Spacing.md) {
                         Button(action: {
                             if let url = URL(string: "https://dash.cloudflare.com/profile/api-tokens") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: HIGTokens.Spacing.xs) {
                                 Image(systemName: "questionmark.circle")
-                                    .font(.caption)
+                                    .font(HIGTypography.caption)
                                 Text("Where to find your Global API Key?")
-                                    .font(.caption.weight(.medium))
+                                    .font(HIGTypography.caption.weight(.medium))
                             }
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color.higAccent)
                         }
+                        .higTouchTarget()
                         
                         // Apple Keychain Security Seal
-                        HStack(spacing: 6) {
+                        HStack(spacing: HIGTokens.Spacing.xs) {
                             Image(systemName: "lock.shield.fill")
-                                .font(.caption2)
+                                .font(HIGTypography.caption2)
                                 .foregroundStyle(.secondary)
                             Text("Protected by Apple Keychain Isolation")
-                                .font(.caption2)
+                                .font(HIGTypography.caption2)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.top, 4)
+                        .padding(.top, HIGTokens.Spacing.xs)
                     }
-                    .padding(.bottom, 24)
+                    .padding(.bottom, HIGTokens.Spacing.xxl)
                 }
             }
             .scrollIndicators(.hidden)

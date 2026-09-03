@@ -48,12 +48,8 @@ struct DNSExportSheetView: View {
             List {
                 if isLoading {
                     Section {
-                        HStack {
-                            Spacer()
-                            ProgressView("Generating BIND Zone File…")
-                            Spacer()
-                        }
-                        .padding(.vertical, HIGTokens.Spacing.lg)
+                        HIGContentState(.loading(message: "Generating BIND Zone File…"))
+                            .padding(.vertical, HIGTokens.Spacing.lg)
                     }
                 } else {
                     // MARK: - Summary Section
@@ -77,6 +73,8 @@ struct DNSExportSheetView: View {
                             Label("Copy All Records", systemImage: "doc.on.doc")
                                 .foregroundStyle(Color.higAccent)
                         }
+                        .buttonStyle(.higPressable)
+                        .higTouchTarget()
                         
                         if let url = exportedFileURL {
                             ShareLink(
@@ -87,6 +85,8 @@ struct DNSExportSheetView: View {
                                 Label("Share Zone File", systemImage: "square.and.arrow.up")
                                     .foregroundStyle(Color.higAccent)
                             }
+                            .buttonStyle(.higPressable)
+                            .higTouchTarget()
                         }
                         
                         Button {
@@ -96,6 +96,8 @@ struct DNSExportSheetView: View {
                             Label("Save to Files", systemImage: "folder")
                                 .foregroundStyle(Color.higAccent)
                         }
+                        .buttonStyle(.higPressable)
+                        .higTouchTarget()
                     }
                     
                     // MARK: - Zone File Content Preview
@@ -141,6 +143,9 @@ struct DNSExportSheetView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .font(HIGTypography.body.weight(.semibold))
+                    .foregroundStyle(Color.higAccent)
+                    .higTouchTarget()
                 }
             }
             .task {

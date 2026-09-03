@@ -64,13 +64,8 @@ struct D1ConsoleView: View {
             // MARK: - Database Tables
             Section(header: Text("Database Tables (\(viewModel.tables.count))")) {
                 if viewModel.isLoadingTables && viewModel.tables.isEmpty {
-                    HStack {
-                        Spacer()
-                        ProgressView("Loading Tables…")
-                            .font(HIGTypography.caption)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    HIGContentState(.loading(message: "Loading Tables…"))
+                        .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if viewModel.tables.isEmpty {
                     Text("No tables found. Create a table using SQL below.")
                         .font(HIGTypography.subheadline)

@@ -28,15 +28,16 @@ struct AppLockView: View {
                     authManager.authenticate()
                 } label: {
                     Label("Tap to Unlock", systemImage: "lock.open.fill")
-                        .font(.subheadline.weight(.medium))
+                        .font(HIGTypography.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, HIGTokens.Spacing.lg)
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.higPressable)
-                .padding(.bottom, 50)
+                .higTouchTarget()
+                .padding(.bottom, HIGTokens.Spacing.huge)
             }
         }
     }

@@ -96,13 +96,8 @@ struct DashboardZoneTrafficChartView: View {
     @ViewBuilder
     private var chartBodyView: some View {
         if viewModel.fleetMetrics.isEmpty {
-            HStack {
-                Spacer()
-                ProgressView("Loading Analytics…")
-                    .font(HIGTypography.subheadline)
-                Spacer()
-            }
-            .frame(height: 160)
+            HIGContentState(.loading(message: "Loading Analytics…"))
+                .frame(height: 160)
         } else {
             let metrics = viewModel.fleetMetrics
             let themeColor = metricColor(viewModel.selectedChartMetric)

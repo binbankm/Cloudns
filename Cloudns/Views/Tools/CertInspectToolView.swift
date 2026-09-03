@@ -63,13 +63,8 @@ struct CertInspectToolView: View {
             
             if viewModel.isLoading && viewModel.certDetails == nil {
                 Section {
-                    HStack {
-                        Spacer()
-                        ProgressView("Inspecting SSL Certificate…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Inspecting SSL Certificate…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let details = viewModel.certDetails {
                 // 2. Validity Hero Section

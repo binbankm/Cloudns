@@ -37,11 +37,15 @@ struct ZonesListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        HIGFeedback.impact(.light)
                         viewModel.addZoneError = nil
                         showAddZoneSheet = true
                     } label: {
                         Image(systemName: "plus")
+                            .font(HIGTypography.body.weight(.semibold))
+                            .foregroundStyle(Color.higAccent)
                     }
+                    .buttonStyle(.higPressable)
                     .accessibilityLabel("Add Domain")
                     .higTouchTarget()
                     .keyboardShortcut("n", modifiers: .command)

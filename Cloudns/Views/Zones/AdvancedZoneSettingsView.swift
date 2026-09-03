@@ -112,6 +112,8 @@ struct AdvancedZoneSettingsView: View {
                         }
                     }
                 }
+                .buttonStyle(.higPressable)
+                .higTouchTarget()
                 .disabled(isDeleting)
             }
         }

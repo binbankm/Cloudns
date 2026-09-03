@@ -90,13 +90,8 @@ struct DNSPropagationView: View {
             
             if viewModel.isPropagationLoading {
                 Section(header: Text("Querying 8 Global Edge Nodes…")) {
-                    HStack {
-                        Spacer()
-                        ProgressView("Probing Anycast Edge Resolvers…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Probing Anycast Edge Resolvers…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card

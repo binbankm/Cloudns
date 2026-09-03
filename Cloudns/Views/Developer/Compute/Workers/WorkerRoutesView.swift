@@ -74,13 +74,8 @@ struct WorkerRoutesView: View {
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
             ) {
                 if !hasFetchedData && isLoading {
-                    HStack {
-                        Spacer()
-                        ProgressView("Loading Routes…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Loading Routes…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 } else if customDomains.isEmpty {
                     Text("No custom domains attached.")
                         .font(HIGTypography.subheadline)

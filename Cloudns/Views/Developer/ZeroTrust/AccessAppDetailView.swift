@@ -36,12 +36,8 @@ struct AccessAppDetailView: View {
             
             Section(header: Text("Access Policies (\(policies.count))")) {
                 if isLoadingPolicies && policies.isEmpty {
-                    HStack {
-                        Spacer()
-                        ProgressView("Loading Policies…")
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    HIGContentState(.loading(message: "Loading Policies…"))
+                        .padding(.vertical, HIGTokens.Spacing.xs)
                 } else if let err = errorMessage, policies.isEmpty {
                     Text(verbatim: err)
                         .font(HIGTypography.caption)

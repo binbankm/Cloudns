@@ -32,7 +32,9 @@ struct WorkerDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
-                .higTouchTarget(44)
+                .font(HIGTypography.body.weight(.semibold))
+                .foregroundStyle(Color.higAccent)
+                .higTouchTarget()
             }
         }
         .task {

@@ -47,33 +47,33 @@ struct AccountsView: View {
                         HIGFeedback.impact(.light)
                         isShowingAddAccount = true
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: HIGTokens.Spacing.md) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.orange.opacity(0.12))
+                                    .fill(Color.higAccentSubtle)
                                     .frame(width: 36, height: 36)
                                 Image(systemName: "person.badge.plus")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(.orange)
+                                    .font(HIGTypography.subheadline.weight(.semibold))
+                                    .foregroundStyle(Color.higAccent)
                             }
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                                 Text("Add Another Account")
-                                    .font(.body.weight(.medium))
+                                    .font(HIGTypography.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 
                                 Text("Manage multiple Cloudflare organizations")
-                                    .font(.caption2)
+                                    .font(HIGTypography.caption2)
                                     .foregroundStyle(.secondary)
                             }
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
+                                .font(HIGTypography.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, HIGTokens.Spacing.xxs)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.higPressable)
@@ -81,16 +81,16 @@ struct AccountsView: View {
                 
                 // 4. Security & Keychain Footer Section
                 Section {
-                    HStack(spacing: 10) {
+                    HStack(spacing: HIGTokens.Spacing.sm) {
                         Image(systemName: "lock.shield.fill")
-                            .font(.subheadline)
+                            .font(HIGTypography.subheadline)
                             .foregroundStyle(.secondary)
                         
                         Text("All API keys and tokens are securely stored in the iOS Keychain with hardware-level Secure Enclave encryption.")
-                            .font(.caption)
+                            .font(HIGTypography.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, HIGTokens.Spacing.xs)
                 }
             }
             .listStyle(.insetGrouped)
@@ -101,8 +101,8 @@ struct AccountsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.orange)
+                    .font(HIGTypography.body.weight(.semibold))
+                    .foregroundStyle(Color.higAccent)
                 }
             }
             .sheet(isPresented: $isShowingAddAccount) {
@@ -131,13 +131,13 @@ struct AccountsView: View {
     // MARK: - Active Account Hero Row
     @ViewBuilder
     private func activeAccountHeroRow(email: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: HIGTokens.Spacing.md) {
             AccountAvatarView(identifier: email, size: 46)
             
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Text(email)
-                        .font(.body.weight(.semibold))
+                        .font(HIGTypography.body.weight(.semibold))
                         .foregroundStyle(.primary)
                         .minimumScaleFactor(0.75)
                         .lineLimit(1)
@@ -148,14 +148,14 @@ struct AccountsView: View {
                         ToastManager.shared.showCopied()
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.caption2)
+                            .font(HIGTypography.caption2)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.higPressable)
                     .higTouchTarget()
                 }
                 
-                HStack(spacing: 6) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     HIGBadge(.active("Active"), isCompact: true)
                         .fixedSize(horizontal: true, vertical: false)
                     
@@ -166,46 +166,46 @@ struct AccountsView: View {
                 }
             }
             
-            Spacer(minLength: 4)
+            Spacer(minLength: HIGTokens.Spacing.xs)
             
             Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
-                .foregroundStyle(.orange)
+                .font(HIGTypography.title3)
+                .foregroundStyle(Color.higAccent)
                 .accessibilityLabel("Current Active Account")
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xs)
     }
     
     // MARK: - Account Row
     @ViewBuilder
     private func accountRow(email: String, isActive: Bool) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: HIGTokens.Spacing.md) {
             AccountAvatarView(identifier: email, size: 34)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(email)
-                    .font(.body.weight(.medium))
+                    .font(HIGTypography.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 let key = accountManager.getAPIKey(for: email) ?? ""
                 let isToken = key.count > 37 || key.contains("_")
                 Text(isToken ? "Scoped API Token" : "Global API Key")
-                    .font(.caption2)
+                    .font(HIGTypography.caption2)
                     .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             Text("Switch")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.orange)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.orange.opacity(0.12))
+                .font(HIGTypography.caption.weight(.semibold))
+                .foregroundStyle(Color.higAccent)
+                .padding(.horizontal, HIGTokens.Spacing.md)
+                .padding(.vertical, HIGTokens.Spacing.xs)
+                .background(Color.higAccentSubtle)
                 .clipShape(Capsule())
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
         .contentShape(Rectangle())
     }
     

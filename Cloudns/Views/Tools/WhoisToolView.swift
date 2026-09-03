@@ -87,13 +87,8 @@ struct WhoisToolView: View {
             
             if viewModel.isLoading && viewModel.info == nil {
                 Section {
-                    HStack {
-                        Spacer()
-                        ProgressView("Querying Whois Database…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Querying Whois Database…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let info = viewModel.info {
                 // 2. Registration Hero Section

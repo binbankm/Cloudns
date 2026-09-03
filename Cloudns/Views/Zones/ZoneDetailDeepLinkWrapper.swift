@@ -33,7 +33,9 @@ struct ZoneDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
-                .fontWeight(.semibold)
+                .font(HIGTypography.body.weight(.semibold))
+                .foregroundStyle(Color.higAccent)
+                .higTouchTarget()
             }
         }
         .task {

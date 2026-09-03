@@ -78,13 +78,8 @@ struct HTTPHeaderInspectorView: View {
             
             if viewModel.isHttpLoading {
                 Section {
-                    HStack {
-                        Spacer()
-                        ProgressView("Inspecting Edge Response…")
-                            .font(HIGTypography.subheadline)
-                        Spacer()
-                    }
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    HIGContentState(.loading(message: "Inspecting Edge Response…"))
+                        .padding(.vertical, HIGTokens.Spacing.sm)
                 }
             } else if let result = viewModel.httpResult {
                 // 2. Edge & Performance Hero Section

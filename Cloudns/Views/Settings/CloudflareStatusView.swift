@@ -70,9 +70,12 @@ struct CloudflareStatusView: View {
                 Text(viewModel.hasFetchedData ? "PoPs (\(popsComponents.count))" : "PoPs").tag(StatusFilterTab.pops)
             }
             .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .padding(.horizontal, HIGTokens.Spacing.lg)
+            .padding(.vertical, HIGTokens.Spacing.sm)
+            .background(Color.higGroupBackground)
+            .onChange(of: selectedTab) { _ in
+                HIGFeedback.selection()
+            }
             
             contentView
         }
@@ -82,16 +85,19 @@ struct CloudflareStatusView: View {
             prompt: "Search Services or PoPs"
         )
         .scrollDismissesKeyboard(.interactively)
-        .background(Color(.systemGroupedBackground))
+        .background(Color.higGroupBackground)
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if let url = URL(string: "https://www.cloudflarestatus.com") {
                     Link(destination: url) {
-                        Image(systemName: "safari").font(.subheadline)
+                        Image(systemName: "safari")
+                            .font(HIGTypography.subheadline)
                             .accessibilityLabel("Open Statuspage in Browser")
                     }
+                    .buttonStyle(.higPressable)
+                    .higTouchTarget()
                 }
             }
         }
@@ -176,20 +182,20 @@ struct CloudflareStatusView: View {
     // MARK: - Component Row View
     @ViewBuilder
     private func componentRow(_ comp: CFComponentItem) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: HIGTokens.Spacing.md) {
             Circle()
                 .fill(statusColor(comp.status))
                 .frame(width: 8, height: 8)
                 .shadow(color: statusColor(comp.status).opacity(comp.status.lowercased() == "operational" ? 0 : 0.4), radius: 2)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
                 Text(comp.name)
-                    .font(.body)
+                    .font(HIGTypography.body)
                     .foregroundStyle(.primary)
                 
                 if let iata = extractIATA(comp.name) {
                     Text(iata)
-                        .font(.caption2.monospaced())
+                        .font(HIGTypography.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
@@ -198,32 +204,32 @@ struct CloudflareStatusView: View {
             
             HIGBadge(badgeTypeForStatus(comp.status), isCompact: true)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, HIGTokens.Spacing.xxs)
     }
     
     // MARK: - Incident Row View
     @ViewBuilder
     private func incidentRow(_ inc: CFIncidentItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
             HStack {
                 Text(inc.name)
-                    .font(.body.weight(.semibold))
+                    .font(HIGTypography.body.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
                 HIGBadge(.warning(inc.status.capitalized), isCompact: true)
             }
             
             if let updated = inc.updatedAt, let date = DateFormatters.parseISO8601(updated) {
-                HStack(spacing: 4) {
+                HStack(spacing: HIGTokens.Spacing.xs) {
                     Image(systemName: "clock")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                     Text("Updated: \(date.displayFormatted(date: .abbreviated, time: .shortened))")
-                        .font(.caption2)
+                        .font(HIGTypography.caption2)
                 }
                 .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, HIGTokens.Spacing.xs)
     }
     
     // MARK: - Overall Banner Card
@@ -231,30 +237,30 @@ struct CloudflareStatusView: View {
         let isOperational = summary.status?.indicator == "none"
         let bgColor = isOperational ? Color.green : Color.orange
         
-        return HStack(spacing: 14) {
+        return HStack(spacing: HIGTokens.Spacing.md) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                .font(.title)
+                .font(HIGTypography.title)
                 .foregroundStyle(.white)
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
                 Text(summary.status?.description ?? "All Systems Operational")
-                    .font(.body.weight(.semibold))
+                    .font(HIGTypography.body.weight(.semibold))
                     .foregroundStyle(.white)
                 
                 Text(isOperational ? "Cloudflare Global Network & Edge Services Normal" : "Some services or edge data centers are degraded")
-                    .font(.caption)
+                    .font(HIGTypography.caption)
                     .foregroundStyle(.white.opacity(0.85))
             }
             
             Spacer()
         }
-        .padding(16)
+        .padding(HIGTokens.Spacing.lg)
         .background(bgColor.gradient)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
         .shadow(color: bgColor.opacity(0.25), radius: 6, x: 0, y: 3)
-        .padding(.horizontal)
-        .padding(.top, 4)
+        .padding(.horizontal, HIGTokens.Spacing.lg)
+        .padding(.top, HIGTokens.Spacing.xs)
     }
     
     // MARK: - Helpers

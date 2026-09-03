@@ -235,7 +235,7 @@ struct ZoneAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(value)
-                .font(.system(.title2, design: .rounded).weight(.bold).monospacedDigit())
+                .font(HIGTypography.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -248,14 +248,8 @@ struct ZoneAnalyticsView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .padding(HIGTokens.Spacing.md)
-        .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .frame(maxWidth: .infinity, minHeight: 102, alignment: .topLeading)
+        .higCardStyle(padding: HIGTokens.Spacing.md, isElevated: true)
     }
     
     private var requestsLineChartCard: some View {
@@ -276,7 +270,7 @@ struct ZoneAnalyticsView: View {
                     
                     HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs + 2) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
-                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
+                            .font(HIGTypography.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
                             .font(HIGTypography.caption.weight(.medium))
@@ -449,7 +443,7 @@ struct ZoneAnalyticsView: View {
                     
                     HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs + 2) {
                         Text(verbatim: ByteCountFormatters.format(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
-                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
+                            .font(HIGTypography.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedBandwidthPoint != nil ? "transferred" : "total")
                             .font(HIGTypography.caption.weight(.medium))
@@ -641,14 +635,15 @@ struct ZoneAnalyticsView: View {
                         PulsingAnnotationView(item: item, isSelected: selectedCountry == item.countryCode)
                     }
                     .buttonStyle(.plain)
-                    .higTouchTarget(44)
+                    .higTouchTarget()
                 }
             }
             
             Button {
                 withAnimation(.easeInOut) { selectedCountry = nil }
             } label: {
-                Color.white.opacity(0.001)
+                Color.clear
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .allowsHitTesting(selectedCountry != nil)
@@ -671,13 +666,19 @@ struct ZoneAnalyticsView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
                     }
-                    .higTouchTarget(44)
+                    .buttonStyle(.plain)
+                    .higTouchTarget()
+                    .accessibilityLabel("Dismiss country details")
                 }
                 .padding(.horizontal, HIGTokens.Spacing.lg)
                 .padding(.vertical, HIGTokens.Spacing.md)
                 .background(Color.higCardBackground.opacity(0.95))
                 .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
-                .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous)
+                        .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
+                )
+                .shadow(color: Color.black.opacity(0.08), radius: HIGTokens.Elevation.cardShadowRadius, x: 0, y: HIGTokens.Elevation.cardShadowY)
                 .padding(.horizontal, HIGTokens.Spacing.xl)
                 .padding(.bottom, HIGTokens.Spacing.md)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
