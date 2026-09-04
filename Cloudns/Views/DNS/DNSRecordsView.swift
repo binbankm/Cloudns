@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - DNSRecordsView
-// Apple HIG Compliant DNS Record Management
+// Apple HIG Compliant DNS Record Management (iOS 16.0+)
 
 struct DNSRecordsView: View {
     let zoneId: String
@@ -34,6 +34,69 @@ struct DNSRecordsView: View {
     }
     
     var body: some View {
+        recordsList
+            .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.interactively)
+            .searchable(
+                text: $viewModel.searchQuery,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search Records"
+            )
+            .navigationTitle("DNS Records")
+            .navigationBarTitleDisplayMode(.inline)
+            .refreshable {
+                await viewModel.fetchRecords(isRefresh: true)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    trailingToolbar
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    bottomBar
+                }
+            }
+            .modifier(DNSRecordsSheetsModifier(
+                zoneName: zoneName,
+                zoneId: zoneId,
+                showingExportSheet: $showingExportSheet,
+                showingPresetsSheet: $showingPresetsSheet,
+                showingImporter: $showingImporter,
+                showingForm: $showingForm,
+                recordToEdit: $recordToEdit,
+                viewModel: viewModel
+            ))
+            .modifier(DNSRecordsDialogsModifier(
+                showingSingleDeleteDialog: $showingSingleDeleteDialog,
+                showingBatchDeleteDialog: $showingBatchDeleteDialog,
+                recordToDelete: $recordToDelete,
+                multiSelection: $multiSelection,
+                editMode: editMode,
+                viewModel: viewModel
+            ))
+            .listState(
+                isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+                loadingMessage: "Loading DNS Records…",
+                error: viewModel.records.isEmpty ? viewModel.errorMessage : nil,
+                isEmpty: viewModel.hasFetchedData && viewModel.records.isEmpty,
+                empty: .init(
+                    title: "No DNS Records",
+                    systemImage: "list.bullet.rectangle",
+                    description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
+                    actionTitle: "Add Record",
+                    action: { showingForm = true }
+                ),
+                searchQuery: (viewModel.hasFetchedData && displayRecords.isEmpty && !viewModel.searchQuery.isEmpty) ? viewModel.searchQuery : nil,
+                onRetry: { Task { await viewModel.fetchRecords(isRefresh: true) } }
+            )
+            .task {
+                if !viewModel.hasFetchedData {
+                    await viewModel.fetchRecords()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var recordsList: some View {
         List(selection: $multiSelection) {
             if !displayRecords.isEmpty {
                 recordsSections
@@ -52,161 +115,21 @@ struct DNSRecordsView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
-        .scrollDismissesKeyboard(.interactively)
-        .searchable(
-            text: $viewModel.searchQuery,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search Records"
-        )
-        .navigationTitle("DNS Records")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable {
-            await viewModel.fetchRecords(isRefresh: true)
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                trailingToolbar
+    }
+    
+    @ViewBuilder
+    private var bottomBar: some View {
+        let isEditing = editMode?.wrappedValue.isEditing ?? false
+        if isEditing && !multiSelection.isEmpty {
+            let selectedCount = multiSelection.count
+            Button(role: .destructive) {
+                HIGFeedback.impact(.medium)
+                showingBatchDeleteDialog = true
+            } label: {
+                Text("Delete Selected (\(selectedCount))")
+                    .foregroundStyle(.red)
             }
-            
-            ToolbarItem(placement: .bottomBar) {
-                let isEditing = editMode?.wrappedValue.isEditing ?? false
-                if isEditing && !multiSelection.isEmpty {
-                    let selectedCount = multiSelection.count
-                    Button(role: .destructive) {
-                        HIGFeedback.impact(.medium)
-                        showingBatchDeleteDialog = true
-                    } label: {
-                        Text("Delete Selected (\(selectedCount))")
-                            .foregroundStyle(HIGColors.error)
-                    }
-                    .tint(HIGColors.error)
-                }
-            }
-        }
-        .sheet(isPresented: $showingExportSheet) {
-            DNSExportSheetView(
-                zoneName: zoneName,
-                zoneId: zoneId,
-                records: viewModel.records,
-                viewModel: viewModel
-            )
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
-            .higToast()
-        }
-        .sheet(isPresented: $showingPresetsSheet) {
-            DNSPresetsSheetView(
-                zoneName: zoneName,
-                zoneId: zoneId,
-                viewModel: viewModel
-            )
-            .higToast()
-        }
-        .fileImporter(
-            isPresented: $showingImporter,
-            allowedContentTypes: [.plainText, .text],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                guard let selectedURL = urls.first else { return }
-                guard selectedURL.startAccessingSecurityScopedResource() else { return }
-                defer { selectedURL.stopAccessingSecurityScopedResource() }
-                
-                Task {
-                    do {
-                        try await DNSService.shared.importDNSRecords(zoneId: zoneId, fileURL: selectedURL)
-                        ToastManager.shared.showSuccess("BIND Records Imported", icon: "square.and.arrow.down.fill")
-                        await viewModel.fetchRecords(isRefresh: true)
-                    } catch {
-                        ToastManager.shared.showError("Import Failed")
-                    }
-                }
-            case .failure:
-                ToastManager.shared.showError("Import Failed")
-            }
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading DNS Records…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.records.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchRecords(isRefresh: true) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.records.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No DNS Records",
-                        systemImage: "list.bullet.rectangle",
-                        description: "No DNS records found in this zone. Add A, CNAME, or MX records to start routing traffic.",
-                        actionTitle: "Add Record",
-                        action: { showingForm = true }
-                    )
-                )
-            } else if viewModel.hasFetchedData && displayRecords.isEmpty && !viewModel.searchQuery.isEmpty {
-                HIGContentState(.search(query: viewModel.searchQuery))
-            }
-        }
-        .sheet(isPresented: $showingForm) {
-            DNSRecordFormView(viewModel: viewModel)
-                .higToast()
-        }
-        .sheet(item: $recordToEdit) { record in
-            DNSRecordFormView(viewModel: viewModel, existingRecord: record)
-                .higToast()
-        }
-        .confirmationDialog(
-            "Delete DNS Record",
-            isPresented: $showingSingleDeleteDialog,
-            titleVisibility: .visible
-        ) {
-            if let record = recordToDelete {
-                Button("Delete \"\(record.name)\"", role: .destructive) {
-                    Task {
-                        do {
-                            try await viewModel.deleteRecord(recordId: record.id)
-                            ToastManager.shared.showSuccess("DNS Record Deleted", icon: "trash.fill")
-                        } catch {
-                            ToastManager.shared.showError("Failed to Delete Record")
-                        }
-                        recordToDelete = nil
-                    }
-                }
-            }
-            Button("Cancel", role: .cancel) {
-                recordToDelete = nil
-            }
-        } message: {
-            if let record = recordToDelete {
-                Text("Are you sure you want to delete the \(record.type) record for \(record.name)? Traffic resolving to this record will stop immediately.")
-            }
-        }
-        .confirmationDialog(
-            "Delete Selected Records",
-            isPresented: $showingBatchDeleteDialog,
-            titleVisibility: .visible
-        ) {
-            Button("Delete \(multiSelection.count) Records", role: .destructive) {
-                let count = multiSelection.count
-                viewModel.deleteRecords(withIds: multiSelection)
-                multiSelection.removeAll()
-                editMode?.wrappedValue = .inactive
-                ToastManager.shared.showSuccess("\(count) Records Deleted", icon: "trash.fill")
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Are you sure you want to delete \(multiSelection.count) DNS records? This action cannot be undone.")
-        }
-        .task {
-            if !viewModel.hasFetchedData {
-                await viewModel.fetchRecords()
-            }
+            .tint(.red)
         }
     }
     
@@ -214,7 +137,7 @@ struct DNSRecordsView: View {
     
     @ViewBuilder
     private var trailingToolbar: some View {
-        HStack(spacing: HIGTokens.Spacing.sm) {
+        HStack(spacing: 8) {
             Menu {
                 // SubMenu 1: Filter by Type
                 Menu {
@@ -327,7 +250,7 @@ struct DNSRecordsView: View {
                     } label: {
                         Label("Reset All Filters", systemImage: "arrow.counterclockwise")
                     }
-                    .tint(HIGColors.error)
+                    .tint(.red)
                 }
                 
                 Divider()
@@ -354,10 +277,9 @@ struct DNSRecordsView: View {
                 }
             } label: {
                 Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
-                    .foregroundStyle(viewModel.isFiltered ? HIGColors.warning : Color.higAccent)
+                    .foregroundStyle(viewModel.isFiltered ? Color.orange : ThemeManager.shared.currentColor.color)
             }
             .accessibilityLabel("DNS Options and Filters")
-            .higTouchTarget()
             
             Button {
                 showingForm = true
@@ -365,20 +287,25 @@ struct DNSRecordsView: View {
                 Image(systemName: "plus")
             }
             .accessibilityLabel("Add DNS Record")
-            .higTouchTarget()
             .keyboardShortcut("n", modifiers: .command)
         }
+    }
+    
+    private var groupedRecordTypes: [String] {
+        Array(Set(displayRecords.map(\.type))).sorted()
+    }
+    
+    private func records(for type: String) -> [DNSRecord] {
+        displayRecords.filter { $0.type == type }
     }
     
     @ViewBuilder
     private var recordsSections: some View {
         if viewModel.searchQuery.isEmpty {
-            let grouped = Dictionary(grouping: displayRecords, by: { $0.type })
-            let sortedTypes = grouped.keys.sorted()
-            
-            ForEach(sortedTypes, id: \.self) { type in
-                Section(header: Text("\(type) Records (\(grouped[type]?.count ?? 0))")) {
-                    ForEach(grouped[type] ?? []) { record in
+            ForEach(groupedRecordTypes, id: \.self) { type in
+                let items = records(for: type)
+                Section(header: Text("\(type) Records (\(items.count))")) {
+                    ForEach(items) { record in
                         recordRow(record)
                     }
                 }
@@ -419,15 +346,13 @@ struct DNSRecordsView: View {
         }
         .contextMenu {
             Button {
-                UIPasteboard.general.string = record.content ?? record.name
-                ToastManager.shared.showCopied("Record Content Copied")
+                copyToClipboard(record.content ?? record.name, toast: "Record Content Copied")
             } label: {
                 Label("Copy Content", systemImage: "doc.on.doc")
             }
             
             Button {
-                UIPasteboard.general.string = record.name
-                ToastManager.shared.showCopied("Record Name Copied")
+                copyToClipboard(record.name, toast: "Record Name Copied")
             } label: {
                 Label("Copy Name", systemImage: "character.textbox")
             }
@@ -465,28 +390,27 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-            .tint(HIGColors.error)
+            .tint(.red)
             
             Button {
                 recordToEdit = record
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(HIGColors.warning)
+            .tint(.orange)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
-                UIPasteboard.general.string = record.content ?? record.name
-                ToastManager.shared.showCopied("Record Content Copied")
+                copyToClipboard(record.content ?? record.name, toast: "Record Content Copied")
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }
-            .tint(HIGColors.info)
+            .tint(.blue)
         }
     }
 }
 
-// MARK: - DNSRecordRowView (Inlined & Cohesive)
+// MARK: - DNSRecordRowView
 
 struct DNSRecordRowView: View {
     let record: DNSRecord
@@ -495,27 +419,27 @@ struct DNSRecordRowView: View {
     private var recordTypeColor: Color {
         switch record.type.uppercased() {
         case "A", "AAAA": return .blue
-        case "CNAME": return HIGColors.success
+        case "CNAME": return .green
         case "TXT": return .purple
-        case "MX": return HIGColors.warning
+        case "MX": return .orange
         case "NS", "CAA", "SRV": return .teal
         default: return .indigo
         }
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm - 2) {
-            HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
                 Text(verbatim: record.type)
-                    .font(HIGTypography.caption.monospacedDigit().weight(.bold))
+                    .font(.caption.monospacedDigit().weight(.bold))
                     .frame(width: 48)
-                    .padding(.vertical, HIGTokens.Spacing.xxs + 0.5)
+                    .padding(.vertical, 3)
                     .background(recordTypeColor.opacity(0.14))
                     .foregroundStyle(recordTypeColor)
-                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
                 Text(verbatim: record.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -527,47 +451,43 @@ struct DNSRecordRowView: View {
                         HIGFeedback.selection()
                         onToggleProxy?()
                     } label: {
-                        HIGBadge(
-                            record.proxied == true ? .proxied : .dnsOnly,
-                            isCompact: true
-                        )
+                        proxyBadge
                     }
                     .buttonStyle(.plain)
-                    .higTouchTarget(44)
                 } else {
-                    HIGBadge(.dnsOnly, isCompact: true)
+                    dnsOnlyBadge
                 }
             }
             
             HStack(alignment: .top) {
                 Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
-                    .font(HIGTypography.subheadline.monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                 
                 Spacer()
                 
                 Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.tertiary)
             }
             
             if let comment = record.comment, !comment.isEmpty {
                 Text(comment)
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .padding(.top, 1)
             }
             
             if let tags = record.tags, !tags.isEmpty {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 4) {
                     ForEach(tags, id: \.self) { tag in
                         Text("#\(tag)")
-                            .font(HIGTypography.caption2.weight(.medium))
+                            .font(.caption2.weight(.medium))
                             .foregroundStyle(.purple)
-                            .padding(.horizontal, HIGTokens.Spacing.xs + 1)
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
                             .background(Color.purple.opacity(0.1))
                             .clipShape(Capsule())
                     }
@@ -575,7 +495,174 @@ struct DNSRecordRowView: View {
                 .padding(.top, 1)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
+    }
+    
+    @ViewBuilder
+    private var proxyBadge: some View {
+        if record.proxied == true {
+            HStack(spacing: 4) {
+                Image(systemName: "cloud.fill")
+                    .font(.caption2)
+                Text("Proxied")
+                    .font(.caption2.weight(.medium))
+            }
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(Color.orange.opacity(0.14))
+            .foregroundStyle(.orange)
+            .clipShape(Capsule())
+        } else {
+            dnsOnlyBadge
+        }
+    }
+    
+    private var dnsOnlyBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "cloud")
+                .font(.caption2)
+            Text("DNS Only")
+                .font(.caption2.weight(.medium))
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(Color.secondary.opacity(0.12))
+        .foregroundStyle(.secondary)
+        .clipShape(Capsule())
+    }
+}
+
+// MARK: - Modifiers
+
+private struct DNSRecordsSheetsModifier: ViewModifier {
+    let zoneName: String
+    let zoneId: String
+    @Binding var showingExportSheet: Bool
+    @Binding var showingPresetsSheet: Bool
+    @Binding var showingImporter: Bool
+    @Binding var showingForm: Bool
+    @Binding var recordToEdit: DNSRecord?
+    @ObservedObject var viewModel: DNSRecordsViewModel
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $showingExportSheet) {
+                DNSExportSheetView(
+                    zoneName: zoneName,
+                    zoneId: zoneId,
+                    records: viewModel.records,
+                    viewModel: viewModel
+                )
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .higToast()
+            }
+            .sheet(isPresented: $showingPresetsSheet) {
+                DNSPresetsSheetView(
+                    zoneName: zoneName,
+                    zoneId: zoneId,
+                    viewModel: viewModel
+                )
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .higToast()
+            }
+            .fileImporter(
+                isPresented: $showingImporter,
+                allowedContentTypes: [.plainText, UTType(filenameExtension: "txt") ?? .plainText, UTType(filenameExtension: "zone") ?? .plainText],
+                allowsMultipleSelection: false
+            ) { result in
+                handleImportResult(result)
+            }
+            .sheet(isPresented: $showingForm) {
+                DNSRecordFormView(viewModel: viewModel)
+                    .higToast()
+            }
+            .sheet(item: $recordToEdit) { record in
+                DNSRecordFormView(viewModel: viewModel, existingRecord: record)
+                    .higToast()
+            }
+    }
+
+    private func handleImportResult(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            guard url.startAccessingSecurityScopedResource() else {
+                ToastManager.shared.showError("Access Denied")
+                return
+            }
+            Task {
+                defer { url.stopAccessingSecurityScopedResource() }
+                do {
+                    try await viewModel.importRecords(fileURL: url)
+                    ToastManager.shared.showSuccess("Records Imported Successfully", icon: "square.and.arrow.down.fill")
+                } catch {
+                    ToastManager.shared.showError("Import Failed")
+                }
+            }
+        case .failure:
+            ToastManager.shared.showError("Import Failed")
+        }
+    }
+}
+
+private struct DNSRecordsDialogsModifier: ViewModifier {
+    @Binding var showingSingleDeleteDialog: Bool
+    @Binding var showingBatchDeleteDialog: Bool
+    @Binding var recordToDelete: DNSRecord?
+    @Binding var multiSelection: Set<String>
+    var editMode: Binding<EditMode>?
+    @ObservedObject var viewModel: DNSRecordsViewModel
+
+    func body(content: Content) -> some View {
+        content
+            .confirmationDialog(
+                "Delete DNS Record",
+                isPresented: $showingSingleDeleteDialog,
+                titleVisibility: .visible
+            ) {
+                if let record = recordToDelete {
+                    Button("Delete \"\(record.name)\"", role: .destructive) {
+                        deleteRecord(record)
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    recordToDelete = nil
+                }
+            } message: {
+                if let record = recordToDelete {
+                    Text("Are you sure you want to delete the \(record.type) record for \(record.name)? Traffic resolving to this record will stop immediately.")
+                }
+            }
+            .confirmationDialog(
+                "Delete Selected Records",
+                isPresented: $showingBatchDeleteDialog,
+                titleVisibility: .visible
+            ) {
+                Button("Delete \(multiSelection.count) Records", role: .destructive) {
+                    let count = multiSelection.count
+                    viewModel.deleteRecords(withIds: multiSelection)
+                    multiSelection.removeAll()
+                    editMode?.wrappedValue = .inactive
+                    ToastManager.shared.showSuccess("\(count) Records Deleted", icon: "trash.fill")
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to delete \(multiSelection.count) DNS records? This action cannot be undone.")
+            }
+    }
+
+    private func deleteRecord(_ record: DNSRecord) {
+        Task {
+            do {
+                try await viewModel.deleteRecord(recordId: record.id)
+                ToastManager.shared.showSuccess("DNS Record Deleted", icon: "trash.fill")
+            } catch {
+                ToastManager.shared.showError("Failed to Delete Record")
+            }
+            recordToDelete = nil
+        }
     }
 }

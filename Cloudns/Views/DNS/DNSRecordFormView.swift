@@ -235,14 +235,31 @@ struct DNSRecordFormView: View {
                     
                     if isProxySupported {
                         HStack {
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
-                                HStack(spacing: HIGTokens.Spacing.sm) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 8) {
                                     Text("Proxy Status")
-                                        .font(HIGTypography.body.weight(.medium))
-                                    HIGBadge(proxied ? .proxied : .dnsOnly, isCompact: true)
+                                        .font(.body.weight(.medium))
+                                    
+                                    if proxied {
+                                        Text("Proxied")
+                                            .font(.caption2.weight(.medium))
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.orange.opacity(0.14))
+                                            .foregroundStyle(.orange)
+                                            .clipShape(Capsule())
+                                    } else {
+                                        Text("DNS Only")
+                                            .font(.caption2.weight(.medium))
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.secondary.opacity(0.12))
+                                            .foregroundStyle(.secondary)
+                                            .clipShape(Capsule())
+                                    }
                                 }
                                 Text(proxied ? "Accelerated & Protected by Cloudflare" : "Bypasses Cloudflare proxy")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -282,8 +299,8 @@ struct DNSRecordFormView: View {
                 if let error = errorMessage {
                     Section {
                         Text(verbatim: error)
-                            .foregroundStyle(HIGColors.error)
-                            .font(HIGTypography.caption)
+                            .foregroundStyle(.red)
+                            .font(.caption)
                     }
                 }
             }
@@ -300,8 +317,7 @@ struct DNSRecordFormView: View {
                             dismiss()
                         }
                     }
-                    .font(HIGTypography.body)
-                    .higTouchTarget()
+                    .font(.body)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -310,9 +326,8 @@ struct DNSRecordFormView: View {
                             await saveRecord()
                         }
                     }
-                    .font(HIGTypography.body.weight(.semibold))
-                    .foregroundStyle(Color.higAccent)
-                    .higTouchTarget()
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(ThemeManager.shared.currentColor.color)
                     .disabled(name.isEmpty || isSaving)
                 }
             }
@@ -334,9 +349,9 @@ struct DNSRecordFormView: View {
                     ZStack {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
-                            .padding(HIGTokens.Spacing.lg)
-                            .background(Color.higCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                            .padding(16)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
             }

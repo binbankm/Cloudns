@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - ZoneDetailDeepLinkWrapper
-// Apple HIG Compliant Deep Link Loader for Domains
+// Apple HIG Compliant Deep Link Loader for Domains (iOS 16.0+)
 
 struct ZoneDetailDeepLinkWrapper: View {
     let zoneId: String
@@ -16,16 +16,30 @@ struct ZoneDetailDeepLinkWrapper: View {
             if let zone = loadedZone {
                 ZoneDetailView(zone: zone)
             } else if isLoading {
-                HIGContentState(.loading(message: "Loading Domain…"))
+                VStack(spacing: 8) {
+                    ProgressView()
+                    Text("Loading Domain…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage ?? "Unable to load domain"),
-                        retryAction: {
-                            Task { await loadZone() }
-                        }
-                    )
-                )
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(.largeTitle).weight(.light))
+                        .foregroundStyle(.orange)
+                    Text("Unable to Load")
+                        .font(.headline)
+                    Text(errorMessage ?? "Unable to load domain")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Button("Try Again") {
+                        Task { await loadZone() }
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.top, 4)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .toolbar {
@@ -33,9 +47,8 @@ struct ZoneDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
-                .font(HIGTypography.body.weight(.semibold))
-                .foregroundStyle(Color.higAccent)
-                .higTouchTarget()
+                .font(.body.weight(.semibold))
+                .foregroundStyle(ThemeManager.shared.currentColor.color)
             }
         }
         .task {
@@ -59,25 +72,14 @@ struct ZoneDetailDeepLinkWrapper: View {
             return
         }
         
-        // 2. Fetch from Cloudflare API
+        // 2. Fetch fresh from network
         do {
             let fetched = try await ZoneService.shared.getZoneDetails(zoneId: zoneId)
             self.loadedZone = fetched
+            self.isLoading = false
         } catch {
-            // 3. If remote fails, fallback to widget snapshot cache
-            let snap = WidgetDataStore.shared.loadZoneSnapshot()
-            if snap.id == zoneId {
-                self.loadedZone = Zone(
-                    id: snap.id,
-                    name: snap.name,
-                    status: snap.status,
-                    paused: !snap.isProxied,
-                    plan: ZonePlan(name: snap.plan)
-                )
-            } else {
-                self.errorMessage = error.localizedDescription
-            }
+            self.errorMessage = error.localizedDescription
+            self.isLoading = false
         }
-        self.isLoading = false
     }
 }

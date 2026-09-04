@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - AdvancedZoneSettingsView
-// Apple HIG Compliant Advanced Zone Management
+// Apple HIG Compliant Advanced Zone Management (iOS 16.0+)
 
 struct AdvancedZoneSettingsView: View {
     let zoneId: String
@@ -26,7 +26,7 @@ struct AdvancedZoneSettingsView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
@@ -39,23 +39,23 @@ struct AdvancedZoneSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "gearshape.2.fill")
-                            .font(HIGTypography.title.weight(.semibold))
+                            .font(.title.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("Zone Management")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Advanced zone controls, bypass settings, and zone deletion for \(zoneName).")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.lg)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -79,13 +79,13 @@ struct AdvancedZoneSettingsView: View {
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "pause.circle.fill", color: isPaused ? HIGColors.warning : .gray)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "pause.circle.fill", color: isPaused ? .orange : .gray)
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Pause Cloudflare on Site")
-                                .font(HIGTypography.body.weight(.medium))
+                                .font(.body.weight(.medium))
                             Text(isPaused ? "Proxy paused · Direct to origin" : "Proxy active · Protected")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -94,26 +94,24 @@ struct AdvancedZoneSettingsView: View {
             
             // MARK: - Danger Zone
             Section(
-                header: Text("Danger Zone").foregroundStyle(HIGColors.error),
+                header: Text("Danger Zone").foregroundStyle(.red),
                 footer: Text("Removing this zone will permanently delete all its DNS records, firewall rules, and certificates from Cloudflare.")
             ) {
                 Button(action: {
-                    HIGFeedback.impact(.medium)
+                    HIGFeedback.destructive()
                     showDeleteConfirmation = true
                 }) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "trash.fill", color: HIGColors.error)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "trash.fill", color: .red)
                         Text("Remove Site from Cloudflare")
-                            .font(HIGTypography.body.weight(.semibold))
-                            .foregroundStyle(HIGColors.error)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.red)
                         Spacer()
                         if isDeleting {
                             ProgressView()
                         }
                     }
                 }
-                .buttonStyle(.higPressable)
-                .higTouchTarget()
                 .disabled(isDeleting)
             }
         }
@@ -138,52 +136,45 @@ struct AdvancedZoneSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
-        .task {
-            if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
-                self.isPaused = zd.paused
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .zoneUpdated)) { _ in
-            Task {
-                if let zd = try? await ZoneService.shared.getZoneDetails(zoneId: zoneId) {
-                    await MainActor.run {
-                        self.isPaused = zd.paused
-                    }
-                }
-            }
-        }
-        .higToast()
     }
+    
+    // MARK: - API Operations
     
     private func updatePauseStatus(paused: Bool) async {
         isLoading = true
-        errorMessage = nil
         do {
-            try await ZoneService.shared.pauseZone(zoneId: zoneId, paused: paused)
-            ToastManager.shared.showSuccess(paused ? "Cloudflare Paused" : "Cloudflare Resumed", icon: paused ? "pause.circle.fill" : "play.circle.fill")
+            _ = try await ZoneService.shared.pauseZone(zoneId: zoneId, paused: paused)
+            await MainActor.run {
+                isLoading = false
+                NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
+                ToastManager.shared.showSuccess(paused ? "Cloudflare Paused" : "Cloudflare Resumed")
+            }
         } catch {
-            errorMessage = error.localizedDescription
-            isPaused = !paused
-            ToastManager.shared.showError("Failed to update status")
-            HIGFeedback.error()
+            await MainActor.run {
+                isLoading = false
+                isPaused = !paused // Revert UI
+                errorMessage = error.localizedDescription
+                HIGFeedback.error()
+            }
         }
-        isLoading = false
     }
     
     private func deleteZone() async {
         isDeleting = true
-        errorMessage = nil
         do {
             _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
-            ToastManager.shared.showSuccess("Zone Deleted", icon: "trash.fill")
-            HIGFeedback.success()
-            NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
-            dismiss()
+            await MainActor.run {
+                isDeleting = false
+                HIGFeedback.success()
+                NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
+                dismiss()
+            }
         } catch {
-            errorMessage = error.localizedDescription
-            ToastManager.shared.showError("Failed to delete zone")
-            HIGFeedback.error()
+            await MainActor.run {
+                isDeleting = false
+                errorMessage = error.localizedDescription
+                HIGFeedback.error()
+            }
         }
-        isDeleting = false
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - ZoneDetailView
-// Apple HIG Compliant Domain Overview & Navigation Hub
+// Apple HIG Compliant Domain Overview & Navigation Hub (iOS 16.0+)
 
 struct ZoneDetailView: View {
     let initialZone: Zone
@@ -18,16 +18,13 @@ struct ZoneDetailView: View {
             // Domain Status & Info Section
             Section(header: Text("Domain Info")) {
                 LabeledContent("Status") {
-                    HIGBadge(
-                        zone.status.lowercased() == "active" ? .active : (zone.status.lowercased() == "pending" ? .warning("Pending") : .custom(color: .secondary, text: zone.status.capitalized)),
-                        isCompact: true
-                    )
+                    statusBadge
                 }
                 
                 if let planName = zone.plan?.displayName {
                     LabeledContent("Plan") {
                         Text(planName)
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -35,7 +32,7 @@ struct ZoneDetailView: View {
                 if let type = zone.type {
                     LabeledContent("Setup Type") {
                         Text(type.uppercased())
-                            .font(HIGTypography.subheadline.monospaced())
+                            .font(.subheadline.monospaced())
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -44,26 +41,24 @@ struct ZoneDetailView: View {
                     ForEach(Array(nsArray.enumerated()), id: \.offset) { index, ns in
                         LabeledContent {
                             Button {
-                                UIPasteboard.general.string = ns
-                                ToastManager.shared.showCopied("Nameserver Copied")
+                                copyToClipboard(ns, toast: "Nameserver Copied")
                             } label: {
-                                HStack(spacing: HIGTokens.Spacing.xs) {
+                                HStack(spacing: 6) {
                                     Text(ns)
-                                        .font(HIGTypography.subheadline.monospaced())
+                                        .font(.subheadline.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.8)
                                     
                                     Image(systemName: "doc.on.doc")
-                                        .font(HIGTypography.caption2)
-                                        .foregroundStyle(Color.higAccent)
+                                        .font(.caption2)
+                                        .foregroundStyle(ThemeManager.shared.currentColor.color)
                                 }
                             }
-                            .buttonStyle(.higPressable)
-                            .higTouchTarget()
+                            .buttonStyle(.plain)
                         } label: {
                             Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -94,7 +89,7 @@ struct ZoneDetailView: View {
                     title: "DNSSEC",
                     subtitle: "Sign DNS records to prevent spoofing",
                     icon: "lock.shield.fill",
-                    color: HIGColors.success,
+                    color: .green,
                     destination: DNSSECView(zoneId: zone.id, zoneName: zone.name)
                 )
             }
@@ -112,14 +107,14 @@ struct ZoneDetailView: View {
                     title: "WAF",
                     subtitle: "Custom and managed rules",
                     icon: "shield.lefthalf.filled",
-                    color: HIGColors.error,
+                    color: .red,
                     destination: WAFCustomRulesView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Rate Limiting",
                     subtitle: "Throttle excessive request rates",
                     icon: "speedometer",
-                    color: HIGColors.warning,
+                    color: .orange,
                     destination: RateLimitingRulesView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
@@ -144,14 +139,14 @@ struct ZoneDetailView: View {
                     title: "Overview",
                     subtitle: "Encryption mode and HTTPS settings",
                     icon: "lock.shield.fill",
-                    color: HIGColors.warning,
+                    color: .orange,
                     destination: SSLSettingsView(zoneId: zone.id)
                 )
                 ZoneNavRowView(
                     title: "Edge Certificates",
                     subtitle: "Universal, ACM, and custom certificates",
                     icon: "checkmark.seal.fill",
-                    color: HIGColors.warning,
+                    color: .orange,
                     destination: EdgeCertificatesView(zoneId: zone.id)
                 )
             }
@@ -195,7 +190,7 @@ struct ZoneDetailView: View {
                     subtitle: "Distribute traffic across origins",
                     icon: "arrow.triangle.branch",
                     color: .blue,
-                    badge: .warning("ADD-ON"),
+                    badgeText: "ADD-ON",
                     destination: LoadBalancerView(zoneId: zone.id)
                 )
             }
@@ -228,7 +223,7 @@ struct ZoneDetailView: View {
                     title: "Advanced",
                     subtitle: "Pause proxy and delete domain",
                     icon: "gearshape.2.fill",
-                    color: HIGColors.error,
+                    color: .red,
                     destination: AdvancedZoneSettingsView(zoneId: zone.id, zoneName: zone.name, initialPaused: zone.paused)
                 )
             }
@@ -260,6 +255,22 @@ struct ZoneDetailView: View {
         }
     }
     
+    @ViewBuilder
+    private var statusBadge: some View {
+        let status = zone.status.lowercased()
+        let isPending = status == "pending"
+        let isActive = status == "active"
+        let color: Color = isActive ? .green : (isPending ? .orange : .secondary)
+        
+        Text(zone.status.capitalized)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
+    }
+    
     private func refreshZoneDetails() async {
         do {
             let updated = try await ZoneService.shared.getZoneDetails(zoneId: initialZone.id)
@@ -276,13 +287,14 @@ struct ZoneDetailView: View {
     }
 }
 
-// MARK: - ZoneNavRowView (Inlined & Cohesive)
+// MARK: - ZoneNavRowView
 
 struct ZoneNavRowView<Destination: View>: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     let icon: String
     let color: Color
+    let badgeText: LocalizedStringKey?
     let badge: HIGBadgeType?
     let destination: Destination
 
@@ -291,6 +303,7 @@ struct ZoneNavRowView<Destination: View>: View {
         subtitle: LocalizedStringKey,
         icon: String,
         color: Color,
+        badgeText: LocalizedStringKey? = nil,
         badge: HIGBadgeType? = nil,
         destination: Destination
     ) {
@@ -298,32 +311,41 @@ struct ZoneNavRowView<Destination: View>: View {
         self.subtitle = subtitle
         self.icon = icon
         self.color = color
+        self.badgeText = badgeText
         self.badge = badge
         self.destination = destination
     }
 
     var body: some View {
         NavigationLink(destination: destination) {
-            HStack(spacing: HIGTokens.Spacing.md) {
+            HStack(spacing: 12) {
                 ListRowIcon(icon: icon, color: color)
 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                    HStack(spacing: HIGTokens.Spacing.xs + 2) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Text(title)
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         
-                        if let badge = badge {
+                        if let badgeText {
+                            Text(badgeText)
+                                .font(.caption2.weight(.bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.orange.opacity(0.14))
+                                .foregroundStyle(.orange)
+                                .clipShape(Capsule())
+                        } else if let badge {
                             HIGBadge(badge, isCompact: true)
                         }
                     }
                     
                     Text(subtitle)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.vertical, HIGTokens.Spacing.xxs)
+            .padding(.vertical, 2)
             .accessibilityElement(children: .combine)
         }
     }

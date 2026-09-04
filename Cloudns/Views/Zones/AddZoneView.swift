@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - AddZoneView
-// Apple HIG Compliant Add Domain Flow with Interactive Nameserver Guide
+// Apple HIG Compliant Add Domain Flow with Interactive Nameserver Guide (iOS 16.0+)
 
 struct AddZoneView: View {
     @ObservedObject var viewModel: ZonesViewModel
@@ -21,6 +21,10 @@ struct AddZoneView: View {
         !domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    private var accentColor: Color {
+        ThemeManager.shared.currentColor.color
+    }
+    
     var body: some View {
         Group {
             if let zone = createdZone {
@@ -31,54 +35,51 @@ struct AddZoneView: View {
                             footer: Text("Update the nameservers at your domain registrar to the ones assigned above.")
                         ) {
                             ForEach(zone.nameServers ?? [], id: \.self) { ns in
-                                HStack(spacing: HIGTokens.Spacing.md) {
-                                    ListRowIcon(icon: "server.rack", color: Color.higAccent)
+                                HStack(spacing: 12) {
+                                    ListRowIcon(icon: "server.rack", color: accentColor)
                                     
                                     Text(ns)
-                                        .font(HIGTypography.body.monospaced())
+                                        .font(.body.monospaced())
                                         .foregroundStyle(.primary)
                                     
                                     Spacer()
                                     
                                     Button {
-                                        HIGFeedback.copied()
-                                        UIPasteboard.general.string = ns
-                                        ToastManager.shared.showCopied("Nameserver Copied")
+                                        copyToClipboard(ns, toast: "Nameserver Copied")
                                     } label: {
                                         Image(systemName: "doc.on.doc")
-                                            .foregroundStyle(Color.higAccent)
+                                            .foregroundStyle(accentColor)
+                                            .frame(minWidth: 44, minHeight: 44)
                                     }
                                     .buttonStyle(.plain)
-                                    .higTouchTarget(44)
                                     .accessibilityLabel("Copy Nameserver \(ns)")
                                 }
                             }
 
                             Button {
-                                HIGFeedback.copied()
-                                UIPasteboard.general.string = (zone.nameServers ?? []).joined(separator: "\n")
-                                ToastManager.shared.showCopied("All Nameservers Copied")
+                                let all = (zone.nameServers ?? []).joined(separator: "\n")
+                                copyToClipboard(all, toast: "All Nameservers Copied")
                             } label: {
                                 Label("Copy All Nameservers", systemImage: "doc.on.doc.fill")
-                                    .font(HIGTypography.subheadline.weight(.semibold))
+                                    .font(.subheadline.weight(.semibold))
                                     .frame(maxWidth: .infinity)
                             }
-                            .foregroundStyle(Color.higAccent)
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .foregroundStyle(accentColor)
+                            .padding(.vertical, 2)
                         }
 
                         Section(header: Text("What to do next")) {
                             Label("Log in to your domain registrar (e.g. GoDaddy, Namecheap, Aliyun)", systemImage: "1.circle.fill")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.primary)
                             Label("Find the DNS or Nameserver settings for \(zone.name)", systemImage: "2.circle.fill")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.primary)
                             Label("Replace existing nameservers with the Cloudflare ones above", systemImage: "3.circle.fill")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.primary)
                             Label("Save and wait for propagation (up to 24 hours)", systemImage: "4.circle.fill")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
 
@@ -97,9 +98,8 @@ struct AddZoneView: View {
                                 isPresented = false
                                 dismiss()
                             }
-                            .font(HIGTypography.body.weight(.bold))
-                            .foregroundStyle(Color.higAccent)
-                            .higTouchTarget()
+                            .font(.body.weight(.bold))
+                            .foregroundStyle(accentColor)
                         }
                     }
                 }
@@ -110,11 +110,11 @@ struct AddZoneView: View {
                             header: Text("Domain Information"),
                             footer: Text("Enter the root domain you want to add to Cloudflare, e.g. example.com")
                         ) {
-                            HStack(spacing: HIGTokens.Spacing.md) {
-                                ListRowIcon(icon: "globe", color: Color.higAccent)
+                            HStack(spacing: 12) {
+                                ListRowIcon(icon: "globe", color: accentColor)
                                 
                                 TextField("example.com", text: $domainName)
-                                    .font(HIGTypography.body)
+                                    .font(.body)
                                     .textInputAutocapitalization(.never)
                                     .autocorrectionDisabled()
                                     .keyboardType(.URL)
@@ -124,8 +124,8 @@ struct AddZoneView: View {
                         if let error = viewModel.addZoneError {
                             Section {
                                 Label(error, systemImage: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(HIGColors.error)
-                                    .font(HIGTypography.footnote)
+                                    .foregroundStyle(.red)
+                                    .font(.footnote)
                             }
                         }
 
@@ -148,16 +148,14 @@ struct AddZoneView: View {
                                     Spacer()
                                     if isSubmitting {
                                         ProgressView()
-                                            .padding(.trailing, HIGTokens.Spacing.xs)
+                                            .padding(.trailing, 6)
                                     }
                                     Text(isSubmitting ? "Adding…" : "Add Domain")
-                                        .font(HIGTypography.body.weight(.semibold))
+                                        .font(.body.weight(.semibold))
                                     Spacer()
                                 }
-                                .foregroundStyle(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting ? Color(.tertiaryLabel) : Color.higAccent)
+                                .foregroundStyle(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting ? Color(.tertiaryLabel) : accentColor)
                             }
-                            .buttonStyle(.higPressable)
-                            .higTouchTarget()
                             .disabled(domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                         }
                     }
@@ -175,8 +173,7 @@ struct AddZoneView: View {
                                     dismiss()
                                 }
                             }
-                            .font(HIGTypography.body)
-                            .higTouchTarget()
+                            .font(.body)
                         }
                     }
                     .interactiveDismissDisabled(hasChanges && !isSubmitting)

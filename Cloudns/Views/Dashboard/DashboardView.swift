@@ -1,8 +1,8 @@
 import SwiftUI
 import Combine
 
-// MARK: - DashboardView (Apple HIG Native Polish)
-// Bento Grid, Dynamic Theme, Live Analytics & 44pt Touch Targets
+// MARK: - DashboardView
+// Native Apple HIG Bento Grid, Swift Charts & Live Infrastructure Fleet Metrics
 
 struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
@@ -10,31 +10,36 @@ struct DashboardView: View {
     @State private var showingAccountSheet = false
     @State private var showingAddZone = false
     
+    private var accentColor: Color {
+        ThemeManager.shared.currentColor.color
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.higGroupBackground.ignoresSafeArea()
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: HIGTokens.Spacing.lg) {
-                        // 1. Brand Hero Header
+                    VStack(spacing: 16) {
+                        // 1. Hero Account Identity Card
                         heroHeaderView
                         
-                        // 2. Global Fleet Metrics Grid (2x2)
+                        // 2. Fleet Metrics Overview Grid (2x2)
                         resourcesOverviewGridView
                         
-                        // 3. Interactive Zone Analytics Chart (Swift Charts)
+                        // 3. Interactive Zone Analytics (Swift Charts)
                         DashboardZoneTrafficChartView(viewModel: viewModel)
                         
-                        // 4. Quick Command Deck (Bento Grid)
+                        // 4. Quick Diagnostics & Operations Deck
                         quickCommandDeckView
                         
-                        // 5. Primary Active Domains (with Sparklines)
+                        // 5. Recent Active Domains Section
                         activeZonesSectionView
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.lg)
-                    .padding(.top, HIGTokens.Spacing.sm)
-                    .padding(.bottom, HIGTokens.Spacing.xxl)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 24)
                 }
                 .refreshable {
                     await viewModel.fetchDashboard(isRefresh: true)
@@ -45,13 +50,12 @@ struct DashboardView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HIGFeedback.selection()
                         showingAccountSheet = true
                     } label: {
-                        AccountAvatarView(identifier: accountManager.activeEmail, size: HIGTokens.Size.avatarSmall)
+                        AccountAvatarView(identifier: accountManager.activeEmail, size: 34)
                     }
                     .buttonStyle(.plain)
-                    .higTouchTarget()
                     .accessibilityLabel("Switch Cloudflare Account")
                 }
             }
@@ -85,29 +89,29 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 1. Professional Hero Header
+    // MARK: - 1. Hero Header View
     private var heroHeaderView: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
+        VStack(alignment: .leading, spacing: 12) {
             // Top Row: Greeting & Identity
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 4) {
                     Image(systemName: greetingIcon)
-                        .font(HIGTypography.caption2.weight(.semibold))
-                        .foregroundStyle(Color.higAccent)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(accentColor)
                     
                     Text(viewModel.timeGreeting)
-                        .font(HIGTypography.caption.weight(.medium))
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
                 
                 Text(viewModel.selectedAccount?.name ?? (accountManager.activeEmail.isEmpty ? "Cloudflare Account" : accountManager.activeEmail))
-                    .font(HIGTypography.title3.weight(.bold))
+                    .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 if !accountManager.activeEmail.isEmpty && viewModel.selectedAccount?.name != accountManager.activeEmail {
                     Text(accountManager.activeEmail)
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -117,76 +121,63 @@ struct DashboardView: View {
                 .opacity(0.6)
             
             // Bottom Meta Bar: Account ID Capsule & Architecture Level
-            HStack(spacing: HIGTokens.Spacing.sm) {
+            HStack(spacing: 8) {
                 if let accountId = viewModel.selectedAccount?.id, !accountId.isEmpty {
                     Button {
-                        HIGFeedback.copied()
-                        UIPasteboard.general.string = accountId
-                        ToastManager.shared.showCopied("Account ID Copied")
+                        copyToClipboard(accountId, toast: "Account ID Copied")
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.xs) {
+                        HStack(spacing: 4) {
                             Text("ID")
-                                .font(HIGTypography.caption2.weight(.bold).monospaced())
-                                .padding(.horizontal, HIGTokens.Spacing.xxs + 2)
+                                .font(.caption2.weight(.bold).monospaced())
+                                .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
-                                .background(Color.higAccent.opacity(0.18))
-                                .foregroundStyle(Color.higAccent)
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                                .background(accentColor.opacity(0.18))
+                                .foregroundStyle(accentColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             
                             Text(accountId.prefix(8) + "..." + accountId.suffix(4))
-                                .font(HIGTypography.caption2.monospacedDigit())
+                                .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                             
                             Image(systemName: "doc.on.doc")
-                                .font(HIGTypography.caption2)
+                                .font(.caption2)
                                 .foregroundStyle(.secondary.opacity(0.8))
                         }
-                        .padding(.horizontal, HIGTokens.Spacing.sm)
-                        .padding(.vertical, HIGTokens.Spacing.xs)
-                        .background(Color(.tertiarySystemFill))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(uiColor: .tertiarySystemFill))
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Account ID: \(accountId), tap to copy")
                 }
                 
-                Spacer(minLength: HIGTokens.Spacing.xxs)
+                Spacer(minLength: 4)
                 
-                HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 4) {
                     Image(systemName: "shield.checkerboard")
-                        .font(HIGTypography.caption2.weight(.semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(.blue)
                     
                     Text("Zero Trust Edge")
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, HIGTokens.Spacing.sm)
-                .padding(.vertical, HIGTokens.Spacing.xs)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .background(Color.blue.opacity(0.08))
                 .clipShape(Capsule())
             }
         }
-        .padding(HIGTokens.Spacing.lg)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .fill(Color.higCardBackground)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
                 .overlay(
-                    RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.higAccent.opacity(0.35),
-                                    Color.blue.opacity(0.15),
-                                    Color(.separator).opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
                 )
-                .shadow(color: Color.black.opacity(0.03), radius: HIGTokens.Elevation.cardShadowRadius, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 2)
         )
     }
     
@@ -202,9 +193,9 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 2. Resources Overview Cards Grid (2x2)
+    // MARK: - 2. Fleet Metrics Overview Cards Grid (2x2)
     private var resourcesOverviewGridView: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: HIGTokens.Spacing.md)], spacing: HIGTokens.Spacing.md) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)], spacing: 12) {
             NavigationLink {
                 ZonesListView()
             } label: {
@@ -217,21 +208,21 @@ struct DashboardView: View {
                     badge: "Domains"
                 )
             }
-            .buttonStyle(.higCard)
+            .buttonStyle(.plain)
             
             NavigationLink {
                 DeveloperHubView()
             } label: {
                 DashboardMetricCardView(
                     icon: "bolt.fill",
-                    iconColor: Color.higAccent,
+                    iconColor: accentColor,
                     title: "Workers & Pages",
                     value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "-",
                     subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading…",
                     badge: "Compute"
                 )
             }
-            .buttonStyle(.higCard)
+            .buttonStyle(.plain)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -249,7 +240,7 @@ struct DashboardView: View {
                     badge: "Storage"
                 )
             }
-            .buttonStyle(.higCard)
+            .buttonStyle(.plain)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -260,163 +251,184 @@ struct DashboardView: View {
             } label: {
                 DashboardMetricCardView(
                     icon: "shield.righthalf.filled",
-                    iconColor: HIGColors.success,
+                    iconColor: .green,
                     title: "Zero Trust Tunnels",
                     value: viewModel.hasFetchedData ? "\(viewModel.tunnels.count)" : "-",
                     subtitle: viewModel.hasFetchedData ? "\(viewModel.healthyTunnelsCount) Healthy" : "Loading…",
                     badge: "Tunnel"
                 )
             }
-            .buttonStyle(.higCard)
+            .buttonStyle(.plain)
         }
     }
     
-    // MARK: - 3. Quick Command Deck (Bento Grid)
+    // MARK: - 3. Quick Operations Deck (Grid)
     private var quickCommandDeckView: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Quick Diagnostics & Tools")
-                    .font(HIGTypography.footnote.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 NavigationLink(destination: NetworkToolsView()) {
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 3) {
                         Text("All Tools")
                         Image(systemName: "chevron.forward")
-                            .font(HIGTypography.caption2.weight(.bold))
+                            .font(.caption2.weight(.bold))
                     }
-                    .font(HIGTypography.subheadline)
-                    .foregroundStyle(Color.higAccent)
+                    .font(.subheadline)
+                    .foregroundStyle(accentColor)
                 }
             }
-            .padding(.horizontal, HIGTokens.Spacing.xxs)
+            .padding(.horizontal, 2)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: HIGTokens.Spacing.sm + 2), count: 4), spacing: HIGTokens.Spacing.md + 2) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
                 NavigationLink(destination: AddZoneView()) {
-                    QuickDeckButton(icon: "plus.circle.fill", color: Color.higAccent, title: "Add Domain")
+                    QuickDeckButton(icon: "plus.circle.fill", color: accentColor, title: "Add Domain")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: DNSDigToolView()) {
                     QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DNS Dig")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: CFTraceToolView()) {
                     QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: CertInspectToolView()) {
                     QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Check")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: IPLookupToolView()) {
                     QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: WhoisToolView()) {
                     QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "WHOIS")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: EdgeLatencyTestView()) {
-                    QuickDeckButton(icon: "speedometer", color: Color.higAccent, title: "Latency Test")
+                    QuickDeckButton(icon: "speedometer", color: accentColor, title: "Latency Test")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
                 
                 NavigationLink(destination: CIDRCalculatorView()) {
-                    QuickDeckButton(icon: "rectangle.split.3x3.fill", color: HIGColors.success, title: "CIDR Calc")
+                    QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .green, title: "CIDR Calc")
                 }
-                .buttonStyle(.higPressable)
+                .buttonStyle(.plain)
             }
-            .padding(.vertical, HIGTokens.Spacing.md + 2)
-            .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-            .background(Color.higCardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+            .padding(.vertical, 14)
+            .padding(.horizontal, 10)
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+            )
         }
     }
     
     // MARK: - 4. Recent Domains Section
     private var activeZonesSectionView: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Recent Domains")
-                    .font(HIGTypography.footnote.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 NavigationLink(destination: ZonesListView()) {
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 3) {
                         Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
                         Image(systemName: "chevron.right")
-                            .font(HIGTypography.caption2.weight(.bold))
+                            .font(.caption2.weight(.bold))
                     }
-                    .font(HIGTypography.subheadline)
-                    .foregroundStyle(Color.higAccent)
+                    .font(.subheadline)
+                    .foregroundStyle(accentColor)
                 }
             }
-            .padding(.horizontal, HIGTokens.Spacing.xxs)
+            .padding(.horizontal, 2)
             
             if !viewModel.hasFetchedData {
-                HIGContentState(.loading(message: "Loading Domains…"))
-                    .frame(maxWidth: .infinity, minHeight: 120)
-                    .higCardStyle(isElevated: true)
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .padding(.vertical, 32)
+                    Spacer()
+                }
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             } else if viewModel.zones.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Domains Added",
-                        systemImage: "globe.badge.plus",
-                        description: "Add your first domain to start managing DNS records and edge security.",
-                        actionTitle: "Add Domain",
-                        action: { showingAddZone = true }
-                    )
-                )
-                .padding(.vertical, HIGTokens.Spacing.lg)
-                .background(Color.higCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                VStack(spacing: 12) {
+                    Image(systemName: "globe.badge.plus")
+                        .font(.system(.largeTitle).weight(.light))
+                        .foregroundStyle(.secondary)
+                    
+                    Text("No Domains Added")
+                        .font(.headline)
+                    
+                    Text("Add your first domain to start managing DNS records and edge security.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                    
+                    Button("Add Domain") {
+                        showingAddZone = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.top, 4)
+                }
+                .padding(.vertical, 24)
+                .frame(maxWidth: .infinity)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.recentZones.enumerated()), id: \.element.id) { index, zone in
                         NavigationLink(destination: ZoneDetailView(zone: zone)) {
-                            HStack(spacing: HIGTokens.Spacing.md) {
+                            HStack(spacing: 12) {
                                 ZStack {
                                     Circle()
                                         .fill(AccountAvatarView.color(for: zone.name).opacity(0.14))
-                                        .frame(width: HIGTokens.Size.avatarSmall + 2, height: HIGTokens.Size.avatarSmall + 2)
+                                        .frame(width: 36, height: 36)
                                     Image(systemName: "globe")
-                                        .font(HIGTypography.subheadline.weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(AccountAvatarView.color(for: zone.name))
                                 }
                                 
-                                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(verbatim: zone.name)
-                                        .font(HIGTypography.body.weight(.semibold))
+                                        .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
                                     
                                     Text(zone.plan?.name ?? "Free Plan")
-                                        .font(HIGTypography.caption2)
+                                        .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                                 
-                                Spacer(minLength: HIGTokens.Spacing.sm)
+                                Spacer(minLength: 8)
                                 
                                 // 24h Traffic Sparkline mini chart
                                 ZoneRowSparklineView(zoneId: zone.id, cached: viewModel.sparklines[zone.id])
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(HIGTypography.caption2.weight(.semibold))
+                                    .font(.caption2.weight(.semibold))
                                     .foregroundStyle(.tertiary)
                                     .accessibilityHidden(true)
                             }
-                            .padding(.horizontal, HIGTokens.Spacing.md + 2)
-                            .padding(.vertical, HIGTokens.Spacing.sm + 3)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 11)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -427,14 +439,18 @@ struct DashboardView: View {
                         }
                     }
                 }
-                .background(Color.higCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+                )
             }
         }
     }
 }
 
-// MARK: - DashboardMetricCardView (Inlined & Cohesive)
+// MARK: - DashboardMetricCardView (Native Inset Bento Tile)
 
 struct DashboardMetricCardView: View {
     let icon: String
@@ -452,7 +468,7 @@ struct DashboardMetricCardView: View {
                         .fill(iconColor.opacity(0.14))
                         .frame(width: 28, height: 28)
                     Image(systemName: icon)
-                        .font(HIGTypography.caption.weight(.semibold))
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(iconColor)
                 }
                 .accessibilityHidden(true)
@@ -460,16 +476,16 @@ struct DashboardMetricCardView: View {
                 Spacer()
                 
                 Text(badge)
-                    .font(HIGTypography.caption2.weight(.medium))
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
-                    .background(Color(.tertiarySystemFill))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color(uiColor: .tertiarySystemFill))
                     .clipShape(Capsule())
                     .lineLimit(1)
             }
             
-            Spacer(minLength: HIGTokens.Spacing.xs)
+            Spacer(minLength: 4)
             
             Text(value)
                 .font(Font.system(.title2, design: .rounded).weight(.bold))
@@ -478,24 +494,28 @@ struct DashboardMetricCardView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.80)
             
-            Spacer(minLength: HIGTokens.Spacing.xs)
+            Spacer(minLength: 4)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(HIGTypography.caption.weight(.semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 Text(subtitle)
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
         }
-        .padding(HIGTokens.Spacing.md)
+        .padding(12)
         .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+        )
     }
 }
 
@@ -507,26 +527,26 @@ struct QuickDeckButton: View {
     let title: LocalizedStringKey
     
     var body: some View {
-        VStack(spacing: HIGTokens.Spacing.xs + 2) {
+        VStack(spacing: 6) {
             ZStack {
-                RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(color.opacity(0.14))
-                    .frame(width: HIGTokens.Size.minTouchTarget, height: HIGTokens.Size.minTouchTarget)
+                    .frame(width: 44, height: 44)
                 
                 Image(systemName: icon)
-                    .font(HIGTypography.body.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(color)
             }
             .accessibilityHidden(true)
             
             Text(title)
-                .font(HIGTypography.caption2.weight(.medium))
+                .font(.caption2.weight(.medium))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
 }

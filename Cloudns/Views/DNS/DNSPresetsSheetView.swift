@@ -133,7 +133,7 @@ enum DNSPresetLibrary {
                 title: "DMARC Protection",
                 subtitle: "Prevent email spoofing with quarantine policy",
                 icon: "shield.lefthalf.filled",
-                iconColor: HIGColors.success,
+                iconColor: .green,
                 category: "Security & Anti-Spoof",
                 items: [
                     DNSPresetItem(type: "TXT", nameSuffix: "_dmarc", content: "v=DMARC1; p=quarantine; pct=100", priority: nil, proxied: false, ttl: 1, comment: "DMARC Policy")
@@ -144,7 +144,7 @@ enum DNSPresetLibrary {
 }
 
 // MARK: - DNSPresetsSheetView
-// Apple HIG Compliant 1-Click DNS Presets
+// Apple HIG Compliant 1-Click DNS Presets (iOS 16.0+)
 
 struct DNSPresetsSheetView: View {
     let zoneName: String
@@ -154,6 +154,10 @@ struct DNSPresetsSheetView: View {
     
     @State private var selectedGroup: DNSPresetGroup?
     @State private var isApplying = false
+    
+    private var accentColor: Color {
+        ThemeManager.shared.currentColor.color
+    }
     
     private var presets: [DNSPresetGroup] {
         DNSPresetLibrary.getPresets(zoneName: zoneName)
@@ -167,19 +171,19 @@ struct DNSPresetsSheetView: View {
         NavigationStack {
             List {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         Image(systemName: "wand.and.stars")
-                            .font(HIGTypography.title2)
-                            .foregroundStyle(Color.higAccent)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            .font(.title2)
+                            .foregroundStyle(accentColor)
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("1-Click DNS Presets")
-                                .font(HIGTypography.headline)
+                                .font(.headline)
                             Text("Quickly configure enterprise email, web hosting, and security policies without typing record values.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .padding(.vertical, 4)
                 }
                 
                 ForEach(categories, id: \.self) { category in
@@ -189,15 +193,15 @@ struct DNSPresetsSheetView: View {
                                 HIGFeedback.selection()
                                 selectedGroup = preset
                             } label: {
-                                HStack(spacing: HIGTokens.Spacing.md) {
+                                HStack(spacing: 12) {
                                     ListRowIcon(icon: preset.icon, color: preset.iconColor)
                                     
-                                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                                    VStack(alignment: .leading, spacing: 2) {
                                         Text(preset.title)
-                                            .font(HIGTypography.body.weight(.medium))
+                                            .font(.body.weight(.medium))
                                             .foregroundStyle(.primary)
                                         Text(preset.subtitle)
-                                            .font(HIGTypography.caption)
+                                            .font(.caption)
                                             .foregroundStyle(.secondary)
                                             .lineLimit(1)
                                     }
@@ -205,20 +209,20 @@ struct DNSPresetsSheetView: View {
                                     Spacer()
                                     
                                     Text("\(preset.items.count) records")
-                                        .font(HIGTypography.caption2.weight(.medium))
+                                        .font(.caption2.weight(.medium))
                                         .foregroundStyle(.secondary)
-                                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                                        .padding(.vertical, HIGTokens.Spacing.xxs)
-                                        .background(Color(.tertiarySystemFill))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color(uiColor: .tertiarySystemFill))
                                         .clipShape(Capsule())
                                     
                                     Image(systemName: "chevron.right")
-                                        .font(HIGTypography.caption2.weight(.semibold))
+                                        .font(.caption2.weight(.semibold))
                                         .foregroundStyle(Color(.tertiaryLabel))
                                 }
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(.higPressable)
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -232,9 +236,8 @@ struct DNSPresetsSheetView: View {
                     Button("Close") {
                         dismiss()
                     }
-                    .font(HIGTypography.body.weight(.semibold))
-                    .foregroundStyle(Color.higAccent)
-                    .higTouchTarget()
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(accentColor)
                 }
             }
             .sheet(item: $selectedGroup) { group in
@@ -252,50 +255,50 @@ struct DNSPresetsSheetView: View {
         NavigationStack {
             List {
                 Section {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: group.icon, color: group.iconColor)
                             Text(group.title)
-                                .font(HIGTypography.title3.weight(.bold))
+                                .font(.title3.weight(.bold))
                         }
                         Text(group.subtitle)
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .padding(.vertical, 4)
                 }
                 
                 Section(header: Text("Records to Create (\(group.items.count))")) {
                     ForEach(group.items) { item in
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text(verbatim: item.type)
-                                    .font(HIGTypography.caption.monospacedDigit().weight(.bold))
-                                    .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                                    .font(.caption.monospacedDigit().weight(.bold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
                                     .background(Color.blue.opacity(0.12))
                                     .foregroundStyle(.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
-                                    .font(HIGTypography.subheadline.monospaced().weight(.medium))
+                                    .font(.subheadline.monospaced().weight(.medium))
                                     .lineLimit(1)
                                 
                                 Spacer()
                                 
                                 if let prio = item.priority {
                                     Text("Pri \(prio)")
-                                        .font(HIGTypography.caption2.monospacedDigit().weight(.medium))
+                                        .font(.caption2.monospacedDigit().weight(.medium))
                                         .foregroundStyle(.secondary)
                                 }
                             }
                             
                             Text(verbatim: item.content)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     }
                 }
                 
@@ -310,16 +313,17 @@ struct DNSPresetsSheetView: View {
                             if isApplying {
                                 ProgressView()
                                     .tint(.white)
-                                    .padding(.trailing, HIGTokens.Spacing.xs + 2)
+                                    .padding(.trailing, 6)
                             }
                             Text(isApplying ? "Adding Records…" : "Apply Preset to \(zoneName)")
-                                .font(HIGTypography.body.weight(.semibold))
+                                .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xs)
+                        .padding(.vertical, 4)
                     }
-                    .buttonStyle(.higPrimaryAction)
+                    .buttonStyle(.borderedProminent)
+                    .tint(accentColor)
                     .disabled(isApplying)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
@@ -334,9 +338,8 @@ struct DNSPresetsSheetView: View {
                     Button("Done") {
                         selectedGroup = nil
                     }
-                    .font(HIGTypography.body.weight(.semibold))
-                    .foregroundStyle(Color.higAccent)
-                    .higTouchTarget()
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(accentColor)
                 }
             }
         }

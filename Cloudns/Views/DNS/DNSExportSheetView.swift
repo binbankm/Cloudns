@@ -39,6 +39,10 @@ struct DNSExportSheetView: View {
     @State private var isLoading = true
     @State private var showingFileExporter = false
     
+    private var accentColor: Color {
+        ThemeManager.shared.currentColor.color
+    }
+    
     private var contentLines: [String] {
         exportedContent.components(separatedBy: "\n")
     }
@@ -48,14 +52,29 @@ struct DNSExportSheetView: View {
             List {
                 if isLoading {
                     Section {
-                        HIGContentState(.loading(message: "Generating BIND Zone File…"))
-                            .padding(.vertical, HIGTokens.Spacing.lg)
+                        HStack {
+                            Spacer()
+                            VStack(spacing: 8) {
+                                ProgressView()
+                                Text("Generating BIND Zone File…")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 24)
                     }
                 } else {
                     // MARK: - Summary Section
                     Section(header: Text("Zone File Summary")) {
                         LabeledContent {
-                            HIGBadge(.active("\(records.count) Records"), isCompact: true)
+                            Text("\(records.count) Records")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.green.opacity(0.14))
+                                .foregroundStyle(.green)
+                                .clipShape(Capsule())
                         } label: {
                             Label("Zone Name", systemImage: "globe")
                         }
@@ -66,15 +85,11 @@ struct DNSExportSheetView: View {
                     // MARK: - Export Actions
                     Section(header: Text("Actions")) {
                         Button {
-                            UIPasteboard.general.string = exportedContent
-                            ToastManager.shared.showCopied("BIND Zone File Copied")
-                            HIGFeedback.copied()
+                            copyToClipboard(exportedContent, toast: "BIND Zone File Copied")
                         } label: {
                             Label("Copy All Records", systemImage: "doc.on.doc")
-                                .foregroundStyle(Color.higAccent)
+                                .foregroundStyle(accentColor)
                         }
-                        .buttonStyle(.higPressable)
-                        .higTouchTarget()
                         
                         if let url = exportedFileURL {
                             ShareLink(
@@ -83,10 +98,8 @@ struct DNSExportSheetView: View {
                                 message: Text("Cloudflare BIND zone file exported via Cloudns")
                             ) {
                                 Label("Share Zone File", systemImage: "square.and.arrow.up")
-                                    .foregroundStyle(Color.higAccent)
+                                    .foregroundStyle(accentColor)
                             }
-                            .buttonStyle(.higPressable)
-                            .higTouchTarget()
                         }
                         
                         Button {
@@ -94,10 +107,8 @@ struct DNSExportSheetView: View {
                             showingFileExporter = true
                         } label: {
                             Label("Save to Files", systemImage: "folder")
-                                .foregroundStyle(Color.higAccent)
+                                .foregroundStyle(accentColor)
                         }
-                        .buttonStyle(.higPressable)
-                        .higTouchTarget()
                     }
                     
                     // MARK: - Zone File Content Preview
@@ -106,28 +117,28 @@ struct DNSExportSheetView: View {
                             Text("Zone File Content")
                             Spacer()
                             Text("\(contentLines.count) lines")
-                                .font(HIGTypography.caption2.monospacedDigit())
+                                .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         },
                         footer: Text("Standard RFC 1035 format. Text wraps naturally without horizontal overflow.")
                     ) {
                         ScrollView(.vertical, showsIndicators: true) {
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 ForEach(Array(contentLines.enumerated()), id: \.offset) { idx, line in
-                                    HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
+                                    HStack(alignment: .top, spacing: 8) {
                                         Text("\(idx + 1)")
-                                            .font(HIGTypography.caption2.monospacedDigit())
+                                            .font(.caption2.monospacedDigit())
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)
                                         
                                         Text(verbatim: line)
-                                            .font(HIGTypography.caption.monospaced())
+                                            .font(.caption.monospaced())
                                             .foregroundStyle(lineColor(for: line))
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
                                 }
                             }
-                            .padding(.vertical, HIGTokens.Spacing.sm)
+                            .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .frame(height: 300)
@@ -143,9 +154,8 @@ struct DNSExportSheetView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(HIGTypography.body.weight(.semibold))
-                    .foregroundStyle(Color.higAccent)
-                    .higTouchTarget()
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(accentColor)
                 }
             }
             .task {
