@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - SSLSettingsView
-// Apple HIG Compliant Cloudflare SSL/TLS Encryption, Edge Certificates & HSTS
+// Apple HIG Compliant Cloudflare SSL/TLS Encryption, Edge Certificates & HSTS (iOS 16.0+)
 
 struct SSLSettingsView: View {
     let zoneId: String
@@ -11,12 +11,12 @@ struct SSLSettingsView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [HIGColors.success.opacity(0.18), Color.teal.opacity(0.12)],
+                                    colors: [Color.green.opacity(0.18), Color.teal.opacity(0.12)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -24,23 +24,23 @@ struct SSLSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "lock.shield.fill")
-                            .font(HIGTypography.title2.weight(.semibold))
-                            .foregroundStyle(HIGColors.success)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.green)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("SSL / TLS Encryption")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Manage end-to-end encryption, edge certificates, and security protocols.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.md)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -50,13 +50,13 @@ struct SSLSettingsView: View {
                 header: Text("SSL/TLS Encryption Mode"),
                 footer: Text("Full or Full (Strict) is recommended if your origin server has an active SSL certificate.")
             ) {
-                HStack(spacing: HIGTokens.Spacing.md) {
-                    ListRowIcon(icon: "lock.fill", color: HIGColors.success)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "lock.fill", color: .green)
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Encryption Mode")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Text(modeDescription(viewModel.sslMode))
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -64,7 +64,7 @@ struct SSLSettingsView: View {
                         get: { viewModel.sslMode },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue)
                                 ToastManager.shared.showSuccess("SSL Mode Updated", icon: "lock.fill")
@@ -92,20 +92,20 @@ struct SSLSettingsView: View {
                     get: { viewModel.alwaysUseHTTPS },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess("Always Use HTTPS Updated", icon: "arrow.triangle.swap")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.triangle.swap", color: .blue)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Always Use HTTPS")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Redirect all HTTP requests to HTTPS automatically.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -117,20 +117,20 @@ struct SSLSettingsView: View {
                     get: { viewModel.automaticHTTPSRewrites },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess("Automatic HTTPS Rewrites Updated", icon: "arrow.counterclockwise.circle.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.counterclockwise.circle.fill", color: .teal)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Automatic HTTPS Rewrites")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Rewrite insecure HTTP URLs in HTML to secure HTTPS.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -144,13 +144,13 @@ struct SSLSettingsView: View {
                 footer: Text("Configure minimum TLS cipher versions and privacy routing features.")
             ) {
                 // Min TLS Version
-                HStack(spacing: HIGTokens.Spacing.md) {
+                HStack(spacing: 12) {
                     ListRowIcon(icon: "shield.lefthalf.filled", color: .indigo)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Minimum TLS Version")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Text("Only allow HTTPS connections using this TLS version or higher.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -158,7 +158,7 @@ struct SSLSettingsView: View {
                         get: { viewModel.minTLSVersion },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue)
                                 ToastManager.shared.showSuccess("Minimum TLS Version Updated", icon: "shield.lefthalf.filled")
@@ -180,23 +180,29 @@ struct SSLSettingsView: View {
                     get: { viewModel.tls13 },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess("TLS 1.3 Updated", icon: "bolt.shield.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "bolt.shield.fill", color: .purple)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
                                 Text("TLS 1.3")
-                                    .font(HIGTypography.body)
-                                HIGBadge(.active("Fast 1-RTT"), isCompact: true)
+                                    .font(.body)
+                                Text("Fast 1-RTT")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.14))
+                                    .foregroundStyle(.green)
+                                    .clipShape(Capsule())
                             }
                             Text("Fastest and most modern TLS connection handshake protocol.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -208,20 +214,20 @@ struct SSLSettingsView: View {
                     get: { viewModel.opportunisticEncryption },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess("Opportunistic Encryption Updated", icon: "key.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "key.fill", color: .orange)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Opportunistic Encryption")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Allows browsers to access HTTP URIs over an encrypted TLS channel.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -239,16 +245,16 @@ struct SSLSettingsView: View {
                     set: { enabled in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
                         viewModel.hstsEnabled = enabled
-                        if enabled { HIGFeedback.warning() } else { HIGFeedback.selection() }
+                        if enabled { HapticManager.notification(.warning) } else { HapticManager.selection() }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "checkmark.seal.fill", color: viewModel.hstsEnabled ? HIGColors.error : .gray)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "checkmark.seal.fill", color: viewModel.hstsEnabled ? .red : .gray)
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Enable HSTS")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("HTTP Strict Transport Security")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -256,13 +262,13 @@ struct SSLSettingsView: View {
                 .disabled(!viewModel.hasFetchedData)
                 
                 if viewModel.hstsEnabled {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "clock.fill", color: .indigo)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Max-Age")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Duration browser enforces HTTPS.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
@@ -279,24 +285,24 @@ struct SSLSettingsView: View {
                     
                     Toggle(isOn: $viewModel.hstsIncludeSubdomains) {
                         Text("Include Subdomains")
-                            .font(HIGTypography.body)
+                            .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
                     
                     Toggle(isOn: $viewModel.hstsNoSniff) {
                         Text("No-Sniff Header")
-                            .font(HIGTypography.body)
+                            .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
                     
                     Toggle(isOn: $viewModel.hstsPreload) {
                         Text("Preload Approval")
-                            .font(HIGTypography.body)
+                            .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
                     
                     Button("Save HSTS Settings") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await viewModel.updateHSTS(
                                 zoneId: zoneId,
@@ -310,18 +316,16 @@ struct SSLSettingsView: View {
                         }
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    .higTouchTarget(44)
                 }
             }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("SSL/TLS")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading SSL/TLS Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading SSL/TLS Settings…"
+        )
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

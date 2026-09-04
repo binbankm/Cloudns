@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - EdgeCertificatesView
-// Apple HIG Compliant Cloudflare Edge Certificates & Universal SSL
+// Apple HIG Compliant Cloudflare Edge Certificates & Universal SSL (iOS 16.0+)
 
 struct EdgeCertificatesView: View {
     let zoneId: String
@@ -29,7 +29,7 @@ struct EdgeCertificatesView: View {
                 Toggle("Enable Universal SSL", isOn: Binding(
                     get: { viewModel.isUniversalSSLEnabled },
                     set: { newValue in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue)
                             ToastManager.shared.showSuccess(newValue ? "Universal SSL Enabled" : "Universal SSL Disabled", icon: "lock.shield.fill")
@@ -44,17 +44,13 @@ struct EdgeCertificatesView: View {
                         EdgeCertificateCardView(certificate: cert)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = cert.hosts.joined(separator: ", ")
-                                    ToastManager.shared.showCopied("Certificate Hosts Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(cert.hosts.joined(separator: ", "), toast: "Certificate Hosts Copied")
                                 } label: {
                                     Label("Copy Hosts", systemImage: "doc.on.doc")
                                 }
                                 
                                 Button {
-                                    UIPasteboard.general.string = cert.id
-                                    ToastManager.shared.showCopied("Certificate ID Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(cert.id, toast: "Certificate ID Copied")
                                 } label: {
                                     Label("Copy Certificate ID", systemImage: "link")
                                 }
@@ -65,7 +61,7 @@ struct EdgeCertificatesView: View {
                                     Button(role: .destructive) {
                                         certToDelete = cert
                                         showingDeleteConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete Certificate", systemImage: "trash")
                                     }
@@ -76,11 +72,11 @@ struct EdgeCertificatesView: View {
                                     Button(role: .destructive) {
                                         certToDelete = cert
                                         showingDeleteConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(HIGColors.error)
+                                    .tint(.red)
                                 }
                             }
                     }
@@ -94,32 +90,21 @@ struct EdgeCertificatesView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Certificates"
         )
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Certificates…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.certificates.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchCertificates(zoneId: zoneId) }
-                            }
-                        )
-                    )
-                } else if viewModel.certificates.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Edge Certificates",
-                            systemImage: "lock.shield",
-                            description: "No Edge Certificates found."
-                        )
-                    )
-                } else if displayedCertificates.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Certificates…",
+            error: viewModel.certificates.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.certificates.isEmpty,
+            empty: .init(
+                title: "No Edge Certificates",
+                systemImage: "lock.shield",
+                description: "No Edge Certificates found."
+            ),
+            searchQuery: (viewModel.hasFetchedData && displayedCertificates.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            onRetry: {
+                Task { await viewModel.fetchCertificates(zoneId: zoneId) }
             }
-        }
+        )
         .refreshable {
             await viewModel.fetchCertificates(zoneId: zoneId)
         }
@@ -131,7 +116,7 @@ struct EdgeCertificatesView: View {
                     Task {
                         await viewModel.deleteCertificate(zoneId: zoneId, cert: cert)
                         ToastManager.shared.showSuccess("Certificate Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         certToDelete = nil
                     }
                 }
@@ -152,7 +137,7 @@ struct EdgeCertificatesView: View {
     }
 }
 
-// MARK: - EdgeCertificateCardView (Inlined & Cohesive)
+// MARK: - EdgeCertificateCardView
 
 struct EdgeCertificateCardView: View {
     let certificate: EdgeCertificateModel
@@ -176,54 +161,61 @@ struct EdgeCertificateCardView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 ListRowIcon(icon: iconName, color: iconColor)
                 
                 Text(certificate.type.capitalized)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                 
                 Spacer()
                 
-                HIGBadge(certificate.status.lowercased() == "active" ? .active : .custom(color: .secondary, text: certificate.status.capitalized), isCompact: true)
+                let isActive = certificate.status.lowercased() == "active"
+                Text(certificate.status.capitalized)
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background((isActive ? Color.green : Color.secondary).opacity(0.14))
+                    .foregroundStyle(isActive ? Color.green : Color.secondary)
+                    .clipShape(Capsule())
             }
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top) {
                     Text("Hosts")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 2) {
                         ForEach(certificate.hosts, id: \.self) { host in
                             Text(host)
-                                .font(HIGTypography.subheadline.weight(.medium))
+                                .font(.subheadline.weight(.medium))
                         }
                     }
                 }
                 
                 HStack {
                     Text("Issuer")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     Text(certificate.issuer)
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                 }
                 
                 HStack {
                     Text("Signature")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
                     Text(certificate.signature)
-                        .font(HIGTypography.subheadline.monospacedDigit())
+                        .font(.subheadline.monospacedDigit())
                 }
                     
                 HStack {
                     Text(certificate.id)
-                        .font(HIGTypography.caption2.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -234,7 +226,7 @@ struct EdgeCertificateCardView: View {
                 }
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     @ViewBuilder
@@ -242,16 +234,16 @@ struct EdgeCertificateCardView: View {
         if let date = DateFormatters.parseISO8601(dateStr) {
             if date < Date() {
                 Text("Expired: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                    .font(HIGTypography.caption)
-                    .foregroundStyle(HIGColors.error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
             } else {
                 Text("Expires: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         } else if !dateStr.isEmpty {
             Text("Expires: \(dateStr)")
-                .font(HIGTypography.caption)
+                .font(.caption)
                 .foregroundStyle(.secondary)
         }
     }
