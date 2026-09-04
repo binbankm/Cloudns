@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - NetworkCenterView
-// Apple HIG Compliant Cloudflare Network Protocols, HTTP/3 QUIC, IPv6 & Origin Routing
+// Apple HIG Compliant Cloudflare Network Protocols, HTTP/3 QUIC, IPv6 & Origin Routing (iOS 16.0+)
 
 struct NetworkCenterView: View {
     let zoneId: String
@@ -13,7 +13,7 @@ struct NetworkCenterView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
@@ -26,23 +26,23 @@ struct NetworkCenterView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "globe.asia.australia.fill")
-                            .font(HIGTypography.title2.weight(.semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("Network & Routing")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Manage network protocols and connectivity for \(zoneName).")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.md)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -50,10 +50,10 @@ struct NetworkCenterView: View {
             // MARK: - Error Banner
             if let errorMessage = viewModel.errorMessage {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: HIGColors.error)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: .red)
                         Text(verbatim: errorMessage)
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.primary)
                     }
                 }
@@ -68,20 +68,20 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipv6 },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateIPv6(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "IPv6 Enabled" : "IPv6 Disabled", icon: "network")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "network", color: .blue)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("IPv6 Compatibility")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Enable IPv6 support and dual-stack gateway.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -92,20 +92,20 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.websockets },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateWebsockets(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "WebSockets Enabled" : "WebSockets Disabled", icon: "arrow.up.arrow.down.square.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.up.arrow.down.square.fill", color: .indigo)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("WebSockets")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Allow WebSockets traffic to your origin server.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -122,20 +122,20 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http2 },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateHTTP2(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "HTTP/2 Enabled" : "HTTP/2 Disabled", icon: "bolt.horizontal.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "bolt.horizontal.fill", color: HIGColors.success)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "bolt.horizontal.fill", color: .green)
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("HTTP/2")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Accelerate page delivery with multiplexing.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -146,23 +146,29 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.http3 },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateHTTP3(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "HTTP/3 QUIC Enabled" : "HTTP/3 QUIC Disabled", icon: "bolt.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "bolt.fill", color: .orange)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
                                 Text("HTTP/3 (QUIC)")
-                                    .font(HIGTypography.body)
-                                HIGBadge(.active("Fastest"), isCompact: true)
+                                    .font(.body)
+                                Text("Fastest")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.14))
+                                    .foregroundStyle(.green)
+                                    .clipShape(Capsule())
                             }
                             Text("Next-generation QUIC transport with 0-RTT.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -179,20 +185,20 @@ struct NetworkCenterView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.ipGeolocation },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "IP Geolocation Enabled" : "IP Geolocation Disabled", icon: "location.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "location.fill", color: .blue)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("IP Geolocation")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Attach visitor country code to headers.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -200,20 +206,20 @@ struct NetworkCenterView: View {
                 .disabled(!viewModel.hasFetchedData)
                 
                 // Origin Max HTTP Version
-                HStack(spacing: HIGTokens.Spacing.md) {
+                HStack(spacing: 12) {
                     ListRowIcon(icon: "server.rack", color: .purple)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Origin Max Protocol")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Text("Maximum protocol version used to talk to origin server.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
                     Picker("Origin Max Protocol", selection: Binding(
                         get: { viewModel.originMaxHttpVersion },
                         set: { val in
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updateOriginMaxHTTPVersion(zoneId: zoneId, version: val)
                                 ToastManager.shared.showSuccess("Origin Protocol Updated", icon: "server.rack")
@@ -230,11 +236,10 @@ struct NetworkCenterView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Network Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Network Settings…"
+        )
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

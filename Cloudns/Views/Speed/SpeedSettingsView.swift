@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - SpeedSettingsView
-// Apple HIG Compliant Cloudflare Speed Optimization, Speed Brain, Brotli & WebP Polish
+// Apple HIG Compliant Cloudflare Speed Optimization, Speed Brain, Brotli & WebP Polish (iOS 16.0+)
 
 struct SpeedSettingsView: View {
     let zoneId: String
@@ -12,7 +12,7 @@ struct SpeedSettingsView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
@@ -25,23 +25,23 @@ struct SpeedSettingsView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "bolt.badge.clock.fill")
-                            .font(HIGTypography.title2.weight(.semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(.purple)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("Speed Optimization")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Supercharge site performance, CDN caching, and edge asset delivery.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.md)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -49,10 +49,10 @@ struct SpeedSettingsView: View {
             // MARK: - Error Banner
             if let errorMessage = viewModel.errorMessage {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: HIGColors.error)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "exclamationmark.triangle.fill", color: .red)
                         Text(verbatim: errorMessage)
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.primary)
                     }
                 }
@@ -67,23 +67,29 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.speedBrain },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Speed Brain Enabled" : "Speed Brain Disabled", icon: "brain.head.profile")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "brain.head.profile", color: .pink)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
                                 Text("Speed Brain")
-                                    .font(HIGTypography.body)
-                                HIGBadge(.active("AI Powered"), isCompact: true)
+                                    .font(.body)
+                                Text("AI Powered")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.14))
+                                    .foregroundStyle(.green)
+                                    .clipShape(Capsule())
                             }
                             Text("Speculative HTML prefetching for instant page navigation.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -94,20 +100,20 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.fonts },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateFonts(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Fonts Acceleration Enabled" : "Fonts Acceleration Disabled", icon: "textformat")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "textformat", color: .blue)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Cloudflare Fonts")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Accelerate Google Fonts with privacy-preserving edge caching.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -118,23 +124,29 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.tieredCache },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateTieredCache(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Tiered Cache Enabled" : "Tiered Cache Disabled", icon: "square.stack.3d.up.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "square.stack.3d.up.fill", color: .indigo)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
                                 Text("Tiered Cache")
-                                    .font(HIGTypography.body)
-                                HIGBadge(.free, isCompact: true)
+                                    .font(.body)
+                                Text("Free")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.secondary.opacity(0.14))
+                                    .clipShape(Capsule())
                             }
                             Text("Use Cloudflare data centers as tiered caching layers.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -151,20 +163,20 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.brotli },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateBrotli(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Brotli Enabled" : "Brotli Disabled", icon: "doc.zipper")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "doc.zipper", color: .teal)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Brotli Compression")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Speed up page load times for HTTPS traffic.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -175,20 +187,20 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.earlyHints },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Early Hints Enabled" : "Early Hints Disabled", icon: "sparkles")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "sparkles", color: .yellow)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Early Hints (HTTP 103)")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Preload linked critical assets while server compiles response.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -199,20 +211,20 @@ struct SpeedSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.rocketLoader },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val)
                             ToastManager.shared.showSuccess(val ? "Rocket Loader™ Enabled" : "Rocket Loader™ Disabled", icon: "flame.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "flame.fill", color: .orange)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Rocket Loader™")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Prioritize website content by deferring JavaScript loading.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -225,24 +237,30 @@ struct SpeedSettingsView: View {
                 header: Text("Image Optimization"),
                 footer: Text("Cloudflare Polish optimizes images on the fly, reducing payload for mobile visitors.")
             ) {
-                HStack(spacing: HIGTokens.Spacing.md) {
-                    ListRowIcon(icon: "photo.fill", color: HIGColors.success)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                        HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 12) {
+                    ListRowIcon(icon: "photo.fill", color: .green)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
                             Text("Polish (WebP)")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .lineLimit(1)
-                            HIGBadge(.pro, isCompact: true)
+                            Text("Pro")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.14))
+                                .clipShape(Capsule())
                         }
                         Text("Automatic image compression and modern WebP conversion.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
                     Picker("Polish", selection: Binding(
                         get: { viewModel.polish },
                         set: { val in
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updatePolish(zoneId: zoneId, value: val)
                                 ToastManager.shared.showSuccess("Polish Updated to \(val.capitalized)", icon: "photo.fill")
@@ -260,11 +278,10 @@ struct SpeedSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Speed Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Speed Settings…"
+        )
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

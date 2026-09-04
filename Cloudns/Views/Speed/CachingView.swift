@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - CachingView
-// Apple HIG Compliant Cloudflare Edge Caching, TTL Configuration & Granular Purge
+// Apple HIG Compliant Cloudflare Edge Caching, TTL Configuration & Granular Purge (iOS 16.0+)
 
 struct CachingView: View {
     let zoneId: String
@@ -21,7 +21,7 @@ struct CachingView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
@@ -34,23 +34,23 @@ struct CachingView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "internaldrive.fill")
-                            .font(HIGTypography.title2.weight(.semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("Caching")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Manage edge cache levels, TTL expiration, and purge cache assets.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.md)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -61,9 +61,21 @@ struct CachingView: View {
                     Text("Custom Cache Purge")
                     Spacer()
                     if purgeType == "url" {
-                        HIGBadge(.free, isCompact: true)
+                        Text("Free")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.secondary.opacity(0.14))
+                            .clipShape(Capsule())
                     } else {
-                        HIGBadge(.enterprise, isCompact: true)
+                        Text("Enterprise")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.purple.opacity(0.14))
+                            .clipShape(Capsule())
                     }
                 },
                 footer: Text(purgeTypeDescription)
@@ -75,12 +87,12 @@ struct CachingView: View {
                     Text("Tag (Ent)").tag("tag")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
                 .disabled(!viewModel.hasFetchedData)
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+                VStack(alignment: .leading, spacing: 8) {
                     TextField(purgePlaceholder, text: $purgeInputText)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .textFieldStyle(.roundedBorder)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -91,6 +103,9 @@ struct CachingView: View {
                             submitPurge()
                         }
                     
+                    let isEmpty = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    let isDisabled = isEmpty || viewModel.isPurging || !viewModel.hasFetchedData
+                    
                     Button(action: {
                         submitPurge()
                     }) {
@@ -99,22 +114,21 @@ struct CachingView: View {
                             if viewModel.isPurging {
                                 ProgressView()
                                     .tint(.white)
-                                    .padding(.trailing, HIGTokens.Spacing.xs)
+                                    .padding(.trailing, 6)
                             }
                             Text("Purge by \(purgeType.capitalized)")
-                                .font(HIGTypography.body.weight(.semibold))
+                                .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
                         }
-                        .padding(.vertical, HIGTokens.Spacing.sm)
-                        .background(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.higAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                        .frame(height: 44)
+                        .background(isDisabled ? Color.gray.opacity(0.4) : ThemeManager.shared.currentColor.color)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
-                    .buttonStyle(.higPressable)
-                    .disabled(purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isPurging || !viewModel.hasFetchedData)
-                    .higTouchTarget(44)
+                    .buttonStyle(.plain)
+                    .disabled(isDisabled)
                 }
-                .padding(.vertical, HIGTokens.Spacing.xs)
+                .padding(.vertical, 4)
             }
             
             // MARK: - Cache Level & TTL
@@ -123,13 +137,13 @@ struct CachingView: View {
                 footer: Text("Determine how much of your website's static content you want Cloudflare to cache at the edge.")
             ) {
                 // Cache Level
-                HStack(spacing: HIGTokens.Spacing.md) {
+                HStack(spacing: 12) {
                     ListRowIcon(icon: "archivebox.fill", color: .blue)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Cache Level")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Text(cacheLevelDescription(viewModel.cacheLevel))
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -137,7 +151,7 @@ struct CachingView: View {
                         get: { viewModel.cacheLevel },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue)
                                 ToastManager.shared.showSuccess("Cache Level Updated", icon: "archivebox.fill")
@@ -154,13 +168,13 @@ struct CachingView: View {
                 .disabled(!viewModel.hasFetchedData)
                 
                 // Browser Cache TTL
-                HStack(spacing: HIGTokens.Spacing.md) {
+                HStack(spacing: 12) {
                     ListRowIcon(icon: "clock.fill", color: .indigo)
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Browser Cache TTL")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Text("Length of time visitor's browser caches files.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -168,7 +182,7 @@ struct CachingView: View {
                         get: { viewModel.browserCacheTTL },
                         set: { newValue in
                             guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue)
                                 ToastManager.shared.showSuccess("Browser TTL Updated", icon: "clock.fill")
@@ -195,20 +209,20 @@ struct CachingView: View {
                     get: { viewModel.alwaysOnline },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess(newValue ? "Always Online Enabled" : "Always Online Disabled", icon: "cloud.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "cloud.fill", color: .teal)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Always Online")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Serve cached pages to visitors if your origin goes down.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -220,25 +234,31 @@ struct CachingView: View {
                     get: { viewModel.developmentMode },
                     set: { newValue in
                         guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task {
                             await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
                             ToastManager.shared.showSuccess(newValue ? "Dev Mode Enabled (Bypassing Cache)" : "Dev Mode Disabled", icon: "hammer.fill")
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "hammer.fill", color: .orange)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
                                 Text("Development Mode")
-                                    .font(HIGTypography.body)
+                                    .font(.body)
                                 if viewModel.developmentMode {
-                                    HIGBadge(.warning("3 Hours"), isCompact: true)
+                                    Text("3 Hours")
+                                        .font(.caption2.weight(.medium))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.14))
+                                        .foregroundStyle(.orange)
+                                        .clipShape(Capsule())
                                 }
                             }
                             Text("Temporarily bypass edge cache to see immediate changes.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -252,33 +272,33 @@ struct CachingView: View {
                 footer: Text("Purging everything removes all cached resources from Cloudflare's global edge network immediately.")
             ) {
                 Button(role: .destructive) {
-                    HIGFeedback.warning()
+                    HapticManager.notification(.warning)
                     showingPurgeAlert = true
                 } label: {
                     HStack {
                         Spacer()
                         if viewModel.isPurging && purgeInputText.isEmpty {
                             ProgressView()
-                                .tint(HIGColors.error)
-                                .padding(.trailing, HIGTokens.Spacing.xs)
+                                .tint(.red)
+                                .padding(.trailing, 6)
                         }
                         Text("Purge Everything")
-                            .font(HIGTypography.body.weight(.medium))
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.red)
                         Spacer()
                     }
+                    .frame(minHeight: 44)
                 }
                 .disabled(viewModel.isPurging || !viewModel.hasFetchedData)
-                .higTouchTarget(44)
             }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Caching")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Caching Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Caching Settings…"
+        )
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
@@ -327,7 +347,7 @@ struct CachingView: View {
     private func submitPurge() {
         let text = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        HIGFeedback.impact(.medium)
+        HapticManager.impact(.medium)
         Task {
             switch purgeType {
             case "url":
