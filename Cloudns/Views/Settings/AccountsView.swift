@@ -1,11 +1,18 @@
 import SwiftUI
 
+// MARK: - AccountsView
+// Apple HIG Compliant Multi-Account Switcher & Authentication Vault (iOS 16.0+)
+
 struct AccountsView: View {
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var isShowingAddAccount = false
     @State private var emailToRemove: String?
     @State private var showingRemoveAccountAlert = false
     @Environment(\.dismiss) private var dismiss
+    
+    private var accentColor: Color {
+        ThemeManager.shared.currentColor.color
+    }
     
     var body: some View {
         NavigationStack {
@@ -20,14 +27,17 @@ struct AccountsView: View {
                 // 2. Other Accounts Switcher
                 let otherEmails = accountManager.accountEmails.filter { $0 != accountManager.activeEmail }
                 if !otherEmails.isEmpty {
-                    Section(header: Text("Other Saved Accounts (\(otherEmails.count))"), footer: Text("Tap any account to instantly switch your active Cloudflare dashboard context.")) {
+                    Section(
+                        header: Text("Other Saved Accounts (\(otherEmails.count))"),
+                        footer: Text("Tap any account to instantly switch your active Cloudflare dashboard context.")
+                    ) {
                         ForEach(otherEmails, id: \.self) { email in
                             Button {
                                 switchAccount(to: email)
                             } label: {
                                 accountRow(email: email, isActive: false)
                             }
-                            .buttonStyle(.higPressable)
+                            .buttonStyle(.plain)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     emailToRemove = email
@@ -35,7 +45,7 @@ struct AccountsView: View {
                                 } label: {
                                     Label("Remove", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                         }
                     }
@@ -44,53 +54,53 @@ struct AccountsView: View {
                 // 3. Add Account Action
                 Section {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         isShowingAddAccount = true
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.higAccentSubtle)
+                                    .fill(accentColor.opacity(0.12))
                                     .frame(width: 36, height: 36)
                                 Image(systemName: "person.badge.plus")
-                                    .font(HIGTypography.subheadline.weight(.semibold))
-                                    .foregroundStyle(Color.higAccent)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(accentColor)
                             }
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("Add Another Account")
-                                    .font(HIGTypography.body.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 
                                 Text("Manage multiple Cloudflare organizations")
-                                    .font(HIGTypography.caption2)
+                                    .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .font(HIGTypography.caption.weight(.semibold))
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.higPressable)
+                    .buttonStyle(.plain)
                 }
                 
                 // 4. Security & Keychain Footer Section
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "lock.shield.fill")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         
                         Text("All API keys and tokens are securely stored in the iOS Keychain with hardware-level Secure Enclave encryption.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .padding(.vertical, 4)
                 }
             }
             .listStyle(.insetGrouped)
@@ -101,8 +111,8 @@ struct AccountsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(HIGTypography.body.weight(.semibold))
-                    .foregroundStyle(Color.higAccent)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(accentColor)
                 }
             }
             .sheet(isPresented: $isShowingAddAccount) {
@@ -115,7 +125,7 @@ struct AccountsView: View {
             }
             .confirmationDialog("Remove Account", isPresented: $showingRemoveAccountAlert, titleVisibility: .visible, presenting: emailToRemove) { email in
                 Button("Remove '\(email)'", role: .destructive) {
-                    HIGFeedback.destructive()
+                    HapticManager.notification(.warning)
                     withAnimation {
                         accountManager.removeAccount(email: email)
                         ToastManager.shared.showSuccess("Account Removed", icon: "person.crop.circle.badge.minus")
@@ -131,86 +141,93 @@ struct AccountsView: View {
     // MARK: - Active Account Hero Row
     @ViewBuilder
     private func activeAccountHeroRow(email: String) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             AccountAvatarView(identifier: email, size: 46)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
                     Text(email)
-                        .font(HIGTypography.body.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.primary)
                         .minimumScaleFactor(0.75)
                         .lineLimit(1)
                     
                     Button {
-                        HIGFeedback.copied()
-                        UIPasteboard.general.string = email
-                        ToastManager.shared.showCopied()
+                        copyToClipboard(email, toast: "Account Email Copied")
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.higPressable)
-                    .higTouchTarget()
+                    .buttonStyle(.plain)
                 }
                 
-                HStack(spacing: HIGTokens.Spacing.xs) {
-                    HIGBadge(.active("Active"), isCompact: true)
-                        .fixedSize(horizontal: true, vertical: false)
+                HStack(spacing: 6) {
+                    Text("Active")
+                        .font(.caption2.weight(.medium))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.14))
+                        .foregroundStyle(.green)
+                        .clipShape(Capsule())
                     
                     let key = accountManager.getAPIKey(for: email) ?? ""
                     let isToken = key.count > 37 || key.contains("_")
-                    HIGBadge(.proxied(isToken ? "API Token" : "Global Key"), isCompact: true)
-                        .fixedSize(horizontal: true, vertical: false)
+                    Text(isToken ? "API Token" : "Global Key")
+                        .font(.caption2.weight(.medium))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.14))
+                        .foregroundStyle(.orange)
+                        .clipShape(Capsule())
                 }
             }
             
-            Spacer(minLength: HIGTokens.Spacing.xs)
+            Spacer(minLength: 6)
             
             Image(systemName: "checkmark.circle.fill")
-                .font(HIGTypography.title3)
-                .foregroundStyle(Color.higAccent)
+                .font(.title3)
+                .foregroundStyle(accentColor)
                 .accessibilityLabel("Current Active Account")
         }
-        .padding(.vertical, HIGTokens.Spacing.xs)
+        .padding(.vertical, 4)
     }
     
     // MARK: - Account Row
     @ViewBuilder
     private func accountRow(email: String, isActive: Bool) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             AccountAvatarView(identifier: email, size: 34)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(email)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 let key = accountManager.getAPIKey(for: email) ?? ""
                 let isToken = key.count > 37 || key.contains("_")
                 Text(isToken ? "Scoped API Token" : "Global API Key")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             Text("Switch")
-                .font(HIGTypography.caption.weight(.semibold))
-                .foregroundStyle(Color.higAccent)
-                .padding(.horizontal, HIGTokens.Spacing.md)
-                .padding(.vertical, HIGTokens.Spacing.xs)
-                .background(Color.higAccentSubtle)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(accentColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(accentColor.opacity(0.12))
                 .clipShape(Capsule())
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
     
     private func switchAccount(to email: String) {
-        HIGFeedback.selection()
+        HapticManager.selection()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             accountManager.switchAccount(to: email)
             ToastManager.shared.showSuccess("Switched to \(email)", icon: "person.crop.circle.badge.checkmark")

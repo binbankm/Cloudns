@@ -40,7 +40,7 @@ struct FeedbackView: View {
         Form {
             Section(header: Text("Feedback & Issue Description")) {
                 TextEditor(text: $feedbackText)
-                    .font(HIGTypography.body)
+                    .font(.body)
                     .frame(minHeight: 120)
             }
             
@@ -50,44 +50,41 @@ struct FeedbackView: View {
             ) {
                 LabeledContent("App Version") {
                     Text("v\(appVersion) (\(buildNumber))")
-                        .font(HIGTypography.subheadline.monospacedDigit())
+                        .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
                 LabeledContent("iOS System", value: "iOS \(systemVersion)")
-                    .font(HIGTypography.body)
+                    .font(.body)
                 
                 LabeledContent("Account") {
                     Text(accountManager.activeEmail)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 
                 LabeledContent("Local Time") {
                     Text(DateFormatters.formatLocalDiagnosticTimestamp())
-                        .font(HIGTypography.caption.monospacedDigit())
+                        .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 
                 Button {
-                    UIPasteboard.general.string = diagnosticSummary
-                    ToastManager.shared.showCopied("Diagnostic Summary Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(diagnosticSummary, toast: "Diagnostic Summary Copied")
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "doc.on.doc")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                         Text("Copy Diagnostic Info")
-                            .font(HIGTypography.subheadline.weight(.medium))
+                            .font(.subheadline.weight(.medium))
                     }
-                    .foregroundStyle(Color.higAccent)
+                    .foregroundStyle(Color.accentColor)
                 }
-                .higTouchTarget(44)
             }
             
             Section {
                 Button {
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                     if let url = URL(string: "https://github.com/binbankm/Cloudns/issues/new") {
                         UIApplication.shared.open(url)
                     }
@@ -96,12 +93,11 @@ struct FeedbackView: View {
                         Spacer()
                         Image(systemName: "ladybug.fill")
                         Text("Submit Issue on GitHub")
-                            .font(HIGTypography.body.weight(.semibold))
+                            .font(.body.weight(.semibold))
                         Spacer()
                     }
-                    .foregroundStyle(Color.higAccent)
+                    .foregroundStyle(Color.accentColor)
                 }
-                .higTouchTarget(44)
             }
         }
         .scrollDismissesKeyboard(.interactively)

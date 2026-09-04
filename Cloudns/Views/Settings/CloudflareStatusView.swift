@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - CloudflareStatusView
+// Apple HIG Compliant Cloudflare System Status & PoP Health (iOS 16.0+)
 
 struct CloudflareStatusView: View {
     @StateObject private var viewModel = CloudflareStatusViewModel()
@@ -63,18 +64,18 @@ struct CloudflareStatusView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Segmented Picker Header (Standard pattern across app)
+            // Segmented Picker Header
             Picker("Category", selection: $selectedTab) {
                 Text(viewModel.hasFetchedData ? "Issues (\(issuesComponents.count))" : "Issues").tag(StatusFilterTab.issues)
                 Text(viewModel.hasFetchedData ? "Services (\(servicesComponents.count))" : "Services").tag(StatusFilterTab.services)
                 Text(viewModel.hasFetchedData ? "PoPs (\(popsComponents.count))" : "PoPs").tag(StatusFilterTab.pops)
             }
             .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal, HIGTokens.Spacing.lg)
-            .padding(.vertical, HIGTokens.Spacing.sm)
-            .background(Color.higGroupBackground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color(uiColor: .systemGroupedBackground))
             .onChange(of: selectedTab) { _ in
-                HIGFeedback.selection()
+                HapticManager.selection()
             }
             
             contentView
@@ -85,7 +86,7 @@ struct CloudflareStatusView: View {
             prompt: "Search Services or PoPs"
         )
         .scrollDismissesKeyboard(.interactively)
-        .background(Color.higGroupBackground)
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("System Status")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -93,11 +94,8 @@ struct CloudflareStatusView: View {
                 if let url = URL(string: "https://www.cloudflarestatus.com") {
                     Link(destination: url) {
                         Image(systemName: "safari")
-                            .font(HIGTypography.subheadline)
                             .accessibilityLabel("Open Statuspage in Browser")
                     }
-                    .buttonStyle(.higPressable)
-                    .higTouchTarget()
                 }
             }
         }
@@ -151,85 +149,80 @@ struct CloudflareStatusView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading System Status…"))
-            } else if viewModel.hasFetchedData {
-                if let err = viewModel.errorMessage, viewModel.summary == nil {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.fetchStatus() } }
-                        )
-                    )
-                } else if displayedComponents.isEmpty {
-                    if !searchText.isEmpty {
-                        HIGContentState(.search(query: searchText))
-                    } else if selectedTab == .issues {
-                        HIGContentState(
-                            .empty(
-                                title: "All Systems Operational",
-                                systemImage: "checkmark.seal.fill",
-                                description: "No degraded services or active outages detected right now."
-                            )
-                        )
-                    }
-                }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading System Status…",
+            error: (viewModel.summary == nil) ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && displayedComponents.isEmpty && searchText.isEmpty && selectedTab == .issues,
+            empty: .init(
+                title: "All Systems Operational",
+                systemImage: "checkmark.seal.fill",
+                description: "No degraded services or active outages detected right now."
+            ),
+            searchQuery: (viewModel.hasFetchedData && displayedComponents.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            onRetry: {
+                Task { await viewModel.fetchStatus() }
             }
-        }
+        )
     }
     
     // MARK: - Component Row View
     @ViewBuilder
     private func componentRow(_ comp: CFComponentItem) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             Circle()
                 .fill(statusColor(comp.status))
                 .frame(width: 8, height: 8)
                 .shadow(color: statusColor(comp.status).opacity(comp.status.lowercased() == "operational" ? 0 : 0.4), radius: 2)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(comp.name)
-                    .font(HIGTypography.body)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
                 if let iata = extractIATA(comp.name) {
                     Text(iata)
-                        .font(HIGTypography.caption2.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
             
             Spacer()
             
-            HIGBadge(badgeTypeForStatus(comp.status), isCompact: true)
+            statusBadge(comp.status)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     // MARK: - Incident Row View
     @ViewBuilder
     private func incidentRow(_ inc: CFIncidentItem) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(inc.name)
-                    .font(HIGTypography.body.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
-                HIGBadge(.warning(inc.status.capitalized), isCompact: true)
+                Text(inc.status.capitalized)
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.orange.opacity(0.14))
+                    .foregroundStyle(.orange)
+                    .clipShape(Capsule())
             }
             
             if let updated = inc.updatedAt, let date = DateFormatters.parseISO8601(updated) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 4) {
                     Image(systemName: "clock")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                     Text("Updated: \(date.displayFormatted(date: .abbreviated, time: .shortened))")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                 }
                 .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xs)
+        .padding(.vertical, 4)
     }
     
     // MARK: - Overall Banner Card
@@ -237,30 +230,30 @@ struct CloudflareStatusView: View {
         let isOperational = summary.status?.indicator == "none"
         let bgColor = isOperational ? Color.green : Color.orange
         
-        return HStack(spacing: HIGTokens.Spacing.md) {
+        return HStack(spacing: 12) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                .font(HIGTypography.title)
+                .font(.title)
                 .foregroundStyle(.white)
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(summary.status?.description ?? "All Systems Operational")
-                    .font(HIGTypography.body.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
                 
                 Text(isOperational ? "Cloudflare Global Network & Edge Services Normal" : "Some services or edge data centers are degraded")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.white.opacity(0.85))
             }
             
             Spacer()
         }
-        .padding(HIGTokens.Spacing.lg)
+        .padding(16)
         .background(bgColor.gradient)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(color: bgColor.opacity(0.25), radius: 6, x: 0, y: 3)
-        .padding(.horizontal, HIGTokens.Spacing.lg)
-        .padding(.top, HIGTokens.Spacing.xs)
+        .padding(.horizontal, 16)
+        .padding(.top, 4)
     }
     
     // MARK: - Helpers
@@ -300,20 +293,16 @@ struct CloudflareStatusView: View {
         }
     }
     
-    private func badgeTypeForStatus(_ status: String) -> HIGBadgeType {
-        switch status.lowercased() {
-        case "operational":
-            return .active("Operational")
-        case "under_maintenance":
-            return .custom(color: .blue, text: "Maintenance")
-        case "degraded_performance":
-            return .warning("Degraded")
-        case "partial_outage":
-            return .warning("Partial Outage")
-        case "major_outage":
-            return .error("Major Outage")
-        default:
-            return .active(status.capitalized)
-        }
+    @ViewBuilder
+    private func statusBadge(_ status: String) -> some View {
+        let text = status.replacingOccurrences(of: "_", with: " ").capitalized
+        let color = statusColor(status)
+        Text(text)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.14))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - SettingsView
-// Apple HIG Compliant Settings Hub
+// Apple HIG Compliant Settings Hub (iOS 16.0+)
 
 struct SettingsView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
@@ -25,34 +25,38 @@ struct SettingsView: View {
                 // MARK: - Profile Card Section
                 Section {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         showingAccountSheet = true
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             AccountAvatarView(identifier: accountManager.activeEmail, size: 52)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                                HStack(spacing: HIGTokens.Spacing.xs) {
-                                    HIGBadge(.custom(color: .orange, text: "Active Account"), isCompact: true)
-                                }
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Active Account")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.orange.opacity(0.14))
+                                    .foregroundStyle(.orange)
+                                    .clipShape(Capsule())
                                 
                                 Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
-                                    .font(HIGTypography.body.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                                 
                                 Text("Tap to switch or add accounts")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .font(HIGTypography.caption.weight(.semibold))
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 4)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -61,35 +65,35 @@ struct SettingsView: View {
                 // MARK: - Cloudflare Operations & Status
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
-                        HStack(spacing: HIGTokens.Spacing.md) {
-                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: HIGColors.success)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: .green)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
-                                    .font(HIGTypography.body.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Live Cloudflare network & service health")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     }
                     
                     NavigationLink(destination: AuditLogsView()) {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
-                                    .font(HIGTypography.body.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
                                 Text("Account change history & actor records")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     }
                 } header: {
                     Text("Cloudflare Services")
@@ -103,14 +107,14 @@ struct SettingsView: View {
                         HStack {
                             SettingsRowView(
                                 icon: "faceid",
-                                color: HIGColors.success,
+                                color: .green,
                                 title: "App Lock"
                             )
                             
                             Spacer()
                             
                             Text(isAppLockEnabled ? "On" : "Off")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -134,7 +138,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: themePreference) { _ in
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                     }
                     
                     NavigationLink {
@@ -148,7 +152,7 @@ struct SettingsView: View {
                             )
                             Spacer()
                             Text(themeManager.currentColor.displayName)
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -164,7 +168,7 @@ struct SettingsView: View {
                             )
                             Spacer()
                             Text(iconManager.currentIcon.displayName)
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -193,7 +197,7 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.secondary)
                     .onChange(of: appLanguage) { _ in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     }
                     
                     Toggle(isOn: $hapticsEnabled) {
@@ -205,12 +209,12 @@ struct SettingsView: View {
                     }
                     .onChange(of: hapticsEnabled) { enabled in
                         if enabled {
-                            HIGFeedback.impact(.medium)
+                            HapticManager.impact(.medium)
                         }
                     }
                     
                     Button {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         showingClearCacheAlert = true
                     } label: {
                         HStack {
@@ -225,7 +229,7 @@ struct SettingsView: View {
                                     .scaleEffect(0.8)
                             } else {
                                 Text(cacheManager.formattedCacheSize)
-                                    .font(HIGTypography.subheadline)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -235,16 +239,8 @@ struct SettingsView: View {
                     Text("Preferences")
                 }
                 
-                // MARK: - Support & Design System
+                // MARK: - Support
                 Section {
-                    NavigationLink(destination: DesignSystemGalleryView()) {
-                        SettingsRowView(
-                            icon: "square.stack.3d.up.fill",
-                            color: Color.higAccent,
-                            title: "Design System Showcase"
-                        )
-                    }
-                    
                     NavigationLink(destination: FeedbackView()) {
                         SettingsRowView(
                             icon: "envelope.badge.fill",
@@ -285,7 +281,7 @@ struct SettingsView: View {
                 // MARK: - Log Out Section
                 Section(footer: appVersionFooter) {
                     Button(role: .destructive, action: {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         showingLogoutAlert = true
                     }) {
                         HStack {
@@ -335,22 +331,22 @@ struct SettingsView: View {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         
-        return VStack(spacing: HIGTokens.Spacing.xxs) {
+        return VStack(spacing: 2) {
             Text("Cloudns v\(appVersion) (\(buildNumber))")
-                .font(HIGTypography.caption)
+                .font(.caption)
                 .foregroundStyle(.secondary)
             
             Text("Designed for Cloudflare Edge & Zero Trust")
-                .font(HIGTypography.caption2)
+                .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, HIGTokens.Spacing.md)
-        .padding(.bottom, HIGTokens.Spacing.sm)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
     }
 }
 
-// MARK: - SettingsRowView (Inlined & Cohesive)
+// MARK: - SettingsRowView
 
 struct SettingsRowView: View {
     let icon: String
@@ -364,11 +360,11 @@ struct SettingsRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: icon, color: color)
             
             Text(title)
-                .font(HIGTypography.body.weight(.medium))
+                .font(.body.weight(.medium))
                 .foregroundStyle(.primary)
         }
     }

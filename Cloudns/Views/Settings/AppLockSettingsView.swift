@@ -37,7 +37,7 @@ struct AppLockSettingsView: View {
                     }
                 )) {
                     toggleLabel
-                        .font(HIGTypography.body)
+                        .font(.body)
                 }
             } footer: {
                 footerLabel
@@ -48,26 +48,25 @@ struct AppLockSettingsView: View {
                 Section {
                     ForEach(timeoutOptions, id: \.seconds) { option in
                         Button {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             autoLockTimeout = option.seconds
                         } label: {
                             HStack {
                                 Text(option.title)
-                                    .font(HIGTypography.body)
+                                    .font(.body)
                                     .foregroundStyle(.primary)
                                 
                                 Spacer()
                                 
                                 if autoLockTimeout == option.seconds {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(HIGTypography.title3)
-                                        .foregroundStyle(Color.higAccent)
+                                        .font(.title3)
+                                        .foregroundStyle(Color.accentColor)
                                 }
                             }
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget()
                     }
                 } header: {
                     Text("Auto-Lock")

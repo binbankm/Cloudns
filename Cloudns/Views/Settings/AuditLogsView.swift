@@ -20,7 +20,7 @@ struct AuditLogsView: View {
                     ForEach(viewModel.filteredLogs) { log in
                         Button {
                             selectedLog = log
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         } label: {
                             AuditLogRowView(log: log)
                         }
@@ -48,30 +48,21 @@ struct AuditLogsView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-             .higToast()
+            .higToast()
         }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Audit Logs…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: { Task { await viewModel.fetchLogs() } }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.logs.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Audit Logs",
-                        systemImage: "list.clipboard.fill",
-                        description: "No recent account audit logs or modification records found."
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
-                HIGContentState(.search(query: viewModel.searchText))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Audit Logs…",
+            error: viewModel.logs.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.logs.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Audit Logs",
+                systemImage: "list.clipboard.fill",
+                description: "No recent account audit logs or modification records found."
+            ),
+            searchQuery: (viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty) ? viewModel.searchText : nil,
+            onRetry: { Task { await viewModel.fetchLogs() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchLogs()
@@ -86,61 +77,66 @@ struct AuditLogRowView: View {
     let log: AuditLog
     
     var body: some View {
-        HStack(alignment: .top, spacing: HIGTokens.Spacing.md) {
+        HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
                     .fill(log.actionColor.opacity(0.12))
                     .frame(width: 38, height: 38)
                 Image(systemName: log.actionIcon)
-                    .font(HIGTypography.subheadline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(log.actionColor)
             }
             .accessibilityHidden(true)
-            .padding(.top, HIGTokens.Spacing.xxs)
+            .padding(.top, 2)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
                     Text(LocalizedStringKey(log.displayActionKey))
-                        .font(HIGTypography.subheadline.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text(LocalizedStringKey(log.friendlyResourceTypeKey))
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
                     
                     Spacer()
                     
                     if let res = log.action?.result {
-                        HIGBadge(res ? .active : .error("Failed"), isCompact: true)
+                        Text(res ? "Success" : "Failed")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(res ? Color.green : Color.red)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(res ? Color.green.opacity(0.12) : Color.red.opacity(0.12)))
                     }
                 }
                 
                 log.primarySummaryView
-                    .font(HIGTypography.subheadline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                 
                 log.secondaryContextView
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     if let email = log.actor?.email, !email.isEmpty {
                         Label(email, systemImage: "person.circle")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     } else if let actorType = log.actor?.type {
                         Text(actorType.uppercased())
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
                     if let ip = log.actor?.ip, !ip.isEmpty {
                         Text("• \(ip)")
-                            .font(HIGTypography.caption2.monospacedDigit())
+                            .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                     
@@ -148,18 +144,18 @@ struct AuditLogRowView: View {
                     
                     if let when = log.when, let date = DateFormatters.parseISO8601(when) {
                         Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
                 }
             }
             
             Image(systemName: "chevron.right")
-                .font(HIGTypography.caption2.weight(.bold))
+                .font(.caption2.weight(.bold))
                 .foregroundStyle(.tertiary)
-                .padding(.top, HIGTokens.Spacing.xs)
+                .padding(.top, 4)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
 }
@@ -174,37 +170,42 @@ struct AuditLogDetailSheetView: View {
     var body: some View {
         List {
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(log.actionColor.opacity(0.15))
                             .frame(width: 56, height: 56)
                         Image(systemName: log.actionIcon)
-                            .font(HIGTypography.title2.weight(.semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(log.actionColor)
                     }
                     
-                    VStack(spacing: HIGTokens.Spacing.xs) {
-                        HStack(spacing: HIGTokens.Spacing.xs) {
+                    VStack(spacing: 4) {
+                        HStack(spacing: 4) {
                             Text(LocalizedStringKey(log.displayActionKey))
                             Text("•")
                             Text(LocalizedStringKey(log.friendlyResourceTypeKey))
                         }
-                        .font(HIGTypography.title3.weight(.bold))
+                        .font(.title3.weight(.bold))
                         .foregroundStyle(.primary)
                         
                         log.primarySummaryView
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
                     
                     if let res = log.action?.result {
-                        HIGBadge(res ? .active : .error("Failed"), isCompact: false)
+                        Text(res ? "Success" : "Failed")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(res ? Color.green : Color.red)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(res ? Color.green.opacity(0.12) : Color.red.opacity(0.12)))
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
                 .listRowBackground(Color.clear)
             }
             
@@ -220,11 +221,11 @@ struct AuditLogDetailSheetView: View {
                     if let date = DateFormatters.parseISO8601(when) {
                         HStack {
                             Text("Time (Local)")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                                .font(HIGTypography.subheadline.monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -235,33 +236,33 @@ struct AuditLogDetailSheetView: View {
             if hasChanges {
                 Section("Changes & Payload") {
                     if let oldText = formattedOldValue, !oldText.isEmpty {
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Label("Previous Value (Before)", systemImage: "minus.circle.fill")
-                                .font(HIGTypography.caption.weight(.semibold))
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.red)
                             Text(oldText)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(HIGTokens.Spacing.sm)
+                                .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(HIGColors.error.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                                .background(Color.red.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
                     
                     if let newText = formattedNewValue, !newText.isEmpty {
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
-                                .font(HIGTypography.caption.weight(.semibold))
-                                .foregroundStyle(HIGColors.success)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.green)
                             Text(newText)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(HIGTokens.Spacing.sm)
+                                .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(HIGColors.success.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                                .background(Color.green.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
@@ -375,15 +376,13 @@ struct AuditLogDetailSheetView: View {
             
             if isCopyable {
                 Button {
-                    UIPasteboard.general.string = value
-                    ToastManager.shared.showCopied()
+                    copyToClipboard(value, toast: "Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .higTouchTarget()
             }
         }
     }
