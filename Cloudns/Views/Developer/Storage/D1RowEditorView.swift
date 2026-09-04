@@ -37,14 +37,14 @@ struct D1RowEditorView: View {
         NavigationStack {
             Form {
                 if let rowid = existingRow?["_rowid_"] {
-                    Section(header: Text("Internal Identifier")) {
+                    Section("Internal Identifier") {
                         HStack {
                             Text("rowid")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text(verbatim: rowid)
-                                .font(HIGTypography.body.monospacedDigit())
+                                .font(.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -53,31 +53,28 @@ struct D1RowEditorView: View {
                 if editableColumns.isEmpty {
                     Section {
                         Text("No editable columns detected.")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    Section(
-                        header: Text(isNewRow ? "New Row Values" : "Edit Column Values"),
-                        footer: Text("Leave blank to use column defaults. Values are escaped before saving.")
-                    ) {
+                    Section {
                         ForEach(editableColumns) { col in
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                            VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text(verbatim: col.name)
-                                        .font(HIGTypography.subheadline.weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                     if col.isPrimaryKey {
                                         Image(systemName: "key.fill")
-                                            .font(HIGTypography.caption2)
+                                            .font(.caption2)
                                             .foregroundStyle(.orange)
                                     }
                                     Spacer()
                                     Text(verbatim: col.type)
-                                        .font(HIGTypography.caption2.monospaced())
-                                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                                        .font(.caption2.monospaced())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
                                         .background(Color(.secondarySystemFill))
-                                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
                                 
                                 TextField(
@@ -87,7 +84,7 @@ struct D1RowEditorView: View {
                                         set: { fieldValues[col.name] = $0 }
                                     )
                                 )
-                                .font(HIGTypography.body.monospaced())
+                                .font(.body.monospaced())
                                 .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -95,23 +92,27 @@ struct D1RowEditorView: View {
                                 
                                 if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
                                     Text("Default: \(dflt)")
-                                        .font(HIGTypography.caption2)
+                                        .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                         }
+                    } header: {
+                        Text(isNewRow ? "New Row Values" : "Edit Column Values")
+                    } footer: {
+                        Text("Leave blank to use column defaults. Values are escaped before saving.")
                     }
                 }
 
                 if let err = viewModel.errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -124,7 +125,6 @@ struct D1RowEditorView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .disabled(isSaving)
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if isSaving {
@@ -134,12 +134,10 @@ struct D1RowEditorView: View {
                             saveRow()
                         }
                         .fontWeight(.semibold)
-                        .higTouchTarget(44)
                     }
                 }
             }
         }
-        .higToast()
     }
 
     private func saveRow() {
@@ -160,11 +158,11 @@ struct D1RowEditorView: View {
                 isSaving = false
                 if success {
                     ToastManager.shared.showSuccess(isNewRow ? "Row Inserted" : "Row Updated", icon: "checkmark.circle.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                     dismiss()
                 } else {
                     ToastManager.shared.showError(isNewRow ? "Failed to Insert Row" : "Failed to Update Row")
-                    HIGFeedback.error()
+                    HapticManager.notification(.error)
                 }
             }
         }

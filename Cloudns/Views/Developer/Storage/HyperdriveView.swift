@@ -19,24 +19,20 @@ struct HyperdriveView: View {
     var body: some View {
         List {
             if !viewModel.configs.isEmpty {
-                Section(header: Text("Database Accelerators (\(viewModel.configs.count))")) {
+                Section("Database Accelerators (\(viewModel.configs.count))") {
                     ForEach(viewModel.configs) { config in
                         NavigationLink(destination: HyperdriveDetailView(accountId: accountId, config: config, viewModel: viewModel)) {
                             configRow(config)
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = config.name
-                                ToastManager.shared.showCopied("Config Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(config.name, toast: "Config Name Copied")
                             } label: {
                                 Label("Copy Name", systemImage: "doc.on.doc")
                             }
                             
                             Button {
-                                UIPasteboard.general.string = config.id
-                                ToastManager.shared.showCopied("Config ID Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(config.id, toast: "Config ID Copied")
                             } label: {
                                 Label("Copy Config ID", systemImage: "link")
                             }
@@ -44,7 +40,7 @@ struct HyperdriveView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 configToDelete = config
                                 showingDeleteAlert = true
                             } label: {
@@ -53,19 +49,31 @@ struct HyperdriveView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 configToDelete = config
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Hyperdrive Configs…",
+            isEmpty: viewModel.hasFetchedData && viewModel.configs.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Hyperdrive Configs",
+            emptySystemImage: "bolt.horizontal.fill",
+            emptyDescription: "Hyperdrive accelerates database queries from Workers to existing regional databases.",
+            emptyActionTitle: "Create Config",
+            emptyAction: { showingCreateSheet = true },
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchConfigs() } }
+        )
         .navigationTitle("Hyperdrive")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -76,19 +84,17 @@ struct HyperdriveView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Accelerator")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateHyperdriveSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Hyperdrive", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: configToDelete) { cfg in
             Button("Delete '\(cfg.name)'", role: .destructive) {
                 Task {
                     await viewModel.deleteConfig(id: cfg.id)
                     ToastManager.shared.showSuccess("Hyperdrive Accelerator Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -97,30 +103,6 @@ struct HyperdriveView: View {
         }
         .refreshable {
             await viewModel.fetchConfigs()
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Hyperdrive Configs…"))
-            } else if viewModel.hasFetchedData {
-                if let err = viewModel.errorMessage, viewModel.configs.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.fetchConfigs() } }
-                        )
-                    )
-                } else if viewModel.configs.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Hyperdrive Configs",
-                            systemImage: "bolt.horizontal.fill",
-                            description: "Hyperdrive accelerates database queries from Workers to existing regional databases.",
-                            actionTitle: "Create Config",
-                            action: { showingCreateSheet = true }
-                        )
-                    )
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -131,12 +113,12 @@ struct HyperdriveView: View {
     
     @ViewBuilder
     private func configRow(_ config: HyperdriveConfig) -> some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
-            ListRowIcon(icon: "bolt.horizontal.fill", color: HIGColors.success)
+        HStack(alignment: .center, spacing: 12) {
+            ListRowIcon(icon: "bolt.horizontal.fill", color: .green)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(config.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let origin = config.origin, let host = origin.host {
@@ -144,7 +126,7 @@ struct HyperdriveView: View {
                     let dbScheme = origin.scheme ?? "postgres"
                     let dbPort = origin.port ?? 5432
                     Text(verbatim: "\(dbScheme)://\(host):\(dbPort)/\(dbName)")
-                        .font(HIGTypography.caption2.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -152,9 +134,15 @@ struct HyperdriveView: View {
             
             Spacer()
             
-            HIGBadge(.custom(color: HIGColors.success, text: (config.origin?.scheme ?? "postgres").uppercased()), isCompact: true)
+            let schemeName = (config.origin?.scheme ?? "postgres").uppercased()
+            Text(schemeName)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.green.opacity(0.12)))
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -176,36 +164,36 @@ struct CreateHyperdriveSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Configuration Name")) {
+                Section("Configuration Name") {
                     TextField("my-postgres-hyperdrive", text: $name)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
                 
-                Section(header: Text("Origin Database")) {
+                Section("Origin Database") {
                     TextField("Host (e.g. db.example.com)", text: $host)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
                     TextField("Port", text: $port)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .keyboardType(.numberPad)
                     
                     TextField("Database Name", text: $database)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
                     TextField("User", text: $user)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
                     SecureField("Password", text: $password)
-                        .font(HIGTypography.body)
+                        .font(.body)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -215,7 +203,6 @@ struct CreateHyperdriveSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -233,17 +220,16 @@ struct CreateHyperdriveSheetView: View {
                             let ok = await viewModel.createConfig(payload: payload)
                             if ok {
                                 ToastManager.shared.showSuccess("Hyperdrive Created", icon: "bolt.horizontal.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } else {
                                 ToastManager.shared.showError("Failed to Create Hyperdrive")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || host.trimmingCharacters(in: .whitespaces).isEmpty || database.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

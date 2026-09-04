@@ -27,9 +27,7 @@ struct R2BucketsView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = bucket.name
-                                ToastManager.shared.showCopied("Bucket Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(bucket.name, toast: "Bucket Name Copied")
                             } label: {
                                 Label("Copy Bucket Name", systemImage: "doc.on.doc")
                             }
@@ -37,7 +35,7 @@ struct R2BucketsView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 bucketToDelete = bucket
                                 showingDeleteAlert = true
                             } label: {
@@ -46,19 +44,32 @@ struct R2BucketsView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 bucketToDelete = bucket
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading R2 Buckets…",
+            isEmpty: viewModel.hasFetchedData && viewModel.buckets.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No R2 Buckets",
+            emptyDescription: "You haven't created any R2 storage buckets in this account yet.",
+            emptyActionTitle: "Create Bucket",
+            emptyAction: { showingCreateSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && !viewModel.buckets.isEmpty && viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchBuckets() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
@@ -72,7 +83,6 @@ struct R2BucketsView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Create R2 Bucket")
-                .higTouchTarget()
                 .keyboardShortcut("n", modifiers: .command)
             }
         }
@@ -80,7 +90,6 @@ struct R2BucketsView: View {
             R2CreateBucketSheetView(viewModel: viewModel)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .higToast()
         }
         .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in
             Button("Delete '\(bucket.name)'", role: .destructive) {
@@ -88,42 +97,16 @@ struct R2BucketsView: View {
                     do {
                         try await viewModel.deleteBucket(bucketName: bucket.name)
                         ToastManager.shared.showSuccess("Bucket Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     } catch {
                         ToastManager.shared.showError("Failed to Delete Bucket")
-                        HIGFeedback.error()
+                        HapticManager.notification(.error)
                     }
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: { bucket in
             Text("Are you sure you want to delete bucket '\(bucket.name)'? All objects will be permanently lost.")
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading R2 Buckets…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.buckets.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchBuckets() } }
-                        )
-                    )
-                } else if viewModel.buckets.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No R2 Buckets",
-                            systemImage: "archivebox",
-                            description: "You haven't created any R2 storage buckets in this account yet.",
-                            actionTitle: "Create Bucket",
-                            action: { showingCreateSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -139,17 +122,17 @@ struct R2BucketRowView: View {
     let bucket: R2Bucket
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "archivebox.fill", color: .blue)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(bucket.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                     Text("Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -157,10 +140,15 @@ struct R2BucketRowView: View {
             Spacer()
             
             if let loc = bucket.location {
-                HIGBadge(.custom(color: .secondary, text: loc.uppercased()), isCompact: true)
+                Text(loc.uppercased())
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.secondary.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -187,14 +175,18 @@ struct R2CreateBucketSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Bucket Name"), footer: Text("Unique bucket name using lowercase letters, numbers, and hyphens.")) {
+                Section {
                     TextField("my-bucket", text: $bucketName)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Bucket Name")
+                } footer: {
+                    Text("Unique bucket name using lowercase letters, numbers, and hyphens.")
                 }
                 
-                Section(header: Text("Location Hint")) {
+                Section("Location Hint") {
                     Picker("Region", selection: $locationHint) {
                         ForEach(locationHints, id: \.1) { label, value in
                             Text(verbatim: label).tag(value)
@@ -205,8 +197,8 @@ struct R2CreateBucketSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -229,11 +221,11 @@ struct R2CreateBucketSheetView: View {
                                     locationHint: locationHint == "auto" ? nil : locationHint
                                 )
                                 ToastManager.shared.showSuccess("Bucket Created", icon: "archivebox.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }

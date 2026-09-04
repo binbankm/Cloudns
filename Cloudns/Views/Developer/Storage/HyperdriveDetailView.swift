@@ -10,19 +10,17 @@ struct HyperdriveDetailView: View {
     
     var body: some View {
         List {
-            Section(header: Text("Accelerator Overview")) {
+            Section("Accelerator Overview") {
                 LabeledContent("Config Name", value: config.name)
                 
                 LabeledContent("Config ID") {
                     Text(config.id)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 .contextMenu {
                     Button {
-                        UIPasteboard.general.string = config.id
-                        ToastManager.shared.showCopied("Config ID Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(config.id, toast: "Config ID Copied")
                     } label: {
                         Label("Copy ID", systemImage: "doc.on.doc")
                     }
@@ -30,13 +28,13 @@ struct HyperdriveDetailView: View {
             }
             
             if let origin = config.origin {
-                Section(header: Text("Origin Database")) {
+                Section("Origin Database") {
                     LabeledContent("Scheme", value: origin.scheme?.uppercased() ?? "POSTGRES")
                     
                     if let host = origin.host, !host.isEmpty {
                         LabeledContent("Host") {
                             Text(host)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -54,11 +52,11 @@ struct HyperdriveDetailView: View {
             }
             
             if let caching = config.caching {
-                Section(header: Text("Query Caching")) {
+                Section("Query Caching") {
                     LabeledContent("Cache Status") {
                         Text(caching.disabled == true ? "Disabled" : "Enabled")
-                            .font(HIGTypography.body.weight(.medium))
-                            .foregroundStyle(caching.disabled == true ? Color.secondary : HIGColors.success)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(caching.disabled == true ? Color.secondary : Color.green)
                     }
                     
                     if let maxAge = caching.maxAge {
