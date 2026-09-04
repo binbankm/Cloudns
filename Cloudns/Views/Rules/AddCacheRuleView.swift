@@ -25,7 +25,7 @@ struct AddCacheRuleView: View {
             Form {
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Cache static assets)", text: $ruleName)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -53,10 +53,10 @@ struct AddCacheRuleView: View {
                         if edgeTtlMode == "override_origin" {
                             HStack {
                                 Text("Seconds")
-                                    .font(HIGTypography.body)
+                                    .font(.body)
                                 Spacer()
                                 TextField("e.g. 3600", text: $edgeTtlValue)
-                                    .font(HIGTypography.body.monospacedDigit())
+                                    .font(.body.monospacedDigit())
                                     .keyboardType(.numberPad)
                                     .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
@@ -77,10 +77,10 @@ struct AddCacheRuleView: View {
                         if browserTtlMode == "override_origin" {
                             HStack {
                                 Text("Seconds")
-                                    .font(HIGTypography.body)
+                                    .font(.body)
                                 Spacer()
                                 TextField("e.g. 14400", text: $browserTtlValue)
-                                    .font(HIGTypography.body.monospacedDigit())
+                                    .font(.body.monospacedDigit())
                                     .keyboardType(.numberPad)
                                     .autocorrectionDisabled()
                                     .multilineTextAlignment(.trailing)
@@ -100,19 +100,17 @@ struct AddCacheRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || isSubmitting)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -122,8 +120,8 @@ struct AddCacheRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color.higCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
             )
@@ -161,11 +159,11 @@ struct AddCacheRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            HIGFeedback.success()
+            HapticManager.notification(.success)
             ToastManager.shared.showSuccess("Cache Rule Created", icon: "bolt.badge.clock")
             dismiss()
         } else {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
     }
 }

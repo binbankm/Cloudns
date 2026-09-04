@@ -22,7 +22,7 @@ struct CacheRulesView: View {
                 Section(header: Text("Configured Cache Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         CacheRuleCardView(rule: rule) {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
                                 ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "bolt.badge.clock")
@@ -30,18 +30,14 @@ struct CacheRulesView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = rule.expression
-                                ToastManager.shared.showCopied("Expression Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(rule.expression, toast: "Expression Copied")
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
                             
                             if let desc = rule.description {
                                 Button {
-                                    UIPasteboard.general.string = desc
-                                    ToastManager.shared.showCopied("Rule Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(desc, toast: "Rule Name Copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
@@ -52,7 +48,7 @@ struct CacheRulesView: View {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete Rule", systemImage: "trash")
                             }
@@ -61,11 +57,11 @@ struct CacheRulesView: View {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -77,30 +73,20 @@ struct CacheRulesView: View {
         }
         .navigationTitle("Cache Rules")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Cache Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchCacheRules() }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Cache Rules",
-                        systemImage: "bolt.badge.clock",
-                        description: "You haven't created any custom cache rules yet.",
-                        actionTitle: "Add Cache Rule",
-                        action: { showingAddSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Cache Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Cache Rules",
+                systemImage: "bolt.badge.clock",
+                description: "You haven't created any custom cache rules yet.",
+                actionTitle: "Add Cache Rule",
+                action: { showingAddSheet = true }
+            ),
+            onRetry: { Task { await viewModel.fetchCacheRules() } }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
@@ -109,7 +95,6 @@ struct CacheRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Cache Rule")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -126,7 +111,7 @@ struct CacheRulesView: View {
                     if let index = viewModel.rules.firstIndex(where: { $0.id == rule.id }) {
                         viewModel.deleteRule(at: IndexSet(integer: index))
                         ToastManager.shared.showSuccess("Cache Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     }
                     ruleToDelete = nil
                 }
@@ -154,10 +139,10 @@ struct CacheRuleCardView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
@@ -167,17 +152,22 @@ struct CacheRuleCardView: View {
             }
             
             Text(verbatim: rule.expression)
-                .font(HIGTypography.caption.monospaced())
+                .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(HIGTokens.Spacing.xs)
+                .padding(4)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .lineLimit(2)
             
             if let cache = rule.action_parameters?.cache {
-                HIGBadge(cache ? .active : .error("Bypass Cache"), isCompact: true)
+                Text(cache ? "Active" : "Bypass Cache")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(cache ? Color.accentColor : Color.red)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(cache ? Color.accentColor.opacity(0.12) : Color.red.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }

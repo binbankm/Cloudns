@@ -45,20 +45,20 @@ struct AddLoadBalancerView: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "info.circle.fill")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.purple)
                         Text("Cloudflare Load Balancing is a paid add-on service. Make sure it is active on your Cloudflare account.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -70,10 +70,10 @@ struct AddLoadBalancerView: View {
                     if !proxied {
                         HStack {
                             Text("TTL (seconds)")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Spacer()
                             TextField("30", text: $ttl)
-                                .font(HIGTypography.body.monospacedDigit())
+                                .font(.body.monospacedDigit())
                                 .keyboardType(.numberPad)
                                 .autocorrectionDisabled()
                                 .multilineTextAlignment(.trailing)
@@ -84,7 +84,7 @@ struct AddLoadBalancerView: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
                 
-                Section(header: Text("Traffic Steering")) {
+                Section("Traffic Steering") {
                     Picker("Steering Policy", selection: $steeringPolicy) {
                         ForEach(steeringOptions, id: \.1) { option in
                             Text(option.0).tag(option.1)
@@ -102,31 +102,30 @@ struct AddLoadBalancerView: View {
                     if viewModel.pools.isEmpty {
                         Text("No origin pools available in this account.")
                             .foregroundStyle(.secondary)
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                     } else {
                         ForEach(viewModel.pools) { pool in
-                            Button(action: {
-                                HIGFeedback.selection()
+                            Button {
+                                HapticManager.selection()
                                 if selectedPools.contains(pool.id) {
                                     selectedPools.remove(pool.id)
                                 } else {
                                     selectedPools.insert(pool.id)
                                 }
-                            }) {
+                            } label: {
                                 HStack {
                                     Text(pool.name ?? pool.id)
-                                        .font(HIGTypography.body)
+                                        .font(.body)
                                         .foregroundStyle(.primary)
                                     Spacer()
                                     if selectedPools.contains(pool.id) {
                                         Image(systemName: "checkmark")
-                                            .foregroundStyle(Color.higAccent)
+                                            .foregroundStyle(.tint)
                                             .fontWeight(.semibold)
                                     }
                                 }
                             }
                             .buttonStyle(.plain)
-                            .higTouchTarget(44)
                         }
                     }
                 }
@@ -145,8 +144,8 @@ struct AddLoadBalancerView: View {
                 if let error = viewModel.errorMessage, !error.isEmpty {
                     Section {
                         Text(verbatim: error)
-                            .foregroundStyle(HIGColors.error)
-                            .font(HIGTypography.caption)
+                            .foregroundStyle(.red)
+                            .font(.caption)
                     }
                 }
             }
@@ -159,31 +158,26 @@ struct AddLoadBalancerView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .font(HIGTypography.body)
-                    .higTouchTarget()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
                         if isSubmitting {
-                            ProgressView().progressViewStyle(CircularProgressViewStyle())
+                            ProgressView()
                         } else {
                             Text("Save")
-                                .font(HIGTypography.body.weight(.semibold))
-                                .foregroundStyle(Color.higAccent)
+                                .fontWeight(.semibold)
                         }
                     }
                     .disabled(!isValid || isSubmitting)
-                    .higTouchTarget()
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
         }
-        .higToast()
     }
     
     private func save() {
         isSubmitting = true
-        HIGFeedback.impact(.medium)
+        HapticManager.impact(.medium)
         
         let poolsArray = Array(selectedPools)
         
@@ -202,11 +196,11 @@ struct AddLoadBalancerView: View {
             let success = await viewModel.createLoadBalancer(payload: payload)
             isSubmitting = false
             if success {
-                HIGFeedback.success()
+                HapticManager.notification(.success)
                 ToastManager.shared.showSuccess("Load Balancer Created", icon: "arrow.triangle.branch")
                 dismiss()
             } else {
-                HIGFeedback.error()
+                HapticManager.notification(.error)
             }
         }
     }

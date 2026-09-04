@@ -16,11 +16,10 @@ struct SnippetsListView: View {
     
     var body: some View {
         contentView
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Edge Snippets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Button {
                             editingSnippet = nil
@@ -39,23 +38,20 @@ struct SnippetsListView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Snippet or Trigger Rule")
-                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingEditorSheet) {
                 SnippetEditorSheetView(zoneId: zoneId, existingSnippet: editingSnippet, viewModel: viewModel)
-                    .higToast()
             }
             .sheet(isPresented: $showingBindSheet) {
                 BindSnippetRuleSheetView(zoneId: zoneId, snippets: viewModel.snippets, viewModel: viewModel)
-                    .higToast()
             }
             .confirmationDialog("Delete Snippet", isPresented: $showingDeleteSnippetAlert, titleVisibility: .visible, presenting: snippetToDelete) { snip in
                 Button("Delete '\(snip.snippet_name)'", role: .destructive) {
                     Task {
                         _ = await viewModel.deleteSnippet(zoneId: zoneId, snippetName: snip.snippet_name)
                         ToastManager.shared.showSuccess("Snippet Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -68,7 +64,7 @@ struct SnippetsListView: View {
                         Task {
                             _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
                             ToastManager.shared.showSuccess("Trigger Rule Deleted", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                         }
                     }
                 }
@@ -90,7 +86,7 @@ struct SnippetsListView: View {
     private var contentView: some View {
         List {
             if !viewModel.snippets.isEmpty {
-                Section(header: Text("JavaScript Snippets (\(viewModel.snippets.count))")) {
+                Section("JavaScript Snippets (\(viewModel.snippets.count))") {
                     ForEach(viewModel.snippets) { snip in
                         snippetRow(snip)
                     }
@@ -98,7 +94,7 @@ struct SnippetsListView: View {
             }
             
             if !viewModel.rules.isEmpty {
-                Section(header: Text("Trigger Rules (\(viewModel.rules.count))")) {
+                Section("Trigger Rules (\(viewModel.rules.count))") {
                     ForEach(viewModel.rules) { rule in
                         ruleRow(rule)
                     }
@@ -106,53 +102,45 @@ struct SnippetsListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Snippets…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchSnippets(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.snippets.isEmpty && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Snippets",
-                        systemImage: "curlybraces",
-                        description: "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge.",
-                        actionTitle: "Create Snippet",
-                        action: {
-                            editingSnippet = nil
-                            showingEditorSheet = true
-                        }
-                    )
-                )
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Snippets…",
+            error: (viewModel.snippets.isEmpty && viewModel.rules.isEmpty) ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.snippets.isEmpty && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Snippets",
+                systemImage: "curlybraces",
+                description: "Run lightweight JavaScript logic on incoming requests directly at the Cloudflare edge.",
+                actionTitle: "Create Snippet",
+                action: {
+                    editingSnippet = nil
+                    showingEditorSheet = true
+                }
+            ),
+            onRetry: {
+                Task { await viewModel.fetchSnippets(zoneId: zoneId) }
             }
-        }
+        )
     }
     
     @ViewBuilder
     private func snippetRow(_ snip: SnippetItem) -> some View {
         Button {
-            HIGFeedback.selection()
+            HapticManager.selection()
             editingSnippet = snip
             showingEditorSheet = true
         } label: {
-            HStack(spacing: HIGTokens.Spacing.md) {
+            HStack(spacing: 12) {
                 ListRowIcon(icon: "curlybraces", color: .orange)
 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: snip.snippet_name)
-                        .font(HIGTypography.body.weight(.medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
 
                     if let modified = snip.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                         Text("Modified: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -160,19 +148,17 @@ struct SnippetsListView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(HIGTypography.caption2.weight(.semibold))
+                    .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
             }
-            .padding(.vertical, HIGTokens.Spacing.xxs)
+            .padding(.vertical, 2)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .contextMenu {
             Button {
-                UIPasteboard.general.string = snip.snippet_name
-                ToastManager.shared.showCopied("Snippet Name Copied")
-                HIGFeedback.copied()
+                copyToClipboard(snip.snippet_name, toast: "Snippet Name Copied")
             } label: {
                 Label("Copy Snippet Name", systemImage: "doc.on.doc")
             }
@@ -180,7 +166,7 @@ struct SnippetsListView: View {
             Divider()
             
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 snippetToDelete = snip
                 showingDeleteSnippetAlert = true
             } label: {
@@ -189,63 +175,63 @@ struct SnippetsListView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 snippetToDelete = snip
                 showingDeleteSnippetAlert = true
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-            .tint(HIGColors.error)
         }
     }
     
     @ViewBuilder
     private func ruleRow(_ rule: WAFRule) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(rule.description ?? "Snippet Trigger Rule")
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
 
                 Spacer()
 
                 let isEnabled = rule.enabled
-                HIGBadge(isEnabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+                Text(isEnabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(isEnabled ? Color.green : Color.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill((isEnabled ? Color.green : Color.secondary).opacity(0.12)))
             }
             
             if let snipName = rule.action_parameters?.snippet_name {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 6) {
                     Image(systemName: "curlybraces")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.orange)
                         .accessibilityHidden(true)
                     Text("Snippet: \(snipName)")
-                        .font(HIGTypography.caption.weight(.medium))
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(.orange)
                 }
             }
             
             Text(verbatim: rule.expression)
-                .font(HIGTypography.caption2.monospaced())
+                .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contextMenu {
             if let desc = rule.description {
                 Button {
-                    UIPasteboard.general.string = desc
-                    ToastManager.shared.showCopied("Rule Description Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(desc, toast: "Rule Description Copied")
                 } label: {
                     Label("Copy Description", systemImage: "doc.on.doc")
                 }
             }
             
             Button {
-                UIPasteboard.general.string = rule.expression
-                ToastManager.shared.showCopied("Expression Copied")
-                HIGFeedback.copied()
+                copyToClipboard(rule.expression, toast: "Expression Copied")
             } label: {
                 Label("Copy Expression", systemImage: "curlybraces")
             }
@@ -253,7 +239,7 @@ struct SnippetsListView: View {
             Divider()
             
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 ruleToDelete = rule
                 showingDeleteRuleAlert = true
             } label: {
@@ -262,13 +248,12 @@ struct SnippetsListView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 ruleToDelete = rule
                 showingDeleteRuleAlert = true
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-            .tint(HIGColors.error)
         }
     }
 }
@@ -297,20 +282,20 @@ struct SnippetEditorSheetView: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "info.circle.fill")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.orange)
                         Text("Cloudflare Snippets is available on Pro, Business, and Enterprise plans.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
                     TextField("my_snippet", text: $snippetName)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -318,17 +303,17 @@ struct SnippetEditorSheetView: View {
                         .disabled(existingSnippet != nil)
                 }
                 
-                Section(header: Text("JavaScript Code (ES Module)")) {
+                Section("JavaScript Code (ES Module)") {
                     TextEditor(text: $code)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .frame(minHeight: 180)
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -339,7 +324,6 @@ struct SnippetEditorSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -352,17 +336,16 @@ struct SnippetEditorSheetView: View {
                                 code: code
                             )
                             if success {
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Snippet Saved", icon: "curlybraces")
                                 dismiss()
                             } else {
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(snippetName.trimmingCharacters(in: .whitespaces).isEmpty || code.isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
@@ -395,7 +378,7 @@ struct BindSnippetRuleSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Target Snippet")) {
+                Section("Target Snippet") {
                     Picker("Select Snippet", selection: $selectedSnippetName) {
                         ForEach(snippets) { snip in
                             Text(verbatim: snip.snippet_name).tag(snip.snippet_name)
@@ -403,26 +386,29 @@ struct BindSnippetRuleSheetView: View {
                     }
                 }
                 
-                Section(header: Text("Rule Description")) {
+                Section("Rule Description") {
                     TextField("e.g. Route /api requests to snippet", text: $ruleDescription)
-                        .font(HIGTypography.body)
                         .submitLabel(.next)
                 }
                 
-                Section(header: Text("Matching Expression"), footer: Text("Requests matching this wirefilter expression will execute the selected snippet.")) {
+                Section {
                     TextField("Expression", text: $expression)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
+                } header: {
+                    Text("Matching Expression")
+                } footer: {
+                    Text("Requests matching this wirefilter expression will execute the selected snippet.")
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -433,7 +419,6 @@ struct BindSnippetRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Bind") {
@@ -447,17 +432,16 @@ struct BindSnippetRuleSheetView: View {
                                 description: ruleDescription.isEmpty ? nil : ruleDescription
                             )
                             if success {
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Trigger Rule Created", icon: "arrow.triangle.branch")
                                 dismiss()
                             } else {
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isBinding = false
                         }
                     }
                     .disabled(selectedSnippetName.isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || isBinding)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isBinding)

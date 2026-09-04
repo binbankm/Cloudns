@@ -12,30 +12,27 @@ struct RedirectRulesView: View {
     
     var body: some View {
         contentView
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Redirect Rules")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingAddSheet = true
                     } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Redirect Rule")
-                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
-                    .higToast()
             }
             .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
                 Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
                     Task {
                         _ = await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
                         ToastManager.shared.showSuccess("Redirect Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -56,15 +53,13 @@ struct RedirectRulesView: View {
     private var contentView: some View {
         List {
             if !viewModel.rules.isEmpty {
-                Section(header: Text("Configured Rules (\(viewModel.rules.count))")) {
+                Section("Configured Rules (\(viewModel.rules.count))") {
                     ForEach(viewModel.rules) { rule in
                         redirectRuleRow(rule)
                             .contextMenu {
                                 if let url = rule.targetUrl {
                                     Button {
-                                        UIPasteboard.general.string = url
-                                        ToastManager.shared.showCopied("Target URL Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(url, toast: "Target URL Copied")
                                     } label: {
                                         Label("Copy Target URL", systemImage: "doc.on.doc")
                                     }
@@ -72,9 +67,7 @@ struct RedirectRulesView: View {
                                 
                                 if let expr = rule.expression {
                                     Button {
-                                        UIPasteboard.general.string = expr
-                                        ToastManager.shared.showCopied("Expression Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(expr, toast: "Expression Copied")
                                     } label: {
                                         Label("Copy Expression", systemImage: "curlybraces")
                                     }
@@ -85,7 +78,7 @@ struct RedirectRulesView: View {
                                 Button(role: .destructive) {
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                 } label: {
                                     Label("Delete Rule", systemImage: "trash")
                                 }
@@ -94,78 +87,79 @@ struct RedirectRulesView: View {
                                 Button(role: .destructive) {
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
                             }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Redirect Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchRules(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Redirect Rules",
-                        systemImage: "arrow.triangle.swap",
-                        description: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
-                        actionTitle: "Add Rule",
-                        action: { showingAddSheet = true }
-                    )
-                )
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Redirect Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Redirect Rules",
+                systemImage: "arrow.triangle.swap",
+                description: "Configure URL forwarding and dynamic 301/302 redirects at the Cloudflare edge.",
+                actionTitle: "Add Rule",
+                action: { showingAddSheet = true }
+            ),
+            onRetry: {
+                Task { await viewModel.fetchRules(zoneId: zoneId) }
             }
-        }
+        )
     }
     
     @ViewBuilder
     private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Spacer()
                 
                 let isEnabled = rule.enabled ?? true
-                HIGBadge(isEnabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+                Text(isEnabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(isEnabled ? Color.green : Color.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill((isEnabled ? Color.green : Color.secondary).opacity(0.12)))
             }
             
-            HStack(spacing: HIGTokens.Spacing.xs) {
+            HStack(spacing: 6) {
                 if let status = rule.statusCode {
-                    HIGBadge(.custom(color: .blue, text: "\(status)"), isCompact: true)
+                    Text("\(status)")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.blue)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.blue.opacity(0.12)))
                 }
                 
                 if let url = rule.targetUrl {
                     Text("➔ \(url)")
-                        .font(HIGTypography.caption.monospaced())
-                        .foregroundStyle(Color.higAccent)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.tint)
                         .lineLimit(1)
                 }
             }
             
             if let expr = rule.expression {
                 Text(expr)
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -187,26 +181,29 @@ struct AddRedirectRuleSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Rule Description")) {
+                Section("Rule Description") {
                     TextField("Rule Name", text: $ruleDescription)
-                        .font(HIGTypography.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                 }
                 
-                Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")) {
+                Section {
                     TextField("Expression", text: $expression)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
+                } header: {
+                    Text("Matching Expression")
+                } footer: {
+                    Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")
                 }
                 
-                Section(header: Text("Redirect Target & Code")) {
+                Section("Redirect Target & Code") {
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -224,12 +221,12 @@ struct AddRedirectRuleSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -241,7 +238,6 @@ struct AddRedirectRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -258,18 +254,17 @@ struct AddRedirectRuleSheetView: View {
                             )
                             if success {
                                 ToastManager.shared.showSuccess("Redirect Rule Created", icon: "arrow.turn.up.right")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } else {
                                 ToastManager.shared.showError("Failed to Create Rule")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleDescription.trimmingCharacters(in: .whitespaces).isEmpty || expression.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

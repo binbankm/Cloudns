@@ -24,8 +24,8 @@ struct TransformRulesView: View {
                 Text("Response Headers").tag("http_response_headers_transform")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal, HIGTokens.Spacing.md)
-            .padding(.vertical, HIGTokens.Spacing.sm)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
             
             contentList
@@ -44,7 +44,6 @@ struct TransformRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Transform Rule")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -56,7 +55,7 @@ struct TransformRulesView: View {
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
                     ToastManager.shared.showSuccess("Transform Rule Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -77,11 +76,18 @@ struct TransformRulesView: View {
                 Section(header: HStack {
                     Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")
                     Spacer()
-                    HIGBadge(viewModel.selectedPhase == "http_response_headers_transform" ? .warning("PRO") : .custom(color: .secondary, text: "FREE"), isCompact: true)
+                    let isPro = viewModel.selectedPhase == "http_response_headers_transform"
+                    Text(isPro ? "PRO" : "FREE")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(isPro ? Color.orange.opacity(0.14) : Color(.tertiarySystemFill))
+                        .foregroundStyle(isPro ? Color.orange : Color.secondary)
+                        .clipShape(Capsule())
                 }) {
                     ForEach(viewModel.rules) { rule in
                         TransformRuleCardView(rule: rule) {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
                                 ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "slider.horizontal.3")
@@ -89,18 +95,14 @@ struct TransformRulesView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = rule.expression
-                                ToastManager.shared.showCopied("Expression Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(rule.expression, toast: "Expression Copied")
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
                             
                             if let desc = rule.description {
                                 Button {
-                                    UIPasteboard.general.string = desc
-                                    ToastManager.shared.showCopied("Rule Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(desc, toast: "Rule Name Copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
@@ -111,7 +113,7 @@ struct TransformRulesView: View {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete Rule", systemImage: "trash")
                             }
@@ -120,41 +122,31 @@ struct TransformRulesView: View {
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Transform Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchTransformRules() }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Transform Rules",
-                        systemImage: "arrow.triangle.swap",
-                        description: "Rewrite URL paths, query strings, or modify HTTP headers dynamically at the edge.",
-                        actionTitle: "Add Rule",
-                        action: { showingAddSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Transform Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Transform Rules",
+                systemImage: "arrow.triangle.swap",
+                description: "Rewrite URL paths, query strings, or modify HTTP headers dynamically at the edge.",
+                actionTitle: "Add Rule",
+                action: { showingAddSheet = true }
+            ),
+            onRetry: { Task { await viewModel.fetchTransformRules() } }
+        )
     }
     
     private func phaseTitle(for phase: String) -> String {
@@ -174,10 +166,10 @@ struct TransformRuleCardView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(rule.description ?? "Unnamed Rule")
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
@@ -187,13 +179,13 @@ struct TransformRuleCardView: View {
             }
             
             Text(verbatim: rule.expression)
-                .font(HIGTypography.caption2.monospaced())
+                .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
-                .padding(HIGTokens.Spacing.xs)
+                .padding(4)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .textSelection(.enabled)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }

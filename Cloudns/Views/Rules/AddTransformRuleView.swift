@@ -45,7 +45,7 @@ struct AddTransformRuleView: View {
                 
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Modify X-Custom-Header)", text: $ruleName)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -56,7 +56,7 @@ struct AddTransformRuleView: View {
                 
                 Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining matching incoming traffic.")) {
                     TextField("Expression", text: $expression)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -67,14 +67,14 @@ struct AddTransformRuleView: View {
                 if phase == "http_request_transform" {
                     Section(header: Text("URI Path & Query Rewrite"), footer: Text("Rewrites incoming URI path and query string before reaching origin server.")) {
                         TextField("Static Path (e.g. /api/v2)", text: $rewritePath)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .submitLabel(.next)
                             .focused($focusedField, equals: "rewritePath")
                         TextField("Query String (Optional)", text: $rewriteQuery)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .submitLabel(.done)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -83,7 +83,7 @@ struct AddTransformRuleView: View {
                 } else {
                     Section(header: Text("HTTP Header Action"), footer: Text(phase == "http_request_late_transform" ? "Modifies HTTP request headers sent to the origin." : "Modifies HTTP response headers returned to the client.")) {
                         TextField("Header Name (e.g. X-Frame-Options)", text: $headerName)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -97,7 +97,7 @@ struct AddTransformRuleView: View {
                         
                         if headerOperation == "set" {
                             TextField("Header Value (e.g. DENY)", text: $headerValue)
-                                .font(HIGTypography.body.monospaced())
+                                .font(.body.monospaced())
                                 .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -115,19 +115,17 @@ struct AddTransformRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(isFormInvalid || isSubmitting)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -137,8 +135,8 @@ struct AddTransformRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color.higCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
             )
@@ -185,11 +183,11 @@ struct AddTransformRuleView: View {
         
         isSubmitting = false
         if success {
-            HIGFeedback.success()
+            HapticManager.notification(.success)
             ToastManager.shared.showSuccess("Transform Rule Created", icon: "arrow.triangle.2.circlepath")
             dismiss()
         } else {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
     }
 }
