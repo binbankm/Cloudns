@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - OnboardingView
+// Apple HIG Compliant Onboarding Flow (iOS 16.0+)
 
 struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
@@ -27,7 +28,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            Color(uiColor: .systemBackground).ignoresSafeArea()
             
             GeometryReader { proxy in
                 let w = proxy.size.width
@@ -52,9 +53,9 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 // Top Bar: Brand & Skip Action
                 HStack {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         Image(systemName: "cloud.fill")
-                            .font(HIGTypography.subheadline.weight(.bold))
+                            .font(.subheadline.weight(.bold))
                             .foregroundStyle(
                                 LinearGradient(
                                     colors: [.orange, .yellow],
@@ -63,27 +64,26 @@ struct OnboardingView: View {
                                 )
                             )
                         Text("Cloudns")
-                            .font(HIGTypography.headline.weight(.bold))
+                            .font(.headline.weight(.bold))
                             .foregroundStyle(.primary)
                     }
                     
                     Spacer()
                     
                     Button("Skip") {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         completeOnboarding()
                     }
-                    .font(HIGTypography.subheadline.weight(.medium))
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, HIGTokens.Spacing.md)
-                    .padding(.vertical, HIGTokens.Spacing.xs + 2)
-                    .background(Color(.tertiarySystemFill))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color(uiColor: .tertiarySystemFill))
                     .clipShape(Capsule())
-                    .buttonStyle(.higPressable)
-                    .higTouchTarget()
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal, HIGTokens.Spacing.xxl)
-                .padding(.top, HIGTokens.Spacing.md)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
                 
                 // Tab Pages
                 TabView(selection: $currentPage) {
@@ -125,12 +125,12 @@ struct OnboardingView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .onChange(of: currentPage) { _ in
-                    HIGFeedback.selection()
+                    HapticManager.selection()
                 }
                 
                 // Bottom Controls
-                VStack(spacing: HIGTokens.Spacing.xl) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                VStack(spacing: 20) {
+                    HStack(spacing: 8) {
                         ForEach(0..<totalPages, id: \.self) { index in
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
@@ -138,25 +138,25 @@ struct OnboardingView: View {
                                 .animation(.spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .padding(.vertical, 6)
                     
                     Button(action: {
                         if currentPage < totalPages - 1 {
-                            HIGFeedback.impact(.light)
+                            HapticManager.impact(.light)
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                 currentPage += 1
                             }
                         } else {
-                            HIGFeedback.impact(.medium)
+                            HapticManager.impact(.medium)
                             completeOnboarding()
                         }
                     }) {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Text(currentPage == totalPages - 1 ? "Get Started" : "Continue")
-                                .font(HIGTypography.body.weight(.semibold))
+                                .font(.body.weight(.semibold))
                             
                             Image(systemName: currentPage == totalPages - 1 ? "checkmark" : "arrow.right")
-                                .font(HIGTypography.subheadline.weight(.bold))
+                                .font(.subheadline.weight(.bold))
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -168,19 +168,19 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
-                    .buttonStyle(.higPressable)
-                    .padding(.horizontal, HIGTokens.Spacing.xxl)
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 24)
                 }
-                .padding(.bottom, HIGTokens.Spacing.xxl)
+                .padding(.bottom, 24)
             }
         }
     }
 }
 
-// MARK: - OnboardingPageView (Inlined & Cohesive)
+// MARK: - OnboardingPageView
 
 struct OnboardingPageView: View {
     let icon: String
@@ -218,12 +218,12 @@ struct OnboardingPageView: View {
                     .frame(width: 156, height: 156)
                 
                 Circle()
-                    .fill(Color.higCardBackground.opacity(0.85))
+                    .fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.85))
                     .frame(width: 140, height: 140)
                     .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
                 
                 Image(systemName: icon)
-                    .font(HIGTypography.largeTitle.weight(.semibold))
+                    .font(.system(size: 48, weight: .semibold))
                     .imageScale(.large)
                     .foregroundStyle(
                         LinearGradient(
@@ -237,37 +237,37 @@ struct OnboardingPageView: View {
             }
             .frame(height: 230)
             
-            Spacer(minLength: HIGTokens.Spacing.xxl)
+            Spacer(minLength: 24)
             
             Text(badgeText)
-                .font(HIGTypography.caption2.weight(.bold))
+                .font(.caption2.weight(.bold))
                 .foregroundStyle(color)
-                .padding(.horizontal, HIGTokens.Spacing.md)
-                .padding(.vertical, HIGTokens.Spacing.xs)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(color.opacity(0.12))
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
                         .stroke(color.opacity(0.25), lineWidth: 1)
                 )
-                .padding(.bottom, HIGTokens.Spacing.md)
+                .padding(.bottom, 12)
             
             Text(title)
-                .font(HIGTypography.title.weight(.bold))
+                .font(.title.weight(.bold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, HIGTokens.Spacing.xxl)
-                .padding(.bottom, HIGTokens.Spacing.md)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 12)
                 .minimumScaleFactor(0.85)
             
             Text(description)
-                .font(HIGTypography.subheadline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, HIGTokens.Spacing.huge)
+                .padding(.horizontal, 32)
             
-            Spacer(minLength: HIGTokens.Spacing.huge)
+            Spacer(minLength: 32)
         }
     }
 }
