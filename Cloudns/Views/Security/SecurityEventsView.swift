@@ -28,17 +28,13 @@ struct SecurityEventsView: View {
                         SecurityEventCardView(event: event)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = event.clientIP
-                                    ToastManager.shared.showCopied("Client IP Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(event.clientIP, toast: "Client IP Copied")
                                 } label: {
                                     Label("Copy IP Address", systemImage: "doc.on.doc")
                                 }
                                 
                                 Button {
-                                    UIPasteboard.general.string = event.host
-                                    ToastManager.shared.showCopied("Host Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(event.host, toast: "Host Copied")
                                 } label: {
                                     Label("Copy Host URL", systemImage: "link")
                                 }
@@ -56,30 +52,19 @@ struct SecurityEventsView: View {
         )
         .navigationTitle("Security Events")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Security Events…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.events.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchEvents(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.events.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Security Events",
-                        systemImage: "checkmark.shield",
-                        description: "Your site hasn't blocked any threats recently. Everything is secure!"
-                    )
-                )
-            } else if viewModel.hasFetchedData && displayedEvents.isEmpty && !searchText.isEmpty {
-                HIGContentState(.search(query: searchText))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Security Events…",
+            error: viewModel.events.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.events.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Security Events",
+                systemImage: "checkmark.shield",
+                description: "Your site hasn't blocked any threats recently. Everything is secure!"
+            ),
+            searchQuery: (viewModel.hasFetchedData && displayedEvents.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            onRetry: { Task { await viewModel.fetchEvents(zoneId: zoneId) } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchEvents(zoneId: zoneId)
@@ -97,69 +82,75 @@ struct SecurityEventCardView: View {
     let event: SecurityEvent
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                HIGBadge(.custom(color: colorForAction(event.action), text: actionDisplayName(event.action)), isCompact: true)
+                let actionColor = colorForAction(event.action)
+                Text(actionDisplayName(event.action))
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(actionColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(actionColor.opacity(0.12)))
                 
                 Spacer()
                 
                 if let date = DateFormatters.parseISO8601(event.datetime) {
                     Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
                     Text(event.datetime)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             
             HStack {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("IP Address")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                     
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 4) {
                         Text(countryFlag(countryCode: event.clientCountryName))
                         Text(event.clientIP)
-                            .font(HIGTypography.subheadline.monospacedDigit())
+                            .font(.subheadline.monospacedDigit())
                     }
                 }
                 
                 Spacer()
                 
                 if let asn = event.clientAsn {
-                    VStack(alignment: .trailing, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .trailing, spacing: 2) {
                         Text("ASN")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                         Text("AS\(asn)")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                     }
                 }
             }
             
             Divider()
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Source / Engine")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                 Text(event.source.capitalized)
-                    .font(HIGTypography.footnote)
+                    .font(.footnote)
             }
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Target URL")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                 Text(event.host)
-                    .font(HIGTypography.footnote.monospacedDigit())
-                    .foregroundStyle(Color.higAccent)
+                    .font(.footnote.monospacedDigit())
+                    .foregroundStyle(Color.accentColor)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func actionDisplayName(_ action: String) -> String {
@@ -176,7 +167,7 @@ struct SecurityEventCardView: View {
     
     private func colorForAction(_ action: String) -> Color {
         switch action {
-        case "block", "connectionClose": return HIGColors.error
+        case "block", "connectionClose": return .red
         case "challenge", "js_challenge", "managed_challenge": return .orange
         case "log": return .blue
         default: return .secondary

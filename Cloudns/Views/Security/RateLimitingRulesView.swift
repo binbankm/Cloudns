@@ -17,7 +17,7 @@ struct RateLimitingRulesView: View {
                 Section(header: Text("Rate Limiting Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
                                 ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "speedometer")
@@ -25,18 +25,14 @@ struct RateLimitingRulesView: View {
                         })
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = rule.expression
-                                ToastManager.shared.showCopied("Rule Expression Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(rule.expression, toast: "Rule Expression Copied")
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
                             
                             if let desc = rule.description {
                                 Button {
-                                    UIPasteboard.general.string = desc
-                                    ToastManager.shared.showCopied("Rule Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(desc, toast: "Rule Name Copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
@@ -45,7 +41,7 @@ struct RateLimitingRulesView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
@@ -54,13 +50,13 @@ struct RateLimitingRulesView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -72,43 +68,29 @@ struct RateLimitingRulesView: View {
         }
         .navigationTitle("Rate Limiting")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Rate Limiting Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchRateLimitingRules(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Rate Limiting Rules",
-                        systemImage: "speedometer",
-                        description: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
-                        actionTitle: "Add Rule",
-                        action: { showingAddSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Rate Limiting Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Rate Limiting Rules",
+                systemImage: "speedometer",
+                description: "You haven't created any rate limiting rules yet. Add a rule to protect your site from brute force attacks.",
+                actionTitle: "Add Rule",
+                action: { showingAddSheet = true }
+            ),
+            onRetry: { Task { await viewModel.fetchRateLimitingRules(zoneId: zoneId) } }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                     showingAddSheet = true
                 }) {
                     Image(systemName: "plus")
-                        .font(HIGTypography.body.weight(.semibold))
-                        .foregroundStyle(Color.higAccent)
                 }
-                .buttonStyle(.higPressable)
                 .accessibilityLabel("Add Rate Limiting Rule")
-                .higTouchTarget()
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -125,7 +107,7 @@ struct RateLimitingRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("Rate Limiting Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         ruleToDelete = nil
                     }
                 }

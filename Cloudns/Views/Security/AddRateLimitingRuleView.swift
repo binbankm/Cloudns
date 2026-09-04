@@ -50,12 +50,12 @@ struct AddRateLimitingRuleView: View {
             Form {
                 Section(header: Text("Rule Details"), footer: Text("Protect your site from DDoS and brute force attacks.")) {
                     TextField("Rule Name (e.g. Protect login)", text: $ruleName)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .submitLabel(.next)
                         .focused($focusedField, equals: .name)
                         .onSubmit { focusedField = .path }
                     TextField("Path Filter (optional, e.g. /login)", text: $pathFilter)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -73,10 +73,10 @@ struct AddRateLimitingRuleView: View {
                     
                     HStack {
                         Text("Requests Per Window")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Spacer()
                         TextField("50", text: $requests)
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .keyboardType(.numberPad)
                             .autocorrectionDisabled()
                             .multilineTextAlignment(.trailing)
@@ -110,19 +110,17 @@ struct AddRateLimitingRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || requests.isEmpty || Int(requests) == nil || isSubmitting)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -132,8 +130,8 @@ struct AddRateLimitingRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color.higCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
             )
@@ -173,11 +171,11 @@ struct AddRateLimitingRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            HIGFeedback.success()
+            HapticManager.notification(.success)
             ToastManager.shared.showSuccess("Rate Limit Created", icon: "speedometer")
             dismiss()
         } else {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
     }
 }

@@ -87,7 +87,7 @@ struct AddWAFRuleView: View {
                 // Rule Details
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Block bad bots)", text: $ruleName)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -98,13 +98,13 @@ struct AddWAFRuleView: View {
                         Text("Raw Expression").tag(1)
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 // Quick Presets
                 Section(header: Text("Quick Security Presets")) {
                     ScrollView(.horizontal) {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             presetButton("Shield WordPress") {
                                 ruleName = "Protect WordPress Admin & XML-RPC"
                                 field = "http.request.uri.path"
@@ -132,7 +132,7 @@ struct AddWAFRuleView: View {
                                 rawExpression = "(ip.geoip.country ne \"US\")"
                             }
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     }
                     .scrollIndicators(.hidden)
                 }
@@ -157,20 +157,20 @@ struct AddWAFRuleView: View {
                         
                         if field == "ip.geoip.country" {
                             TextField("Value (e.g. CN, US, RU)", text: $value)
-                                .font(HIGTypography.body.monospaced())
+                                .font(.body.monospaced())
                                 .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.characters)
                                 .autocorrectionDisabled()
                                 .focused($focusedField, equals: .value)
                         } else if field == "ip.geoip.asnum" || field == "cf.threat_score" {
                             TextField("Value (e.g. 12345)", text: $value)
-                                .font(HIGTypography.body.monospacedDigit())
+                                .font(.body.monospacedDigit())
                                 .keyboardType(.numberPad)
                                 .autocorrectionDisabled()
                                 .focused($focusedField, equals: .value)
                         } else if field == "ip.src" {
                             TextField("Value (e.g. 1.1.1.1 or 1.2.3.0/24)", text: $value)
-                                .font(HIGTypography.body.monospaced())
+                                .font(.body.monospaced())
                                 .keyboardType(.numbersAndPunctuation)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -185,7 +185,7 @@ struct AddWAFRuleView: View {
                             }
                         } else {
                             TextField("Value", text: $value)
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .keyboardType(.asciiCapable)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -197,7 +197,7 @@ struct AddWAFRuleView: View {
                     Section(header: Text("Wireshark Filter Expression"), footer: Text("Write native Cloudflare Ruleset expressions using Wireshark filter syntax.")) {
                         TextEditor(text: $rawExpression)
                             .frame(minHeight: 100)
-                            .font(HIGTypography.footnote.monospaced())
+                            .font(.footnote.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: .rawExpression)
@@ -214,18 +214,18 @@ struct AddWAFRuleView: View {
                 
                 Section(header: Text("Generated Expression Preview")) {
                     Text(finalEffectiveExpression.isEmpty ? "No expression configured" : finalEffectiveExpression)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .foregroundStyle(finalEffectiveExpression.isEmpty ? .secondary : .primary)
                 }
                 
                 if let error = viewModel.errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(Color.red)
                             Text(verbatim: error)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(Color.red)
                         }
                     }
                 }
@@ -239,19 +239,17 @@ struct AddWAFRuleView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .higTouchTarget(44)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await submitRule()
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(ruleName.isEmpty || finalEffectiveExpression.isEmpty || isSubmitting)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
@@ -261,8 +259,8 @@ struct AddWAFRuleView: View {
                         Color.black.opacity(0.3).ignoresSafeArea()
                         ProgressView("Saving…")
                             .padding()
-                            .background(Color.higCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
             )
@@ -273,24 +271,23 @@ struct AddWAFRuleView: View {
     @ViewBuilder
     private func presetButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
-            HIGFeedback.impact(.light)
+            HapticManager.impact(.light)
             action()
         } label: {
-            HStack(spacing: HIGTokens.Spacing.xs) {
+            HStack(spacing: 4) {
                 Image(systemName: "sparkles")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.orange)
                 Text(title)
-                    .font(HIGTypography.caption.weight(.medium))
+                    .font(.caption.weight(.medium))
             }
-            .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-            .padding(.vertical, HIGTokens.Spacing.xs + 2)
-            .background(Color.higCardBackground)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
             .clipShape(Capsule())
             .overlay(Capsule().stroke(Color.orange.opacity(0.25), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
-        .higTouchTarget(44)
     }
     
     private var generatedVisualExpression: String {
@@ -330,11 +327,11 @@ struct AddWAFRuleView: View {
         
         isSubmitting = false
         if viewModel.errorMessage == nil {
-            HIGFeedback.success()
+            HapticManager.notification(.success)
             ToastManager.shared.showSuccess("WAF Rule Created", icon: "shield.fill")
             dismiss()
         } else {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
     }
 }

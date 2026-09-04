@@ -17,7 +17,7 @@ struct WAFCustomRulesView: View {
                 Section(header: Text("Custom Rules (\(viewModel.rules.count))")) {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
                                 ToastManager.shared.showSuccess(rule.enabled ? "WAF Rule Disabled" : "WAF Rule Enabled", icon: "shield.lefthalf.filled")
@@ -25,18 +25,14 @@ struct WAFCustomRulesView: View {
                         })
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = rule.expression
-                                ToastManager.shared.showCopied("Rule Expression Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(rule.expression, toast: "Rule Expression Copied")
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
                             
                             if let desc = rule.description {
                                 Button {
-                                    UIPasteboard.general.string = desc
-                                    ToastManager.shared.showCopied("Rule Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(desc, toast: "Rule Name Copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
@@ -45,7 +41,7 @@ struct WAFCustomRulesView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
@@ -54,13 +50,13 @@ struct WAFCustomRulesView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -72,30 +68,20 @@ struct WAFCustomRulesView: View {
         }
         .navigationTitle("WAF Custom Rules")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading WAF Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchWAFRules(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No WAF Custom Rules",
-                        systemImage: "shield.slash",
-                        description: "Create custom firewall rules to protect your web application from malicious traffic.",
-                        actionTitle: "Add WAF Rule",
-                        action: { showingAddSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading WAF Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No WAF Custom Rules",
+                systemImage: "shield.slash",
+                description: "Create custom firewall rules to protect your web application from malicious traffic.",
+                actionTitle: "Add WAF Rule",
+                action: { showingAddSheet = true }
+            ),
+            onRetry: { Task { await viewModel.fetchWAFRules(zoneId: zoneId) } }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
@@ -104,7 +90,6 @@ struct WAFCustomRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add WAF Rule")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
@@ -121,7 +106,7 @@ struct WAFCustomRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("WAF Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         ruleToDelete = nil
                     }
                 }
@@ -142,17 +127,17 @@ struct WAFCustomRulesView: View {
     }
 }
 
-// MARK: - WAFRuleCardView (Inlined & Cohesive)
+// MARK: - WAFRuleCardView
 
 struct WAFRuleCardView: View {
     let rule: WAFRule
     let onToggle: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(rule.description ?? "Untitled Rule")
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .lineLimit(2)
                 
                 Spacer()
@@ -165,29 +150,40 @@ struct WAFRuleCardView: View {
             }
             
             HStack {
-                HIGBadge(.custom(color: colorForAction(rule.action), text: actionDisplayName(rule.action)), isCompact: true)
+                let actionColor = colorForAction(rule.action)
+                Text(actionDisplayName(rule.action))
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(actionColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(actionColor.opacity(0.12)))
                 
                 Spacer()
                 
-                HIGBadge(rule.enabled ? .active : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+                Text(rule.enabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(rule.enabled ? Color.accentColor : Color.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(rule.enabled ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill)))
             }
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Expression")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                 
                 Text(verbatim: rule.expression)
-                    .font(HIGTypography.footnote.monospaced())
+                    .font(.footnote.monospaced())
                     .foregroundStyle(.primary)
-                    .padding(HIGTokens.Spacing.sm)
+                    .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                    .background(Color(.tertiarySystemFill))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .textSelection(.enabled)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func actionDisplayName(_ action: String) -> String {
@@ -204,10 +200,10 @@ struct WAFRuleCardView: View {
     
     private func colorForAction(_ action: String) -> Color {
         switch action.lowercased() {
-        case "block": return HIGColors.error
+        case "block": return .red
         case "managed_challenge", "js_challenge", "challenge": return .orange
         case "log": return .blue
-        case "skip": return HIGColors.success
+        case "skip": return .green
         default: return .secondary
         }
     }

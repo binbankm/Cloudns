@@ -19,9 +19,7 @@ struct IPAccessRulesView: View {
                         IPAccessRuleRowView(rule: rule)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = rule.configuration.value
-                                    ToastManager.shared.showCopied("Target Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(rule.configuration.value, toast: "Target Copied")
                                 } label: {
                                     Label("Copy Target", systemImage: "doc.on.doc")
                                 }
@@ -42,7 +40,7 @@ struct IPAccessRulesView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
@@ -54,30 +52,20 @@ struct IPAccessRulesView: View {
         }
         .navigationTitle("IP Access Rules")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading IP Access Rules…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: {
-                            Task { await viewModel.fetchRules(zoneId: zoneId) }
-                        }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.rules.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No IP Access Rules",
-                        systemImage: "network.badge.shield.half.filled",
-                        description: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
-                        actionTitle: "Add IP Rule",
-                        action: { showingAddRule = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading IP Access Rules…",
+            error: viewModel.rules.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No IP Access Rules",
+                systemImage: "network.badge.shield.half.filled",
+                description: "You haven't created any IP access rules yet. Add a rule to block or challenge specific IPs or countries.",
+                actionTitle: "Add IP Rule",
+                action: { showingAddRule = true }
+            ),
+            onRetry: { Task { await viewModel.fetchRules(zoneId: zoneId) } }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
@@ -86,7 +74,6 @@ struct IPAccessRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add IP Rule")
-                .higTouchTarget()
                 .keyboardShortcut("n", modifiers: .command)
             }
         }
@@ -106,7 +93,7 @@ struct IPAccessRulesView: View {
                     Task {
                         await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id)
                         ToastManager.shared.showSuccess("IP Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         ruleToDelete = nil
                     }
                 }
@@ -133,39 +120,45 @@ struct IPAccessRuleRowView: View {
     let rule: IPAccessRule
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(rule.configuration.value)
-                    .font(HIGTypography.body.monospacedDigit().weight(.medium))
+                    .font(.body.monospacedDigit().weight(.medium))
                 
                 Spacer()
                 
-                HIGBadge(.custom(color: colorForMode(rule.mode), text: rule.mode.uppercased()), isCompact: true)
+                let modeColor = colorForMode(rule.mode)
+                Text(rule.mode.uppercased())
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(modeColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(modeColor.opacity(0.12)))
             }
             
-            HStack(spacing: HIGTokens.Spacing.xs) {
+            HStack(spacing: 4) {
                 Text(rule.configuration.target.uppercased().replacingOccurrences(of: "_", with: " "))
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 
                 if let notes = rule.notes, !notes.isEmpty {
                     Text("•")
                         .foregroundStyle(.secondary)
                     Text(notes)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func colorForMode(_ mode: String) -> Color {
         switch mode {
-        case "block": return HIGColors.error
-        case "challenge", "js_challenge", "managed_challenge": return HIGColors.warning
-        case "whitelist": return HIGColors.success
+        case "block": return .red
+        case "challenge", "js_challenge", "managed_challenge": return .orange
+        case "whitelist": return .green
         default: return .blue
         }
     }
@@ -246,7 +239,7 @@ struct AddIPAccessRuleView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             let success = await viewModel.createRule(
                                 zoneId: zoneId,
