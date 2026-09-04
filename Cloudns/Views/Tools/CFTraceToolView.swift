@@ -39,7 +39,6 @@ struct CFTraceToolView: View {
                         Image(systemName: "square.and.arrow.up")
                     }
                     .accessibilityLabel("Export Trace")
-                    .higTouchTarget(44)
                 }
             }
         }
@@ -53,11 +52,10 @@ struct CFTraceToolView: View {
     // MARK: - 1. Input Section
     @ViewBuilder
     private var inputSection: some View {
-        Section(header: Text("Target Domain / Host"), footer: Text("Traces Cloudflare's Anycast edge server, data center PoP airport code, IP & security capabilities via /cdn-cgi/trace.")) {
-            HStack(spacing: HIGTokens.Spacing.sm) {
+        Section {
+            HStack(spacing: 8) {
                 Image(systemName: "network")
-                    .font(HIGTypography.body)
-                    .foregroundStyle(Color.higAccent)
+                    .foregroundStyle(.tint)
                     .accessibilityHidden(true)
                 
                 TextField("www.cloudflare.com or domain", text: $viewModel.host)
@@ -65,7 +63,7 @@ struct CFTraceToolView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($isFieldFocused)
-                    .font(HIGTypography.body.monospacedDigit())
+                    .font(.body.monospacedDigit())
                     .submitLabel(.search)
                     .onSubmit {
                         performTrace()
@@ -79,7 +77,6 @@ struct CFTraceToolView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .higTouchTarget(44)
                     .accessibilityLabel("Clear Host")
                 }
             }
@@ -87,7 +84,7 @@ struct CFTraceToolView: View {
             Button {
                 performTrace()
             } label: {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 6) {
                     if viewModel.isLoading {
                         ProgressView()
                             .controlSize(.small)
@@ -99,8 +96,11 @@ struct CFTraceToolView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
-            .buttonStyle(.higPressable)
             .disabled(viewModel.host.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
+        } header: {
+            Text("Target Domain / Host")
+        } footer: {
+            Text("Traces Cloudflare's Anycast edge server, data center PoP airport code, IP & security capabilities via /cdn-cgi/trace.")
         }
     }
     
@@ -108,29 +108,29 @@ struct CFTraceToolView: View {
     @ViewBuilder
     private var resultsSection: some View {
         if viewModel.isLoading && viewModel.traceFields.isEmpty {
-            Section(header: Text("Resolved Edge PoP")) {
+            Section("Resolved Edge PoP") {
                 popCard(colo: "SJC", loc: "San Jose, United States")
             }
         } else if !viewModel.traceFields.isEmpty {
-            Section(header: Text("Resolved Edge PoP")) {
+            Section("Resolved Edge PoP") {
                 popCard(colo: viewModel.coloCode, loc: viewModel.locCountry)
             }
             
-            Section(header: Text("Network & Security Context")) {
+            Section("Network & Security Context") {
                 contextRows(fields: viewModel.traceFields, ip: viewModel.clientIp, warp: viewModel.warpStatus)
             }
             
-            Section(header: Text("Raw Trace Breakdown (\(viewModel.traceFields.count) Keys)")) {
+            Section("Raw Trace Breakdown (\(viewModel.traceFields.count) Keys)") {
                 rawTraceRows(fields: viewModel.traceFields)
             }
         } else if let error = viewModel.errorMessage {
-            Section(header: Text("Error")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section("Error") {
+                HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(HIGColors.error)
+                        .foregroundStyle(.red)
                     Text(verbatim: error)
-                        .font(HIGTypography.subheadline)
-                        .foregroundStyle(HIGColors.error)
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
                 }
             }
         }
@@ -138,7 +138,7 @@ struct CFTraceToolView: View {
     
     private func performTrace() {
         isFieldFocused = false
-        HIGFeedback.impact(.light)
+        HapticManager.impact(.light)
         Task { await viewModel.queryTrace() }
     }
     
@@ -146,34 +146,39 @@ struct CFTraceToolView: View {
     @ViewBuilder
     private func popCard(colo: String?, loc: String?) -> some View {
         let popInfo = CloudflarePoPDatabase.shared.getPoP(code: colo)
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             Text(popInfo?.flag ?? "🌐")
-                .font(HIGTypography.largeTitle)
+                .font(.largeTitle)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(popInfo?.city ?? (colo ?? "Edge PoP"))
-                        .font(HIGTypography.headline)
+                        .font(.headline)
                         .foregroundStyle(.primary)
                     
                     if let c = colo {
-                        HIGBadge(.proxied(c), isCompact: true)
+                        Text(c)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.orange.opacity(0.12)))
                     }
                 }
                 
                 Text(popInfo?.country ?? (loc ?? "Cloudflare Global Anycast"))
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
                 if let airport = popInfo?.airport {
                     Text(airport)
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
             }
             Spacer()
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     // MARK: - 3. Context Rows
@@ -182,37 +187,44 @@ struct CFTraceToolView: View {
         if let ip = ip {
             HStack {
                 Text("Client Public IP")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(ip)
-                    .font(HIGTypography.subheadline.monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
                 
                 Button {
-                    UIPasteboard.general.string = ip
-                    ToastManager.shared.showCopied("IP Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(ip, toast: "IP Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(HIGTypography.caption)
-                        .foregroundStyle(Color.higAccent)
+                        .font(.caption)
                 }
-                .buttonStyle(.higPressable)
-                .higTouchTarget(44)
+                .buttonStyle(.plain)
             }
         }
         
         if let warp = warp {
             HStack {
                 Text("WARP Status")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 if warp == "on" || warp == "plus" {
-                    HIGBadge(.active(warp == "plus" ? "WARP+ Active" : "WARP On"), isCompact: true)
+                    let title = warp == "plus" ? "WARP+ Active" : "WARP On"
+                    Text(title)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.green)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.green.opacity(0.12)))
                 } else {
-                    HIGBadge(.dnsOnly("WARP Off"), isCompact: true)
+                    Text("WARP Off")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.secondary.opacity(0.12)))
                 }
             }
         }
@@ -220,10 +232,16 @@ struct CFTraceToolView: View {
         if let gateway = fields.first(where: { $0.key.lowercased() == "gateway" })?.value {
             HStack {
                 Text("Zero Trust Gateway")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                HIGBadge(gateway == "on" ? .active("Protected") : .warning("Bypassed"), isCompact: true)
+                let isProtected = gateway == "on"
+                Text(isProtected ? "Protected" : "Bypassed")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(isProtected ? Color.green : Color.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill((isProtected ? Color.green : Color.orange).opacity(0.12)))
             }
         }
         
@@ -242,11 +260,11 @@ struct CFTraceToolView: View {
     private func contextRow(title: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(title)
-                .font(HIGTypography.subheadline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(value)
-                .font(HIGTypography.subheadline.monospaced())
+                .font(.subheadline.monospaced())
                 .foregroundStyle(.primary)
         }
     }
@@ -257,38 +275,31 @@ struct CFTraceToolView: View {
         ForEach(fields) { field in
             HStack {
                 Text(field.key)
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(field.value)
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
                 
                 Button {
-                    UIPasteboard.general.string = "\(field.key)=\(field.value)"
-                    ToastManager.shared.showCopied("\(field.key) Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard("\(field.key)=\(field.value)", toast: "\(field.key) Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.higPressable)
-                .higTouchTarget(44)
+                .buttonStyle(.plain)
             }
             .contextMenu {
                 Button {
-                    UIPasteboard.general.string = "\(field.key)=\(field.value)"
-                    ToastManager.shared.showCopied("Key-Value Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard("\(field.key)=\(field.value)", toast: "Key-Value Copied")
                 } label: {
                     Label("Copy Line", systemImage: "doc.on.doc")
                 }
                 Button {
-                    UIPasteboard.general.string = field.value
-                    ToastManager.shared.showCopied("Value Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(field.value, toast: "Value Copied")
                 } label: {
                     Label("Copy Value", systemImage: "text.alignleft")
                 }
@@ -298,15 +309,11 @@ struct CFTraceToolView: View {
     
     private func copyRawTrace() {
         let text = viewModel.traceFields.map { "\($0.key)=\($0.value)" }.joined(separator: "\n")
-        UIPasteboard.general.string = text
-        ToastManager.shared.showCopied("Raw Trace Copied")
-        HIGFeedback.copied()
+        copyToClipboard(text, toast: "Raw Trace Copied")
     }
     
     private func copyCurlCommand() {
         let cmd = "curl -sL https://\(viewModel.host)/cdn-cgi/trace"
-        UIPasteboard.general.string = cmd
-        ToastManager.shared.showCopied("cURL Command Copied")
-        HIGFeedback.copied()
+        copyToClipboard(cmd, toast: "cURL Command Copied")
     }
 }

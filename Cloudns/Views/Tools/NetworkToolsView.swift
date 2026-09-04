@@ -86,10 +86,10 @@ struct NetworkToolsView: View {
         @MainActor
         var iconColor: Color {
             switch self {
-            case .cfTrace: return Color.higAccent
+            case .cfTrace: return .orange
             case .dnsDig: return .indigo
             case .httpHeader: return .blue
-            case .certInspect: return HIGColors.success
+            case .certInspect: return .green
             case .dnsPropagation: return .indigo
             case .edgeLatency: return .purple
             case .ipLookup: return .teal
@@ -136,28 +136,29 @@ struct NetworkToolsView: View {
         NavigationStack {
             List {
                 if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-                    Section(header: Text("Edge Diagnostics")) {
+                    Section("Edge Diagnostics") {
                         ForEach(edgeTools) { tool in
                             toolRow(tool)
                         }
                     }
                     
-                    Section(header: Text("Global Connectivity & Probing")) {
+                    Section("Global Connectivity & Probing") {
                         ForEach(globalProbingTools) { tool in
                             toolRow(tool)
                         }
                     }
                     
-                    Section(
-                        header: Text("IP & Routing Utilities"),
-                        footer: Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
-                    ) {
+                    Section {
                         ForEach(ipRoutingTools) { tool in
                             toolRow(tool)
                         }
+                    } header: {
+                        Text("IP & Routing Utilities")
+                    } footer: {
+                        Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
                     }
                 } else {
-                    Section(header: Text("Matching Tools (\(filteredTools.count))")) {
+                    Section("Matching Tools (\(filteredTools.count))") {
                         ForEach(filteredTools) { tool in
                             toolRow(tool)
                         }
@@ -174,11 +175,14 @@ struct NetworkToolsView: View {
             .navigationTitle("Tools")
             .navigationBarTitleDisplayMode(.large)
             .id(appLanguage)
-            .overlay {
-                if !searchText.isEmpty && filteredTools.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
-            }
+            .listState(
+                isEmpty: !searchText.isEmpty && filteredTools.isEmpty,
+                empty: EmptyStateConfig(
+                    title: "No Results",
+                    systemImage: "magnifyingglass",
+                    description: "No diagnostics tools matching '\(searchText)'."
+                )
+            )
         }
     }
     
@@ -187,21 +191,21 @@ struct NetworkToolsView: View {
         NavigationLink {
             tool.destinationView
         } label: {
-            HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+            HStack(alignment: .center, spacing: 12) {
                 ListRowIcon(icon: tool.icon, color: tool.iconColor)
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(tool.title)
-                        .font(HIGTypography.body.weight(.medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
                     Text(tool.subtitle)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             }
-            .padding(.vertical, HIGTokens.Spacing.xxs)
+            .padding(.vertical, 2)
         }
     }
 }

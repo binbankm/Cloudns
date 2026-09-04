@@ -18,11 +18,10 @@ struct HTTPHeaderInspectorView: View {
     var body: some View {
         List {
             // 1. Target URL & Method Section
-            Section(header: Text("Request Configuration"), footer: Text("Inspects live Cloudflare Edge HTTP response status, CF-Ray, caching status & custom headers.")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section {
+                HStack(spacing: 8) {
                     Image(systemName: "link")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.tint)
                         .accessibilityHidden(true)
                     
                     TextField("https://example.com", text: $viewModel.httpUrlInput)
@@ -30,7 +29,7 @@ struct HTTPHeaderInspectorView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .submitLabel(.go)
                         .onSubmit {
                             performInspect()
@@ -44,7 +43,6 @@ struct HTTPHeaderInspectorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear URL")
                     }
                 }
@@ -59,7 +57,7 @@ struct HTTPHeaderInspectorView: View {
                 Button {
                     performInspect()
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         if viewModel.isHttpLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -69,36 +67,42 @@ struct HTTPHeaderInspectorView: View {
                         Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.httpUrlInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isHttpLoading)
+            } header: {
+                Text("Request Configuration")
+            } footer: {
+                Text("Inspects live Cloudflare Edge HTTP response status, CF-Ray, caching status & custom headers.")
             }
             
             if viewModel.isHttpLoading {
                 Section {
-                    HIGContentState(.loading(message: "Inspecting Edge Response…"))
-                        .padding(.vertical, HIGTokens.Spacing.sm)
+                    HStack {
+                        Spacer()
+                        ProgressView("Inspecting Edge Response…")
+                            .padding(.vertical, 8)
+                        Spacer()
+                    }
                 }
             } else if let result = viewModel.httpResult {
                 // 2. Edge & Performance Hero Section
-                Section(header: Text("Edge Response Summary")) {
+                Section("Edge Response Summary") {
                     edgeSummaryRows(result: result)
                 }
                 
                 // 3. Response Headers Section
-                Section(header: Text("Response Headers (\(result.headers.count))")) {
+                Section("Response Headers (\(result.headers.count))") {
                     headersRows(result: result)
                 }
             } else if let error = viewModel.httpError {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -121,7 +125,6 @@ struct HTTPHeaderInspectorView: View {
                         Image(systemName: "doc.on.doc")
                     }
                     .accessibilityLabel("Copy All Headers")
-                    .higTouchTarget(44)
                 }
             }
         }
@@ -129,7 +132,7 @@ struct HTTPHeaderInspectorView: View {
     
     private func performInspect() {
         isFieldFocused = false
-        HIGFeedback.impact(.light)
+        HapticManager.impact(.light)
         Task { await viewModel.inspectHTTP() }
     }
     
@@ -138,15 +141,15 @@ struct HTTPHeaderInspectorView: View {
     private func edgeSummaryRows(result: HTTPInspectionResult) -> some View {
         HStack {
             Text("Status Code")
-                .font(HIGTypography.subheadline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            HStack(spacing: HIGTokens.Spacing.xs) {
+            HStack(spacing: 6) {
                 Text("\(result.statusCode)")
-                    .font(HIGTypography.subheadline.weight(.bold).monospacedDigit())
-                    .foregroundStyle(result.statusCode < 400 ? HIGColors.success : HIGColors.error)
+                    .font(.subheadline.weight(.bold).monospacedDigit())
+                    .foregroundStyle(result.statusCode < 400 ? Color.green : Color.red)
                 Text(result.statusText)
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }
@@ -154,7 +157,7 @@ struct HTTPHeaderInspectorView: View {
         if let cache = result.cfCacheStatus {
             HStack {
                 Text("CF-Cache-Status")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 cacheStatusBadge(cache)
@@ -164,18 +167,16 @@ struct HTTPHeaderInspectorView: View {
         if let ray = result.cfRay {
             HStack {
                 Text("CF-Ray ID")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(ray)
-                    .font(HIGTypography.subheadline.monospaced())
+                    .font(.subheadline.monospaced())
                     .foregroundStyle(.primary)
             }
             .contextMenu {
                 Button {
-                    UIPasteboard.general.string = ray
-                    ToastManager.shared.showCopied("CF-Ray Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(ray, toast: "CF-Ray Copied")
                 } label: {
                     Label("Copy CF-Ray ID", systemImage: "doc.on.doc")
                 }
@@ -184,11 +185,11 @@ struct HTTPHeaderInspectorView: View {
         
         HStack {
             Text("Total TTFB Latency")
-                .font(HIGTypography.subheadline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text("\(result.durationMs.formatted(.number.precision(.fractionLength(1)))) ms")
-                .font(HIGTypography.subheadline.monospacedDigit())
+                .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
     }
@@ -196,44 +197,37 @@ struct HTTPHeaderInspectorView: View {
     @ViewBuilder
     private func headersRows(result: HTTPInspectionResult) -> some View {
         ForEach(filteredHeaders) { header in
-            HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
+            HStack(alignment: .top, spacing: 8) {
                 Text(header.key)
-                    .font(HIGTypography.caption.monospaced().weight(.semibold))
+                    .font(.caption.monospaced().weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: 120, alignment: .leading)
                 
                 Text(header.value)
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
                 
                 Spacer()
                 
                 Button {
-                    UIPasteboard.general.string = "\(header.key): \(header.value)"
-                    ToastManager.shared.showCopied("Header Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard("\(header.key): \(header.value)", toast: "Header Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.higPressable)
-                .higTouchTarget(44)
+                .buttonStyle(.plain)
             }
-            .padding(.vertical, HIGTokens.Spacing.xxs)
+            .padding(.vertical, 2)
             .contextMenu {
                 Button {
-                    UIPasteboard.general.string = "\(header.key): \(header.value)"
-                    ToastManager.shared.showCopied("Header Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard("\(header.key): \(header.value)", toast: "Header Copied")
                 } label: {
                     Label("Copy Line", systemImage: "doc.on.doc")
                 }
                 Button {
-                    UIPasteboard.general.string = header.value
-                    ToastManager.shared.showCopied("Value Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(header.value, toast: "Value Copied")
                 } label: {
                     Label("Copy Value", systemImage: "text.alignleft")
                 }
@@ -244,23 +238,30 @@ struct HTTPHeaderInspectorView: View {
     @ViewBuilder
     private func cacheStatusBadge(_ status: String) -> some View {
         let upper = status.uppercased()
-        if upper.contains("HIT") {
-            HIGBadge(.active("HIT"), isCompact: true)
-        } else if upper.contains("MISS") {
-            HIGBadge(.warning("MISS"), isCompact: true)
-        } else if upper.contains("DYNAMIC") {
-            HIGBadge(.proxied("DYNAMIC"), isCompact: true)
-        } else if upper.contains("BYPASS") {
-            HIGBadge(.dnsOnly("BYPASS"), isCompact: true)
-        } else {
-            HIGBadge(.custom(color: .secondary, text: upper), isCompact: true)
-        }
+        let (color, text): (Color, String) = {
+            if upper.contains("HIT") {
+                return (.green, "HIT")
+            } else if upper.contains("MISS") {
+                return (.orange, "MISS")
+            } else if upper.contains("DYNAMIC") {
+                return (.blue, "DYNAMIC")
+            } else if upper.contains("BYPASS") {
+                return (.secondary, "BYPASS")
+            } else {
+                return (.secondary, upper)
+            }
+        }()
+        
+        Text(text)
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(color)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(color.opacity(0.12)))
     }
     
     private func copyAllHeaders(_ result: HTTPInspectionResult) {
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
-        UIPasteboard.general.string = text
-        ToastManager.shared.showCopied("All Headers Copied")
-        HIGFeedback.copied()
+        copyToClipboard(text, toast: "All Headers Copied")
     }
 }

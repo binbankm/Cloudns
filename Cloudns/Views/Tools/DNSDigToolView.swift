@@ -11,20 +11,19 @@ struct DNSDigToolView: View {
     var body: some View {
         List {
             // 1. Query Configuration Section
-            Section(header: Text("Query Configuration"), footer: Text("Queries 1.1.1.1 Anycast edge resolver with optional DNSSEC verification or benchmarks worldwide public resolvers.")) {
+            Section {
                 Picker("Query Mode", selection: $queryMode) {
                     Text("1.1.1.1 Edge Query").tag(0)
                     Text("Multi-Resolver Benchmark").tag(1)
                 }
                 .pickerStyle(.segmented)
                 .onChange(of: queryMode) { _ in
-                    HIGFeedback.selection()
+                    HapticManager.selection()
                 }
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Image(systemName: "globe")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.tint)
                         .accessibilityHidden(true)
                     
                     TextField("e.g. example.com", text: $viewModel.domainInput)
@@ -32,7 +31,7 @@ struct DNSDigToolView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             startQuery()
@@ -46,7 +45,6 @@ struct DNSDigToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Domain")
                     }
                 }
@@ -54,7 +52,7 @@ struct DNSDigToolView: View {
                 if queryMode == 0 {
                     HStack {
                         Text("Record Type")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         
                         Spacer()
@@ -73,10 +71,10 @@ struct DNSDigToolView: View {
                 
                 Button {
                     isFieldFocused = false
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                     startQuery()
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         if viewModel.isDnsLoading || viewModel.isBenchmarkLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -86,36 +84,52 @@ struct DNSDigToolView: View {
                         Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers…" : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDnsLoading || viewModel.isBenchmarkLoading)
+            } header: {
+                Text("Query Configuration")
+            } footer: {
+                Text("Queries 1.1.1.1 Anycast edge resolver with optional DNSSEC verification or benchmarks worldwide public resolvers.")
             }
             
             // 2. Results Sections
             if queryMode == 0 {
                 if viewModel.isDnsLoading {
                     Section {
-                        HIGContentState(.loading(message: "Resolving DNS Records…"))
-                            .padding(.vertical, HIGTokens.Spacing.sm)
+                        HStack {
+                            Spacer()
+                            ProgressView("Resolving DNS Records…")
+                                .padding(.vertical, 8)
+                            Spacer()
+                        }
                     }
                 } else if let result = viewModel.dnsResult {
-                    Section(header: Text("Resolved Answers (\(result.answers.count))")) {
+                    Section("Resolved Answers (\(result.answers.count))") {
                         HStack {
                             Text("Resolver Engine")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             if result.isDNSSECValidated {
-                                HIGBadge(.custom(color: HIGColors.success, text: "DNSSEC Validated"), isCompact: true)
+                                Text("DNSSEC Validated")
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(.green)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Capsule().fill(Color.green.opacity(0.12)))
                             }
-                            HIGBadge(.custom(color: Color.higAccent, text: "\(result.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
+                            Text("\(result.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.tint)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.accentColor.opacity(0.12)))
                         }
                         
                         if result.answers.isEmpty {
                             Text("No DNS records found for this query.")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         } else {
                             ForEach(result.answers) { item in
@@ -124,23 +138,22 @@ struct DNSDigToolView: View {
                         }
                         
                         Button {
-                            HIGFeedback.impact(.light)
+                            HapticManager.impact(.light)
                             viewModel.showingRFCExport = true
                         } label: {
                             Label("View Raw RFC 1035 Output", systemImage: "terminal")
-                                .font(HIGTypography.subheadline)
-                                .foregroundStyle(Color.higAccent)
+                                .font(.subheadline)
                         }
                     }
                 }
             } else {
                 if viewModel.isBenchmarkLoading {
-                    Section(header: Text("Benchmarking Public Resolvers…")) {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                    Section("Benchmarking Public Resolvers…") {
+                        HStack(spacing: 8) {
                             ProgressView()
                                 .controlSize(.small)
                             Text("Probing Cloudflare, Google, Quad9, OpenDNS…")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -154,13 +167,13 @@ struct DNSDigToolView: View {
             }
             
             if let error = viewModel.dnsError {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -180,8 +193,8 @@ struct DNSDigToolView: View {
                     NavigationStack {
                         ScrollView {
                             Text(result.rawResponseRFC)
-                                .font(HIGTypography.caption.monospaced())
-                                .padding(HIGTokens.Spacing.lg)
+                                .font(.caption.monospaced())
+                                .padding(16)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .navigationTitle("RFC BIND Output")
@@ -192,9 +205,7 @@ struct DNSDigToolView: View {
                             }
                             ToolbarItem(placement: .primaryAction) {
                                 Button {
-                                    HIGFeedback.copied()
-                                    UIPasteboard.general.string = result.rawResponseRFC
-                                    ToastManager.shared.showCopied("RFC Output Copied")
+                                    copyToClipboard(result.rawResponseRFC, toast: "RFC Output Copied")
                                 } label: {
                                     Image(systemName: "doc.on.doc")
                                 }
@@ -206,43 +217,51 @@ struct DNSDigToolView: View {
                     .presentationDragIndicator(.visible)
                 }
             }
-            .higToast()
         }
     }
     
     @ViewBuilder
     private func benchmarkRow(_ item: DNSBenchmarkItem, rank: Int? = nil) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             if let rank = rank {
                 Text("\(rank)")
-                    .font(HIGTypography.body.weight(.bold).monospacedDigit())
+                    .font(.body.weight(.bold).monospacedDigit())
                     .foregroundStyle(rank == 1 ? Color.yellow : Color.secondary)
                     .frame(width: 20)
             }
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: item.resolverName)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Text(verbatim: item.resolverIP)
-                    .font(HIGTypography.caption2.monospacedDigit())
+                    .font(.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             if item.status == "OK", let lat = item.latencyMs {
-                HIGBadge(.custom(color: rank == 1 ? HIGColors.success : Color.higAccent, text: "\(lat.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
+                let badgeColor = rank == 1 ? Color.green : Color.accentColor
+                Text("\(lat.formatted(.number.precision(.fractionLength(1)))) ms")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(badgeColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(badgeColor.opacity(0.12)))
             } else {
-                HIGBadge(.custom(color: HIGColors.error, text: "TIMEOUT"), isCompact: true)
+                Text("TIMEOUT")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.red.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contextMenu {
             Button {
-                UIPasteboard.general.string = item.resolverIP
-                ToastManager.shared.showCopied("IP Copied")
-                HIGFeedback.copied()
+                copyToClipboard(item.resolverIP, toast: "IP Copied")
             } label: {
                 Label("Copy Resolver IP", systemImage: "doc.on.doc")
             }
@@ -266,39 +285,39 @@ struct DNSAnswerRowView: View {
     let item: DNSAnswerItem
     
     var body: some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
-            HIGBadge(.custom(color: .indigo, text: item.typeName), isCompact: true)
+        HStack(alignment: .center, spacing: 8) {
+            Text(item.typeName)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.indigo)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.indigo.opacity(0.12)))
             
             Text(verbatim: item.data)
-                .font(HIGTypography.body.monospaced())
+                .font(.body.monospaced())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
             
             Spacer()
             
             Text("TTL \(item.ttl)s")
-                .font(HIGTypography.caption2.monospacedDigit())
+                .font(.caption2.monospacedDigit())
                 .foregroundStyle(.secondary)
             
             Button {
-                HIGFeedback.copied()
-                UIPasteboard.general.string = item.data
-                ToastManager.shared.showCopied("Record Data Copied")
+                copyToClipboard(item.data, toast: "Record Data Copied")
             } label: {
                 Image(systemName: "doc.on.doc")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.higPressable)
-            .higTouchTarget(44)
+            .buttonStyle(.plain)
             .accessibilityLabel("Copy \(item.typeName) record: \(item.data)")
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contextMenu {
             Button {
-                UIPasteboard.general.string = item.data
-                ToastManager.shared.showCopied("Data Copied")
-                HIGFeedback.copied()
+                copyToClipboard(item.data, toast: "Data Copied")
             } label: {
                 Label("Copy Record Data", systemImage: "doc.on.doc")
             }

@@ -10,11 +10,10 @@ struct IPLookupToolView: View {
     var body: some View {
         List {
             // 1. Input Section
-            Section(header: Text("Target IP Address"), footer: Text("Queries BGP routing registries, Autonomous System Numbers (ASN), ISP names & physical geolocation coordinates.")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section {
+                HStack(spacing: 8) {
                     Image(systemName: "location.circle.fill")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.tint)
                         .accessibilityHidden(true)
                     
                     TextField("e.g. 1.1.1.1 or 104.21.45.12", text: $viewModel.ipInput)
@@ -22,7 +21,7 @@ struct IPLookupToolView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             performQuery()
@@ -36,7 +35,6 @@ struct IPLookupToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
@@ -44,7 +42,7 @@ struct IPLookupToolView: View {
                 Button {
                     performQuery()
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         if viewModel.isLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -54,41 +52,47 @@ struct IPLookupToolView: View {
                         Text(viewModel.isLoading ? "Querying BGP & Geo…" : "Lookup IP Geolocation & ASN")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.ipInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
+            } header: {
+                Text("Target IP Address")
+            } footer: {
+                Text("Queries BGP routing registries, Autonomous System Numbers (ASN), ISP names & physical geolocation coordinates.")
             }
             
             if viewModel.isLoading && viewModel.lookupResult == nil {
                 Section {
-                    HIGContentState(.loading(message: "Querying IP…"))
-                        .padding(.vertical, HIGTokens.Spacing.sm)
+                    HStack {
+                        Spacer()
+                        ProgressView("Querying IP…")
+                            .padding(.vertical, 8)
+                        Spacer()
+                    }
                 }
             } else if let result = viewModel.lookupResult {
                 // 2. Identification Hero Section
-                Section(header: Text("IP Identification")) {
+                Section("IP Identification") {
                     identificationRows(result: result)
                 }
                 
                 // 3. ASN Section
-                Section(header: Text("Autonomous System (ASN)")) {
+                Section("Autonomous System (ASN)") {
                     asnRows(result: result)
                 }
                 
                 // 4. Geolocation Section
-                Section(header: Text("Geographical Location")) {
+                Section("Geographical Location") {
                     geoRows(result: result)
                 }
             } else if let error = viewModel.errorMessage {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -106,25 +110,26 @@ struct IPLookupToolView: View {
     
     private func performQuery() {
         isFieldFocused = false
-        HIGFeedback.impact(.light)
+        HapticManager.impact(.light)
         Task { await viewModel.queryIP() }
     }
     
+
     // MARK: - 2. Identification Rows
     @ViewBuilder
     private func identificationRows(result: IPLookupResult) -> some View {
         HStack {
             Text(result.countryFlag)
-                .font(HIGTypography.title2)
+                .font(.title2)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(result.ip)
-                    .font(HIGTypography.headline.monospacedDigit())
+                    .font(.headline.monospacedDigit())
                     .foregroundStyle(.primary)
                 
                 if let city = result.city, let country = result.country {
                     Text("\(city), \(country)")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -132,23 +137,17 @@ struct IPLookupToolView: View {
             Spacer()
             
             Button {
-                HIGFeedback.copied()
-                UIPasteboard.general.string = result.ip
-                ToastManager.shared.showCopied("IP Copied")
+                copyToClipboard(result.ip, toast: "IP Copied")
             } label: {
                 Image(systemName: "doc.on.doc")
-                    .font(HIGTypography.caption)
-                    .foregroundStyle(Color.higAccent)
+                    .font(.caption)
             }
-            .buttonStyle(.higPressable)
-            .higTouchTarget(44)
+            .buttonStyle(.plain)
             .accessibilityLabel("Copy IP Address")
         }
         .contextMenu {
             Button {
-                UIPasteboard.general.string = result.ip
-                ToastManager.shared.showCopied("IP Copied")
-                HIGFeedback.copied()
+                copyToClipboard(result.ip, toast: "IP Copied")
             } label: {
                 Label("Copy IP Address", systemImage: "doc.on.doc")
             }
@@ -157,13 +156,18 @@ struct IPLookupToolView: View {
         if let cloud = result.cloudProvider {
             HStack {
                 Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
-                    .foregroundStyle(result.isCloudflareAnycast ? .orange : Color.higAccent)
+                    .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
                 Text(cloud)
-                    .font(HIGTypography.subheadline.weight(.medium))
-                    .foregroundStyle(result.isCloudflareAnycast ? .orange : Color.higAccent)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
                 Spacer()
                 if result.isCloudflareAnycast {
-                    HIGBadge(.active("Cloudflare Edge"), isCompact: true)
+                    Text("Cloudflare Edge")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.orange)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.orange.opacity(0.12)))
                 }
             }
         }
@@ -175,18 +179,16 @@ struct IPLookupToolView: View {
         if let asn = result.asn {
             HStack {
                 Text("ASN")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(verbatim: "AS\(asn)")
-                    .font(HIGTypography.subheadline.monospacedDigit().weight(.semibold))
+                    .font(.subheadline.monospacedDigit().weight(.semibold))
                     .foregroundStyle(.primary)
             }
             .contextMenu {
                 Button {
-                    UIPasteboard.general.string = "AS\(asn)"
-                    ToastManager.shared.showCopied("ASN Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard("AS\(asn)", toast: "ASN Copied")
                 } label: {
                     Label("Copy ASN", systemImage: "doc.on.doc")
                 }
@@ -196,15 +198,14 @@ struct IPLookupToolView: View {
         if let org = result.org {
             HStack {
                 Text("Organization")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(org)
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }
-
     }
     
     // MARK: - 4. Geolocation Rows
@@ -213,44 +214,44 @@ struct IPLookupToolView: View {
         if let country = result.country {
             HStack {
                 Text("Country")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text("\(result.countryFlag) \(country)")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }
         if let region = result.region {
             HStack {
                 Text("Region / State")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(region)
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }
         if let city = result.city {
             HStack {
                 Text("City")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(city)
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }
         if let tz = result.timezone {
             HStack {
                 Text("Timezone")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(tz)
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
             }
         }

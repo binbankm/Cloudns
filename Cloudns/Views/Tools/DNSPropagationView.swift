@@ -10,11 +10,10 @@ struct DNSPropagationView: View {
     var body: some View {
         List {
             // Target Domain Input
-            Section(header: Text("Propagation Target"), footer: Text("Simultaneously probes DNS answers across 8 Anycast edge resolvers across North America, Europe, Asia, Australia & South America.")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section {
+                HStack(spacing: 8) {
                     Image(systemName: "globe.americas.fill")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.tint)
                         .accessibilityHidden(true)
                     
                     TextField("example.com", text: $viewModel.propagationDomain)
@@ -22,7 +21,7 @@ struct DNSPropagationView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .submitLabel(.search)
                         .onSubmit {
                             Task { await viewModel.queryPropagation() }
@@ -36,14 +35,13 @@ struct DNSPropagationView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Domain")
                     }
                 }
                 
                 HStack {
                     Text("Record Type")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Picker("Record Type", selection: $viewModel.propagationType) {
@@ -55,23 +53,22 @@ struct DNSPropagationView: View {
                     .labelsHidden()
                 }
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Image(systemName: "target")
-                        .font(HIGTypography.body)
                         .foregroundStyle(.secondary)
                     TextField("Expected Value (Optional)", text: $viewModel.expectedIP)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                 }
                 
                 Button {
                     isFieldFocused = false
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                     Task { await viewModel.queryPropagation() }
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         if viewModel.isPropagationLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -81,57 +78,69 @@ struct DNSPropagationView: View {
                         Text(viewModel.isPropagationLoading ? "Probing Global Edge…" : "Probe Worldwide DNS Propagation")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.propagationDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isPropagationLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.propagationDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isPropagationLoading)
+            } header: {
+                Text("Propagation Target")
+            } footer: {
+                Text("Simultaneously probes DNS answers across 8 Anycast edge resolvers across North America, Europe, Asia, Australia & South America.")
             }
             
             if viewModel.isPropagationLoading {
-                Section(header: Text("Querying 8 Global Edge Nodes…")) {
-                    HIGContentState(.loading(message: "Probing Anycast Edge Resolvers…"))
-                        .padding(.vertical, HIGTokens.Spacing.sm)
+                Section("Querying 8 Global Edge Nodes…") {
+                    HStack {
+                        Spacer()
+                        ProgressView("Probing Anycast Edge Resolvers…")
+                            .padding(.vertical, 8)
+                        Spacer()
+                    }
                 }
             } else if let result = viewModel.propagationResult {
                 // 1. Worldwide Propagation Score Card
-                Section(header: Text("Global Status")) {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+                Section("Global Status") {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("Propagation Score")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                                 
                                 (Text(verbatim: "\(result.propagationPercent)% ") + Text("Synchronized"))
-                                    .font(HIGTypography.title3.weight(.bold))
-                                    .foregroundStyle(result.propagationPercent >= 100 ? HIGColors.success : (result.propagationPercent >= 50 ? HIGColors.warning : HIGColors.error))
+                                    .font(.title3.weight(.bold))
+                                    .foregroundStyle(result.propagationPercent >= 100 ? Color.green : (result.propagationPercent >= 50 ? Color.orange : Color.red))
                             }
                             
                             Spacer()
                             
-                            HIGBadge(result.propagationPercent >= 100 ? .active("\(result.matchedCount)/\(result.nodes.count) Nodes") : .warning("\(result.matchedCount)/\(result.nodes.count) Nodes"), isCompact: false)
+                            let isSuccess = result.propagationPercent >= 100
+                            Text("\(result.matchedCount)/\(result.nodes.count) Nodes")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(isSuccess ? Color.green : Color.orange)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill((isSuccess ? Color.green : Color.orange).opacity(0.12)))
                         }
                         
                         ProgressView(value: Double(result.propagationPercent) / 100.0)
-                            .tint(result.propagationPercent >= 100 ? HIGColors.success : HIGColors.warning)
+                            .tint(result.propagationPercent >= 100 ? Color.green : Color.orange)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 // 2. Regional Nodes Breakdown
-                Section(header: Text("Regional Edge Resolvers (\(result.nodes.count))")) {
+                Section("Regional Edge Resolvers (\(result.nodes.count))") {
                     ForEach(result.nodes) { node in
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(node.countryFlag)
-                                    .font(HIGTypography.title3)
+                                    .font(.title3)
                                 
-                                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(node.regionName)
-                                        .font(HIGTypography.subheadline.weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                     Text("\(node.locationCity) • \(node.provider)")
-                                        .font(HIGTypography.caption2)
+                                        .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                                 
@@ -142,24 +151,22 @@ struct DNSPropagationView: View {
                             
                             if !node.resolvedIPs.isEmpty {
                                 Text(node.resolvedIPs.joined(separator: ", "))
-                                    .font(HIGTypography.caption.monospaced())
+                                    .font(.caption.monospaced())
                                     .foregroundStyle(.primary)
                                     .padding(.leading, 32)
                             }
                             
                             if let lat = node.latencyMs {
                                 Text("Latency: \(lat.formatted(.number.precision(.fractionLength(1)))) ms")
-                                    .font(HIGTypography.caption2.monospacedDigit())
+                                    .font(.caption2.monospacedDigit())
                                     .foregroundStyle(.tertiary)
                                     .padding(.leading, 32)
                             }
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = node.resolvedIPs.joined(separator: ", ")
-                                ToastManager.shared.showCopied("IPs Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(node.resolvedIPs.joined(separator: ", "), toast: "IPs Copied")
                             } label: {
                                 Label("Copy Resolved IPs", systemImage: "doc.on.doc")
                             }
@@ -167,13 +174,13 @@ struct DNSPropagationView: View {
                     }
                 }
             } else if let error = viewModel.propagationError {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -188,13 +195,33 @@ struct DNSPropagationView: View {
     private func nodeStatusBadge(_ status: DNSPropagationNode.NodeStatus) -> some View {
         switch status {
         case .resolved:
-            HIGBadge(.active("Matched"), isCompact: true)
+            Text("Matched")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.green.opacity(0.12)))
         case .mismatch:
-            HIGBadge(.warning("Mismatch"), isCompact: true)
+            Text("Mismatch")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.orange.opacity(0.12)))
         case .failed:
-            HIGBadge(.custom(color: HIGColors.error, text: "Failed"), isCompact: true)
+            Text("Failed")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.red)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.red.opacity(0.12)))
         case .pending:
-            HIGBadge(.proxied("Pending"), isCompact: true)
+            Text("Pending")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.orange.opacity(0.12)))
         }
     }
 }

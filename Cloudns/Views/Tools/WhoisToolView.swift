@@ -12,16 +12,15 @@ struct WhoisToolView: View {
     var body: some View {
         List {
             // 1. Query & Presets Section
-            Section(header: Text("Domain / Hostname"), footer: Text("Queries global RDAP (Registration Data Access Protocol) and authoritative WHOIS directories for registrar lifecycle dates.")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section {
+                HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.blue)
                         .accessibilityHidden(true)
                     
                     TextField("example.com", text: $viewModel.domainInput)
                         .keyboardType(.URL)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
@@ -38,28 +37,27 @@ struct WhoisToolView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
                 
                 // Quick Presets
                 ScrollView(.horizontal) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         ForEach(presets, id: \.self) { preset in
                             Button {
                                 viewModel.domainInput = preset
                                 performLookup()
                             } label: {
                                 Text(preset)
-                                    .font(HIGTypography.caption.weight(.medium).monospacedDigit())
-                                    .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-                                    .padding(.vertical, HIGTokens.Spacing.xxs + 3)
-                                    .background(Color.higAccent.opacity(0.12))
-                                    .foregroundStyle(Color.higAccent)
+                                    .font(.caption.weight(.medium).monospacedDigit())
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Color.blue.opacity(0.12))
+                                    .foregroundStyle(.blue)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.higPressable)
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -68,7 +66,7 @@ struct WhoisToolView: View {
                 Button {
                     performLookup()
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         if viewModel.isLoading {
                             ProgressView()
                                 .controlSize(.small)
@@ -78,51 +76,52 @@ struct WhoisToolView: View {
                         Text(viewModel.isLoading ? "Querying RDAP…" : "Query WHOIS Directory")
                             .fontWeight(.semibold)
                     }
-                    .foregroundStyle(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading ? Color(.tertiaryLabel) : Color.higAccent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.domainInput.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
+            } header: {
+                Text("Domain / Hostname")
+            } footer: {
+                Text("Queries global RDAP (Registration Data Access Protocol) and authoritative WHOIS directories for registrar lifecycle dates.")
             }
             
-            if viewModel.isLoading && viewModel.info == nil {
-                Section {
-                    HIGContentState(.loading(message: "Querying Whois Database…"))
-                        .padding(.vertical, HIGTokens.Spacing.sm)
-                }
-            } else if let info = viewModel.info {
+            if let info = viewModel.info {
                 // 2. Registration Hero Section
-                Section(header: Text("Domain Registration")) {
+                Section("Domain Registration") {
                     registrationRows(info: info)
                 }
                 
                 // 3. Domain Statuses Section
                 if !info.statuses.isEmpty {
-                    Section(header: Text("Registry Statuses (\(info.statuses.count))")) {
+                    Section("Registry Statuses (\(info.statuses.count))") {
                         statusesRows(info: info)
                     }
                 }
                 
                 // 4. Nameservers Section
                 if !info.nameservers.isEmpty {
-                    Section(header: Text("Authoritative Nameservers (\(info.nameservers.count))")) {
+                    Section("Authoritative Nameservers (\(info.nameservers.count))") {
                         nameserversRows(info: info)
                     }
                 }
             } else if let error = viewModel.errorMessage {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
+        .listState(
+            isLoading: viewModel.isLoading && viewModel.info == nil,
+            loadingMessage: "Querying Whois Database…"
+        )
         .refreshable {
             if !viewModel.domainInput.isEmpty {
                 await viewModel.performLookup()
@@ -134,7 +133,7 @@ struct WhoisToolView: View {
     
     private func performLookup() {
         isFieldFocused = false
-        HIGFeedback.impact(.light)
+        HapticManager.impact(.light)
         Task { await viewModel.performLookup() }
     }
     
@@ -142,26 +141,29 @@ struct WhoisToolView: View {
     @ViewBuilder
     private func registrationRows(info: WhoisInfo) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Domain Name")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(info.domain)
-                    .font(HIGTypography.headline)
+                    .font(.headline)
                     .foregroundStyle(.primary)
             }
             
             Spacer()
             
             if let reg = info.registrar {
-                HIGBadge(.active(reg), isCompact: true)
+                Text(reg)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.blue.opacity(0.12)))
             }
         }
         .contextMenu {
             Button {
-                UIPasteboard.general.string = info.domain
-                ToastManager.shared.showCopied("Domain Copied")
-                HIGFeedback.copied()
+                copyToClipboard(info.domain, toast: "Domain Copied")
             } label: {
                 Label("Copy Domain Name", systemImage: "doc.on.doc")
             }
@@ -170,45 +172,45 @@ struct WhoisToolView: View {
         if let created = info.created {
             HStack {
                 Text("Created Date")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(created.displayFormatted(date: .abbreviated, time: .shortened))
-                    .font(HIGTypography.subheadline.monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
             }
         }
         if let updated = info.updated {
             HStack {
                 Text("Updated Date")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(updated.displayFormatted(date: .abbreviated, time: .shortened))
-                    .font(HIGTypography.subheadline.monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
             }
         }
         if let expires = info.expires {
             HStack {
                 Text("Expiration Date")
-                    .font(HIGTypography.subheadline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                VStack(alignment: .trailing, spacing: HIGTokens.Spacing.xxs) {
+                VStack(alignment: .trailing, spacing: 4) {
                     Text(expires.displayFormatted(date: .abbreviated, time: .shortened))
-                        .font(HIGTypography.subheadline.monospacedDigit())
+                        .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                     
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
                     if days > 0 {
                         Text("\(days) Days Remaining")
-                            .font(HIGTypography.caption2.weight(.semibold))
-                            .foregroundStyle(days > 30 ? HIGColors.success : HIGColors.error)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(days > 30 ? .green : .red)
                     } else {
                         Text("Expired")
-                            .font(HIGTypography.caption2.weight(.semibold))
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -219,12 +221,12 @@ struct WhoisToolView: View {
     @ViewBuilder
     private func statusesRows(info: WhoisInfo) -> some View {
         ForEach(info.statuses, id: \.self) { status in
-            HStack(spacing: HIGTokens.Spacing.sm) {
+            HStack(spacing: 8) {
                 Circle()
-                    .fill(Color.higAccent)
+                    .fill(Color.blue)
                     .frame(width: 6, height: 6)
                 Text(verbatim: status)
-                    .font(HIGTypography.caption.monospacedDigit())
+                    .font(.caption.monospacedDigit())
                     .foregroundStyle(.primary)
             }
         }
@@ -236,30 +238,25 @@ struct WhoisToolView: View {
         ForEach(info.nameservers, id: \.self) { ns in
             HStack {
                 Image(systemName: "server.rack")
-                    .font(HIGTypography.caption)
-                    .foregroundStyle(Color.higAccent)
+                    .font(.caption)
+                    .foregroundStyle(.blue)
                     .accessibilityHidden(true)
                 Text(verbatim: ns.lowercased())
-                    .font(HIGTypography.subheadline.monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.primary)
                 Spacer()
                 Button {
-                    HIGFeedback.copied()
-                    UIPasteboard.general.string = ns.lowercased()
-                    ToastManager.shared.showCopied("Nameserver Copied")
+                    copyToClipboard(ns.lowercased(), toast: "Nameserver Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(HIGTypography.caption)
-                        .foregroundStyle(Color.higAccent)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.higPressable)
-                .higTouchTarget(44)
+                .buttonStyle(.plain)
             }
             .contextMenu {
                 Button {
-                    UIPasteboard.general.string = ns.lowercased()
-                    ToastManager.shared.showCopied("Nameserver Copied")
-                    HIGFeedback.copied()
+                    copyToClipboard(ns.lowercased(), toast: "Nameserver Copied")
                 } label: {
                     Label("Copy Nameserver", systemImage: "doc.on.doc")
                 }

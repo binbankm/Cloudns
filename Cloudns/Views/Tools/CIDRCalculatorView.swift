@@ -20,11 +20,10 @@ struct CIDRCalculatorView: View {
     var body: some View {
         List {
             // 1. Input & Presets Section
-            Section(header: Text("CIDR Notation / IP Subnet"), footer: Text("Calculates usable IP host addresses, network broadcast bounds, netmasks & binary bitmasks.")) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+            Section {
+                HStack(spacing: 8) {
                     Image(systemName: "number.square.fill")
-                        .font(HIGTypography.body)
-                        .foregroundStyle(Color.higAccent)
+                        .foregroundStyle(.blue)
                         .accessibilityHidden(true)
                     
                     TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
@@ -32,7 +31,7 @@ struct CIDRCalculatorView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($isFieldFocused)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .onChange(of: viewModel.cidrInput) { _ in
                             viewModel.calculateSubnet()
                         }
@@ -46,44 +45,52 @@ struct CIDRCalculatorView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
-                        .higTouchTarget(44)
                         .accessibilityLabel("Clear Input")
                     }
                 }
                 
                 // Quick Presets
                 ScrollView(.horizontal) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         ForEach(presetCIDRs, id: \.self) { preset in
                             Button {
                                 viewModel.cidrInput = preset
                                 viewModel.calculateSubnet()
-                                HIGFeedback.selection()
+                                HapticManager.selection()
                             } label: {
                                 Text(preset)
-                                    .font(HIGTypography.caption.weight(.medium).monospacedDigit())
-                                    .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-                                    .padding(.vertical, HIGTokens.Spacing.xxs + 3)
-                                    .background(viewModel.cidrInput == preset ? Color.higAccent : Color.higAccent.opacity(0.12))
-                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : Color.higAccent)
+                                    .font(.caption.weight(.medium).monospacedDigit())
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.12))
+                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.higPressable)
+                            .buttonStyle(.plain)
                         }
                     }
                 }
                 .scrollIndicators(.hidden)
+            } header: {
+                Text("CIDR Notation / IP Subnet")
+            } footer: {
+                Text("Calculates usable IP host addresses, network broadcast bounds, netmasks & binary bitmasks.")
             }
             
             if let result = viewModel.subnetResult {
                 // 2. Subnet Range Hero Section
-                Section(header: Text("Subnet & Host Range")) {
+                Section("Subnet & Host Range") {
                     HStack {
                         Text("Usable Hosts Count")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Spacer()
-                        HIGBadge(.active("\(result.totalUsableHosts) Hosts"), isCompact: true)
+                        Text("\(result.totalUsableHosts) Hosts")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.blue)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.blue.opacity(0.12)))
                     }
                     
                     calcRow(label: "Network Address", value: result.networkAddress)
@@ -92,7 +99,7 @@ struct CIDRCalculatorView: View {
                 }
                 
                 // 3. Properties Section
-                Section(header: Text("Masks & Network Properties")) {
+                Section("Masks & Network Properties") {
                     calcRow(label: "Subnet Netmask", value: result.netmask)
                     calcRow(label: "Wildcard Mask", value: result.wildcardMask)
                     calcRow(label: "Prefix Length", value: "/\(result.prefixLength)")
@@ -100,36 +107,33 @@ struct CIDRCalculatorView: View {
                 }
                 
                 // 4. Binary Bitmask Section
-                Section(header: Text("Binary Bitmask")) {
+                Section("Binary Bitmask") {
                     HStack {
                         Text(result.binaryMask)
-                            .font(HIGTypography.caption.monospaced())
-                            .foregroundStyle(Color.higAccent)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.blue)
                             .textSelection(.enabled)
                         
                         Spacer()
                         
                         Button {
-                            UIPasteboard.general.string = result.binaryMask
-                            ToastManager.shared.showCopied("Binary Mask Copied")
-                            HIGFeedback.copied()
+                            copyToClipboard(result.binaryMask, toast: "Binary Mask Copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.higPressable)
-                        .higTouchTarget(44)
+                        .buttonStyle(.plain)
                     }
                 }
             } else if let error = viewModel.subnetError {
-                Section(header: Text("Error")) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                Section("Error") {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: error)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -147,30 +151,25 @@ struct CIDRCalculatorView: View {
     private func calcRow(label: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(label)
-                .font(HIGTypography.subheadline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(verbatim: value)
-                .font(HIGTypography.subheadline.monospacedDigit())
+                .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
             
             Button {
-                UIPasteboard.general.string = value
-                ToastManager.shared.showCopied("\(value) Copied")
-                HIGFeedback.copied()
+                copyToClipboard(value, toast: "\(value) Copied")
             } label: {
                 Image(systemName: "doc.on.doc")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.higPressable)
-            .higTouchTarget(44)
+            .buttonStyle(.plain)
         }
         .contextMenu {
             Button {
-                UIPasteboard.general.string = value
-                ToastManager.shared.showCopied("Value Copied")
-                HIGFeedback.copied()
+                copyToClipboard(value, toast: "Value Copied")
             } label: {
                 Label("Copy Value", systemImage: "doc.on.doc")
             }
