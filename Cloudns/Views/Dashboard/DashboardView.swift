@@ -50,7 +50,7 @@ struct DashboardView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         showingAccountSheet = true
                     } label: {
                         AccountAvatarView(identifier: accountManager.activeEmail, size: 34)

@@ -207,7 +207,7 @@ struct DashboardZoneTrafficChartView: View {
                                         // Find closest point by date
                                         if let closest = metrics.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) {
                                             if closest != selectedPoint {
-                                                HIGFeedback.selection()
+                                                HapticManager.selection()
                                                 selectedPoint = closest
                                             }
                                         }

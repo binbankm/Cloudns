@@ -43,7 +43,7 @@ struct ContentView: View {
                         router.activeDestination = nil
                         tabViewResetId = UUID()
                     }
-                    .onChange(of: selectedTab) { _ in HIGFeedback.selection() }
+                    .onChange(of: selectedTab) { _ in HapticManager.selection() }
                     .overlay(alignment: .top) {
                         if !networkMonitor.isConnected {
                             HStack(spacing: 6) {
@@ -78,7 +78,7 @@ struct ContentView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if !authManager.isUnlocked {
-                                    HIGFeedback.impact(.light)
+                                    HapticManager.impact(.light)
                                     authManager.authenticate()
                                 }
                             }
@@ -94,7 +94,7 @@ struct ContentView: View {
         .animation(.default, value: isLoggedIn)
         .animation(.default, value: hasSeenOnboarding)
         .overlay(alignment: .top) {
-            HIGToastOverlay()
+            ToastOverlay()
         }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
@@ -182,7 +182,7 @@ struct ContentView: View {
                     set: { newTab in
                         if let newTab {
                             selectedTab = newTab
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         }
                     }
                 )) {

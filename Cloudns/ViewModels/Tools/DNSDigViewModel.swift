@@ -35,10 +35,10 @@ final class DNSDigViewModel: BaseLoadableViewModel {
             let res = try await dnsService.performDNSLookup(domain: clean, type: selectedRecordType)
             self.dnsResult = res
             self.hasFetchedData = true
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
             self.dnsError = error.localizedDescription
-            HIGFeedback.error()
+            HapticManager.error()
         }
         isDnsLoading = false
     }
@@ -54,9 +54,9 @@ final class DNSDigViewModel: BaseLoadableViewModel {
             let res = try await dnsService.performDNSBenchmark(domain: clean, type: selectedRecordType)
             self.benchmarkResult = res
             self.hasFetchedData = true
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
-            HIGFeedback.error()
+            HapticManager.error()
         }
         isBenchmarkLoading = false
     }

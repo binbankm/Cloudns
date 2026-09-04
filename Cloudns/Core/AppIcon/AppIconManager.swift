@@ -111,7 +111,7 @@ public final class AppIconManager: ObservableObject {
         guard currentIcon != icon else { return }
         
         guard UIApplication.shared.supportsAlternateIcons else {
-            HIGFeedback.warning()
+            HapticManager.warning()
             return
         }
         
@@ -122,9 +122,9 @@ public final class AppIconManager: ObservableObject {
             try await UIApplication.shared.setAlternateIconName(icon.iconName)
             self.currentIcon = icon
             self.storedIconId = icon.rawValue
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
-            HIGFeedback.error()
+            HapticManager.error()
             self.syncCurrentIcon()
         }
     }

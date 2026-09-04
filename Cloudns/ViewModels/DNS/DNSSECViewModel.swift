@@ -25,7 +25,7 @@ final class DNSSECViewModel: BaseLoadableViewModel {
     func toggleDNSSEC() async {
         guard let current = dnssec else { return }
         
-        HIGFeedback.impact(.medium)
+        HapticManager.impact(.medium)
         
         await executeLoadingTask {
             let isActiveOrPending = current.status == "active" || current.status == "pending"

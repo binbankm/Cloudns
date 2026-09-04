@@ -22,7 +22,7 @@ public final class ThemeManager: ObservableObject {
     
     public func setThemeColor(_ theme: AppThemeColor) {
         guard currentColor != theme else { return }
-        HIGFeedback.selection()
+        HapticManager.selection()
         currentColor = theme
         storedColorKey = theme.rawValue
     }

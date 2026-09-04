@@ -103,7 +103,7 @@ struct DNSExportSheetView: View {
                         }
                         
                         Button {
-                            HIGFeedback.impact(.light)
+                            HapticManager.impact(.light)
                             showingFileExporter = true
                         } label: {
                             Label("Save to Files", systemImage: "folder")

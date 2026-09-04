@@ -2219,6 +2219,9 @@
         }
       }
     },
+    "%@ Hosts" : {
+
+    },
     "%@ ms" : {
       "localizations" : {
         "ar" : {
@@ -3359,6 +3362,9 @@
         }
       }
     },
+    "%lld ESM Modules" : {
+
+    },
     "%lld Exceptions Detected" : {
       "localizations" : {
         "ar" : {
@@ -4043,6 +4049,9 @@
         }
       }
     },
+    "%lld Records" : {
+
+    },
     "%lld Records Deleted" : {
       "localizations" : {
         "ar" : {
@@ -4419,6 +4428,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld Workers · %2$lld Pages"
+          }
+        }
+      }
+    },
+    "%lld/%lld Nodes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld Nodes"
           }
         }
       }
@@ -5880,6 +5899,9 @@
           }
         }
       }
+    },
+    "3 Hours" : {
+
     },
     "3 Months" : {
       "extractionState" : "manual",
@@ -9265,6 +9287,9 @@
         }
       }
     },
+    "Access Denied" : {
+
+    },
     "Access Policies (%lld)" : {
       "localizations" : {
         "ar" : {
@@ -9648,6 +9673,9 @@
           }
         }
       }
+    },
+    "Account Email Copied" : {
+
     },
     "Account ID Copied" : {
       "extractionState" : "manual",
@@ -45266,6 +45294,9 @@
         }
       }
     },
+    "Copied" : {
+
+    },
     "Copied to Clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -45496,6 +45527,9 @@
           }
         }
       }
+    },
+    "Copy %@" : {
+
     },
     "Copy %@ record: %@" : {
       "localizations" : {
@@ -66119,6 +66153,7 @@
       }
     },
     "Design System Showcase" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -80728,6 +80763,9 @@
         }
       }
     },
+    "ESM Module" : {
+
+    },
     "Español" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -84872,6 +84910,7 @@
       }
     },
     "Failed to delete zone" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -86402,6 +86441,7 @@
       }
     },
     "Failed to update status" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -112456,6 +112496,9 @@
         }
       }
     },
+    "Loading Table Data…" : {
+
+    },
     "Loading Tables…" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -118300,6 +118343,9 @@
           }
         }
       }
+    },
+    "Mismatch" : {
+
     },
     "Mode" : {
       "extractionState" : "manual",
@@ -126070,6 +126116,9 @@
         }
       }
     },
+    "No Data" : {
+
+    },
     "No degraded services or active outages detected right now." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -126452,6 +126501,9 @@
           }
         }
       }
+    },
+    "No diagnostics tools matching '%@'." : {
+
     },
     "No DNS Records" : {
       "extractionState" : "manual",
@@ -153494,6 +153546,9 @@
         }
       }
     },
+    "Records Imported Successfully" : {
+
+    },
     "Records to Create (%lld)" : {
       "localizations" : {
         "ar" : {
@@ -177920,6 +177975,9 @@
         }
       }
     },
+    "subdomain off" : {
+
+    },
     "Subdomain URL Copied" : {
       "localizations" : {
         "ar" : {
@@ -200119,6 +200177,9 @@
           }
         }
       }
+    },
+    "workers.dev" : {
+
     },
     "workers.dev Subdomain" : {
       "extractionState" : "manual",

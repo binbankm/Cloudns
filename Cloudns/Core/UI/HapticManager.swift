@@ -57,6 +57,3 @@ public enum HapticManager {
         impact(.medium)
     }
 }
-
-// Backward compatibility forwarder
-public typealias HIGFeedback = HapticManager

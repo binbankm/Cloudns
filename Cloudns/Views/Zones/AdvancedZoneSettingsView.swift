@@ -70,9 +70,9 @@ struct AdvancedZoneSettingsView: View {
                     set: { newValue in
                         isPaused = newValue
                         if newValue {
-                            HIGFeedback.warning()
+                            HapticManager.warning()
                         } else {
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         }
                         Task {
                             await updatePauseStatus(paused: newValue)
@@ -98,7 +98,7 @@ struct AdvancedZoneSettingsView: View {
                 footer: Text("Removing this zone will permanently delete all its DNS records, firewall rules, and certificates from Cloudflare.")
             ) {
                 Button(action: {
-                    HIGFeedback.destructive()
+                    HapticManager.destructive()
                     showDeleteConfirmation = true
                 }) {
                     HStack(spacing: 12) {
@@ -154,7 +154,7 @@ struct AdvancedZoneSettingsView: View {
                 isLoading = false
                 isPaused = !paused // Revert UI
                 errorMessage = error.localizedDescription
-                HIGFeedback.error()
+                HapticManager.error()
             }
         }
     }
@@ -165,7 +165,7 @@ struct AdvancedZoneSettingsView: View {
             _ = try await ZoneService.shared.deleteZone(zoneId: zoneId)
             await MainActor.run {
                 isDeleting = false
-                HIGFeedback.success()
+                HapticManager.success()
                 NotificationCenter.default.post(name: .zoneDeleted, object: nil, userInfo: ["zoneId": zoneId])
                 dismiss()
             }
@@ -173,7 +173,7 @@ struct AdvancedZoneSettingsView: View {
             await MainActor.run {
                 isDeleting = false
                 errorMessage = error.localizedDescription
-                HIGFeedback.error()
+                HapticManager.error()
             }
         }
     }

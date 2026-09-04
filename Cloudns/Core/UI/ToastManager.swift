@@ -154,5 +154,3 @@ public struct ToastOverlay: View {
         .animation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.8), value: toastManager.currentToast)
     }
 }
-
-public typealias HIGToastOverlay = ToastOverlay

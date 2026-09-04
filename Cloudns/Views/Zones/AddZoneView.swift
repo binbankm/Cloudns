@@ -135,11 +135,11 @@ struct AddZoneView: View {
                                     isSubmitting = true
                                     if let newZone = await viewModel.addZone(name: domainName.trimmingCharacters(in: .whitespacesAndNewlines)) {
                                         ToastManager.shared.showSuccess("Domain Added", icon: "checkmark.circle.fill")
-                                        HIGFeedback.success()
+                                        HapticManager.success()
                                         createdZone = newZone
                                     } else {
                                         ToastManager.shared.showError(LocalizedStringKey(viewModel.addZoneError ?? "Failed to Add Domain"))
-                                        HIGFeedback.error()
+                                        HapticManager.error()
                                     }
                                     isSubmitting = false
                                 }

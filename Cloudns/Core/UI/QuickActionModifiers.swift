@@ -9,7 +9,7 @@ import UIKit
 public func copyToClipboard(_ text: String, toast: LocalizedStringKey? = nil) {
     guard !text.isEmpty else { return }
     UIPasteboard.general.string = text
-    HIGFeedback.copied()
+    HapticManager.copied()
     if let toast {
         ToastManager.shared.showCopied(toast)
     }

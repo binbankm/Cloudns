@@ -102,7 +102,7 @@ struct ZonesListView: View {
             presenting: zoneToDelete
         ) { zone in
             Button("Delete \(zone.name)", role: .destructive) {
-                HIGFeedback.destructive()
+                HapticManager.destructive()
                 Task {
                     await viewModel.deleteZone(zoneId: zone.id)
                 }
@@ -139,7 +139,7 @@ struct ZonesListView: View {
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        HIGFeedback.destructive()
+                        HapticManager.destructive()
                         zoneToDelete = zone
                         showingDeleteAlert = true
                     } label: {

@@ -81,7 +81,7 @@ struct DNSSECView: View {
                 Toggle(isOn: Binding(
                     get: { status == "active" || status == "pending" },
                     set: { _ in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         Task { await viewModel.toggleDNSSEC() }
                     }
                 )) {

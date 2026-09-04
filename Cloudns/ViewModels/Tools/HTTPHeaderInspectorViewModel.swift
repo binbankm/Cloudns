@@ -31,10 +31,10 @@ final class HTTPHeaderInspectorViewModel: BaseLoadableViewModel {
             let res = try await httpService.inspectHTTPHeaders(urlString: clean, method: httpMethod)
             self.httpResult = res
             self.hasFetchedData = true
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
             self.httpError = error.localizedDescription
-            HIGFeedback.error()
+            HapticManager.error()
         }
         isHttpLoading = false
     }
