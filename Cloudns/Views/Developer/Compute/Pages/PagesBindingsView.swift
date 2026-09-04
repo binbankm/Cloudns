@@ -98,11 +98,11 @@ struct PagesBindingsView: View {
                 Text("Preview (\(previewResourcesCount))").tag("preview")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal, HIGTokens.Spacing.md)
-            .padding(.vertical, HIGTokens.Spacing.sm)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
             .onChange(of: selectedEnv) { _ in
-                HIGFeedback.selection()
+                HapticManager.selection()
             }
             
             contentList
@@ -118,7 +118,6 @@ struct PagesBindingsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Attach Resource")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
@@ -134,7 +133,6 @@ struct PagesBindingsView: View {
                     previewEnvVars = updated
                 }
             }
-            .higToast()
         }
         .sheet(isPresented: $showingAttachResourceSheet) {
             PagesAttachResourceBindingSheetView(
@@ -158,7 +156,6 @@ struct PagesBindingsView: View {
                     previewAI = ai
                 }
             }
-            .higToast()
         }
         .sheet(item: Binding(
             get: { variableToEdit.map { EditVarWrapper(name: $0.name, value: $0.value) } },
@@ -179,7 +176,6 @@ struct PagesBindingsView: View {
                     previewEnvVars = updated
                 }
             }
-            .higToast()
         }
         .confirmationDialog("Delete Variable", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: varNameToDelete) { varName in
             Button("Delete '\(varName)'", role: .destructive) {
@@ -206,31 +202,34 @@ struct PagesBindingsView: View {
             if !currentKV.isEmpty {
                 Section(header: Text("KV Namespaces (\(currentKV.count))")) {
                     ForEach(Array(currentKV.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "key.fill", color: .purple)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(key)
-                                    .font(HIGTypography.body.monospaced().weight(.semibold))
+                                    .font(.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let ns = currentKV[key]?.namespaceId {
                                     Text(ns)
-                                        .font(HIGTypography.caption2.monospaced())
+                                        .font(.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
                                 }
                             }
                             Spacer()
-                            HIGBadge(.custom(color: .purple, text: "KV"), isCompact: true)
+                            Text("KV")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.purple)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.purple.opacity(0.12)))
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied("Binding Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(key, toast: "Binding Name Copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -248,7 +247,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -258,31 +257,34 @@ struct PagesBindingsView: View {
             if !currentD1.isEmpty {
                 Section(header: Text("D1 Databases (\(currentD1.count))")) {
                     ForEach(Array(currentD1.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(key)
-                                    .font(HIGTypography.body.monospaced().weight(.semibold))
+                                    .font(.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let id = currentD1[key]?.id {
                                     Text(id)
-                                        .font(HIGTypography.caption2.monospaced())
+                                        .font(.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
                                 }
                             }
                             Spacer()
-                            HIGBadge(.custom(color: .indigo, text: "D1"), isCompact: true)
+                            Text("D1")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.indigo)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.indigo.opacity(0.12)))
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied("Binding Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(key, toast: "Binding Name Copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -300,7 +302,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -310,31 +312,34 @@ struct PagesBindingsView: View {
             if !currentR2.isEmpty {
                 Section(header: Text("R2 Buckets (\(currentR2.count))")) {
                     ForEach(Array(currentR2.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "externaldrive.fill", color: .blue)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(key)
-                                    .font(HIGTypography.body.monospaced().weight(.semibold))
+                                    .font(.body.monospaced().weight(.semibold))
                                     .foregroundStyle(.primary)
                                 if let bucket = currentR2[key]?.name {
                                     Text(bucket)
-                                        .font(HIGTypography.caption2.monospaced())
+                                        .font(.caption2.monospaced())
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
                                 }
                             }
                             Spacer()
-                            HIGBadge(.custom(color: .blue, text: "R2"), isCompact: true)
+                            Text("R2")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.blue.opacity(0.12)))
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied("Binding Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(key, toast: "Binding Name Copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -352,7 +357,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -362,22 +367,25 @@ struct PagesBindingsView: View {
             if !currentAI.isEmpty {
                 Section(header: Text("Workers AI (\(currentAI.count))")) {
                     ForEach(Array(currentAI.keys.sorted()), id: \.self) { key in
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "brain.head.profile", color: .pink)
                             
                             Text(key)
-                                .font(HIGTypography.body.monospaced().weight(.semibold))
+                                .font(.body.monospaced().weight(.semibold))
                                 .foregroundStyle(.primary)
                             Spacer()
-                            HIGBadge(.custom(color: .pink, text: "AI"), isCompact: true)
+                            Text("AI")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.pink)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.pink.opacity(0.12)))
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = key
-                                ToastManager.shared.showCopied("Binding Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(key, toast: "Binding Name Copied")
                             } label: {
                                 Label("Copy Binding Name", systemImage: "doc.on.doc")
                             }
@@ -395,7 +403,7 @@ struct PagesBindingsView: View {
                             } label: {
                                 Label("Unbind", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -405,39 +413,34 @@ struct PagesBindingsView: View {
             Section(header: Text("Compatibility Settings")) {
                 HStack {
                     Text("Compatibility Date")
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(currentConfig?.compatibilityDate ?? "Default")
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                 }
                 
                 if let flags = currentConfig?.compatibilityFlags, !flags.isEmpty {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Compatibility Flags")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         Text(flags.joined(separator: ", "))
-                            .font(HIGTypography.caption.monospaced())
+                            .font(.caption.monospaced())
                             .foregroundStyle(.primary)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if currentStorageResourcesCount == 0 {
-                HIGContentState(
-                    .empty(
-                        title: "No Resource Bindings",
-                        systemImage: "link.badge.plus",
-                        description: "Bind Cloudflare KV, D1, R2, or AI directly to \(selectedEnv.capitalized) environment.",
-                        actionTitle: "Attach Resource",
-                        action: { showingAttachResourceSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isEmpty: currentStorageResourcesCount == 0,
+            emptyTitle: "No Resource Bindings",
+            emptySystemImage: "link.badge.plus",
+            emptyDescription: "Bind Cloudflare KV, D1, R2, or AI directly to \(selectedEnv.capitalized) environment.",
+            emptyActionTitle: "Attach Resource",
+            emptyAction: { showingAttachResourceSheet = true }
+        )
     }
     
     private func deleteVariable(name: String) async {
@@ -461,10 +464,10 @@ struct PagesBindingsView: View {
                 envVars: updated
             )
             ToastManager.shared.showSuccess("Variable Deleted", icon: "trash.fill")
-            HIGFeedback.success()
+            HapticManager.notification(.success)
         } catch {
             ToastManager.shared.showError("Failed to Delete Variable")
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
         isDeleting = false
     }
@@ -509,10 +512,10 @@ struct PagesBindingsView: View {
                 aiBindings: updatedAI
             )
             ToastManager.shared.showSuccess("Resource Unbound", icon: "link.badge.plus")
-            HIGFeedback.success()
+            HapticManager.notification(.success)
         } catch {
             ToastManager.shared.showError("Failed to Unbind Resource")
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
         isDeleting = false
     }
@@ -577,11 +580,11 @@ struct PagesAttachResourceBindingSheetView: View {
                 
                 Section(header: Text("Resource Selection")) {
                     if bindingType == "ai" {
-                        HStack(spacing: HIGTokens.Spacing.sm + 2) {
+                        HStack(spacing: 10) {
                             Image(systemName: "brain.head.profile")
                                 .foregroundStyle(.pink)
                             Text("Workers AI runtime binding requires no external ID.")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     } else if !isCustomInput && hasExistingResources(for: bindingType) {
@@ -598,7 +601,7 @@ struct PagesAttachResourceBindingSheetView: View {
                             .keyboardType(.asciiCapable)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                         
                         if hasExistingResources(for: bindingType) {
                             Button {
@@ -606,7 +609,7 @@ struct PagesAttachResourceBindingSheetView: View {
                                 autoSelectFirstResource(for: bindingType)
                             } label: {
                                 Text("Choose from existing account resources")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                             }
                         }
                     }
@@ -617,17 +620,17 @@ struct PagesAttachResourceBindingSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -639,7 +642,6 @@ struct PagesAttachResourceBindingSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Attach") {
@@ -673,17 +675,16 @@ struct PagesAttachResourceBindingSheetView: View {
                                 )
                                 onSave(environment, updatedKV, updatedD1, updatedR2, updatedAI)
                                 ToastManager.shared.showSuccess("Resource Attached", icon: "link.badge.plus")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(variableName.trimmingCharacters(in: .whitespaces).isEmpty || (bindingType != "ai" && resourceTarget.trimmingCharacters(in: .whitespaces).isEmpty) || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

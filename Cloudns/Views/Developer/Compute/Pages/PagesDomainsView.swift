@@ -24,7 +24,6 @@ struct PagesDomainsView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Custom Domain")
-                    .higTouchTarget(44)
                 }
             }
             .refreshable {
@@ -32,7 +31,6 @@ struct PagesDomainsView: View {
             }
             .sheet(isPresented: $showingAddDomainSheet) {
                 AddPagesDomainSheetView(viewModel: viewModel)
-                    .higToast()
             }
             .confirmationDialog("Delete Domain", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: domainToDelete) { dom in
                 Button("Delete '\(dom.name)'", role: .destructive) {
@@ -40,10 +38,10 @@ struct PagesDomainsView: View {
                         do {
                             try await viewModel.deleteDomain(name: dom.name)
                             ToastManager.shared.showSuccess("Custom Domain Removed", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                         } catch {
                             ToastManager.shared.showError("Failed to Remove Domain")
-                            HIGFeedback.error()
+                            HapticManager.notification(.error)
                         }
                     }
                 }
@@ -62,9 +60,7 @@ struct PagesDomainsView: View {
                         domainRow(domain)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = domain.name
-                                    ToastManager.shared.showCopied("Domain Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(domain.name, toast: "Domain Copied")
                                 } label: {
                                     Label("Copy Domain", systemImage: "doc.on.doc")
                                 }
@@ -80,67 +76,68 @@ struct PagesDomainsView: View {
                                 Button(role: .destructive) {
                                     domainToDelete = domain
                                     showingDeleteAlert = true
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                 } label: {
                                     Label("Delete Domain", systemImage: "trash")
                                 }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     domainToDelete = domain
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Custom Domains…"))
-            } else if viewModel.hasFetchedData && viewModel.domains.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Custom Domains",
-                        systemImage: "globe",
-                        description: "Connect your own apex domain or subdomain to serve this Pages project.",
-                        actionTitle: "Add Domain",
-                        action: { showingAddDomainSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Custom Domains…",
+            isEmpty: viewModel.hasFetchedData && viewModel.domains.isEmpty,
+            emptyTitle: "No Custom Domains",
+            emptySystemImage: "globe",
+            emptyDescription: "Connect your own apex domain or subdomain to serve this Pages project.",
+            emptyActionTitle: "Add Domain",
+            emptyAction: { showingAddDomainSheet = true }
+        )
     }
     
     @ViewBuilder
     private func domainRow(_ domain: PagesDomain) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "globe", color: .blue)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(domain.name)
-                    .font(HIGTypography.body)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
                 if let status = domain.status {
                     Text(status.capitalized)
-                        .font(HIGTypography.caption2)
-                        .foregroundStyle(status.lowercased() == "active" ? HIGColors.success : .orange)
+                        .font(.caption2)
+                        .foregroundStyle(status.lowercased() == "active" ? .green : .orange)
                 }
             }
             
             Spacer()
             
             if let status = domain.status {
-                HIGBadge(status.lowercased() == "active" ? .active : .warning(status.capitalized), isCompact: true)
+                let isActive = status.lowercased() == "active"
+                Text(status.capitalized)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(isActive ? .green : .orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill((isActive ? Color.green : Color.orange).opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -162,7 +159,7 @@ struct AddPagesDomainSheetView: View {
                     footer: Text("Enter the custom domain or subdomain you want to route to this project (e.g. blog.example.com).")
                 ) {
                     TextField("blog.example.com", text: $domain)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -171,12 +168,12 @@ struct AddPagesDomainSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -188,7 +185,6 @@ struct AddPagesDomainSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
@@ -198,17 +194,16 @@ struct AddPagesDomainSheetView: View {
                             do {
                                 try await viewModel.addDomain(name: domain.trimmingCharacters(in: .whitespaces))
                                 ToastManager.shared.showSuccess("Domain Connected", icon: "globe")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isAdding = false
                         }
                     }
                     .disabled(domain.trimmingCharacters(in: .whitespaces).isEmpty || isAdding)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isAdding)

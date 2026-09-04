@@ -27,7 +27,7 @@ struct QueueDetailView: View {
                 Task {
                     await viewModel.deleteQueue(queueId: queue.id)
                     ToastManager.shared.showSuccess("Queue Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                     dismiss()
                 }
             }
@@ -40,7 +40,7 @@ struct QueueDetailView: View {
                 Task {
                     await viewModel.purgeQueue(queueId: queue.id)
                     ToastManager.shared.showSuccess("Queue Purged", icon: "xmark.bin.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -57,14 +57,12 @@ struct QueueDetailView: View {
             if let id = queue.queueId {
                 LabeledContent("Queue ID") {
                     Text(id)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 .contextMenu {
                     Button {
-                        UIPasteboard.general.string = id
-                        ToastManager.shared.showCopied("Queue ID Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(id, toast: "Queue ID Copied")
                     } label: {
                         Label("Copy Queue ID", systemImage: "doc.on.doc")
                     }
@@ -86,14 +84,14 @@ struct QueueDetailView: View {
         if let producers = queue.producers, !producers.isEmpty {
             Section(header: Text("Producers (\(producers.count))")) {
                 ForEach(producers) { p in
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.up.right", color: .blue)
                         Text(p.script ?? p.service ?? "Worker")
-                            .font(HIGTypography.body)
+                            .font(.body)
                         Spacer()
                         if let env = p.environment {
                             Text(env)
-                                .font(HIGTypography.caption2)
+                                .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -107,14 +105,14 @@ struct QueueDetailView: View {
         if let consumers = queue.consumers, !consumers.isEmpty {
             Section(header: Text("Consumers (\(consumers.count))")) {
                 ForEach(consumers) { c in
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "arrow.down.left", color: HIGColors.success)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "arrow.down.left", color: .green)
                         Text(c.scriptName ?? c.service ?? "Worker")
-                            .font(HIGTypography.body.weight(.medium))
+                            .font(.body.weight(.medium))
                         Spacer()
                         if let batch = c.settings?.batchSize {
                             Text("Batch: \(batch)")
-                                .font(HIGTypography.caption2)
+                                .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -128,19 +126,17 @@ struct QueueDetailView: View {
         Section(header: Text("Danger Zone")) {
             Button(role: .destructive) {
                 showingPurgeAlert = true
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
             } label: {
                 Label("Purge All Messages", systemImage: "xmark.bin")
             }
-            .higTouchTarget(44)
             
             Button(role: .destructive) {
                 showingDeleteAlert = true
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
             } label: {
                 Label("Delete Queue", systemImage: "trash")
             }
-            .higTouchTarget(44)
         }
     }
 }

@@ -37,12 +37,12 @@ struct WorkerDetailView: View {
         List {
             // MARK: - Hero & Script Overview Card
             Section {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
-                    HStack(alignment: .top, spacing: HIGTokens.Spacing.md) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "bolt.fill")
-                            .font(HIGTypography.title2)
+                            .font(.title2)
                             .foregroundStyle(.white)
-                            .frame(width: HIGTokens.Size.minTouchTarget, height: HIGTokens.Size.minTouchTarget)
+                            .frame(width: 44, height: 44)
                             .background(
                                 LinearGradient(
                                     colors: [Color.orange, Color.orange.opacity(0.8)],
@@ -50,25 +50,40 @@ struct WorkerDetailView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
                             .accessibilityHidden(true)
                         
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(viewModel.worker.id)
-                                .font(HIGTypography.title3.weight(.bold))
+                                .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
-                            HStack(spacing: HIGTokens.Spacing.xs) {
-                                HIGBadge(.active((viewModel.worker.usageModel ?? "Standard").capitalized), isCompact: true)
+                            HStack(spacing: 6) {
+                                Text((viewModel.worker.usageModel ?? "Standard").capitalized)
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(.green)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Capsule().fill(Color.green.opacity(0.12)))
                                 
                                 if !viewModel.modules.isEmpty {
-                                    HIGBadge(.custom(color: .purple, text: viewModel.modules.count > 1 ? "\(viewModel.modules.count) ESM Modules" : "ESM Module"), isCompact: true)
+                                    Text(viewModel.modules.count > 1 ? "\(viewModel.modules.count) ESM Modules" : "ESM Module")
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(.purple)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill(Color.purple.opacity(0.12)))
                                 }
                                 
                                 if let sub = viewModel.subdomain {
-                                    HIGBadge(sub.enabled ? .active("workers.dev") : .custom(color: .secondary, text: "subdomain off"), isCompact: true)
+                                    Text(sub.enabled ? "workers.dev" : "subdomain off")
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(sub.enabled ? .green : .secondary)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill((sub.enabled ? Color.green : Color.secondary).opacity(0.12)))
                                 }
                             }
                         }
@@ -77,27 +92,27 @@ struct WorkerDetailView: View {
                     if let sub = viewModel.subdomain {
                         Divider()
                         
-                        HStack(spacing: HIGTokens.Spacing.md) {
-                            ListRowIcon(icon: "link", color: HIGColors.success, size: 28, cornerRadius: HIGTokens.Radius.sm)
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "link", color: .green, size: 28, cornerRadius: 6)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("workers.dev Subdomain")
-                                    .font(HIGTypography.caption2)
+                                    .font(.caption2)
                                     .foregroundStyle(.secondary)
                                 if sub.enabled {
                                     if let id = sub.id, !id.isEmpty {
                                         Text(id.hasPrefix("http") ? id : "https://\(id)")
-                                            .font(HIGTypography.caption.monospaced())
+                                            .font(.caption.monospaced())
                                             .foregroundStyle(.primary)
                                             .lineLimit(1)
                                     } else {
                                         Text("Enabled (workers.dev)")
-                                            .font(HIGTypography.caption.weight(.medium))
-                                            .foregroundStyle(HIGColors.success)
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(.green)
                                     }
                                 } else {
                                     Text("Disabled")
-                                        .font(HIGTypography.caption)
+                                        .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
                             }
@@ -108,19 +123,16 @@ struct WorkerDetailView: View {
                                 if let id = sub.id, !id.isEmpty {
                                     let urlStr = id.hasPrefix("http") ? id : "https://\(id)"
                                     Button {
-                                        UIPasteboard.general.string = urlStr
-                                        ToastManager.shared.showCopied("Subdomain URL Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(urlStr, toast: "Subdomain URL Copied")
                                     } label: {
                                         Image(systemName: "doc.on.doc")
-                                            .font(HIGTypography.caption)
+                                            .font(.caption)
                                             .foregroundStyle(.secondary)
                                             .frame(width: 28, height: 28)
                                             .background(Color(.tertiarySystemFill))
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(.plain)
-                                    .higTouchTarget(44)
                                     .accessibilityLabel("Copy Subdomain URL")
                                 }
                             }
@@ -136,7 +148,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
             
             // MARK: - Script Details
@@ -144,13 +156,13 @@ struct WorkerDetailView: View {
                 if !viewModel.scriptContent.isEmpty {
                     LabeledContent {
                         Text(verbatim: ByteCountFormatters.format(viewModel.scriptContent.utf8.count))
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "doc.zipper", color: .blue)
                             Text("Total Size")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -159,13 +171,13 @@ struct WorkerDetailView: View {
                 if let compat = viewModel.worker.compatibilityDate {
                     LabeledContent {
                         Text(compat)
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "calendar.badge.clock", color: .orange)
                             Text("Compatibility Date")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -174,13 +186,13 @@ struct WorkerDetailView: View {
                 if let modified = viewModel.worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                     LabeledContent {
                         Text(date.displayFormatted(date: .abbreviated, time: .shortened))
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple)
                             Text("Last Modified")
-                                .font(HIGTypography.body)
+                                .font(.body)
                                 .foregroundStyle(.primary)
                         }
                     }
@@ -192,10 +204,10 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerAnalyticsView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "chart.xyaxis.line", color: .purple)
                         Text("Analytics & Metrics")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -209,15 +221,15 @@ struct WorkerDetailView: View {
                         singleScriptContent: viewModel.scriptContent
                     )
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "curlybraces", color: .blue)
                         Text("Source Code")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.scriptContent.isEmpty {
                             Text(verbatim: ByteCountFormatters.format(viewModel.scriptContent.utf8.count))
-                                .font(HIGTypography.subheadline.monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -226,10 +238,10 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerDeploymentsView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "clock.arrow.circlepath", color: .orange)
                         Text("Deployments History")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -238,15 +250,15 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerRoutesView(accountId: accountId, scriptName: worker.id, fallbackRoutes: worker.routes ?? [])
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "globe", color: .blue)
                         Text("Domains & Routes")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if let routes = worker.routes, !routes.isEmpty {
                             Text("\(routes.count)")
-                                .font(HIGTypography.subheadline.monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -255,10 +267,10 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerSecretsView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "key.fill", color: HIGColors.success)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "key.fill", color: .green)
                         Text("Variables & Secrets")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -267,15 +279,15 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "link.badge.plus", color: .indigo)
                         Text("Resource Bindings")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.bindings.isEmpty {
                             Text("\(viewModel.bindings.count)")
-                                .font(HIGTypography.subheadline.monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -284,15 +296,15 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerTriggersView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "clock", color: .purple)
                         Text("Cron Triggers")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.schedules.isEmpty {
                             Text("\(viewModel.schedules.count)")
-                                .font(HIGTypography.subheadline.monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -301,10 +313,10 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerTailView(accountId: accountId, scriptName: worker.id)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "terminal.fill", color: .teal)
                         Text("Real-Time Logs")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -316,10 +328,10 @@ struct WorkerDetailView: View {
                 NavigationLink {
                     WorkerTestView(scriptName: worker.id, initialRoute: worker.routes?.first)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "play.fill", color: HIGColors.success)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "play.fill", color: .green)
                         Text("Test Dispatch")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }

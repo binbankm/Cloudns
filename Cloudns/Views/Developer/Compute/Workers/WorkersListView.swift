@@ -27,9 +27,7 @@ struct WorkersListView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = worker.id
-                                ToastManager.shared.showCopied("Worker Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(worker.id, toast: "Worker Name Copied")
                             } label: {
                                 Label("Copy Name", systemImage: "doc.on.doc")
                             }
@@ -37,7 +35,7 @@ struct WorkersListView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 workerToDelete = worker
                                 showingDeleteWorkerAlert = true
                             } label: {
@@ -46,45 +44,33 @@ struct WorkersListView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 workerToDelete = worker
                                 showingDeleteWorkerAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Workers…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.workers.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchData() } }
-                        )
-                    )
-                } else if viewModel.workers.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Workers Found",
-                            systemImage: "bolt.badge.clock",
-                            description: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
-                            actionTitle: "Create Worker",
-                            action: { showingCreateWorkerSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredWorkers.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Workers…",
+            isEmpty: viewModel.hasFetchedData && viewModel.workers.isEmpty,
+            emptyTitle: "No Workers Found",
+            emptySystemImage: "bolt.badge.clock",
+            emptyDescription: "You haven't deployed any Cloudflare Workers scripts to this account yet.",
+            emptyActionTitle: "Create Worker",
+            emptyAction: { showingCreateWorkerSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredWorkers.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: (viewModel.hasFetchedData && viewModel.workers.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchData() } }
+        )
         .searchable(
             text: $viewModel.searchText,
             placement: .navigationBarDrawer(displayMode: .always),
@@ -100,7 +86,6 @@ struct WorkersListView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Worker")
-                .higTouchTarget()
                 .keyboardShortcut("n", modifiers: .command)
             }
         }
@@ -108,14 +93,13 @@ struct WorkersListView: View {
             WorkerCreateSheetView(viewModel: viewModel)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .higToast()
         }
         .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in
             Button("Delete '\(worker.id)'", role: .destructive) {
                 Task {
                     await viewModel.deleteWorker(name: worker.id)
                     ToastManager.shared.showSuccess("Worker Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -137,26 +121,31 @@ struct WorkerRowView: View {
     let worker: WorkerScript
     
     var body: some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
-            ListRowIcon(icon: "bolt.fill", color: Color.higAccent)
+        HStack(alignment: .center, spacing: 12) {
+            ListRowIcon(icon: "bolt.fill", color: .accentColor)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(worker.id)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let modified = worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                     Text("Updated \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
             
             Spacer()
             
-            HIGBadge(.active, isCompact: true)
+            Text("Active")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.green.opacity(0.12)))
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -191,8 +180,8 @@ struct WorkerCreateSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -212,11 +201,11 @@ struct WorkerCreateSheetView: View {
                             do {
                                 try await viewModel.createWorker(name: name.trimmingCharacters(in: .whitespaces), code: templateCode)
                                 ToastManager.shared.showSuccess("Worker Created", icon: "bolt.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }

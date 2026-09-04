@@ -44,45 +44,60 @@ public struct WorkerAnalyticsView: View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
             headerBar
-                .padding(.horizontal, HIGTokens.Spacing.md)
-                .padding(.top, HIGTokens.Spacing.sm + 4)
-                .padding(.bottom, HIGTokens.Spacing.sm + 4)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Worker Analytics…"))
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text("Loading Worker Analytics…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
-                    VStack {
+                    VStack(spacing: 16) {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            HIGContentState(
-                                .error(
-                                    message: LocalizedStringKey(errorMessage),
-                                    retryAction: {
-                                        Task { await viewModel.fetchAnalytics(isRefresh: true) }
-                                    }
-                                )
-                            )
+                            VStack(spacing: 12) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.red)
+                                Text(errorMessage)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                Button("Retry") {
+                                    Task { await viewModel.fetchAnalytics(isRefresh: true) }
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
                         } else {
-                            HIGContentState(
-                                .empty(
-                                    title: "No Invocations Data",
-                                    systemImage: "chart.xyaxis.line",
-                                    description: "No Worker invocations recorded for \(scriptName) in the selected time range."
-                                )
-                            )
+                            VStack(spacing: 12) {
+                                Image(systemName: "chart.xyaxis.line")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.secondary)
+                                Text("No Invocations Data")
+                                    .font(.headline)
+                                Text("No Worker invocations recorded for \(scriptName) in the selected time range.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
                         }
                         Spacer(minLength: 80)
                     }
                     .frame(minHeight: 450)
-                    .padding(.horizontal, HIGTokens.Spacing.md)
+                    .padding(.horizontal, 16)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(isRefresh: true)
                 }
             } else {
                 ScrollView {
-                    VStack(spacing: HIGTokens.Spacing.md) {
+                    VStack(spacing: 16) {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
@@ -95,8 +110,8 @@ public struct WorkerAnalyticsView: View {
                         // 5. Performance Insights Card
                         insightsCard
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.md)
-                    .padding(.bottom, HIGTokens.Spacing.xl)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
@@ -105,7 +120,7 @@ public struct WorkerAnalyticsView: View {
                 }
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("Worker Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -117,18 +132,18 @@ public struct WorkerAnalyticsView: View {
     
     // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
+        HStack(alignment: .center, spacing: 8) {
             Image(systemName: "curlybraces.square.fill")
                 .foregroundStyle(.purple)
-                .font(HIGTypography.title3)
+                .font(.title3)
             
             Text(scriptName)
-                .font(HIGTypography.headline.weight(.semibold))
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             
-            Spacer(minLength: HIGTokens.Spacing.xxs)
+            Spacer(minLength: 4)
             
             Picker("Range", selection: $viewModel.selectedDays) {
                 Text("24h").tag(1)
@@ -138,7 +153,7 @@ public struct WorkerAnalyticsView: View {
             .pickerStyle(.segmented)
             .frame(width: 155)
             .onChange(of: viewModel.selectedDays) { _ in
-                HIGFeedback.impact(.light)
+                HapticManager.impact(.light)
                 selectedPoint = nil
                 selectedCpuPoint = nil
                 Task {
@@ -146,14 +161,14 @@ public struct WorkerAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.md - 2)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .padding(14)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 2. 4 Metrics Cards Grid
     private var metricsGrid: some View {
-        Grid(horizontalSpacing: HIGTokens.Spacing.sm, verticalSpacing: HIGTokens.Spacing.sm) {
+        Grid(horizontalSpacing: 8, verticalSpacing: 8) {
             GridRow {
                 metricCard(
                     title: "Invocations",
@@ -167,7 +182,7 @@ public struct WorkerAnalyticsView: View {
                     title: "Error Rate",
                     value: (viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1))),
                     icon: "exclamationmark.triangle.fill",
-                    color: viewModel.errorRatePercentage > 0 ? HIGColors.error : HIGColors.success,
+                    color: viewModel.errorRatePercentage > 0 ? .red : .green,
                     badge: "\(MetricFormatters.compactNumber(viewModel.totalErrors)) Errors"
                 )
             }
@@ -193,20 +208,20 @@ public struct WorkerAnalyticsView: View {
     }
     
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 2) {
-            HStack(spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
                         .frame(width: 22, height: 22)
                     Image(systemName: icon)
-                        .font(HIGTypography.caption2.weight(.semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)
                 
                 Text(title)
-                    .font(HIGTypography.caption.weight(.medium))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 
@@ -216,7 +231,7 @@ public struct WorkerAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(value)
-                .font(HIGTypography.title2.weight(.bold).monospacedDigit())
+                .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -224,45 +239,45 @@ public struct WorkerAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(badge)
-                .font(HIGTypography.caption2)
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .padding(HIGTokens.Spacing.sm + 4)
+        .padding(12)
         .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private var invocationsLineChartCard: some View {
         let maxReq = viewModel.dataPoints.map { $0.requests }.max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
-        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
-                            .font(HIGTypography.caption.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .foregroundStyle(.purple)
                         Text("Invocations Traffic")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
-                    HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs) {
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
-                            .font(HIGTypography.title.weight(.bold).monospacedDigit())
+                            .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
                         Text(selectedPoint != nil ? "requests" : "total")
-                            .font(HIGTypography.caption.weight(.medium))
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                         
                         if let selected = selectedPoint, selected.errors > 0 {
                             Text("(\(selected.errors) errors)")
-                                .font(HIGTypography.caption.weight(.bold))
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -271,21 +286,21 @@ public struct WorkerAnalyticsView: View {
                 
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 4) {
                         Circle()
                             .fill(Color.purple)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
+                            .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.sm)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
                     .background(Color.purple.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -320,8 +335,8 @@ public struct WorkerAnalyticsView: View {
                             y: .value("Errors", pt.errors),
                             width: .fixed(6)
                         )
-                        .foregroundStyle(HIGColors.error.opacity(0.85))
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                        .foregroundStyle(Color.red.opacity(0.85))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
                 
@@ -366,7 +381,7 @@ public struct WorkerAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -377,7 +392,7 @@ public struct WorkerAnalyticsView: View {
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
                             Text(verbatim: MetricFormatters.compactNumber(count))
-                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                                .font(.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
@@ -399,7 +414,7 @@ public struct WorkerAnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
-                                                HIGFeedback.impact(.light)
+                                                HapticManager.impact(.light)
                                                 selectedPoint = closest
                                             }
                                         }
@@ -412,63 +427,63 @@ public struct WorkerAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.md)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private var cpuLatencyLineChartCard: some View {
         let maxCpu = viewModel.dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
         let yUpper = max(2.0, maxCpu * 1.18)
         
-        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Image(systemName: "bolt.fill")
-                            .font(HIGTypography.caption.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .foregroundStyle(.cyan)
                         Text("CPU Execution Time")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
                     if let selected = selectedCpuPoint {
-                        HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.sm) {
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
                             Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
+                                .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("P50")
-                                .font(HIGTypography.caption.weight(.bold))
+                                .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                             
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
                             Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
+                                .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("P99")
-                                .font(HIGTypography.caption.weight(.bold))
+                                .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                         }
                     } else {
-                        HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.sm) {
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
                             Text("\(viewModel.avgCpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
+                                .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.cyan)
                             Text("avg P50")
-                                .font(HIGTypography.caption.weight(.medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
                             
                             Text("•")
                                 .foregroundStyle(.tertiary)
                             
                             Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
-                                .font(HIGTypography.title3.weight(.bold).monospacedDigit())
+                                .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
                             Text("max P99")
-                                .font(HIGTypography.caption.weight(.medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -478,25 +493,25 @@ public struct WorkerAnalyticsView: View {
                 
                 if let selected = selectedCpuPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 4) {
                         Circle()
                             .fill(Color.cyan)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
+                            .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.sm)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
                     .background(Color.cyan.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Label("P50", systemImage: "circle.fill")
-                            .font(HIGTypography.caption2.weight(.medium))
+                            .font(.caption2.weight(.medium))
                             .foregroundStyle(.cyan)
                         Label("P99", systemImage: "circle.fill")
-                            .font(HIGTypography.caption2.weight(.medium))
+                            .font(.caption2.weight(.medium))
                             .foregroundStyle(.orange)
                     }
                 }
@@ -556,7 +571,7 @@ public struct WorkerAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -564,10 +579,10 @@ public struct WorkerAnalyticsView: View {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
                         .foregroundStyle(Color.secondary.opacity(0.2))
-                    if let ms = value.as(Double.self) {
+                    if let count = value.as(Double.self) {
                         AxisValueLabel {
-                            Text("\(ms.formatted(.number.precision(.fractionLength(1)))) ms")
-                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                            Text("\(count.formatted(.number.precision(.fractionLength(1)))) ms")
+                                .font(.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
@@ -589,7 +604,7 @@ public struct WorkerAnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedCpuPoint?.id != closest.id {
-                                                HIGFeedback.impact(.light)
+                                                HapticManager.impact(.light)
                                                 selectedCpuPoint = closest
                                             }
                                         }
@@ -602,43 +617,43 @@ public struct WorkerAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.md)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 5. Insights & Summary
     private var insightsCard: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             Label("Worker Performance Summary", systemImage: "sparkles")
-                .font(HIGTypography.subheadline.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
             
             HStack {
                 Text("Subrequest Ratio")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 let ratio = viewModel.totalRequests > 0 ? Double(viewModel.totalSubrequests) / Double(viewModel.totalRequests) : 0
                 Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
-                    .font(HIGTypography.caption.weight(.semibold).monospacedDigit())
+                    .font(.caption.weight(.semibold).monospacedDigit())
             }
             
             Divider()
             
             HStack {
                 Text("Execution Health")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Exceptions Detected")
-                    .font(HIGTypography.caption.weight(.medium))
-                    .foregroundStyle(viewModel.totalErrors == 0 ? HIGColors.success : .orange)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }
         }
-        .padding(HIGTokens.Spacing.md - 2)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .padding(14)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Helpers

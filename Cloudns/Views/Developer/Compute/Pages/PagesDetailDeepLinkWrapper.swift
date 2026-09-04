@@ -17,14 +17,26 @@ struct PagesDetailDeepLinkWrapper: View {
             if let project = loadedProject, !accountId.isEmpty {
                 PagesProjectDetailView(accountId: accountId, project: project)
             } else if isLoading {
-                HIGContentState(.loading(message: "Loading Pages Project…"))
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text("Loading Pages Project…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage ?? "Unable to load project"),
-                        retryAction: { Task { await loadProject() } }
-                    )
-                )
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text(errorMessage ?? "Unable to load project")
+                        .font(.headline)
+                    Button("Retry") {
+                        Task { await loadProject() }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .toolbar {
@@ -32,9 +44,8 @@ struct PagesDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
-                .font(HIGTypography.body.weight(.semibold))
-                .foregroundStyle(Color.higAccent)
-                .higTouchTarget()
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
             }
         }
         .task {

@@ -21,17 +21,15 @@ struct WorkersAIView: View {
                         Section {
                             ForEach(list) { model in
                                 Button {
-                                    HIGFeedback.selection()
+                                    HapticManager.selection()
                                     selectedModelForPlayground = model
                                 } label: {
                                     modelRow(model)
                                 }
-                                .buttonStyle(.higPressable)
+                                .foregroundStyle(.primary)
                                 .contextMenu {
                                     Button {
-                                        UIPasteboard.general.string = model.modelPath
-                                        ToastManager.shared.showCopied("Model Path Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(model.modelPath, toast: "Model Path Copied")
                                     } label: {
                                         Label("Copy Model Path", systemImage: "doc.on.doc")
                                     }
@@ -61,35 +59,22 @@ struct WorkersAIView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedModelForPlayground) { model in
             WorkersAIPlaygroundSheetView(viewModel: viewModel, model: model)
-                .higToast()
         }
         .refreshable {
             await viewModel.fetchModels()
         }
-        .overlay {
-            if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.models.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchModels() } }
-                        )
-                    )
-                } else if viewModel.models.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Models Found",
-                            systemImage: "brain",
-                            description: "Unable to retrieve Workers AI model catalog.",
-                            actionTitle: "Retry",
-                            action: { Task { await viewModel.fetchModels() } }
-                        )
-                    )
-                } else if viewModel.filteredModels.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
-        }
+        .listState(
+            isEmpty: viewModel.hasFetchedData && viewModel.models.isEmpty,
+            emptyTitle: "No Models Found",
+            emptySystemImage: "brain",
+            emptyDescription: "Unable to retrieve Workers AI model catalog.",
+            emptyActionTitle: "Retry",
+            emptyAction: { Task { await viewModel.fetchModels() } },
+            isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredModels.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: (viewModel.hasFetchedData && viewModel.models.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchModels() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchModels()
@@ -99,21 +84,21 @@ struct WorkersAIView: View {
     
     @ViewBuilder
     private func categoryHeader(_ rawName: String, count: Int) -> some View {
-        HStack(spacing: HIGTokens.Spacing.xs) {
+        HStack(spacing: 8) {
             Image(systemName: iconForTask(rawName))
-                .font(HIGTypography.caption2.weight(.bold))
+                .font(.caption2.weight(.bold))
                 .foregroundStyle(.purple)
             
             Text(localizedTaskName(rawName))
-                .font(HIGTypography.footnote.weight(.semibold))
+                .font(.footnote.weight(.semibold))
                 .foregroundStyle(.secondary)
             
             Spacer()
             
             Text("\(count)")
-                .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
-                .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .font(.caption2.monospacedDigit().weight(.semibold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Capsule())
                 .foregroundStyle(.secondary)
@@ -122,42 +107,42 @@ struct WorkersAIView: View {
     
     @ViewBuilder
     private func modelRow(_ model: AIModel) -> some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+        HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: iconForTask(model.taskName), color: .purple)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs + 2) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(model.shortName)
-                        .font(HIGTypography.body.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                     
                     if let vendor = vendorFromModel(model) {
                         Text(vendor)
-                            .font(HIGTypography.caption2.weight(.semibold))
-                            .padding(.horizontal, HIGTokens.Spacing.xs + 1)
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
                             .background(Color(.tertiarySystemFill))
                             .foregroundStyle(.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
                 
                 if let desc = model.description, !desc.isEmpty {
                     Text(desc)
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             }
             
-            Spacer(minLength: HIGTokens.Spacing.sm)
+            Spacer(minLength: 8)
             
             Image(systemName: "chevron.right")
-                .font(HIGTypography.caption2.weight(.semibold))
+                .font(.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func vendorFromModel(_ model: AIModel) -> String? {
@@ -217,23 +202,23 @@ struct WorkersAIPlaygroundSheetView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ScrollView {
-                    LazyVStack(spacing: HIGTokens.Spacing.md) {
+                    LazyVStack(spacing: 12) {
                         if viewModel.chatMessages.isEmpty {
-                            VStack(spacing: HIGTokens.Spacing.sm) {
+                            VStack(spacing: 8) {
                                 Image(systemName: "brain.head.profile")
-                                    .font(HIGTypography.largeTitle.weight(.medium))
+                                    .font(.system(size: 40).weight(.medium))
                                     .foregroundStyle(.purple)
-                                    .padding(.top, HIGTokens.Spacing.xxl)
+                                    .padding(.top, 24)
                                 
                                 Text(model.shortName)
-                                    .font(HIGTypography.headline)
+                                    .font(.headline)
                                 
                                 if let desc = model.description {
                                     Text(desc)
-                                        .font(HIGTypography.subheadline)
+                                        .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                         .multilineTextAlignment(.center)
-                                        .padding(.horizontal, HIGTokens.Spacing.xl)
+                                        .padding(.horizontal, 20)
                                 }
                             }
                         } else {
@@ -242,31 +227,31 @@ struct WorkersAIPlaygroundSheetView: View {
                                     if msg.role == "user" {
                                         Spacer()
                                         Text(msg.content)
-                                            .padding(.horizontal, HIGTokens.Spacing.md + 2)
-                                            .padding(.vertical, HIGTokens.Spacing.sm + 2)
-                                            .background(Color.higAccent)
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 10)
+                                            .background(Color.accentColor)
                                             .foregroundStyle(.white)
-                                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                     } else {
                                         Text(msg.content)
-                                            .padding(.horizontal, HIGTokens.Spacing.md + 2)
-                                            .padding(.vertical, HIGTokens.Spacing.sm + 2)
-                                            .background(Color.higCardBackground)
-                                            .foregroundStyle(msg.isError ? HIGColors.error : .primary)
-                                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 10)
+                                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                                            .foregroundStyle(msg.isError ? .red : .primary)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                         Spacer()
                                     }
                                 }
-                                .padding(.horizontal, HIGTokens.Spacing.lg)
+                                .padding(.horizontal, 16)
                             }
                         }
                     }
-                    .padding(.vertical, HIGTokens.Spacing.lg)
+                    .padding(.vertical, 16)
                 }
                 
                 Divider()
                 
-                HStack(spacing: HIGTokens.Spacing.sm + 2) {
+                HStack(spacing: 10) {
                     TextField("Ask \(model.shortName)…", text: $viewModel.promptInput)
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.send)
@@ -281,17 +266,15 @@ struct WorkersAIPlaygroundSheetView: View {
                             ProgressView()
                         } else {
                             Image(systemName: "arrow.up.circle.fill")
-                                .font(HIGTypography.title2)
-                                .foregroundStyle(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.tertiaryLabel) : Color.higAccent)
+                                .font(.title2)
+                                .foregroundStyle(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.tertiaryLabel) : Color.accentColor)
                         }
                     }
-                    .buttonStyle(.higPressable)
                     .disabled(viewModel.promptInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSendingMessage)
-                    .higTouchTarget(44)
                 }
-                .padding(.horizontal, HIGTokens.Spacing.lg)
-                .padding(.vertical, HIGTokens.Spacing.sm)
-                .background(Color.higGroupBackground)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(uiColor: .systemGroupedBackground))
             }
             .navigationTitle(model.shortName)
             .navigationBarTitleDisplayMode(.inline)
@@ -299,9 +282,8 @@ struct WorkersAIPlaygroundSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
-                        .font(HIGTypography.body.weight(.semibold))
-                        .foregroundStyle(Color.higAccent)
-                        .higTouchTarget()
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
                 }
             }
         }

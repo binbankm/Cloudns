@@ -19,9 +19,9 @@ struct WorkerTailView: View {
     var body: some View {
         VStack(spacing: 0) {
             filterBar
-                .padding(.horizontal, HIGTokens.Spacing.md)
-                .padding(.vertical, HIGTokens.Spacing.sm)
-                .background(Color(.secondarySystemGroupedBackground))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
             
             Divider()
             
@@ -32,28 +32,24 @@ struct WorkerTailView: View {
                     List {
                         ForEach(viewModel.filteredEvents) { item in
                             Button {
-                                HIGFeedback.selection()
+                                HapticManager.selection()
                                 selectedEvent = item
                             } label: {
                                 TailEventRowView(item: item)
                             }
-                            .listRowInsets(EdgeInsets(top: HIGTokens.Spacing.sm, leading: HIGTokens.Spacing.md, bottom: HIGTokens.Spacing.sm, trailing: HIGTokens.Spacing.md))
-                            .listRowBackground(Color(.systemBackground))
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowBackground(Color(uiColor: .systemBackground))
                             .contextMenu {
                                 if let url = item.event?.request?.url {
                                     Button {
-                                        UIPasteboard.general.string = url
-                                        ToastManager.shared.showCopied("URL Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(url, toast: "URL Copied")
                                     } label: {
                                         Label("Copy Request URL", systemImage: "doc.on.doc")
                                     }
                                 }
                                 if let outcome = item.outcome {
                                     Button {
-                                        UIPasteboard.general.string = outcome
-                                        ToastManager.shared.showCopied("Outcome Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(outcome, toast: "Outcome Copied")
                                     } label: {
                                         Label("Copy Outcome", systemImage: "flag")
                                     }
@@ -75,19 +71,18 @@ struct WorkerTailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         viewModel.clearLogs()
                     } label: {
                         Image(systemName: "trash")
                     }
                     .accessibilityLabel("Clear Logs")
                     .disabled(viewModel.events.isEmpty)
-                    .higTouchTarget(44)
                     
                     Button {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         if viewModel.isStreaming {
                             viewModel.stopStream()
                         } else {
@@ -95,10 +90,9 @@ struct WorkerTailView: View {
                         }
                     } label: {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
-                            .foregroundStyle(viewModel.isStreaming ? .orange : HIGColors.success)
+                            .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
                     .accessibilityLabel(viewModel.isStreaming ? "Pause Stream" : "Resume Stream")
-                    .higTouchTarget(44)
                 }
             }
         }
@@ -112,19 +106,18 @@ struct WorkerTailView: View {
             TailEventDetailSheetView(event: event)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .higToast()
         }
     }
     
     private var filterBar: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
-            HStack(spacing: HIGTokens.Spacing.xs) {
+        HStack(spacing: 12) {
+            HStack(spacing: 6) {
                 Circle()
-                    .fill(viewModel.isStreaming ? HIGColors.success : HIGColors.error)
+                    .fill(viewModel.isStreaming ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
                 Text(viewModel.isStreaming ? "Connected" : "Paused")
-                    .font(HIGTypography.caption.weight(.medium))
-                    .foregroundStyle(viewModel.isStreaming ? HIGColors.success : .secondary)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(viewModel.isStreaming ? Color.green : .secondary)
             }
             
             Spacer()
@@ -137,7 +130,7 @@ struct WorkerTailView: View {
             .pickerStyle(.segmented)
             .frame(maxWidth: 220)
             .onChange(of: viewModel.selectedFilter) { _ in
-                HIGFeedback.selection()
+                HapticManager.selection()
             }
         }
     }
@@ -145,22 +138,33 @@ struct WorkerTailView: View {
     @ViewBuilder
     private var emptyState: some View {
         if viewModel.isStreaming {
-            HIGContentState(
-                .loading(message: "Listening for live Worker events…")
-            )
+            VStack(spacing: 12) {
+                ProgressView()
+                Text("Listening for live Worker events…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            HIGContentState(
-                .empty(
-                    title: "Log Stream Paused",
-                    systemImage: "pause.circle",
-                    description: "Stream is paused. Tap Resume to start listening for live edge execution events.",
-                    actionTitle: "Resume Stream",
-                    action: {
-                        HIGFeedback.impact(.light)
-                        Task { await viewModel.startStream() }
-                    }
-                )
-            )
+            VStack(spacing: 12) {
+                Image(systemName: "pause.circle")
+                    .font(.system(size: 44))
+                    .foregroundStyle(.secondary)
+                Text("Log Stream Paused")
+                    .font(.headline)
+                Text("Stream is paused. Tap Resume to start listening for live edge execution events.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                Button("Resume Stream") {
+                    HapticManager.impact(.light)
+                    Task { await viewModel.startStream() }
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 4)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
@@ -172,37 +176,37 @@ struct TailEventRowView: View {
     
     private var outcomeColor: Color {
         switch item.outcome?.lowercased() {
-        case "ok": return HIGColors.success
-        case "exception": return HIGColors.error
+        case "ok": return .green
+        case "exception": return .red
         case "canceled": return .orange
         default: return .secondary
         }
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 if let method = item.event?.request?.method {
                     Text(method)
-                        .font(HIGTypography.caption2.bold())
-                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
                         .background(Color.blue.opacity(0.12))
                         .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 } else if item.event?.cron != nil {
                     Text("CRON")
-                        .font(HIGTypography.caption2.bold())
-                        .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
                         .background(Color.purple.opacity(0.12))
                         .foregroundStyle(.purple)
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
                 
                 if let url = item.event?.request?.url {
                     Text(url)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
@@ -210,16 +214,21 @@ struct TailEventRowView: View {
                 Spacer()
                 
                 if let outcome = item.outcome {
-                    HIGBadge(.custom(color: outcomeColor, text: outcome.uppercased()), isCompact: true)
+                    Text(outcome.uppercased())
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(outcomeColor)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(outcomeColor.opacity(0.12)))
                 }
             }
             
             if let logs = item.logs, !logs.isEmpty {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     ForEach(logs.prefix(2)) { log in
                         let logText = (log.message ?? []).map(\.displayText).joined(separator: " ")
                         Text(logText)
-                            .font(HIGTypography.caption2.monospaced())
+                            .font(.caption2.monospaced())
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
@@ -229,13 +238,13 @@ struct TailEventRowView: View {
             if let exceptions = item.exceptions, !exceptions.isEmpty {
                 ForEach(exceptions) { ex in
                     Text(ex.message ?? "Unhandled Exception")
-                        .font(HIGTypography.caption2.monospaced())
-                        .foregroundStyle(HIGColors.error)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.red)
                         .lineLimit(1)
                 }
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -270,17 +279,17 @@ struct TailEventDetailSheetView: View {
                             let isErr = log.level == "error"
                             let logText = (log.message ?? []).map(\.displayText).joined(separator: " ")
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 HStack {
                                     Text(levelText)
-                                        .font(HIGTypography.caption2.bold())
-                                        .foregroundStyle(isErr ? HIGColors.error : .blue)
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(isErr ? .red : .blue)
                                     Spacer()
                                 }
                                 Text(logText)
-                                    .font(HIGTypography.caption.monospaced())
+                                    .font(.caption.monospaced())
                             }
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                         }
                     }
                 }
@@ -288,16 +297,16 @@ struct TailEventDetailSheetView: View {
                 if let exceptions = event.exceptions, !exceptions.isEmpty {
                     Section(header: Text("Exceptions (\(exceptions.count))")) {
                         ForEach(exceptions) { ex in
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(ex.name ?? "Exception")
-                                    .font(HIGTypography.caption.bold())
-                                    .foregroundStyle(HIGColors.error)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.red)
                                 if let msg = ex.message, !msg.isEmpty {
                                     Text(verbatim: msg)
-                                        .font(HIGTypography.caption2.monospaced())
+                                        .font(.caption2.monospaced())
                                 }
                             }
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                         }
                     }
                 }
@@ -309,7 +318,6 @@ struct TailEventDetailSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .higTouchTarget(44)
                 }
             }
         }

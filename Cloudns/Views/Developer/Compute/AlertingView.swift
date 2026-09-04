@@ -24,16 +24,16 @@ struct AlertingView: View {
                 Text("Webhooks").tag("webhooks")
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal, HIGTokens.Spacing.md)
-            .padding(.vertical, HIGTokens.Spacing.sm)
-            .background(Color.higGroupBackground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color(uiColor: .systemGroupedBackground))
             .onChange(of: selectedTab) { _ in
-                HIGFeedback.selection()
+                HapticManager.selection()
             }
             
             contentList
         }
-        .background(Color.higGroupBackground)
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("Notification Alerts")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Delete Policy", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: policyToDelete) { policy in
@@ -41,7 +41,7 @@ struct AlertingView: View {
                 Task {
                     await viewModel.deletePolicy(id: policy.id)
                     ToastManager.shared.showSuccess("Policy Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -68,9 +68,7 @@ struct AlertingView: View {
                             policyRow(p)
                                 .contextMenu {
                                     Button {
-                                        UIPasteboard.general.string = p.id
-                                        ToastManager.shared.showCopied("Policy ID Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(p.id, toast: "Policy ID Copied")
                                     } label: {
                                         Label("Copy Policy ID", systemImage: "doc.on.doc")
                                     }
@@ -80,7 +78,7 @@ struct AlertingView: View {
                                     Button(role: .destructive) {
                                         policyToDelete = p
                                         showingDeleteAlert = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete Policy", systemImage: "trash")
                                     }
@@ -89,11 +87,11 @@ struct AlertingView: View {
                                     Button(role: .destructive) {
                                         policyToDelete = p
                                         showingDeleteAlert = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(HIGColors.error)
+                                    .tint(.red)
                                 }
                         }
                     }
@@ -101,42 +99,40 @@ struct AlertingView: View {
             } else if selectedTab == "available" {
                 Section(header: Text("Supported Alert Types (\(viewModel.availableTypes.count))")) {
                     ForEach(viewModel.availableTypes) { type in
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(type.displayName ?? type.type)
-                                .font(HIGTypography.body.weight(.medium))
+                                .font(.body.weight(.medium))
                             if let desc = type.description {
                                 Text(desc)
-                                    .font(HIGTypography.caption2)
+                                    .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     }
                 }
             } else {
                 if !viewModel.webhooks.isEmpty {
                     Section(header: Text("Destinations & Webhooks (\(viewModel.webhooks.count))")) {
                         ForEach(viewModel.webhooks) { h in
-                            HStack(spacing: HIGTokens.Spacing.md) {
+                            HStack(spacing: 12) {
                                 ListRowIcon(icon: "bell.badge.fill", color: .orange)
-                                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(h.name ?? h.id)
-                                        .font(HIGTypography.body)
+                                        .font(.body)
                                     if let url = h.url {
                                         Text(url)
-                                            .font(HIGTypography.caption2.monospaced())
+                                            .font(.caption2.monospaced())
                                             .foregroundStyle(.secondary)
                                             .lineLimit(1)
                                     }
                                 }
                             }
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                             .contextMenu {
                                 if let url = h.url {
                                     Button {
-                                        UIPasteboard.general.string = url
-                                        ToastManager.shared.showCopied("Webhook URL Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(url, toast: "Webhook URL Copied")
                                     } label: {
                                         Label("Copy Webhook URL", systemImage: "link")
                                     }
@@ -148,54 +144,49 @@ struct AlertingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Notification Policies…"))
-            } else if viewModel.hasFetchedData {
-                if selectedTab == "policies" && viewModel.policies.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Policies",
-                            systemImage: "bell.badge.slash",
-                            description: "No notification policies configured in this account."
-                        )
-                    )
-                } else if selectedTab == "webhooks" && viewModel.webhooks.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Webhooks",
-                            systemImage: "bell.badge",
-                            description: "No webhook destinations configured in this account."
-                        )
-                    )
-                }
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Notification Policies…",
+            isEmpty: viewModel.hasFetchedData && (
+                (selectedTab == "policies" && viewModel.policies.isEmpty) ||
+                (selectedTab == "webhooks" && viewModel.webhooks.isEmpty)
+            ),
+            emptyTitle: selectedTab == "policies" ? "No Policies" : "No Webhooks",
+            emptySystemImage: selectedTab == "policies" ? "bell.badge.slash" : "bell.badge",
+            emptyDescription: selectedTab == "policies"
+                ? "No notification policies configured in this account."
+                : "No webhook destinations configured in this account."
+        )
     }
     
     @ViewBuilder
     private func policyRow(_ p: AlertingPolicy) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text(p.displayName)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
-                HIGBadge(p.isEnabled ? .active("Active") : .custom(color: .secondary, text: "Disabled"), isCompact: true)
+                Text(p.isEnabled ? "Active" : "Disabled")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(p.isEnabled ? .green : .secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(p.isEnabled ? Color.green.opacity(0.12) : Color.secondary.opacity(0.12)))
             }
             
             if let desc = p.description, !desc.isEmpty {
                 Text(desc)
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             
             if let type = p.alertType {
                 Text(type)
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }

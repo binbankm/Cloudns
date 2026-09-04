@@ -17,14 +17,12 @@ struct DurableObjectNamespaceDetailView: View {
             Section(header: Text("Namespace Details")) {
                 LabeledContent("Namespace ID") {
                     Text(namespace.id)
-                        .font(HIGTypography.caption2.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 .contextMenu {
                     Button {
-                        UIPasteboard.general.string = namespace.id
-                        ToastManager.shared.showCopied("Namespace ID Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(namespace.id, toast: "Namespace ID Copied")
                     } label: {
                         Label("Copy Namespace ID", systemImage: "doc.on.doc")
                     }
@@ -33,46 +31,48 @@ struct DurableObjectNamespaceDetailView: View {
                 if let scr = namespace.script {
                     LabeledContent("Bound Worker Script") {
                         Text(scr)
-                            .font(HIGTypography.subheadline.monospaced())
+                            .font(.subheadline.monospaced())
                     }
                 }
                 
                 if let cls = namespace.class {
                     HStack {
                         Text("Exported Class")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text(cls)
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                     }
                 }
             }
             
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
                 if isLoading && objects.isEmpty {
-                    HIGContentState(.loading(message: "Loading instances…"))
-                        .padding(.vertical, HIGTokens.Spacing.xs)
+                    HStack {
+                        Spacer()
+                        ProgressView("Loading instances…")
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
                 } else if let err = errorMessage, objects.isEmpty {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 } else if objects.isEmpty {
                     Text("No active instances discovered in this namespace.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(objects) { obj in
                         instanceRow(obj)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = obj.id
-                                    ToastManager.shared.showCopied("Instance ID Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(obj.id, toast: "Instance ID Copied")
                                 } label: {
                                     Label("Copy Instance ID", systemImage: "doc.on.doc")
                                 }
@@ -94,23 +94,28 @@ struct DurableObjectNamespaceDetailView: View {
     
     @ViewBuilder
     private func instanceRow(_ obj: DurableObjectInstance) -> some View {
-        HStack(spacing: HIGTokens.Spacing.sm) {
+        HStack(spacing: 8) {
             Image(systemName: "circle.circle.fill")
-                .foregroundStyle(obj.hasStoredData == true ? HIGColors.success : .secondary)
-                .font(HIGTypography.caption)
+                .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
+                .font(.caption)
                 .accessibilityHidden(true)
             
             Text(obj.id)
-                .font(HIGTypography.caption.monospaced())
+                .font(.caption.monospaced())
                 .foregroundStyle(.primary)
             
             Spacer()
             
             if obj.hasStoredData == true {
-                HIGBadge(.active("Persistent Data"), isCompact: true)
+                Text("Persistent Data")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.green.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func fetchObjects() async {

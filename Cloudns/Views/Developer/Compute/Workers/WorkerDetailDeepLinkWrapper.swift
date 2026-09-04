@@ -17,14 +17,26 @@ struct WorkerDetailDeepLinkWrapper: View {
             if let worker = loadedWorker, !accountId.isEmpty {
                 WorkerDetailView(accountId: accountId, worker: worker)
             } else if isLoading {
-                HIGContentState(.loading(message: "Loading Worker…"))
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text("Loading Worker…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage ?? "Unable to load worker"),
-                        retryAction: { Task { await loadWorker() } }
-                    )
-                )
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text(errorMessage ?? "Unable to load worker")
+                        .font(.headline)
+                    Button("Retry") {
+                        Task { await loadWorker() }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .toolbar {
@@ -32,9 +44,8 @@ struct WorkerDetailDeepLinkWrapper: View {
                 Button("Done") {
                     onDismiss()
                 }
-                .font(HIGTypography.body.weight(.semibold))
-                .foregroundStyle(Color.higAccent)
-                .higTouchTarget()
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
             }
         }
         .task {

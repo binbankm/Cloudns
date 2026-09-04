@@ -28,20 +28,20 @@ struct AIGatewayDetailView: View {
             Section(header: Text("Gateway Overview")) {
                 LabeledContent("Gateway Slug") {
                     Text(gateway.id)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
                 
                 LabeledContent("Logging") {
                     Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
-                        .font(HIGTypography.subheadline.weight(.medium))
-                        .foregroundStyle(gateway.collectLogs == true ? HIGColors.success : .secondary)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
                 }
                 
                 if let created = gateway.createdOn, let date = DateFormatters.parseISO8601(created) {
                     LabeledContent("Created") {
                         Text(date.displayFormatted(date: .abbreviated, time: .omitted))
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -58,32 +58,29 @@ struct AIGatewayDetailView: View {
                     }
                 }
                 .onChange(of: selectedProvider) { _ in
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(universalEndpoint)
-                        .font(HIGTypography.caption.monospaced())
-                        .foregroundStyle(Color.higAccent)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(Color.accentColor)
                         .lineLimit(2)
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                     
                     Button {
-                        UIPasteboard.general.string = universalEndpoint
-                        ToastManager.shared.showCopied("Base URL Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(universalEndpoint, toast: "Base URL Copied")
                     } label: {
-                        HStack(spacing: HIGTokens.Spacing.xs) {
+                        HStack(spacing: 6) {
                             Image(systemName: "doc.on.doc")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                             Text("Copy Base URL")
                         }
-                        .font(HIGTypography.subheadline.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                     }
                     .buttonStyle(.bordered)
-                    .higTouchTarget(44)
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
             
             // MARK: - Integration Code Examples
@@ -94,31 +91,28 @@ struct AIGatewayDetailView: View {
                     Text("Node.js").tag("node")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
                 .onChange(of: selectedCodeLanguage) { _ in
-                    HIGFeedback.impact(.light)
+                    HapticManager.impact(.light)
                 }
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 6) {
                     ScrollView(.horizontal) {
                         Text(verbatim: codeSnippet)
-                            .font(HIGTypography.caption2.monospaced())
+                            .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                     }
                     .scrollIndicators(.hidden)
                     
                     Button {
-                        UIPasteboard.general.string = codeSnippet
-                        ToastManager.shared.showCopied("Code Snippet Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(codeSnippet, toast: "Code Snippet Copied")
                     } label: {
                         Label("Copy Code", systemImage: "doc.on.doc")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                     }
-                    .higTouchTarget(44)
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
         }
         .listStyle(.insetGrouped)

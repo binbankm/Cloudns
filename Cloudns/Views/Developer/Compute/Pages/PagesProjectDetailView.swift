@@ -47,7 +47,7 @@ struct PagesProjectDetailView: View {
                         Divider()
                         
                         Button(role: .destructive) {
-                            HIGFeedback.impact(.medium)
+                            HapticManager.impact(.medium)
                             showingDeleteAlert = true
                         } label: {
                             Label("Delete Project", systemImage: "trash")
@@ -56,7 +56,6 @@ struct PagesProjectDetailView: View {
                         Image(systemName: "ellipsis.circle")
                     }
                     .accessibilityLabel("More Actions")
-                    .higTouchTarget(44)
                 }
             }
             .confirmationDialog("Delete Pages Project", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
@@ -65,11 +64,11 @@ struct PagesProjectDetailView: View {
                         do {
                             try await PagesService.shared.deletePagesProject(accountId: accountId, projectName: project.name)
                             ToastManager.shared.showSuccess("Pages Project Deleted", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                             dismiss()
                         } catch {
                             ToastManager.shared.showError("Failed to Delete Pages Project")
-                            HIGFeedback.error()
+                            HapticManager.notification(.error)
                         }
                     }
                 }
@@ -94,15 +93,12 @@ struct PagesProjectDetailView: View {
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Done") { showingDomainsSheet = false }
-                                    .higTouchTarget(44)
                             }
                         }
                 }
-                .higToast()
             }
             .sheet(isPresented: $showingBuildConfigSheet) {
                 PagesBuildConfigEditorView(accountId: accountId, project: project, parentViewModel: viewModel)
-                    .higToast()
             }
     }
     
@@ -111,12 +107,12 @@ struct PagesProjectDetailView: View {
         List {
             // MARK: - Hero & Project Overview Card
             Section {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
-                    HStack(alignment: .top, spacing: HIGTokens.Spacing.md) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "macwindow")
-                            .font(HIGTypography.title2)
+                            .font(.title2)
                             .foregroundStyle(.white)
-                            .frame(width: HIGTokens.Size.minTouchTarget, height: HIGTokens.Size.minTouchTarget)
+                            .frame(width: 44, height: 44)
                             .background(
                                 LinearGradient(
                                     colors: [Color.blue, Color.cyan],
@@ -124,22 +120,32 @@ struct PagesProjectDetailView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .shadow(color: Color.blue.opacity(0.25), radius: 6, x: 0, y: 3)
                             .accessibilityHidden(true)
                         
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(project.name)
-                                .font(HIGTypography.title3.weight(.bold))
+                                .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
-                            HStack(spacing: HIGTokens.Spacing.xs + 2) {
+                            HStack(spacing: 6) {
                                 if let branch = project.productionBranch {
-                                    HIGBadge(.active(branch), isCompact: true)
+                                    Text(branch)
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(.green)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill(Color.green.opacity(0.12)))
                                 }
                                 if let cmd = project.buildConfig?.buildCommand, !cmd.isEmpty {
-                                    HIGBadge(.custom(color: .purple, text: cmd), isCompact: true)
+                                    Text(cmd)
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(.purple)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill(Color.purple.opacity(0.12)))
                                 }
                             }
                         }
@@ -148,30 +154,28 @@ struct PagesProjectDetailView: View {
                     if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
                         Divider()
                         
-                        HStack(spacing: HIGTokens.Spacing.sm + 2) {
+                        HStack(spacing: 10) {
                             Image(systemName: "globe")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                             
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("Production URL")
-                                    .font(HIGTypography.caption2)
+                                    .font(.caption2)
                                     .foregroundStyle(.secondary)
                                 Text("https://\(sub)")
-                                    .font(HIGTypography.caption.monospaced())
-                                    .foregroundStyle(Color.higAccent)
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(Color.accentColor)
                                     .lineLimit(1)
                             }
                             
                             Spacer()
                             
                             Button {
-                                UIPasteboard.general.string = "https://\(sub)"
-                                ToastManager.shared.showCopied("Production URL Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard("https://\(sub)", toast: "Production URL Copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .frame(width: 28, height: 28)
                                     .background(Color(.tertiarySystemFill))
@@ -182,7 +186,7 @@ struct PagesProjectDetailView: View {
                             
                             Link(destination: url) {
                                 Image(systemName: "arrow.up.right")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .frame(width: 28, height: 28)
                                     .background(Color(.tertiarySystemFill))
@@ -193,7 +197,7 @@ struct PagesProjectDetailView: View {
                         }
                     }
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
             
             // MARK: - Project Details
@@ -202,7 +206,7 @@ struct PagesProjectDetailView: View {
                     HStack {
                         Label {
                             Text("Production Branch")
-                                .font(HIGTypography.body)
+                                .font(.body)
                         } icon: {
                             Image(systemName: "arrow.triangle.branch")
                                 .foregroundStyle(.blue)
@@ -210,7 +214,7 @@ struct PagesProjectDetailView: View {
                         .foregroundStyle(.primary)
                         Spacer()
                         Text(branch)
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -219,7 +223,7 @@ struct PagesProjectDetailView: View {
                     HStack {
                         Label {
                             Text("Repository")
-                                .font(HIGTypography.body)
+                                .font(.body)
                         } icon: {
                             Image(systemName: "folder")
                                 .foregroundStyle(.purple)
@@ -227,7 +231,7 @@ struct PagesProjectDetailView: View {
                         .foregroundStyle(.primary)
                         Spacer()
                         Text(repo)
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -236,7 +240,7 @@ struct PagesProjectDetailView: View {
                     HStack {
                         Label {
                             Text("Created Date")
-                                .font(HIGTypography.body)
+                                .font(.body)
                         } icon: {
                             Image(systemName: "calendar")
                                 .foregroundStyle(.orange)
@@ -244,7 +248,7 @@ struct PagesProjectDetailView: View {
                         .foregroundStyle(.primary)
                         Spacer()
                         Text(created.prefix(10))
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -255,10 +259,10 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesAnalyticsView(accountId: accountId, projectName: project.name)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "chart.xyaxis.line", color: .purple)
                         Text("Analytics & Metrics")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -267,15 +271,15 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesDeploymentsListView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "clock.arrow.circlepath", color: .orange)
                         Text("Deployments History")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.deployments.isEmpty {
                             Text("\(viewModel.deployments.count)")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -284,15 +288,15 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesDomainsView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "globe", color: .blue)
                         Text("Custom Domains")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         if !viewModel.domains.isEmpty {
                             Text("\(viewModel.domains.count)")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -301,10 +305,10 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesVariablesView(accountId: accountId, project: project)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "key.fill", color: HIGColors.success)
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "key.fill", color: .green)
                         Text("Variables & Secrets")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -313,10 +317,10 @@ struct PagesProjectDetailView: View {
                 NavigationLink {
                     PagesBindingsView(accountId: accountId, project: project)
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "link.badge.plus", color: .indigo)
                         Text("Resource Bindings")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                     }
@@ -325,14 +329,14 @@ struct PagesProjectDetailView: View {
                 Button {
                     showingBuildConfigSheet = true
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "gearshape.fill", color: .orange)
                         Text("Build Configuration")
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .foregroundStyle(.primary)
                         Spacer()
                         Image(systemName: "chevron.right")
-                            .font(HIGTypography.caption2.weight(.semibold))
+                            .font(.caption2.weight(.semibold))
                             .foregroundStyle(.tertiary)
                             .accessibilityHidden(true)
                     }

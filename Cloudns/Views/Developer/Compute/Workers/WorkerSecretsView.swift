@@ -31,16 +31,13 @@ struct WorkerSecretsView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Variable or Secret")
-                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
                 WorkerAddVariableOrSecretSheetView(viewModel: viewModel)
-                    .higToast()
             }
             .sheet(item: $variableToEdit) { v in
                 WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
-                    .higToast()
             }
             .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
                 if let item = itemToDelete {
@@ -53,10 +50,10 @@ struct WorkerSecretsView: View {
                                     try await viewModel.deletePlainVariable(name: item.name)
                                 }
                                 ToastManager.shared.showSuccess("Deleted '\(item.name)'", icon: "trash.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                             } catch {
                                 ToastManager.shared.showError("Failed to Delete")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                         }
                     }
@@ -89,7 +86,7 @@ struct WorkerSecretsView: View {
                 Section(header: Text("Plaintext Variables (\(viewModel.plainVariables.count))")) {
                     ForEach(viewModel.plainVariables) { item in
                         Button {
-                            HIGFeedback.impact(.light)
+                            HapticManager.impact(.light)
                             variableToEdit = item
                         } label: {
                             variableRow(name: item.name, value: item.text, isSecret: false)
@@ -98,17 +95,13 @@ struct WorkerSecretsView: View {
                         .contextMenu {
                             if let val = item.text {
                                 Button {
-                                    UIPasteboard.general.string = val
-                                    ToastManager.shared.showCopied("Value Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(val, toast: "Value Copied")
                                 } label: {
                                     Label("Copy Value", systemImage: "doc.on.doc")
                                 }
                             }
                             Button {
-                                UIPasteboard.general.string = item.name
-                                ToastManager.shared.showCopied("Key Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(item.name, toast: "Key Name Copied")
                             } label: {
                                 Label("Copy Key Name", systemImage: "doc.on.doc")
                             }
@@ -126,13 +119,13 @@ struct WorkerSecretsView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 itemToDelete = (item.name, false)
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -145,9 +138,7 @@ struct WorkerSecretsView: View {
                         variableRow(name: secret.name, value: nil, isSecret: true)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = secret.name
-                                    ToastManager.shared.showCopied("Secret Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(secret.name, toast: "Secret Name Copied")
                                 } label: {
                                     Label("Copy Secret Name", systemImage: "doc.on.doc")
                                 }
@@ -160,62 +151,62 @@ struct WorkerSecretsView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     itemToDelete = (secret.name, true)
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Variables & Secrets…"))
-            } else if viewModel.hasFetchedData && viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Variables or Secrets",
-                        systemImage: "key.fill",
-                        description: "Configure plaintext environment variables and encrypted secrets for this Worker.",
-                        actionTitle: "Add Variable or Secret",
-                        action: { showingAddSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Variables & Secrets…",
+            isEmpty: viewModel.hasFetchedData && viewModel.plainVariables.isEmpty && viewModel.secrets.isEmpty,
+            emptyTitle: "No Variables or Secrets",
+            emptySystemImage: "key.fill",
+            emptyDescription: "Configure plaintext environment variables and encrypted secrets for this Worker.",
+            emptyActionTitle: "Add Variable or Secret",
+            emptyAction: { showingAddSheet = true }
+        )
     }
     
     @ViewBuilder
     private func variableRow(name: String, value: String?, isSecret: Bool) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(
                 icon: isSecret ? "lock.fill" : "textformat",
                 color: isSecret ? .purple : .blue
             )
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(name)
-                        .font(HIGTypography.body.monospaced().weight(.semibold))
+                        .font(.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
                     
                     if isSecret {
-                        HIGBadge(.custom(color: .purple, text: "Secret"), isCompact: true)
+                        Text("Secret")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
                 
                 if isSecret {
                     Text("••••••••••••••••")
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 } else if let txt = value, !txt.isEmpty {
                     Text(txt)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -225,12 +216,12 @@ struct WorkerSecretsView: View {
             
             if !isSecret {
                 Image(systemName: "chevron.right")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
 }
@@ -263,26 +254,26 @@ struct WorkerAddVariableOrSecretSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                     
                     if isSecret {
                         SecureField("Secret Value", text: $value)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                     } else {
                         TextField("Value", text: $value)
                             .autocorrectionDisabled()
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                     }
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -294,7 +285,6 @@ struct WorkerAddVariableOrSecretSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -308,17 +298,16 @@ struct WorkerAddVariableOrSecretSheetView: View {
                                     try await viewModel.savePlainVariable(name: name.trimmingCharacters(in: .whitespaces), value: value)
                                 }
                                 ToastManager.shared.showSuccess(isSecret ? "Secret Saved" : "Variable Saved", icon: "checkmark.circle.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
@@ -348,24 +337,24 @@ struct WorkerEditVariableSheetView: View {
             Form {
                 Section(header: Text("Variable Name")) {
                     Text(variable.name)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 
                 Section(header: Text("Value")) {
                     TextField("Value", text: $value)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -377,7 +366,6 @@ struct WorkerEditVariableSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -387,17 +375,16 @@ struct WorkerEditVariableSheetView: View {
                             do {
                                 try await viewModel.savePlainVariable(name: variable.name, value: value)
                                 ToastManager.shared.showSuccess("Variable Updated", icon: "checkmark.circle.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

@@ -57,7 +57,6 @@ struct PagesVariablesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Variable or Secret")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddVariableSheet) {
@@ -74,7 +73,6 @@ struct PagesVariablesView: View {
                     }
                 }
             )
-            .higToast()
         }
         .sheet(item: Binding(
             get: { variableToEdit.map { EditVarItem(id: $0.name, name: $0.name, value: $0.value) } },
@@ -102,7 +100,6 @@ struct PagesVariablesView: View {
                     }
                 }
             )
-            .higToast()
         }
         .confirmationDialog("Delete Variable", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
             if let name = varNameToDelete {
@@ -127,11 +124,11 @@ struct PagesVariablesView: View {
             Text("Preview (\(prevCount))").tag("preview")
         }
         .pickerStyle(.segmented)
-        .padding(.horizontal, HIGTokens.Spacing.md)
-        .padding(.vertical, HIGTokens.Spacing.sm)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
         .background(Color(.systemGroupedBackground))
         .onChange(of: selectedEnv) { _ in
-            HIGFeedback.selection()
+            HapticManager.selection()
         }
     }
     
@@ -143,7 +140,7 @@ struct PagesVariablesView: View {
                     ForEach(Array(plainVariables.keys.sorted()), id: \.self) { key in
                         if let val = plainVariables[key] {
                             Button {
-                                HIGFeedback.impact(.light)
+                                HapticManager.impact(.light)
                                 variableToEdit = (key, val)
                             } label: {
                                 variableRow(key: key, value: val)
@@ -151,18 +148,14 @@ struct PagesVariablesView: View {
                             .buttonStyle(.plain)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = key
-                                    ToastManager.shared.showCopied("Variable Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(key, toast: "Variable Name Copied")
                                 } label: {
                                     Label("Copy Name", systemImage: "doc.on.doc")
                                 }
                                 
                                 if let v = val.value, !v.isEmpty {
                                     Button {
-                                        UIPasteboard.general.string = v
-                                        ToastManager.shared.showCopied("Variable Value Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(v, toast: "Variable Value Copied")
                                     } label: {
                                         Label("Copy Value", systemImage: "doc.on.doc.fill")
                                     }
@@ -171,7 +164,7 @@ struct PagesVariablesView: View {
                                 Divider()
                                 
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     varNameToDelete = key
                                     showingDeleteAlert = true
                                 } label: {
@@ -180,13 +173,13 @@ struct PagesVariablesView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     varNameToDelete = key
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                         }
                     }
@@ -198,7 +191,7 @@ struct PagesVariablesView: View {
                     ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
                         if let val = secretVariables[key] {
                             Button {
-                                HIGFeedback.impact(.light)
+                                HapticManager.impact(.light)
                                 variableToEdit = (key, val)
                             } label: {
                                 variableRow(key: key, value: val)
@@ -206,9 +199,7 @@ struct PagesVariablesView: View {
                             .buttonStyle(.plain)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = key
-                                    ToastManager.shared.showCopied("Secret Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(key, toast: "Secret Name Copied")
                                 } label: {
                                     Label("Copy Name", systemImage: "doc.on.doc")
                                 }
@@ -216,7 +207,7 @@ struct PagesVariablesView: View {
                                 Divider()
                                 
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     varNameToDelete = key
                                     showingDeleteAlert = true
                                 } label: {
@@ -225,13 +216,13 @@ struct PagesVariablesView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     varNameToDelete = key
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                         }
                     }
@@ -239,47 +230,47 @@ struct PagesVariablesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if currentEnvVars.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Variables or Secrets",
-                        systemImage: "key.fill",
-                        description: "No environment variables or encrypted secrets configured for \(selectedEnv.capitalized) environment.",
-                        actionTitle: "Add Variable or Secret",
-                        action: { showingAddVariableSheet = true }
-                    )
-                )
-            }
-        }
+        .listState(
+            isEmpty: currentEnvVars.isEmpty,
+            emptyTitle: "No Variables or Secrets",
+            emptySystemImage: "key.fill",
+            emptyDescription: "No environment variables or encrypted secrets configured for \(selectedEnv.capitalized) environment.",
+            emptyActionTitle: "Add Variable or Secret",
+            emptyAction: { showingAddVariableSheet = true }
+        )
     }
     
     @ViewBuilder
     private func variableRow(key: String, value: PagesEnvVarValue) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(
                 icon: value.isSecret ? "lock.fill" : "textformat",
                 color: value.isSecret ? .purple : .blue
             )
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs + 2) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(key)
-                        .font(HIGTypography.body.monospaced().weight(.semibold))
+                        .font(.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
                     
                     if value.isSecret {
-                        HIGBadge(.custom(color: .purple, text: "Secret"), isCompact: true)
+                        Text("Secret")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
                 
                 if value.isSecret {
                     Text("••••••••••••••••")
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 } else if let txt = value.value, !txt.isEmpty {
                     Text(txt)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -288,11 +279,11 @@ struct PagesVariablesView: View {
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(HIGTypography.caption2.weight(.semibold))
+                .font(.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
     
@@ -321,14 +312,14 @@ struct PagesVariablesView: View {
                     varNameToDelete = nil
                     isDeleting = false
                     ToastManager.shared.showSuccess("Variable Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             } catch {
                 await MainActor.run {
                     isDeleting = false
                     varNameToDelete = nil
                     ToastManager.shared.showError("Failed to Delete Variable")
-                    HIGFeedback.error()
+                    HapticManager.notification(.error)
                 }
             }
         }
@@ -390,14 +381,14 @@ struct PagesAddVariableSheetView: View {
             Form {
                 Section(header: Text("Variable Details")) {
                     TextField("Variable Name (e.g. API_KEY)", text: $name)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .disabled(!initialName.isEmpty)
                     
                     TextField("Value", text: $value)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .autocorrectionDisabled()
                     
                     Toggle("Encrypt Value (Secret)", isOn: $isSecret)
@@ -405,12 +396,12 @@ struct PagesAddVariableSheetView: View {
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -422,7 +413,6 @@ struct PagesAddVariableSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -445,17 +435,16 @@ struct PagesAddVariableSheetView: View {
                                 )
                                 onSave(updated)
                                 ToastManager.shared.showSuccess("Variable Saved", icon: "key.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

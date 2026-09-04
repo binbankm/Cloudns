@@ -28,14 +28,12 @@ struct WorkerRoutesView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Attach Custom Domain")
-                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingAttachSheet) {
                 WorkerAttachDomainSheetView(accountId: accountId, scriptName: scriptName) {
                     Task { await fetchDomains() }
                 }
-                .higToast()
             }
             .confirmationDialog("Detach Domain", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: domainToDelete) { dom in
                 Button("Detach '\(dom.hostname)'", role: .destructive) {
@@ -43,11 +41,11 @@ struct WorkerRoutesView: View {
                         do {
                             try await WorkerService.shared.detachWorkerDomain(accountId: accountId, domainId: dom.id)
                             ToastManager.shared.showSuccess("Domain Detached", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                             await fetchDomains()
                         } catch {
                             ToastManager.shared.showError("Failed to Detach Domain")
-                            HIGFeedback.error()
+                            HapticManager.notification(.error)
                         }
                     }
                 }
@@ -73,21 +71,16 @@ struct WorkerRoutesView: View {
                 header: Text("Custom Domains (\(customDomains.count))"),
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
             ) {
-                if !hasFetchedData && isLoading {
-                    HIGContentState(.loading(message: "Loading Routes…"))
-                        .padding(.vertical, HIGTokens.Spacing.sm)
-                } else if customDomains.isEmpty {
+                if customDomains.isEmpty {
                     Text("No custom domains attached.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(customDomains) { dom in
                         domainRow(dom)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = dom.hostname
-                                    ToastManager.shared.showCopied("Hostname Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(dom.hostname, toast: "Hostname Copied")
                                 } label: {
                                     Label("Copy Hostname", systemImage: "doc.on.doc")
                                 }
@@ -97,20 +90,20 @@ struct WorkerRoutesView: View {
                                 Button(role: .destructive) {
                                     domainToDelete = dom
                                     showingDeleteAlert = true
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                 } label: {
                                     Label("Detach Domain", systemImage: "trash")
                                 }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     domainToDelete = dom
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Detach", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
@@ -123,19 +116,17 @@ struct WorkerRoutesView: View {
                     footer: Text("Enterprise/Zone routes pattern-matched against Cloudflare Edge requests.")
                 ) {
                     ForEach(fallbackRoutes, id: \.self) { route in
-                        HStack(spacing: HIGTokens.Spacing.md) {
+                        HStack(spacing: 12) {
                             ListRowIcon(icon: "arrow.triangle.swap", color: .blue)
                             
                             Text(route)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                         }
-                        .padding(.vertical, HIGTokens.Spacing.xxs)
+                        .padding(.vertical, 2)
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = route
-                                ToastManager.shared.showCopied("Route Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(route, toast: "Route Copied")
                             } label: {
                                 Label("Copy Route Pattern", systemImage: "doc.on.doc")
                             }
@@ -145,50 +136,40 @@ struct WorkerRoutesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if hasFetchedData {
-                if let err = errorMessage, customDomains.isEmpty && fallbackRoutes.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await fetchDomains() } }
-                        )
-                    )
-                } else if customDomains.isEmpty && fallbackRoutes.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Routes Configured",
-                            systemImage: "link",
-                            description: "Attach a custom hostname to route requests to this Worker.",
-                            actionTitle: "Attach Domain",
-                            action: { showingAttachSheet = true }
-                        )
-                    )
-                }
-            }
-        }
+        .listState(
+            isLoading: isLoading && !hasFetchedData,
+            loadingMessage: "Loading Routes…",
+            isEmpty: hasFetchedData && customDomains.isEmpty && fallbackRoutes.isEmpty,
+            emptyTitle: "No Routes Configured",
+            emptySystemImage: "link",
+            emptyDescription: "Attach a custom hostname to route requests to this Worker.",
+            emptyActionTitle: "Attach Domain",
+            emptyAction: { showingAttachSheet = true },
+            errorMessage: (hasFetchedData && customDomains.isEmpty && fallbackRoutes.isEmpty) ? errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await fetchDomains() } }
+        )
     }
     
     @ViewBuilder
     private func domainRow(_ dom: WorkerCustomDomain) -> some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+        HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "link", color: .teal)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(dom.hostname)
-                    .font(HIGTypography.body)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
                 if let zName = dom.zoneName {
                     Text(zName)
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             
             Spacer()
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func fetchDomains() async {
@@ -225,18 +206,18 @@ struct WorkerAttachDomainSheetView: View {
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .submitLabel(.done)
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -248,7 +229,6 @@ struct WorkerAttachDomainSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Attach") {
@@ -267,19 +247,18 @@ struct WorkerAttachDomainSheetView: View {
                                     hostname: trimmedHost,
                                     zoneId: targetZoneId
                                 )
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Domain Attached", icon: "link")
                                 onAttached()
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isAttaching = false
                         }
                     }
                     .disabled(hostname.trimmingCharacters(in: .whitespaces).isEmpty || isAttaching)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isAttaching)

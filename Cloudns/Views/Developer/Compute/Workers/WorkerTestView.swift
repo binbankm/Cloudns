@@ -21,7 +21,7 @@ struct WorkerTestView: View {
             Section {
                 HStack {
                     Text("HTTP Method")
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .foregroundStyle(.primary)
                     Spacer()
                     Picker("Method", selection: $viewModel.selectedMethod) {
@@ -32,24 +32,24 @@ struct WorkerTestView: View {
                     .pickerStyle(.menu)
                     .labelsHidden()
                     .onChange(of: viewModel.selectedMethod) { _ in
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Target URL")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                     
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "link")
-                            .font(HIGTypography.body)
-                            .foregroundStyle(Color.higAccent)
+                            .font(.body)
+                            .foregroundStyle(Color.accentColor)
                             .accessibilityHidden(true)
                         
                         TextField("https://...", text: $viewModel.targetUrl)
                             .submitLabel(.done)
-                            .font(HIGTypography.body.monospacedDigit())
+                            .font(.body.monospacedDigit())
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .keyboardType(.URL)
@@ -63,22 +63,21 @@ struct WorkerTestView: View {
                                     .foregroundStyle(.secondary)
                             }
                             .buttonStyle(.plain)
-                            .higTouchTarget(44)
                             .accessibilityLabel("Clear URL")
                         }
                     }
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
                 
                 // Quick Path Shortcuts
                 ScrollView(.horizontal) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         quickPathButton("/")
                         quickPathButton("/api")
                         quickPathButton("/health")
                         quickPathButton("/json")
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 .scrollIndicators(.hidden)
             } header: {
@@ -89,7 +88,7 @@ struct WorkerTestView: View {
             if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
                 Section {
                     TextEditor(text: $viewModel.requestBody)
-                        .font(HIGTypography.caption.monospacedDigit())
+                        .font(.caption.monospacedDigit())
                         .frame(minHeight: 90)
                 } header: {
                     Text("Request Body (JSON)")
@@ -102,10 +101,10 @@ struct WorkerTestView: View {
             Section {
                 Button {
                     isFieldFocused = false
-                    HIGFeedback.impact(.medium)
+                    HapticManager.impact(.medium)
                     Task { await viewModel.executeDispatch() }
                 } label: {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         Spacer()
                         if viewModel.isTesting {
                             ProgressView()
@@ -114,12 +113,11 @@ struct WorkerTestView: View {
                             Image(systemName: "paperplane.fill")
                         }
                         Text("Send Test Request")
-                            .font(HIGTypography.body.weight(.semibold))
+                            .font(.body.weight(.semibold))
                         Spacer()
                     }
-                    .foregroundStyle(viewModel.targetUrl.isEmpty || viewModel.isTesting ? Color(.tertiaryLabel) : Color.higAccent)
+                    .foregroundStyle(viewModel.targetUrl.isEmpty || viewModel.isTesting ? Color(.tertiaryLabel) : Color.accentColor)
                 }
-                .buttonStyle(.higPressable)
                 .disabled(viewModel.targetUrl.isEmpty || viewModel.isTesting)
             }
             
@@ -128,20 +126,31 @@ struct WorkerTestView: View {
                 Section {
                     HStack {
                         Text("HTTP Status")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Spacer()
                         let statusText = [String(status), viewModel.responseStatusText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
-                        HIGBadge(.custom(color: (200...299).contains(status) ? HIGColors.success : HIGColors.error, text: statusText), isCompact: true)
+                        let isSuccess = (200...299).contains(status)
+                        Text(statusText)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(isSuccess ? Color.green : Color.red)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill((isSuccess ? Color.green : Color.red).opacity(0.12)))
                     }
                     
                     if let dur = viewModel.responseDurationMs {
                         HStack {
                             Text("Latency / Time")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            HIGBadge(.custom(color: HIGColors.success, text: "\(dur.formatted(.number.precision(.fractionLength(1)))) ms"), isCompact: true)
+                            Text("\(dur.formatted(.number.precision(.fractionLength(1)))) ms")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.green)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.green.opacity(0.12)))
                         }
                     }
                 } header: {
@@ -152,62 +161,58 @@ struct WorkerTestView: View {
                     Section {
                         ScrollView(.horizontal, showsIndicators: true) {
                             Text(body)
-                                .font(HIGTypography.caption.monospacedDigit())
-                                .padding(HIGTokens.Spacing.sm)
+                                .font(.caption.monospacedDigit())
+                                .padding(8)
                                 .textSelection(.enabled)
                         }
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+                        .background(Color(uiColor: .secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     } header: {
                         HStack {
                             Text("Response Payload")
                             Spacer()
                             Button {
-                                UIPasteboard.general.string = body
-                                ToastManager.shared.showCopied("Response Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(body, toast: "Response Copied")
                             } label: {
                                 Label("Copy", systemImage: "doc.on.doc")
-                                    .font(HIGTypography.caption)
+                                    .font(.caption)
                             }
-                            .buttonStyle(.higPressable)
-                            .higTouchTarget(44)
                         }
                     }
                 }
             } else if let err = viewModel.errorMessage {
                 Section {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HIGColors.error)
+                            .foregroundStyle(.red)
                             .accessibilityHidden(true)
                         Text(verbatim: err)
-                            .font(HIGTypography.subheadline)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 } header: {
                     Text("Error")
                 }
             } else {
                 // Ready Guide Banner
                 Section {
-                    VStack(spacing: HIGTokens.Spacing.sm) {
+                    VStack(spacing: 8) {
                         Image(systemName: "bolt.horizontal.circle.fill")
                             .font(.largeTitle)
-                            .foregroundStyle(Color.higAccent.opacity(0.8))
+                            .foregroundStyle(Color.accentColor.opacity(0.8))
                             .accessibilityHidden(true)
                         
                         Text("Ready to Probe Worker")
-                            .font(HIGTypography.subheadline.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
                         
                         Text("Send live HTTP requests directly from your device to test edge routing, response headers, and latency in real time.")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.md)
+                    .padding(.vertical, 16)
                     .frame(maxWidth: .infinity)
                 }
                 .listRowBackground(Color.clear)
@@ -222,18 +227,14 @@ struct WorkerTestView: View {
                 Menu {
                     Button {
                         let curl = generateCurlCommand()
-                        UIPasteboard.general.string = curl
-                        ToastManager.shared.showCopied("cURL Command Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(curl, toast: "cURL Command Copied")
                     } label: {
                         Label("Copy as cURL", systemImage: "terminal")
                     }
                     
                     Button {
                         let fetchCode = generateFetchCode()
-                        UIPasteboard.general.string = fetchCode
-                        ToastManager.shared.showCopied("Fetch Code Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(fetchCode, toast: "Fetch Code Copied")
                     } label: {
                         Label("Copy as Fetch (TS)", systemImage: "chevron.left.forwardslash.chevron.right")
                     }
@@ -242,7 +243,6 @@ struct WorkerTestView: View {
                 }
                 .disabled(viewModel.targetUrl.isEmpty)
                 .accessibilityLabel("Export Request")
-                .higTouchTarget(44)
             }
         }
     }
@@ -278,7 +278,7 @@ struct WorkerTestView: View {
     
     private func quickPathButton(_ path: String) -> some View {
         Button {
-            HIGFeedback.impact(.light)
+            HapticManager.impact(.light)
             if let url = URL(string: viewModel.targetUrl) {
                 var comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
                 comps?.path = path
@@ -288,13 +288,12 @@ struct WorkerTestView: View {
             }
         } label: {
             Text(path)
-                .font(HIGTypography.caption2.monospacedDigit())
-                .foregroundStyle(Color.higAccent)
-                .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-                .padding(.vertical, HIGTokens.Spacing.xxs + 2)
-                .background(Color.higAccent.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
-        .buttonStyle(.higPressable)
     }
 }

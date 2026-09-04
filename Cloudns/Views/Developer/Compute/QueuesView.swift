@@ -30,19 +30,17 @@ struct QueuesView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Create Queue")
-                    .higTouchTarget(44)
                 }
             }
             .sheet(isPresented: $showingCreateSheet) {
                 CreateQueueSheetView(viewModel: viewModel)
-                    .higToast()
             }
             .confirmationDialog("Delete Queue", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: queueToDelete) { q in
                 Button("Delete '\(q.queueName)'", role: .destructive) {
                     Task {
                         await viewModel.deleteQueue(queueId: q.id)
                         ToastManager.shared.showSuccess("Queue Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -54,7 +52,7 @@ struct QueuesView: View {
                     Task {
                         await viewModel.purgeQueue(queueId: q.id)
                         ToastManager.shared.showSuccess("Queue Purged", icon: "xmark.bin.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -82,17 +80,13 @@ struct QueuesView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = queue.queueName
-                                ToastManager.shared.showCopied("Queue Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(queue.queueName, toast: "Queue Name Copied")
                             } label: {
                                 Label("Copy Queue Name", systemImage: "doc.on.doc")
                             }
                             
                             Button {
-                                UIPasteboard.general.string = queue.id
-                                ToastManager.shared.showCopied("Queue ID Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(queue.id, toast: "Queue ID Copied")
                             } label: {
                                 Label("Copy Queue ID", systemImage: "link")
                             }
@@ -102,7 +96,7 @@ struct QueuesView: View {
                             Button(role: .destructive) {
                                 queueToPurge = queue
                                 showingPurgeAlert = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Purge Messages", systemImage: "xmark.bin")
                             }
@@ -110,23 +104,23 @@ struct QueuesView: View {
                             Button(role: .destructive) {
                                 queueToDelete = queue
                                 showingDeleteAlert = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete Queue", systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 queueToDelete = queue
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                             
                             Button {
-                                HIGFeedback.impact(.light)
+                                HapticManager.impact(.light)
                                 queueToPurge = queue
                                 showingPurgeAlert = true
                             } label: {
@@ -139,52 +133,40 @@ struct QueuesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Message Queues…"))
-            } else if viewModel.hasFetchedData {
-                if let err = viewModel.errorMessage, viewModel.queues.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.fetchQueues() } }
-                        )
-                    )
-                } else if viewModel.queues.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Queues Configured",
-                            systemImage: "tray.2.fill",
-                            description: "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers.",
-                            actionTitle: "Create Queue",
-                            action: { showingCreateSheet = true }
-                        )
-                    )
-                }
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Message Queues…",
+            isEmpty: viewModel.hasFetchedData && viewModel.queues.isEmpty,
+            emptyTitle: "No Queues Configured",
+            emptySystemImage: "tray.2.fill",
+            emptyDescription: "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers.",
+            emptyActionTitle: "Create Queue",
+            emptyAction: { showingCreateSheet = true },
+            errorMessage: (viewModel.hasFetchedData && viewModel.queues.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchQueues() } }
+        )
     }
     
     @ViewBuilder
     private func queueRow(_ queue: CFQueue) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "tray.2.fill", color: .indigo)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(queue.queueName)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     if let consumers = queue.consumers {
                         Text("\(consumers.count) Consumers")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     
                     if let created = queue.createdOn, let date = DateFormatters.parseISO8601(created) {
                         Text("• Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -193,12 +175,22 @@ struct QueuesView: View {
             Spacer()
             
             if let producers = queue.producers, !producers.isEmpty {
-                HIGBadge(.custom(color: .orange, text: String(localized: "\(producers.count) producers")), isCompact: true)
+                Text("\(producers.count) producers")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.orange.opacity(0.12)))
             } else {
-                HIGBadge(.active, isCompact: true)
+                Text("Active")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.green.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -219,7 +211,7 @@ struct CreateQueueSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -229,7 +221,6 @@ struct CreateQueueSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -238,17 +229,16 @@ struct CreateQueueSheetView: View {
                             let success = await viewModel.createQueue(name: queueName.trimmingCharacters(in: .whitespaces))
                             if success {
                                 ToastManager.shared.showSuccess("Queue Created", icon: "tray.2.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } else {
                                 ToastManager.shared.showError("Failed to Create Queue")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
                     }
                     .disabled(queueName.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)
