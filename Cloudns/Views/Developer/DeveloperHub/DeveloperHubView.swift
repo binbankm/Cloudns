@@ -258,7 +258,7 @@ struct DeveloperHubRowView: View {
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    var badgeText: String? = nil
+    var badgeText: String?
     var badgeColor: Color = .purple
     
     var body: some View {

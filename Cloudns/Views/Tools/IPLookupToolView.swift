@@ -114,7 +114,6 @@ struct IPLookupToolView: View {
         Task { await viewModel.queryIP() }
     }
     
-
     // MARK: - 2. Identification Rows
     @ViewBuilder
     private func identificationRows(result: IPLookupResult) -> some View {
