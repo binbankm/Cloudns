@@ -81,7 +81,6 @@ struct IPAccessRulesView: View {
             AddIPAccessRuleView(zoneId: zoneId, viewModel: viewModel, isPresented: $showingAddRule)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .higToast()
         }
         .confirmationDialog(
             "Delete IP Access Rule",

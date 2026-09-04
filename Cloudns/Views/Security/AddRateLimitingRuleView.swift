@@ -136,7 +136,6 @@ struct AddRateLimitingRuleView: View {
                 }
             )
         }
-        .higToast()
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }

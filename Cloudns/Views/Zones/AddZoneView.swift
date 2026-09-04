@@ -187,6 +187,5 @@ struct AddZoneView: View {
                 }
             }
         }
-        .higToast()
     }
 }

@@ -123,7 +123,7 @@ struct DNSRecordsView: View {
         if isEditing && !multiSelection.isEmpty {
             let selectedCount = multiSelection.count
             Button(role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 showingBatchDeleteDialog = true
             } label: {
                 Text("Delete Selected (\(selectedCount))")
@@ -143,7 +143,7 @@ struct DNSRecordsView: View {
                 Menu {
                     Button {
                         viewModel.selectedType = "ALL"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.selectedType == "ALL" {
                             Label("All Types", systemImage: "checkmark")
@@ -157,7 +157,7 @@ struct DNSRecordsView: View {
                     ForEach(["A", "AAAA", "CNAME", "TXT", "MX", "NS", "PTR", "SRV", "CAA"], id: \.self) { type in
                         Button {
                             viewModel.selectedType = type
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         } label: {
                             if viewModel.selectedType == type {
                                 Label(type, systemImage: "checkmark")
@@ -177,7 +177,7 @@ struct DNSRecordsView: View {
                 Menu {
                     Button {
                         viewModel.selectedProxyStatus = "ALL"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.selectedProxyStatus == "ALL" {
                             Label("All Statuses", systemImage: "checkmark")
@@ -188,7 +188,7 @@ struct DNSRecordsView: View {
                     
                     Button {
                         viewModel.selectedProxyStatus = "PROXIED"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.selectedProxyStatus == "PROXIED" {
                             Label("Proxied (Orange Cloud)", systemImage: "checkmark")
@@ -199,7 +199,7 @@ struct DNSRecordsView: View {
                     
                     Button {
                         viewModel.selectedProxyStatus = "DNS_ONLY"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.selectedProxyStatus == "DNS_ONLY" {
                             Label("DNS Only (Grey Cloud)", systemImage: "checkmark")
@@ -218,7 +218,7 @@ struct DNSRecordsView: View {
                 Menu {
                     Button {
                         viewModel.sortOption = "name"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.sortOption == "name" {
                             Label("Name (A to Z)", systemImage: "checkmark")
@@ -229,7 +229,7 @@ struct DNSRecordsView: View {
                     
                     Button {
                         viewModel.sortOption = "type"
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     } label: {
                         if viewModel.sortOption == "type" {
                             Label("Record Type", systemImage: "checkmark")
@@ -246,7 +246,7 @@ struct DNSRecordsView: View {
                     
                     Button(role: .destructive) {
                         viewModel.resetFilters()
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                     } label: {
                         Label("Reset All Filters", systemImage: "arrow.counterclockwise")
                     }
@@ -448,7 +448,7 @@ struct DNSRecordRowView: View {
                 
                 if record.proxiable == true {
                     Button {
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         onToggleProxy?()
                     } label: {
                         proxyBadge
@@ -556,7 +556,6 @@ private struct DNSRecordsSheetsModifier: ViewModifier {
                 )
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .higToast()
             }
             .sheet(isPresented: $showingPresetsSheet) {
                 DNSPresetsSheetView(
@@ -566,7 +565,6 @@ private struct DNSRecordsSheetsModifier: ViewModifier {
                 )
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .higToast()
             }
             .fileImporter(
                 isPresented: $showingImporter,
@@ -577,11 +575,9 @@ private struct DNSRecordsSheetsModifier: ViewModifier {
             }
             .sheet(isPresented: $showingForm) {
                 DNSRecordFormView(viewModel: viewModel)
-                    .higToast()
             }
             .sheet(item: $recordToEdit) { record in
                 DNSRecordFormView(viewModel: viewModel, existingRecord: record)
-                    .higToast()
             }
     }
 

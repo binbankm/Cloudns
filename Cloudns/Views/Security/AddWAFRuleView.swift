@@ -265,7 +265,6 @@ struct AddWAFRuleView: View {
                 }
             )
         }
-        .higToast()
     }
     
     @ViewBuilder

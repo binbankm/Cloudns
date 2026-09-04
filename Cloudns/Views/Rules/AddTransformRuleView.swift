@@ -141,7 +141,6 @@ struct AddTransformRuleView: View {
                 }
             )
         }
-        .higToast()
     }
     
     private var isFormInvalid: Bool {

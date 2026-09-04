@@ -99,7 +99,6 @@ struct CacheRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddCacheRuleView(zoneId: zoneId, viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog(
             "Delete Cache Rule",

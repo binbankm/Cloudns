@@ -94,7 +94,6 @@ struct WAFCustomRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddWAFRuleView(zoneId: zoneId, viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog(
             "Delete WAF Rule",

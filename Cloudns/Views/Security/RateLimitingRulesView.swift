@@ -95,7 +95,6 @@ struct RateLimitingRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddRateLimitingRuleView(zoneId: zoneId, viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog(
             "Delete Rate Limiting Rule",

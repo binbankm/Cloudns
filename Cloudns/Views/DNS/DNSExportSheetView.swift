@@ -170,14 +170,13 @@ struct DNSExportSheetView: View {
                 switch result {
                 case .success:
                     ToastManager.shared.showSuccess("Zone File Saved", icon: "folder.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 case .failure:
                     ToastManager.shared.showError("Failed to Save File")
-                    HIGFeedback.error()
+                    HapticManager.notification(.error)
                 }
             }
         }
-        .higToast()
     }
     
     private func lineColor(for line: String) -> Color {

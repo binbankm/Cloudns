@@ -126,7 +126,6 @@ struct AddCacheRuleView: View {
                 }
             )
         }
-        .higToast()
     }
     
     private func submitRule() async {

@@ -17,7 +17,7 @@ public struct ToastItem: Identifiable, Equatable {
     public init(
         message: LocalizedStringKey,
         icon: String = "checkmark.circle.fill",
-        iconColor: Color = HIGColors.success,
+        iconColor: Color = .green,
         duration: TimeInterval = 2.0
     ) {
         self.message = message
@@ -42,7 +42,7 @@ public final class ToastManager: ObservableObject {
     public func show(
         _ message: LocalizedStringKey,
         icon: String = "info.circle.fill",
-        iconColor: Color = HIGColors.info,
+        iconColor: Color = .blue,
         duration: TimeInterval = 2.0
     ) {
         let item = ToastItem(message: message, icon: icon, iconColor: iconColor, duration: duration)
@@ -51,22 +51,22 @@ public final class ToastManager: ObservableObject {
 
     /// Presents success toast HUD with haptic feedback
     public func showSuccess(_ message: LocalizedStringKey, icon: String = "checkmark.circle.fill") {
-        HIGFeedback.success()
-        let item = ToastItem(message: message, icon: icon, iconColor: HIGColors.success, duration: 2.0)
+        HapticManager.notification(.success)
+        let item = ToastItem(message: message, icon: icon, iconColor: .green, duration: 2.0)
         present(item)
     }
 
     /// Presents copied-to-clipboard toast HUD with haptic feedback
     public func showCopied(_ message: LocalizedStringKey = "Copied to Clipboard") {
-        HIGFeedback.copied()
-        let item = ToastItem(message: message, icon: "doc.on.doc.fill", iconColor: HIGColors.info, duration: 1.8)
+        HapticManager.impact(.light)
+        let item = ToastItem(message: message, icon: "doc.on.doc.fill", iconColor: .blue, duration: 1.8)
         present(item)
     }
 
     /// Presents error toast HUD with haptic feedback
     public func showError(_ message: LocalizedStringKey, icon: String = "exclamationmark.triangle.fill") {
-        HIGFeedback.error()
-        let item = ToastItem(message: message, icon: icon, iconColor: HIGColors.error, duration: 2.5)
+        HapticManager.notification(.error)
+        let item = ToastItem(message: message, icon: icon, iconColor: .red, duration: 2.5)
         present(item)
     }
 
@@ -97,9 +97,9 @@ public final class ToastManager: ObservableObject {
     }
 }
 
-// MARK: - HIG Toast Overlay Component (Apple Capsule HUD)
+// MARK: - Toast Overlay Component (Apple Capsule HUD)
 
-public struct HIGToastOverlay: View {
+public struct ToastOverlay: View {
     @ObservedObject private var toastManager = ToastManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -108,31 +108,31 @@ public struct HIGToastOverlay: View {
     public var body: some View {
         Group {
             if let toast = toastManager.currentToast {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Image(systemName: toast.icon)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(toast.iconColor)
 
                     Text(toast.message)
-                        .font(HIGTypography.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
-                .padding(.horizontal, HIGTokens.Spacing.lg)
-                .padding(.vertical, HIGTokens.Spacing.md - 2)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 .background(.ultraThinMaterial)
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
-                        .stroke(Color.primary.opacity(0.08), lineWidth: HIGTokens.Elevation.overlayStroke)
+                        .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
                 )
                 .shadow(
                     color: Color.black.opacity(0.12),
-                    radius: HIGTokens.Elevation.overlayShadowRadius,
+                    radius: 16,
                     x: 0,
-                    y: HIGTokens.Elevation.overlayShadowY
+                    y: 6
                 )
-                .padding(.top, HIGTokens.Spacing.sm)
+                .padding(.top, 8)
                 .onTapGesture {
                     toastManager.dismiss()
                 }
@@ -151,21 +151,8 @@ public struct HIGToastOverlay: View {
                 ))
             }
         }
-        .animation(HIGMotion.overlaySpring(reduceMotion: reduceMotion), value: toastManager.currentToast)
+        .animation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.8), value: toastManager.currentToast)
     }
 }
 
-public struct HIGToastModifier: ViewModifier {
-    public func body(content: Content) -> some View {
-        content
-            .overlay(alignment: .top) {
-                HIGToastOverlay()
-            }
-    }
-}
-
-public extension View {
-    func higToast() -> some View {
-        self.modifier(HIGToastModifier())
-    }
-}
+public typealias HIGToastOverlay = ToastOverlay

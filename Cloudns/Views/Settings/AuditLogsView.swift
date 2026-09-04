@@ -48,7 +48,6 @@ struct AuditLogsView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-            .higToast()
         }
         .listState(
             isLoading: !viewModel.hasFetchedData && viewModel.isLoading,

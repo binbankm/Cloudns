@@ -190,7 +190,7 @@ struct DNSPresetsSheetView: View {
                     Section(header: Text(category)) {
                         ForEach(presets.filter { $0.category == category }) { preset in
                             Button {
-                                HIGFeedback.selection()
+                                HapticManager.selection()
                                 selectedGroup = preset
                             } label: {
                                 HStack(spacing: 12) {
@@ -242,10 +242,8 @@ struct DNSPresetsSheetView: View {
             }
             .sheet(item: $selectedGroup) { group in
                 presetDetailSheet(for: group)
-                    .higToast()
             }
         }
-        .higToast()
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
@@ -347,7 +345,7 @@ struct DNSPresetsSheetView: View {
     
     private func applyPreset(group: DNSPresetGroup) async {
         isApplying = true
-        HIGFeedback.impact(.medium)
+        HapticManager.impact(.medium)
         
         var successCount = 0
         for item in group.items {

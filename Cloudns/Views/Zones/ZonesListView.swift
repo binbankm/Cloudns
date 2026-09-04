@@ -49,7 +49,6 @@ struct ZonesListView: View {
                 AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
-                    .higToast()
             }
             .listState(
                 isLoading: !viewModel.hasFetchedData && viewModel.isLoading,

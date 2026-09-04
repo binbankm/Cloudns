@@ -48,7 +48,6 @@ struct TransformRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {

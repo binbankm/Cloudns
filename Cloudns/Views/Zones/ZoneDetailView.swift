@@ -295,7 +295,6 @@ struct ZoneNavRowView<Destination: View>: View {
     let icon: String
     let color: Color
     let badgeText: LocalizedStringKey?
-    let badge: HIGBadgeType?
     let destination: Destination
 
     init(
@@ -304,7 +303,6 @@ struct ZoneNavRowView<Destination: View>: View {
         icon: String,
         color: Color,
         badgeText: LocalizedStringKey? = nil,
-        badge: HIGBadgeType? = nil,
         destination: Destination
     ) {
         self.title = title
@@ -312,7 +310,6 @@ struct ZoneNavRowView<Destination: View>: View {
         self.icon = icon
         self.color = color
         self.badgeText = badgeText
-        self.badge = badge
         self.destination = destination
     }
 
@@ -335,8 +332,6 @@ struct ZoneNavRowView<Destination: View>: View {
                                 .background(Color.orange.opacity(0.14))
                                 .foregroundStyle(.orange)
                                 .clipShape(Capsule())
-                        } else if let badge {
-                            HIGBadge(badge, isCompact: true)
                         }
                     }
                     

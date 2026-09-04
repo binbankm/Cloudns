@@ -321,7 +321,7 @@ struct DNSRecordFormView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await saveRecord()
                         }
@@ -356,20 +356,19 @@ struct DNSRecordFormView: View {
                 }
             }
         }
-        .higToast()
     }
     
     private func saveRecord() async {
         if type == "A" {
             if IPv4Address(content) == nil {
                 errorMessage = "Invalid IPv4 address format."
-                HIGFeedback.error()
+                HapticManager.notification(.error)
                 return
             }
         } else if type == "AAAA" {
             if IPv6Address(content) == nil {
                 errorMessage = "Invalid IPv6 address format."
-                HIGFeedback.error()
+                HapticManager.notification(.error)
                 return
             }
         }
@@ -435,7 +434,7 @@ struct DNSRecordFormView: View {
             ToastManager.shared.showSuccess("DNS Record Saved")
             dismiss()
         } catch {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
             errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
         
