@@ -25,98 +25,98 @@ struct TurnstileDetailView: View {
     var body: some View {
         List {
             // MARK: - Keys & Overview
-            Section(header: Text("Widget Credentials")) {
+            Section("Widget Credentials") {
                 LabeledContent("Widget Name", value: widget.name)
-                    .font(HIGTypography.body)
+                    .font(.body)
                 
                 LabeledContent("Mode") {
-                    HIGBadge(.custom(color: .blue, text: (widget.mode ?? "Managed").capitalized), isCompact: true)
+                    Text((widget.mode ?? "Managed").capitalized)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.blue)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.blue.opacity(0.12)))
                 }
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Sitekey (Public)")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                     
                     HStack {
                         Text(widget.sitekey)
-                            .font(HIGTypography.caption.monospaced())
+                            .font(.caption.monospaced())
                             .foregroundStyle(.primary)
                             .lineLimit(1)
                         Spacer()
                         Button {
-                            UIPasteboard.general.string = widget.sitekey
-                            ToastManager.shared.showCopied("Sitekey Copied")
-                            HIGFeedback.copied()
+                            copyToClipboard(widget.sitekey, toast: "Sitekey Copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(Color.higAccent)
+                                .font(.caption)
+                                .foregroundStyle(.blue)
                         }
-                        .higTouchTarget(44)
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
                 
                 if let secret = currentSecret, !secret.isEmpty {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Secret Key (Private)")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         
                         HStack {
                             Text(secret)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
-                        Spacer()
+                            Spacer()
                             Button {
-                                UIPasteboard.general.string = secret
-                                ToastManager.shared.showCopied("Secret Key Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(secret, toast: "Secret Key Copied")
                             } label: {
                                 Image(systemName: "doc.on.doc")
-                                    .font(HIGTypography.caption)
-                                    .foregroundStyle(Color.higAccent)
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
                             }
-                            .higTouchTarget(44)
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 if let domains = widget.domains, !domains.isEmpty {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text("Allowed Domains")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         Text(domains.joined(separator: ", "))
-                            .font(HIGTypography.footnote)
+                            .font(.footnote)
                             .foregroundStyle(.primary)
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
             }
             
             // MARK: - Management Actions
             if viewModel != nil {
-                Section(header: Text("Management")) {
+                Section("Management") {
                     Button {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         showingEditSheet = true
                     } label: {
                         Label("Edit Widget Settings", systemImage: "pencil")
-                            .font(HIGTypography.body)
+                            .font(.body)
                     }
-                    .higTouchTarget(44)
                     
                     Button(role: .destructive) {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         showingRotateAlert = true
                     } label: {
                         HStack {
                             Label("Rotate Secret Key", systemImage: "arrow.triangle.2.circlepath")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Spacer()
                             if isRotatingSecret {
                                 ProgressView()
@@ -124,20 +124,19 @@ struct TurnstileDetailView: View {
                         }
                     }
                     .disabled(isRotatingSecret)
-                    .higTouchTarget(44)
                 }
             }
             
             // MARK: - Code Integration Guide
-            Section(header: Text("Integration Code Generator")) {
+            Section("Integration Code Generator") {
                 Picker("Layer", selection: $selectedTab) {
                     Text("Client-side").tag("frontend")
                     Text("Server Verification").tag("backend")
                 }
                 .pickerStyle(.segmented)
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
                 .onChange(of: selectedTab) { _ in
-                    HIGFeedback.selection()
+                    HapticManager.selection()
                 }
                 
                 if selectedTab == "frontend" {
@@ -146,9 +145,9 @@ struct TurnstileDetailView: View {
                         Text("React / Next.js").tag("react")
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                     .onChange(of: frontendFramework) { _ in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     }
                 } else {
                     Picker("Language", selection: $backendLang) {
@@ -157,32 +156,29 @@ struct TurnstileDetailView: View {
                         Text("Go").tag("go")
                     }
                     .pickerStyle(.segmented)
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                     .onChange(of: backendLang) { _ in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 6) {
                     ScrollView(.horizontal) {
                         Text(verbatim: snippetCode)
-                            .font(HIGTypography.caption2.monospaced())
+                            .font(.caption2.monospaced())
                             .foregroundStyle(.primary)
-                            .padding(.vertical, HIGTokens.Spacing.xxs)
+                            .padding(.vertical, 2)
                     }
                     .scrollIndicators(.hidden)
                     
                     Button {
-                        HIGFeedback.copied()
-                        UIPasteboard.general.string = snippetCode
-                        ToastManager.shared.showCopied("Code Snippet Copied")
+                        copyToClipboard(snippetCode, toast: "Code Snippet Copied")
                     } label: {
                         Label("Copy Code Snippet", systemImage: "doc.on.doc")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                     }
-                    .higTouchTarget(44)
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
         }
         .listStyle(.insetGrouped)
@@ -196,7 +192,6 @@ struct TurnstileDetailView: View {
                     }
                 }
             }
-            .higToast()
         }
         .alert("Rotate Secret Key", isPresented: $showingRotateAlert) {
             Button("Cancel", role: .cancel) {}
@@ -218,10 +213,10 @@ struct TurnstileDetailView: View {
             do {
                 let newSecret = try await vm.rotateSecret(sitekey: widget.sitekey, invalidateImmediately: invalidateImmediately)
                 self.currentSecret = newSecret
-                HIGFeedback.success()
+                HapticManager.notification(.success)
                 ToastManager.shared.showSuccess("Secret Key Rotated", icon: "key.fill")
             } catch {
-                HIGFeedback.error()
+                HapticManager.notification(.error)
             }
             isRotatingSecret = false
         }
@@ -335,21 +330,25 @@ struct EditTurnstileWidgetSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Widget Details")) {
+                Section("Widget Details") {
                     TextField("Widget Name", text: $name)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .submitLabel(.next)
                 }
                 
-                Section(header: Text("Allowed Domains"), footer: Text("Comma or newline separated list of hostnames.")) {
+                Section {
                     TextField("example.com, app.example.com", text: $domainsText)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Allowed Domains")
+                } footer: {
+                    Text("Comma or newline separated list of hostnames.")
                 }
                 
-                Section(header: Text("Challenge Mode")) {
+                Section("Challenge Mode") {
                     Picker("Mode", selection: $mode) {
                         ForEach(modes, id: \.self) { m in
                             Text(m.capitalized).tag(m)
@@ -361,8 +360,8 @@ struct EditTurnstileWidgetSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -373,7 +372,6 @@ struct EditTurnstileWidgetSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -400,18 +398,17 @@ struct EditTurnstileWidgetSheetView: View {
                                     modifiedOn: widget.modifiedOn
                                 )
                                 onUpdated(updated)
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Widget Updated", icon: "checkmark.shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

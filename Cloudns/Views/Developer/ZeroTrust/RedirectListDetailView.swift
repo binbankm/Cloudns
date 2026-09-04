@@ -24,34 +24,30 @@ struct RedirectListDetailView: View {
     
     var body: some View {
         List {
-            Section(header: Text("List Metadata")) {
+            Section("List Metadata") {
                 LabeledContent("Name", value: list.name)
-                    .font(HIGTypography.body)
+                    .font(.body)
                 
                 LabeledContent("List ID") {
                     Text(list.id)
-                        .font(HIGTypography.caption.monospaced())
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
             
             if !filteredItems.isEmpty {
-                Section(header: Text("Redirect Items (\(filteredItems.count))")) {
+                Section("Redirect Items (\(filteredItems.count))") {
                     ForEach(filteredItems) { item in
                         redirectItemRow(item)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = item.redirect.sourceUrl
-                                    ToastManager.shared.showCopied("Source URL Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(item.redirect.sourceUrl, toast: "Source URL Copied")
                                 } label: {
                                     Label("Copy Source URL", systemImage: "doc.on.doc")
                                 }
                                 
                                 Button {
-                                    UIPasteboard.general.string = item.redirect.targetUrl
-                                    ToastManager.shared.showCopied("Target URL Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(item.redirect.targetUrl, toast: "Target URL Copied")
                                 } label: {
                                     Label("Copy Target URL", systemImage: "link")
                                 }
@@ -59,7 +55,7 @@ struct RedirectListDetailView: View {
                                 Divider()
                                 
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     itemToDelete = item
                                     showingDeleteConfirm = true
                                 } label: {
@@ -70,36 +66,28 @@ struct RedirectListDetailView: View {
                                 Button(role: .destructive) {
                                     itemToDelete = item
                                     showingDeleteConfirm = true
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if isLoading && items.isEmpty {
-                HIGContentState(.loading(message: "Loading Redirect Items…"))
-            } else if !isLoading {
-                if items.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Redirect Items",
-                            systemImage: "arrow.triangle.swap",
-                            description: "Add URL redirect rules to this list.",
-                            actionTitle: "Add Redirect Item",
-                            action: { showingAddSheet = true }
-                        )
-                    )
-                } else if filteredItems.isEmpty && !searchText.isEmpty {
-                    HIGContentState(.search(query: searchText))
-                }
-            }
-        }
+        .listState(
+            isLoading: isLoading && items.isEmpty,
+            loadingMessage: "Loading Redirect Items…",
+            isEmpty: !isLoading && items.isEmpty,
+            emptyTitle: "No Redirect Items",
+            emptyDescription: "Add URL redirect rules to this list.",
+            emptyActionTitle: "Add Redirect Item",
+            emptyAction: { showingAddSheet = true },
+            isSearchEmpty: !isLoading && !items.isEmpty && filteredItems.isEmpty && !searchText.isEmpty,
+            searchQuery: searchText
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $searchText,
@@ -119,14 +107,12 @@ struct RedirectListDetailView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Redirect Item")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddRedirectItemSheetView(accountId: accountId, listId: list.id) {
                 Task { await fetchItems() }
             }
-            .higToast()
         }
         .confirmationDialog("Delete Redirect Item", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
             if let item = itemToDelete {
@@ -162,36 +148,36 @@ struct RedirectListDetailView: View {
     private func deleteItem(id: String) async {
         do {
             _ = try await BulkRedirectService.shared.deleteRedirectListItems(accountId: accountId, listId: list.id, itemIds: [id])
-            HIGFeedback.success()
+            HapticManager.notification(.success)
             await fetchItems()
         } catch {
-            HIGFeedback.error()
+            HapticManager.notification(.error)
         }
     }
     
     @ViewBuilder
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(verbatim: item.redirect.sourceUrl)
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                 Spacer()
                 Text("\(item.redirect.statusCode ?? 301)")
-                    .font(HIGTypography.caption2.weight(.bold))
+                    .font(.caption2.weight(.bold))
                     .foregroundStyle(.indigo)
             }
             
-            HStack(spacing: HIGTokens.Spacing.xs) {
+            HStack(spacing: 6) {
                 Image(systemName: "arrow.turn.down.right")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
                 Text(verbatim: item.redirect.targetUrl)
-                    .font(HIGTypography.caption.monospaced())
-                    .foregroundStyle(Color.higAccent)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.blue)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -214,23 +200,23 @@ struct AddRedirectItemSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("URL Mapping")) {
+                Section("URL Mapping") {
                     TextField("Source URL (e.g. example.com/old)", text: $sourceUrl)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                     
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
                 
-                Section(header: Text("Redirect Behavior")) {
+                Section("Redirect Behavior") {
                     Picker("Status Code", selection: $statusCode) {
                         Text("301 (Permanent)").tag(301)
                         Text("302 (Temporary)").tag(302)
@@ -245,8 +231,8 @@ struct AddRedirectItemSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -257,7 +243,6 @@ struct AddRedirectItemSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -277,19 +262,18 @@ struct AddRedirectItemSheetView: View {
                                     listId: listId,
                                     items: [item]
                                 )
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Redirect Item Added", icon: "arrow.triangle.swap")
                                 onSaved()
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(sourceUrl.trimmingCharacters(in: .whitespaces).isEmpty || targetUrl.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

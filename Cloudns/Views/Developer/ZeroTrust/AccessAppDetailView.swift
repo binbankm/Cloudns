@@ -12,48 +12,48 @@ struct AccessAppDetailView: View {
     
     var body: some View {
         List {
-            Section(header: Text("Application Details")) {
+            Section("Application Details") {
                 LabeledContent("Name", value: app.name)
-                    .font(HIGTypography.body)
+                    .font(.body)
                 
                 LabeledContent("Domain", value: app.domain)
-                    .font(HIGTypography.body.monospaced())
+                    .font(.body.monospaced())
                 
                 if let type = app.type {
                     LabeledContent("Type") {
-                        HIGBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
+                        Text(type.capitalized)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
                 
                 if let aud = app.aud {
                     LabeledContent("Audience Tag (AUD)") {
                         Text(aud)
-                            .font(HIGTypography.caption2.monospaced())
+                            .font(.caption2.monospaced())
                             .foregroundStyle(.secondary)
                     }
                 }
             }
             
-            Section(header: Text("Access Policies (\(policies.count))")) {
-                if isLoadingPolicies && policies.isEmpty {
-                    HIGContentState(.loading(message: "Loading Policies…"))
-                        .padding(.vertical, HIGTokens.Spacing.xs)
-                } else if let err = errorMessage, policies.isEmpty {
+            Section("Access Policies (\(policies.count))") {
+                if let err = errorMessage, policies.isEmpty {
                     Text(verbatim: err)
-                        .font(HIGTypography.caption)
-                        .foregroundStyle(HIGColors.error)
-                } else if policies.isEmpty {
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                } else if policies.isEmpty && !isLoadingPolicies {
                     Text("No policies assigned to this application.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(policies) { p in
                         policyRow(p)
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = p.name
-                                    ToastManager.shared.showCopied("Policy Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(p.name, toast: "Policy Name Copied")
                                 } label: {
                                     Label("Copy Policy Name", systemImage: "doc.on.doc")
                                 }
@@ -63,6 +63,10 @@ struct AccessAppDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: isLoadingPolicies && policies.isEmpty,
+            loadingMessage: "Loading Policies…"
+        )
         .navigationTitle(app.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -72,22 +76,22 @@ struct AccessAppDetailView: View {
     
     @ViewBuilder
     private func policyRow(_ p: AccessPolicy) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(p.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                 Text("Decision: \(p.decision.capitalized)")
-                    .font(HIGTypography.caption2)
-                    .foregroundStyle(p.decision.lowercased() == "allow" ? HIGColors.success : .orange)
+                    .font(.caption2)
+                    .foregroundStyle(p.decision.lowercased() == "allow" ? .green : .orange)
             }
             Spacer()
             if let prec = p.precedence {
                 Text("#\(prec)")
-                    .font(HIGTypography.caption2.monospacedDigit())
+                    .font(.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func fetchPolicies() async {

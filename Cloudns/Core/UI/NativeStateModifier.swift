@@ -49,12 +49,18 @@ public struct NativeLoadingStateView: View {
 
 public struct NativeErrorStateView: View {
     public var title: LocalizedStringKey = "Unable to Load"
-    public let message: String
+    public let message: LocalizedStringKey
     public var onRetry: (() -> Void)?
     
-    public init(title: LocalizedStringKey = "Unable to Load", message: String, onRetry: (() -> Void)? = nil) {
+    public init(title: LocalizedStringKey = "Unable to Load", message: LocalizedStringKey, onRetry: (() -> Void)? = nil) {
         self.title = title
         self.message = message
+        self.onRetry = onRetry
+    }
+
+    public init(title: LocalizedStringKey = "Unable to Load", message: String, onRetry: (() -> Void)? = nil) {
+        self.title = title
+        self.message = LocalizedStringKey(message)
         self.onRetry = onRetry
     }
     
@@ -109,7 +115,7 @@ public struct NativeEmptyStateView: View {
     public var body: some View {
         VStack(spacing: 12) {
             Image(systemName: systemImage)
-                .font(.system(size: 44, weight: .light))
+                .font(.system(size: 48, weight: .light))
                 .foregroundStyle(.secondary)
             
             Text(title)
@@ -121,13 +127,13 @@ public struct NativeEmptyStateView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 32)
             }
             
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
                     .buttonStyle(.borderedProminent)
-                    .padding(.top, 4)
+                    .padding(.top, 8)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -155,8 +161,6 @@ public struct NativeSearchEmptyStateView: View {
             Text("Check the spelling or try a new search.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(uiColor: .systemGroupedBackground))
@@ -192,6 +196,41 @@ public extension View {
                     description: empty.description,
                     actionTitle: empty.actionTitle,
                     action: empty.action
+                )
+            }
+        }
+    }
+
+    /// Overload allowing direct parameter configuration without instantiating EmptyStateConfig.
+    @ViewBuilder
+    func listState(
+        isLoading: Bool = false,
+        loadingMessage: LocalizedStringKey = "Loading…",
+        isEmpty: Bool = false,
+        emptyTitle: LocalizedStringKey = "No Data",
+        emptySystemImage: String = "tray",
+        emptyDescription: LocalizedStringKey? = nil,
+        emptyActionTitle: LocalizedStringKey? = nil,
+        emptyAction: (() -> Void)? = nil,
+        isSearchEmpty: Bool = false,
+        searchQuery: String = "",
+        errorMessage: LocalizedStringKey? = nil,
+        retryAction: (() -> Void)? = nil
+    ) -> some View {
+        overlay {
+            if isLoading {
+                NativeLoadingStateView(message: loadingMessage)
+            } else if let errorMessage {
+                NativeErrorStateView(message: errorMessage, onRetry: retryAction)
+            } else if isSearchEmpty && !searchQuery.isEmpty {
+                NativeSearchEmptyStateView(query: searchQuery)
+            } else if isEmpty {
+                NativeEmptyStateView(
+                    title: emptyTitle,
+                    systemImage: emptySystemImage,
+                    description: emptyDescription,
+                    actionTitle: emptyActionTitle,
+                    action: emptyAction
                 )
             }
         }

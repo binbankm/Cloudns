@@ -44,13 +44,13 @@ struct DeveloperHubView: View {
     private var contentView: some View {
         List {
             // MARK: - Compute
-            Section(header: Text("Compute & Applications")) {
+            Section("Compute & Applications") {
                 NavigationLink {
                     WorkersListView(accountId: accountId)
                 } label: {
                     DeveloperHubRowView(
                         icon: "bolt.fill",
-                        iconColor: Color.higAccent,
+                        iconColor: .orange,
                         title: "Workers",
                         subtitle: "Serverless edge functions & microservices"
                     )
@@ -77,7 +77,7 @@ struct DeveloperHubView: View {
                         iconColor: .purple,
                         title: "Queues",
                         subtitle: "Asynchronous message queue delivery",
-                        badge: .custom(color: .purple, text: "PAID")
+                        badgeText: "PAID"
                     )
                 }
                 .disabled(!isAccountReady)
@@ -90,14 +90,14 @@ struct DeveloperHubView: View {
                         iconColor: .cyan,
                         title: "Durable Objects",
                         subtitle: "Coordinated edge state namespaces",
-                        badge: .custom(color: .purple, text: "PAID")
+                        badgeText: "PAID"
                     )
                 }
                 .disabled(!isAccountReady)
             }
             
             // MARK: - Storage
-            Section(header: Text("Storage & Databases")) {
+            Section("Storage & Databases") {
                 NavigationLink {
                     R2BucketsView(accountId: accountId)
                 } label: {
@@ -130,20 +130,20 @@ struct DeveloperHubView: View {
                         iconColor: .yellow,
                         title: "Hyperdrive",
                         subtitle: "Regional database connection acceleration",
-                        badge: .custom(color: .purple, text: "PAID")
+                        badgeText: "PAID"
                     )
                 }
                 .disabled(!isAccountReady)
             }
             
             // MARK: - Zero Trust & Connectivity
-            Section(header: Text("Zero Trust & Connectivity")) {
+            Section("Zero Trust & Connectivity") {
                 NavigationLink {
                     TunnelsListView(accountId: accountId)
                 } label: {
                     DeveloperHubRowView(
                         icon: "arrow.left.arrow.right.circle.fill",
-                        iconColor: HIGColors.success,
+                        iconColor: .green,
                         title: "Cloudflare Tunnels",
                         subtitle: "Secure internal server ingress"
                     )
@@ -176,7 +176,7 @@ struct DeveloperHubView: View {
             }
             
             // MARK: - Account Rules & Bulk Redirects
-            Section(header: Text("Account Rules & Routing")) {
+            Section("Account Rules & Routing") {
                 NavigationLink {
                     BulkRedirectListsView(accountId: accountId)
                 } label: {
@@ -194,7 +194,7 @@ struct DeveloperHubView: View {
                 } label: {
                     DeveloperHubRowView(
                         icon: "bell.badge.fill",
-                        iconColor: HIGColors.error,
+                        iconColor: .red,
                         title: "Notification Alerts",
                         subtitle: "Incident policies & webhook destinations"
                     )
@@ -203,7 +203,7 @@ struct DeveloperHubView: View {
             }
             
             // MARK: - AI Platform
-            Section(header: Text("AI & Machine Learning")) {
+            Section("AI & Machine Learning") {
                 NavigationLink {
                     WorkersAIView(accountId: accountId)
                 } label: {
@@ -230,7 +230,7 @@ struct DeveloperHubView: View {
             }
             
             // MARK: - Security & Verification
-            Section(header: Text("Security & Verification")) {
+            Section("Security & Verification") {
                 NavigationLink {
                     TurnstileWidgetsView(accountId: accountId)
                 } label: {
@@ -258,31 +258,37 @@ struct DeveloperHubRowView: View {
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    var badge: HIGBadgeType?
+    var badgeText: String? = nil
+    var badgeColor: Color = .purple
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: icon, color: iconColor)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                HStack(spacing: HIGTokens.Spacing.xs + 2) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(title)
-                        .font(HIGTypography.body.weight(.medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                     
-                    if let badge = badge {
-                        HIGBadge(badge, isCompact: true)
+                    if let badgeText = badgeText {
+                        Text(badgeText)
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(badgeColor)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(Capsule().fill(badgeColor.opacity(0.12)))
                     }
                 }
                 
                 Text(subtitle)
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             
             Spacer()
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }

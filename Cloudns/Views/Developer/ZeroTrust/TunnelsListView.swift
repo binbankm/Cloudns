@@ -25,17 +25,13 @@ struct TunnelsListView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = tunnel.id
-                                ToastManager.shared.showCopied("Tunnel ID Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(tunnel.id, toast: "Tunnel ID Copied")
                             } label: {
                                 Label("Copy Tunnel ID", systemImage: "doc.on.doc")
                             }
                             
                             Button {
-                                UIPasteboard.general.string = tunnel.name
-                                ToastManager.shared.showCopied("Tunnel Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(tunnel.name, toast: "Tunnel Name Copied")
                             } label: {
                                 Label("Copy Tunnel Name", systemImage: "character.textbox")
                             }
@@ -45,6 +41,19 @@ struct TunnelsListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Cloudflare Tunnels…",
+            isEmpty: viewModel.hasFetchedData && viewModel.tunnels.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Tunnels Configured",
+            emptyDescription: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
+            emptyActionTitle: "Create Tunnel",
+            emptyAction: { showingCreateTunnelSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && !viewModel.tunnels.isEmpty && viewModel.filteredTunnels.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchTunnels() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
@@ -60,7 +69,6 @@ struct TunnelsListView: View {
                     showingCreateTunnelSheet = true
                 } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Create Tunnel")
-                .higTouchTarget()
                 .keyboardShortcut("n", modifiers: .command)
             }
         }
@@ -68,35 +76,6 @@ struct TunnelsListView: View {
             CreateTunnelSheetView(viewModel: viewModel)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .higToast()
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Cloudflare Tunnels…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.tunnels.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchTunnels() }
-                            }
-                        )
-                    )
-                } else if viewModel.tunnels.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Tunnels Configured",
-                            systemImage: "network.badge.shield.half.filled",
-                            description: "You haven't connected any Cloudflare Zero Trust Tunnels (cloudflared) in this account yet.",
-                            actionTitle: "Create Tunnel",
-                            action: { showingCreateTunnelSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredTunnels.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -121,28 +100,33 @@ struct TunnelRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(
                 icon: "network.badge.shield.half.filled",
-                color: isHealthy ? HIGColors.success : HIGColors.warning
+                color: isHealthy ? .green : .orange
             )
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(tunnel.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text("ID: \(tunnel.id)")
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             
             Spacer()
             
-            HIGBadge(isHealthy ? .active : .warning(tunnel.status?.capitalized ?? "Inactive"), isCompact: true)
+            Text(isHealthy ? "Healthy" : (tunnel.status?.capitalized ?? "Inactive"))
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(isHealthy ? .green : .orange)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill((isHealthy ? Color.green : Color.orange).opacity(0.12)))
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -158,14 +142,15 @@ struct CreateTunnelSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(
-                    header: Text("Tunnel Name"),
-                    footer: Text("Name your Zero Trust Cloudflare Tunnel (e.g. home-server-tunnel).")
-                ) {
+                Section {
                     TextField("my-tunnel", text: $tunnelName)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Tunnel Name")
+                } footer: {
+                    Text("Name your Zero Trust Cloudflare Tunnel (e.g. home-server-tunnel).")
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -183,10 +168,10 @@ struct CreateTunnelSheetView: View {
                             let success = await viewModel.createTunnel(name: tunnelName.trimmingCharacters(in: .whitespaces))
                             if success {
                                 ToastManager.shared.showSuccess("Tunnel Created", icon: "network.badge.shield.half.filled")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } else {
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
