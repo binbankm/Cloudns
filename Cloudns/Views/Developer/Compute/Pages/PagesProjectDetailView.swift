@@ -180,8 +180,11 @@ struct PagesProjectDetailView: View {
                                     .frame(width: 28, height: 28)
                                     .background(Color(.tertiarySystemFill))
                                     .clipShape(Circle())
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .hoverEffect(.highlight)
                             .accessibilityLabel("Copy Production URL")
                             
                             Link(destination: url) {
@@ -191,8 +194,11 @@ struct PagesProjectDetailView: View {
                                     .frame(width: 28, height: 28)
                                     .background(Color(.tertiarySystemFill))
                                     .clipShape(Circle())
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .hoverEffect(.highlight)
                             .accessibilityLabel("Open Production URL")
                         }
                     }

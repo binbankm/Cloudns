@@ -65,6 +65,9 @@ struct ZonesListView: View {
                 searchQuery: (viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty) ? searchText : nil,
                 onRetry: { Task { await viewModel.fetchZones(isRefresh: true) } }
             )
+            .navigationDestination(for: Zone.self) { zone in
+                ZoneDetailView(zone: zone)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
@@ -118,7 +121,7 @@ struct ZonesListView: View {
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
-                NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                NavigationLink(value: zone) {
                     ZoneRowView(zone: zone, sparkline: viewModel.sparklines[zone.id])
                 }
                 .contextMenu {

@@ -180,6 +180,8 @@ struct LoginView: View {
                                         } label: {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundStyle(.tertiary)
+                                                .frame(width: 44, height: 44)
+                                                .contentShape(Rectangle())
                                         }
                                         .buttonStyle(.plain)
                                         .accessibilityLabel("Clear email")
@@ -259,6 +261,8 @@ struct LoginView: View {
                                         Image(systemName: isShowingApiKey ? "eye.slash.fill" : "eye.fill")
                                             .font(.caption)
                                             .foregroundStyle(.tertiary)
+                                            .frame(width: 44, height: 44)
+                                            .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
                                     .accessibilityLabel(isShowingApiKey ? "Hide API key" : "Show API key")

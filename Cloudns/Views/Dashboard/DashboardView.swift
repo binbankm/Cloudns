@@ -59,6 +59,9 @@ struct DashboardView: View {
                     .accessibilityLabel("Switch Cloudflare Account")
                 }
             }
+            .navigationDestination(for: Zone.self) { zone in
+                ZoneDetailView(zone: zone)
+            }
             .sheet(isPresented: $showingAccountSheet) {
                 AccountsView()
                     .presentationDetents([.medium, .large])
@@ -395,7 +398,7 @@ struct DashboardView: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.recentZones.enumerated()), id: \.element.id) { index, zone in
-                        NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                        NavigationLink(value: zone) {
                             HStack(spacing: 12) {
                                 ZStack {
                                     Circle()
@@ -509,7 +512,7 @@ struct DashboardMetricCardView: View {
             }
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 114, maxHeight: 114, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 114, alignment: .topLeading)
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
@@ -548,5 +551,6 @@ struct QuickDeckButton: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 2)
         .contentShape(Rectangle())
+        .hoverEffect(.lift)
     }
 }

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Workers Models
 
-public struct WorkerScript: Codable, Identifiable, Equatable, Sendable {
+public struct WorkerScript: Codable, Identifiable, Equatable, Hashable, Sendable {
     public var id: String { id_field ?? id_name ?? "worker" }
     public let id_field: String?
     public let id_name: String?

@@ -18,6 +18,11 @@ struct SettingsView: View {
     @ObservedObject private var cacheManager = CacheManager.shared
     @ObservedObject private var iconManager = AppIconManager.shared
     @ObservedObject private var themeManager = ThemeManager.shared
+    @ObservedObject private var authManager = AppAuthManager.shared
+    
+    private var biometryIcon: String {
+        authManager.biometryIcon
+    }
     
     var body: some View {
         NavigationStack {
@@ -106,7 +111,7 @@ struct SettingsView: View {
                     } label: {
                         HStack {
                             SettingsRowView(
-                                icon: "faceid",
+                                icon: biometryIcon,
                                 color: .green,
                                 title: "App Lock"
                             )

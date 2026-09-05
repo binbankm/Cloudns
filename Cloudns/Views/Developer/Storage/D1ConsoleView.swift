@@ -74,7 +74,7 @@ struct D1ConsoleView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.tables, id: \.self) { tableName in
-                        NavigationLink(destination: D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)) {
+                        NavigationLink(value: tableName) {
                             HStack(spacing: 12) {
                                 ListRowIcon(icon: "tablecells", color: .purple)
                                 
@@ -227,6 +227,9 @@ struct D1ConsoleView: View {
         }
         .navigationTitle(database.name)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: String.self) { tableName in
+            D1TableView(accountId: accountId, databaseId: database.uuid, tableName: tableName)
+        }
         .task {
             await viewModel.fetchTables()
         }

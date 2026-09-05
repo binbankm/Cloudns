@@ -141,8 +141,11 @@ struct TunnelDetailView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 28, height: 28)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.borderless)
+                        .hoverEffect(.highlight)
                         .accessibilityLabel(isTokenRevealed ? "Hide token" : "Reveal token")
                     }
                 } header: {

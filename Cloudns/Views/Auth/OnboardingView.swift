@@ -5,7 +5,9 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
+    @ObservedObject private var authManager = AppAuthManager.shared
     @State private var currentPage = 0
     
     private let totalPages = 4
@@ -19,8 +21,16 @@ struct OnboardingView: View {
         }
     }
     
+    private var biometryIcon: String {
+        authManager.biometryIcon
+    }
+    
+    private var biometryBadgeText: LocalizedStringKey {
+        authManager.biometryBadgeText
+    }
+    
     private func completeOnboarding() {
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.3)) {
             hasSeenOnboarding = true
         }
         dismiss()
@@ -46,7 +56,7 @@ struct OnboardingView: View {
                         .blur(radius: 70)
                         .offset(x: w * 0.3, y: w * 0.6)
                 }
-                .animation(.easeInOut(duration: 0.5), value: currentPage)
+                .animation(reduceMotion ? .none : .easeInOut(duration: 0.5), value: currentPage)
             }
             .ignoresSafeArea()
             
@@ -115,11 +125,11 @@ struct OnboardingView: View {
                     .tag(2)
                     
                     OnboardingPageView(
-                        icon: "faceid",
+                        icon: biometryIcon,
                         title: "Biometric Privacy",
                         description: "Your API credentials stay isolated on your device with Apple Keychain hardware-level protection.",
                         color: .purple,
-                        badgeText: "Face ID & Local Keys"
+                        badgeText: biometryBadgeText
                     )
                     .tag(3)
                 }
@@ -135,7 +145,7 @@ struct OnboardingView: View {
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
                                 .frame(width: currentPage == index ? 24 : 7, height: 7)
-                                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
+                                .animation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
                         }
                     }
                     .padding(.vertical, 6)
@@ -143,7 +153,7 @@ struct OnboardingView: View {
                     Button(action: {
                         if currentPage < totalPages - 1 {
                             HapticManager.impact(.light)
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            withAnimation(reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.35, dampingFraction: 0.75)) {
                                 currentPage += 1
                             }
                         } else {

@@ -20,9 +20,7 @@ struct WorkersListView: View {
             if !viewModel.filteredWorkers.isEmpty {
                 Section(header: Text("Workers Scripts (\(viewModel.filteredWorkers.count))")) {
                     ForEach(viewModel.filteredWorkers) { worker in
-                        NavigationLink {
-                            WorkerDetailView(accountId: accountId, worker: worker)
-                        } label: {
+                        NavigationLink(value: worker) {
                             WorkerRowView(worker: worker)
                         }
                         .contextMenu {
@@ -78,6 +76,9 @@ struct WorkersListView: View {
         )
         .navigationTitle("Workers")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: WorkerScript.self) { worker in
+            WorkerDetailView(accountId: accountId, worker: worker)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

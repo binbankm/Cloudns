@@ -452,8 +452,12 @@ struct DNSRecordRowView: View {
                         onToggleProxy?()
                     } label: {
                         proxyBadge
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(record.proxied == true ? "Cloudflare Proxy Enabled" : "Cloudflare Proxy Disabled")
+                    .accessibilityHint("Double tap to toggle proxy status between Proxied and DNS Only")
                 } else {
                     dnsOnlyBadge
                 }

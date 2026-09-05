@@ -39307,6 +39307,12 @@
         }
       }
     },
+    "Cloudflare Proxy Disabled" : {
+
+    },
+    "Cloudflare Proxy Enabled" : {
+
+    },
     "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -72835,6 +72841,9 @@
           }
         }
       }
+    },
+    "Double tap to toggle proxy status between Proxied and DNS Only" : {
+
     },
     "Drag to Inspect" : {
       "extractionState" : "manual",
@@ -137952,6 +137961,9 @@
         }
       }
     },
+    "Passcode & Local Keys" : {
+
+    },
     "Password" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -185812,6 +185824,9 @@
           }
         }
       }
+    },
+    "Touch ID & Local Keys" : {
+
     },
     "Trace" : {
       "extractionState" : "manual",
