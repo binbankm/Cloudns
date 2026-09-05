@@ -113,19 +113,15 @@ struct CachingView: View {
                             Spacer()
                             if viewModel.isPurging {
                                 ProgressView()
-                                    .tint(.white)
                                     .padding(.trailing, 6)
                             }
                             Text("Purge by \(purgeType.capitalized)")
                                 .font(.body.weight(.semibold))
-                                .foregroundStyle(.white)
                             Spacer()
                         }
                         .frame(height: 44)
-                        .background(isDisabled ? Color.gray.opacity(0.4) : ThemeManager.shared.currentColor.color)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.borderedProminent)
                     .disabled(isDisabled)
                 }
                 .padding(.vertical, 4)

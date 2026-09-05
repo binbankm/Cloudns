@@ -327,7 +327,6 @@ struct DNSRecordFormView: View {
                         }
                     }
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(ThemeManager.shared.currentColor.color)
                     .disabled(name.isEmpty || isSaving)
                 }
             }

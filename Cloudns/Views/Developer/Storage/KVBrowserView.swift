@@ -79,9 +79,13 @@ struct KVBrowserView: View {
         }
         .sheet(isPresented: $showingCreateKVSheet) {
             KVCreateNamespaceSheetView(viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingCreateD1Sheet) {
             D1CreateDatabaseSheetView(viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .confirmationDialog("Delete KV Namespace", isPresented: $showingDeleteKVAlert, titleVisibility: .visible, presenting: namespaceToDelete) { ns in
             Button("Delete '\(ns.title)'", role: .destructive) {
@@ -223,6 +227,7 @@ struct KVBrowserView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .listState(
             isLoading: viewModel.isLoading && ((viewModel.selectedSegment == 0 && viewModel.namespaces.isEmpty) || (viewModel.selectedSegment == 1 && viewModel.d1Databases.isEmpty)),
             loadingMessage: "Loading Storage…",

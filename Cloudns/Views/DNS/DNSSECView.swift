@@ -8,9 +8,10 @@ struct DNSSECView: View {
     let zoneName: String
     
     @StateObject private var viewModel: DNSSECViewModel
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     init(zoneId: String, zoneName: String) {

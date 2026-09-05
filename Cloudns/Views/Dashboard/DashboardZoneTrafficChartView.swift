@@ -6,10 +6,11 @@ import Charts
 
 struct DashboardZoneTrafficChartView: View {
     @ObservedObject var viewModel: DashboardViewModel
+    @ObservedObject private var themeManager = ThemeManager.shared
     @State private var selectedPoint: FleetHourlyMetric?
     
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     var body: some View {

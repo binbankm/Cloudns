@@ -9,9 +9,10 @@ struct DashboardView: View {
     @ObservedObject private var accountManager = AccountManager.shared
     @State private var showingAccountSheet = false
     @State private var showingAddZone = false
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     var body: some View {
@@ -212,6 +213,7 @@ struct DashboardView: View {
                 )
             }
             .buttonStyle(.plain)
+            .hoverEffect(.lift)
             
             NavigationLink {
                 DeveloperHubView()
@@ -226,6 +228,7 @@ struct DashboardView: View {
                 )
             }
             .buttonStyle(.plain)
+            .hoverEffect(.lift)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -244,6 +247,7 @@ struct DashboardView: View {
                 )
             }
             .buttonStyle(.plain)
+            .hoverEffect(.lift)
             
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
@@ -262,6 +266,7 @@ struct DashboardView: View {
                 )
             }
             .buttonStyle(.plain)
+            .hoverEffect(.lift)
         }
     }
     

@@ -83,8 +83,11 @@ struct LoginView: View {
                                 .padding(8)
                                 .background(Color(uiColor: .tertiarySystemFill))
                                 .clipShape(Circle())
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Close")
                     }
                     
                     Spacer()

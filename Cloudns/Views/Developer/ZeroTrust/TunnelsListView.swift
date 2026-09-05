@@ -75,7 +75,7 @@ struct TunnelsListView: View {
         }
         .sheet(isPresented: $showingCreateTunnelSheet) {
             CreateTunnelSheetView(viewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .task {

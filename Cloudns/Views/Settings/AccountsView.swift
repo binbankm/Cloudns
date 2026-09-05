@@ -10,8 +10,10 @@ struct AccountsView: View {
     @State private var showingRemoveAccountAlert = false
     @Environment(\.dismiss) private var dismiss
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     var body: some View {

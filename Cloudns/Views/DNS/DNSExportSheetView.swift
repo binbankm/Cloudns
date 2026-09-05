@@ -39,8 +39,10 @@ struct DNSExportSheetView: View {
     @State private var isLoading = true
     @State private var showingFileExporter = false
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     private var contentLines: [String] {

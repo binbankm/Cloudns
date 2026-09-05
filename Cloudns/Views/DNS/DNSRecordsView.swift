@@ -277,9 +277,8 @@ struct DNSRecordsView: View {
                 }
             } label: {
                 Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
-                    .foregroundStyle(viewModel.isFiltered ? Color.orange : ThemeManager.shared.currentColor.color)
             }
-            .accessibilityLabel("DNS Options and Filters")
+            .accessibilityLabel(viewModel.isFiltered ? "DNS Options (Filtered)" : "DNS Options and Filters")
             
             Button {
                 showingForm = true

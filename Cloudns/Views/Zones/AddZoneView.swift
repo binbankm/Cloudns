@@ -21,8 +21,10 @@ struct AddZoneView: View {
         !domainName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     var body: some View {

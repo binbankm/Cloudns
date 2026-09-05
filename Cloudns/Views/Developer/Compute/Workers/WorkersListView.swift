@@ -55,6 +55,7 @@ struct WorkersListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .listState(
             isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
             loadingMessage: "Loading Workers…",
@@ -92,7 +93,7 @@ struct WorkersListView: View {
         }
         .sheet(isPresented: $showingCreateWorkerSheet) {
             WorkerCreateSheetView(viewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .confirmationDialog("Delete Worker", isPresented: $showingDeleteWorkerAlert, titleVisibility: .visible, presenting: workerToDelete) { worker in

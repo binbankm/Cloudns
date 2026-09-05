@@ -155,8 +155,10 @@ struct DNSPresetsSheetView: View {
     @State private var selectedGroup: DNSPresetGroup?
     @State private var isApplying = false
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     private var presets: [DNSPresetGroup] {

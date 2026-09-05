@@ -52,7 +52,7 @@ struct ZoneDetailView: View {
                                     
                                     Image(systemName: "doc.on.doc")
                                         .font(.caption2)
-                                        .foregroundStyle(ThemeManager.shared.currentColor.color)
+                                        .foregroundStyle(.tint)
                                 }
                             }
                             .buttonStyle(.plain)

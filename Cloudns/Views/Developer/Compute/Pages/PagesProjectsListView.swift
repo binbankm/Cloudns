@@ -63,6 +63,7 @@ struct PagesProjectsListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .listState(
             isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
             loadingMessage: "Loading Pages Projects…",
@@ -100,7 +101,7 @@ struct PagesProjectsListView: View {
         }
         .sheet(isPresented: $showingCreatePagesSheet) {
             PagesCreateProjectSheetView(viewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .confirmationDialog("Delete Pages Project", isPresented: $showingDeletePagesAlert, titleVisibility: .visible, presenting: pagesProjectToDelete) { proj in

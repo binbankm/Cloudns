@@ -15,6 +15,7 @@ struct ZoneAnalyticsView: View {
     // Interactive Scrubbing States
     @State private var selectedPoint: AnalyticsDataPoint?
     @State private var selectedBandwidthPoint: AnalyticsDataPoint?
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
@@ -49,7 +50,7 @@ struct ZoneAnalyticsView: View {
     }
     
     private var accentColor: Color {
-        ThemeManager.shared.currentColor.color
+        themeManager.currentColor.color
     }
     
     public var body: some View {

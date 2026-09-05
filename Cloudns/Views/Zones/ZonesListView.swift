@@ -43,6 +43,7 @@ struct ZonesListView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Domain")
+                    .keyboardShortcut("n", modifiers: .command)
                 }
             }
             .sheet(isPresented: $showAddZoneSheet) {

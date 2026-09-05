@@ -89,7 +89,7 @@ struct R2BucketsView: View {
         }
         .sheet(isPresented: $showingCreateSheet) {
             R2CreateBucketSheetView(viewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .confirmationDialog("Delete Bucket", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: bucketToDelete) { bucket in

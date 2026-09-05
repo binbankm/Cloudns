@@ -48,7 +48,6 @@ struct ZoneDetailDeepLinkWrapper: View {
                     onDismiss()
                 }
                 .font(.body.weight(.semibold))
-                .foregroundStyle(ThemeManager.shared.currentColor.color)
             }
         }
         .task {
