@@ -175,7 +175,7 @@ struct AccountsView: View {
                     
                     let key = accountManager.getAPIKey(for: email) ?? ""
                     let isToken = key.count > 37 || key.contains("_")
-                    Text(isToken ? "API Token" : "Global Key")
+                    Text(isToken ? LocalizedStringKey("API Token") : LocalizedStringKey("Global Key"))
                         .font(.caption2.weight(.medium))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -209,7 +209,7 @@ struct AccountsView: View {
                 
                 let key = accountManager.getAPIKey(for: email) ?? ""
                 let isToken = key.count > 37 || key.contains("_")
-                Text(isToken ? "Scoped API Token" : "Global API Key")
+                Text(isToken ? LocalizedStringKey("Scoped API Token") : LocalizedStringKey("Global API Key"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

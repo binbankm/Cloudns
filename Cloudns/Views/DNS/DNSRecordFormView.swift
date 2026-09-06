@@ -258,7 +258,7 @@ struct DNSRecordFormView: View {
                                             .clipShape(Capsule())
                                     }
                                 }
-                                Text(proxied ? "Accelerated & Protected by Cloudflare" : "Bypasses Cloudflare proxy")
+                                Text(proxied ? LocalizedStringKey("Accelerated & Protected by Cloudflare") : LocalizedStringKey("Bypasses Cloudflare proxy"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -305,7 +305,7 @@ struct DNSRecordFormView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(existingRecord == nil ? "Add Record" : "Edit Record")
+            .navigationTitle(existingRecord == nil ? LocalizedStringKey("Add Record") : LocalizedStringKey("Edit Record"))
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {

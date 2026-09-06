@@ -51,7 +51,7 @@ struct IPLookupToolView: View {
                         } else {
                             Image(systemName: "location.fill")
                         }
-                        Text(viewModel.isLoading ? "Querying BGP & Geo…" : "Lookup IP Geolocation & ASN")
+                        Text(viewModel.isLoading ? LocalizedStringKey("Querying BGP & Geo…") : LocalizedStringKey("Lookup IP Geolocation & ASN"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -50,7 +50,8 @@ struct TransformRulesView: View {
             AddTransformRuleView(zoneId: zoneId, initialPhase: viewModel.selectedPhase, viewModel: viewModel)
         }
         .confirmationDialog("Delete Transform Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-            Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+            let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+            Button("Delete '\(ruleName)'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
                     ToastManager.shared.showSuccess("Transform Rule Deleted", icon: "trash.fill")
@@ -59,7 +60,8 @@ struct TransformRulesView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { rule in
-            Text("Are you sure you want to delete '\(rule.description ?? "Rule")'?")
+            let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+            Text("Are you sure you want to delete '\(ruleName)'?")
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -73,7 +75,7 @@ struct TransformRulesView: View {
         List {
             if !viewModel.rules.isEmpty {
                 Section(header: HStack {
-                    Text("\(phaseTitle(for: viewModel.selectedPhase)) Rules (\(viewModel.rules.count))")
+                    Text(phaseSectionHeader)
                     Spacer()
                     let isPro = viewModel.selectedPhase == "http_response_headers_transform"
                     Text(isPro ? "PRO" : "FREE")
@@ -89,7 +91,7 @@ struct TransformRulesView: View {
                             HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
-                                ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "slider.horizontal.3")
+                                ToastManager.shared.showSuccess(rule.enabled ? LocalizedStringKey("Rule Disabled") : LocalizedStringKey("Rule Enabled"), icon: "slider.horizontal.3")
                             }
                         }
                         .contextMenu {
@@ -156,6 +158,19 @@ struct TransformRulesView: View {
         default: return "Transform"
         }
     }
+
+    private var phaseSectionHeader: LocalizedStringKey {
+        switch viewModel.selectedPhase {
+        case "http_request_transform":
+            return "URL Rewrite Rules (\(viewModel.rules.count))"
+        case "http_request_late_transform":
+            return "Request Header Rules (\(viewModel.rules.count))"
+        case "http_response_headers_transform":
+            return "Response Header Rules (\(viewModel.rules.count))"
+        default:
+            return "Transform Rules (\(viewModel.rules.count))"
+        }
+    }
 }
 
 // MARK: - TransformRuleCardView (Inlined & Cohesive)
@@ -167,8 +182,13 @@ struct TransformRuleCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(rule.description ?? "Unnamed Rule")
-                    .font(.body.weight(.medium))
+                if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(desc)
+                        .font(.body.weight(.medium))
+                } else {
+                    Text("Unnamed Rule")
+                        .font(.body.weight(.medium))
+                }
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },

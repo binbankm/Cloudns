@@ -15,61 +15,73 @@ struct ZonesListView: View {
         viewModel.filteredZones(query: searchText)
     }
     
+    let embeddedInNavigation: Bool
+    
+    init(embeddedInNavigation: Bool = false) {
+        self.embeddedInNavigation = embeddedInNavigation
+    }
+    
     var body: some View {
-        NavigationStack {
-            List {
-                if !displayedZones.isEmpty {
-                    zonesSection
-                }
-            }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search Domains"
-            )
-            .navigationTitle("My Domains")
-            .navigationBarTitleDisplayMode(.large)
-            .refreshable {
-                await viewModel.fetchZones(isRefresh: true)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.addZoneError = nil
-                        showAddZoneSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add Domain")
-                    .keyboardShortcut("n", modifiers: .command)
-                }
-            }
-            .sheet(isPresented: $showAddZoneSheet) {
-                AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-            }
-            .listState(
-                isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
-                loadingMessage: "Loading Domains…",
-                error: viewModel.zones.isEmpty ? viewModel.errorMessage : nil,
-                isEmpty: viewModel.hasFetchedData && viewModel.zones.isEmpty,
-                empty: .init(
-                    title: "No Domains Found",
-                    systemImage: "globe",
-                    description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
-                    actionTitle: "Add Domain",
-                    action: { showAddZoneSheet = true }
-                ),
-                searchQuery: (viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty) ? searchText : nil,
-                onRetry: { Task { await viewModel.fetchZones(isRefresh: true) } }
-            )
-            .navigationDestination(for: Zone.self) { zone in
-                ZoneDetailView(zone: zone)
+        if embeddedInNavigation {
+            contentView
+                .navigationBarTitleDisplayMode(.inline)
+        } else {
+            NavigationStack {
+                contentView
+                    .navigationBarTitleDisplayMode(.large)
             }
         }
+    }
+    
+    private var contentView: some View {
+        List {
+            if !displayedZones.isEmpty {
+                zonesSection
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Search Domains"
+        )
+        .navigationTitle("My Domains")
+        .refreshable {
+            await viewModel.fetchZones(isRefresh: true)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.addZoneError = nil
+                    showAddZoneSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Domain")
+                .keyboardShortcut("n", modifiers: .command)
+            }
+        }
+        .sheet(isPresented: $showAddZoneSheet) {
+            AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Domains…",
+            error: viewModel.zones.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.zones.isEmpty,
+            empty: .init(
+                title: "No Domains Found",
+                systemImage: "globe",
+                description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
+                actionTitle: "Add Domain",
+                action: { showAddZoneSheet = true }
+            ),
+            searchQuery: (viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            onRetry: { Task { await viewModel.fetchZones(isRefresh: true) } }
+        )
         .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
@@ -122,7 +134,9 @@ struct ZonesListView: View {
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
-                NavigationLink(value: zone) {
+                NavigationLink {
+                    ZoneDetailView(zone: zone)
+                } label: {
                     ZoneRowView(zone: zone, sparkline: viewModel.sparklines[zone.id])
                 }
                 .contextMenu {

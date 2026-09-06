@@ -16,11 +16,27 @@ struct DeveloperHubView: View {
         !(viewModel.selectedAccount?.id ?? "").isEmpty
     }
     
+    let embeddedInNavigation: Bool
+    
+    init(embeddedInNavigation: Bool = false) {
+        self.embeddedInNavigation = embeddedInNavigation
+    }
+    
     var body: some View {
-        NavigationStack {
-            contentView
-                .navigationTitle("Developer Hub")
-                .navigationBarTitleDisplayMode(.large)
+        if embeddedInNavigation {
+            hubContent
+                .navigationBarTitleDisplayMode(.inline)
+        } else {
+            NavigationStack {
+                hubContent
+                    .navigationBarTitleDisplayMode(.large)
+            }
+        }
+    }
+    
+    private var hubContent: some View {
+        contentView
+            .navigationTitle("Developer Hub")
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
                 Task { await viewModel.fetchOverview(isRefresh: true) }
@@ -37,7 +53,6 @@ struct DeveloperHubView: View {
             .task {
                 await viewModel.fetchOverview(isRefresh: false)
             }
-        }
     }
     
     @ViewBuilder

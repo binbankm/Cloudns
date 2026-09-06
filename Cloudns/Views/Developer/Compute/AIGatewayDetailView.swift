@@ -33,7 +33,7 @@ struct AIGatewayDetailView: View {
                 }
                 
                 LabeledContent("Logging") {
-                    Text(gateway.collectLogs == true ? "Enabled" : "Disabled")
+                    Text(gateway.collectLogs == true ? LocalizedStringKey("Enabled") : LocalizedStringKey("Disabled"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
                 }
@@ -64,7 +64,7 @@ struct AIGatewayDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(universalEndpoint)
                         .font(.caption.monospaced())
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(.primary)
                         .lineLimit(2)
                         .padding(.vertical, 2)
                     

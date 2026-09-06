@@ -29,7 +29,7 @@ struct WorkerDetailDeepLinkWrapper: View {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text(errorMessage ?? "Unable to load worker")
+                    Text(errorMessage ?? String(localized: "Unable to load worker"))
                         .font(.headline)
                     Button("Retry") {
                         Task { await loadWorker() }

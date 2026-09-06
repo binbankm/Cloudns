@@ -57,7 +57,7 @@ struct ZoneDetailView: View {
                             }
                             .buttonStyle(.plain)
                         } label: {
-                            Text(nsArray.count > 1 ? "Nameserver \(index + 1)" : "Nameserver")
+                            Text(nsArray.count > 1 ? LocalizedStringKey("Nameserver \(index + 1)") : LocalizedStringKey("Nameserver"))
                                 .font(.body)
                                 .foregroundStyle(.primary)
                         }

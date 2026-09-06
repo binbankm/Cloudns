@@ -45,10 +45,17 @@ struct SettingsView: View {
                                     .foregroundStyle(.orange)
                                     .clipShape(Capsule())
                                 
-                                Text(accountManager.activeEmail.isEmpty ? "No Account Selected" : accountManager.activeEmail)
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                    .lineLimit(1)
+                                if accountManager.activeEmail.isEmpty {
+                                    Text("No Account Selected")
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(1)
+                                } else {
+                                    Text(verbatim: accountManager.activeEmail)
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(1)
+                                }
                                 
                                 Text("Tap to switch or add accounts")
                                     .font(.caption)
@@ -118,7 +125,7 @@ struct SettingsView: View {
                             
                             Spacer()
                             
-                            Text(isAppLockEnabled ? "On" : "Off")
+                            Text(isAppLockEnabled ? LocalizedStringKey("On") : LocalizedStringKey("Off"))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -156,9 +163,14 @@ struct SettingsView: View {
                                 title: "Theme Color"
                             )
                             Spacer()
-                            Text(themeManager.currentColor.displayName)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(themeManager.currentColor.color)
+                                    .frame(width: 10, height: 10)
+                                Text(themeManager.currentColor.displayName)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     

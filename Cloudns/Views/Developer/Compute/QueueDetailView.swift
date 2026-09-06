@@ -86,7 +86,7 @@ struct QueueDetailView: View {
                 ForEach(producers) { p in
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.up.right", color: .blue)
-                        Text(p.script ?? p.service ?? "Worker")
+                        Text(p.script ?? p.service ?? String(localized: "Worker"))
                             .font(.body)
                         Spacer()
                         if let env = p.environment {
@@ -107,7 +107,7 @@ struct QueueDetailView: View {
                 ForEach(consumers) { c in
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "arrow.down.left", color: .green)
-                        Text(c.scriptName ?? c.service ?? "Worker")
+                        Text(c.scriptName ?? c.service ?? String(localized: "Worker"))
                             .font(.body.weight(.medium))
                         Spacer()
                         if let batch = c.settings?.batchSize {

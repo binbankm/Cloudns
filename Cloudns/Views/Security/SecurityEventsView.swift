@@ -147,7 +147,7 @@ struct SecurityEventCardView: View {
                     .foregroundStyle(.secondary)
                 Text(event.host)
                     .font(.footnote.monospacedDigit())
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(.primary)
             }
         }
         .padding(.vertical, 2)

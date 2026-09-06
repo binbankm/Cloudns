@@ -39,7 +39,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         
         do {
             try await cachingService.purgeEverything(zoneId: zoneId)
-            purgeSuccessMessage = "All cache successfully purged."
+            purgeSuccessMessage = String(localized: "All cache successfully purged.")
             ToastManager.shared.showSuccess("Entire Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge cache: \(error.localizedDescription)"
@@ -56,7 +56,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         
         do {
             try await cachingService.purgeCacheByURLs(zoneId: zoneId, urls: urls)
-            purgeSuccessMessage = "Requested URLs successfully purged."
+            purgeSuccessMessage = String(localized: "Requested URLs successfully purged.")
             ToastManager.shared.showSuccess("Custom Cache Purged", icon: "checkmark.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge URLs: \(error.localizedDescription)"
@@ -73,7 +73,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         
         do {
             try await cachingService.purgeCacheByHosts(zoneId: zoneId, hosts: hosts)
-            purgeSuccessMessage = "Requested hosts successfully purged."
+            purgeSuccessMessage = String(localized: "Requested hosts successfully purged.")
             ToastManager.shared.showSuccess("Hosts Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge hosts: \(error.localizedDescription)"
@@ -90,7 +90,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         
         do {
             try await cachingService.purgeCacheByPrefixes(zoneId: zoneId, prefixes: prefixes)
-            purgeSuccessMessage = "Requested URL prefixes successfully purged."
+            purgeSuccessMessage = String(localized: "Requested URL prefixes successfully purged.")
             ToastManager.shared.showSuccess("Prefixes Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge prefixes: \(error.localizedDescription)"
@@ -107,7 +107,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         
         do {
             try await cachingService.purgeCacheByTags(zoneId: zoneId, tags: tags)
-            purgeSuccessMessage = "Requested Cache-Tags successfully purged."
+            purgeSuccessMessage = String(localized: "Requested Cache-Tags successfully purged.")
             ToastManager.shared.showSuccess("Tags Cache Purged", icon: "trash.circle.fill")
         } catch {
             purgeErrorMessage = "Failed to purge tags: \(error.localizedDescription)"
@@ -144,7 +144,7 @@ final class CachingViewModel: BaseLoadableViewModel {
         self.alwaysOnline = isOn
         do {
             try await cachingService.updateAlwaysOnline(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? "Always Online Enabled" : "Always Online Disabled", icon: "bolt.horizontal.fill")
+            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Always Online Enabled") : LocalizedStringKey("Always Online Disabled"), icon: "bolt.horizontal.fill")
         } catch {
             self.alwaysOnline = prev
             self.errorMessage = error.localizedDescription
@@ -159,7 +159,7 @@ final class CachingViewModel: BaseLoadableViewModel {
             try await cachingService.updateDevelopmentMode(zoneId: zoneId, isOn: isOn)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
-            ToastManager.shared.showSuccess(isOn ? "Development Mode Enabled" : "Development Mode Disabled", icon: "hammer.fill")
+            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Development Mode Enabled") : LocalizedStringKey("Development Mode Disabled"), icon: "hammer.fill")
         } catch {
             self.developmentMode = prev
             self.errorMessage = error.localizedDescription

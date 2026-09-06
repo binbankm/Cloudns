@@ -18,7 +18,9 @@ struct TunnelsListView: View {
             if !viewModel.filteredTunnels.isEmpty {
                 Section {
                     ForEach(viewModel.filteredTunnels) { tunnel in
-                        NavigationLink(value: tunnel) {
+                        NavigationLink {
+                            TunnelDetailView(accountId: accountId, tunnel: tunnel)
+                        } label: {
                             TunnelRowView(tunnel: tunnel)
                         }
                         .contextMenu {
@@ -60,9 +62,6 @@ struct TunnelsListView: View {
         )
         .navigationTitle("Cloudflare Tunnels")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: CFTunnel.self) { tunnel in
-            TunnelDetailView(accountId: accountId, tunnel: tunnel)
-        }
         .refreshable { await viewModel.fetchTunnels() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -120,7 +119,7 @@ struct TunnelRowView: View {
             
             Spacer()
             
-            Text(isHealthy ? "Healthy" : (tunnel.status?.capitalized ?? "Inactive"))
+            Text(isHealthy ? LocalizedStringKey("Healthy") : LocalizedStringKey(tunnel.status?.capitalized ?? "Inactive"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(isHealthy ? .green : .orange)
                 .padding(.horizontal, 6)

@@ -60,9 +60,6 @@ struct DashboardView: View {
                     .accessibilityLabel("Switch Cloudflare Account")
                 }
             }
-            .navigationDestination(for: Zone.self) { zone in
-                ZoneDetailView(zone: zone)
-            }
             .sheet(isPresented: $showingAccountSheet) {
                 AccountsView()
                     .presentationDetents([.medium, .large])
@@ -101,14 +98,14 @@ struct DashboardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: greetingIcon)
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(accentColor)
+                        .foregroundStyle(greetingIconColor)
                     
                     Text(viewModel.timeGreeting)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
                 
-                Text(viewModel.selectedAccount?.name ?? (accountManager.activeEmail.isEmpty ? "Cloudflare Account" : accountManager.activeEmail))
+                Text(viewModel.selectedAccount?.name ?? (accountManager.activeEmail.isEmpty ? String(localized: "Cloudflare Account") : accountManager.activeEmail))
                     .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
@@ -197,11 +194,21 @@ struct DashboardView: View {
         }
     }
     
+    private var greetingIconColor: Color {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<18:
+            return .orange
+        default:
+            return .indigo
+        }
+    }
+    
     // MARK: - 2. Fleet Metrics Overview Cards Grid (2x2)
     private var resourcesOverviewGridView: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)], spacing: 12) {
             NavigationLink {
-                ZonesListView()
+                ZonesListView(embeddedInNavigation: true)
             } label: {
                 DashboardMetricCardView(
                     icon: "globe",
@@ -216,11 +223,11 @@ struct DashboardView: View {
             .hoverEffect(.lift)
             
             NavigationLink {
-                DeveloperHubView()
+                DeveloperHubView(embeddedInNavigation: true)
             } label: {
                 DashboardMetricCardView(
                     icon: "bolt.fill",
-                    iconColor: accentColor,
+                    iconColor: .orange,
                     title: "Workers & Pages",
                     value: viewModel.hasFetchedData ? "\(viewModel.workers.count + viewModel.pages.count)" : "-",
                     subtitle: viewModel.hasFetchedData ? "\(viewModel.workers.count) Workers · \(viewModel.pages.count) Pages" : "Loading…",
@@ -280,7 +287,7 @@ struct DashboardView: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: NetworkToolsView()) {
+                NavigationLink(destination: NetworkToolsView(embeddedInNavigation: true)) {
                     HStack(spacing: 3) {
                         Text("All Tools")
                         Image(systemName: "chevron.forward")
@@ -293,7 +300,10 @@ struct DashboardView: View {
             .padding(.horizontal, 2)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
-                NavigationLink(destination: AddZoneView()) {
+                Button {
+                    HapticManager.selection()
+                    showingAddZone = true
+                } label: {
                     QuickDeckButton(icon: "plus.circle.fill", color: accentColor, title: "Add Domain")
                 }
                 .buttonStyle(.plain)
@@ -324,7 +334,7 @@ struct DashboardView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink(destination: EdgeLatencyTestView()) {
-                    QuickDeckButton(icon: "speedometer", color: accentColor, title: "Latency Test")
+                    QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency Test")
                 }
                 .buttonStyle(.plain)
                 
@@ -354,9 +364,9 @@ struct DashboardView: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: ZonesListView()) {
+                NavigationLink(destination: ZonesListView(embeddedInNavigation: true)) {
                     HStack(spacing: 3) {
-                        Text(viewModel.hasFetchedData ? "See All (\(viewModel.zones.count))" : "See All")
+                        Text(viewModel.hasFetchedData ? LocalizedStringKey("See All (\(viewModel.zones.count))") : LocalizedStringKey("See All"))
                         Image(systemName: "chevron.right")
                             .font(.caption2.weight(.bold))
                     }
@@ -403,7 +413,9 @@ struct DashboardView: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.recentZones.enumerated()), id: \.element.id) { index, zone in
-                        NavigationLink(value: zone) {
+                        NavigationLink {
+                            ZoneDetailView(zone: zone)
+                        } label: {
                             HStack(spacing: 12) {
                                 ZStack {
                                     Circle()
@@ -420,7 +432,7 @@ struct DashboardView: View {
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
                                     
-                                    Text(zone.plan?.name ?? "Free Plan")
+                                    Text(zone.plan?.name ?? String(localized: "Free Plan"))
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }

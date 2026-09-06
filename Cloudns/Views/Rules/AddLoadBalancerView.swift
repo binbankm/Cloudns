@@ -56,7 +56,7 @@ struct AddLoadBalancerView: View {
                     .padding(.vertical, 2)
                 }
                 
-                Section(header: Text("Basic Details"), footer: Text(proxied ? "When proxied, DNS TTL is managed by Cloudflare." : "TTL applies to DNS-only mode.")) {
+                Section(header: Text("Basic Details"), footer: Text(proxied ? LocalizedStringKey("When proxied, DNS TTL is managed by Cloudflare.") : LocalizedStringKey("TTL applies to DNS-only mode."))) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
                         .font(.body.monospaced())
                         .keyboardType(.URL)

@@ -20,7 +20,9 @@ struct PagesProjectsListView: View {
             if !viewModel.filteredPages.isEmpty {
                 Section(header: Text("Pages Projects (\(viewModel.filteredPages.count))")) {
                     ForEach(viewModel.filteredPages) { page in
-                        NavigationLink(value: page) {
+                        NavigationLink {
+                            PagesProjectDetailView(accountId: accountId, project: page)
+                        } label: {
                             pagesRow(page)
                         }
                         .contextMenu {
@@ -85,9 +87,6 @@ struct PagesProjectsListView: View {
         )
         .navigationTitle("Pages")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: PagesProject.self) { page in
-            PagesProjectDetailView(accountId: accountId, project: page)
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

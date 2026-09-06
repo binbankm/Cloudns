@@ -173,7 +173,7 @@ struct PagesDeploymentsListView: View {
                         .font(.caption2)
                         .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
                     
-                    Text(isSuccess ? "Success" : (isFailure ? "Failed" : status.capitalized))
+                    Text(isSuccess ? LocalizedStringKey("Success") : (isFailure ? LocalizedStringKey("Failed") : LocalizedStringKey(status.capitalized)))
                         .font(.caption2.weight(.bold))
                 }
                 .padding(.horizontal, 6)
@@ -183,7 +183,7 @@ struct PagesDeploymentsListView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 
                 // Environment Badge
-                Text(isProd ? "Production" : "Preview")
+                Text(isProd ? LocalizedStringKey("Production") : LocalizedStringKey("Preview"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(isProd ? .blue : .purple)
                     .padding(.horizontal, 6)
@@ -258,7 +258,7 @@ struct PagesDeploymentsListView: View {
                             .font(.caption2.monospaced())
                             .lineLimit(1)
                     }
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(.secondary)
                 }
             }
         }

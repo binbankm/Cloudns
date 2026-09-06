@@ -29,7 +29,7 @@ struct PagesDetailDeepLinkWrapper: View {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text(errorMessage ?? "Unable to load project")
+                    Text(errorMessage ?? String(localized: "Unable to load project"))
                         .font(.headline)
                     Button("Retry") {
                         Task { await loadProject() }

@@ -194,7 +194,7 @@ struct AddIPAccessRuleView: View {
                         Text("ASN").tag("asn")
                     }
                     
-                    TextField(target == "country" ? "e.g. US, CN, GB" : (target == "asn" ? "e.g. AS12345" : "e.g. 192.168.1.1"), text: $value)
+                    TextField(target == "country" ? LocalizedStringKey("e.g. US, CN, GB") : (target == "asn" ? LocalizedStringKey("e.g. AS12345") : LocalizedStringKey("e.g. 192.168.1.1")), text: $value)
                         .keyboardType(target == "asn" ? .numberPad : .asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()

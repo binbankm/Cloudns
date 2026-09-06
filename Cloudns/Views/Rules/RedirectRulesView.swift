@@ -28,7 +28,8 @@ struct RedirectRulesView: View {
                 AddRedirectRuleSheetView(zoneId: zoneId, viewModel: viewModel)
             }
             .confirmationDialog("Delete Redirect Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+                Button("Delete '\(ruleName)'", role: .destructive) {
                     Task {
                         _ = await viewModel.deleteRule(zoneId: zoneId, ruleId: rule.id, description: rule.description)
                         ToastManager.shared.showSuccess("Redirect Rule Deleted", icon: "trash.fill")
@@ -37,7 +38,8 @@ struct RedirectRulesView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: { rule in
-                Text("Are you sure you want to delete redirect rule '\(rule.description ?? "Rule")'?")
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+                Text("Are you sure you want to delete redirect rule '\(ruleName)'?")
             }
             .refreshable {
                 await viewModel.fetchRules(zoneId: zoneId)
@@ -119,14 +121,20 @@ struct RedirectRulesView: View {
     private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(rule.description ?? "Untitled Rule")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.primary)
+                if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(desc)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                } else {
+                    Text("Untitled Rule")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                }
                 
                 Spacer()
                 
                 let isEnabled = rule.enabled ?? true
-                Text(isEnabled ? "Active" : "Disabled")
+                Text(isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(isEnabled ? Color.green : Color.secondary)
                     .padding(.horizontal, 6)

@@ -32,7 +32,7 @@ struct EdgeCertificatesView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.toggleUniversalSSL(zoneId: zoneId, enabled: newValue)
-                            ToastManager.shared.showSuccess(newValue ? "Universal SSL Enabled" : "Universal SSL Disabled", icon: "lock.shield.fill")
+                            ToastManager.shared.showSuccess(newValue ? LocalizedStringKey("Universal SSL Enabled") : LocalizedStringKey("Universal SSL Disabled"), icon: "lock.shield.fill")
                         }
                     }
                 ))

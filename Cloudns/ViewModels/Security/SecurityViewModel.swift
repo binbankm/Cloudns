@@ -59,7 +59,7 @@ final class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBrowserCheck(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? "Browser Check Enabled" : "Browser Check Disabled")
+            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Browser Check Enabled") : LocalizedStringKey("Browser Check Disabled"))
         } catch {
             self.browserCheck = previous
             self.errorMessage = error.localizedDescription
@@ -72,7 +72,7 @@ final class SecurityViewModel: BaseLoadableViewModel {
         HapticManager.impact(.medium)
         do {
             try await securityService.updateBotFightMode(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? "Bot Fight Mode Enabled" : "Bot Fight Mode Disabled")
+            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Bot Fight Mode Enabled") : LocalizedStringKey("Bot Fight Mode Disabled"))
         } catch {
             self.botFightMode = previous
             self.errorMessage = error.localizedDescription

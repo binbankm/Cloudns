@@ -12,6 +12,7 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
     case mint
     case pink
     case red
+    case custom
     
     public var id: String { rawValue }
     
@@ -26,9 +27,11 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         case .mint:   return "Fresh Mint"
         case .pink:   return "Rose Pink"
         case .red:    return "Ruby Red"
+        case .custom: return "Custom"
         }
     }
     
+    @MainActor
     public var color: Color {
         switch self {
         case .orange:
@@ -45,6 +48,7 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         case .mint:   return .mint
         case .pink:   return .pink
         case .red:    return .red
+        case .custom: return ThemeManager.shared.customColor
         }
     }
 }

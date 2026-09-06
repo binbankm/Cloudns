@@ -57,7 +57,7 @@ struct EdgeLatencyTestView: View {
                         } else {
                             Image(systemName: "bolt.horizontal.fill")
                         }
-                        Text(viewModel.isLatencyLoading ? "Testing Consecutive Pings…" : "Start Latency & Jitter Benchmark")
+                        Text(viewModel.isLatencyLoading ? LocalizedStringKey("Testing Consecutive Pings…") : LocalizedStringKey("Start Latency & Jitter Benchmark"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -167,7 +167,7 @@ struct AlertingView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 Spacer()
-                Text(p.isEnabled ? "Active" : "Disabled")
+                Text(p.isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(p.isEnabled ? .green : .secondary)
                     .padding(.horizontal, 6)

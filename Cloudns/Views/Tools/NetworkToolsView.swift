@@ -132,58 +132,73 @@ struct NetworkToolsView: View {
         }
     }
     
+    let embeddedInNavigation: Bool
+    
+    init(embeddedInNavigation: Bool = false) {
+        self.embeddedInNavigation = embeddedInNavigation
+    }
+    
     var body: some View {
-        NavigationStack {
-            List {
-                if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-                    Section("Edge Diagnostics") {
-                        ForEach(edgeTools) { tool in
-                            toolRow(tool)
-                        }
+        if embeddedInNavigation {
+            toolsContent
+                .navigationBarTitleDisplayMode(.inline)
+        } else {
+            NavigationStack {
+                toolsContent
+                    .navigationBarTitleDisplayMode(.large)
+            }
+        }
+    }
+    
+    private var toolsContent: some View {
+        List {
+            if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+                Section("Edge Diagnostics") {
+                    ForEach(edgeTools) { tool in
+                        toolRow(tool)
                     }
-                    
-                    Section("Global Connectivity & Probing") {
-                        ForEach(globalProbingTools) { tool in
-                            toolRow(tool)
-                        }
+                }
+                
+                Section("Global Connectivity & Probing") {
+                    ForEach(globalProbingTools) { tool in
+                        toolRow(tool)
                     }
-                    
-                    Section {
-                        ForEach(ipRoutingTools) { tool in
-                            toolRow(tool)
-                        }
-                    } header: {
-                        Text("IP & Routing Utilities")
-                    } footer: {
-                        Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
+                }
+                
+                Section {
+                    ForEach(ipRoutingTools) { tool in
+                        toolRow(tool)
                     }
-                } else {
-                    Section("Matching Tools (\(filteredTools.count))") {
-                        ForEach(filteredTools) { tool in
-                            toolRow(tool)
-                        }
+                } header: {
+                    Text("IP & Routing Utilities")
+                } footer: {
+                    Text("All diagnostics queries run directly from your device or Cloudflare's global edge network.")
+                }
+            } else {
+                Section("Matching Tools (\(filteredTools.count))") {
+                    ForEach(filteredTools) { tool in
+                        toolRow(tool)
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .automatic),
-                prompt: "Search Diagnostics & Tools"
-            )
-            .navigationTitle("Tools")
-            .navigationBarTitleDisplayMode(.large)
-            .id(appLanguage)
-            .listState(
-                isEmpty: !searchText.isEmpty && filteredTools.isEmpty,
-                empty: EmptyStateConfig(
-                    title: "No Results",
-                    systemImage: "magnifyingglass",
-                    description: "No diagnostics tools matching '\(searchText)'."
-                )
-            )
         }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .automatic),
+            prompt: "Search Diagnostics & Tools"
+        )
+        .navigationTitle("Tools")
+        .id(appLanguage)
+        .listState(
+            isEmpty: !searchText.isEmpty && filteredTools.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Results",
+                systemImage: "magnifyingglass",
+                description: "No diagnostics tools matching '\(searchText)'."
+            )
+        )
     }
     
     @ViewBuilder

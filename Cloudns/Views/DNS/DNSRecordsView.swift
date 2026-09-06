@@ -168,7 +168,7 @@ struct DNSRecordsView: View {
                     }
                 } label: {
                     Label(
-                        viewModel.selectedType == "ALL" ? "Record Type" : "Type: \(viewModel.selectedType)",
+                        viewModel.selectedType == "ALL" ? LocalizedStringKey("Record Type") : LocalizedStringKey("Type: \(viewModel.selectedType)"),
                         systemImage: "line.3.horizontal.decrease"
                     )
                 }
@@ -209,7 +209,7 @@ struct DNSRecordsView: View {
                     }
                 } label: {
                     Label(
-                        viewModel.selectedProxyStatus == "ALL" ? "Proxy Status" : (viewModel.selectedProxyStatus == "PROXIED" ? "Proxy: Proxied" : "Proxy: DNS Only"),
+                        viewModel.selectedProxyStatus == "ALL" ? LocalizedStringKey("Proxy Status") : (viewModel.selectedProxyStatus == "PROXIED" ? LocalizedStringKey("Proxy: Proxied") : LocalizedStringKey("Proxy: DNS Only")),
                         systemImage: "shield.lefthalf.filled"
                     )
                 }
@@ -278,7 +278,7 @@ struct DNSRecordsView: View {
             } label: {
                 Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
             }
-            .accessibilityLabel(viewModel.isFiltered ? "DNS Options (Filtered)" : "DNS Options and Filters")
+            .accessibilityLabel(viewModel.isFiltered ? Text("DNS Options (Filtered)") : Text("DNS Options and Filters"))
             
             Button {
                 showingForm = true
@@ -361,7 +361,7 @@ struct DNSRecordsView: View {
                     Task { await viewModel.toggleProxy(for: record) }
                 } label: {
                     Label(
-                        record.proxied == true ? "Switch to DNS Only" : "Enable Cloudflare Proxy",
+                        record.proxied == true ? LocalizedStringKey("Switch to DNS Only") : LocalizedStringKey("Enable Cloudflare Proxy"),
                         systemImage: record.proxied == true ? "cloud" : "cloud.fill"
                     )
                 }
@@ -455,7 +455,7 @@ struct DNSRecordRowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(record.proxied == true ? "Cloudflare Proxy Enabled" : "Cloudflare Proxy Disabled")
+                    .accessibilityLabel(record.proxied == true ? Text("Cloudflare Proxy Enabled") : Text("Cloudflare Proxy Disabled"))
                     .accessibilityHint("Double tap to toggle proxy status between Proxied and DNS Only")
                 } else {
                     dnsOnlyBadge
@@ -463,14 +463,14 @@ struct DNSRecordRowView: View {
             }
             
             HStack(alignment: .top) {
-                Text(record.content ?? (record.data != nil ? "Advanced Record Data" : "No content"))
+                Text(record.content ?? (record.data != nil ? String(localized: "Advanced Record Data") : String(localized: "No content")))
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                 
                 Spacer()
                 
-                Text(record.ttl == 1 ? "Auto" : "\(record.ttl)s")
+                Text(record.ttl == 1 ? LocalizedStringKey("Auto") : "\(record.ttl)s")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }

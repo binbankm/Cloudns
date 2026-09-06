@@ -70,7 +70,8 @@ struct LoadBalancerView: View {
             titleVisibility: .visible
         ) {
             if let lb = lbToDelete {
-                Button("Delete '\(lb.name ?? "Load Balancer")'", role: .destructive) {
+                let name = (lb.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Load Balancer")
+                Button("Delete '\(name)'", role: .destructive) {
                     Task {
                         await viewModel.deleteLoadBalancer(id: lb.id)
                         ToastManager.shared.showSuccess("Load Balancer Deleted", icon: "trash.fill")
@@ -79,7 +80,8 @@ struct LoadBalancerView: View {
                     }
                 }
             } else if let pool = poolToDelete {
-                Button("Delete '\(pool.name ?? "Pool")'", role: .destructive) {
+                let name = (pool.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Pool")
+                Button("Delete '\(name)'", role: .destructive) {
                     Task {
                         await viewModel.deletePool(poolId: pool.id)
                         ToastManager.shared.showSuccess("Origin Pool Deleted", icon: "trash.fill")
@@ -88,7 +90,8 @@ struct LoadBalancerView: View {
                     }
                 }
             } else if let mon = monitorToDelete {
-                Button("Delete '\(mon.description ?? "Monitor")'", role: .destructive) {
+                let name = (mon.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Monitor")
+                Button("Delete '\(name)'", role: .destructive) {
                     Task {
                         await viewModel.deleteMonitor(monitorId: mon.id)
                         ToastManager.shared.showSuccess("Health Monitor Deleted", icon: "trash.fill")
@@ -104,11 +107,14 @@ struct LoadBalancerView: View {
             }
         } message: {
             if let lb = lbToDelete {
-                Text("Are you sure you want to delete Load Balancer '\(lb.name ?? "Resource")'?")
+                let name = (lb.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Resource")
+                Text("Are you sure you want to delete Load Balancer '\(name)'?")
             } else if let pool = poolToDelete {
-                Text("Are you sure you want to delete Origin Pool '\(pool.name ?? "Resource")'?")
+                let name = (pool.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Resource")
+                Text("Are you sure you want to delete Origin Pool '\(name)'?")
             } else if let mon = monitorToDelete {
-                Text("Are you sure you want to delete Health Monitor '\(mon.description ?? "Resource")'?")
+                let name = (mon.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Resource")
+                Text("Are you sure you want to delete Health Monitor '\(name)'?")
             }
         }
     }
@@ -282,7 +288,7 @@ struct LoadBalancerView: View {
                     .foregroundStyle(.primary)
                 Spacer()
                 let isActive = lb.enabled == true
-                Text(isActive ? "Active" : "Inactive")
+                Text(isActive ? LocalizedStringKey("Active") : LocalizedStringKey("Inactive"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(isActive ? Color.green : Color.secondary)
                     .padding(.horizontal, 6)

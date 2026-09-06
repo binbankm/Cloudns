@@ -20,7 +20,7 @@ struct WAFCustomRulesView: View {
                             HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                ToastManager.shared.showSuccess(rule.enabled ? "WAF Rule Disabled" : "WAF Rule Enabled", icon: "shield.lefthalf.filled")
+                                ToastManager.shared.showSuccess(rule.enabled ? LocalizedStringKey("WAF Rule Disabled") : LocalizedStringKey("WAF Rule Enabled"), icon: "shield.lefthalf.filled")
                             }
                         })
                         .contextMenu {
@@ -115,7 +115,8 @@ struct WAFCustomRulesView: View {
             }
         } message: {
             if let rule = ruleToDelete {
-                Text("Are you sure you want to delete WAF rule '\(rule.description ?? "Untitled Rule")'?")
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+                Text("Are you sure you want to delete WAF rule '\(ruleName)'?")
             }
         }
         .task {
@@ -135,9 +136,15 @@ struct WAFRuleCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(rule.description ?? "Untitled Rule")
-                    .font(.body.weight(.medium))
-                    .lineLimit(2)
+                if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(desc)
+                        .font(.body.weight(.medium))
+                        .lineLimit(2)
+                } else {
+                    Text("Untitled Rule")
+                        .font(.body.weight(.medium))
+                        .lineLimit(2)
+                }
                 
                 Spacer()
                 
@@ -159,12 +166,12 @@ struct WAFRuleCardView: View {
                 
                 Spacer()
                 
-                Text(rule.enabled ? "Active" : "Disabled")
+                Text(rule.enabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(rule.enabled ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(rule.enabled ? Color.green : Color.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(rule.enabled ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill)))
+                    .background(Capsule().fill(rule.enabled ? Color.green.opacity(0.12) : Color(.tertiarySystemFill)))
             }
             
             VStack(alignment: .leading, spacing: 2) {
@@ -185,7 +192,7 @@ struct WAFRuleCardView: View {
         .padding(.vertical, 2)
     }
     
-    private func actionDisplayName(_ action: String) -> String {
+    private func actionDisplayName(_ action: String) -> LocalizedStringKey {
         switch action.lowercased() {
         case "block": return "Block"
         case "managed_challenge": return "Managed Challenge"
@@ -193,7 +200,7 @@ struct WAFRuleCardView: View {
         case "challenge": return "Interactive Challenge"
         case "log": return "Log"
         case "skip": return "Skip"
-        default: return action.capitalized
+        default: return LocalizedStringKey(action.capitalized)
         }
     }
     

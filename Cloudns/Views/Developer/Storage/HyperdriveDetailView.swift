@@ -54,7 +54,7 @@ struct HyperdriveDetailView: View {
             if let caching = config.caching {
                 Section("Query Caching") {
                     LabeledContent("Cache Status") {
-                        Text(caching.disabled == true ? "Disabled" : "Enabled")
+                        Text(caching.disabled == true ? LocalizedStringKey("Disabled") : LocalizedStringKey("Enabled"))
                             .font(.body.weight(.medium))
                             .foregroundStyle(caching.disabled == true ? Color.secondary : Color.green)
                     }

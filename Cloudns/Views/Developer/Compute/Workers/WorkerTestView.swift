@@ -44,7 +44,7 @@ struct WorkerTestView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "link")
                             .font(.body)
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(.secondary)
                             .accessibilityHidden(true)
                         
                         TextField("https://...", text: $viewModel.targetUrl)
@@ -200,7 +200,7 @@ struct WorkerTestView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "bolt.horizontal.circle.fill")
                             .font(.largeTitle)
-                            .foregroundStyle(Color.accentColor.opacity(0.8))
+                            .foregroundStyle(Color.orange)
                             .accessibilityHidden(true)
                         
                         Text("Ready to Probe Worker")

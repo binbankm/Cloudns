@@ -30,7 +30,7 @@ struct ZoneDetailDeepLinkWrapper: View {
                         .foregroundStyle(.orange)
                     Text("Unable to Load")
                         .font(.headline)
-                    Text(errorMessage ?? "Unable to load domain")
+                    Text(errorMessage ?? String(localized: "Unable to load domain"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Button("Try Again") {

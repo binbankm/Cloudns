@@ -66,7 +66,7 @@ struct HTTPHeaderInspectorView: View {
                         } else {
                             Image(systemName: "arrow.up.right.circle.fill")
                         }
-                        Text(viewModel.isHttpLoading ? "Connecting Edge…" : "Inspect Edge Response")
+                        Text(viewModel.isHttpLoading ? LocalizedStringKey("Connecting Edge…") : LocalizedStringKey("Inspect Edge Response"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)

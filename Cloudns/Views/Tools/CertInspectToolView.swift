@@ -51,7 +51,7 @@ struct CertInspectToolView: View {
                         } else {
                             Image(systemName: "checkmark.seal.fill")
                         }
-                        Text(viewModel.isLoading ? "Inspecting Handshake…" : "Inspect SSL/TLS Certificate")
+                        Text(viewModel.isLoading ? LocalizedStringKey("Inspecting Handshake…") : LocalizedStringKey("Inspect SSL/TLS Certificate"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -133,7 +133,7 @@ struct CertInspectToolView: View {
             
             Spacer()
             
-            Text(details.isCloudflareEdge ? "Cloudflare Universal SSL" : "Origin SSL")
+            Text(details.isCloudflareEdge ? LocalizedStringKey("Cloudflare Universal SSL") : LocalizedStringKey("Origin SSL"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(details.isCloudflareEdge ? .orange : .blue)
                 .padding(.horizontal, 6)
@@ -186,7 +186,7 @@ struct CertInspectToolView: View {
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                     
-                    Text(index == 0 ? "Leaf / Server Certificate" : (index == details.chainNames.count - 1 ? "Root Authority" : "Intermediate CA"))
+                    Text(index == 0 ? LocalizedStringKey("Leaf / Server Certificate") : (index == details.chainNames.count - 1 ? LocalizedStringKey("Root Authority") : LocalizedStringKey("Intermediate CA")))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

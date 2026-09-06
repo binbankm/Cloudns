@@ -20,7 +20,9 @@ struct R2BucketsView: View {
             if !viewModel.filteredBuckets.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBuckets) { bucket in
-                        NavigationLink(value: bucket) {
+                        NavigationLink {
+                            R2BucketDetailView(accountId: accountId, bucket: bucket)
+                        } label: {
                             R2BucketRowView(bucket: bucket)
                         }
                         .contextMenu {
@@ -76,9 +78,6 @@ struct R2BucketsView: View {
         )
         .navigationTitle("R2 Object Storage")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: R2Bucket.self) { bucket in
-            R2BucketDetailView(accountId: accountId, bucket: bucket)
-        }
         .refreshable { await viewModel.fetchBuckets() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

@@ -21,7 +21,7 @@ struct DashboardZoneTrafficChartView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "globe.americas.fill")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(accentColor)
+                            .foregroundStyle(.blue)
                         
                         Text("Zone Traffic Analytics (24h)")
                             .font(.subheadline.weight(.semibold))
@@ -237,7 +237,7 @@ struct DashboardZoneTrafficChartView: View {
     
     private func metricColor(_ metric: DashboardChartMetric) -> Color {
         switch metric {
-        case .requests: return accentColor
+        case .requests: return .blue
         case .bandwidth: return .purple
         case .threats: return .red
         }

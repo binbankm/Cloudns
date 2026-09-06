@@ -407,7 +407,7 @@ struct PagesAddVariableSheetView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(initialName.isEmpty ? "Add Variable" : "Edit Variable")
+            .navigationTitle(initialName.isEmpty ? LocalizedStringKey("Add Variable") : LocalizedStringKey("Edit Variable"))
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {

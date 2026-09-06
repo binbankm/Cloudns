@@ -237,11 +237,11 @@ struct CloudflareStatusView: View {
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(summary.status?.description ?? "All Systems Operational")
+                Text(summary.status?.description ?? String(localized: "All Systems Operational"))
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
                 
-                Text(isOperational ? "Cloudflare Global Network & Edge Services Normal" : "Some services or edge data centers are degraded")
+                Text(isOperational ? LocalizedStringKey("Cloudflare Global Network & Edge Services Normal") : LocalizedStringKey("Some services or edge data centers are degraded"))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.85))
             }

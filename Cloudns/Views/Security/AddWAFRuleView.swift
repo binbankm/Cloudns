@@ -213,9 +213,15 @@ struct AddWAFRuleView: View {
                 }
                 
                 Section(header: Text("Generated Expression Preview")) {
-                    Text(finalEffectiveExpression.isEmpty ? "No expression configured" : finalEffectiveExpression)
-                        .font(.footnote.monospaced())
-                        .foregroundStyle(finalEffectiveExpression.isEmpty ? .secondary : .primary)
+                    if finalEffectiveExpression.isEmpty {
+                        Text("No expression configured")
+                            .font(.footnote.monospaced())
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(finalEffectiveExpression)
+                            .font(.footnote.monospaced())
+                            .foregroundStyle(.primary)
+                    }
                 }
                 
                 if let error = viewModel.errorMessage {

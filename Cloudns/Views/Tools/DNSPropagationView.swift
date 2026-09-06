@@ -77,7 +77,7 @@ struct DNSPropagationView: View {
                         } else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
-                        Text(viewModel.isPropagationLoading ? "Probing Global Edge…" : "Probe Worldwide DNS Propagation")
+                        Text(viewModel.isPropagationLoading ? LocalizedStringKey("Probing Global Edge…") : LocalizedStringKey("Probe Worldwide DNS Propagation"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)

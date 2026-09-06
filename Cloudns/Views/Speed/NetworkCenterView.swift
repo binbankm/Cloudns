@@ -71,7 +71,7 @@ struct NetworkCenterView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateIPv6(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "IPv6 Enabled" : "IPv6 Disabled", icon: "network")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("IPv6 Enabled") : LocalizedStringKey("IPv6 Disabled"), icon: "network")
                         }
                     }
                 )) {
@@ -95,7 +95,7 @@ struct NetworkCenterView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateWebsockets(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "WebSockets Enabled" : "WebSockets Disabled", icon: "arrow.up.arrow.down.square.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("WebSockets Enabled") : LocalizedStringKey("WebSockets Disabled"), icon: "arrow.up.arrow.down.square.fill")
                         }
                     }
                 )) {
@@ -125,7 +125,7 @@ struct NetworkCenterView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateHTTP2(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "HTTP/2 Enabled" : "HTTP/2 Disabled", icon: "bolt.horizontal.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("HTTP/2 Enabled") : LocalizedStringKey("HTTP/2 Disabled"), icon: "bolt.horizontal.fill")
                         }
                     }
                 )) {
@@ -149,7 +149,7 @@ struct NetworkCenterView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateHTTP3(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "HTTP/3 QUIC Enabled" : "HTTP/3 QUIC Disabled", icon: "bolt.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("HTTP/3 QUIC Enabled") : LocalizedStringKey("HTTP/3 QUIC Disabled"), icon: "bolt.fill")
                         }
                     }
                 )) {
@@ -188,7 +188,7 @@ struct NetworkCenterView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateIPGeolocation(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "IP Geolocation Enabled" : "IP Geolocation Disabled", icon: "location.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("IP Geolocation Enabled") : LocalizedStringKey("IP Geolocation Disabled"), icon: "location.fill")
                         }
                     }
                 )) {

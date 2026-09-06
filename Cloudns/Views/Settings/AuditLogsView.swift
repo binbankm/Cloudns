@@ -105,7 +105,7 @@ struct AuditLogRowView: View {
                     Spacer()
                     
                     if let res = log.action?.result {
-                        Text(res ? "Success" : "Failed")
+                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(res ? Color.green : Color.red)
                             .padding(.horizontal, 6)
@@ -195,7 +195,7 @@ struct AuditLogDetailSheetView: View {
                     }
                     
                     if let res = log.action?.result {
-                        Text(res ? "Success" : "Failed")
+                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(res ? Color.green : Color.red)
                             .padding(.horizontal, 10)

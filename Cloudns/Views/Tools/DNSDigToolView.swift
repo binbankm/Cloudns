@@ -83,7 +83,7 @@ struct DNSDigToolView: View {
                         } else {
                             Image(systemName: "magnifyingglass")
                         }
-                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? "Querying Resolvers…" : (queryMode == 0 ? "Query 1.1.1.1 Resolver" : "Benchmark 5 Resolvers"))
+                        Text(viewModel.isDnsLoading || viewModel.isBenchmarkLoading ? LocalizedStringKey("Querying Resolvers…") : (queryMode == 0 ? LocalizedStringKey("Query 1.1.1.1 Resolver") : LocalizedStringKey("Benchmark 5 Resolvers")))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -244,7 +244,7 @@ struct DNSDigToolView: View {
             Spacer()
             
             if item.status == "OK", let lat = item.latencyMs {
-                let badgeColor = rank == 1 ? Color.green : Color.accentColor
+                let badgeColor = rank == 1 ? Color.green : Color.blue
                 Text("\(lat.formatted(.number.precision(.fractionLength(1)))) ms")
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(badgeColor)

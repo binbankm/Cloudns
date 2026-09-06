@@ -25,7 +25,7 @@ struct CacheRulesView: View {
                             HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(rule: rule)
-                                ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "bolt.badge.clock")
+                                ToastManager.shared.showSuccess(rule.enabled ? LocalizedStringKey("Rule Disabled") : LocalizedStringKey("Rule Enabled"), icon: "bolt.badge.clock")
                             }
                         }
                         .contextMenu {
@@ -35,7 +35,7 @@ struct CacheRulesView: View {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
                             
-                            if let desc = rule.description {
+                            if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 Button {
                                     copyToClipboard(desc, toast: "Rule Name Copied")
                                 } label: {
@@ -120,7 +120,8 @@ struct CacheRulesView: View {
             }
         } message: {
             if let rule = ruleToDelete {
-                Text("Are you sure you want to delete cache rule '\(rule.description ?? "Untitled Rule")'?")
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+                Text("Are you sure you want to delete cache rule '\(ruleName)'?")
             }
         }
         .task {
@@ -140,8 +141,13 @@ struct CacheRuleCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(rule.description ?? "Unnamed Rule")
-                    .font(.body.weight(.medium))
+                if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(desc)
+                        .font(.body.weight(.medium))
+                } else {
+                    Text("Unnamed Rule")
+                        .font(.body.weight(.medium))
+                }
                 Spacer()
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
@@ -159,12 +165,12 @@ struct CacheRuleCardView: View {
                 .lineLimit(2)
             
             if let cache = rule.action_parameters?.cache {
-                Text(cache ? "Active" : "Bypass Cache")
+                Text(cache ? LocalizedStringKey("Active") : LocalizedStringKey("Bypass Cache"))
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(cache ? Color.accentColor : Color.red)
+                    .foregroundStyle(cache ? Color.green : Color.orange)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(cache ? Color.accentColor.opacity(0.12) : Color.red.opacity(0.12)))
+                    .background(Capsule().fill(cache ? Color.green.opacity(0.12) : Color.orange.opacity(0.12)))
             }
         }
         .padding(.vertical, 2)

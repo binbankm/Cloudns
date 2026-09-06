@@ -70,7 +70,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateSpeedBrain(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Speed Brain Enabled" : "Speed Brain Disabled", icon: "brain.head.profile")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Speed Brain Enabled") : LocalizedStringKey("Speed Brain Disabled"), icon: "brain.head.profile")
                         }
                     }
                 )) {
@@ -103,7 +103,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateFonts(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Fonts Acceleration Enabled" : "Fonts Acceleration Disabled", icon: "textformat")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Fonts Acceleration Enabled") : LocalizedStringKey("Fonts Acceleration Disabled"), icon: "textformat")
                         }
                     }
                 )) {
@@ -127,7 +127,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateTieredCache(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Tiered Cache Enabled" : "Tiered Cache Disabled", icon: "square.stack.3d.up.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Tiered Cache Enabled") : LocalizedStringKey("Tiered Cache Disabled"), icon: "square.stack.3d.up.fill")
                         }
                     }
                 )) {
@@ -166,7 +166,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateBrotli(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Brotli Enabled" : "Brotli Disabled", icon: "doc.zipper")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Brotli Enabled") : LocalizedStringKey("Brotli Disabled"), icon: "doc.zipper")
                         }
                     }
                 )) {
@@ -190,7 +190,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateEarlyHints(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Early Hints Enabled" : "Early Hints Disabled", icon: "sparkles")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Early Hints Enabled") : LocalizedStringKey("Early Hints Disabled"), icon: "sparkles")
                         }
                     }
                 )) {
@@ -214,7 +214,7 @@ struct SpeedSettingsView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateRocketLoader(zoneId: zoneId, isOn: val)
-                            ToastManager.shared.showSuccess(val ? "Rocket Loader™ Enabled" : "Rocket Loader™ Disabled", icon: "flame.fill")
+                            ToastManager.shared.showSuccess(val ? LocalizedStringKey("Rocket Loader™ Enabled") : LocalizedStringKey("Rocket Loader™ Disabled"), icon: "flame.fill")
                         }
                     }
                 )) {

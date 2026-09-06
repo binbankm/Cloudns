@@ -92,7 +92,7 @@ struct WorkerTailView: View {
                         Image(systemName: viewModel.isStreaming ? "pause.fill" : "play.fill")
                             .foregroundStyle(viewModel.isStreaming ? .orange : .green)
                     }
-                    .accessibilityLabel(viewModel.isStreaming ? "Pause Stream" : "Resume Stream")
+                    .accessibilityLabel(viewModel.isStreaming ? Text("Pause Stream") : Text("Resume Stream"))
                 }
             }
         }
@@ -115,7 +115,7 @@ struct WorkerTailView: View {
                 Circle()
                     .fill(viewModel.isStreaming ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
-                Text(viewModel.isStreaming ? "Connected" : "Paused")
+                Text(viewModel.isStreaming ? LocalizedStringKey("Connected") : LocalizedStringKey("Paused"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.isStreaming ? Color.green : .secondary)
             }
@@ -237,7 +237,7 @@ struct TailEventRowView: View {
             
             if let exceptions = item.exceptions, !exceptions.isEmpty {
                 ForEach(exceptions) { ex in
-                    Text(ex.message ?? "Unhandled Exception")
+                    Text(ex.message ?? String(localized: "Unhandled Exception"))
                         .font(.caption2.monospaced())
                         .foregroundStyle(.red)
                         .lineLimit(1)
@@ -298,7 +298,7 @@ struct TailEventDetailSheetView: View {
                     Section(header: Text("Exceptions (\(exceptions.count))")) {
                         ForEach(exceptions) { ex in
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(ex.name ?? "Exception")
+                                Text(ex.name ?? String(localized: "Exception"))
                                     .font(.caption.bold())
                                     .foregroundStyle(.red)
                                 if let msg = ex.message, !msg.isEmpty {

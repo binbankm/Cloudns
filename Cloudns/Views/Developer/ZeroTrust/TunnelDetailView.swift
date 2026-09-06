@@ -146,7 +146,7 @@ struct TunnelDetailView: View {
                         }
                         .buttonStyle(.borderless)
                         .hoverEffect(.highlight)
-                        .accessibilityLabel(isTokenRevealed ? "Hide token" : "Reveal token")
+                        .accessibilityLabel(isTokenRevealed ? Text("Hide token") : Text("Reveal token"))
                     }
                 } header: {
                     Text("Connector Token")

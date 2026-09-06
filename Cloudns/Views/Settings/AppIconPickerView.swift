@@ -37,10 +37,10 @@ struct AppIconPickerView: View {
                                     if iconManager.currentIcon == option {
                                         Text("Active")
                                             .font(.caption2.weight(.medium))
-                                            .foregroundStyle(Color.accentColor)
+                                            .foregroundStyle(Color.green)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
-                                            .background(Capsule().fill(Color.accentColor.opacity(0.12)))
+                                            .background(Capsule().fill(Color.green.opacity(0.12)))
                                     }
                                 }
                                 

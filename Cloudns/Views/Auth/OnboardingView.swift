@@ -162,7 +162,7 @@ struct OnboardingView: View {
                         }
                     }) {
                         HStack(spacing: 8) {
-                            Text(currentPage == totalPages - 1 ? "Get Started" : "Continue")
+                            Text(currentPage == totalPages - 1 ? LocalizedStringKey("Get Started") : LocalizedStringKey("Continue"))
                                 .font(.body.weight(.semibold))
                             
                             Image(systemName: currentPage == totalPages - 1 ? "checkmark" : "arrow.right")

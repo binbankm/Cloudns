@@ -93,7 +93,7 @@ struct CFTraceToolView: View {
                     } else {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                     }
-                    Text(viewModel.isLoading ? "Tracing Edge PoP…" : "Trace Edge PoP")
+                    Text(viewModel.isLoading ? LocalizedStringKey("Tracing Edge PoP…") : LocalizedStringKey("Trace Edge PoP"))
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -154,7 +154,7 @@ struct CFTraceToolView: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text(popInfo?.city ?? (colo ?? "Edge PoP"))
+                    Text(popInfo?.city ?? (colo ?? String(localized: "Edge PoP")))
                         .font(.headline)
                         .foregroundStyle(.primary)
                     
@@ -168,7 +168,7 @@ struct CFTraceToolView: View {
                     }
                 }
                 
-                Text(popInfo?.country ?? (loc ?? "Cloudflare Global Anycast"))
+                Text(popInfo?.country ?? (loc ?? String(localized: "Cloudflare Global Anycast")))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
@@ -238,7 +238,7 @@ struct CFTraceToolView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 let isProtected = gateway == "on"
-                Text(isProtected ? "Protected" : "Bypassed")
+                Text(isProtected ? LocalizedStringKey("Protected") : LocalizedStringKey("Bypassed"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(isProtected ? Color.green : Color.orange)
                     .padding(.horizontal, 6)

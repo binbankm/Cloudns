@@ -78,7 +78,7 @@ struct CachingView: View {
                             .clipShape(Capsule())
                     }
                 },
-                footer: Text(purgeTypeDescription)
+                footer: purgeTypeDescriptionView
             ) {
                 Picker("Purge By", selection: $purgeType) {
                     Text("URL").tag("url")
@@ -115,7 +115,7 @@ struct CachingView: View {
                                 ProgressView()
                                     .padding(.trailing, 6)
                             }
-                            Text("Purge by \(purgeType.capitalized)")
+                            Text(purgeButtonTitle)
                                 .font(.body.weight(.semibold))
                             Spacer()
                         }
@@ -208,7 +208,7 @@ struct CachingView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
-                            ToastManager.shared.showSuccess(newValue ? "Always Online Enabled" : "Always Online Disabled", icon: "cloud.fill")
+                            ToastManager.shared.showSuccess(newValue ? LocalizedStringKey("Always Online Enabled") : LocalizedStringKey("Always Online Disabled"), icon: "cloud.fill")
                         }
                     }
                 )) {
@@ -233,7 +233,7 @@ struct CachingView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
-                            ToastManager.shared.showSuccess(newValue ? "Dev Mode Enabled (Bypassing Cache)" : "Dev Mode Disabled", icon: "hammer.fill")
+                            ToastManager.shared.showSuccess(newValue ? LocalizedStringKey("Dev Mode Enabled (Bypassing Cache)") : LocalizedStringKey("Dev Mode Disabled"), icon: "hammer.fill")
                         }
                     }
                 )) {
@@ -326,17 +326,33 @@ struct CachingView: View {
         case "host": return "assets.\(zoneName.isEmpty ? "example.com" : zoneName)"
         case "prefix": return "https://\(zoneName.isEmpty ? "example.com" : zoneName)/images/"
         case "tag": return "static-v1"
-        default: return "Input value"
+        default: return String(localized: "Input value")
         }
     }
     
-    private var purgeTypeDescription: String {
+    private var purgeButtonTitle: LocalizedStringKey {
         switch purgeType {
-        case "url": return "Purge single or multiple exact URL files on Free, Pro, Business & Enterprise plans."
-        case "host": return "Purge all cached resources for a specific hostname (Enterprise only)."
-        case "prefix": return "Purge all files within a specific path prefix (Enterprise only)."
-        case "tag": return "Purge all cached assets with a given Cache-Tag header (Enterprise only)."
-        default: return ""
+        case "url": return "Purge by URL"
+        case "host": return "Purge by Host"
+        case "prefix": return "Purge by Prefix"
+        case "tag": return "Purge by Tag"
+        default: return "Purge"
+        }
+    }
+    
+    @ViewBuilder
+    private var purgeTypeDescriptionView: some View {
+        switch purgeType {
+        case "url":
+            Text("Purge single or multiple exact URL files on Free, Pro, Business & Enterprise plans.")
+        case "host":
+            Text("Purge all cached resources for a specific hostname (Enterprise only).")
+        case "prefix":
+            Text("Purge all files within a specific path prefix (Enterprise only).")
+        case "tag":
+            Text("Purge all cached assets with a given Cache-Tag header (Enterprise only).")
+        default:
+            EmptyView()
         }
     }
     
@@ -363,7 +379,7 @@ struct CachingView: View {
         }
     }
     
-    private func cacheLevelDescription(_ level: String) -> String {
+    private func cacheLevelDescription(_ level: String) -> LocalizedStringKey {
         switch level {
         case "basic": return "Ignores query string and serves cached static file."
         case "simplified": return "Serves same file to all visitors regardless of query string."

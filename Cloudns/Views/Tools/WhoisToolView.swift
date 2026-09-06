@@ -75,7 +75,7 @@ struct WhoisToolView: View {
                         } else {
                             Image(systemName: "globe")
                         }
-                        Text(viewModel.isLoading ? "Querying RDAP…" : "Query WHOIS Directory")
+                        Text(viewModel.isLoading ? LocalizedStringKey("Querying RDAP…") : LocalizedStringKey("Query WHOIS Directory"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -99,7 +99,7 @@ struct D1RowEditorView: View {
                             .padding(.vertical, 2)
                         }
                     } header: {
-                        Text(isNewRow ? "New Row Values" : "Edit Column Values")
+                        Text(isNewRow ? LocalizedStringKey("New Row Values") : LocalizedStringKey("Edit Column Values"))
                     } footer: {
                         Text("Leave blank to use column defaults. Values are escaped before saving.")
                     }
@@ -118,7 +118,7 @@ struct D1RowEditorView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(isNewRow ? "Insert Row" : "Edit Row")
+            .navigationTitle(isNewRow ? LocalizedStringKey("Insert Row") : LocalizedStringKey("Edit Row"))
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {
@@ -130,7 +130,7 @@ struct D1RowEditorView: View {
                     if isSaving {
                         ProgressView()
                     } else {
-                        Button(isNewRow ? "Insert" : "Save") {
+                        Button(isNewRow ? LocalizedStringKey("Insert") : LocalizedStringKey("Save")) {
                             saveRow()
                         }
                         .fontWeight(.semibold)
@@ -157,11 +157,11 @@ struct D1RowEditorView: View {
             await MainActor.run {
                 isSaving = false
                 if success {
-                    ToastManager.shared.showSuccess(isNewRow ? "Row Inserted" : "Row Updated", icon: "checkmark.circle.fill")
+                    ToastManager.shared.showSuccess(isNewRow ? LocalizedStringKey("Row Inserted") : LocalizedStringKey("Row Updated"), icon: "checkmark.circle.fill")
                     HapticManager.notification(.success)
                     dismiss()
                 } else {
-                    ToastManager.shared.showError(isNewRow ? "Failed to Insert Row" : "Failed to Update Row")
+                    ToastManager.shared.showError(isNewRow ? LocalizedStringKey("Failed to Insert Row") : LocalizedStringKey("Failed to Update Row"))
                     HapticManager.notification(.error)
                 }
             }

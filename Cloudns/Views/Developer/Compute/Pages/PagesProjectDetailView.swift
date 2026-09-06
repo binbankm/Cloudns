@@ -165,7 +165,7 @@ struct PagesProjectDetailView: View {
                                     .foregroundStyle(.secondary)
                                 Text("https://\(sub)")
                                     .font(.caption.monospaced())
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(.primary)
                                     .lineLimit(1)
                             }
                             

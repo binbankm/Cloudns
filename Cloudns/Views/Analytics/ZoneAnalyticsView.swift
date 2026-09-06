@@ -262,7 +262,7 @@ struct ZoneAnalyticsView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(accentColor)
+                            .foregroundStyle(Color.blue)
                         Text("Requests Traffic")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
@@ -272,7 +272,7 @@ struct ZoneAnalyticsView: View {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedPoint != nil ? "requests" : "total")
+                        Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -284,7 +284,7 @@ struct ZoneAnalyticsView: View {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(accentColor)
+                            .fill(Color.blue)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
@@ -292,7 +292,7 @@ struct ZoneAnalyticsView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(accentColor.opacity(0.12))
+                    .background(Color.blue.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
@@ -312,7 +312,7 @@ struct ZoneAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [accentColor.opacity(0.32), accentColor.opacity(0.01)],
+                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -323,7 +323,7 @@ struct ZoneAnalyticsView: View {
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
-                    .foregroundStyle(accentColor)
+                    .foregroundStyle(Color.blue)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
@@ -331,7 +331,7 @@ struct ZoneAnalyticsView: View {
                 if let selected = selectedPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
-                        .foregroundStyle(accentColor.opacity(0.6))
+                        .foregroundStyle(Color.blue.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -341,14 +341,14 @@ struct ZoneAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(accentColor.opacity(0.25))
+                                .fill(Color.blue.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: accentColor, radius: 4)
+                                .shadow(color: Color.blue, radius: 4)
                             Circle()
-                                .stroke(accentColor, lineWidth: 2)
+                                .stroke(Color.blue, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -441,7 +441,7 @@ struct ZoneAnalyticsView: View {
                         Text(verbatim: ByteCountFormatters.format(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
                             .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedBandwidthPoint != nil ? "transferred" : "total")
+                        Text(selectedBandwidthPoint != nil ? LocalizedStringKey("transferred") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -573,7 +573,7 @@ struct ZoneAnalyticsView: View {
             HStack {
                 Image(systemName: "map.fill")
                     .font(.subheadline)
-                    .foregroundStyle(accentColor)
+                    .foregroundStyle(Color.blue)
                 Text("Traffic by Country / Region")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
@@ -673,7 +673,7 @@ struct ZoneAnalyticsView: View {
         VStack(alignment: .leading, spacing: 14) {
             Label("Edge Caching Savings", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(accentColor)
+                .foregroundStyle(Color.orange)
             
             LabeledContent {
                 Text(verbatim: ByteCountFormatters.format(viewModel.totalCachedBandwidthBytes))

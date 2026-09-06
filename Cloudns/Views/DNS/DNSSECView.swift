@@ -29,7 +29,7 @@ struct DNSSECView: View {
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [accentColor.opacity(0.18), Color.indigo.opacity(0.12)],
+                                    colors: [Color.green.opacity(0.18), Color.indigo.opacity(0.12)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -38,7 +38,7 @@ struct DNSSECView: View {
                         
                         Image(systemName: "key.horizontal.fill")
                             .font(.title.weight(.semibold))
-                            .foregroundStyle(accentColor)
+                            .foregroundStyle(Color.green)
                     }
                     .padding(.top, 4)
                     

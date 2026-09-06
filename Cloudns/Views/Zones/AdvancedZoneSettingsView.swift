@@ -84,7 +84,7 @@ struct AdvancedZoneSettingsView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Pause Cloudflare on Site")
                                 .font(.body.weight(.medium))
-                            Text(isPaused ? "Proxy paused · Direct to origin" : "Proxy active · Protected")
+                            Text(isPaused ? LocalizedStringKey("Proxy paused · Direct to origin") : LocalizedStringKey("Proxy active · Protected"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -134,7 +134,7 @@ struct AdvancedZoneSettingsView: View {
         ), actions: {
             Button("OK", role: .cancel) { }
         }, message: {
-            Text(errorMessage ?? "Unknown error")
+            Text(errorMessage ?? String(localized: "Unknown error"))
         })
     }
     
@@ -147,7 +147,7 @@ struct AdvancedZoneSettingsView: View {
             await MainActor.run {
                 isLoading = false
                 NotificationCenter.default.post(name: .zoneUpdated, object: nil, userInfo: ["zoneId": zoneId])
-                ToastManager.shared.showSuccess(paused ? "Cloudflare Paused" : "Cloudflare Resumed")
+                ToastManager.shared.showSuccess(paused ? LocalizedStringKey("Cloudflare Paused") : LocalizedStringKey("Cloudflare Resumed"))
             }
         } catch {
             await MainActor.run {

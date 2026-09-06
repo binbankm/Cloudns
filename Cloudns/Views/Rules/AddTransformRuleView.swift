@@ -81,7 +81,7 @@ struct AddTransformRuleView: View {
                             .focused($focusedField, equals: "rewriteQuery")
                     }
                 } else {
-                    Section(header: Text("HTTP Header Action"), footer: Text(phase == "http_request_late_transform" ? "Modifies HTTP request headers sent to the origin." : "Modifies HTTP response headers returned to the client.")) {
+                    Section(header: Text("HTTP Header Action"), footer: Text(phase == "http_request_late_transform" ? LocalizedStringKey("Modifies HTTP request headers sent to the origin.") : LocalizedStringKey("Modifies HTTP response headers returned to the client."))) {
                         TextField("Header Name (e.g. X-Frame-Options)", text: $headerName)
                             .font(.body.monospaced())
                             .keyboardType(.asciiCapable)

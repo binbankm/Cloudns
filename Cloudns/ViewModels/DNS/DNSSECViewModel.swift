@@ -36,7 +36,7 @@ final class DNSSECViewModel: BaseLoadableViewModel {
             self.dnssec = try await self.dnsService.getDNSSEC(zoneId: self.zoneId)
             
             ToastManager.shared.showSuccess(
-                targetStatus == "active" ? "DNSSEC Enabled" : "DNSSEC Disabled",
+                targetStatus == "active" ? LocalizedStringKey("DNSSEC Enabled") : LocalizedStringKey("DNSSEC Disabled"),
                 icon: "lock.shield.fill"
             )
         }

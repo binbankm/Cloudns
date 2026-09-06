@@ -20,7 +20,7 @@ struct RateLimitingRulesView: View {
                             HapticManager.selection()
                             Task {
                                 await viewModel.toggleRule(zoneId: zoneId, rule: rule)
-                                ToastManager.shared.showSuccess(rule.enabled ? "Rule Disabled" : "Rule Enabled", icon: "speedometer")
+                                ToastManager.shared.showSuccess(rule.enabled ? LocalizedStringKey("Rule Disabled") : LocalizedStringKey("Rule Enabled"), icon: "speedometer")
                             }
                         })
                         .contextMenu {
@@ -116,7 +116,8 @@ struct RateLimitingRulesView: View {
             }
         } message: {
             if let rule = ruleToDelete {
-                Text("Are you sure you want to delete rate limiting rule '\(rule.description ?? "Untitled Rule")'?")
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Untitled Rule")
+                Text("Are you sure you want to delete rate limiting rule '\(ruleName)'?")
             }
         }
         .task {

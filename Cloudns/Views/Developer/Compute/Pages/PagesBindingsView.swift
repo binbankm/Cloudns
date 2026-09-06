@@ -416,7 +416,7 @@ struct PagesBindingsView: View {
                         .font(.body)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(currentConfig?.compatibilityDate ?? "Default")
+                    Text(currentConfig?.compatibilityDate ?? String(localized: "Default"))
                         .font(.body.monospacedDigit())
                 }
                 

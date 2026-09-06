@@ -270,7 +270,7 @@ public struct WorkerAnalyticsView: View {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedPoint != nil ? "requests" : "total")
+                        Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                         
@@ -646,7 +646,7 @@ public struct WorkerAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Exceptions Detected")
+                Text(viewModel.totalErrors == 0 ? LocalizedStringKey("Fully Operational") : LocalizedStringKey("\(viewModel.totalErrors) Exceptions Detected"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }

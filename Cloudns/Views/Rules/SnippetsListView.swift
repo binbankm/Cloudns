@@ -59,7 +59,8 @@ struct SnippetsListView: View {
                 Text("Are you sure you want to delete snippet '\(snip.snippet_name)'?")
             }
             .confirmationDialog("Delete Trigger Rule", isPresented: $showingDeleteRuleAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-                Button("Delete '\(rule.description ?? "Rule")'", role: .destructive) {
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Rule")
+                Button("Delete '\(ruleName)'", role: .destructive) {
                     if let rId = viewModel.rulesetId {
                         Task {
                             _ = await viewModel.deleteSnippetRule(zoneId: zoneId, rulesetId: rId, ruleId: rule.id)
@@ -70,7 +71,8 @@ struct SnippetsListView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: { rule in
-                Text("Are you sure you want to delete trigger rule '\(rule.description ?? rule.id)'?")
+                let ruleName = (rule.description?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? rule.id
+                Text("Are you sure you want to delete trigger rule '\(ruleName)'?")
             }
             .refreshable {
                 await viewModel.fetchSnippets(zoneId: zoneId)
@@ -188,14 +190,20 @@ struct SnippetsListView: View {
     private func ruleRow(_ rule: WAFRule) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(rule.description ?? "Snippet Trigger Rule")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.primary)
+                if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(desc)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                } else {
+                    Text("Snippet Trigger Rule")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                }
 
                 Spacer()
 
                 let isEnabled = rule.enabled
-                Text(isEnabled ? "Active" : "Disabled")
+                Text(isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(isEnabled ? Color.green : Color.secondary)
                     .padding(.horizontal, 6)
@@ -318,7 +326,7 @@ struct SnippetEditorSheetView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(existingSnippet?.snippet_name ?? "New Snippet")
+            .navigationTitle(existingSnippet?.snippet_name ?? String(localized: "New Snippet"))
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {

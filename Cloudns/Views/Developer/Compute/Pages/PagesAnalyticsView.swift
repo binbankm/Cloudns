@@ -262,7 +262,7 @@ public struct PagesAnalyticsView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.purple)
                         Text("Functions Traffic")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
@@ -272,7 +272,7 @@ public struct PagesAnalyticsView: View {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedPoint != nil ? "requests" : "total")
+                        Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                         
@@ -290,7 +290,7 @@ public struct PagesAnalyticsView: View {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(Color.accentColor)
+                            .fill(Color.purple)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
                             .font(.caption2.monospacedDigit().weight(.semibold))
@@ -298,7 +298,7 @@ public struct PagesAnalyticsView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.12))
+                    .background(Color.purple.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
@@ -316,7 +316,7 @@ public struct PagesAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.accentColor.opacity(0.32), Color.accentColor.opacity(0.01)],
+                            colors: [Color.purple.opacity(0.32), Color.purple.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -327,7 +327,7 @@ public struct PagesAnalyticsView: View {
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
                     )
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.purple)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                     
@@ -344,7 +344,7 @@ public struct PagesAnalyticsView: View {
                 
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
-                        .foregroundStyle(Color.accentColor.opacity(0.6))
+                        .foregroundStyle(Color.purple.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -354,14 +354,14 @@ public struct PagesAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(Color.accentColor.opacity(0.25))
+                                .fill(Color.purple.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: Color.accentColor, radius: 4)
+                                .shadow(color: Color.purple, radius: 4)
                             Circle()
-                                .stroke(Color.accentColor, lineWidth: 2)
+                                .stroke(Color.purple, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -708,7 +708,7 @@ public struct PagesAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? "Fully Operational" : "\(viewModel.totalErrors) Invocations Failed")
+                Text(viewModel.totalErrors == 0 ? LocalizedStringKey("Fully Operational") : LocalizedStringKey("\(viewModel.totalErrors) Invocations Failed"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }

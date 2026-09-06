@@ -176,7 +176,7 @@ struct DNSPresetsSheetView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "wand.and.stars")
                             .font(.title2)
-                            .foregroundStyle(accentColor)
+                            .foregroundStyle(Color.purple)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("1-Click DNS Presets")
                                 .font(.headline)
@@ -315,7 +315,7 @@ struct DNSPresetsSheetView: View {
                                     .tint(.white)
                                     .padding(.trailing, 6)
                             }
-                            Text(isApplying ? "Adding Records…" : "Apply Preset to \(zoneName)")
+                            Text(isApplying ? LocalizedStringKey("Adding Records…") : LocalizedStringKey("Apply Preset to \(zoneName)"))
                                 .font(.body.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()

@@ -138,11 +138,11 @@ struct LoginView: View {
                             .frame(height: 80)
                             
                             VStack(spacing: 6) {
-                                Text(onLoginSuccess == nil ? "Welcome to Cloudns" : "Add Account")
+                                Text(onLoginSuccess == nil ? LocalizedStringKey("Welcome to Cloudns") : LocalizedStringKey("Add Account"))
                                     .font(.title2.weight(.bold))
                                     .foregroundStyle(.primary)
                                 
-                                Text(onLoginSuccess == nil ? "Connect your Cloudflare API to manage edge fleets." : "Enter your Cloudflare credentials.")
+                                Text(onLoginSuccess == nil ? LocalizedStringKey("Connect your Cloudflare API to manage edge fleets.") : LocalizedStringKey("Enter your Cloudflare credentials."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -268,7 +268,7 @@ struct LoginView: View {
                                             .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
-                                    .accessibilityLabel(isShowingApiKey ? "Hide API key" : "Show API key")
+                                    .accessibilityLabel(isShowingApiKey ? Text("Hide API key") : Text("Show API key"))
                                 }
                                 .padding(14)
                                 .background(Color(uiColor: .tertiarySystemGroupedBackground))

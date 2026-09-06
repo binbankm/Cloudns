@@ -297,7 +297,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                                 } else {
                                     try await viewModel.savePlainVariable(name: name.trimmingCharacters(in: .whitespaces), value: value)
                                 }
-                                ToastManager.shared.showSuccess(isSecret ? "Secret Saved" : "Variable Saved", icon: "checkmark.circle.fill")
+                                ToastManager.shared.showSuccess(isSecret ? LocalizedStringKey("Secret Saved") : LocalizedStringKey("Variable Saved"), icon: "checkmark.circle.fill")
                                 HapticManager.notification(.success)
                                 dismiss()
                             } catch {

@@ -74,7 +74,7 @@ struct EmailRoutingView: View {
                     HapticManager.selection()
                     Task {
                         await viewModel.toggleEnabled(enabled)
-                        ToastManager.shared.showSuccess(enabled ? "Email Routing Enabled" : "Email Routing Disabled", icon: "envelope.badge.fill")
+                        ToastManager.shared.showSuccess(enabled ? LocalizedStringKey("Email Routing Enabled") : LocalizedStringKey("Email Routing Disabled"), icon: "envelope.badge.fill")
                     }
                 }
             )) {
@@ -104,7 +104,7 @@ struct EmailRoutingView: View {
                     HapticManager.selection()
                     Task {
                         await viewModel.toggleCatchAll(enabled: enabled)
-                        ToastManager.shared.showSuccess(enabled ? "Catch-all Enabled" : "Catch-all Disabled", icon: "tray.fill")
+                        ToastManager.shared.showSuccess(enabled ? LocalizedStringKey("Catch-all Enabled") : LocalizedStringKey("Catch-all Disabled"), icon: "tray.fill")
                     }
                 }
             )) {
@@ -113,7 +113,7 @@ struct EmailRoutingView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Catch-all Email")
                             .font(.body)
-                        Text(viewModel.catchAllRule?.actionSummary ?? "Drop all unmatched emails")
+                        Text(viewModel.catchAllRule?.actionSummary ?? String(localized: "Drop all unmatched emails"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -176,7 +176,7 @@ struct EmailRoutingView: View {
                 .disabled(viewModel.verifiedDestinations.isEmpty || !viewModel.hasFetchedData)
             }
         } footer: {
-            Text(viewModel.verifiedDestinations.isEmpty ? "To create forwarding rules, you must first add and verify at least one destination address below." : "Forward custom domain addresses to your verified email inboxes.")
+            Text(viewModel.verifiedDestinations.isEmpty ? LocalizedStringKey("To create forwarding rules, you must first add and verify at least one destination address below.") : LocalizedStringKey("Forward custom domain addresses to your verified email inboxes."))
         }
     }
     
@@ -265,7 +265,8 @@ struct EmailRoutingView: View {
             AddDestinationAddressSheetView(viewModel: viewModel)
         }
         .confirmationDialog("Delete Email Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
-            Button("Delete '\(rule.name ?? "Rule")'", role: .destructive) {
+            let ruleName = (rule.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? (rule.matchAddress?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Rule")
+            Button("Delete '\(ruleName)'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(ruleId: rule.id)
                     ToastManager.shared.showSuccess("Email Rule Deleted", icon: "trash.fill")
@@ -274,7 +275,8 @@ struct EmailRoutingView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { rule in
-            Text("Are you sure you want to delete email rule '\(rule.name ?? rule.matchAddress ?? "Rule")'?")
+            let ruleName = (rule.name?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? (rule.matchAddress?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { s in s.isEmpty ? nil : s } ?? String(localized: "Rule")
+            Text("Are you sure you want to delete email rule '\(ruleName)'?")
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -300,8 +302,12 @@ struct EmailRoutingView: View {
                         Text("Catch-all")
                             .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
+                    } else if let name = rule.name, !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(name)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
                     } else {
-                        Text(rule.name ?? "Rule")
+                        Text("Rule")
                             .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
                     }
@@ -318,7 +324,7 @@ struct EmailRoutingView: View {
             }
             Spacer()
             
-            Text(rule.isEnabled ? "Active" : "Disabled")
+            Text(rule.isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(rule.isEnabled ? Color.green : Color.secondary)
                 .padding(.horizontal, 6)
@@ -336,13 +342,13 @@ struct EmailRoutingView: View {
                 Text(verbatim: dest.email)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                Text(dest.isVerified ? "Verified" : "Pending Verification")
+                Text(dest.isVerified ? LocalizedStringKey("Verified") : LocalizedStringKey("Pending Verification"))
                     .font(.caption)
                     .foregroundStyle(dest.isVerified ? Color.secondary : Color.orange)
             }
             Spacer()
             
-            Text(dest.isVerified ? "Verified" : "Pending")
+            Text(dest.isVerified ? LocalizedStringKey("Verified") : LocalizedStringKey("Pending"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(dest.isVerified ? Color.green : Color.orange)
                 .padding(.horizontal, 6)

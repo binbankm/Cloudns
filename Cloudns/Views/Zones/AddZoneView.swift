@@ -38,7 +38,7 @@ struct AddZoneView: View {
                         ) {
                             ForEach(zone.nameServers ?? [], id: \.self) { ns in
                                 HStack(spacing: 12) {
-                                    ListRowIcon(icon: "server.rack", color: accentColor)
+                                    ListRowIcon(icon: "server.rack", color: .blue)
                                     
                                     Text(ns)
                                         .font(.body.monospaced())
@@ -113,7 +113,7 @@ struct AddZoneView: View {
                             footer: Text("Enter the root domain you want to add to Cloudflare, e.g. example.com")
                         ) {
                             HStack(spacing: 12) {
-                                ListRowIcon(icon: "globe", color: accentColor)
+                                ListRowIcon(icon: "globe", color: .blue)
                                 
                                 TextField("example.com", text: $domainName)
                                     .font(.body)
@@ -152,7 +152,7 @@ struct AddZoneView: View {
                                         ProgressView()
                                             .padding(.trailing, 6)
                                     }
-                                    Text(isSubmitting ? "Adding…" : "Add Domain")
+                                    Text(isSubmitting ? LocalizedStringKey("Adding…") : LocalizedStringKey("Add Domain"))
                                         .font(.body.weight(.semibold))
                                     Spacer()
                                 }
