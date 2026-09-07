@@ -28,7 +28,7 @@ struct WorkerDeploymentsView: View {
                             .contextMenu {
                                 if index != 0 {
                                     Button {
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                         deploymentToRollback = dep
                                         showingRollbackAlert = true
                                     } label: {
@@ -37,18 +37,14 @@ struct WorkerDeploymentsView: View {
                                 }
                                 
                                 Button {
-                                    UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied("Deployment ID Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
                                     Label("Copy Deployment ID", systemImage: "doc.on.doc")
                                 }
                                 
                                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                                     Button {
-                                        UIPasteboard.general.string = author
-                                        ToastManager.shared.showCopied("Author Email Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(author, toast: "Author Email Copied")
                                     } label: {
                                         Label("Copy Author Email", systemImage: "envelope")
                                     }
@@ -57,7 +53,7 @@ struct WorkerDeploymentsView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 if index != 0 {
                                     Button {
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                         deploymentToRollback = dep
                                         showingRollbackAlert = true
                                     } label: {
@@ -67,9 +63,7 @@ struct WorkerDeploymentsView: View {
                                 }
                                 
                                 Button {
-                                    UIPasteboard.general.string = dep.id
-                                    ToastManager.shared.showCopied("Deployment ID Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
                                     Label("Copy ID", systemImage: "doc.on.doc")
                                 }
@@ -98,15 +92,15 @@ struct WorkerDeploymentsView: View {
             presenting: deploymentToRollback
         ) { dep in
             Button("Rollback to Version #\(dep.number ?? 1)", role: .destructive) {
-                HIGFeedback.impact(.heavy)
+                HapticManager.impact(.heavy)
                 Task {
                     let success = await viewModel.rollback(deployment: dep)
                     if success {
                         ToastManager.shared.showSuccess("Rolled back to Version #\(dep.number ?? 1)", icon: "arrow.counterclockwise")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     } else {
                         ToastManager.shared.showError("Failed to Roll Back")
-                        HIGFeedback.error()
+                        HapticManager.notification(.error)
                     }
                 }
             }
@@ -114,32 +108,20 @@ struct WorkerDeploymentsView: View {
         } message: { dep in
             Text("Are you sure you want to rollback '\(scriptName)' to Version #\(dep.number ?? 1)? Traffic will immediately be routed to this deployment version.")
         }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Deployments…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.deployments.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchDeployments() } }
-                        )
-                    )
-                } else if viewModel.deployments.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Deployments",
-                            systemImage: "clock.arrow.circlepath",
-                            description: "No deployment history found for Worker '\(scriptName)'.",
-                            actionTitle: "Refresh",
-                            action: { Task { await viewModel.fetchDeployments() } }
-                        )
-                    )
-                } else if viewModel.filteredDeployments.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
-        }
+        .listState(
+            isLoading: viewModel.isLoading && !viewModel.hasFetchedData,
+            loadingMessage: "Loading Deployments…",
+            isEmpty: viewModel.hasFetchedData && viewModel.deployments.isEmpty,
+            emptyTitle: "No Deployments",
+            emptySystemImage: "clock.arrow.circlepath",
+            emptyDescription: "No deployment history found for Worker '\(scriptName)'.",
+            emptyActionTitle: "Refresh",
+            emptyAction: { Task { await viewModel.fetchDeployments() } },
+            isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredDeployments.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: (viewModel.hasFetchedData && viewModel.deployments.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchDeployments() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchDeployments()
@@ -150,72 +132,77 @@ struct WorkerDeploymentsView: View {
     // MARK: - Row Subview
     @ViewBuilder
     private func deploymentRow(_ dep: WorkerDeployment, isLatest: Bool) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             // Header: Version + Status + Source
-            HStack(alignment: .center, spacing: HIGTokens.Spacing.sm) {
-                HStack(spacing: HIGTokens.Spacing.xxs) {
+            HStack(alignment: .center, spacing: 8) {
+                HStack(spacing: 4) {
                     Image(systemName: isLatest ? "checkmark.circle.fill" : "circle.fill")
-                        .font(HIGTypography.caption2)
-                        .foregroundStyle(isLatest ? HIGColors.success : .secondary)
+                        .font(.caption2)
+                        .foregroundStyle(isLatest ? .green : .secondary)
                     
                     Text("v\(dep.number ?? 1)")
-                        .font(HIGTypography.subheadline.monospacedDigit().weight(.bold))
+                        .font(.subheadline.monospacedDigit().weight(.bold))
                 }
-                .padding(.horizontal, HIGTokens.Spacing.sm)
-                .padding(.vertical, HIGTokens.Spacing.xxs + 1)
-                .background(isLatest ? HIGColors.success.opacity(0.12) : Color(.secondarySystemFill))
-                .foregroundStyle(isLatest ? HIGColors.success : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(isLatest ? Color.green.opacity(0.12) : Color(.secondarySystemFill))
+                .foregroundStyle(isLatest ? Color.green : Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 
                 if isLatest {
-                    HIGBadge(.active("Active"), isCompact: true)
+                    Text("Active")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.green)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.green.opacity(0.12)))
                 }
                 
                 Spacer()
                 
-                HStack(spacing: HIGTokens.Spacing.xxs) {
+                HStack(spacing: 4) {
                     Image(systemName: sourceIcon(for: dep.source))
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                     Text(dep.displaySource)
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                 }
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, HIGTokens.Spacing.xs + 2)
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
                 .background(Color(.secondarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
             
             // Annotation message
             if let msg = dep.annotations?.message, !msg.isEmpty {
                 Text(msg)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
             }
             
             // Footer: Timestamp + Author + ID
-            HStack(spacing: HIGTokens.Spacing.sm) {
+            HStack(spacing: 8) {
                 if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 4) {
                         Image(systemName: "clock")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                         Text(date.relativeFormatted())
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                     }
                     .foregroundStyle(.secondary)
                 }
                 
                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                     Text("•")
-                        .font(HIGTypography.caption2)
+                        .font(.caption2)
                         .foregroundStyle(.tertiary)
                     
-                    HStack(spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 4) {
                         Image(systemName: "person.circle")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                         Text(author)
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .lineLimit(1)
                     }
                     .foregroundStyle(.secondary)
@@ -224,11 +211,11 @@ struct WorkerDeploymentsView: View {
                 Spacer()
                 
                 Text(dep.id.prefix(7))
-                    .font(HIGTypography.caption2.monospacedDigit())
+                    .font(.caption2.monospacedDigit())
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     private func sourceIcon(for source: String?) -> String {

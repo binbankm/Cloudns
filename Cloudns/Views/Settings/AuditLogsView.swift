@@ -20,7 +20,7 @@ struct AuditLogsView: View {
                     ForEach(viewModel.filteredLogs) { log in
                         Button {
                             selectedLog = log
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         } label: {
                             AuditLogRowView(log: log)
                         }
@@ -48,30 +48,20 @@ struct AuditLogsView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-             .higToast()
         }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Audit Logs…"))
-            } else if let errorMessage = viewModel.errorMessage, viewModel.logs.isEmpty {
-                HIGContentState(
-                    .error(
-                        message: LocalizedStringKey(errorMessage),
-                        retryAction: { Task { await viewModel.fetchLogs() } }
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.logs.isEmpty {
-                HIGContentState(
-                    .empty(
-                        title: "No Audit Logs",
-                        systemImage: "list.clipboard.fill",
-                        description: "No recent account audit logs or modification records found."
-                    )
-                )
-            } else if viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty {
-                HIGContentState(.search(query: viewModel.searchText))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Audit Logs…",
+            error: viewModel.logs.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.logs.isEmpty,
+            empty: EmptyStateConfig(
+                title: "No Audit Logs",
+                systemImage: "list.clipboard.fill",
+                description: "No recent account audit logs or modification records found."
+            ),
+            searchQuery: (viewModel.hasFetchedData && viewModel.filteredLogs.isEmpty && !viewModel.searchText.isEmpty) ? viewModel.searchText : nil,
+            onRetry: { Task { await viewModel.fetchLogs() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchLogs()
@@ -98,7 +88,7 @@ struct AuditLogRowView: View {
             .accessibilityHidden(true)
             .padding(.top, 2)
             
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(LocalizedStringKey(log.displayActionKey))
                         .font(.subheadline.weight(.bold))
@@ -115,7 +105,12 @@ struct AuditLogRowView: View {
                     Spacer()
                     
                     if let res = log.action?.result {
-                        HIGBadge(res ? .active : .error("Failed"), isCompact: true)
+                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(res ? Color.green : Color.red)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(res ? Color.green.opacity(0.12) : Color.red.opacity(0.12)))
                     }
                 }
                 
@@ -159,7 +154,7 @@ struct AuditLogRowView: View {
                 .foregroundStyle(.tertiary)
                 .padding(.top, 4)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
 }
@@ -200,7 +195,12 @@ struct AuditLogDetailSheetView: View {
                     }
                     
                     if let res = log.action?.result {
-                        HIGBadge(res ? .active : .error("Failed"), isCompact: false)
+                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(res ? Color.green : Color.red)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(res ? Color.green.opacity(0.12) : Color.red.opacity(0.12)))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -235,33 +235,33 @@ struct AuditLogDetailSheetView: View {
             if hasChanges {
                 Section("Changes & Payload") {
                     if let oldText = formattedOldValue, !oldText.isEmpty {
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Label("Previous Value (Before)", systemImage: "minus.circle.fill")
-                                .font(HIGTypography.caption.weight(.semibold))
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.red)
                             Text(oldText)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(HIGTokens.Spacing.sm)
+                                .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(HIGColors.error.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                                .background(Color.red.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
                     
                     if let newText = formattedNewValue, !newText.isEmpty {
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
-                                .font(HIGTypography.caption.weight(.semibold))
-                                .foregroundStyle(HIGColors.success)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.green)
                             Text(newText)
-                                .font(HIGTypography.caption.monospaced())
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
-                                .padding(HIGTokens.Spacing.sm)
+                                .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(HIGColors.success.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.sm, style: .continuous))
+                                .background(Color.green.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .padding(.vertical, 2)
                     }
@@ -375,15 +375,13 @@ struct AuditLogDetailSheetView: View {
             
             if isCopyable {
                 Button {
-                    UIPasteboard.general.string = value
-                    ToastManager.shared.showCopied()
+                    copyToClipboard(value, toast: "Copied")
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .higTouchTarget()
             }
         }
     }

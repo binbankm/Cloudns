@@ -3,7 +3,7 @@ import Charts
 import MapKit
 
 // MARK: - ZoneAnalyticsView
-// Apple HIG Compliant Cloudflare Zone Analytics, Swift Charts Aurora Visuals & Global Geolocation Map
+// Apple HIG Compliant Cloudflare Zone Analytics, Swift Charts & Geolocation Map (iOS 16.0+)
 
 struct ZoneAnalyticsView: View {
     let zoneId: String
@@ -15,6 +15,7 @@ struct ZoneAnalyticsView: View {
     // Interactive Scrubbing States
     @State private var selectedPoint: AnalyticsDataPoint?
     @State private var selectedBandwidthPoint: AnalyticsDataPoint?
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
@@ -48,50 +49,51 @@ struct ZoneAnalyticsView: View {
         return now...now.addingTimeInterval(3600)
     }
     
+    private var accentColor: Color {
+        themeManager.currentColor.color
+    }
+    
     public var body: some View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
             headerBar
-                .padding(.horizontal, HIGTokens.Spacing.lg)
-                .padding(.top, HIGTokens.Spacing.md)
-                .padding(.bottom, HIGTokens.Spacing.md)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
             
             if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Analytics…"))
+                NativeLoadingStateView(message: "Loading Analytics…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            HIGContentState(
-                                .error(
-                                    message: LocalizedStringKey(errorMessage),
-                                    retryAction: {
-                                        Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
-                                    }
-                                )
+                            NativeErrorStateView(
+                                message: errorMessage,
+                                onRetry: {
+                                    Task { await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange) }
+                                }
                             )
                         } else {
-                            HIGContentState(
-                                .empty(
-                                    title: "No Traffic Data",
-                                    systemImage: "chart.xyaxis.line",
-                                    description: "No HTTP requests recorded for \(zoneName) in the selected time range."
-                                )
+                            NativeEmptyStateView(
+                                title: "No Traffic Data",
+                                systemImage: "chart.xyaxis.line",
+                                description: "No HTTP requests recorded for \(zoneName) in the selected time range."
                             )
                         }
                         Spacer(minLength: 80)
                     }
                     .frame(minHeight: 450)
-                    .padding(.horizontal, HIGTokens.Spacing.lg)
+                    .padding(.horizontal, 16)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true)
                 }
             } else {
                 ScrollView {
-                    VStack(spacing: HIGTokens.Spacing.lg) {
-                        // 2. 4 Key Metrics Cards Grid (Non-lazy Grid for rock-solid stability)
+                    VStack(spacing: 16) {
+                        // 2. 4 Key Metrics Cards Grid
                         metricsGrid
                         
                         requestsLineChartCard
@@ -106,8 +108,8 @@ struct ZoneAnalyticsView: View {
                         // 6. CDN Origin Savings Summary Card
                         insightsCard
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.lg)
-                    .padding(.bottom, HIGTokens.Spacing.xxl)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
@@ -116,7 +118,7 @@ struct ZoneAnalyticsView: View {
                 }
             }
         }
-        .background(Color.higGroupBackground)
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("Zone Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
@@ -132,13 +134,13 @@ struct ZoneAnalyticsView: View {
     
     // MARK: - 1. Header Bar
     private var headerBar: some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+        HStack(alignment: .center, spacing: 12) {
             Image(systemName: "globe")
-                .foregroundStyle(Color.higAccent)
-                .font(HIGTypography.title3)
+                .foregroundStyle(accentColor)
+                .font(.title3)
             
             Text(verbatim: zoneName)
-                .font(HIGTypography.headline.weight(.semibold))
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -153,7 +155,7 @@ struct ZoneAnalyticsView: View {
             .pickerStyle(.segmented)
             .frame(width: 155)
             .onChange(of: timeRange) { newValue in
-                HIGFeedback.selection()
+                HapticManager.selection()
                 selectedPoint = nil
                 selectedBandwidthPoint = nil
                 Task {
@@ -161,18 +163,14 @@ struct ZoneAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.md + 2)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(14)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 2. Key Metrics Grid
     private var metricsGrid: some View {
-        Grid(horizontalSpacing: HIGTokens.Spacing.md, verticalSpacing: HIGTokens.Spacing.md) {
+        Grid(horizontalSpacing: 12, verticalSpacing: 12) {
             GridRow {
                 metricCard(
                     title: "Total Requests",
@@ -196,7 +194,7 @@ struct ZoneAnalyticsView: View {
                     title: "Cache Hit Ratio",
                     value: viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1))),
                     icon: "chart.pie.fill",
-                    color: HIGColors.success,
+                    color: .green,
                     badge: "Edge Served"
                 )
                 
@@ -212,20 +210,20 @@ struct ZoneAnalyticsView: View {
     }
     
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
-            HStack(spacing: HIGTokens.Spacing.xs + 2) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
-                        .frame(width: 22, height: 22)
+                        .frame(width: 24, height: 24)
                     Image(systemName: icon)
-                        .font(HIGTypography.caption2.weight(.semibold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)
                 
                 Text(title)
-                    .font(HIGTypography.caption.weight(.medium))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 
@@ -235,7 +233,7 @@ struct ZoneAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(value)
-                .font(.system(.title2, design: .rounded).weight(.bold).monospacedDigit())
+                .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -243,43 +241,39 @@ struct ZoneAnalyticsView: View {
             Spacer(minLength: 2)
             
             Text(badge)
-                .font(HIGTypography.caption2)
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .padding(HIGTokens.Spacing.md)
-        .frame(maxWidth: .infinity, minHeight: 102, maxHeight: 102, alignment: .topLeading)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .topLeading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private var requestsLineChartCard: some View {
         let maxReq = viewModel.dataPoints.map { $0.sum.requests }.max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
         
-        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
+        return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Image(systemName: "chart.xyaxis.line")
-                            .font(HIGTypography.caption.weight(.bold))
-                            .foregroundStyle(Color.higAccent)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.blue)
                         Text("Requests Traffic")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
-                    HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs + 2) {
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
-                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
+                            .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedPoint != nil ? "requests" : "total")
-                            .font(HIGTypography.caption.weight(.medium))
+                        Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -288,21 +282,21 @@ struct ZoneAnalyticsView: View {
                 
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         Circle()
-                            .fill(Color.higAccent)
+                            .fill(Color.blue)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
+                            .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.sm)
-                    .padding(.vertical, HIGTokens.Spacing.xs)
-                    .background(Color.higAccentSubtle)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -318,7 +312,7 @@ struct ZoneAnalyticsView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.higAccent.opacity(0.32), Color.higAccent.opacity(0.01)],
+                            colors: [Color.blue.opacity(0.32), Color.blue.opacity(0.01)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -329,7 +323,7 @@ struct ZoneAnalyticsView: View {
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
                     )
-                    .foregroundStyle(Color.higAccent)
+                    .foregroundStyle(Color.blue)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
@@ -337,7 +331,7 @@ struct ZoneAnalyticsView: View {
                 if let selected = selectedPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
-                        .foregroundStyle(Color.higAccent.opacity(0.6))
+                        .foregroundStyle(Color.blue.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
                     
                     PointMark(
@@ -347,14 +341,14 @@ struct ZoneAnalyticsView: View {
                     .symbol {
                         ZStack {
                             Circle()
-                                .fill(Color.higAccent.opacity(0.25))
+                                .fill(Color.blue.opacity(0.25))
                                 .frame(width: 16, height: 16)
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 8, height: 8)
-                                .shadow(color: Color.higAccent, radius: 4)
+                                .shadow(color: Color.blue, radius: 4)
                             Circle()
-                                .stroke(Color.higAccent, lineWidth: 2)
+                                .stroke(Color.blue, lineWidth: 2)
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -376,7 +370,7 @@ struct ZoneAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -387,7 +381,7 @@ struct ZoneAnalyticsView: View {
                     if let count = value.as(Int.self) {
                         AxisValueLabel {
                             Text(verbatim: MetricFormatters.compactNumber(count))
-                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                                .font(.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 44, alignment: .trailing)
                         }
@@ -409,7 +403,7 @@ struct ZoneAnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
-                                                HIGFeedback.selection()
+                                                HapticManager.selection()
                                                 selectedPoint = closest
                                             }
                                         }
@@ -422,37 +416,33 @@ struct ZoneAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.lg)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private var bandwidthBarChartCard: some View {
         let maxBytes = viewModel.dataPoints.map { $0.sum.bytes }.max() ?? 1024
         let yUpper = max(1024.0, Double(maxBytes) * 1.18)
         
-        return VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
+        return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Image(systemName: "chart.bar.fill")
-                            .font(HIGTypography.caption.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .foregroundStyle(.purple)
                         Text("Bandwidth Usage")
-                            .font(HIGTypography.caption.weight(.semibold))
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     
-                    HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.xs + 2) {
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: ByteCountFormatters.format(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
-                            .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
+                            .font(.title.weight(.bold).monospacedDigit())
                             .foregroundStyle(.primary)
-                        Text(selectedBandwidthPoint != nil ? "transferred" : "total")
-                            .font(HIGTypography.caption.weight(.medium))
+                        Text(selectedBandwidthPoint != nil ? LocalizedStringKey("transferred") : LocalizedStringKey("total"))
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -461,21 +451,21 @@ struct ZoneAnalyticsView: View {
                 
                 if let selected = selectedBandwidthPoint {
                     let dateStr = formattedPointDate(selected)
-                    HStack(spacing: HIGTokens.Spacing.xs) {
+                    HStack(spacing: 6) {
                         Circle()
                             .fill(Color.purple)
                             .frame(width: 6, height: 6)
                         Text(verbatim: dateStr)
-                            .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
+                            .font(.caption2.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.sm)
-                    .padding(.vertical, HIGTokens.Spacing.xs)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .background(Color.purple.opacity(0.12))
                     .clipShape(Capsule())
                 } else {
                     Text("Drag to Inspect")
-                        .font(HIGTypography.caption2.weight(.medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -500,7 +490,7 @@ struct ZoneAnalyticsView: View {
                             endPoint: .bottom
                         )
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
                 
                 if let selected = selectedBandwidthPoint {
@@ -526,7 +516,7 @@ struct ZoneAnalyticsView: View {
                         format: isHourlyData ? DateFormatters.chartXAxisHourly : DateFormatters.chartXAxisDaily,
                         collisionResolution: .greedy
                     )
-                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -537,7 +527,7 @@ struct ZoneAnalyticsView: View {
                     if let bytes = value.as(Int.self) {
                         AxisValueLabel {
                             Text(verbatim: ByteCountFormatters.format(bytes))
-                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                                .font(.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                                 .frame(width: 52, alignment: .trailing)
                         }
@@ -559,7 +549,7 @@ struct ZoneAnalyticsView: View {
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedBandwidthPoint?.id != closest.id {
-                                                HIGFeedback.selection()
+                                                HapticManager.selection()
                                                 selectedBandwidthPoint = closest
                                             }
                                         }
@@ -572,42 +562,34 @@ struct ZoneAnalyticsView: View {
                 }
             }
         }
-        .padding(HIGTokens.Spacing.lg)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - 5. Traffic by Country Map
     private var trafficMapCard: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Image(systemName: "map.fill")
-                    .font(HIGTypography.subheadline)
-                    .foregroundStyle(Color.higAccent)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.blue)
                 Text("Traffic by Country / Region")
-                    .font(HIGTypography.subheadline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                 Spacer()
                 Text("Top Traffic Origins")
-                    .font(HIGTypography.caption2)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             
             trafficMapView
                 .frame(height: 260)
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
-        .padding(HIGTokens.Spacing.lg)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     private var mapAnnotations: [MapAnnotationItem] {
@@ -633,7 +615,7 @@ struct ZoneAnalyticsView: View {
             Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
                 MapAnnotation(coordinate: item.coordinate) {
                     Button {
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             selectedCountry = item.countryCode
                         }
@@ -641,27 +623,27 @@ struct ZoneAnalyticsView: View {
                         PulsingAnnotationView(item: item, isSelected: selectedCountry == item.countryCode)
                     }
                     .buttonStyle(.plain)
-                    .higTouchTarget(44)
                 }
             }
             
             Button {
                 withAnimation(.easeInOut) { selectedCountry = nil }
             } label: {
-                Color.white.opacity(0.001)
+                Color.clear
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .allowsHitTesting(selectedCountry != nil)
             
             if let selected = selectedCountry,
                let item = mapAnnotations.first(where: { $0.countryCode == selected }) {
-                HStack(spacing: HIGTokens.Spacing.md) {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Country: \(item.countryCode)")
-                            .font(HIGTypography.subheadline.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
                         Text("\(MetricFormatters.compactNumber(item.requests)) Requests")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 0)
@@ -671,15 +653,16 @@ struct ZoneAnalyticsView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
                     }
-                    .higTouchTarget(44)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Dismiss country details")
                 }
-                .padding(.horizontal, HIGTokens.Spacing.lg)
-                .padding(.vertical, HIGTokens.Spacing.md)
-                .background(Color.higCardBackground.opacity(0.95))
-                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.md, style: .continuous))
-                .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
-                .padding(.horizontal, HIGTokens.Spacing.xl)
-                .padding(.bottom, HIGTokens.Spacing.md)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.95))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
@@ -687,17 +670,17 @@ struct ZoneAnalyticsView: View {
     
     // MARK: - 6. Performance Insights Card
     private var insightsCard: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.md) {
+        VStack(alignment: .leading, spacing: 14) {
             Label("Edge Caching Savings", systemImage: "sparkles")
-                .font(HIGTypography.subheadline.weight(.semibold))
-                .foregroundStyle(Color.higAccent)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.orange)
             
             LabeledContent {
                 Text(verbatim: ByteCountFormatters.format(viewModel.totalCachedBandwidthBytes))
-                    .font(HIGTypography.caption.weight(.semibold).monospacedDigit())
+                    .font(.caption.weight(.semibold).monospacedDigit())
             } label: {
                 Text("Origin Bandwidth Saved")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
             
@@ -705,21 +688,17 @@ struct ZoneAnalyticsView: View {
             
             LabeledContent {
                 Text(viewModel.cachedRatio, format: .percent.precision(.fractionLength(1)))
-                    .font(HIGTypography.caption.weight(.medium))
-                    .foregroundStyle(viewModel.cachedRatio > 0.5 ? HIGColors.success : HIGColors.warning)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(viewModel.cachedRatio > 0.5 ? Color.green : Color.orange)
             } label: {
                 Text("Edge Cache Ratio")
-                    .font(HIGTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(HIGTokens.Spacing.md + 2)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous)
-                .stroke(Color.higCardBorder, lineWidth: HIGTokens.Elevation.hairlineStroke)
-        )
+        .padding(14)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Helpers
@@ -742,7 +721,7 @@ struct ZoneAnalyticsView: View {
     }
 }
 
-// MARK: - MapAnnotationItem & PulsingAnnotationView (Inlined & Cohesive)
+// MARK: - MapAnnotationItem & PulsingAnnotationView
 
 struct MapAnnotationItem: Identifiable, Sendable {
     let id: UUID
@@ -781,8 +760,8 @@ struct PulsingAnnotationView: View {
     
     private var heatColor: Color {
         switch item.ratio {
-        case 0.7...: return HIGColors.error
-        case 0.3..<0.7: return HIGColors.warning
+        case 0.7...: return .red
+        case 0.3..<0.7: return .orange
         case 0.1..<0.3: return .yellow
         default: return .cyan
         }

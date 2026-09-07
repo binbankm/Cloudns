@@ -98,7 +98,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
                     let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
                     self.selectedAccount = fetchedAccounts.first(where: { $0.name == activeEmail || $0.id == activeEmail }) ?? fetchedAccounts.first
                 } else if let fetchedZones = try? await self.zoneService.getZones().0, let zoneAccount = fetchedZones.first?.account {
-                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
+                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? String(localized: "Cloudflare Account"))
                 }
             }
             

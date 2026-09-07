@@ -23,18 +23,14 @@ struct DurableObjectsView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = ns.id
-                                ToastManager.shared.showCopied("Namespace ID Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(ns.id, toast: "Namespace ID Copied")
                             } label: {
                                 Label("Copy Namespace ID", systemImage: "doc.on.doc")
                             }
                             
                             if let s = ns.script {
                                 Button {
-                                    UIPasteboard.general.string = s
-                                    ToastManager.shared.showCopied("Script Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(s, toast: "Script Name Copied")
                                 } label: {
                                     Label("Copy Script Name", systemImage: "curlybraces")
                                 }
@@ -56,32 +52,20 @@ struct DurableObjectsView: View {
         .refreshable {
             await viewModel.fetchNamespaces()
         }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Durable Objects…"))
-            } else if viewModel.hasFetchedData {
-                if let err = viewModel.errorMessage, viewModel.namespaces.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.fetchNamespaces() } }
-                        )
-                    )
-                } else if viewModel.namespaces.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Durable Objects",
-                            systemImage: "cube.fill",
-                            description: "Durable Objects namespaces are created via Wrangler migrations inside your Worker code.",
-                            actionTitle: "Refresh",
-                            action: { Task { await viewModel.fetchNamespaces() } }
-                        )
-                    )
-                } else if viewModel.filteredNamespaces.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Durable Objects…",
+            isEmpty: viewModel.hasFetchedData && viewModel.namespaces.isEmpty,
+            emptyTitle: "No Durable Objects",
+            emptySystemImage: "cube.fill",
+            emptyDescription: "Durable Objects namespaces are created via Wrangler migrations inside your Worker code.",
+            emptyActionTitle: "Refresh",
+            emptyAction: { Task { await viewModel.fetchNamespaces() } },
+            isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredNamespaces.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: (viewModel.hasFetchedData && viewModel.namespaces.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchNamespaces() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchNamespaces()
@@ -91,17 +75,17 @@ struct DurableObjectsView: View {
     
     @ViewBuilder
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "cube.fill", color: .cyan)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(ns.displayName)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let s = ns.script {
                     Text("Script: \(s)")
-                        .font(HIGTypography.caption)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -109,9 +93,14 @@ struct DurableObjectsView: View {
             Spacer()
             
             if let cls = ns.class {
-                HIGBadge(.custom(color: .cyan, text: cls), isCompact: true)
+                Text(cls)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.cyan)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.cyan.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }

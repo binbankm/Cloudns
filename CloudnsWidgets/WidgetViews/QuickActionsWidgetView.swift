@@ -52,7 +52,8 @@ public struct QuickActionsWidgetView: View {
     }
     
     private func actionTile(title: String, icon: String, color: Color, urlString: String) -> some View {
-        Link(destination: URL(string: urlString)!) {
+        let destination = URL(string: urlString) ?? URL(fileURLWithPath: "/")
+        return Link(destination: destination) {
             VStack(spacing: 6) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)

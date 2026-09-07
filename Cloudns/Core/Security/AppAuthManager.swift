@@ -38,6 +38,22 @@ final class AppAuthManager: ObservableObject {
         }
     }
     
+    var biometryIcon: String {
+        switch biometryType {
+        case .faceID: return "faceid"
+        case .touchID: return "touchid"
+        default: return "lock.fill"
+        }
+    }
+    
+    var biometryBadgeText: LocalizedStringKey {
+        switch biometryType {
+        case .faceID: return "Face ID & Local Keys"
+        case .touchID: return "Touch ID & Local Keys"
+        default: return "Passcode & Local Keys"
+        }
+    }
+    
     func verifyBiometrics(reason: String) async -> Bool {
         let context = LAContext()
         context.localizedCancelTitle = String(localized: "Cancel")

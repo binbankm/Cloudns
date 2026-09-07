@@ -36,10 +36,10 @@ final class DNSPropagationViewModel: BaseLoadableViewModel {
             )
             self.propagationResult = res
             self.hasFetchedData = true
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
             self.propagationError = error.localizedDescription
-            HIGFeedback.error()
+            HapticManager.error()
         }
         isPropagationLoading = false
     }

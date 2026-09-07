@@ -22,11 +22,11 @@ struct R2BucketDetailView: View {
     var body: some View {
         List {
             if !viewModel.objects.isEmpty {
-                Section(header: Text("Bucket Information")) {
+                Section("Bucket Information") {
                     if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                         LabeledContent("Created") {
                             Text(date.displayFormatted(date: .abbreviated, time: .omitted))
-                                .font(HIGTypography.body.monospacedDigit())
+                                .font(.body.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -34,7 +34,7 @@ struct R2BucketDetailView: View {
                     if let loc = bucket.location {
                         LabeledContent("Location") {
                             Text(loc.uppercased())
-                                .font(HIGTypography.caption.weight(.semibold))
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -42,7 +42,7 @@ struct R2BucketDetailView: View {
             }
             
             if !viewModel.filteredObjects.isEmpty {
-                Section(header: Text("Objects (\(viewModel.filteredObjects.count))")) {
+                Section("Objects (\(viewModel.filteredObjects.count))") {
                     ForEach(viewModel.filteredObjects) { obj in
                         Button {
                             selectedObject = obj
@@ -52,9 +52,7 @@ struct R2BucketDetailView: View {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = obj.key
-                                ToastManager.shared.showCopied("Object Key Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(obj.key, toast: "Object Key Copied")
                             } label: {
                                 Label("Copy Key", systemImage: "doc.on.doc")
                             }
@@ -62,7 +60,7 @@ struct R2BucketDetailView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 objectToDelete = obj
                                 showingDeleteConfirm = true
                             } label: {
@@ -71,19 +69,33 @@ struct R2BucketDetailView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 objectToDelete = obj
                                 showingDeleteConfirm = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Objects…",
+            isEmpty: viewModel.hasFetchedData && viewModel.objects.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Objects in Bucket",
+            emptySystemImage: "tray.and.arrow.up",
+            emptyDescription: "This R2 bucket is currently empty. Upload objects to get started.",
+            emptyActionTitle: "Upload Object",
+            emptyAction: { showingUploadSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && !viewModel.objects.isEmpty && viewModel.filteredObjects.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchObjects() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
@@ -97,12 +109,11 @@ struct R2BucketDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     NavigationLink(destination: R2BucketSettingsView(accountId: accountId, bucketName: bucket.name)) {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Bucket Settings")
-                    .higTouchTarget(44)
                     
                     Button {
                         showingUploadSheet = true
@@ -110,19 +121,16 @@ struct R2BucketDetailView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Upload Object")
-                    .higTouchTarget(44)
                 }
             }
         }
         .sheet(isPresented: $showingUploadSheet) {
             R2UploadObjectSheetView(viewModel: viewModel)
-                .higToast()
         }
         .sheet(item: $selectedObject) { obj in
             R2ObjectDetailSheetView(viewModel: viewModel, object: obj)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .higToast()
         }
         .confirmationDialog("Delete Object", isPresented: $showingDeleteConfirm, titleVisibility: .visible, presenting: objectToDelete) { obj in
             Button("Delete '\(obj.key)'", role: .destructive) {
@@ -130,10 +138,10 @@ struct R2BucketDetailView: View {
                     do {
                         try await viewModel.deleteObject(key: obj.key)
                         ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     } catch {
                         ToastManager.shared.showError("Failed to Delete Object")
-                        HIGFeedback.error()
+                        HapticManager.notification(.error)
                     }
                     objectToDelete = nil
                 }
@@ -143,34 +151,6 @@ struct R2BucketDetailView: View {
             }
         } message: { obj in
             Text("Are you sure you want to delete object '\(obj.key)'? This cannot be undone.")
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Objects…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.objects.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchObjects() }
-                            }
-                        )
-                    )
-                } else if viewModel.objects.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Objects in Bucket",
-                            systemImage: "tray.and.arrow.up",
-                            description: "This R2 bucket is currently empty. Upload objects to get started.",
-                            actionTitle: "Upload Object",
-                            action: { showingUploadSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredObjects.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -199,23 +179,23 @@ struct R2ObjectRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: fileIcon, color: .blue)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(object.key)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Text(ByteCountFormatter.string(fromByteCount: Int64(object.size), countStyle: .file))
-                        .font(HIGTypography.caption2.monospacedDigit())
+                        .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                     
                     if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
                         Text(date.displayFormatted(date: .abbreviated, time: .omitted))
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -223,7 +203,7 @@ struct R2ObjectRowView: View {
             
             Spacer()
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -242,36 +222,40 @@ struct R2UploadObjectSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Object Key"), footer: Text("Path/filename in the bucket (e.g. assets/config.json).")) {
+                Section {
                     TextField("my-file.txt", text: $objectKey)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Object Key")
+                } footer: {
+                    Text("Path/filename in the bucket (e.g. assets/config.json).")
                 }
                 
-                Section(header: Text("Content Type")) {
+                Section("Content Type") {
                     TextField("text/plain", text: $contentType)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
                 
-                Section(header: Text("Text Content")) {
+                Section("Text Content") {
                     TextEditor(text: $textContent)
-                        .font(HIGTypography.footnote.monospaced())
+                        .font(.footnote.monospaced())
                         .frame(minHeight: 140)
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -283,7 +267,6 @@ struct R2UploadObjectSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Upload") {
@@ -298,17 +281,16 @@ struct R2UploadObjectSheetView: View {
                                     contentType: contentType
                                 )
                                 ToastManager.shared.showSuccess("Object Uploaded", icon: "arrow.up.doc.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isUploading = false
                         }
                     }
                     .disabled(objectKey.trimmingCharacters(in: .whitespaces).isEmpty || isUploading)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isUploading)
@@ -326,7 +308,7 @@ struct R2ObjectDetailSheetView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header: Text("Object Details")) {
+                Section("Object Details") {
                     LabeledContent("Key", value: object.key)
                     LabeledContent("Size", value: ByteCountFormatter.string(fromByteCount: Int64(object.size), countStyle: .file))
                     if let etag = object.etag {
@@ -344,23 +326,17 @@ struct R2ObjectDetailSheetView: View {
                 
                 Section {
                     Button(role: .destructive) {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             try? await viewModel.deleteObject(key: object.key)
                             ToastManager.shared.showSuccess("Object Deleted", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                             dismiss()
                         }
                     } label: {
-                        HStack {
-                            Spacer()
-                            Text("Delete Object")
-                                .font(HIGTypography.body.weight(.medium))
-                            Spacer()
-                        }
+                        Text("Delete Object")
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    .tint(HIGColors.error)
-                    .higTouchTarget(44)
                 }
             }
             .listStyle(.insetGrouped)
@@ -370,7 +346,6 @@ struct R2ObjectDetailSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .higTouchTarget(44)
                 }
             }
         }

@@ -6,14 +6,14 @@ import SwiftUI
 public struct ListRowIcon: View {
     public let icon: String
     public let color: Color
-    public var size: CGFloat = HIGTokens.Size.listRowIcon
-    public var cornerRadius: CGFloat = HIGTokens.Radius.listIcon
+    public var size: CGFloat
+    public var cornerRadius: CGFloat
     
     public init(
         icon: String,
         color: Color,
-        size: CGFloat = HIGTokens.Size.listRowIcon,
-        cornerRadius: CGFloat = HIGTokens.Radius.listIcon
+        size: CGFloat = 30,
+        cornerRadius: CGFloat = 7
     ) {
         self.icon = icon
         self.color = color
@@ -45,7 +45,7 @@ public struct AccountAvatarView: View {
     
     public init(
         identifier: String,
-        size: CGFloat = HIGTokens.Size.avatarSmall,
+        size: CGFloat = 34,
         showShadow: Bool = true
     ) {
         self.identifier = identifier
@@ -83,13 +83,13 @@ public struct AccountAvatarView: View {
     
     private var fontSize: Font {
         if size >= 50 {
-            return HIGTypography.title2
+            return .title2
         } else if size >= 40 {
-            return HIGTypography.headline
+            return .headline
         } else if size >= 30 {
-            return HIGTypography.subheadline
+            return .subheadline
         } else {
-            return HIGTypography.caption
+            return .caption
         }
     }
     

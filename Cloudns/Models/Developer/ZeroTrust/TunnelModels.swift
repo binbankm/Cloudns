@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Cloudflare Tunnel (Zero Trust) Models
 
-public struct CFTunnel: Codable, Identifiable, Equatable, Sendable {
+public struct CFTunnel: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let name: String
     public let status: String?
@@ -11,6 +11,10 @@ public struct CFTunnel: Codable, Identifiable, Equatable, Sendable {
     public let tunnelType: String?
     public let remoteConfig: Bool?
     public let connections: [TunnelConnection]?
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, name, status

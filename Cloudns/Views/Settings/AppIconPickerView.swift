@@ -8,7 +8,7 @@ struct AppIconPickerView: View {
             Section {
                 ForEach(AppIconOption.allCases) { option in
                     Button {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             await iconManager.selectIcon(option)
                         }
@@ -20,11 +20,11 @@ struct AppIconPickerView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 60, height: 60)
-                                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                     .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 13, style: .continuous)
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
                                     )
                             }
                             
@@ -35,7 +35,12 @@ struct AppIconPickerView: View {
                                         .foregroundStyle(.primary)
                                     
                                     if iconManager.currentIcon == option {
-                                        HIGBadge(.custom(color: .orange, text: "Active"), isCompact: true)
+                                        Text("Active")
+                                            .font(.caption2.weight(.medium))
+                                            .foregroundStyle(Color.green)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Capsule().fill(Color.green.opacity(0.12)))
                                     }
                                 }
                                 
@@ -50,14 +55,14 @@ struct AppIconPickerView: View {
                             if iconManager.currentIcon == option {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(Color.accentColor)
                                     .accessibilityHidden(true)
                             }
                         }
                         .padding(.vertical, 4)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.higPressable)
+                    .buttonStyle(.plain)
                 }
             } header: {
                 Text("Select Home Screen Icon")

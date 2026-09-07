@@ -34,57 +34,53 @@ struct WorkerSourceCodeView: View {
         VStack(spacing: 0) {
             if !modules.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: HIGTokens.Spacing.sm) {
+                    HStack(spacing: 8) {
                         ForEach(modules) { module in
                             Button {
                                 selectedModule = module
                                 currentCode = module.code
-                                HIGFeedback.selection()
+                                HapticManager.selection()
                             } label: {
-                                HStack(spacing: HIGTokens.Spacing.xxs) {
+                                HStack(spacing: 4) {
                                     Image(systemName: module.isMain ? "star.fill" : "doc.text")
-                                        .font(HIGTypography.caption2)
+                                        .font(.caption2)
                                     Text(module.name)
-                                        .font(HIGTypography.caption.monospaced())
+                                        .font(.caption.monospaced())
                                 }
-                                .padding(.horizontal, HIGTokens.Spacing.sm + 2)
-                                .padding(.vertical, HIGTokens.Spacing.xxs + 2)
-                                .background(selectedModule?.id == module.id ? Color.higAccent : Color(.secondarySystemFill))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(selectedModule?.id == module.id ? Color.accentColor : Color(uiColor: .secondarySystemFill))
                                 .foregroundStyle(selectedModule?.id == module.id ? .white : .primary)
                                 .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .higTouchTarget(44)
                         }
                     }
-                    .padding(.horizontal, HIGTokens.Spacing.md)
-                    .padding(.vertical, HIGTokens.Spacing.sm)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                 }
-                .background(Color(.secondarySystemBackground))
+                .background(Color(uiColor: .secondarySystemBackground))
                 
                 Divider()
             }
             
             TextEditor(text: $currentCode)
-                .font(HIGTypography.caption.monospaced())
+                .font(.caption.monospaced())
                 .scrollContentBackground(.hidden)
-                .background(Color(.systemBackground))
-                .padding(HIGTokens.Spacing.sm)
+                .background(Color(uiColor: .systemBackground))
+                .padding(8)
         }
         .navigationTitle(scriptName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: HIGTokens.Spacing.sm) {
+                HStack(spacing: 8) {
                     Button {
-                        UIPasteboard.general.string = currentCode
-                        ToastManager.shared.showCopied("Code Copied")
-                        HIGFeedback.copied()
+                        copyToClipboard(currentCode, toast: "Code Copied")
                     } label: {
                         Image(systemName: "doc.on.doc")
                     }
                     .accessibilityLabel("Copy Code")
-                    .higTouchTarget(44)
                     
                     Button {
                         Task {
@@ -96,11 +92,11 @@ struct WorkerSourceCodeView: View {
                                     isModule: !modules.isEmpty
                                 )
                                 ToastManager.shared.showSuccess("Script Deployed", icon: "arrow.up.circle.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                             } catch {
                                 errorMessage = error.localizedDescription
                                 ToastManager.shared.showError("Deploy Failed")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
@@ -111,11 +107,10 @@ struct WorkerSourceCodeView: View {
                         } else {
                             Text("Save")
                                 .fontWeight(.semibold)
-                                .foregroundStyle(Color.higAccent)
+                                .foregroundStyle(Color.accentColor)
                         }
                     }
                     .disabled(isSaving)
-                    .higTouchTarget(44)
                 }
             }
         }

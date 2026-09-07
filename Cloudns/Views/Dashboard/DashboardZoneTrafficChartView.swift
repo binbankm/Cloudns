@@ -2,24 +2,29 @@ import SwiftUI
 import Charts
 
 // MARK: - DashboardZoneTrafficChartView
-// Apple HIG Compliant Interactive Swift Chart with Haptic Scrubbing & Theme Reactivity
+// Apple HIG Compliant Interactive Swift Chart with Haptic Scrubbing
 
 struct DashboardZoneTrafficChartView: View {
     @ObservedObject var viewModel: DashboardViewModel
+    @ObservedObject private var themeManager = ThemeManager.shared
     @State private var selectedPoint: FleetHourlyMetric?
     
+    private var accentColor: Color {
+        themeManager.currentColor.color
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.md + 2) {
+        VStack(alignment: .leading, spacing: 14) {
             // Header: Title, Live Cache Rate Badge
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm + 2) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .center) {
-                    HStack(spacing: HIGTokens.Spacing.xs + 2) {
+                    HStack(spacing: 6) {
                         Image(systemName: "globe.americas.fill")
-                            .font(HIGTypography.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.higAccent)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.blue)
                         
                         Text("Zone Traffic Analytics (24h)")
-                            .font(HIGTypography.subheadline.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
                     }
                     
@@ -27,32 +32,32 @@ struct DashboardZoneTrafficChartView: View {
                     
                     // Live Cache Rate Badge
                     if viewModel.averageCacheHitRate24h > 0 {
-                        HStack(spacing: HIGTokens.Spacing.xxs + 2) {
+                        HStack(spacing: 4) {
                             Circle()
-                                .fill(HIGColors.success)
-                                .frame(width: 5, height: 5)
+                                .fill(Color.green)
+                                .frame(width: 6, height: 6)
                             
                             Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
-                                .font(HIGTypography.caption2.weight(.semibold))
-                                .foregroundStyle(HIGColors.success)
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.green)
                         }
-                        .padding(.horizontal, HIGTokens.Spacing.xs + 3)
-                        .padding(.vertical, HIGTokens.Spacing.xxs + 1)
-                        .background(HIGColors.success.opacity(0.12))
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(Color.green.opacity(0.12))
                         .clipShape(Capsule())
                     }
                 }
                 
                 // Big Metric Value Display with Selected Scrubbing Value
-                HStack(alignment: .lastTextBaseline, spacing: HIGTokens.Spacing.sm) {
+                HStack(alignment: .lastTextBaseline, spacing: 8) {
                     Text(currentDisplayValue)
-                        .font(HIGTypography.title.weight(.bold))
+                        .font(.title.weight(.bold))
                         .foregroundStyle(.primary)
                         .monospacedDigit()
                     
                     if selectedPoint == nil {
                         Text("Total (24h)")
-                            .font(HIGTypography.caption.weight(.medium))
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
                     
@@ -60,16 +65,16 @@ struct DashboardZoneTrafficChartView: View {
                     
                     if let selected = selectedPoint {
                         let themeColor = metricColor(viewModel.selectedChartMetric)
-                        HStack(spacing: HIGTokens.Spacing.xxs + 2) {
+                        HStack(spacing: 4) {
                             Circle()
                                 .fill(themeColor)
-                                .frame(width: 5, height: 5)
+                                .frame(width: 6, height: 6)
                             Text(selected.timeString)
-                                .font(HIGTypography.caption2.monospacedDigit().weight(.semibold))
+                                .font(.caption2.monospacedDigit().weight(.semibold))
                                 .foregroundStyle(.primary)
                         }
-                        .padding(.horizontal, HIGTokens.Spacing.sm)
-                        .padding(.vertical, HIGTokens.Spacing.xxs + 1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
                         .background(themeColor.opacity(0.14))
                         .clipShape(Capsule())
                     }
@@ -88,21 +93,27 @@ struct DashboardZoneTrafficChartView: View {
             chartBodyView
                 .frame(height: 160)
         }
-        .padding(HIGTokens.Spacing.lg)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.lg, style: .continuous))
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+        )
     }
     
     @ViewBuilder
     private var chartBodyView: some View {
         if viewModel.fleetMetrics.isEmpty {
-            HStack {
+            VStack(spacing: 8) {
                 Spacer()
-                ProgressView("Loading Analytics…")
-                    .font(HIGTypography.subheadline)
+                ProgressView()
+                Text("Loading Analytics…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 Spacer()
             }
-            .frame(height: 160)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             let metrics = viewModel.fleetMetrics
             let themeColor = metricColor(viewModel.selectedChartMetric)
@@ -164,7 +175,7 @@ struct DashboardZoneTrafficChartView: View {
                         format: DateFormatters.chartXAxisHourly,
                         collisionResolution: .greedy
                     )
-                    .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                    .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(Color(.tertiaryLabel))
                 }
             }
@@ -175,7 +186,7 @@ struct DashboardZoneTrafficChartView: View {
                     AxisValueLabel {
                         if let dVal = value.as(Double.self) {
                             Text(MetricFormatters.compactNumber(dVal))
-                                .font(HIGTypography.caption2.weight(.medium).monospacedDigit())
+                                .font(.caption2.weight(.medium).monospacedDigit())
                                 .foregroundStyle(Color(.tertiaryLabel))
                         }
                     }
@@ -197,7 +208,7 @@ struct DashboardZoneTrafficChartView: View {
                                         // Find closest point by date
                                         if let closest = metrics.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) {
                                             if closest != selectedPoint {
-                                                HIGFeedback.selection()
+                                                HapticManager.selection()
                                                 selectedPoint = closest
                                             }
                                         }
@@ -226,9 +237,9 @@ struct DashboardZoneTrafficChartView: View {
     
     private func metricColor(_ metric: DashboardChartMetric) -> Color {
         switch metric {
-        case .requests: return Color.higAccent
+        case .requests: return .blue
         case .bandwidth: return .purple
-        case .threats: return HIGColors.error
+        case .threats: return .red
         }
     }
     

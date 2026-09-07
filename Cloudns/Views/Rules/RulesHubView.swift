@@ -32,7 +32,7 @@ struct RulesHubView: View {
                     subtitle: "Lightweight JavaScript on HTTP requests",
                     icon: "curlybraces",
                     color: .orange,
-                    badge: .warning("PRO"),
+                    badgeText: "PRO",
                     destination: SnippetsListView(zoneId: zoneId)
                 )
             }

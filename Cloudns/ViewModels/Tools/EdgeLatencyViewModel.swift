@@ -29,10 +29,10 @@ final class EdgeLatencyViewModel: BaseLoadableViewModel {
             let res = try await latencyService.performEdgeLatencyTest(host: clean, rounds: latencyRounds)
             self.latencyResult = res
             self.hasFetchedData = true
-            HIGFeedback.success()
+            HapticManager.success()
         } catch {
             self.latencyError = error.localizedDescription
-            HIGFeedback.error()
+            HapticManager.error()
         }
         isLatencyLoading = false
     }

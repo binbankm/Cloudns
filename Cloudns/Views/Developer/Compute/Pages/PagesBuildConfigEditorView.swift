@@ -32,73 +32,73 @@ struct PagesBuildConfigEditorView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Build Settings"), footer: Text("Configure build commands and directories executed during automated deployment.")) {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Build Command")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("npm run build / hugo / next build", text: $buildCommand)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "command")
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                     
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Build Output Directory")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("dist / public / .next", text: $destinationDir)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "output")
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                     
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Root Directory (Optional)")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("/", text: $rootDir)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(HIGTypography.body.monospaced())
+                            .font(.body.monospaced())
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "root")
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 Section(header: Text("Source Configuration")) {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Production Branch")
-                            .font(HIGTypography.caption)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         TextField("main / master", text: $productionBranch)
                             .keyboardType(.asciiCapable)
                             .submitLabel(.done)
-                            .font(HIGTypography.body)
+                            .font(.body)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .focused($focusedField, equals: "branch")
                     }
-                    .padding(.vertical, HIGTokens.Spacing.xxs)
+                    .padding(.vertical, 2)
                 }
                 
                 if let error = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: error)
-                                .font(HIGTypography.footnote)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.footnote)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -110,11 +110,10 @@ struct PagesBuildConfigEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.impact(.medium)
                         Task {
                             isSaving = true
                             errorMessage = nil
@@ -128,11 +127,11 @@ struct PagesBuildConfigEditorView: View {
                                     productionBranch: productionBranch.isEmpty ? nil : productionBranch
                                 )
                                 ToastManager.shared.showSuccess("Configuration Saved", icon: "gearshape.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 await parentViewModel.fetchProjectDetails()
                                 dismiss()
                             } catch {
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                                 errorMessage = error.localizedDescription
                             }
                             isSaving = false
@@ -140,11 +139,9 @@ struct PagesBuildConfigEditorView: View {
                     }
                     .fontWeight(.semibold)
                     .disabled(isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
         }
-        .higToast()
     }
 }

@@ -33,33 +33,10 @@ struct D1TableView: View {
                 
                 Divider()
                 
-                if viewModel.isLoading && !viewModel.hasFetchedData {
+                if displayMode == .cards {
                     cardsView
-                } else if let err = viewModel.errorMessage, !viewModel.hasFetchedData {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.loadTable() } }
-                        )
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.rows.isEmpty && viewModel.hasFetchedData {
-                    HIGContentState(
-                        .empty(
-                            title: "Empty Table",
-                            systemImage: "tablecells",
-                            description: "Table '\(tableName)' has no data rows.",
-                            actionTitle: "Insert Row",
-                            action: { editorContext = .insert }
-                        )
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    if displayMode == .cards {
-                        cardsView
-                    } else {
-                        tableView
-                    }
+                    tableView
                 }
                 
                 // Pagination Footer
@@ -69,6 +46,18 @@ struct D1TableView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .listState(
+            isLoading: viewModel.isLoading && !viewModel.hasFetchedData,
+            loadingMessage: "Loading Table Data…",
+            isEmpty: viewModel.rows.isEmpty && viewModel.hasFetchedData && viewModel.errorMessage == nil,
+            emptyTitle: "Empty Table",
+            emptySystemImage: "tablecells",
+            emptyDescription: "Table '\(tableName)' has no data rows.",
+            emptyActionTitle: "Insert Row",
+            emptyAction: { editorContext = .insert },
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.loadTable() } }
+        )
         .navigationTitle(tableName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -79,7 +68,6 @@ struct D1TableView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Insert Row")
-                .higTouchTarget(44)
             }
         }
         .sheet(item: $editorContext) { context in
@@ -87,7 +75,6 @@ struct D1TableView: View {
                 viewModel: viewModel,
                 existingRow: context.row
             )
-            .higToast()
         }
         .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
             Button("Delete Row", role: .destructive) {
@@ -96,10 +83,10 @@ struct D1TableView: View {
                         let success = await viewModel.deleteRow(rowid: rowid)
                         if success {
                             ToastManager.shared.showSuccess("Row Deleted", icon: "trash.fill")
-                            HIGFeedback.success()
+                            HapticManager.notification(.success)
                         } else {
                             ToastManager.shared.showError("Failed to Delete Row")
-                            HIGFeedback.error()
+                            HapticManager.notification(.error)
                         }
                     }
                 }
@@ -122,9 +109,9 @@ struct D1TableView: View {
     // MARK: - Subviews
     
     private var topStatsBar: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
-                .font(HIGTypography.caption)
+                .font(.caption)
                 .foregroundStyle(.secondary)
             
             Spacer()
@@ -139,12 +126,12 @@ struct D1TableView: View {
             Spacer()
             
             Label("\(viewModel.totalRowCount) Total Rows", systemImage: "list.number")
-                .font(HIGTypography.caption.weight(.medium))
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.primary)
         }
-        .padding(.horizontal, HIGTokens.Spacing.md)
-        .padding(.vertical, HIGTokens.Spacing.sm)
-        .background(Color.higCardBackground)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemGroupedBackground))
     }
     
     private var paginationFooter: some View {
@@ -155,12 +142,11 @@ struct D1TableView: View {
                 Image(systemName: "chevron.left")
             }
             .disabled(viewModel.currentPage <= 1 || viewModel.isLoading)
-            .higTouchTarget(44)
             
             Spacer()
             
             Text("Page \(viewModel.currentPage) of \(viewModel.totalPages)")
-                .font(HIGTypography.caption.weight(.medium))
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
             
             Spacer()
@@ -171,17 +157,16 @@ struct D1TableView: View {
                 Image(systemName: "chevron.right")
             }
             .disabled(viewModel.currentPage >= viewModel.totalPages || viewModel.isLoading)
-            .higTouchTarget(44)
         }
-        .padding(.horizontal, HIGTokens.Spacing.lg)
-        .padding(.vertical, HIGTokens.Spacing.sm)
-        .background(Color.higCardBackground)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+        .background(Color(.secondarySystemGroupedBackground))
     }
     
     // MARK: - 1. Cards View
     private var cardsView: some View {
         ScrollView {
-            LazyVStack(spacing: HIGTokens.Spacing.md) {
+            LazyVStack(spacing: 12) {
                 ForEach(viewModel.rowItems) { item in
                     D1CardRowCard(
                         item: item,
@@ -194,7 +179,7 @@ struct D1TableView: View {
                     )
                 }
             }
-            .padding(HIGTokens.Spacing.md)
+            .padding(16)
         }
     }
     
@@ -205,31 +190,31 @@ struct D1TableView: View {
                 // Header Row
                 HStack(spacing: 0) {
                     Text("#")
-                        .font(HIGTypography.caption2.weight(.bold))
+                        .font(.caption2.weight(.bold))
                         .foregroundStyle(.secondary)
                         .frame(width: 50, alignment: .leading)
-                        .padding(.horizontal, HIGTokens.Spacing.sm)
-                        .padding(.vertical, HIGTokens.Spacing.sm + 2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
                     
                     ForEach(viewModel.columns) { col in
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                            HStack(spacing: HIGTokens.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 4) {
                                 Text(col.name)
-                                    .font(HIGTypography.caption.weight(.bold))
+                                    .font(.caption.weight(.bold))
                                     .foregroundStyle(.primary)
                                 if col.isPrimaryKey {
                                     Image(systemName: "key.fill")
-                                        .font(HIGTypography.caption2)
+                                        .font(.caption2)
                                         .foregroundStyle(.orange)
                                 }
                             }
                             Text(col.type)
-                                .font(HIGTypography.caption2.monospaced().weight(.semibold))
+                                .font(.caption2.monospaced().weight(.semibold))
                                 .foregroundStyle(.secondary)
                         }
                         .frame(width: 140, alignment: .leading)
-                        .padding(.horizontal, HIGTokens.Spacing.sm)
-                        .padding(.vertical, HIGTokens.Spacing.sm + 2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
                     }
                 }
                 .background(Color(.tertiarySystemGroupedBackground))
@@ -244,21 +229,21 @@ struct D1TableView: View {
                     } label: {
                         HStack(spacing: 0) {
                             Text(item.rowid ?? "\(index + 1)")
-                                .font(HIGTypography.caption2.monospacedDigit())
+                                .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                                 .frame(width: 50, alignment: .leading)
-                                .padding(.horizontal, HIGTokens.Spacing.sm)
-                                .padding(.vertical, HIGTokens.Spacing.sm)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 8)
                             
                             ForEach(viewModel.columns) { col in
                                 let cellValue = row[col.name] ?? "NULL"
                                 Text(cellValue)
-                                    .font(HIGTypography.caption.monospaced())
+                                    .font(.caption.monospaced())
                                     .foregroundStyle(cellValue == "NULL" ? .secondary : .primary)
                                     .frame(width: 140, alignment: .leading)
                                     .lineLimit(1)
-                                    .padding(.horizontal, HIGTokens.Spacing.sm)
-                                    .padding(.vertical, HIGTokens.Spacing.sm)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 8)
                             }
                         }
                     }
@@ -298,11 +283,11 @@ private struct D1CardRowCard: View {
     
     var body: some View {
         let row = item.values
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             // Card Header
             HStack {
                 Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
-                    .font(HIGTypography.caption.weight(.bold))
+                    .font(.caption.weight(.bold))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
@@ -311,41 +296,39 @@ private struct D1CardRowCard: View {
                     onEdit()
                 } label: {
                     Image(systemName: "pencil.circle.fill")
-                        .font(HIGTypography.title3)
-                        .foregroundStyle(Color.higAccent)
+                        .font(.title3)
+                        .foregroundStyle(.blue)
                 }
                 .buttonStyle(.plain)
-                .higTouchTarget(44)
                 
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
                     Image(systemName: "trash.circle.fill")
-                        .font(HIGTypography.title3)
-                        .foregroundStyle(HIGColors.error.opacity(0.85))
+                        .font(.title3)
+                        .foregroundStyle(.red.opacity(0.85))
                 }
                 .buttonStyle(.plain)
-                .higTouchTarget(44)
             }
             
             Divider()
             
             // Field Rows
             ForEach(columns) { col in
-                HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
-                    VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
-                        HStack(spacing: HIGTokens.Spacing.xs) {
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 4) {
                             Text(col.name)
-                                .font(HIGTypography.caption.weight(.semibold))
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(.primary)
                             if col.isPrimaryKey {
                                 Image(systemName: "key.fill")
-                                    .font(HIGTypography.caption2)
+                                    .font(.caption2)
                                     .foregroundStyle(.orange)
                             }
                         }
                         Text(col.type)
-                            .font(HIGTypography.caption2.monospaced())
+                            .font(.caption2.monospaced())
                             .foregroundStyle(.secondary)
                     }
                     .frame(width: 100, alignment: .leading)
@@ -354,17 +337,17 @@ private struct D1CardRowCard: View {
                     
                     let cellVal = row[col.name] ?? "NULL"
                     Text(cellVal)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .foregroundStyle(cellVal == "NULL" ? .secondary : .primary)
                         .multilineTextAlignment(.trailing)
                         .textSelection(.enabled)
                 }
-                .padding(.vertical, HIGTokens.Spacing.xxs)
+                .padding(.vertical, 2)
             }
         }
-        .padding(HIGTokens.Spacing.sm + 4)
-        .background(Color.higCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.card, style: .continuous))
+        .padding(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 1)
         .contextMenu {
             Button {

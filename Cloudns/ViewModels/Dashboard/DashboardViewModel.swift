@@ -205,7 +205,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 self.refreshRecentZones()
                 self.fetchRecentSparklines()
                 if self.selectedAccount == nil, let zoneAccount = fetchedZones.first?.account {
-                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? "Cloudflare Account")
+                    self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? String(localized: "Cloudflare Account"))
                 }
             }
             

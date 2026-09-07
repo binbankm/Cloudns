@@ -2,11 +2,15 @@ import Foundation
 
 // MARK: - R2 Storage Models
 
-public struct R2Bucket: Codable, Identifiable, Equatable, Sendable {
+public struct R2Bucket: Codable, Identifiable, Equatable, Hashable, Sendable {
     public var id: String { name }
     public let name: String
     public let creationDate: String?
     public let location: String?
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
     
     enum CodingKeys: String, CodingKey {
         case name

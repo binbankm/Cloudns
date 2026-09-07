@@ -1,10 +1,13 @@
 import SwiftUI
 
 // MARK: - OnboardingView
+// Apple HIG Compliant Onboarding Flow (iOS 16.0+)
 
 struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
+    @ObservedObject private var authManager = AppAuthManager.shared
     @State private var currentPage = 0
     
     private let totalPages = 4
@@ -18,8 +21,16 @@ struct OnboardingView: View {
         }
     }
     
+    private var biometryIcon: String {
+        authManager.biometryIcon
+    }
+    
+    private var biometryBadgeText: LocalizedStringKey {
+        authManager.biometryBadgeText
+    }
+    
     private func completeOnboarding() {
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.3)) {
             hasSeenOnboarding = true
         }
         dismiss()
@@ -27,7 +38,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            Color(uiColor: .systemBackground).ignoresSafeArea()
             
             GeometryReader { proxy in
                 let w = proxy.size.width
@@ -45,7 +56,7 @@ struct OnboardingView: View {
                         .blur(radius: 70)
                         .offset(x: w * 0.3, y: w * 0.6)
                 }
-                .animation(.easeInOut(duration: 0.5), value: currentPage)
+                .animation(reduceMotion ? .none : .easeInOut(duration: 0.5), value: currentPage)
             }
             .ignoresSafeArea()
             
@@ -63,22 +74,23 @@ struct OnboardingView: View {
                                 )
                             )
                         Text("Cloudns")
-                            .font(.system(.headline, design: .rounded).weight(.bold))
+                            .font(.headline.weight(.bold))
                             .foregroundStyle(.primary)
                     }
                     
                     Spacer()
                     
                     Button("Skip") {
-                        HIGFeedback.impact(.light)
+                        HapticManager.impact(.light)
                         completeOnboarding()
                     }
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color(.tertiarySystemFill))
+                    .background(Color(uiColor: .tertiarySystemFill))
                     .clipShape(Capsule())
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
@@ -113,17 +125,17 @@ struct OnboardingView: View {
                     .tag(2)
                     
                     OnboardingPageView(
-                        icon: "faceid",
+                        icon: biometryIcon,
                         title: "Biometric Privacy",
                         description: "Your API credentials stay isolated on your device with Apple Keychain hardware-level protection.",
                         color: .purple,
-                        badgeText: "Face ID & Local Keys"
+                        badgeText: biometryBadgeText
                     )
                     .tag(3)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .onChange(of: currentPage) { _ in
-                    HIGFeedback.selection()
+                    HapticManager.selection()
                 }
                 
                 // Bottom Controls
@@ -133,24 +145,24 @@ struct OnboardingView: View {
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
                                 .frame(width: currentPage == index ? 24 : 7, height: 7)
-                                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
+                                .animation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
                     
                     Button(action: {
                         if currentPage < totalPages - 1 {
-                            HIGFeedback.impact(.light)
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            HapticManager.impact(.light)
+                            withAnimation(reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.35, dampingFraction: 0.75)) {
                                 currentPage += 1
                             }
                         } else {
-                            HIGFeedback.impact(.medium)
+                            HapticManager.impact(.medium)
                             completeOnboarding()
                         }
                     }) {
                         HStack(spacing: 8) {
-                            Text(currentPage == totalPages - 1 ? "Get Started" : "Continue")
+                            Text(currentPage == totalPages - 1 ? LocalizedStringKey("Get Started") : LocalizedStringKey("Continue"))
                                 .font(.body.weight(.semibold))
                             
                             Image(systemName: currentPage == totalPages - 1 ? "checkmark" : "arrow.right")
@@ -166,18 +178,19 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .shadow(color: currentColor.opacity(0.35), radius: 12, x: 0, y: 5)
                     }
+                    .buttonStyle(.plain)
                     .padding(.horizontal, 24)
                 }
-                .padding(.bottom, 28)
+                .padding(.bottom, 24)
             }
         }
     }
 }
 
-// MARK: - OnboardingPageView (Inlined & Cohesive)
+// MARK: - OnboardingPageView
 
 struct OnboardingPageView: View {
     let icon: String
@@ -215,12 +228,12 @@ struct OnboardingPageView: View {
                     .frame(width: 156, height: 156)
                 
                 Circle()
-                    .fill(Color(.secondarySystemGroupedBackground).opacity(0.85))
+                    .fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.85))
                     .frame(width: 140, height: 140)
                     .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
                 
                 Image(systemName: icon)
-                    .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                    .font(.system(size: 48, weight: .semibold))
                     .imageScale(.large)
                     .foregroundStyle(
                         LinearGradient(
@@ -239,8 +252,8 @@ struct OnboardingPageView: View {
             Text(badgeText)
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(color)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(color.opacity(0.12))
                 .clipShape(Capsule())
                 .overlay(
@@ -250,11 +263,11 @@ struct OnboardingPageView: View {
                 .padding(.bottom, 12)
             
             Text(title)
-                .font(.system(.title, design: .rounded).weight(.bold))
+                .font(.title.weight(.bold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 10)
+                .padding(.bottom, 12)
                 .minimumScaleFactor(0.85)
             
             Text(description)
@@ -264,7 +277,7 @@ struct OnboardingPageView: View {
                 .lineSpacing(4)
                 .padding(.horizontal, 32)
             
-            Spacer(minLength: 40)
+            Spacer(minLength: 32)
         }
     }
 }

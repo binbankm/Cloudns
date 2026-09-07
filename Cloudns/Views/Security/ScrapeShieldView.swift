@@ -12,7 +12,7 @@ struct ScrapeShieldView: View {
         List {
             // MARK: - Hero Header
             Section {
-                VStack(spacing: HIGTokens.Spacing.md) {
+                VStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(
@@ -25,23 +25,23 @@ struct ScrapeShieldView: View {
                             .frame(width: 64, height: 64)
                         
                         Image(systemName: "eye.slash.fill")
-                            .font(HIGTypography.title2.weight(.semibold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(.purple)
                     }
-                    .padding(.top, HIGTokens.Spacing.xs)
+                    .padding(.top, 4)
                     
                     Text("Scrape Shield")
-                        .font(HIGTypography.title2.weight(.bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
                     
                     Text("Protect your content from scrapers, hotlinkers, and email harvesters.")
-                        .font(HIGTypography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, HIGTokens.Spacing.md)
+                        .padding(.horizontal, 16)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, HIGTokens.Spacing.sm)
+                .padding(.vertical, 8)
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
@@ -55,7 +55,7 @@ struct ScrapeShieldView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.emailObfuscationEnabled },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         viewModel.emailObfuscationEnabled = val
                         Task {
                             await viewModel.updateSetting(zoneId: zoneId, settingId: "email_obfuscation", value: val ? "on" : "off")
@@ -63,13 +63,13 @@ struct ScrapeShieldView: View {
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "envelope.badge.shield.half.filled.fill", color: .blue)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Email Obfuscation")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Hides plaintext email addresses from automated bots.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -80,7 +80,7 @@ struct ScrapeShieldView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.serverSideExcludesEnabled },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         viewModel.serverSideExcludesEnabled = val
                         Task {
                             await viewModel.updateSetting(zoneId: zoneId, settingId: "server_side_excludes", value: val ? "on" : "off")
@@ -88,13 +88,13 @@ struct ScrapeShieldView: View {
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
+                    HStack(spacing: 12) {
                         ListRowIcon(icon: "server.rack", color: .orange)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Server-Side Excludes")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Hides sensitive HTML markup tags from suspicious visitors.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -105,7 +105,7 @@ struct ScrapeShieldView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.hotlinkProtectionEnabled },
                     set: { val in
-                        HIGFeedback.selection()
+                        HapticManager.selection()
                         viewModel.hotlinkProtectionEnabled = val
                         Task {
                             await viewModel.updateSetting(zoneId: zoneId, settingId: "hotlink_protection", value: val ? "on" : "off")
@@ -113,13 +113,13 @@ struct ScrapeShieldView: View {
                         }
                     }
                 )) {
-                    HStack(spacing: HIGTokens.Spacing.md) {
-                        ListRowIcon(icon: "photo.fill", color: HIGColors.error)
-                        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "photo.fill", color: .red)
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Hotlink Protection")
-                                .font(HIGTypography.body)
+                                .font(.body)
                             Text("Prevents external websites from embedding your images.")
-                                .font(HIGTypography.caption)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -128,11 +128,10 @@ struct ScrapeShieldView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Scrape Shield Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Scrape Shield Settings…"
+        )
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }

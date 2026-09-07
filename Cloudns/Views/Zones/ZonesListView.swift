@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - ZonesListView
-// Apple HIG Compliant Domain Management View
+// Apple HIG Compliant Domain Management View (iOS 16.0+)
 
 struct ZonesListView: View {
     @StateObject private var viewModel = ZonesViewModel()
@@ -15,48 +15,73 @@ struct ZonesListView: View {
         viewModel.filteredZones(query: searchText)
     }
     
+    let embeddedInNavigation: Bool
+    
+    init(embeddedInNavigation: Bool = false) {
+        self.embeddedInNavigation = embeddedInNavigation
+    }
+    
     var body: some View {
-        NavigationStack {
-            List {
-                if !displayedZones.isEmpty {
-                    zonesSection
-                }
-            }
-            .listStyle(.insetGrouped)
-            .scrollDismissesKeyboard(.interactively)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search Domains"
-            )
-            .navigationTitle("My Domains")
-            .navigationBarTitleDisplayMode(.large)
-            .refreshable {
-                await viewModel.fetchZones(isRefresh: true)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.addZoneError = nil
-                        showAddZoneSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add Domain")
-                    .higTouchTarget()
-                    .keyboardShortcut("n", modifiers: .command)
-                }
-            }
-            .sheet(isPresented: $showAddZoneSheet) {
-                AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-                    .higToast()
-            }
-            .overlay {
-                emptyStateOverlay
+        if embeddedInNavigation {
+            contentView
+                .navigationBarTitleDisplayMode(.inline)
+        } else {
+            NavigationStack {
+                contentView
+                    .navigationBarTitleDisplayMode(.large)
             }
         }
+    }
+    
+    private var contentView: some View {
+        List {
+            if !displayedZones.isEmpty {
+                zonesSection
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Search Domains"
+        )
+        .navigationTitle("My Domains")
+        .refreshable {
+            await viewModel.fetchZones(isRefresh: true)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.addZoneError = nil
+                    showAddZoneSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Domain")
+                .keyboardShortcut("n", modifiers: .command)
+            }
+        }
+        .sheet(isPresented: $showAddZoneSheet) {
+            AddZoneView(viewModel: viewModel, isPresented: $showAddZoneSheet)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Domains…",
+            error: viewModel.zones.isEmpty ? viewModel.errorMessage : nil,
+            isEmpty: viewModel.hasFetchedData && viewModel.zones.isEmpty,
+            empty: .init(
+                title: "No Domains Found",
+                systemImage: "globe",
+                description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
+                actionTitle: "Add Domain",
+                action: { showAddZoneSheet = true }
+            ),
+            searchQuery: (viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            onRetry: { Task { await viewModel.fetchZones(isRefresh: true) } }
+        )
         .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
@@ -93,7 +118,7 @@ struct ZonesListView: View {
             presenting: zoneToDelete
         ) { zone in
             Button("Delete \(zone.name)", role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.destructive()
                 Task {
                     await viewModel.deleteZone(zoneId: zone.id)
                 }
@@ -109,13 +134,14 @@ struct ZonesListView: View {
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
-                NavigationLink(destination: ZoneDetailView(zone: zone)) {
+                NavigationLink {
+                    ZoneDetailView(zone: zone)
+                } label: {
                     ZoneRowView(zone: zone, sparkline: viewModel.sparklines[zone.id])
                 }
                 .contextMenu {
                     Button {
-                        UIPasteboard.general.string = zone.name
-                        ToastManager.shared.showCopied("Domain Copied")
+                        copyToClipboard(zone.name, toast: "Domain Copied")
                     } label: {
                         Label("Copy Domain", systemImage: "doc.on.doc")
                     }
@@ -131,13 +157,12 @@ struct ZonesListView: View {
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        HIGFeedback.impact(.medium)
+                        HapticManager.destructive()
                         zoneToDelete = zone
                         showingDeleteAlert = true
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    .tint(HIGColors.error)
                 }
             }
 
@@ -155,37 +180,9 @@ struct ZonesListView: View {
             }
         }
     }
-    
-    @ViewBuilder
-    private var emptyStateOverlay: some View {
-        if !viewModel.hasFetchedData && viewModel.isLoading {
-            HIGContentState(.loading(message: "Loading Domains…"))
-        } else if let errorMessage = viewModel.errorMessage, viewModel.zones.isEmpty {
-            HIGContentState(
-                .error(
-                    message: LocalizedStringKey(errorMessage),
-                    retryAction: {
-                        Task { await viewModel.fetchZones(isRefresh: true) }
-                    }
-                )
-            )
-        } else if viewModel.hasFetchedData && viewModel.zones.isEmpty {
-            HIGContentState(
-                .empty(
-                    title: "No Domains Found",
-                    systemImage: "globe",
-                    description: "Add your first domain to start managing DNS records and Cloudflare edge services.",
-                    actionTitle: "Add Domain",
-                    action: { showAddZoneSheet = true }
-                )
-            )
-        } else if viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty {
-            HIGContentState(.search(query: searchText))
-        }
-    }
 }
 
-// MARK: - ZoneRowView (Inlined & Cohesive)
+// MARK: - ZoneRowView
 
 struct ZoneRowView: View {
     let zone: Zone
@@ -206,57 +203,57 @@ struct ZoneRowView: View {
     }
     
     var body: some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
+        HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle()
                     .fill(avatarColor.opacity(0.14))
-                    .frame(width: HIGTokens.Size.avatarSmall + 2, height: HIGTokens.Size.avatarSmall + 2)
+                    .frame(width: 36, height: 36)
                 Text(initialChar)
-                    .font(HIGTypography.subheadline.weight(.bold))
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(avatarColor)
             }
             .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs + 1) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: zone.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 if zone.paused || (zone.developmentMode ?? 0) > 0 {
-                    HStack(spacing: HIGTokens.Spacing.xs + 1) {
+                    HStack(spacing: 5) {
                         if zone.paused {
                             Text("Paused")
-                                .font(HIGTypography.caption2.weight(.medium))
-                                .padding(.horizontal, HIGTokens.Spacing.xs + 1)
-                                .padding(.vertical, HIGTokens.Spacing.xxs)
-                                .background(HIGColors.error.opacity(0.15))
-                                .foregroundStyle(HIGColors.error)
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Color.red.opacity(0.15))
+                                .foregroundStyle(.red)
+                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                         }
                         
                         if (zone.developmentMode ?? 0) > 0 {
                             Text("Dev Mode")
-                                .font(HIGTypography.caption2.weight(.medium))
-                                .padding(.horizontal, HIGTokens.Spacing.xs + 1)
-                                .padding(.vertical, HIGTokens.Spacing.xxs)
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
                                 .background(Color.orange.opacity(0.15))
                                 .foregroundStyle(.orange)
-                                .clipShape(RoundedRectangle(cornerRadius: HIGTokens.Radius.xs, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                         }
                     }
                 }
             }
             
-            Spacer(minLength: HIGTokens.Spacing.sm)
+            Spacer(minLength: 8)
             
             ZoneRowSparklineView(zoneId: zone.id, cached: sparkline)
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
-// MARK: - ZoneTrafficSparklineView (Inlined & Cohesive)
+// MARK: - ZoneTrafficSparklineView
 
 public struct ZoneTrafficSparklineView: View {
     let data: [Double]
@@ -375,7 +372,7 @@ public struct ZoneTrafficSparklineView: View {
     }
 }
 
-// MARK: - ZoneRowSparklineView (Inlined & Cohesive)
+// MARK: - ZoneRowSparklineView
 
 public struct ZoneRowSparklineView: View {
     let zoneId: String
@@ -390,7 +387,7 @@ public struct ZoneRowSparklineView: View {
         let points = cached?.points ?? []
         let total = cached?.totalRequests ?? 0
         
-        HStack(spacing: HIGTokens.Spacing.xs + 1) {
+        HStack(spacing: 5) {
             ZoneTrafficSparklineView(
                 data: points,
                 lineColor: sparklineColor(total: total),
@@ -400,7 +397,7 @@ public struct ZoneRowSparklineView: View {
             
             if total > 0 {
                 Text(formatMetric(total))
-                    .font(HIGTypography.caption2.weight(.bold))
+                    .font(.caption2.weight(.bold))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

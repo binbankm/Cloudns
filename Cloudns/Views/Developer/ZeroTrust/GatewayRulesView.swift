@@ -19,24 +19,20 @@ struct GatewayRulesView: View {
     var body: some View {
         List {
             if !viewModel.filteredRules.isEmpty {
-                Section(header: Text("Security Rules (\(viewModel.rules.count))")) {
+                Section("Security Rules (\(viewModel.rules.count))") {
                     ForEach(viewModel.filteredRules) { rule in
                         ruleRow(rule)
                             .contentShape(Rectangle())
                             .contextMenu {
                                 Button {
-                                    UIPasteboard.general.string = rule.name
-                                    ToastManager.shared.showCopied("Rule Name Copied")
-                                    HIGFeedback.copied()
+                                    copyToClipboard(rule.name, toast: "Rule Name Copied")
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "doc.on.doc")
                                 }
                                 
                                 if let traffic = rule.traffic, !traffic.isEmpty {
                                     Button {
-                                        UIPasteboard.general.string = traffic
-                                        ToastManager.shared.showCopied("Traffic Expression Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(traffic, toast: "Traffic Expression Copied")
                                     } label: {
                                         Label("Copy Traffic Expression", systemImage: "curlybraces")
                                     }
@@ -45,7 +41,7 @@ struct GatewayRulesView: View {
                                 Divider()
                                 
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
                                 } label: {
@@ -54,19 +50,32 @@ struct GatewayRulesView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    HIGFeedback.impact(.medium)
+                                    HapticManager.impact(.medium)
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                .tint(HIGColors.error)
+                                .tint(.red)
                             }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Gateway Rules…",
+            isEmpty: viewModel.hasFetchedData && viewModel.rules.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Gateway Rules",
+            emptyDescription: "No Zero Trust Gateway DNS/HTTP policies configured.",
+            emptyActionTitle: "Add Rule",
+            emptyAction: { showingAddSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && !viewModel.rules.isEmpty && viewModel.filteredRules.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchRules() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
@@ -83,19 +92,17 @@ struct GatewayRulesView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Gateway Rule")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddGatewayRuleSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Rule", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: ruleToDelete) { rule in
             Button("Delete '\(rule.name)'", role: .destructive) {
                 Task {
                     await viewModel.deleteRule(id: rule.id)
                     ToastManager.shared.showSuccess("Gateway Rule Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -104,32 +111,6 @@ struct GatewayRulesView: View {
         }
         .refreshable {
             await viewModel.fetchRules()
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Gateway Rules…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: { Task { await viewModel.fetchRules() } }
-                        )
-                    )
-                } else if viewModel.rules.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Gateway Rules",
-                            systemImage: "shield.slash",
-                            description: "No Zero Trust Gateway DNS/HTTP policies configured.",
-                            actionTitle: "Add Rule",
-                            action: { showingAddSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredRules.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -140,17 +121,17 @@ struct GatewayRulesView: View {
     
     @ViewBuilder
     private func ruleRow(_ rule: GatewayRule) -> some View {
-        HStack(alignment: .center, spacing: HIGTokens.Spacing.md) {
-            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? HIGColors.success : .gray)
+        HStack(alignment: .center, spacing: 12) {
+            ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? .green : .gray)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(rule.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 if let traffic = rule.traffic, !traffic.isEmpty {
                     Text(traffic)
-                        .font(HIGTypography.caption2.monospaced())
+                        .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -158,10 +139,15 @@ struct GatewayRulesView: View {
             
             Spacer()
             
-            let actionColor: Color = rule.action.lowercased() == "block" ? HIGColors.error : (rule.action.lowercased() == "allow" ? HIGColors.success : .orange)
-            HIGBadge(.custom(color: actionColor, text: rule.action.uppercased()), isCompact: true)
+            let actionColor: Color = rule.action.lowercased() == "block" ? .red : (rule.action.lowercased() == "allow" ? .green : .orange)
+            Text(rule.action.uppercased())
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(actionColor)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(actionColor.opacity(0.12)))
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -182,9 +168,9 @@ struct AddGatewayRuleSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Rule Details")) {
+                Section("Rule Details") {
                     TextField("Rule Name (e.g. Block Malware)", text: $name)
-                        .font(HIGTypography.body)
+                        .font(.body)
                     
                     Picker("Action", selection: $action) {
                         ForEach(actions, id: \.self) { act in
@@ -194,19 +180,23 @@ struct AddGatewayRuleSheetView: View {
                     .pickerStyle(.segmented)
                 }
                 
-                Section(header: Text("Traffic Expression"), footer: Text("Wirefilter expression matching network traffic.")) {
+                Section {
                     TextField("dns.fqdn == \"malicious.com\"", text: $traffic)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Traffic Expression")
+                } footer: {
+                    Text("Wirefilter expression matching network traffic.")
                 }
                 
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -217,7 +207,6 @@ struct AddGatewayRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -230,18 +219,17 @@ struct AddGatewayRuleSheetView: View {
                                     action: action,
                                     traffic: traffic.trimmingCharacters(in: .whitespaces)
                                 )
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Gateway Rule Created", icon: "shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || traffic.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)

@@ -12,6 +12,7 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
     case mint
     case pink
     case red
+    case custom
     
     public var id: String { rawValue }
     
@@ -26,12 +27,19 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         case .mint:   return "Fresh Mint"
         case .pink:   return "Rose Pink"
         case .red:    return "Ruby Red"
+        case .custom: return "Custom"
         }
     }
     
+    @MainActor
     public var color: Color {
         switch self {
-        case .orange: return Color(red: 0.96, green: 0.50, blue: 0.12) // Cloudflare Brand Orange
+        case .orange:
+            return Color(uiColor: UIColor { trait in
+                trait.userInterfaceStyle == .dark
+                    ? UIColor(red: 0.96, green: 0.50, blue: 0.12, alpha: 1.0) // Luminous Cloudflare Brand Orange
+                    : UIColor(red: 0.88, green: 0.40, blue: 0.04, alpha: 1.0) // Deep High-Contrast Orange (WCAG AA)
+            })
         case .blue:   return .blue
         case .green:  return .green
         case .purple: return .purple
@@ -40,6 +48,7 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         case .mint:   return .mint
         case .pink:   return .pink
         case .red:    return .red
+        case .custom: return ThemeManager.shared.customColor
         }
     }
 }

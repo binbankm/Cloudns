@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ZonePlan: Codable, Equatable, Sendable {
+public struct ZonePlan: Codable, Equatable, Hashable, Sendable {
     public let id: String?
     public let name: String?
     public let price: Double?
@@ -48,11 +48,12 @@ public struct ZonePlan: Codable, Equatable, Sendable {
         if text.contains("enterprise") { return .enterprise }
         if text.contains("business") || text.contains("biz") { return .business }
         if text.contains("pro") { return .pro }
+        if text.contains("free") { return .free }
         return .free
     }
 }
 
-public struct ZoneAccount: Codable, Equatable, Sendable {
+public struct ZoneAccount: Codable, Equatable, Hashable, Sendable {
     public let id: String
     public let name: String?
     
@@ -62,7 +63,7 @@ public struct ZoneAccount: Codable, Equatable, Sendable {
     }
 }
 
-public struct Zone: Codable, Identifiable, Equatable, Sendable {
+public struct Zone: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let account: ZoneAccount?
     public let id: String
     public let name: String

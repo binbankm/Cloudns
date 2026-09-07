@@ -18,24 +18,20 @@ struct TurnstileWidgetsView: View {
     var body: some View {
         List {
             if !viewModel.widgets.isEmpty {
-                Section(header: Text("Active Widgets (\(viewModel.widgets.count))")) {
+                Section("Active Widgets (\(viewModel.widgets.count))") {
                     ForEach(viewModel.widgets) { widget in
                         NavigationLink(destination: TurnstileDetailView(widget: widget, viewModel: viewModel)) {
                             TurnstileWidgetRowView(widget: widget)
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = widget.sitekey
-                                ToastManager.shared.showCopied("Sitekey Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(widget.sitekey, toast: "Sitekey Copied")
                             } label: {
                                 Label("Copy Sitekey", systemImage: "doc.on.doc")
                             }
                             
                             Button {
-                                UIPasteboard.general.string = widget.name
-                                ToastManager.shared.showCopied("Widget Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(widget.name, toast: "Widget Name Copied")
                             } label: {
                                 Label("Copy Name", systemImage: "tag")
                             }
@@ -43,7 +39,7 @@ struct TurnstileWidgetsView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 widgetToDelete = widget
                                 showingDeleteAlert = true
                             } label: {
@@ -52,19 +48,30 @@ struct TurnstileWidgetsView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 widgetToDelete = widget
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Turnstile Widgets…",
+            isEmpty: viewModel.hasFetchedData && viewModel.widgets.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Turnstile Widgets",
+            emptyDescription: "You haven't created any Turnstile captcha widgets in this account yet.",
+            emptyActionTitle: "Add Widget",
+            emptyAction: { showingCreateSheet = true },
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchWidgets() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Turnstile")
         .navigationBarTitleDisplayMode(.inline)
@@ -76,12 +83,10 @@ struct TurnstileWidgetsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create Turnstile Widget")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
             CreateTurnstileWidgetSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Turnstile Widget", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: widgetToDelete) { widget in
             Button("Delete '\(widget.name)'", role: .destructive) {
@@ -89,9 +94,9 @@ struct TurnstileWidgetsView: View {
                     do {
                         try await viewModel.deleteWidget(sitekey: widget.sitekey)
                         ToastManager.shared.showSuccess("Widget Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     } catch {
-                        HIGFeedback.error()
+                        HapticManager.notification(.error)
                     }
                 }
             }
@@ -101,32 +106,6 @@ struct TurnstileWidgetsView: View {
         }
         .refreshable {
             await viewModel.fetchWidgets()
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Turnstile Widgets…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.widgets.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchWidgets() }
-                            }
-                        )
-                    )
-                } else if viewModel.widgets.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Turnstile Widgets",
-                            systemImage: "checkmark.shield.fill",
-                            description: "You haven't created any Turnstile captcha widgets in this account yet.",
-                            actionTitle: "Add Widget",
-                            action: { showingCreateSheet = true }
-                        )
-                    )
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -142,25 +121,30 @@ struct TurnstileWidgetRowView: View {
     let widget: TurnstileWidget
     
     var body: some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
-            ListRowIcon(icon: "checkmark.shield.fill", color: HIGColors.success)
+        HStack(spacing: 12) {
+            ListRowIcon(icon: "checkmark.shield.fill", color: .green)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(widget.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text("Sitekey: \(widget.sitekey)")
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             
             Spacer()
             
-            HIGBadge(.custom(color: .blue, text: (widget.mode ?? "managed").capitalized), isCompact: true)
+            Text((widget.mode ?? "managed").capitalized)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.blue)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.blue.opacity(0.12)))
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -181,22 +165,26 @@ struct CreateTurnstileWidgetSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Widget Details")) {
+                Section("Widget Details") {
                     TextField("Widget Name (e.g. Login Page)", text: $name)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .submitLabel(.next)
                 }
                 
-                Section(header: Text("Allowed Domains"), footer: Text("Comma or newline separated list of hostnames (e.g. example.com, app.example.com).")) {
+                Section {
                     TextField("example.com, app.example.com", text: $domainsText)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
+                } header: {
+                    Text("Allowed Domains")
+                } footer: {
+                    Text("Comma or newline separated list of hostnames (e.g. example.com, app.example.com).")
                 }
                 
-                Section(header: Text("Verification Mode")) {
+                Section("Verification Mode") {
                     Picker("Mode", selection: $mode) {
                         ForEach(modes, id: \.self) { m in
                             Text(m.capitalized).tag(m)
@@ -208,8 +196,8 @@ struct CreateTurnstileWidgetSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -220,7 +208,6 @@ struct CreateTurnstileWidgetSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -237,18 +224,17 @@ struct CreateTurnstileWidgetSheetView: View {
                                     domains: domains,
                                     mode: mode
                                 )
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Turnstile Widget Created", icon: "checkmark.shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || domainsText.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

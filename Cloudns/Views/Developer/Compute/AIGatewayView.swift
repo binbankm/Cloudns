@@ -25,9 +25,7 @@ struct AIGatewayView: View {
                         }
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = gw.id
-                                ToastManager.shared.showCopied("Gateway ID Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(gw.id, toast: "Gateway ID Copied")
                             } label: {
                                 Label("Copy Gateway ID", systemImage: "doc.on.doc")
                             }
@@ -37,20 +35,20 @@ struct AIGatewayView: View {
                             Button(role: .destructive) {
                                 gatewayToDelete = gw
                                 showingDeleteAlert = true
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                             } label: {
                                 Label("Delete Gateway", systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 gatewayToDelete = gw
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
@@ -73,24 +71,22 @@ struct AIGatewayView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Create AI Gateway")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
             AIGatewayCreateSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete AI Gateway", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: gatewayToDelete) { gw in
             Button("Delete '\(gw.name ?? gw.id)'", role: .destructive) {
-                HIGFeedback.impact(.medium)
+                HapticManager.impact(.medium)
                 Task {
                     do {
                         try await viewModel.deleteGateway(id: gw.id)
                         ToastManager.shared.showSuccess("Gateway Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                     } catch {
                         ToastManager.shared.showError("Failed to Delete Gateway")
-                        HIGFeedback.error()
+                        HapticManager.notification(.error)
                     }
                 }
             }
@@ -101,34 +97,20 @@ struct AIGatewayView: View {
         .refreshable {
             await viewModel.fetchGateways()
         }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading AI Gateways…"))
-            } else if viewModel.hasFetchedData {
-                if let errorMessage = viewModel.errorMessage, viewModel.gateways.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(errorMessage),
-                            retryAction: {
-                                Task { await viewModel.fetchGateways() }
-                            }
-                        )
-                    )
-                } else if viewModel.gateways.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No AI Gateways",
-                            systemImage: "brain.head.profile",
-                            description: "Create an AI Gateway to observe, cache, and manage your AI API traffic.",
-                            actionTitle: "Create Gateway",
-                            action: { showingCreateSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredGateways.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading AI Gateways…",
+            isEmpty: viewModel.hasFetchedData && viewModel.gateways.isEmpty,
+            emptyTitle: "No AI Gateways",
+            emptySystemImage: "brain.head.profile",
+            emptyDescription: "Create an AI Gateway to observe, cache, and manage your AI API traffic.",
+            emptyActionTitle: "Create Gateway",
+            emptyAction: { showingCreateSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredGateways.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: (viewModel.hasFetchedData && viewModel.gateways.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            retryAction: { Task { await viewModel.fetchGateways() } }
+        )
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchGateways()
@@ -138,26 +120,31 @@ struct AIGatewayView: View {
     
     @ViewBuilder
     private func gatewayRow(_ gw: AIGateway) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "brain.head.profile", color: .pink)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(gw.name ?? gw.id)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text(gw.id)
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             if gw.collectLogs == true {
-                HIGBadge(.active, isCompact: true)
+                Text("Active")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.green.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -179,17 +166,17 @@ struct AIGatewayCreateSheetView: View {
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -201,7 +188,6 @@ struct AIGatewayCreateSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -211,17 +197,16 @@ struct AIGatewayCreateSheetView: View {
                             do {
                                 try await viewModel.createGateway(id: gatewayId.trimmingCharacters(in: .whitespaces))
                                 ToastManager.shared.showSuccess("Gateway Created", icon: "brain.head.profile")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
                     }
                     .disabled(gatewayId.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

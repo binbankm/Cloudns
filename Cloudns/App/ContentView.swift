@@ -16,6 +16,7 @@ struct ContentView: View {
     @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     @ObservedObject private var router = DeepLinkRouter.shared
     @ObservedObject private var themeManager = ThemeManager.shared
@@ -43,7 +44,7 @@ struct ContentView: View {
                         router.activeDestination = nil
                         tabViewResetId = UUID()
                     }
-                    .onChange(of: selectedTab) { _ in HIGFeedback.selection() }
+                    .onChange(of: selectedTab) { _ in HapticManager.selection() }
                     .overlay(alignment: .top) {
                         if !networkMonitor.isConnected {
                             HStack(spacing: 6) {
@@ -58,17 +59,17 @@ struct ContentView: View {
                             .background(Capsule().fill(Color.orange.opacity(0.92)))
                             .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
                             .padding(.top, 4)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                         }
                     }
-                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
+                    .animation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.8), value: networkMonitor.isConnected)
                     .overlay {
                         if isAppLockEnabled {
                             let shouldMask = !authManager.isUnlocked || scenePhase != .active
                             
                             ZStack {
                                 Rectangle()
-                                    .fill(.ultraThinMaterial)
+                                    .fill(.regularMaterial)
                                     .ignoresSafeArea()
                                 
                                 Image(systemName: "lock.shield.fill")
@@ -78,23 +79,23 @@ struct ContentView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if !authManager.isUnlocked {
-                                    HIGFeedback.impact(.light)
+                                    HapticManager.impact(.light)
                                     authManager.authenticate()
                                 }
                             }
                             .opacity(shouldMask ? 1 : 0)
                             .allowsHitTesting(!authManager.isUnlocked && scenePhase == .active)
-                            .animation(.easeInOut(duration: 0.15), value: shouldMask)
+                            .animation(reduceMotion ? .none : .easeInOut(duration: 0.15), value: shouldMask)
                         }
                     }
             } else {
                 LoginView()
             }
         }
-        .animation(.default, value: isLoggedIn)
-        .animation(.default, value: hasSeenOnboarding)
+        .animation(reduceMotion ? .none : .default, value: isLoggedIn)
+        .animation(reduceMotion ? .none : .default, value: hasSeenOnboarding)
         .overlay(alignment: .top) {
-            HIGToastOverlay()
+            ToastOverlay()
         }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
@@ -182,7 +183,7 @@ struct ContentView: View {
                     set: { newTab in
                         if let newTab {
                             selectedTab = newTab
-                            HIGFeedback.selection()
+                            HapticManager.selection()
                         }
                     }
                 )) {

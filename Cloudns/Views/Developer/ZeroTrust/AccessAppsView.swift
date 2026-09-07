@@ -19,7 +19,7 @@ struct AccessAppsView: View {
     var body: some View {
         List {
             if !viewModel.filteredApps.isEmpty {
-                Section(header: Text("Protected Applications (\(viewModel.apps.count))")) {
+                Section("Protected Applications (\(viewModel.apps.count))") {
                     ForEach(viewModel.filteredApps) { app in
                         NavigationLink(destination: AccessAppDetailView(accountId: accountId, app: app)) {
                             appRow(app)
@@ -27,17 +27,13 @@ struct AccessAppsView: View {
                         .contentShape(Rectangle())
                         .contextMenu {
                             Button {
-                                UIPasteboard.general.string = app.domain
-                                ToastManager.shared.showCopied("Domain Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(app.domain, toast: "Domain Copied")
                             } label: {
                                 Label("Copy Domain", systemImage: "doc.on.doc")
                             }
                             
                             Button {
-                                UIPasteboard.general.string = app.name
-                                ToastManager.shared.showCopied("App Name Copied")
-                                HIGFeedback.copied()
+                                copyToClipboard(app.name, toast: "App Name Copied")
                             } label: {
                                 Label("Copy App Name", systemImage: "tag")
                             }
@@ -45,7 +41,7 @@ struct AccessAppsView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 appToDelete = app
                                 showingDeleteAlert = true
                             } label: {
@@ -54,19 +50,32 @@ struct AccessAppsView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                HIGFeedback.impact(.medium)
+                                HapticManager.impact(.medium)
                                 appToDelete = app
                                 showingDeleteAlert = true
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            .tint(HIGColors.error)
+                            .tint(.red)
                         }
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Access Applications…",
+            isEmpty: viewModel.hasFetchedData && viewModel.apps.isEmpty && viewModel.errorMessage == nil,
+            emptyTitle: "No Access Applications",
+            emptyDescription: "Zero Trust Access secures self-hosted and SaaS applications with identity-driven policies.",
+            emptyActionTitle: "Add Application",
+            emptyAction: { showingAddSheet = true },
+            isSearchEmpty: viewModel.hasFetchedData && !viewModel.apps.isEmpty && viewModel.filteredApps.isEmpty && !viewModel.searchText.isEmpty,
+            searchQuery: viewModel.searchText,
+            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            retryAction: { Task { await viewModel.fetchApps() } }
+        )
         .scrollDismissesKeyboard(.interactively)
         .searchable(
             text: $viewModel.searchText,
@@ -83,19 +92,17 @@ struct AccessAppsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Access Application")
-                .higTouchTarget(44)
             }
         }
         .sheet(isPresented: $showingAddSheet) {
             AddAccessAppSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Application", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: appToDelete) { app in
             Button("Delete '\(app.name)'", role: .destructive) {
                 Task {
                     await viewModel.deleteApp(id: app.id)
                     ToastManager.shared.showSuccess("Application Deleted", icon: "trash.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -104,32 +111,6 @@ struct AccessAppsView: View {
         }
         .refreshable {
             await viewModel.fetchApps()
-        }
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Access Applications…"))
-            } else if viewModel.hasFetchedData {
-                if let err = viewModel.errorMessage, viewModel.apps.isEmpty {
-                    HIGContentState(
-                        .error(
-                            message: LocalizedStringKey(err),
-                            retryAction: { Task { await viewModel.fetchApps() } }
-                        )
-                    )
-                } else if viewModel.apps.isEmpty {
-                    HIGContentState(
-                        .empty(
-                            title: "No Access Applications",
-                            systemImage: "lock.shield.fill",
-                            description: "Zero Trust Access secures self-hosted and SaaS applications with identity-driven policies.",
-                            actionTitle: "Add Application",
-                            action: { showingAddSheet = true }
-                        )
-                    )
-                } else if viewModel.filteredApps.isEmpty && !viewModel.searchText.isEmpty {
-                    HIGContentState(.search(query: viewModel.searchText))
-                }
-            }
         }
         .task {
             if !viewModel.hasFetchedData {
@@ -140,26 +121,31 @@ struct AccessAppsView: View {
     
     @ViewBuilder
     private func appRow(_ app: AccessApp) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "lock.shield.fill", color: .blue)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(app.name)
-                    .font(HIGTypography.body.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                 
                 Text(app.domain)
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             if let type = app.type {
-                HIGBadge(.custom(color: .purple, text: type.capitalized), isCompact: true)
+                Text(type.capitalized)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.purple)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.purple.opacity(0.12)))
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -186,21 +172,21 @@ struct AddAccessAppSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Application Info")) {
+                Section("Application Info") {
                     TextField("App Name (e.g. Jira Internal)", text: $name)
-                        .font(HIGTypography.body)
+                        .font(.body)
                         .textInputAutocapitalization(.words)
                         .submitLabel(.next)
                     
                     TextField("Domain (e.g. jira.example.com)", text: $domain)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
                 
-                Section(header: Text("Session Settings")) {
+                Section("Session Settings") {
                     Picker("Session Duration", selection: $sessionDuration) {
                         ForEach(durationOptions, id: \.1) { label, value in
                             Text(verbatim: label).tag(value)
@@ -211,8 +197,8 @@ struct AddAccessAppSheetView: View {
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
-                            .font(HIGTypography.caption)
-                            .foregroundStyle(HIGColors.error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -223,7 +209,6 @@ struct AddAccessAppSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
@@ -236,19 +221,18 @@ struct AddAccessAppSheetView: View {
                                     domain: domain.trimmingCharacters(in: .whitespaces),
                                     sessionDuration: sessionDuration
                                 )
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 ToastManager.shared.showSuccess("Access App Created", icon: "lock.shield.fill")
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isCreating = false
                         }
                     }
                     .fontWeight(.semibold)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || domain.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isCreating)

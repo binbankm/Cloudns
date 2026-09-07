@@ -39,6 +39,12 @@ struct DNSExportSheetView: View {
     @State private var isLoading = true
     @State private var showingFileExporter = false
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
+    private var accentColor: Color {
+        themeManager.currentColor.color
+    }
+    
     private var contentLines: [String] {
         exportedContent.components(separatedBy: "\n")
     }
@@ -50,16 +56,27 @@ struct DNSExportSheetView: View {
                     Section {
                         HStack {
                             Spacer()
-                            ProgressView("Generating BIND Zone File…")
+                            VStack(spacing: 8) {
+                                ProgressView()
+                                Text("Generating BIND Zone File…")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                             Spacer()
                         }
-                        .padding(.vertical, HIGTokens.Spacing.lg)
+                        .padding(.vertical, 24)
                     }
                 } else {
                     // MARK: - Summary Section
                     Section(header: Text("Zone File Summary")) {
                         LabeledContent {
-                            HIGBadge(.active("\(records.count) Records"), isCompact: true)
+                            Text("\(records.count) Records")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.green.opacity(0.14))
+                                .foregroundStyle(.green)
+                                .clipShape(Capsule())
                         } label: {
                             Label("Zone Name", systemImage: "globe")
                         }
@@ -70,12 +87,10 @@ struct DNSExportSheetView: View {
                     // MARK: - Export Actions
                     Section(header: Text("Actions")) {
                         Button {
-                            UIPasteboard.general.string = exportedContent
-                            ToastManager.shared.showCopied("BIND Zone File Copied")
-                            HIGFeedback.copied()
+                            copyToClipboard(exportedContent, toast: "BIND Zone File Copied")
                         } label: {
                             Label("Copy All Records", systemImage: "doc.on.doc")
-                                .foregroundStyle(Color.higAccent)
+                                .foregroundStyle(accentColor)
                         }
                         
                         if let url = exportedFileURL {
@@ -85,16 +100,16 @@ struct DNSExportSheetView: View {
                                 message: Text("Cloudflare BIND zone file exported via Cloudns")
                             ) {
                                 Label("Share Zone File", systemImage: "square.and.arrow.up")
-                                    .foregroundStyle(Color.higAccent)
+                                    .foregroundStyle(accentColor)
                             }
                         }
                         
                         Button {
-                            HIGFeedback.impact(.light)
+                            HapticManager.impact(.light)
                             showingFileExporter = true
                         } label: {
                             Label("Save to Files", systemImage: "folder")
-                                .foregroundStyle(Color.higAccent)
+                                .foregroundStyle(accentColor)
                         }
                     }
                     
@@ -104,28 +119,28 @@ struct DNSExportSheetView: View {
                             Text("Zone File Content")
                             Spacer()
                             Text("\(contentLines.count) lines")
-                                .font(HIGTypography.caption2.monospacedDigit())
+                                .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         },
                         footer: Text("Standard RFC 1035 format. Text wraps naturally without horizontal overflow.")
                     ) {
                         ScrollView(.vertical, showsIndicators: true) {
-                            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 ForEach(Array(contentLines.enumerated()), id: \.offset) { idx, line in
-                                    HStack(alignment: .top, spacing: HIGTokens.Spacing.sm) {
+                                    HStack(alignment: .top, spacing: 8) {
                                         Text("\(idx + 1)")
-                                            .font(HIGTypography.caption2.monospacedDigit())
+                                            .font(.caption2.monospacedDigit())
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)
                                         
                                         Text(verbatim: line)
-                                            .font(HIGTypography.caption.monospaced())
+                                            .font(.caption.monospaced())
                                             .foregroundStyle(lineColor(for: line))
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
                                 }
                             }
-                            .padding(.vertical, HIGTokens.Spacing.sm)
+                            .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .frame(height: 300)
@@ -141,6 +156,8 @@ struct DNSExportSheetView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(accentColor)
                 }
             }
             .task {
@@ -155,14 +172,13 @@ struct DNSExportSheetView: View {
                 switch result {
                 case .success:
                     ToastManager.shared.showSuccess("Zone File Saved", icon: "folder.fill")
-                    HIGFeedback.success()
+                    HapticManager.notification(.success)
                 case .failure:
                     ToastManager.shared.showError("Failed to Save File")
-                    HIGFeedback.error()
+                    HapticManager.notification(.error)
                 }
             }
         }
-        .higToast()
     }
     
     private func lineColor(for line: String) -> Color {

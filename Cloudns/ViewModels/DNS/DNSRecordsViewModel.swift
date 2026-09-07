@@ -199,7 +199,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
                 records[idx] = updatedRecord
             }
-            ToastManager.shared.showSuccess(newProxied ? "Proxy Enabled (Orange Cloud ☁️)" : "Proxy Disabled (DNS Only)", icon: "shield.lefthalf.filled")
+            ToastManager.shared.showSuccess(newProxied ? LocalizedStringKey("Proxy Enabled (Orange Cloud ☁️)") : LocalizedStringKey("Proxy Disabled (DNS Only)"), icon: "shield.lefthalf.filled")
         } catch {
             // Rollback on error
             if let idx = records.firstIndex(where: { $0.id == record.id }) {

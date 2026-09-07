@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Pages Models
 
-public struct PagesProject: Codable, Identifiable, Equatable, Sendable {
+public struct PagesProject: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let name: String
     public let subdomain: String?
@@ -12,6 +12,10 @@ public struct PagesProject: Codable, Identifiable, Equatable, Sendable {
     public let buildConfig: PagesBuildConfig?
     public let source: PagesProjectSource?
     public let deploymentConfigs: PagesDeploymentConfigs?
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, name, subdomain, domains

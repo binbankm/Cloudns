@@ -20,7 +20,7 @@ final class CloudflareStatusViewModel: BaseLoadableViewModel {
             self.hasFetchedData = true
             let snap = CFStatusWidgetSnapshot(
                 indicator: res.status?.indicator ?? "none",
-                description: res.status?.description ?? "All Systems Operational",
+                description: res.status?.description ?? String(localized: "All Systems Operational"),
                 activeIncidentsCount: res.incidents?.count ?? 0,
                 latestIncidentTitle: res.incidents?.first?.name,
                 lastUpdated: Date()

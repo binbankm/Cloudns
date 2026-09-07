@@ -24,10 +24,7 @@ struct R2BucketSettingsView: View {
         List {
             if viewModel.hasFetchedData {
                 // MARK: - r2.dev Managed Domain
-                Section(
-                    header: Text("Public Access (r2.dev)"),
-                    footer: Text("Allows public read access to objects in this bucket using a Cloudflare-managed r2.dev subdomain.")
-                ) {
+                Section {
                     Toggle("Enable r2.dev Subdomain", isOn: Binding(
                         get: { viewModel.isManagedDomainEnabled },
                         set: { newValue in
@@ -38,33 +35,32 @@ struct R2BucketSettingsView: View {
                     if viewModel.isManagedDomainEnabled, let domain = viewModel.managedDomain?.domain {
                         HStack {
                             Text("Public URL")
-                                .font(HIGTypography.subheadline)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text("https://\(domain)")
-                                .font(HIGTypography.caption.monospaced())
-                                .foregroundStyle(Color.higAccent)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.blue)
                         }
                     }
+                } header: {
+                    Text("Public Access (r2.dev)")
+                } footer: {
+                    Text("Allows public read access to objects in this bucket using a Cloudflare-managed r2.dev subdomain.")
                 }
                 
                 // MARK: - Custom Domains
-                Section(
-                    header: Text("Connected Custom Domains (\(viewModel.customDomains.count))"),
-                    footer: Text("Custom domains configured for public bucket access.")
-                ) {
+                Section {
                     if viewModel.customDomains.isEmpty {
                         Text("No custom domains connected.")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.customDomains) { domain in
                             customDomainRow(domain)
                                 .contextMenu {
                                     Button {
-                                        UIPasteboard.general.string = domain.domain
-                                        ToastManager.shared.showCopied("Domain Copied")
-                                        HIGFeedback.copied()
+                                        copyToClipboard(domain.domain, toast: "Domain Copied")
                                     } label: {
                                         Label("Copy Domain", systemImage: "doc.on.doc")
                                     }
@@ -74,7 +70,7 @@ struct R2BucketSettingsView: View {
                                     Button(role: .destructive) {
                                         domainToDelete = domain
                                         showingDeleteDomainConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete Custom Domain", systemImage: "trash")
                                     }
@@ -83,24 +79,25 @@ struct R2BucketSettingsView: View {
                                     Button(role: .destructive) {
                                         domainToDelete = domain
                                         showingDeleteDomainConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(HIGColors.error)
+                                    .tint(.red)
                                 }
                         }
                     }
+                } header: {
+                    Text("Connected Custom Domains (\(viewModel.customDomains.count))")
+                } footer: {
+                    Text("Custom domains configured for public bucket access.")
                 }
                 
                 // MARK: - CORS Rules
-                Section(
-                    header: Text("CORS Rules (\(viewModel.corsRules.count))"),
-                    footer: Text("Cross-Origin Resource Sharing rules for browser requests.")
-                ) {
+                Section {
                     if viewModel.corsRules.isEmpty {
                         Text("No CORS rules configured.")
-                            .font(HIGTypography.subheadline)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(viewModel.corsRules.enumerated()), id: \.offset) { index, rule in
@@ -109,7 +106,7 @@ struct R2BucketSettingsView: View {
                                     Button(role: .destructive) {
                                         corsIndexToDelete = index
                                         showingDeleteCORSConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete CORS Rule", systemImage: "trash")
                                     }
@@ -118,28 +115,30 @@ struct R2BucketSettingsView: View {
                                     Button(role: .destructive) {
                                         corsIndexToDelete = index
                                         showingDeleteCORSConfirm = true
-                                        HIGFeedback.impact(.medium)
+                                        HapticManager.impact(.medium)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(HIGColors.error)
+                                    .tint(.red)
                                 }
                         }
                     }
+                } header: {
+                    Text("CORS Rules (\(viewModel.corsRules.count))")
+                } footer: {
+                    Text("Cross-Origin Resource Sharing rules for browser requests.")
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .overlay {
-            if !viewModel.hasFetchedData && viewModel.isLoading {
-                HIGContentState(.loading(message: "Loading Bucket Settings…"))
-            }
-        }
+        .listState(
+            isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
+            loadingMessage: "Loading Bucket Settings…"
+        )
         .navigationTitle("Bucket Settings")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddCORSSheet) {
             AddCORSRuleSheetView(viewModel: viewModel)
-                .higToast()
         }
         .confirmationDialog("Delete Custom Domain", isPresented: $showingDeleteDomainConfirm, titleVisibility: .visible) {
             if let domain = domainToDelete {
@@ -147,7 +146,7 @@ struct R2BucketSettingsView: View {
                     Task {
                         await viewModel.deleteCustomDomain(domain: domain.domain)
                         ToastManager.shared.showSuccess("Custom Domain Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         domainToDelete = nil
                     }
                 }
@@ -164,7 +163,7 @@ struct R2BucketSettingsView: View {
                     Task {
                         await viewModel.deleteCORSRule(at: idx)
                         ToastManager.shared.showSuccess("CORS Rule Deleted", icon: "trash.fill")
-                        HIGFeedback.success()
+                        HapticManager.notification(.success)
                         corsIndexToDelete = nil
                     }
                 }
@@ -183,7 +182,6 @@ struct R2BucketSettingsView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add CORS Rule")
-                .higTouchTarget(44)
             }
         }
         .refreshable {
@@ -198,20 +196,26 @@ struct R2BucketSettingsView: View {
     
     @ViewBuilder
     private func customDomainRow(_ domain: R2CustomDomain) -> some View {
-        HStack(spacing: HIGTokens.Spacing.md) {
+        HStack(spacing: 12) {
             ListRowIcon(icon: "globe", color: .blue)
             
-            VStack(alignment: .leading, spacing: HIGTokens.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(domain.domain)
-                    .font(HIGTypography.body)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: HIGTokens.Spacing.sm) {
-                    HIGBadge((domain.status?.lowercased() == "active") ? .active(domain.status?.capitalized ?? "Active") : .warning(domain.status?.capitalized ?? "Pending"), isCompact: true)
+                HStack(spacing: 8) {
+                    let isActive = domain.status?.lowercased() == "active"
+                    Text((domain.status ?? "Active").capitalized)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(isActive ? .green : .orange)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill((isActive ? Color.green : Color.orange).opacity(0.12)))
                     
                     if let zone = domain.zoneId {
                         Text("• \(zone)")
-                            .font(HIGTypography.caption2)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -219,36 +223,36 @@ struct R2BucketSettingsView: View {
             
             Spacer()
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
     
     @ViewBuilder
     private func corsRuleRow(_ rule: R2CORSRule) -> some View {
-        VStack(alignment: .leading, spacing: HIGTokens.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("Origins: \(rule.allowedOrigins.joined(separator: ", "))")
-                    .font(HIGTypography.body.weight(.semibold))
+                    .font(.body.weight(.semibold))
                 Spacer()
                 if let maxAge = rule.maxAgeSeconds {
                     Text("\(maxAge)s")
-                        .font(HIGTypography.caption2.monospacedDigit())
+                        .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
             }
             
             HStack {
                 Text("Methods: \(rule.allowedMethods.joined(separator: ", "))")
-                    .font(HIGTypography.caption.monospaced())
+                    .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
             
             if let headers = rule.allowedHeaders, !headers.isEmpty {
                 Text("Headers: \(headers.joined(separator: ", "))")
-                    .font(HIGTypography.caption2.monospaced())
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, HIGTokens.Spacing.xxs)
+        .padding(.vertical, 2)
     }
 }
 
@@ -269,15 +273,19 @@ struct AddCORSRuleSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Allowed Origins"), footer: Text("Comma-separated origins (e.g. https://example.com, *).")) {
+                Section {
                     TextField("https://example.com, *", text: $originsText)
-                        .font(HIGTypography.body.monospaced())
+                        .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                } header: {
+                    Text("Allowed Origins")
+                } footer: {
+                    Text("Comma-separated origins (e.g. https://example.com, *).")
                 }
                 
-                Section(header: Text("Allowed HTTP Methods")) {
+                Section("Allowed HTTP Methods") {
                     ForEach(allMethods, id: \.self) { method in
                         Toggle(method, isOn: Binding(
                             get: { allowedMethods.contains(method) },
@@ -292,20 +300,20 @@ struct AddCORSRuleSheetView: View {
                     }
                 }
                 
-                Section(header: Text("Max Age (Seconds)")) {
+                Section("Max Age (Seconds)") {
                     TextField("3600", text: $maxAgeText)
-                        .font(HIGTypography.body.monospacedDigit())
+                        .font(.body.monospacedDigit())
                         .keyboardType(.numberPad)
                 }
                 
                 if let err = errorMessage {
                     Section {
-                        HStack(spacing: HIGTokens.Spacing.sm) {
+                        HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(HIGColors.error)
+                                .foregroundStyle(.red)
                             Text(verbatim: err)
-                                .font(HIGTypography.caption)
-                                .foregroundStyle(HIGColors.error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -317,7 +325,6 @@ struct AddCORSRuleSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .higTouchTarget(44)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -336,17 +343,16 @@ struct AddCORSRuleSheetView: View {
                             let success = await viewModel.saveCORSRule(rule: rule)
                             if success {
                                 ToastManager.shared.showSuccess("CORS Rule Saved", icon: "lock.shield.fill")
-                                HIGFeedback.success()
+                                HapticManager.notification(.success)
                                 dismiss()
                             } else {
                                 ToastManager.shared.showError("Failed to Save CORS Rule")
-                                HIGFeedback.error()
+                                HapticManager.notification(.error)
                             }
                             isSaving = false
                         }
                     }
                     .disabled(allowedMethods.isEmpty || isSaving)
-                    .higTouchTarget(44)
                 }
             }
             .interactiveDismissDisabled(isSaving)
