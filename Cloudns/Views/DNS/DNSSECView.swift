@@ -25,21 +25,7 @@ struct DNSSECView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.green.opacity(0.18), Color.indigo.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "key.horizontal.fill")
-                            .font(.title.weight(.semibold))
-                            .foregroundStyle(Color.green)
-                    }
+                    HeroHeaderEmblemView(icon: "key.horizontal.fill", primaryColor: .green, secondaryColor: .indigo)
                     .padding(.top, 4)
                     
                     Text("DNSSEC")

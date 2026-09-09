@@ -210,15 +210,7 @@ public struct WorkerAnalyticsView: View {
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 22, height: 22)
-                    Image(systemName: icon)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(color)
-                }
-                .accessibilityHidden(true)
+                ListRowIcon(icon: icon, color: color, size: 24, cornerRadius: 6)
                 
                 Text(title)
                     .font(.caption.weight(.medium))

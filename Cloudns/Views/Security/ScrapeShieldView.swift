@@ -13,21 +13,7 @@ struct ScrapeShieldView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.purple.opacity(0.18), Color.pink.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "eye.slash.fill")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.purple)
-                    }
+                    HeroHeaderEmblemView(icon: "eye.slash.fill", primaryColor: .purple, secondaryColor: .pink)
                     .padding(.top, 4)
                     
                     Text("Scrape Shield")

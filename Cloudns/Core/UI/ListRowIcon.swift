@@ -22,13 +22,96 @@ public struct ListRowIcon: View {
     }
     
     public var body: some View {
-        Image(systemName: icon)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(color)
-            .frame(width: size, height: size)
-            .background(color.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .accessibilityHidden(true)
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(color.opacity(0.12))
+            
+            if icon == "github" || icon == "github.mark" {
+                Image("github")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(color)
+                    .frame(width: glyphBoxSize, height: glyphBoxSize, alignment: .center)
+            } else {
+                Image(systemName: icon)
+                    .font(iconFont)
+                    .foregroundStyle(color)
+                    .frame(width: glyphBoxSize, height: glyphBoxSize, alignment: .center)
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+    
+    private var glyphBoxSize: CGFloat {
+        if size >= 44 {
+            return 24
+        } else if size >= 32 {
+            return 18
+        } else if size >= 28 {
+            return 16
+        } else {
+            return 13
+        }
+    }
+    
+    private var iconFont: Font {
+        if size >= 44 {
+            return .system(size: 20, weight: .semibold)
+        } else if size >= 32 {
+            return .system(size: 16, weight: .semibold)
+        } else if size >= 28 {
+            return .system(size: 14.5, weight: .semibold)
+        } else {
+            return .system(size: 12, weight: .semibold)
+        }
+    }
+}
+
+// MARK: - HeroHeaderEmblemView (Sub-Page Floating Island Hero Emblem)
+
+public struct HeroHeaderEmblemView: View {
+    public let icon: String
+    public let primaryColor: Color
+    public var secondaryColor: Color?
+    public var size: CGFloat
+    
+    public init(
+        icon: String,
+        primaryColor: Color,
+        secondaryColor: Color? = nil,
+        size: CGFloat = 64
+    ) {
+        self.icon = icon
+        self.primaryColor = primaryColor
+        self.secondaryColor = secondaryColor
+        self.size = size
+    }
+    
+    public var body: some View {
+        let secColor = secondaryColor ?? primaryColor
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [primaryColor.opacity(0.18), secColor.opacity(0.10)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                        .stroke(primaryColor.opacity(0.20), lineWidth: 1)
+                )
+            
+            Image(systemName: icon)
+                .font(.system(size: size * 0.42, weight: .semibold))
+                .foregroundStyle(primaryColor)
+                .frame(width: size * 0.50, height: size * 0.50, alignment: .center)
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }
 

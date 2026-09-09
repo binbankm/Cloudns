@@ -14,21 +14,7 @@ struct NetworkCenterView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.blue.opacity(0.18), Color.cyan.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "globe.asia.australia.fill")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.blue)
-                    }
+                    HeroHeaderEmblemView(icon: "globe.asia.australia.fill", primaryColor: .blue, secondaryColor: .cyan)
                     .padding(.top, 4)
                     
                     Text("Network & Routing")

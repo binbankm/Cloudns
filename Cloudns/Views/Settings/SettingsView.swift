@@ -72,6 +72,11 @@ struct SettingsView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                } header: {
+                    Color.clear
+                        .frame(height: 10)
+                        .listRowInsets(EdgeInsets())
+                        .accessibilityHidden(true)
                 }
                 
                 // MARK: - Cloudflare Operations & Status
@@ -272,8 +277,8 @@ struct SettingsView: View {
                         }
                     }) {
                         SettingsRowView(
-                            icon: "chevron.left.forwardslash.chevron.right",
-                            color: .black,
+                            icon: "github",
+                            color: .primary,
                             title: "GitHub Repository"
                         )
                     }

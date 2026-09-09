@@ -22,21 +22,7 @@ struct CachingView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.blue.opacity(0.18), Color.teal.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "internaldrive.fill")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.blue)
-                    }
+                    HeroHeaderEmblemView(icon: "internaldrive.fill", primaryColor: .blue, secondaryColor: .teal)
                     .padding(.top, 4)
                     
                     Text("Caching")

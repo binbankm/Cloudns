@@ -29,22 +29,8 @@ struct EmailRoutingView: View {
     private var heroHeaderSection: some View {
         Section {
             VStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.orange.opacity(0.18), Color.yellow.opacity(0.12)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 64, height: 64)
-                    
-                    Image(systemName: "envelope.badge.shield.half.filled")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(.orange)
-                }
-                .padding(.top, 4)
+                HeroHeaderEmblemView(icon: "envelope.badge.shield.half.filled", primaryColor: .orange, secondaryColor: .yellow)
+                    .padding(.top, 4)
                 
                 Text("Email Routing")
                     .font(.title2.weight(.bold))

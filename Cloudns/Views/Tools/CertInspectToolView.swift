@@ -171,14 +171,10 @@ struct CertInspectToolView: View {
     private func chainRows(details: SSLCertDetails) -> some View {
         ForEach(Array(details.chainNames.enumerated()), id: \.offset) { index, name in
             HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill((index == 0 ? Color.green : Color.blue).opacity(0.12))
-                        .frame(width: 30, height: 30)
-                    Image(systemName: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(index == 0 ? .green : .blue)
-                }
+                ListRowIcon(
+                    icon: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"),
+                    color: index == 0 ? .green : .blue
+                )
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)

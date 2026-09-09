@@ -27,21 +27,7 @@ struct AdvancedZoneSettingsView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.gray.opacity(0.18), Color.secondary.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "gearshape.2.fill")
-                            .font(.title.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
+                    HeroHeaderEmblemView(icon: "gearshape.2.fill", primaryColor: .secondary, secondaryColor: .gray)
                     .padding(.top, 4)
                     
                     Text("Zone Management")

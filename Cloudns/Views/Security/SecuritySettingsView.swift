@@ -14,21 +14,7 @@ struct SecuritySettingsView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.red.opacity(0.18), Color.orange.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "shield.checkerboard")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Color.red)
-                    }
+                    HeroHeaderEmblemView(icon: "shield.checkerboard", primaryColor: .red, secondaryColor: .orange)
                     .padding(.top, 4)
                     
                     Text("Security Settings")

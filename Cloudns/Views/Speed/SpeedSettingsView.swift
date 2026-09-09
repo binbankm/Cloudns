@@ -13,21 +13,7 @@ struct SpeedSettingsView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.purple.opacity(0.18), Color.indigo.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "bolt.badge.clock.fill")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.purple)
-                    }
+                    HeroHeaderEmblemView(icon: "bolt.badge.clock.fill", primaryColor: .purple, secondaryColor: .indigo)
                     .padding(.top, 4)
                     
                     Text("Speed Optimization")

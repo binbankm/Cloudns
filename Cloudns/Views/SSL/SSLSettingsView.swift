@@ -12,21 +12,7 @@ struct SSLSettingsView: View {
             // MARK: - Hero Header
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.green.opacity(0.18), Color.teal.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "lock.shield.fill")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.green)
-                    }
+                    HeroHeaderEmblemView(icon: "lock.shield.fill", primaryColor: .green, secondaryColor: .teal)
                     .padding(.top, 4)
                     
                     Text("SSL / TLS Encryption")

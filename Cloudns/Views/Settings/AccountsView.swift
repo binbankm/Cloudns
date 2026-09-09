@@ -60,14 +60,7 @@ struct AccountsView: View {
                         isShowingAddAccount = true
                     } label: {
                         HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(accentColor.opacity(0.12))
-                                    .frame(width: 36, height: 36)
-                                Image(systemName: "person.badge.plus")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(accentColor)
-                            }
+                            ListRowIcon(icon: "person.badge.plus", color: accentColor)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Add Another Account")

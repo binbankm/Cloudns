@@ -212,15 +212,7 @@ struct ZoneAnalyticsView: View {
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 24, height: 24)
-                    Image(systemName: icon)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(color)
-                }
-                .accessibilityHidden(true)
+                ListRowIcon(icon: icon, color: color, size: 24, cornerRadius: 6)
                 
                 Text(title)
                     .font(.caption.weight(.medium))
