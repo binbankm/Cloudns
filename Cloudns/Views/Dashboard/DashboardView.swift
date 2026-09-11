@@ -12,7 +12,7 @@ struct DashboardView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     private var accentColor: Color {
-        themeManager.currentColor.color
+        themeManager.accentColor
     }
     
     var body: some View {
@@ -417,14 +417,7 @@ struct DashboardView: View {
                             ZoneDetailView(zone: zone)
                         } label: {
                             HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(AccountAvatarView.color(for: zone.name).opacity(0.14))
-                                        .frame(width: 36, height: 36)
-                                    Image(systemName: "globe")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(AccountAvatarView.color(for: zone.name))
-                                }
+                                AccountAvatarView(identifier: zone.name, size: 36, showShadow: false)
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(verbatim: zone.name)

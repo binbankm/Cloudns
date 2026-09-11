@@ -72,6 +72,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
                 let (fetchedZones, resultInfo) = try await self.zoneService.getZones(page: currentPage, perPage: 50, name: nil, status: nil)
                 self.zones.append(contentsOf: fetchedZones)
                 self.fetchBatchSparklines(for: fetchedZones)
+                await SWRCacheStore.shared.set(self.zones, forKey: SWRCacheStore.accountScopedKey("cloudflare_zones_list"))
                 if let info = resultInfo, info.page < info.totalPages {
                     self.canLoadMore = true
                     self.currentPage += 1
@@ -119,13 +120,15 @@ final class ZonesViewModel: BaseLoadableViewModel {
         addZoneError = nil
         do {
             let accounts = try await zoneService.getAccounts()
-            guard let firstAccount = accounts.first else {
+            let activeAccountId = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountId)
+            let targetAccount = accounts.first(where: { $0.id == activeAccountId }) ?? accounts.first
+            guard let account = targetAccount else {
                 addZoneError = "No Cloudflare account found."
                 isAddingZone = false
                 return nil
             }
             
-            let zone = try await zoneService.createZone(name: name, accountId: firstAccount.id, jumpStart: false)
+            let zone = try await zoneService.createZone(name: name, accountId: account.id, jumpStart: false)
             NotificationCenter.default.post(name: .zoneCreated, object: nil, userInfo: ["zone": zone])
             await fetchZones(isRefresh: true)
             isAddingZone = false

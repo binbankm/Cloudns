@@ -41,8 +41,8 @@ struct SettingsView: View {
                                     .font(.caption2.weight(.medium))
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color.orange.opacity(0.14))
-                                    .foregroundStyle(.orange)
+                                    .background(themeManager.accentColor.opacity(0.14))
+                                    .foregroundStyle(themeManager.accentColor)
                                     .clipShape(Capsule())
                                 
                                 if accountManager.activeEmail.isEmpty {
@@ -164,13 +164,13 @@ struct SettingsView: View {
                         HStack {
                             SettingsRowView(
                                 icon: "paintpalette.fill",
-                                color: themeManager.currentColor.color,
+                                color: themeManager.accentColor,
                                 title: "Theme Color"
                             )
                             Spacer()
                             HStack(spacing: 6) {
                                 Circle()
-                                    .fill(themeManager.currentColor.color)
+                                    .fill(themeManager.accentColor)
                                     .frame(width: 10, height: 10)
                                 Text(themeManager.currentColor.displayName)
                                     .font(.subheadline)
@@ -346,6 +346,7 @@ struct SettingsView: View {
                     .presentationDragIndicator(.visible)
             }
         }
+        .tint(themeManager.accentColor)
     }
     
     // MARK: - Version Footer

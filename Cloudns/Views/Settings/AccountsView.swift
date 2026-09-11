@@ -13,7 +13,7 @@ struct AccountsView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     private var accentColor: Color {
-        themeManager.currentColor.color
+        themeManager.accentColor
     }
     
     var body: some View {
@@ -172,8 +172,8 @@ struct AccountsView: View {
                         .font(.caption2.weight(.medium))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.14))
-                        .foregroundStyle(.orange)
+                        .background(accentColor.opacity(0.14))
+                        .foregroundStyle(accentColor)
                         .clipShape(Capsule())
                 }
             }

@@ -15,7 +15,7 @@ struct WhoisToolView: View {
             Section {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
                     
                     TextField("example.com", text: $viewModel.domainInput)
@@ -55,8 +55,8 @@ struct WhoisToolView: View {
                                     .font(.caption.weight(.medium).monospacedDigit())
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 5)
-                                    .background(Color.blue.opacity(0.12))
-                                    .foregroundStyle(.blue)
+                                    .background(ThemeManager.shared.accentColor.opacity(0.12))
+                                    .foregroundStyle(ThemeManager.shared.accentColor)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -157,10 +157,10 @@ struct WhoisToolView: View {
             if let reg = info.registrar {
                 Text(reg)
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(ThemeManager.shared.accentColor)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.blue.opacity(0.12)))
+                    .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
             }
         }
         .contextMenu {
@@ -225,7 +225,7 @@ struct WhoisToolView: View {
         ForEach(info.statuses, id: \.self) { status in
             HStack(spacing: 8) {
                 Circle()
-                    .fill(Color.blue)
+                    .fill(ThemeManager.shared.accentColor)
                     .frame(width: 6, height: 6)
                 Text(verbatim: status)
                     .font(.caption.monospacedDigit())
@@ -241,7 +241,7 @@ struct WhoisToolView: View {
             HStack {
                 Image(systemName: "server.rack")
                     .font(.caption)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(ThemeManager.shared.accentColor)
                     .accessibilityHidden(true)
                 Text(verbatim: ns.lowercased())
                     .font(.subheadline.monospacedDigit())

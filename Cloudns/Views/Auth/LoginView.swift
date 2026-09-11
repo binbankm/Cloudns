@@ -21,7 +21,7 @@ struct LoginView: View {
     var onLoginSuccess: (() -> Void)?
     
     private var accentColor: Color {
-        themeManager.currentColor.color
+        themeManager.accentColor
     }
     
     var body: some View {
@@ -35,7 +35,7 @@ struct LoginView: View {
                 
                 ZStack {
                     Circle()
-                        .fill(Color.orange.opacity(0.12))
+                        .fill(accentColor.opacity(0.12))
                         .frame(width: w * 0.85, height: w * 0.85)
                         .blur(radius: 60)
                         .offset(x: -w * 0.2, y: -w * 0.35)
@@ -209,14 +209,21 @@ struct LoginView: View {
                                     Spacer()
                                     
                                     if viewModel.apiKey.isEmpty {
-                                        Button("Paste") {
+                                        Button {
                                             if let clip = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !clip.isEmpty {
                                                 viewModel.apiKey = clip
                                                 HapticManager.notification(.success)
                                             }
+                                        } label: {
+                                            Text("Paste")
+                                                .font(.caption2.weight(.semibold))
+                                                .foregroundStyle(accentColor)
+                                                .padding(.horizontal, 6)
+                                                .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                                                .contentShape(Rectangle())
                                         }
-                                        .font(.caption2.weight(.semibold))
-                                        .foregroundStyle(accentColor)
+                                        .buttonStyle(.plain)
+                                        .accessibilityLabel("Paste API Key from Clipboard")
                                     }
                                 }
                                 

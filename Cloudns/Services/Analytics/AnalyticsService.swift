@@ -216,7 +216,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             """
         } else {
             let pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
-            let dateString = DateFormatters.yearMonthDay.string(from: pastDate)
+            let dateString = DateFormatters.formatYearMonthDay(pastDate)
             
             query = """
             query {

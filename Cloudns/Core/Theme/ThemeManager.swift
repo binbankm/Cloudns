@@ -1,46 +1,53 @@
 import SwiftUI
 import Combine
 
-// MARK: - App Theme Manager
+// MARK: - App Theme Manager (SwiftUI Native)
 
 @MainActor
 public final class ThemeManager: ObservableObject {
     public static let shared = ThemeManager()
     
-    @AppStorage(AppStorageKey.themeColor)
-    private var storedColorKey: String = AppThemeColor.orange.rawValue
+    @Published public var currentColor: AppThemeColor = .orange {
+        didSet {
+            UserDefaults.standard.set(currentColor.rawValue, forKey: AppStorageKey.themeColor)
+        }
+    }
     
-    @AppStorage("custom_theme_color_hex")
-    private var storedCustomHex: String = "#F38020"
+    @Published public var customColor: Color = .orange {
+        didSet {
+            if let hex = customColor.toHex() {
+                UserDefaults.standard.set(hex, forKey: "custom_theme_color_hex")
+            }
+        }
+    }
     
-    @Published public var currentColor: AppThemeColor = .orange
-    @Published public var customColor: Color = .orange
+    public var accentColor: Color {
+        currentColor == .custom ? customColor : currentColor.presetColor
+    }
+    
+    public var accentUIColor: UIColor {
+        UIColor(accentColor)
+    }
     
     private init() {
-        let hexColor = Color(hex: storedCustomHex)
-        self.customColor = hexColor
+        let storedCustomHex = UserDefaults.standard.string(forKey: "custom_theme_color_hex") ?? "#F38020"
+        self.customColor = Color(hex: storedCustomHex)
         
-        if let theme = AppThemeColor(rawValue: storedColorKey) {
-            self.currentColor = theme
-        } else {
-            self.currentColor = .orange
-        }
+        let storedColorKey = UserDefaults.standard.string(forKey: AppStorageKey.themeColor) ?? AppThemeColor.orange.rawValue
+        self.currentColor = AppThemeColor(rawValue: storedColorKey) ?? .orange
     }
     
     public func setThemeColor(_ theme: AppThemeColor) {
         guard currentColor != theme else { return }
         HapticManager.selection()
         currentColor = theme
-        storedColorKey = theme.rawValue
     }
     
     public func setCustomColor(_ color: Color) {
         customColor = color
-        if let hex = color.toHex() {
-            storedCustomHex = hex
+        if currentColor != .custom {
+            currentColor = .custom
         }
-        currentColor = .custom
-        storedColorKey = AppThemeColor.custom.rawValue
     }
 }
 

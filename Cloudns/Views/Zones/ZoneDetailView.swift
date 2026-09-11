@@ -329,8 +329,8 @@ struct ZoneNavRowView<Destination: View>: View {
                                 .font(.caption2.weight(.bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange.opacity(0.14))
-                                .foregroundStyle(.orange)
+                                .background(ThemeManager.shared.accentColor.opacity(0.14))
+                                .foregroundStyle(ThemeManager.shared.accentColor)
                                 .clipShape(Capsule())
                         }
                     }

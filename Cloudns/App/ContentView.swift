@@ -99,7 +99,8 @@ struct ContentView: View {
         }
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
-        .tint(themeManager.currentColor.color)
+        .tint(themeManager.accentColor)
+        .accentColor(themeManager.accentColor)
         .monospacedDigit()
         .id(appLanguage)
         .onAppear {
@@ -167,7 +168,8 @@ struct ContentView: View {
             }
             .environment(\.locale, currentLocale)
             .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
-            .tint(themeManager.currentColor.color)
+            .tint(themeManager.accentColor)
+            .accentColor(themeManager.accentColor)
             .monospacedDigit()
         }
     }
@@ -212,9 +214,12 @@ struct ContentView: View {
                 }
                 .listStyle(.sidebar)
                 .navigationTitle("Cloudns")
+                .tint(themeManager.accentColor)
             } detail: {
                 detailViewForTab(selectedTab)
             }
+            .tint(themeManager.accentColor)
+            .accentColor(themeManager.accentColor)
         } else {
             TabView(selection: $selectedTab) {
                 DashboardView()
@@ -247,6 +252,8 @@ struct ContentView: View {
                     }
                     .tag(AppTab.settings)
             }
+            .tint(themeManager.accentColor)
+            .accentColor(themeManager.accentColor)
         }
     }
     

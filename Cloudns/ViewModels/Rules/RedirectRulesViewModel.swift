@@ -25,6 +25,7 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
+            self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             return false
         }
     }
@@ -49,6 +50,7 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
+            self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             return false
         }
     }

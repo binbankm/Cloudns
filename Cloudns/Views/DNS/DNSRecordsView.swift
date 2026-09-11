@@ -396,7 +396,7 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.orange)
+            .tint(ThemeManager.shared.accentColor)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {

@@ -161,10 +161,10 @@ struct CFTraceToolView: View {
                     if let c = colo {
                         Text(c)
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(ThemeManager.shared.accentColor)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.orange.opacity(0.12)))
+                            .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                     }
                 }
                 

@@ -399,7 +399,7 @@ public struct PagesAnalyticsView: View {
                         .fill(Color.clear)
                         .contentShape(Rectangle())
                         .gesture(
-                            DragGesture(minimumDistance: 0)
+                            DragGesture(minimumDistance: 10)
                                 .onChanged { value in
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x

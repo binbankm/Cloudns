@@ -51,7 +51,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
     private var currentPage = 1
     private var totalPages = 1
     var canLoadMore: Bool {
-        currentPage < totalPages
+        currentPage <= totalPages
     }
     
     private let zoneId: String
@@ -91,7 +91,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         }
         
         guard !isLoading else { return }
-        if !isRefresh && !canLoadMore && !records.isEmpty { return }
         
         await executeLoadingTask(clearError: isRefresh) {
             let (newRecords, resultInfo) = try await self.dnsService.getDNSRecords(
@@ -109,6 +108,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 await SWRCacheStore.shared.set(newRecords, forKey: scopedKey)
             } else {
                 self.records.append(contentsOf: newRecords)
+                await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
             }
             
             if let info = resultInfo {
@@ -130,6 +130,8 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         totalCount = max(0, totalCount - ids.count)
         
         Task {
+            let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+            await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
             do {
                 try await self.dnsService.batchDNSRecords(zoneId: self.zoneId, deletes: Array(ids))
             } catch {
@@ -148,6 +150,8 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         self.totalCount = max(0, self.totalCount - idsToDelete.count)
         
         Task {
+            let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+            await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
             do {
                 try await self.dnsService.batchDNSRecords(zoneId: self.zoneId, deletes: idsToDelete)
             } catch {
@@ -161,12 +165,16 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         let newRecord = try await dnsService.createDNSRecord(zoneId: zoneId, payload: payload)
         self.records.insert(newRecord, at: 0)
         self.totalCount += 1
+        let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+        await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
     }
     
     func updateRecord(recordId: String, payload: DNSRecordPayload) async throws {
         let updatedRecord = try await dnsService.updateDNSRecord(zoneId: zoneId, recordId: recordId, payload: payload)
         if let index = self.records.firstIndex(where: { $0.id == recordId }) {
             self.records[index] = updatedRecord
+            let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+            await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
         }
     }
     
@@ -174,12 +182,14 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         guard record.proxiable == true else { return }
         let currentProxied = record.proxied ?? false
         let newProxied = !currentProxied
+        let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
         
         // Optimistic UI update
         if let idx = records.firstIndex(where: { $0.id == record.id }) {
             var updated = records[idx]
             updated.proxied = newProxied
             records[idx] = updated
+            await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
         }
         
         HapticManager.impact(.medium)
@@ -198,6 +208,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             let updatedRecord = try await dnsService.updateDNSRecord(zoneId: zoneId, recordId: record.id, payload: payload)
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
                 records[idx] = updatedRecord
+                await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
             }
             ToastManager.shared.showSuccess(newProxied ? LocalizedStringKey("Proxy Enabled (Orange Cloud ☁️)") : LocalizedStringKey("Proxy Disabled (DNS Only)"), icon: "shield.lefthalf.filled")
         } catch {
@@ -206,6 +217,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 var rollback = records[idx]
                 rollback.proxied = currentProxied
                 records[idx] = rollback
+                await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
             }
             ToastManager.shared.showError("Failed to Update Proxy Status")
         }
@@ -216,6 +228,8 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         _ = try await dnsService.deleteDNSRecord(zoneId: zoneId, recordId: recordId)
         self.records.removeAll { $0.id == recordId }
         self.totalCount = max(0, self.totalCount - 1)
+        let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
+        await SWRCacheStore.shared.set(self.records, forKey: scopedKey)
     }
     
     func exportRecords() async throws -> URL {

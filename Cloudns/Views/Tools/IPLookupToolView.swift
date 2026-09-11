@@ -157,18 +157,18 @@ struct IPLookupToolView: View {
         if let cloud = result.cloudProvider {
             HStack {
                 Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
-                    .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                    .foregroundStyle(result.isCloudflareAnycast ? ThemeManager.shared.accentColor : .blue)
                 Text(cloud)
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(result.isCloudflareAnycast ? .orange : .blue)
+                    .foregroundStyle(result.isCloudflareAnycast ? ThemeManager.shared.accentColor : .blue)
                 Spacer()
                 if result.isCloudflareAnycast {
                     Text("Cloudflare Edge")
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(ThemeManager.shared.accentColor)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.orange.opacity(0.12)))
+                        .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                 }
             }
         }

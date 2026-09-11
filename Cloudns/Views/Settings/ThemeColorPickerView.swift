@@ -16,86 +16,7 @@ struct ThemeColorPickerView: View {
     
     var body: some View {
         Form {
-            Section {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    // 1. Preset Classic Themes (9 Colors)
-                    ForEach(presetThemes) { theme in
-                        Button {
-                            HapticManager.impact(.light)
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                themeManager.setThemeColor(theme)
-                                ToastManager.shared.showSuccess("Theme Color Updated", icon: "paintpalette.fill")
-                            }
-                        } label: {
-                            VStack(spacing: 8) {
-                                ZStack {
-                                    Circle()
-                                        .fill(theme.color)
-                                        .frame(width: 48, height: 48)
-                                        .shadow(color: theme.color.opacity(0.3), radius: 4, x: 0, y: 2)
-                                    
-                                    if themeManager.currentColor == theme {
-                                        Image(systemName: "checkmark")
-                                            .font(.headline.weight(.bold))
-                                            .foregroundStyle(.white)
-                                            .transition(.scale.combined(with: .opacity))
-                                    }
-                                }
-                                
-                                Text(theme.displayName)
-                                    .font(.caption2.weight(themeManager.currentColor == theme ? .bold : .medium))
-                                    .foregroundStyle(themeManager.currentColor == theme ? .primary : .secondary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.8)
-                            }
-                            .padding(.vertical, 4)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(theme.displayName)
-                        .accessibilityHint(themeManager.currentColor == theme ? "Currently selected theme color" : "Double tap to set as theme color")
-                    }
-                    
-                    // 2. Custom Color Spectrum Wheel Disc (10th Item)
-                    customColorWheelItem
-                }
-                .padding(.vertical, 8)
-            } header: {
-                Text("Accent Color")
-            } footer: {
-                Text("Controls the global accent color across navigation bars, tabs, toggles, buttons, and interactive controls.")
-            }
-            
-            Section("Preview") {
-                HStack(spacing: 12) {
-                    Button("Solid Button") {}
-                        .buttonStyle(.borderedProminent)
-                        .tint(themeManager.currentColor.color)
-                    
-                    Button("Bordered") {}
-                        .buttonStyle(.bordered)
-                        .tint(themeManager.currentColor.color)
-                    
-                    Toggle(isOn: .constant(true)) {
-                        EmptyView()
-                    }
-                    .tint(themeManager.currentColor.color)
-                    .labelsHidden()
-                    
-                    if themeManager.currentColor == .custom, let hex = themeManager.customColor.toHex() {
-                        Spacer()
-                        Text(hex)
-                            .font(.caption.monospaced().weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color(uiColor: .tertiarySystemFill))
-                            .clipShape(Capsule())
-                    }
-                }
-                .padding(.vertical, 4)
-            }
+            themeGridSection
         }
         .navigationTitle("Theme Color")
         .navigationBarTitleDisplayMode(.inline)
@@ -103,20 +24,89 @@ struct ThemeColorPickerView: View {
             customColor = themeManager.customColor
         }
         .onChange(of: customColor) { newColor in
-            HapticManager.impact(.light)
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            HapticManager.selection()
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                 themeManager.setCustomColor(newColor)
             }
         }
     }
     
-    // MARK: - Custom Color Wheel Disc
-    private var customColorWheelItem: some View {
+    // MARK: - 1. Theme Grid Section
+    private var themeGridSection: some View {
+        Section {
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(presetThemes) { theme in
+                    themeItem(for: theme)
+                }
+                customColorWheelItem
+            }
+            .padding(.vertical, 8)
+        } header: {
+            Text("Accent Color")
+        } footer: {
+            Text("Controls the global accent color across navigation bars, tabs, toggles, buttons, and interactive controls.")
+        }
+    }
+    
+    // MARK: - Theme Item Button
+    @ViewBuilder
+    private func themeItem(for theme: AppThemeColor) -> some View {
+        let isSelected = themeManager.currentColor == theme
+        let themeColor = theme.presetColor
+        
         VStack(spacing: 8) {
             ZStack {
-                if themeManager.currentColor == .custom {
+                Circle()
+                    .fill(themeColor)
+                    .frame(width: 48, height: 48)
+                    .shadow(color: themeColor.opacity(isSelected ? 0.45 : 0.2), radius: isSelected ? 6 : 3, x: 0, y: 2)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(isSelected ? Color.primary.opacity(0.6) : Color.clear, lineWidth: 2.5)
+                    )
+                
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.35), radius: 2)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .scaleEffect(isSelected ? 1.06 : 1.0)
+            
+            Text(theme.displayName)
+                .font(.caption2.weight(isSelected ? .bold : .medium))
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(.vertical, 4)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            HapticManager.selection()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                themeManager.setThemeColor(theme)
+            }
+            ToastManager.shared.showSuccess("Theme Color Updated", icon: "paintpalette.fill")
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(theme.displayName)
+        .accessibilityHint(isSelected ? "Currently selected theme color" : "Tap to set as theme color")
+        .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : [.isButton])
+    }
+    
+    // MARK: - Custom Color Wheel Disc
+    private var customColorWheelItem: some View {
+        let isCustom = themeManager.currentColor == .custom
+        let customVal = themeManager.customColor
+        
+        return VStack(spacing: 8) {
+            ZStack {
+                if isCustom {
                     Circle()
-                        .fill(themeManager.customColor)
+                        .fill(customVal)
                         .frame(width: 48, height: 48)
                         .overlay(
                             Circle()
@@ -128,7 +118,7 @@ struct ThemeColorPickerView: View {
                                     lineWidth: 3
                                 )
                         )
-                        .shadow(color: themeManager.customColor.opacity(0.35), radius: 4, x: 0, y: 2)
+                        .shadow(color: customVal.opacity(0.45), radius: 6, x: 0, y: 2)
                     
                     Image(systemName: "checkmark")
                         .font(.headline.weight(.bold))
@@ -157,22 +147,24 @@ struct ThemeColorPickerView: View {
                         .shadow(color: .black.opacity(0.12), radius: 4, x: 0, y: 2)
                 }
                 
-                // Native ColorPicker overlay covering the entire touch area
                 ColorPicker("Custom Color", selection: $customColor, supportsOpacity: false)
                     .labelsHidden()
-                    .opacity(0.015)
+                    .opacity(0.02)
+                    .frame(width: 48, height: 48)
             }
+            .scaleEffect(isCustom ? 1.06 : 1.0)
             .frame(width: 48, height: 48)
             
             Text("Custom")
-                .font(.caption2.weight(themeManager.currentColor == .custom ? .bold : .medium))
-                .foregroundStyle(themeManager.currentColor == .custom ? .primary : .secondary)
+                .font(.caption2.weight(isCustom ? .bold : .medium))
+                .foregroundStyle(isCustom ? .primary : .secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .padding(.vertical, 4)
         .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityLabel("Custom Color")
-        .accessibilityHint("Double tap to open color wheel picker")
+        .accessibilityHint("Tap to open color wheel picker")
     }
 }

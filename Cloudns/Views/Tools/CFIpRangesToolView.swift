@@ -18,7 +18,7 @@ struct CFIpRangesToolView: View {
             Section {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.shield.fill")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
                     
                     TextField("Enter IP e.g. 104.21.45.12", text: $testIpInput)

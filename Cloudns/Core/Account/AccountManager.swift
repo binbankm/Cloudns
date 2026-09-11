@@ -18,12 +18,22 @@ final class AccountManager: ObservableObject {
         return dict
     }
     
-    @AppStorage(AppStorageKey.activeAccountEmail) var activeEmail: String = ""
-    @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
+    @Published var activeEmail: String = "" {
+        didSet {
+            UserDefaults.standard.set(activeEmail, forKey: AppStorageKey.activeAccountEmail)
+        }
+    }
+    @Published var isLoggedIn: Bool = false {
+        didSet {
+            UserDefaults.standard.set(isLoggedIn, forKey: AppStorageKey.isLoggedIn)
+        }
+    }
     
     private let serviceName = AppStorageKey.keychainService
     
     private init() {
+        self.activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
+        self.isLoggedIn = UserDefaults.standard.bool(forKey: AppStorageKey.isLoggedIn)
         handleFirstLaunchAfterInstallIfNeeded()
         migrateLegacyAccountIfNeeded()
         loadAccounts()

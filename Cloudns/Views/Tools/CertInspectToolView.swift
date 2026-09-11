@@ -13,7 +13,7 @@ struct CertInspectToolView: View {
             Section {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.shield.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
                     
                     TextField("example.com or hostname", text: $viewModel.domainInput)
@@ -135,10 +135,10 @@ struct CertInspectToolView: View {
             
             Text(details.isCloudflareEdge ? LocalizedStringKey("Cloudflare Universal SSL") : LocalizedStringKey("Origin SSL"))
                 .font(.caption2.weight(.medium))
-                .foregroundStyle(details.isCloudflareEdge ? .orange : .blue)
+                .foregroundStyle(ThemeManager.shared.accentColor)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(Capsule().fill((details.isCloudflareEdge ? Color.orange : Color.blue).opacity(0.12)))
+                .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
         }
         
         let days = details.validityDaysRemaining ?? 0
@@ -173,7 +173,7 @@ struct CertInspectToolView: View {
             HStack(spacing: 12) {
                 ListRowIcon(
                     icon: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"),
-                    color: index == 0 ? .green : .blue
+                    color: index == 0 ? .green : ThemeManager.shared.accentColor
                 )
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -226,10 +226,10 @@ struct CertInspectToolView: View {
             if isBadge {
                 Text(value)
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(ThemeManager.shared.accentColor)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.blue.opacity(0.12)))
+                    .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
             } else {
                 Text(value)
                     .font(isMono ? .caption.monospaced() : .subheadline)

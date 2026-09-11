@@ -11,6 +11,7 @@ struct NetworkToolsView: View {
     
     enum DiagnosticToolType: String, Identifiable, CaseIterable {
         case cfTrace
+        case cfStatus
         case dnsDig
         case httpHeader
         case certInspect
@@ -26,6 +27,7 @@ struct NetworkToolsView: View {
         var title: LocalizedStringKey {
             switch self {
             case .cfTrace: return "Cloudflare Trace"
+            case .cfStatus: return "Cloudflare System Status"
             case .dnsDig: return "DNS Dig & Benchmark"
             case .httpHeader: return "HTTP & Cache Inspector"
             case .certInspect: return "SSL Certificate Inspector"
@@ -40,22 +42,24 @@ struct NetworkToolsView: View {
         
         var searchKeywords: String {
             switch self {
-            case .cfTrace: return "trace cdn cgi pop datacenter route ip"
-            case .dnsDig: return "dns dig rfc 1.1.1.1 resolve benchmark dnssec"
-            case .httpHeader: return "http cache cf ray header timing status inspect"
-            case .certInspect: return "ssl tls cert certificate chain san expiration"
-            case .dnsPropagation: return "propagation worldwide global dns probe resolve"
-            case .edgeLatency: return "ping latency jitter speed packet loss timing"
-            case .ipLookup: return "ip asn anycast isp geo location country"
-            case .whois: return "whois rdap registrar domain expiry nameservers"
-            case .cfIpRanges: return "ip ranges cidr ipv4 ipv6 official firewall"
-            case .cidrCalc: return "cidr subnet mask network ip calculator hosts"
+            case .cfTrace: return "trace cdn cgi pop datacenter route ip 路由 节点 跟踪"
+            case .cfStatus: return "status cloudflare incident outage maintenance pop operational 状态 故障 维护 节点 服务"
+            case .dnsDig: return "dns dig rfc 1.1.1.1 resolve benchmark dnssec 解析 查询"
+            case .httpHeader: return "http cache cf ray header timing status inspect 缓存 响应头"
+            case .certInspect: return "ssl tls cert certificate chain san expiration 证书 检查"
+            case .dnsPropagation: return "propagation worldwide global dns probe resolve 传播 全球 解析"
+            case .edgeLatency: return "ping latency jitter speed packet loss timing 延迟 测速 丢包 抖动"
+            case .ipLookup: return "ip asn anycast isp geo location country 归属地 运营商"
+            case .whois: return "whois rdap registrar domain expiry nameservers 域名 信息 到期"
+            case .cfIpRanges: return "ip ranges cidr ipv4 ipv6 official firewall 官方 地址段 白名单"
+            case .cidrCalc: return "cidr subnet mask network ip calculator hosts 子网 掩码 计算器"
             }
         }
         
         var subtitle: LocalizedStringKey {
             switch self {
             case .cfTrace: return "Edge PoP data center & client route trace (/cdn-cgi/trace)"
+            case .cfStatus: return "Official services, incident reports & global PoP health"
             case .dnsDig: return "1.1.1.1 query, DNSSEC validation & 5-resolver benchmark"
             case .httpHeader: return "CF-Ray, CF-Cache-Status, HTTP/3 & edge timing breakdown"
             case .certInspect: return "Certificate chain hierarchy, SANs & expiration countdown"
@@ -71,6 +75,7 @@ struct NetworkToolsView: View {
         var icon: String {
             switch self {
             case .cfTrace: return "antenna.radiowaves.left.and.right.circle.fill"
+            case .cfStatus: return "antenna.radiowaves.left.and.right"
             case .dnsDig: return "magnifyingglass.circle.fill"
             case .httpHeader: return "arrow.up.right.circle.fill"
             case .certInspect: return "checkmark.seal.fill"
@@ -87,6 +92,7 @@ struct NetworkToolsView: View {
         var iconColor: Color {
             switch self {
             case .cfTrace: return .orange
+            case .cfStatus: return ThemeManager.shared.accentColor
             case .dnsDig: return .indigo
             case .httpHeader: return .blue
             case .certInspect: return .green
@@ -104,6 +110,7 @@ struct NetworkToolsView: View {
         var destinationView: some View {
             switch self {
             case .cfTrace: CFTraceToolView()
+            case .cfStatus: CloudflareStatusView()
             case .dnsDig: DNSDigToolView()
             case .httpHeader: HTTPHeaderInspectorView()
             case .certInspect: CertInspectToolView()
@@ -118,7 +125,7 @@ struct NetworkToolsView: View {
     }
     
     private let edgeTools: [DiagnosticToolType] = [.cfTrace, .dnsDig, .httpHeader, .certInspect]
-    private let globalProbingTools: [DiagnosticToolType] = [.dnsPropagation, .edgeLatency]
+    private let globalProbingTools: [DiagnosticToolType] = [.cfStatus, .dnsPropagation, .edgeLatency]
     private let ipRoutingTools: [DiagnosticToolType] = [.ipLookup, .whois, .cfIpRanges, .cidrCalc]
     
     private var filteredTools: [DiagnosticToolType] {

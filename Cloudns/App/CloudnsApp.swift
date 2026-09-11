@@ -3,19 +3,13 @@ import SwiftUI
 @main
 struct CloudnsApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     init() {
         _ = AccountManager.shared
         NetworkPreheater.warmup()
         
-        let appearance = UITabBarAppearance()
-        appearance.configureWithDefaultBackground()
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-        
         // MARK: - Global Apple HIG Pure Chevron Navigation Bar
-        // Implements iOS 14+ minimal back button (chevron only) to eliminate
-        // cross-language fallback text artifacts while preserving gestures and accessibility.
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithDefaultBackground()
         
@@ -40,6 +34,7 @@ struct CloudnsApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .tint(themeManager.accentColor)
         }
     }
 }

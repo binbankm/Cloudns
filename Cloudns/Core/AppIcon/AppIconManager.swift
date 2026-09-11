@@ -78,8 +78,6 @@ public enum AppIconOption: String, CaseIterable, Identifiable {
 public final class AppIconManager: ObservableObject {
     public static let shared = AppIconManager()
     
-    @AppStorage("selected_app_icon_id") private var storedIconId: String = AppIconOption.primary.rawValue
-    
     @Published public private(set) var currentIcon: AppIconOption = .primary
     @Published public private(set) var isChanging: Bool = false
     
@@ -121,7 +119,7 @@ public final class AppIconManager: ObservableObject {
         do {
             try await UIApplication.shared.setAlternateIconName(icon.iconName)
             self.currentIcon = icon
-            self.storedIconId = icon.rawValue
+            UserDefaults.standard.set(icon.rawValue, forKey: AppStorageKey.appIcon)
             HapticManager.success()
         } catch {
             HapticManager.error()

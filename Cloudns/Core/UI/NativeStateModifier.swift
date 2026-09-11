@@ -98,6 +98,8 @@ public struct NativeEmptyStateView: View {
     public var actionTitle: LocalizedStringKey?
     public var action: (() -> Void)?
     
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     public init(
         title: LocalizedStringKey,
         systemImage: String,
@@ -113,13 +115,21 @@ public struct NativeEmptyStateView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 48, weight: .light))
-                .foregroundStyle(.secondary)
+        VStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(themeManager.accentColor.opacity(0.12))
+                    .frame(width: 88, height: 88)
+                
+                Image(systemName: systemImage)
+                    .font(.system(size: 40, weight: .regular))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(themeManager.accentColor)
+            }
+            .padding(.bottom, 4)
             
             Text(title)
-                .font(.headline)
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
             
             if let description {

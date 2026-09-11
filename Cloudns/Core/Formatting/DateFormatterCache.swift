@@ -1,13 +1,8 @@
 import Foundation
 
-enum DateFormatters {
+enum DateFormatters: Sendable {
     
     // MARK: - Modern ISO8601 Formatters
-    
-    nonisolated(unsafe) static let iso8601: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        return formatter
-    }()
     
     static func formatISO8601(_ date: Date) -> String {
         date.ISO8601Format()
@@ -32,117 +27,69 @@ enum DateFormatters {
         }
     }
     
-    // MARK: - Display Formatters
+    // MARK: - Display Formatters (Thread-Safe Swift FormatStyle)
     
-    static let mediumDateTime: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    static let fullDateTime: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .medium
-        return formatter
-    }()
-    
-    static let timeOnly: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    static let hourOnly: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:00"
-        return formatter
-    }()
-    
-    static func formatHour(_ date: Date) -> String {
-        hourOnly.string(from: date)
+    static func formatYearMonthDay(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.dateFormat = "yyyy-MM-dd"
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        return df.string(from: date)
     }
     
-    static let dateOnly: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter
-    }()
-    
-    static let logTime: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter
-    }()
-    
-    static let yearMonthDay: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter
-    }()
-    
-    private static let iso8601FallbackT: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        return formatter
-    }()
-    
-    private static let iso8601FallbackSpace: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
-    
-    private static let localDiagnosticFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss (zzz)"
-        return formatter
-    }()
-
-    // MARK: - Helper Methods
+    static func formatHour(_ date: Date) -> String {
+        let hour = Calendar.current.component(.hour, from: date)
+        return String(format: "%02d:00", hour)
+    }
     
     static func parseChartDate(_ dateString: String) -> Date {
         if dateString.contains("T") {
             return parseISO8601(dateString) ?? Date()
         } else {
-            return yearMonthDay.date(from: dateString) ?? Date()
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "yyyy-MM-dd"
+            df.timeZone = TimeZone(secondsFromGMT: 0)
+            return df.date(from: dateString) ?? Date()
         }
     }
     
-    private nonisolated(unsafe) static let iso8601FractionalFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter
-    }()
-
     static func parseISO8601(_ string: String) -> Date? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let date = iso8601FractionalFormatter.date(from: trimmed) {
-            return date
-        }
         if let date = try? Date(trimmed, strategy: .iso8601) {
             return date
         }
-        if let date = iso8601FallbackT.date(from: trimmed) {
+        
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = iso.date(from: trimmed) {
             return date
         }
-        if let date = iso8601FallbackSpace.date(from: trimmed) {
+        
+        let isoStandard = ISO8601DateFormatter()
+        if let date = isoStandard.date(from: trimmed) {
             return date
         }
-        if let date = yearMonthDay.date(from: trimmed) {
+        
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        if let date = df.date(from: trimmed) {
             return date
         }
+        
+        df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = df.date(from: trimmed) {
+            return date
+        }
+        
+        df.dateFormat = "yyyy-MM-dd"
+        if let date = df.date(from: trimmed) {
+            return date
+        }
+        
         return nil
     }
     
@@ -157,18 +104,26 @@ enum DateFormatters {
         return Locale.autoupdatingCurrent
     }
     
-    static func formatISO8601ToDisplay(_ string: String, style: DateFormatter = mediumDateTime) -> String {
+    enum DisplayStyle: Sendable {
+        case medium
+        case full
+        case timeOnly
+        case dateOnly
+    }
+    
+    static func formatISO8601ToDisplay(_ string: String, style: DisplayStyle = .medium) -> String {
         guard let date = parseISO8601(string) else {
             return string
         }
         let loc = currentAppLocale
-        if style === dateOnly {
+        switch style {
+        case .dateOnly:
             return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day())
-        } else if style === fullDateTime {
+        case .full:
             return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day().hour().minute().second())
-        } else if style === timeOnly {
+        case .timeOnly:
             return date.formatted(.dateTime.locale(loc).hour().minute())
-        } else {
+        case .medium:
             return date.formatted(.dateTime.locale(loc).year().month(.abbreviated).day().hour().minute())
         }
     }
@@ -182,11 +137,17 @@ enum DateFormatters {
     
     static func formatTimestampMs(_ timestampMs: Double) -> String {
         let date = Date(timeIntervalSince1970: timestampMs / 1000.0)
-        return logTime.string(from: date)
+        let df = DateFormatter()
+        df.dateFormat = "HH:mm:ss.SSS"
+        return df.string(from: date)
     }
     
     static func formatLocalDiagnosticTimestamp(_ date: Date = Date()) -> String {
-        return localDiagnosticFormatter.string(from: date)
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone.current
+        df.dateFormat = "yyyy-MM-dd HH:mm:ss (zzz)"
+        return df.string(from: date)
     }
 }
 

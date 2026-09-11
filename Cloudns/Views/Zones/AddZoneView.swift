@@ -24,7 +24,7 @@ struct AddZoneView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     private var accentColor: Color {
-        themeManager.currentColor.color
+        themeManager.accentColor
     }
     
     var body: some View {

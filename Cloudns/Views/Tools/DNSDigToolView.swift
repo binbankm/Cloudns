@@ -123,10 +123,10 @@ struct DNSDigToolView: View {
                             }
                             Text("\(result.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms")
                                 .font(.caption2.weight(.medium))
-                                .foregroundStyle(.tint)
+                                .foregroundStyle(ThemeManager.shared.accentColor)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Capsule().fill(Color.accentColor.opacity(0.12)))
+                                .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                         }
                         
                         if result.answers.isEmpty {
@@ -244,7 +244,7 @@ struct DNSDigToolView: View {
             Spacer()
             
             if item.status == "OK", let lat = item.latencyMs {
-                let badgeColor = rank == 1 ? Color.green : Color.blue
+                let badgeColor = rank == 1 ? Color.green : ThemeManager.shared.accentColor
                 Text("\(lat.formatted(.number.precision(.fractionLength(1)))) ms")
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(badgeColor)

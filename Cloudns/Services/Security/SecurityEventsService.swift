@@ -16,7 +16,7 @@ final class SecurityEventsService: SecurityEventsServiceProtocol {
     
     func fetchSecurityEvents(zoneId: String, limit: Int = 30) async throws -> [SecurityEvent] {
         let date = Calendar.current.date(byAdding: .hour, value: -23, to: Date()) ?? Date()
-        let dateString = DateFormatters.iso8601.string(from: date)
+        let dateString = DateFormatters.formatISO8601(date)
         
         let query = """
         query {

@@ -329,6 +329,13 @@ struct DNSRecordFormView: View {
                     .font(.body.weight(.semibold))
                     .disabled(name.isEmpty || isSaving)
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focusedField = nil
+                    }
+                    .font(.body.weight(.semibold))
+                }
             }
             .interactiveDismissDisabled(hasUnsavedChanges && !isSaving)
             .confirmationDialog(

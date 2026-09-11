@@ -10,7 +10,7 @@ struct DashboardZoneTrafficChartView: View {
     @State private var selectedPoint: FleetHourlyMetric?
     
     private var accentColor: Color {
-        themeManager.currentColor.color
+        themeManager.accentColor
     }
     
     var body: some View {
@@ -198,7 +198,7 @@ struct DashboardZoneTrafficChartView: View {
                         .fill(Color.clear)
                         .contentShape(Rectangle())
                         .gesture(
-                            DragGesture(minimumDistance: 0)
+                            DragGesture(minimumDistance: 10)
                                 .onChanged { drag in
                                     let frame = geo[proxy.plotAreaFrame]
                                     let locationX = drag.location.x - frame.origin.x

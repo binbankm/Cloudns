@@ -39,12 +39,16 @@ class WAFViewModel: BaseLoadableViewModel {
     
     func toggleRule(zoneId: String, rule: WAFRule) async {
         guard let rs = ruleset else { return }
+        let scopedKey = SWRCacheStore.accountScopedKey("waf_rules_\(zoneId)")
         
         // Optimistic UI update
         if let index = rules.firstIndex(where: { $0.id == rule.id }) {
             let updatedRule = WAFRule(id: rule.id, action: rule.action, expression: rule.expression, description: rule.description, enabled: !rule.enabled, ratelimit: rule.ratelimit, action_parameters: rule.action_parameters)
             rules[index] = updatedRule
+            await SWRCacheStore.shared.set(rules, forKey: scopedKey)
         }
+        
+        HapticManager.notification(.success)
         
         do {
             try await wafService.updateWAFRule(
@@ -57,11 +61,11 @@ class WAFViewModel: BaseLoadableViewModel {
                 enabled: !rule.enabled,
                 ratelimit: rule.ratelimit
             )
-            HapticManager.notification(.success)
         } catch {
             // Revert optimistic update on failure
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
                 rules[index] = rule
+                await SWRCacheStore.shared.set(rules, forKey: scopedKey)
             }
             self.errorMessage = error.localizedDescription
             HapticManager.notification(.error)
@@ -70,6 +74,7 @@ class WAFViewModel: BaseLoadableViewModel {
     
     func deleteRule(zoneId: String, ruleId: String) async {
         guard let rs = ruleset else { return }
+        let scopedKey = SWRCacheStore.accountScopedKey("waf_rules_\(zoneId)")
         
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
@@ -77,6 +82,7 @@ class WAFViewModel: BaseLoadableViewModel {
             // Remove from UI
             if let index = rules.firstIndex(where: { $0.id == ruleId }) {
                 rules.remove(at: index)
+                await SWRCacheStore.shared.set(rules, forKey: scopedKey)
             }
             
             HapticManager.notification(.success)
@@ -87,6 +93,7 @@ class WAFViewModel: BaseLoadableViewModel {
     }
     
     func createRule(zoneId: String, action: String, expression: String, description: String, enabled: Bool) async {
+        let scopedKey = SWRCacheStore.accountScopedKey("waf_rules_\(zoneId)")
         do {
             let updatedRuleset: Ruleset
             if let rs = ruleset {
@@ -110,7 +117,9 @@ class WAFViewModel: BaseLoadableViewModel {
             }
             
             self.ruleset = updatedRuleset
-            self.rules = updatedRuleset.rules ?? []
+            let newRules = updatedRuleset.rules ?? []
+            self.rules = newRules
+            await SWRCacheStore.shared.set(newRules, forKey: scopedKey)
             
             HapticManager.notification(.success)
         } catch {

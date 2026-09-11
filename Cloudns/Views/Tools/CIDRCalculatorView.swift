@@ -23,7 +23,7 @@ struct CIDRCalculatorView: View {
             Section {
                 HStack(spacing: 8) {
                     Image(systemName: "number.square.fill")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
                     
                     TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
@@ -64,8 +64,8 @@ struct CIDRCalculatorView: View {
                                     .font(.caption.weight(.medium).monospacedDigit())
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 5)
-                                    .background(viewModel.cidrInput == preset ? Color.blue : Color.blue.opacity(0.12))
-                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : .blue)
+                                    .background(viewModel.cidrInput == preset ? ThemeManager.shared.accentColor : ThemeManager.shared.accentColor.opacity(0.12))
+                                    .foregroundStyle(viewModel.cidrInput == preset ? .white : ThemeManager.shared.accentColor)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -89,10 +89,10 @@ struct CIDRCalculatorView: View {
                         Spacer()
                         Text("\(result.totalUsableHosts) Hosts")
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(ThemeManager.shared.accentColor)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.blue.opacity(0.12)))
+                            .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                     }
                     
                     calcRow(label: "Network Address", value: result.networkAddress)
@@ -113,7 +113,7 @@ struct CIDRCalculatorView: View {
                     HStack {
                         Text(result.binaryMask)
                             .font(.caption.monospaced())
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(ThemeManager.shared.accentColor)
                             .textSelection(.enabled)
                         
                         Spacer()

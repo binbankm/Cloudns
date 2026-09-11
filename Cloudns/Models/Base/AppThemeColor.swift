@@ -31,8 +31,7 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
-    @MainActor
-    public var color: Color {
+    public var presetColor: Color {
         switch self {
         case .orange:
             return Color(uiColor: UIColor { trait in
@@ -48,7 +47,15 @@ public enum AppThemeColor: String, CaseIterable, Identifiable, Sendable {
         case .mint:   return .mint
         case .pink:   return .pink
         case .red:    return .red
-        case .custom: return ThemeManager.shared.customColor
+        case .custom: return .orange
         }
+    }
+    
+    @MainActor
+    public var color: Color {
+        if self == .custom {
+            return ThemeManager.shared.customColor
+        }
+        return presetColor
     }
 }

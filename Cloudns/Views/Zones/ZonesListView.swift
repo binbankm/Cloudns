@@ -82,6 +82,9 @@ struct ZonesListView: View {
             searchQuery: (viewModel.hasFetchedData && displayedZones.isEmpty && !searchText.isEmpty) ? searchText : nil,
             onRetry: { Task { await viewModel.fetchZones(isRefresh: true) } }
         )
+        .onReceive(NotificationCenter.default.publisher(for: .zoneCreated)) { _ in
+            Task { await viewModel.fetchZones(isRefresh: true) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .zoneDeleted)) { _ in
             Task { await viewModel.fetchZones(isRefresh: true) }
         }
@@ -175,7 +178,7 @@ struct ZonesListView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
                 .onAppear {
-                    Task { await viewModel.fetchZones(isRefresh: false) }
+                    Task { await viewModel.loadMoreZones() }
                 }
             }
         } header: {
@@ -198,26 +201,9 @@ struct ZoneRowView: View {
         self.sparkline = sparkline
     }
     
-    private var initialChar: String {
-        guard let first = zone.name.first else { return "D" }
-        return String(first).uppercased()
-    }
-    
-    private var avatarColor: Color {
-        AccountAvatarView.color(for: zone.name)
-    }
-    
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(avatarColor.opacity(0.14))
-                    .frame(width: 36, height: 36)
-                Text(initialChar)
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(avatarColor)
-            }
-            .accessibilityHidden(true)
+            AccountAvatarView(identifier: zone.name, size: 36, showShadow: false)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: zone.name)

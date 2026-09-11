@@ -5,6 +5,7 @@ import Foundation
 public enum AppStorageKey: Sendable {
     nonisolated public static let isLoggedIn = "isLoggedIn"
     nonisolated public static let activeAccountEmail = "activeAccountEmail"
+    nonisolated public static let activeAccountId = "activeAccountId"
     nonisolated public static let hasSeenOnboarding = "hasSeenOnboarding"
     nonisolated public static let isAppLockEnabled = "isAppLockEnabled"
     nonisolated public static let autoLockTimeout = "autoLockTimeout"
@@ -12,6 +13,7 @@ public enum AppStorageKey: Sendable {
     nonisolated public static let themePreference = "themePreference"
     nonisolated public static let themeColor = "themeColor"
     nonisolated public static let appLanguage = "appLanguage"
+    nonisolated public static let appIcon = "appIcon"
     nonisolated public static let hapticsEnabled = "hapticsEnabled"
     nonisolated public static let hasRunBeforeAppInstallation = "hasRunBeforeAppInstallation"
     nonisolated public static let keychainService = "com.cloudflare.api"
