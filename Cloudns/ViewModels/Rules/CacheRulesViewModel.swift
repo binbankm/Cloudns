@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class CacheRulesViewModel: BaseLoadableViewModel {
@@ -45,7 +44,6 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
-            HapticManager.notification(.success)
         } catch {
             // Revert
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
@@ -53,7 +51,6 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
                 rules[index] = updatedRule
             }
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 
@@ -73,10 +70,8 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 
@@ -108,11 +103,8 @@ final class CacheRulesViewModel: BaseLoadableViewModel {
 
             ruleset = updatedRuleset
             rules = updatedRuleset.rules ?? []
-
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 }

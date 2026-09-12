@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class NetworkSettingsViewModel: BaseLoadableViewModel {
@@ -41,10 +40,8 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateIPv6(zoneId: String, isOn: Bool) async {
         let previous = ipv6
         ipv6 = isOn
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateIPv6(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("I Pv6 Enabled") : LocalizedStringKey("I Pv6 Disabled"))
         } catch {
             ipv6 = previous
             errorMessage = error.localizedDescription
@@ -54,10 +51,8 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateWebsockets(zoneId: String, isOn: Bool) async {
         let previous = websockets
         websockets = isOn
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateWebsockets(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Websockets Enabled") : LocalizedStringKey("Websockets Disabled"))
         } catch {
             websockets = previous
             errorMessage = error.localizedDescription
@@ -67,10 +62,8 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateHTTP2(zoneId: String, isOn: Bool) async {
         let previous = http2
         http2 = isOn
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP2(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("H T T P2 Enabled") : LocalizedStringKey("H T T P2 Disabled"))
         } catch {
             http2 = previous
             errorMessage = error.localizedDescription
@@ -80,10 +73,8 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateHTTP3(zoneId: String, isOn: Bool) async {
         let previous = http3
         http3 = isOn
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateHTTP3(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("H T T P3 Enabled") : LocalizedStringKey("H T T P3 Disabled"))
         } catch {
             http3 = previous
             errorMessage = error.localizedDescription
@@ -93,10 +84,8 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateIPGeolocation(zoneId: String, isOn: Bool) async {
         let previous = ipGeolocation
         ipGeolocation = isOn
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateIPGeolocation(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("I P Geolocation Enabled") : LocalizedStringKey("I P Geolocation Disabled"))
         } catch {
             ipGeolocation = previous
             errorMessage = error.localizedDescription
@@ -106,7 +95,6 @@ final class NetworkSettingsViewModel: BaseLoadableViewModel {
     func updateOriginMaxHTTPVersion(zoneId: String, version: String) async {
         let previous = originMaxHttpVersion
         originMaxHttpVersion = version
-        HapticManager.impact(.medium)
         do {
             try await networkService.updateOriginMaxHTTPVersion(zoneId: zoneId, version: version)
         } catch {

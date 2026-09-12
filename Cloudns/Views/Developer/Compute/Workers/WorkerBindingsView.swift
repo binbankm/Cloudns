@@ -25,29 +25,29 @@ struct WorkerBindingsView: View {
         secretsViewModel.hasFetchedData ? secretsViewModel.resourceBindings : bindings.filter { $0.type != "secret_text" && $0.type != "plain_text" }
     }
 
-    /// Grouped Resources
+    /// Grouped Resources — delegated to ViewModel
     private var kvBindings: [WorkerBinding] {
-        resourceBindings.filter { $0.type == "kv_namespace" }
+        secretsViewModel.kvBindings
     }
 
     private var d1Bindings: [WorkerBinding] {
-        resourceBindings.filter { $0.type == "d1" }
+        secretsViewModel.d1Bindings
     }
 
     private var r2Bindings: [WorkerBinding] {
-        resourceBindings.filter { $0.type == "r2_bucket" }
+        secretsViewModel.r2Bindings
     }
 
     private var queueBindings: [WorkerBinding] {
-        resourceBindings.filter { $0.type == "queue" }
+        secretsViewModel.queueBindings
     }
 
     private var aiBindings: [WorkerBinding] {
-        resourceBindings.filter { $0.type == "ai" }
+        secretsViewModel.aiBindings
     }
 
     private var otherBindings: [WorkerBinding] {
-        resourceBindings.filter { !["kv_namespace", "d1", "r2_bucket", "queue", "ai"].contains($0.type) }
+        secretsViewModel.otherBindings
     }
 
     var body: some View {
@@ -109,7 +109,7 @@ struct WorkerBindingsView: View {
             emptyDescription: "Bind Cloudflare KV, D1, R2, Queues, or AI directly to this Worker.",
             emptyActionTitle: "Attach Resource",
             emptyAction: { showingAttachResourceSheet = true },
-            errorMessage: (secretsViewModel.hasFetchedData && resourceBindings.isEmpty) ? secretsViewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (secretsViewModel.hasFetchedData && resourceBindings.isEmpty) ? secretsViewModel.errorMessage : nil,
             retryAction: { Task { await secretsViewModel.fetchSecrets() } }
         )
     }

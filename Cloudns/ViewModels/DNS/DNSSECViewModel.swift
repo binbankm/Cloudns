@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class DNSSECViewModel: BaseLoadableViewModel {
@@ -22,10 +21,10 @@ final class DNSSECViewModel: BaseLoadableViewModel {
         }
     }
 
-    func toggleDNSSEC() async {
-        guard let current = dnssec else { return }
-
-        HapticManager.impact(.medium)
+    @discardableResult
+    func toggleDNSSEC() async -> Bool {
+        guard let current = dnssec else { return false }
+        var success = false
 
         await executeLoadingTask {
             let isActiveOrPending = current.status == "active" || current.status == "pending"
@@ -34,11 +33,8 @@ final class DNSSECViewModel: BaseLoadableViewModel {
 
             // Re-fetch after update
             self.dnssec = try await self.dnsService.getDNSSEC(zoneId: self.zoneId)
-
-            ToastManager.shared.showSuccess(
-                targetStatus == "active" ? LocalizedStringKey("DNSSEC Enabled") : LocalizedStringKey("DNSSEC Disabled"),
-                icon: "lock.shield.fill"
-            )
+            success = true
         }
+        return success
     }
 }

@@ -70,7 +70,7 @@ struct TurnstileWidgetsView: View {
             emptyDescription: "You haven't created any Turnstile captcha widgets in this account yet.",
             emptyActionTitle: "Add Widget",
             emptyAction: { showingCreateSheet = true },
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchWidgets() } }
         )
         .scrollDismissesKeyboard(.interactively)

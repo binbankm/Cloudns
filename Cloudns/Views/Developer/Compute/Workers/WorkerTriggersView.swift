@@ -113,7 +113,7 @@ struct WorkerTriggersView: View {
             emptyDescription: "Run this Worker on a recurring schedule with Cron syntax.",
             emptyActionTitle: "Add Trigger",
             emptyAction: { showingAddCronSheet = true },
-            errorMessage: (viewModel.hasFetchedData && viewModel.schedules.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.schedules.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchSchedules() } }
         )
     }

@@ -141,7 +141,7 @@ struct QueuesView: View {
             emptyDescription: "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers.",
             emptyActionTitle: "Create Queue",
             emptyAction: { showingCreateSheet = true },
-            errorMessage: (viewModel.hasFetchedData && viewModel.queues.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.queues.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchQueues() } }
         )
     }

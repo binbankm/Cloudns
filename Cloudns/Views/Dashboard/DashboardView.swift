@@ -102,7 +102,7 @@ struct DashboardView: View {
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(greetingIconColor)
 
-                    Text(viewModel.timeGreeting)
+                    greetingText
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
@@ -182,6 +182,15 @@ struct DashboardView: View {
                 )
                 .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 2)
         )
+    }
+
+    @ViewBuilder
+    private var greetingText: some View {
+        switch viewModel.timeGreeting {
+        case "Good Morning": Text("Good Morning")
+        case "Good Afternoon": Text("Good Afternoon")
+        default: Text("Good Evening")
+        }
     }
 
     private var greetingIcon: String {
@@ -371,7 +380,11 @@ struct DashboardView: View {
 
                 NavigationLink(destination: ZonesListView(embeddedInNavigation: true)) {
                     HStack(spacing: 3) {
-                        Text(viewModel.hasFetchedData ? LocalizedStringKey("See All (\(viewModel.zones.count))") : LocalizedStringKey("See All"))
+                        if viewModel.hasFetchedData {
+                            Text("See All (\(viewModel.zones.count))")
+                        } else {
+                            Text("See All")
+                        }
                         Image(systemName: "chevron.right")
                             .font(.caption2.weight(.bold))
                     }

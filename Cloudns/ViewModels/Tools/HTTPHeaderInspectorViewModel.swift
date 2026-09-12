@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class HTTPHeaderInspectorViewModel: BaseLoadableViewModel {
@@ -31,10 +30,8 @@ final class HTTPHeaderInspectorViewModel: BaseLoadableViewModel {
             let res = try await httpService.inspectHTTPHeaders(urlString: clean, method: httpMethod)
             httpResult = res
             hasFetchedData = true
-            HapticManager.success()
         } catch {
             httpError = error.localizedDescription
-            HapticManager.error()
         }
         isHttpLoading = false
     }

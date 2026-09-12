@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 public struct AIChatMessageItem: Identifiable, Equatable {
     public let id = UUID()

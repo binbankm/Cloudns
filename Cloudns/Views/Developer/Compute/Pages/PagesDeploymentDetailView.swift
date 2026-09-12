@@ -34,13 +34,28 @@ struct PagesDeploymentDetailView: View {
 
             Section(header: Text("Deployment Overview")) {
                 LabeledContent {
-                    let status = deployment.latestStage?.status?.capitalized ?? (isSuccess ? "Success" : "Pending")
-                    Text(status)
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(isSuccess ? .green : .orange)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill((isSuccess ? Color.green : Color.orange).opacity(0.12)))
+                    if isSuccess {
+                        Text("Success")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.green.opacity(0.12)))
+                    } else if let status = deployment.latestStage?.status?.capitalized {
+                        Text(status)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.orange.opacity(0.12)))
+                    } else {
+                        Text("Pending")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.orange.opacity(0.12)))
+                    }
                 } label: {
                     Text("Status")
                 }

@@ -138,7 +138,14 @@ struct HTTPHeaderInspectorView: View {
     private func performInspect() {
         isFieldFocused = false
         HapticManager.impact(.light)
-        Task { await viewModel.inspectHTTP() }
+        Task {
+            await viewModel.inspectHTTP()
+            if viewModel.httpError != nil {
+                HapticManager.error()
+            } else if viewModel.httpResult != nil {
+                HapticManager.success()
+            }
+        }
     }
 
     // MARK: - 2. Edge Summary Rows

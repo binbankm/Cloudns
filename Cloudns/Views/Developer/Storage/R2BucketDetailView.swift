@@ -94,7 +94,7 @@ struct R2BucketDetailView: View {
             emptyAction: { showingUploadSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && !viewModel.objects.isEmpty && viewModel.filteredObjects.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchObjects() } }
         )
         .scrollDismissesKeyboard(.interactively)

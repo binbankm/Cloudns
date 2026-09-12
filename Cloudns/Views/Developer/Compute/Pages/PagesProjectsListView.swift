@@ -78,7 +78,7 @@ struct PagesProjectsListView: View {
             emptyAction: { showingCreatePagesSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredPages.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.pages.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.pages.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchData() } }
         )
         .searchable(

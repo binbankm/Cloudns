@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class SecurityViewModel: BaseLoadableViewModel {
@@ -30,7 +29,6 @@ final class SecurityViewModel: BaseLoadableViewModel {
     func updateSecurityLevel(zoneId: String, level: String) async {
         let previous = securityLevel
         securityLevel = level
-        HapticManager.impact(.medium)
         do {
             try await securityService.updateSecurityLevel(zoneId: zoneId, level: level)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
@@ -44,7 +42,6 @@ final class SecurityViewModel: BaseLoadableViewModel {
     func updateChallengeTTL(zoneId: String, ttl: Int) async {
         let previous = challengeTTL
         challengeTTL = ttl
-        HapticManager.impact(.medium)
         do {
             try await securityService.updateChallengeTTL(zoneId: zoneId, ttl: ttl)
         } catch {
@@ -56,10 +53,8 @@ final class SecurityViewModel: BaseLoadableViewModel {
     func updateBrowserCheck(zoneId: String, isOn: Bool) async {
         let previous = browserCheck
         browserCheck = isOn
-        HapticManager.impact(.medium)
         do {
             try await securityService.updateBrowserCheck(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Browser Check Enabled") : LocalizedStringKey("Browser Check Disabled"))
         } catch {
             browserCheck = previous
             errorMessage = error.localizedDescription
@@ -69,10 +64,8 @@ final class SecurityViewModel: BaseLoadableViewModel {
     func updateBotFightMode(zoneId: String, isOn: Bool) async {
         let previous = botFightMode
         botFightMode = isOn
-        HapticManager.impact(.medium)
         do {
             try await securityService.updateBotFightMode(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Bot Fight Mode Enabled") : LocalizedStringKey("Bot Fight Mode Disabled"))
         } catch {
             botFightMode = previous
             errorMessage = error.localizedDescription

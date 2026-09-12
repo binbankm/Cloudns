@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class R2BucketSettingsViewModel: BaseLoadableViewModel {
@@ -38,7 +37,6 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         isManagedDomainEnabled = enabled
         do {
             try await r2Service.setR2ManagedDomain(accountId: accountId, bucketName: bucketName, enabled: enabled)
-            HapticManager.impact(.light)
             await fetchSettings()
         } catch {
             isManagedDomainEnabled = !enabled
@@ -48,7 +46,6 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
     func deleteCustomDomain(domain: String) async {
         do {
             try await r2Service.deleteR2CustomDomain(accountId: accountId, bucketName: bucketName, domain: domain)
-            HapticManager.impact(.medium)
             await fetchSettings()
         } catch {}
     }
@@ -58,7 +55,6 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
         updated.append(rule)
         do {
             try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
-            HapticManager.impact(.medium)
             await fetchSettings()
             return true
         } catch {
@@ -76,7 +72,6 @@ final class R2BucketSettingsViewModel: BaseLoadableViewModel {
             } else {
                 try await r2Service.putR2CORS(accountId: accountId, bucketName: bucketName, rules: updated)
             }
-            HapticManager.impact(.medium)
             await fetchSettings()
         } catch {}
     }

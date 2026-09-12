@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class DNSDigViewModel: BaseLoadableViewModel {
@@ -35,10 +34,8 @@ final class DNSDigViewModel: BaseLoadableViewModel {
             let res = try await dnsService.performDNSLookup(domain: clean, type: selectedRecordType)
             dnsResult = res
             hasFetchedData = true
-            HapticManager.success()
         } catch {
             dnsError = error.localizedDescription
-            HapticManager.error()
         }
         isDnsLoading = false
     }
@@ -54,10 +51,7 @@ final class DNSDigViewModel: BaseLoadableViewModel {
             let res = try await dnsService.performDNSBenchmark(domain: clean, type: selectedRecordType)
             benchmarkResult = res
             hasFetchedData = true
-            HapticManager.success()
-        } catch {
-            HapticManager.error()
-        }
+        } catch {}
         isBenchmarkLoading = false
     }
 

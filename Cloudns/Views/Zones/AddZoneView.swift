@@ -197,7 +197,7 @@ struct AddZoneView: View {
                 HapticManager.success()
                 createdZone = newZone
             } else {
-                ToastManager.shared.showError(LocalizedStringKey(viewModel.addZoneError ?? "Failed to Add Domain"))
+                ToastManager.shared.showError(viewModel.addZoneError ?? "Failed to Add Domain")
                 HapticManager.error()
             }
             isSubmitting = false

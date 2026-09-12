@@ -120,7 +120,14 @@ struct EdgeLatencyTestView: View {
     private func performTest() {
         isFieldFocused = false
         HapticManager.impact(.light)
-        Task { await viewModel.testLatency() }
+        Task {
+            await viewModel.testLatency()
+            if viewModel.latencyError != nil {
+                HapticManager.error()
+            } else if viewModel.latencyResult != nil {
+                HapticManager.success()
+            }
+        }
     }
 
     // MARK: - 2. Metrics Rows

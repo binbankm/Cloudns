@@ -86,7 +86,7 @@ struct DashboardZoneTrafficChartView: View {
                 // Metric Picker Tabs
                 Picker("Metric", selection: $viewModel.selectedChartMetric) {
                     ForEach(DashboardChartMetric.allCases) { metric in
-                        Text(LocalizedStringKey(metric.title)).tag(metric)
+                        metricLabel(metric).tag(metric)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -266,6 +266,15 @@ struct DashboardZoneTrafficChartView: View {
             return ByteCountFormatter.string(fromByteCount: Int64(viewModel.totalFleetBandwidth24h), countStyle: .binary)
         case .threats:
             return Int(viewModel.totalThreats24h).formatted()
+        }
+    }
+
+    @ViewBuilder
+    private func metricLabel(_ metric: DashboardChartMetric) -> some View {
+        switch metric {
+        case .requests: Text("Requests")
+        case .bandwidth: Text("Bandwidth")
+        case .threats: Text("Threats")
         }
     }
 }

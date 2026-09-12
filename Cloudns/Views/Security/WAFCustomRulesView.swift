@@ -158,7 +158,7 @@ struct WAFRuleCardView: View {
 
             HStack {
                 let actionColor = colorForAction(rule.action)
-                Text(actionDisplayName(rule.action))
+                actionBadge(rule.action)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(actionColor)
                     .padding(.horizontal, 6)
@@ -193,15 +193,16 @@ struct WAFRuleCardView: View {
         .padding(.vertical, 2)
     }
 
-    private func actionDisplayName(_ action: String) -> LocalizedStringKey {
+    @ViewBuilder
+    private func actionBadge(_ action: String) -> some View {
         switch action.lowercased() {
-        case "block": "Block"
-        case "managed_challenge": "Managed Challenge"
-        case "js_challenge": "JS Challenge"
-        case "challenge": "Interactive Challenge"
-        case "log": "Log"
-        case "skip": "Skip"
-        default: LocalizedStringKey(action.capitalized)
+        case "block": Text("Block")
+        case "managed_challenge": Text("Managed Challenge")
+        case "js_challenge": Text("JS Challenge")
+        case "challenge": Text("Interactive Challenge")
+        case "log": Text("Log")
+        case "skip": Text("Skip")
+        default: Text(action.capitalized)
         }
     }
 

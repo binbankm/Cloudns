@@ -315,9 +315,15 @@ struct DNSPresetsSheetView: View {
                                     .tint(.white)
                                     .padding(.trailing, 6)
                             }
-                            Text(isApplying ? LocalizedStringKey("Adding Records…") : LocalizedStringKey("Apply Preset to \(zoneName)"))
-                                .font(.body.weight(.semibold))
-                                .foregroundStyle(.white)
+                            if isApplying {
+                                Text("Adding Records…")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            } else {
+                                Text("Apply Preset to \(zoneName)")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
                             Spacer()
                         }
                         .padding(.vertical, 4)

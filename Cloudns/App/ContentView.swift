@@ -12,14 +12,14 @@ struct ContentView: View {
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var selectedTab: AppTab = .dashboard
     @State private var tabViewResetId = UUID()
-    @ObservedObject private var authManager = AppAuthManager.shared
-    @ObservedObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var authManager = AppAuthManager.shared
+    @StateObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @ObservedObject private var router = DeepLinkRouter.shared
-    @ObservedObject private var themeManager = ThemeManager.shared
+    @StateObject private var router = DeepLinkRouter.shared
+    @StateObject private var themeManager = ThemeManager.shared
 
     var currentLocale: Locale {
         if appLanguage == "system" {
@@ -100,7 +100,6 @@ struct ContentView: View {
         .environment(\.locale, currentLocale)
         .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
         .tint(themeManager.accentColor)
-        .accentColor(themeManager.accentColor)
         .monospacedDigit()
         .id(appLanguage)
         .onAppear {
@@ -169,7 +168,6 @@ struct ContentView: View {
             .environment(\.locale, currentLocale)
             .preferredColorScheme(themePreference == "light" ? ColorScheme.light : (themePreference == "dark" ? ColorScheme.dark : nil))
             .tint(themeManager.accentColor)
-            .accentColor(themeManager.accentColor)
             .monospacedDigit()
         }
     }
@@ -219,7 +217,6 @@ struct ContentView: View {
                 detailViewForTab(selectedTab)
             }
             .tint(themeManager.accentColor)
-            .accentColor(themeManager.accentColor)
         } else {
             TabView(selection: $selectedTab) {
                 DashboardView()
@@ -253,7 +250,6 @@ struct ContentView: View {
                     .tag(AppTab.settings)
             }
             .tint(themeManager.accentColor)
-            .accentColor(themeManager.accentColor)
         }
     }
 

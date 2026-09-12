@@ -120,7 +120,7 @@ struct WorkerDeploymentsView: View {
             emptyAction: { Task { await viewModel.fetchDeployments() } },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredDeployments.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.deployments.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.deployments.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchDeployments() } }
         )
         .task {

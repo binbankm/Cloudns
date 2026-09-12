@@ -68,6 +68,49 @@ struct AuditLogsView: View {
             }
         }
     }
+
+    @ViewBuilder
+    static func displayActionBadge(_ key: String) -> some View {
+        switch key {
+        case "Resume": Text("Resume")
+        case "Pause": Text("Pause")
+        case "Create": Text("Create")
+        case "Delete": Text("Delete")
+        case "Deploy": Text("Deploy")
+        case "Order": Text("Order")
+        case "Update": Text("Update")
+        case "Purge Cache": Text("Purge Cache")
+        case "Rollback": Text("Rollback")
+        case "Enable": Text("Enable")
+        case "Disable": Text("Disable")
+        case "Login": Text("Login")
+        case "Invite": Text("Invite")
+        case "Revoke": Text("Revoke")
+        default: Text(key)
+        }
+    }
+
+    @ViewBuilder
+    static func friendlyResourceBadge(_ key: String) -> some View {
+        switch key {
+        case "DNS Record": Text("DNS Record")
+        case "IP Access List": Text("IP Access List")
+        case "Worker Script": Text("Worker Script")
+        case "Pages Project": Text("Pages Project")
+        case "R2 Bucket": Text("R2 Bucket")
+        case "D1 Database": Text("D1 Database")
+        case "KV Namespace": Text("KV Namespace")
+        case "SSL/TLS": Text("SSL/TLS")
+        case "WAF Rule": Text("WAF Rule")
+        case "Cloudflare Tunnel": Text("Cloudflare Tunnel")
+        case "Turnstile Widget": Text("Turnstile Widget")
+        case "Zero Trust": Text("Zero Trust")
+        case "Zone Config": Text("Zone Config")
+        case "Site Service": Text("Site Service")
+        case "Account Service": Text("Account Service")
+        default: Text(key)
+        }
+    }
 }
 
 // MARK: - AuditLogRowView (Inlined & Cohesive)
@@ -82,11 +125,11 @@ struct AuditLogRowView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(LocalizedStringKey(log.displayActionKey))
+                    AuditLogsView.displayActionBadge(log.displayActionKey)
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
 
-                    Text(LocalizedStringKey(log.friendlyResourceTypeKey))
+                    AuditLogsView.friendlyResourceBadge(log.friendlyResourceTypeKey)
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 6)
@@ -97,7 +140,7 @@ struct AuditLogRowView: View {
                     Spacer()
 
                     if let res = log.action?.result {
-                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
+                        Text(res ? "Success" : "Failed")
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(res ? Color.green : Color.red)
                             .padding(.horizontal, 6)
@@ -166,9 +209,9 @@ struct AuditLogDetailSheetView: View {
 
                     VStack(spacing: 4) {
                         HStack(spacing: 4) {
-                            Text(LocalizedStringKey(log.displayActionKey))
+                            AuditLogsView.displayActionBadge(log.displayActionKey)
                             Text("•")
-                            Text(LocalizedStringKey(log.friendlyResourceTypeKey))
+                            AuditLogsView.friendlyResourceBadge(log.friendlyResourceTypeKey)
                         }
                         .font(.title3.weight(.bold))
                         .foregroundStyle(.primary)
@@ -180,7 +223,7 @@ struct AuditLogDetailSheetView: View {
                     }
 
                     if let res = log.action?.result {
-                        Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
+                        Text(res ? "Success" : "Failed")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(res ? Color.green : Color.red)
                             .padding(.horizontal, 10)
@@ -369,5 +412,285 @@ struct AuditLogDetailSheetView: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+}
+
+// MARK: - View Presentation Extension
+
+@MainActor
+extension AuditLog {
+    var actionColor: Color {
+        let raw = (action?.type ?? action?.info ?? "").lowercased()
+        if raw.contains("resume") || raw.contains("unpause") {
+            return .green
+        } else if raw.contains("pause") {
+            return .orange
+        } else if raw.contains("create") || raw.contains("add") || raw.contains("insert") {
+            return .green
+        } else if raw.contains("delete") || raw.contains("remove") || raw.contains("drop") {
+            return .red
+        } else if raw.contains("deploy") || raw.contains("publish") {
+            return .purple
+        } else if raw.contains("order") {
+            return .orange
+        } else if raw.contains("update") || raw.contains("edit") || raw.contains("set") || raw.contains("modify") {
+            return .blue
+        } else if raw.contains("purge") || raw.contains("clear") {
+            return .cyan
+        } else if raw.contains("rollback") {
+            return .brown
+        }
+        return .secondary
+    }
+
+    @ViewBuilder
+    public var primarySummaryView: some View {
+        let resType = (resource?.type ?? "").lowercased()
+        let actType = (action?.type ?? action?.info ?? "").lowercased()
+
+        if actType.contains("resume") || actType.contains("unpause") {
+            let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue ?? metadata?["domain"]?.stringValue
+            if let z = zoneName, !z.isEmpty {
+                Text("\(z) • Resume Site Proxy")
+            } else if let resId = resource?.id, !resId.isEmpty {
+                Text("Resume Site Service (ID: \(shortId(resId)))")
+            } else {
+                Text("Resume Cloudflare Acceleration")
+            }
+        } else if actType.contains("pause") {
+            let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue ?? metadata?["domain"]?.stringValue
+            if let z = zoneName, !z.isEmpty {
+                Text("\(z) • Pause Site Proxy")
+            } else if let resId = resource?.id, !resId.isEmpty {
+                Text("Pause Site Service (ID: \(shortId(resId)))")
+            } else {
+                Text("Pause Cloudflare Acceleration")
+            }
+        } else if resType.contains("dns") {
+            let recordType = extractString(keys: ["type", "record_type", "rec_type"])
+            let recordName = extractString(keys: ["name", "record_name", "rec_name"])
+            let content = extractString(keys: ["content", "value", "target", "ip"])
+            let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
+
+            if let type = recordType, let name = recordName ?? zoneName, let c = content {
+                Text(verbatim: "\(type) Record • \(name) ➔ \(c)")
+            } else if let name = recordName ?? zoneName {
+                Text(verbatim: name)
+            } else {
+                AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+            }
+        } else if resType.contains("iplist") || resType.contains("ip") {
+            let ipVal = extractString(keys: ["ip", "value", "item_value", "redirect_url"])
+            let listName = extractString(keys: ["list_name", "name", "title"])
+            let comment = extractString(keys: ["comment", "description"])
+
+            if let ip = ipVal, !ip.isEmpty {
+                if let name = listName, !name.isEmpty {
+                    Text(verbatim: "\(name) • \(ip)")
+                } else {
+                    Text(verbatim: "IP List Item: \(ip)")
+                }
+            } else if let name = listName, !name.isEmpty {
+                Text(verbatim: name)
+            } else if let com = comment, !com.isEmpty {
+                Text(verbatim: com)
+            } else {
+                AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+            }
+        } else if resType.contains("zone") || resType.contains("setting") {
+            let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
+            let settingKey = extractString(keys: ["setting_id", "setting_name", "id", "name"])
+            let val = extractString(keys: ["value", "mode", "status"])
+            let sKey = translateSettingKey(settingKey)
+            let vKey = translateSettingValue(val)
+
+            if let z = zoneName, !z.isEmpty {
+                if let s = sKey, let v = vKey {
+                    Text(verbatim: "\(z) • \(s): \(v)")
+                } else if let s = sKey {
+                    Text(verbatim: "\(z) • \(s)")
+                } else {
+                    Text(verbatim: z)
+                }
+            } else if let s = sKey {
+                if let v = vKey {
+                    Text(verbatim: "\(s): \(v)")
+                } else {
+                    Text(verbatim: s)
+                }
+            } else {
+                AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+            }
+        } else if resType.contains("worker") || resType.contains("page") {
+            let scriptName = extractString(keys: ["script_name", "name", "project_name", "deployment_id"])
+            let env = extractString(keys: ["environment", "tag", "branch"])
+            if let s = scriptName, !s.isEmpty {
+                if let e = env, !e.isEmpty {
+                    Text(verbatim: "\(s) (\(e))")
+                } else {
+                    Text(verbatim: s)
+                }
+            } else {
+                AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+            }
+        } else if resType.contains("waf") || resType.contains("rule") || resType.contains("firewall") {
+            let ruleName = extractString(keys: ["description", "rule_name", "name", "action"])
+            if let r = ruleName, !r.isEmpty {
+                Text(verbatim: r)
+            } else {
+                AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+            }
+        } else {
+            if let name = extractString(keys: ["name", "title", "description"]), !name.isEmpty, !name.isHexHash {
+                Text(verbatim: name)
+            } else if let zoneName = zone?.name, !zoneName.isEmpty {
+                Text(verbatim: zoneName)
+            } else if let resId = resource?.id, !resId.isEmpty {
+                if resId.isHexHash {
+                    HStack(spacing: 4) {
+                        AuditLogsView.friendlyResourceBadge(friendlyResourceTypeKey)
+                        Text("(ID: \(shortId(resId)))")
+                    }
+                } else {
+                    Text(verbatim: resId)
+                }
+            } else {
+                Text("Audit Event \(shortId(id))")
+            }
+        }
+    }
+
+    @ViewBuilder
+    public var secondaryContextView: some View {
+        let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
+        let listName = extractString(keys: ["list_name"])
+        let info = action?.info
+        let resId = resource?.id
+
+        HStack(spacing: 6) {
+            if let z = zoneName, !z.isEmpty {
+                Text("Domain: \(z)")
+            }
+            if let l = listName, !l.isEmpty {
+                Text(verbatim: "List: \(l)")
+            }
+            if let inf = info, !inf.isEmpty {
+                Text(verbatim: inf)
+            }
+            if let r = resId, !r.isEmpty, r.isHexHash {
+                Text("Resource: \(shortId(r))")
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
+    }
+
+    private func extractString(keys: [String]) -> String? {
+        if let newJson = newValueJson {
+            for k in keys {
+                if let val = newJson[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
+            }
+        }
+        if let oldJson = oldValueJson {
+            for k in keys {
+                if let val = oldJson[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
+            }
+        }
+        if let meta = metadata {
+            for k in keys {
+                if let val = meta[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
+            }
+        }
+        if case let .dictionary(dict) = newValue {
+            for k in keys {
+                if let val = dict[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
+            }
+        }
+        if case let .dictionary(dict) = oldValue {
+            for k in keys {
+                if let val = dict[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
+            }
+        }
+        return nil
+    }
+
+    private func translateSettingKey(_ key: String?) -> String? {
+        guard let key = key?.lowercased() else { return nil }
+        switch key {
+        case "dev_mode", "development_mode": return String(localized: "Development Mode")
+        case "always_online": return String(localized: "Always Online")
+        case "ssl", "ssl_mode": return String(localized: "SSL Encryption Mode")
+        case "security_level": return String(localized: "Security Level")
+        case "challenge_ttl": return String(localized: "Challenge TTL")
+        case "browser_cache_ttl": return String(localized: "Browser Cache TTL")
+        case "cache_level": return String(localized: "Cache Level")
+        case "minify": return String(localized: "Auto Minify")
+        case "brotli": return String(localized: "Brotli Compression")
+        case "http2": return "HTTP/2"
+        case "http3": return "HTTP/3 (QUIC)"
+        case "0rtt": return "0-RTT Connection"
+        case "tls_1_3": return "TLS 1.3"
+        case "min_tls_version": return String(localized: "Minimum TLS Version")
+        case "websockets": return "WebSockets"
+        case "automatic_https_rewrites": return String(localized: "Automatic HTTPS Rewrites")
+        case "ip_geolocation": return String(localized: "IP Geolocation")
+        case "email_obfuscation": return String(localized: "Email Obfuscation")
+        case "server_side_exclude": return String(localized: "Server-Side Excludes")
+        case "hotlink_protection": return String(localized: "Hotlink Protection")
+        case "rocket_loader": return "Rocket Loader"
+        case "polish": return String(localized: "Polish Image Optimization")
+        case "mirage": return String(localized: "Mirage Mobile Optimization")
+        case "ipv6": return String(localized: "IPv6 Compatibility")
+        case "pseudo_ipv4": return "Pseudo IPv4"
+        case "waf": return String(localized: "WAF Firewall")
+        case "early_hints": return String(localized: "Early Hints")
+        case "h2_prioritization": return String(localized: "HTTP/2 Prioritization")
+        case "origin_error_page_pass_thru": return String(localized: "Origin Error Page Pass-thru")
+        case "proxy_read_timeout": return String(localized: "Proxy Read Timeout")
+        default: return key
+        }
+    }
+
+    private func translateSettingValue(_ val: String?) -> String? {
+        guard let val = val?.lowercased() else { return nil }
+        switch val {
+        case "on", "true", "1": return String(localized: "On")
+        case "off", "false", "0": return String(localized: "Off")
+        case "strict": return String(localized: "Full (Strict)")
+        case "full": return String(localized: "Full")
+        case "flexible": return String(localized: "Flexible")
+        case "essentially_off": return String(localized: "Essentially Off")
+        case "low": return String(localized: "Low")
+        case "medium": return String(localized: "Medium")
+        case "high": return String(localized: "High")
+        case "under_attack": return String(localized: "Under Attack")
+        default: return val
+        }
+    }
+
+    private func shortId(_ id: String) -> String {
+        if id.count > 12 {
+            return String(id.prefix(8)) + "..."
+        }
+        return id
+    }
+}
+
+private extension String {
+    var isHexHash: Bool {
+        guard count >= 16 else { return false }
+        let hexChars = CharacterSet(charactersIn: "0123456789abcdefABCDEF")
+        return unicodeScalars.allSatisfy { hexChars.contains($0) }
     }
 }

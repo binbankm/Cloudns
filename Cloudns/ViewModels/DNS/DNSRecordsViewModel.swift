@@ -1,26 +1,63 @@
 import Combine
 import Foundation
-import SwiftUI
+
+// MARK: - Supporting Types
+
+enum DNSSortOption: String, CaseIterable {
+    case name
+    case type
+
+    var apiValue: String {
+        rawValue
+    }
+
+    var direction: String {
+        self == .name ? "asc" : "desc"
+    }
+
+    var displayName: String {
+        switch self {
+        case .name: "Name (A to Z)"
+        case .type: "Record Type"
+        }
+    }
+}
+
+enum DNSProxyFilter: String, CaseIterable {
+    case all = "ALL"
+    case proxied = "PROXIED"
+    case dnsOnly = "DNS_ONLY"
+
+    var displayName: String {
+        switch self {
+        case .all: "All Statuses"
+        case .proxied: "Proxied (Orange Cloud)"
+        case .dnsOnly: "DNS Only (Grey Cloud)"
+        }
+    }
+}
+
+// MARK: - ViewModel
 
 @MainActor
 final class DNSRecordsViewModel: BaseLoadableViewModel {
     @Published var records: [DNSRecord] = []
     @Published var totalCount: Int = 0
 
-    // Removed DNSSEC
-
     @Published var searchQuery: String = ""
-    @Published var sortOption: String = "name"
+    @Published var sortOption: DNSSortOption = .name
     @Published var selectedType: String = "ALL"
-    @Published var selectedProxyStatus: String = "ALL"
+    @Published var selectedProxyFilter: DNSProxyFilter = .all
+
+    static let supportedRecordTypes: [String] = ["A", "AAAA", "CNAME", "TXT", "MX", "NS", "PTR", "SRV", "CAA"]
 
     var isFiltered: Bool {
-        selectedType != "ALL" || selectedProxyStatus != "ALL"
+        selectedType != "ALL" || selectedProxyFilter != .all
     }
 
     func resetFilters() {
         selectedType = "ALL"
-        selectedProxyStatus = "ALL"
+        selectedProxyFilter = .all
     }
 
     var filteredRecords: [DNSRecord] {
@@ -28,10 +65,13 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         if selectedType != "ALL" {
             result = result.filter { $0.type.uppercased() == selectedType.uppercased() }
         }
-        if selectedProxyStatus == "PROXIED" {
+        switch selectedProxyFilter {
+        case .proxied:
             result = result.filter { $0.proxied == true }
-        } else if selectedProxyStatus == "DNS_ONLY" {
+        case .dnsOnly:
             result = result.filter { $0.proxied != true }
+        case .all:
+            break
         }
         let trimmed = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
@@ -43,6 +83,15 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 record.type.localizedStandardContains(trimmed) ||
                 (record.comment ?? "").localizedStandardContains(trimmed)
         }
+    }
+
+    /// Grouped record types for sectioned list display (moved from View layer)
+    var groupedRecordTypes: [String] {
+        Array(Set(filteredRecords.map(\.type))).sorted()
+    }
+
+    func records(for type: String) -> [DNSRecord] {
+        filteredRecords.filter { $0.type == type }
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -73,6 +122,14 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 }
             }
             .store(in: &cancellables)
+
+        $searchQuery
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     func fetchRecords(isRefresh: Bool = false) async {
@@ -99,8 +156,8 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 perPage: 50,
                 search: nil,
                 type: nil,
-                order: self.sortOption,
-                direction: self.sortOption == "name" ? "asc" : "desc"
+                order: self.sortOption.apiValue,
+                direction: self.sortOption.direction
             )
 
             if isRefresh || self.currentPage == 1 {
@@ -124,8 +181,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
 
     func deleteRecords(withIds ids: Set<String>) {
         guard !ids.isEmpty else { return }
-        HapticManager.notification(.warning)
-
         records.removeAll { ids.contains($0.id) }
         totalCount = max(0, totalCount - ids.count)
 
@@ -145,7 +200,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         let recordsToDelete = offsets.map { records[$0] }
         let idsToDelete = recordsToDelete.map(\.id)
 
-        HapticManager.notification(.warning)
         records.remove(atOffsets: offsets)
         totalCount = max(0, totalCount - idsToDelete.count)
 
@@ -178,8 +232,11 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         }
     }
 
-    func toggleProxy(for record: DNSRecord) async {
-        guard record.proxiable == true else { return }
+    /// Toggles the Cloudflare proxy status for a record.
+    /// Returns whether the new proxied state is enabled, so the View can trigger haptics/toasts.
+    @discardableResult
+    func toggleProxy(for record: DNSRecord) async -> Bool? {
+        guard record.proxiable == true else { return nil }
         let currentProxied = record.proxied ?? false
         let newProxied = !currentProxied
         let scopedKey = SWRCacheStore.accountScopedKey("dns_records_\(zoneId)")
@@ -191,8 +248,6 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
             records[idx] = updated
             await SWRCacheStore.shared.set(records, forKey: scopedKey)
         }
-
-        HapticManager.impact(.medium)
 
         do {
             let payload = DNSRecordPayload(
@@ -210,7 +265,7 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 records[idx] = updatedRecord
                 await SWRCacheStore.shared.set(records, forKey: scopedKey)
             }
-            ToastManager.shared.showSuccess(newProxied ? LocalizedStringKey("Proxy Enabled (Orange Cloud ☁️)") : LocalizedStringKey("Proxy Disabled (DNS Only)"), icon: "shield.lefthalf.filled")
+            return newProxied
         } catch {
             // Rollback on error
             if let idx = records.firstIndex(where: { $0.id == record.id }) {
@@ -219,12 +274,12 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
                 records[idx] = rollback
                 await SWRCacheStore.shared.set(records, forKey: scopedKey)
             }
-            ToastManager.shared.showError("Failed to Update Proxy Status")
+            errorMessage = "Failed to Update Proxy Status"
+            return nil
         }
     }
 
     func deleteRecord(recordId: String) async throws {
-        HapticManager.notification(.warning)
         _ = try await dnsService.deleteDNSRecord(zoneId: zoneId, recordId: recordId)
         records.removeAll { $0.id == recordId }
         totalCount = max(0, totalCount - 1)

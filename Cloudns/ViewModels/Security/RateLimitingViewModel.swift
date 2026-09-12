@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 class RateLimitingViewModel: BaseLoadableViewModel {
@@ -48,8 +47,6 @@ class RateLimitingViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.set(rules, forKey: scopedKey)
         }
 
-        HapticManager.notification(.success)
-
         do {
             try await wafService.updateWAFRule(
                 zoneId: zoneId,
@@ -68,7 +65,6 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                 await SWRCacheStore.shared.set(rules, forKey: scopedKey)
             }
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 
@@ -84,11 +80,8 @@ class RateLimitingViewModel: BaseLoadableViewModel {
                 rules.remove(at: index)
                 await SWRCacheStore.shared.set(rules, forKey: scopedKey)
             }
-
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 
@@ -121,11 +114,8 @@ class RateLimitingViewModel: BaseLoadableViewModel {
             let newRules = updatedRuleset.rules ?? []
             rules = newRules
             await SWRCacheStore.shared.set(newRules, forKey: scopedKey)
-
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 }

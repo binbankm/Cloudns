@@ -627,9 +627,15 @@ public struct WorkerAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(viewModel.totalErrors == 0 ? LocalizedStringKey("Fully Operational") : LocalizedStringKey("\(viewModel.totalErrors) Exceptions Detected"))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
+                if viewModel.totalErrors == 0 {
+                    Text("Fully Operational")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.green)
+                } else {
+                    Text("\(viewModel.totalErrors) Exceptions Detected")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.orange)
+                }
             }
         }
         .padding(14)

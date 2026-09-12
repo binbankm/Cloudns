@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 struct DeveloperHubSnapshot: Codable, Sendable {
     let workers: [WorkerScript]

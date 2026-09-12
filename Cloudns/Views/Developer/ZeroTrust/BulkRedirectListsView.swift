@@ -72,7 +72,7 @@ struct BulkRedirectListsView: View {
             emptyAction: { showingCreateSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && !viewModel.lists.isEmpty && viewModel.filteredLists.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchLists() } }
         )
         .scrollDismissesKeyboard(.interactively)

@@ -54,7 +54,7 @@ struct D1TableView: View {
             emptyDescription: "Table '\(tableName)' has no data rows.",
             emptyActionTitle: "Insert Row",
             emptyAction: { editorContext = .insert },
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.loadTable() } }
         )
         .navigationTitle(tableName)

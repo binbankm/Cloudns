@@ -194,26 +194,37 @@ struct DNSDigToolView: View {
             Group {
                 if let result = viewModel.dnsResult {
                     NavigationStack {
-                        ScrollView {
-                            Text(result.rawResponseRFC)
-                                .font(.caption.monospaced())
-                                .padding(16)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .navigationTitle("RFC BIND Output")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Done") { viewModel.showingRFCExport = false }
+                        if let rfc = result.rawResponseRFC, !rfc.isEmpty {
+                            ScrollView {
+                                Text(rfc)
+                                    .font(.caption.monospaced())
+                                    .padding(16)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            ToolbarItem(placement: .primaryAction) {
-                                Button {
-                                    copyToClipboard(result.rawResponseRFC, toast: "RFC Output Copied")
-                                } label: {
-                                    Image(systemName: "doc.on.doc")
+                            .navigationTitle("RFC BIND Output")
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .cancellationAction) {
+                                    Button("Done") { viewModel.showingRFCExport = false }
                                 }
-                                .accessibilityLabel("Copy RFC Output")
+                                ToolbarItem(placement: .primaryAction) {
+                                    Button {
+                                        copyToClipboard(rfc, toast: "RFC Output Copied")
+                                    } label: {
+                                        Image(systemName: "doc.on.doc")
+                                    }
+                                    .accessibilityLabel("Copy RFC Output")
+                                }
                             }
+                        } else {
+                            NativeEmptyStateView(icon: "doc.text", title: "No RFC Output")
+                                .navigationTitle("RFC BIND Output")
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar {
+                                    ToolbarItem(placement: .cancellationAction) {
+                                        Button("Done") { viewModel.showingRFCExport = false }
+                                    }
+                                }
                         }
                     }
                     .presentationDetents([.medium, .large])

@@ -73,7 +73,7 @@ struct WorkersAIView: View {
             emptyAction: { Task { await viewModel.fetchModels() } },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredModels.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.models.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.models.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchModels() } }
         )
         .task {
@@ -89,7 +89,7 @@ struct WorkersAIView: View {
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.purple)
 
-            Text(localizedTaskName(rawName))
+            taskTitle(rawName)
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.secondary)
 
@@ -155,22 +155,24 @@ struct WorkersAIView: View {
         return nil
     }
 
-    private func localizedTaskName(_ raw: String) -> LocalizedStringKey {
+    @ViewBuilder
+    private func taskTitle(_ raw: String) -> some View {
         let lower = raw.lowercased()
         if lower.contains("speech") || lower.contains("audio") {
-            return "Speech Recognition & Audio"
+            Text("Speech Recognition & Audio")
         } else if lower.contains("text-generation") || lower.contains("generation") {
-            return "Text Generation (LLM)"
+            Text("Text Generation (LLM)")
         } else if lower.contains("image") || lower.contains("vision") {
-            return "Image & Vision Generation"
+            Text("Image & Vision Generation")
         } else if lower.contains("embed") {
-            return "Vector Embeddings"
+            Text("Vector Embeddings")
         } else if lower.contains("translation") {
-            return "Translation"
+            Text("Translation")
         } else if lower.contains("classification") {
-            return "Classification"
+            Text("Classification")
+        } else {
+            Text(raw.capitalized)
         }
-        return LocalizedStringKey(raw.capitalized)
     }
 
     private func iconForTask(_ task: String) -> String {

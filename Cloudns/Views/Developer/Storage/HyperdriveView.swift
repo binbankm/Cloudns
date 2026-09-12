@@ -71,7 +71,7 @@ struct HyperdriveView: View {
             emptyDescription: "Hyperdrive accelerates database queries from Workers to existing regional databases.",
             emptyActionTitle: "Create Config",
             emptyAction: { showingCreateSheet = true },
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchConfigs() } }
         )
         .navigationTitle("Hyperdrive")

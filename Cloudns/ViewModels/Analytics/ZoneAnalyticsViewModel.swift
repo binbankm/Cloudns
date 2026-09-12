@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AnalyticsDataPoint]

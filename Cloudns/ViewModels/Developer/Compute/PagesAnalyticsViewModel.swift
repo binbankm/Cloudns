@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 nonisolated struct PagesAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AggregatedWorkerDataPoint]

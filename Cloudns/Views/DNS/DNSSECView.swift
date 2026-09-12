@@ -72,7 +72,16 @@ struct DNSSECView: View {
                     get: { status == "active" || status == "pending" },
                     set: { _ in
                         HapticManager.selection()
-                        Task { await viewModel.toggleDNSSEC() }
+                        Task {
+                            let success = await viewModel.toggleDNSSEC()
+                            if success {
+                                let newStatus = viewModel.dnssec?.status
+                                ToastManager.shared.showSuccess(
+                                    newStatus == "active" ? "DNSSEC Enabled" : "DNSSEC Disabled",
+                                    icon: "lock.shield.fill"
+                                )
+                            }
+                        }
                     }
                 )) {
                     HStack(spacing: 12) {

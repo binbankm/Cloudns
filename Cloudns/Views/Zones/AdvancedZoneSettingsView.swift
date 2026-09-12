@@ -118,18 +118,12 @@ struct AdvancedZoneSettingsView: View {
         } message: {
             Text("Are you sure you want to remove \(zoneName) from Cloudflare? This action is permanent and cannot be undone.")
         }
-        .alert("Error", isPresented: Binding(
-            get: { errorMessage != nil },
-            set: {
-                if !$0 {
-                    errorMessage = nil
-                }
+        .onChange(of: errorMessage) { msg in
+            if let msg {
+                ToastManager.shared.showError(msg)
+                errorMessage = nil
             }
-        ), actions: {
-            Button("OK", role: .cancel) {}
-        }, message: {
-            Text(errorMessage ?? String(localized: "Unknown error"))
-        })
+        }
     }
 
     // MARK: - API Operations

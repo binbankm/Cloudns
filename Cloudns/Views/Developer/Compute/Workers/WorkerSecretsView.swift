@@ -40,7 +40,7 @@ struct WorkerSecretsView: View {
             .sheet(item: $variableToEdit) { v in
                 WorkerEditVariableSheetView(viewModel: viewModel, variable: v)
             }
-            .confirmationDialog("Delete Item", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
+            .confirmationDialog(itemToDelete?.isSecret == true ? "Delete Secret" : "Delete Variable", isPresented: $showingDeleteAlert, titleVisibility: .visible) {
                 if let item = itemToDelete {
                     Button("Delete '\(item.name)'", role: .destructive) {
                         Task {

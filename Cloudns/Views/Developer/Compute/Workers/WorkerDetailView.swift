@@ -54,7 +54,7 @@ struct WorkerDetailView: View {
                                 .lineLimit(1)
 
                             HStack(spacing: 6) {
-                                Text(LocalizedStringKey((viewModel.worker.usageModel ?? "Standard").capitalized))
+                                Text((viewModel.worker.usageModel ?? "Standard").capitalized)
                                     .font(.caption2.weight(.medium))
                                     .foregroundStyle(.green)
                                     .padding(.horizontal, 6)
@@ -62,16 +62,22 @@ struct WorkerDetailView: View {
                                     .background(Capsule().fill(Color.green.opacity(0.12)))
 
                                 if !viewModel.modules.isEmpty {
-                                    Text(viewModel.modules.count > 1 ? LocalizedStringKey("\(viewModel.modules.count) ESM Modules") : LocalizedStringKey("ESM Module"))
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.purple)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Capsule().fill(Color.purple.opacity(0.12)))
+                                    Group {
+                                        if viewModel.modules.count > 1 {
+                                            Text("\(viewModel.modules.count) ESM Modules")
+                                        } else {
+                                            Text("ESM Module")
+                                        }
+                                    }
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(.purple)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Capsule().fill(Color.purple.opacity(0.12)))
                                 }
 
                                 if let sub = viewModel.subdomain {
-                                    Text(sub.enabled ? LocalizedStringKey("workers.dev") : LocalizedStringKey("subdomain off"))
+                                    Text(sub.enabled ? "workers.dev" : "subdomain off")
                                         .font(.caption2.weight(.medium))
                                         .foregroundStyle(sub.enabled ? .green : .secondary)
                                         .padding(.horizontal, 6)

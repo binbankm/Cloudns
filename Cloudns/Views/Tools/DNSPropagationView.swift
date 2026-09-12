@@ -69,7 +69,14 @@ struct DNSPropagationView: View {
                 Button {
                     isFieldFocused = false
                     HapticManager.impact(.light)
-                    Task { await viewModel.queryPropagation() }
+                    Task {
+                        await viewModel.queryPropagation()
+                        if viewModel.propagationError != nil {
+                            HapticManager.error()
+                        } else if viewModel.propagationResult != nil {
+                            HapticManager.success()
+                        }
+                    }
                 } label: {
                     HStack(spacing: 6) {
                         if viewModel.isPropagationLoading {

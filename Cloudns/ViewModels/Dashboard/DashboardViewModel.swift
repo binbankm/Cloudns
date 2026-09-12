@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class DashboardViewModel: BaseLoadableViewModel {
@@ -145,7 +144,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
         kvCount + r2Count + d1Count
     }
 
-    var timeGreeting: LocalizedStringKey {
+    var timeGreeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5 ..< 12: return "Good Morning"

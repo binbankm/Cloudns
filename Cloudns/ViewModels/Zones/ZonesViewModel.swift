@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class ZonesViewModel: BaseLoadableViewModel {
@@ -145,7 +144,6 @@ final class ZonesViewModel: BaseLoadableViewModel {
     func deleteZone(zoneId: String) async {
         isDeleting = true
         errorMessage = nil
-        HapticManager.notification(.warning)
         do {
             _ = try await zoneService.deleteZone(zoneId: zoneId)
             RecentZonesManager.shared.removeZone(zoneId: zoneId)

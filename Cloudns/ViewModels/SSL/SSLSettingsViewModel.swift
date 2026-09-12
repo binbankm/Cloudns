@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class SSLSettingsViewModel: BaseLoadableViewModel {
@@ -48,7 +47,6 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateSSLMode(zoneId: String, mode: String) async {
         let previous = sslMode
         sslMode = mode
-        HapticManager.impact(.medium)
         do {
             try await certService.updateSSLMode(zoneId: zoneId, mode: mode)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
@@ -62,10 +60,8 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async {
         let previous = alwaysUseHTTPS
         alwaysUseHTTPS = isOn
-        HapticManager.impact(.medium)
         do {
             try await certService.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Always Use H T T P S Enabled") : LocalizedStringKey("Always Use H T T P S Disabled"))
         } catch {
             alwaysUseHTTPS = previous
             errorMessage = error.localizedDescription
@@ -75,10 +71,8 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateAutomaticHTTPSRewrites(zoneId: String, isOn: Bool) async {
         let previous = automaticHTTPSRewrites
         automaticHTTPSRewrites = isOn
-        HapticManager.impact(.medium)
         do {
             try await certService.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Automatic H T T P S Rewrites Enabled") : LocalizedStringKey("Automatic H T T P S Rewrites Disabled"))
         } catch {
             automaticHTTPSRewrites = previous
             errorMessage = error.localizedDescription
@@ -88,7 +82,6 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateMinTLSVersion(zoneId: String, version: String) async {
         let previous = minTLSVersion
         minTLSVersion = version
-        HapticManager.impact(.medium)
         do {
             try await certService.updateMinTLSVersion(zoneId: zoneId, version: version)
         } catch {
@@ -100,10 +93,8 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateTLS13(zoneId: String, isOn: Bool) async {
         let previous = tls13
         tls13 = isOn
-        HapticManager.impact(.medium)
         do {
             try await certService.updateTLS13(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("T L S13 Enabled") : LocalizedStringKey("T L S13 Disabled"))
         } catch {
             tls13 = previous
             errorMessage = error.localizedDescription
@@ -113,10 +104,8 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateOpportunisticEncryption(zoneId: String, isOn: Bool) async {
         let previous = opportunisticEncryption
         opportunisticEncryption = isOn
-        HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticEncryption(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Opportunistic Encryption Enabled") : LocalizedStringKey("Opportunistic Encryption Disabled"))
         } catch {
             opportunisticEncryption = previous
             errorMessage = error.localizedDescription
@@ -126,10 +115,8 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
     func updateOpportunisticOnion(zoneId: String, isOn: Bool) async {
         let previous = opportunisticOnion
         opportunisticOnion = isOn
-        HapticManager.impact(.medium)
         do {
             try await certService.updateOpportunisticOnion(zoneId: zoneId, isOn: isOn)
-            ToastManager.shared.showSuccess(isOn ? LocalizedStringKey("Opportunistic Onion Enabled") : LocalizedStringKey("Opportunistic Onion Disabled"))
         } catch {
             opportunisticOnion = previous
             errorMessage = error.localizedDescription
@@ -149,7 +136,6 @@ final class SSLSettingsViewModel: BaseLoadableViewModel {
         hstsNoSniff = nosniff
         hstsPreload = preload
 
-        HapticManager.impact(.medium)
         do {
             try await certService.updateHSTS(zoneId: zoneId, enabled: enabled, maxAge: maxAge, subdomains: subdomains, nosniff: nosniff, preload: preload)
         } catch {

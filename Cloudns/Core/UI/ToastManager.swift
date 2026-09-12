@@ -3,9 +3,14 @@ import SwiftUI
 
 // MARK: - Apple HIG Toast Item Model
 
+public enum ToastMessage: Equatable {
+    case localized(LocalizedStringKey)
+    case verbatim(String)
+}
+
 public struct ToastItem: Identifiable, Equatable {
     public let id = UUID()
-    public let message: LocalizedStringKey
+    public let message: ToastMessage
     public let icon: String
     public let iconColor: Color
     public let duration: TimeInterval
@@ -20,7 +25,19 @@ public struct ToastItem: Identifiable, Equatable {
         iconColor: Color = .green,
         duration: TimeInterval = 2.0
     ) {
-        self.message = message
+        self.message = .localized(message)
+        self.icon = icon
+        self.iconColor = iconColor
+        self.duration = duration
+    }
+
+    public init(
+        verbatimMessage: String,
+        icon: String = "checkmark.circle.fill",
+        iconColor: Color = .green,
+        duration: TimeInterval = 2.0
+    ) {
+        self.message = .verbatim(verbatimMessage)
         self.icon = icon
         self.iconColor = iconColor
         self.duration = duration
@@ -70,6 +87,20 @@ public final class ToastManager: ObservableObject {
         present(item)
     }
 
+    /// Presents error toast HUD with dynamic string message
+    public func showError(_ message: String, icon: String = "exclamationmark.triangle.fill") {
+        HapticManager.notification(.error)
+        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .red, duration: 2.5)
+        present(item)
+    }
+
+    /// Presents success toast HUD with dynamic string message
+    public func showSuccess(_ message: String, icon: String = "checkmark.circle.fill") {
+        HapticManager.notification(.success)
+        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .green, duration: 2.0)
+        present(item)
+    }
+
     /// Dismisses current toast HUD
     public func dismiss() {
         dismissTask?.cancel()
@@ -113,10 +144,18 @@ public struct ToastOverlay: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(toast.iconColor)
 
-                    Text(toast.message)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
+                    switch toast.message {
+                    case let .localized(key):
+                        Text(key)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                    case let .verbatim(text):
+                        Text(verbatim: text)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)

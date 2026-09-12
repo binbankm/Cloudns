@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class TransformRulesViewModel: BaseLoadableViewModel {
@@ -50,7 +49,6 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
                 ratelimit: rule.ratelimit,
                 actionParameters: rule.action_parameters
             )
-            HapticManager.notification(.success)
         } catch {
             if let index = rules.firstIndex(where: { $0.id == rule.id }) {
                 let updatedRule = WAFRule(id: rule.id, action: rule.action, expression: rule.expression, description: rule.description, enabled: rule.enabled, ratelimit: rule.ratelimit, action_parameters: rule.action_parameters)
@@ -79,7 +77,6 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
         do {
             try await wafService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -117,8 +114,6 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
 
             ruleset = updatedRuleset
             rules = updatedRuleset.rules ?? []
-
-            HapticManager.notification(.success)
             return true
         } catch {
             errorMessage = error.localizedDescription
@@ -160,8 +155,6 @@ final class TransformRulesViewModel: BaseLoadableViewModel {
 
             ruleset = updatedRuleset
             rules = updatedRuleset.rules ?? []
-
-            HapticManager.notification(.success)
             return true
         } catch {
             errorMessage = error.localizedDescription

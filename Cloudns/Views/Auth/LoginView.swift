@@ -293,7 +293,7 @@ struct LoginView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundStyle(.red)
-                                    Text(LocalizedStringKey(errorMessage))
+                                    Text(errorMessage)
                                         .font(.caption.weight(.medium))
                                         .foregroundStyle(.red)
                                         .multilineTextAlignment(.leading)

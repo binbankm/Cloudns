@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 nonisolated struct AggregatedWorkerDataPoint: Codable, Identifiable, Equatable, Sendable {
     var id: String {

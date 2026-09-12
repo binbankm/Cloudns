@@ -1,13 +1,14 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class LoginViewModel: BaseLoadableViewModel {
     @Published var email: String = ""
     @Published var apiKey: String = ""
-
-    @AppStorage(AppStorageKey.isLoggedIn) var isLoggedIn: Bool = false
+    var isLoggedIn: Bool {
+        get { AccountManager.shared.isLoggedIn }
+        set { AccountManager.shared.isLoggedIn = newValue }
+    }
 
     private let authService: AuthServiceProtocol
 

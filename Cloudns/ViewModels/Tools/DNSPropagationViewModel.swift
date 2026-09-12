@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class DNSPropagationViewModel: BaseLoadableViewModel {
@@ -36,10 +35,8 @@ final class DNSPropagationViewModel: BaseLoadableViewModel {
             )
             propagationResult = res
             hasFetchedData = true
-            HapticManager.success()
         } catch {
             propagationError = error.localizedDescription
-            HapticManager.error()
         }
         isPropagationLoading = false
     }

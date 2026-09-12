@@ -153,7 +153,7 @@ struct DNSRecordsView: View {
 
                     Divider()
 
-                    ForEach(["A", "AAAA", "CNAME", "TXT", "MX", "NS", "PTR", "SRV", "CAA"], id: \.self) { type in
+                    ForEach(DNSRecordsViewModel.supportedRecordTypes, id: \.self) { type in
                         Button {
                             viewModel.selectedType = type
                             HapticManager.selection()
@@ -166,74 +166,54 @@ struct DNSRecordsView: View {
                         }
                     }
                 } label: {
-                    Label(
-                        viewModel.selectedType == "ALL" ? LocalizedStringKey("Record Type") : LocalizedStringKey("Type: \(viewModel.selectedType)"),
-                        systemImage: "line.3.horizontal.decrease"
-                    )
+                    Label {
+                        if viewModel.selectedType == "ALL" {
+                            Text("Record Type")
+                        } else {
+                            Text("Type: \(viewModel.selectedType)")
+                        }
+                    } icon: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
                 }
 
-                // SubMenu 2: Filter by Proxy Status
                 Menu {
-                    Button {
-                        viewModel.selectedProxyStatus = "ALL"
-                        HapticManager.selection()
-                    } label: {
-                        if viewModel.selectedProxyStatus == "ALL" {
-                            Label("All Statuses", systemImage: "checkmark")
-                        } else {
-                            Text("All Statuses")
-                        }
-                    }
-
-                    Button {
-                        viewModel.selectedProxyStatus = "PROXIED"
-                        HapticManager.selection()
-                    } label: {
-                        if viewModel.selectedProxyStatus == "PROXIED" {
-                            Label("Proxied (Orange Cloud)", systemImage: "checkmark")
-                        } else {
-                            Text("Proxied (Orange Cloud)")
-                        }
-                    }
-
-                    Button {
-                        viewModel.selectedProxyStatus = "DNS_ONLY"
-                        HapticManager.selection()
-                    } label: {
-                        if viewModel.selectedProxyStatus == "DNS_ONLY" {
-                            Label("DNS Only (Grey Cloud)", systemImage: "checkmark")
-                        } else {
-                            Text("DNS Only (Grey Cloud)")
+                    ForEach(DNSProxyFilter.allCases, id: \.self) { filter in
+                        Button {
+                            viewModel.selectedProxyFilter = filter
+                            HapticManager.selection()
+                        } label: {
+                            if viewModel.selectedProxyFilter == filter {
+                                Label(filter.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(filter.displayName)
+                            }
                         }
                     }
                 } label: {
-                    Label(
-                        viewModel.selectedProxyStatus == "ALL" ? LocalizedStringKey("Proxy Status") : (viewModel.selectedProxyStatus == "PROXIED" ? LocalizedStringKey("Proxy: Proxied") : LocalizedStringKey("Proxy: DNS Only")),
-                        systemImage: "shield.lefthalf.filled"
-                    )
+                    Label {
+                        if viewModel.selectedProxyFilter == .all {
+                            Text("Proxy Status")
+                        } else {
+                            Text("Proxy: \(viewModel.selectedProxyFilter.displayName)")
+                        }
+                    } icon: {
+                        Image(systemName: "shield.lefthalf.filled")
+                    }
                 }
 
                 // SubMenu 3: Sort Records
                 Menu {
-                    Button {
-                        viewModel.sortOption = "name"
-                        HapticManager.selection()
-                    } label: {
-                        if viewModel.sortOption == "name" {
-                            Label("Name (A to Z)", systemImage: "checkmark")
-                        } else {
-                            Text("Name (A to Z)")
-                        }
-                    }
-
-                    Button {
-                        viewModel.sortOption = "type"
-                        HapticManager.selection()
-                    } label: {
-                        if viewModel.sortOption == "type" {
-                            Label("Record Type", systemImage: "checkmark")
-                        } else {
-                            Text("Record Type")
+                    ForEach(DNSSortOption.allCases, id: \.self) { option in
+                        Button {
+                            viewModel.sortOption = option
+                            HapticManager.selection()
+                        } label: {
+                            if viewModel.sortOption == option {
+                                Label(option.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(option.displayName)
+                            }
                         }
                     }
                 } label: {
@@ -290,11 +270,11 @@ struct DNSRecordsView: View {
     }
 
     private var groupedRecordTypes: [String] {
-        Array(Set(displayRecords.map(\.type))).sorted()
+        viewModel.groupedRecordTypes
     }
 
     private func records(for type: String) -> [DNSRecord] {
-        displayRecords.filter { $0.type == type }
+        viewModel.records(for: type)
     }
 
     @ViewBuilder
@@ -334,7 +314,20 @@ struct DNSRecordsView: View {
                     DNSRecordRowView(
                         record: record,
                         onToggleProxy: {
-                            Task { await viewModel.toggleProxy(for: record) }
+                            Task {
+                                if let newProxied = await viewModel.toggleProxy(for: record) {
+                                    HapticManager.impact(.medium)
+                                    ToastManager.shared.showSuccess(
+                                        newProxied
+                                            ? "Proxy Enabled (Orange Cloud ☁️)"
+                                            : "Proxy Disabled (DNS Only)",
+                                        icon: "shield.lefthalf.filled"
+                                    )
+                                } else {
+                                    HapticManager.notification(.error)
+                                    ToastManager.shared.showError("Failed to Update Proxy Status")
+                                }
+                            }
                         }
                     )
                 }
@@ -356,10 +349,23 @@ struct DNSRecordsView: View {
 
             if record.proxiable == true {
                 Button {
-                    Task { await viewModel.toggleProxy(for: record) }
+                    Task {
+                        if let newProxied = await viewModel.toggleProxy(for: record) {
+                            HapticManager.impact(.medium)
+                            ToastManager.shared.showSuccess(
+                                newProxied
+                                    ? "Proxy Enabled (Orange Cloud ☁️)"
+                                    : "Proxy Disabled (DNS Only)",
+                                icon: "shield.lefthalf.filled"
+                            )
+                        } else {
+                            HapticManager.notification(.error)
+                            ToastManager.shared.showError("Failed to Update Proxy Status")
+                        }
+                    }
                 } label: {
                     Label(
-                        record.proxied == true ? LocalizedStringKey("Switch to DNS Only") : LocalizedStringKey("Enable Cloudflare Proxy"),
+                        record.proxied == true ? "Switch to DNS Only" : "Enable Cloudflare Proxy",
                         systemImage: record.proxied == true ? "cloud" : "cloud.fill"
                     )
                 }

@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 // MARK: - DNS Dig & Benchmark Diagnostic Models
 
@@ -26,7 +25,7 @@ public struct DNSLookupResult: Equatable, Sendable {
     public let server: String
     public let latencyMs: Double
     public let isDNSSECValidated: Bool
-    public let rawResponseRFC: String
+    public let rawResponseRFC: String?
 
     public init(
         questionName: String,
@@ -36,7 +35,7 @@ public struct DNSLookupResult: Equatable, Sendable {
         server: String,
         latencyMs: Double,
         isDNSSECValidated: Bool = false,
-        rawResponseRFC: String = ""
+        rawResponseRFC: String? = nil
     ) {
         self.questionName = questionName
         self.questionType = questionType
@@ -54,7 +53,6 @@ public struct DNSBenchmarkItem: Identifiable, Equatable, Sendable {
     public let resolverName: String
     public let resolverIP: String
     public let icon: String
-    public let color: Color
     public let latencyMs: Double?
     public let resolvedRecords: [String]
     public let status: String
@@ -65,7 +63,6 @@ public struct DNSBenchmarkItem: Identifiable, Equatable, Sendable {
         resolverName: String,
         resolverIP: String,
         icon: String,
-        color: Color,
         latencyMs: Double? = nil,
         resolvedRecords: [String] = [],
         status: String = "Pending",
@@ -75,7 +72,6 @@ public struct DNSBenchmarkItem: Identifiable, Equatable, Sendable {
         self.resolverName = resolverName
         self.resolverIP = resolverIP
         self.icon = icon
-        self.color = color
         self.latencyMs = latencyMs
         self.resolvedRecords = resolvedRecords
         self.status = status

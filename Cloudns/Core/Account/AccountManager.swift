@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class AccountManager: ObservableObject {
@@ -108,7 +107,6 @@ final class AccountManager: ObservableObject {
         guard accountEmails.contains(email) else { return }
         activeEmail = email
         WidgetDataStore.shared.syncActiveAccount(email)
-        HapticManager.impact(.medium)
         NotificationCenter.default.post(name: .accountSwitched, object: nil)
     }
 

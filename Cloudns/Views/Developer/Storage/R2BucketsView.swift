@@ -68,7 +68,7 @@ struct R2BucketsView: View {
             emptyAction: { showingCreateSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && !viewModel.buckets.isEmpty && viewModel.filteredBuckets.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchBuckets() } }
         )
         .scrollDismissesKeyboard(.interactively)

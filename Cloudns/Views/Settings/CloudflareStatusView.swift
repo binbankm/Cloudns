@@ -7,7 +7,6 @@ import SwiftUI
 struct CloudflareStatusView: View {
     @StateObject private var viewModel = CloudflareStatusViewModel()
     @State private var selectedTab: StatusFilterTab = .issues
-    @State private var searchText: String = ""
 
     enum StatusFilterTab: Int, CaseIterable, Identifiable {
         case issues = 0
@@ -27,50 +26,17 @@ struct CloudflareStatusView: View {
         }
     }
 
-    private var allComponents: [CFComponentItem] {
-        viewModel.summary?.components ?? []
-    }
-
-    private var issuesComponents: [CFComponentItem] {
-        allComponents.filter { $0.status.lowercased() != "operational" }
-    }
-
-    private var servicesComponents: [CFComponentItem] {
-        allComponents.filter { isCoreService($0.name) }
-    }
-
-    private var popsComponents: [CFComponentItem] {
-        allComponents.filter { isDataCenter($0.name) }
-    }
-
     private var displayedComponents: [CFComponentItem] {
-        let baseList: [CFComponentItem] = switch selectedTab {
-        case .issues:
-            issuesComponents
-        case .services:
-            servicesComponents
-        case .pops:
-            popsComponents
-        }
-
-        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if q.isEmpty {
-            return baseList
-        }
-
-        return baseList.filter {
-            $0.name.lowercased().contains(q) ||
-                (extractIATA($0.name)?.lowercased().contains(q) ?? false)
-        }
+        viewModel.filteredComponents(for: selectedTab.rawValue, searchQuery: viewModel.searchQuery)
     }
 
     var body: some View {
         VStack(spacing: 0) {
             // Segmented Picker Header
             Picker("Category", selection: $selectedTab) {
-                Text(viewModel.hasFetchedData ? "Issues (\(issuesComponents.count))" : "Issues").tag(StatusFilterTab.issues)
-                Text(viewModel.hasFetchedData ? "Services (\(servicesComponents.count))" : "Services").tag(StatusFilterTab.services)
-                Text(viewModel.hasFetchedData ? "PoPs (\(popsComponents.count))" : "PoPs").tag(StatusFilterTab.pops)
+                Text(viewModel.hasFetchedData ? "Issues (\(viewModel.issuesComponents.count))" : "Issues").tag(StatusFilterTab.issues)
+                Text(viewModel.hasFetchedData ? "Services (\(viewModel.servicesComponents.count))" : "Services").tag(StatusFilterTab.services)
+                Text(viewModel.hasFetchedData ? "PoPs (\(viewModel.popsComponents.count))" : "PoPs").tag(StatusFilterTab.pops)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal, 16)
@@ -83,7 +49,7 @@ struct CloudflareStatusView: View {
             contentView
         }
         .searchable(
-            text: $searchText,
+            text: $viewModel.searchQuery,
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search Services or PoPs"
         )
@@ -123,7 +89,7 @@ struct CloudflareStatusView: View {
             if let summary = viewModel.summary {
                 // MARK: - Overall Banner
 
-                if searchText.isEmpty {
+                if viewModel.searchQuery.isEmpty {
                     Section {
                         overallBanner(summary: summary)
                     }
@@ -133,7 +99,7 @@ struct CloudflareStatusView: View {
 
                 // MARK: - Active Incidents (if any)
 
-                if let incidents = summary.incidents, !incidents.isEmpty, searchText.isEmpty {
+                if let incidents = summary.incidents, !incidents.isEmpty, viewModel.searchQuery.isEmpty {
                     Section(header: Text("Official Incidents (\(incidents.count))")) {
                         ForEach(incidents) { inc in
                             incidentRow(inc)
@@ -157,13 +123,13 @@ struct CloudflareStatusView: View {
             isLoading: !viewModel.hasFetchedData && viewModel.isLoading,
             loadingMessage: "Loading System Status…",
             error: (viewModel.summary == nil) ? viewModel.errorMessage : nil,
-            isEmpty: viewModel.hasFetchedData && displayedComponents.isEmpty && searchText.isEmpty && selectedTab == .issues,
+            isEmpty: viewModel.hasFetchedData && displayedComponents.isEmpty && viewModel.searchQuery.isEmpty && selectedTab == .issues,
             empty: .init(
                 title: "All Systems Operational",
                 systemImage: "checkmark.seal.fill",
                 description: "No degraded services or active outages detected right now."
             ),
-            searchQuery: (viewModel.hasFetchedData && displayedComponents.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            searchQuery: (viewModel.hasFetchedData && displayedComponents.isEmpty && !viewModel.searchQuery.isEmpty) ? viewModel.searchQuery : nil,
             onRetry: {
                 Task { await viewModel.fetchStatus() }
             }
@@ -246,7 +212,7 @@ struct CloudflareStatusView: View {
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
 
-                Text(isOperational ? LocalizedStringKey("Cloudflare Global Network & Edge Services Normal") : LocalizedStringKey("Some services or edge data centers are degraded"))
+                Text(isOperational ? "Cloudflare Global Network & Edge Services Normal" : "Some services or edge data centers are degraded")
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.85))
             }
@@ -264,7 +230,7 @@ struct CloudflareStatusView: View {
     // MARK: - Helpers
 
     private func isDataCenter(_ name: String) -> Bool {
-        name.contains(" - (") || (name.contains(" (") && name.hasSuffix(")"))
+        viewModel.extractIATA(name) != nil
     }
 
     private func isCoreService(_ name: String) -> Bool {
@@ -272,10 +238,7 @@ struct CloudflareStatusView: View {
     }
 
     private func extractIATA(_ name: String) -> String? {
-        if let match = name.range(of: #"\([A-Z]{3,4}\)"#, options: .regularExpression) {
-            return String(name[match])
-        }
-        return nil
+        viewModel.extractIATA(name)
     }
 
     private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> LocalizedStringKey {

@@ -22,23 +22,11 @@ struct KVBrowserView: View {
     }
 
     private var filteredNamespaces: [KVNamespace] {
-        if searchText.isEmpty {
-            return viewModel.namespaces
-        }
-        return viewModel.namespaces.filter {
-            $0.title.localizedStandardContains(searchText) ||
-                $0.id.localizedStandardContains(searchText)
-        }
+        viewModel.filteredNamespaces(query: searchText)
     }
 
     private var filteredDatabases: [D1Database] {
-        if searchText.isEmpty {
-            return viewModel.d1Databases
-        }
-        return viewModel.d1Databases.filter {
-            $0.name.localizedStandardContains(searchText) ||
-                $0.uuid.localizedStandardContains(searchText)
-        }
+        viewModel.filteredDatabases(query: searchText)
     }
 
     var body: some View {
@@ -249,7 +237,7 @@ struct KVBrowserView: View {
             },
             isSearchEmpty: !searchText.isEmpty && ((viewModel.selectedSegment == 0 && filteredNamespaces.isEmpty) || (viewModel.selectedSegment == 1 && filteredDatabases.isEmpty)),
             searchQuery: searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchData() } }
         )
     }
@@ -471,10 +459,7 @@ struct KVNamespaceKeysView: View {
     }
 
     private var filteredKeys: [KVKey] {
-        if searchText.isEmpty {
-            return viewModel.keys
-        }
-        return viewModel.keys.filter { $0.name.localizedStandardContains(searchText) }
+        viewModel.filteredKeys(query: searchText)
     }
 
     var body: some View {

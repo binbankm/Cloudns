@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class AccessAppsViewModel: BaseLoadableViewModel {
@@ -59,9 +58,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
             type: type,
             sessionDuration: sessionDuration
         )
-        withAnimation {
-            self.apps.insert(newApp, at: 0)
-        }
+        apps.insert(newApp, at: 0)
         await fetchApps()
     }
 
@@ -69,9 +66,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         do {
             let targetId = await resolveTargetAccountId()
             guard !targetId.isEmpty else { return }
-            withAnimation {
-                self.apps.removeAll { $0.id == id }
-            }
+            apps.removeAll { $0.id == id }
             try await accessService.deleteAccessApp(accountId: targetId, appId: id)
             await fetchApps()
         } catch {}

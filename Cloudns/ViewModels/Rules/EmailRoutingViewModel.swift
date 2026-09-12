@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class EmailRoutingViewModel: BaseLoadableViewModel {
@@ -49,7 +48,6 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
     }
 
     func toggleEnabled(_ enabled: Bool) async {
-        HapticManager.impact(.light)
         do {
             let updated: EmailRoutingSettings? = if enabled {
                 try await emailService.enableEmailRouting(zoneId: zoneId)
@@ -71,7 +69,6 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         guard let accId = accountId, !accId.isEmpty else { return false }
         do {
             _ = try await emailService.createDestinationAddress(accountId: accId, email: email)
-            HapticManager.notification(.success)
             await fetchData()
             return true
         } catch {
@@ -85,14 +82,12 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteDestinationAddress(accountId: accId, addressId: addressId)
             destinations.removeAll { $0.id == addressId }
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
     func toggleCatchAll(enabled: Bool) async {
-        HapticManager.impact(.light)
         do {
             let updated = try await emailService.updateCatchAllRule(zoneId: zoneId, enabled: enabled, action: "drop", forwardTo: nil)
             catchAllRule = updated
@@ -106,11 +101,9 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
 
         do {
             _ = try await emailService.createEmailRoutingRule(zoneId: zoneId, rule: ruleInput)
-            HapticManager.notification(.success)
             await fetchData()
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 
@@ -118,7 +111,6 @@ final class EmailRoutingViewModel: BaseLoadableViewModel {
         do {
             try await emailService.deleteEmailRoutingRule(zoneId: zoneId, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
         }

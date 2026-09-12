@@ -109,7 +109,7 @@ struct AIGatewayView: View {
             emptyAction: { showingCreateSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredGateways.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.gateways.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.gateways.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchGateways() } }
         )
         .task {

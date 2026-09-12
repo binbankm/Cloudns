@@ -325,20 +325,12 @@ struct SSLSettingsView: View {
         .refreshable {
             await viewModel.fetchSettings(zoneId: zoneId)
         }
-        .alert("Error", isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: {
-                if !$0 {
-                    viewModel.errorMessage = nil
-                }
+        .onChange(of: viewModel.errorMessage) { msg in
+            if let msg {
+                ToastManager.shared.showError(msg)
+                viewModel.errorMessage = nil
             }
-        ), actions: {
-            Button("OK", role: .cancel) {}
-        }, message: {
-            if let errorMsg = viewModel.errorMessage {
-                Text(verbatim: errorMsg)
-            }
-        })
+        }
         .task {
             if !viewModel.hasFetchedData {
                 await viewModel.fetchSettings(zoneId: zoneId)

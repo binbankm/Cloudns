@@ -147,7 +147,7 @@ struct WorkerRoutesView: View {
             emptyDescription: "Attach a custom hostname to route requests to this Worker.",
             emptyActionTitle: "Attach Domain",
             emptyAction: { showingAttachSheet = true },
-            errorMessage: (hasFetchedData && customDomains.isEmpty && fallbackRoutes.isEmpty) ? errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (hasFetchedData && customDomains.isEmpty && fallbackRoutes.isEmpty) ? errorMessage : nil,
             retryAction: { Task { await fetchDomains() } }
         )
     }

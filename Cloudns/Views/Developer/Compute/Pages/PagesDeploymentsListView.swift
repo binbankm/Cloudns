@@ -13,33 +13,16 @@ struct PagesDeploymentsListView: View {
     @State private var searchText = ""
     @State private var selectedDeployment: PagesDeployment?
 
+    private var filteredDeployments: [PagesDeployment] {
+        viewModel.filteredDeployments(envFilter: selectedEnvFilter, searchText: searchText)
+    }
+
     private var productionDeployments: [PagesDeployment] {
-        viewModel.deployments.filter { ($0.environment ?? "").lowercased() == "production" }
+        viewModel.productionDeployments
     }
 
     private var previewDeployments: [PagesDeployment] {
-        viewModel.deployments.filter { ($0.environment ?? "").lowercased() != "production" }
-    }
-
-    private var filteredDeployments: [PagesDeployment] {
-        var list = viewModel.deployments
-        if selectedEnvFilter == "production" {
-            list = productionDeployments
-        } else if selectedEnvFilter == "preview" {
-            list = previewDeployments
-        }
-
-        if searchText.isEmpty {
-            return list
-        }
-        return list.filter { dep in
-            (dep.environment ?? "").localizedStandardContains(searchText) ||
-                (dep.latestStage?.status ?? "").localizedStandardContains(searchText) ||
-                (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedStandardContains(searchText) ||
-                (dep.deploymentTrigger?.metadata?.branch ?? "").localizedStandardContains(searchText) ||
-                (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedStandardContains(searchText) ||
-                (dep.id).localizedStandardContains(searchText)
-        }
+        viewModel.previewDeployments
     }
 
     var body: some View {
@@ -128,7 +111,7 @@ struct PagesDeploymentsListView: View {
                 emptyDescription: "No deployment history found for Pages project '\(projectName)'.",
                 isSearchEmpty: viewModel.hasFetchedData && filteredDeployments.isEmpty && !searchText.isEmpty,
                 searchQuery: searchText,
-                errorMessage: (viewModel.hasFetchedData && viewModel.deployments.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+                errorMessage: (viewModel.hasFetchedData && viewModel.deployments.isEmpty) ? viewModel.errorMessage : nil,
                 retryAction: { Task { await viewModel.fetchProjectDetails() } }
             )
         }
@@ -174,8 +157,16 @@ struct PagesDeploymentsListView: View {
                         .font(.caption2)
                         .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
 
-                    Text(isSuccess ? LocalizedStringKey("Success") : (isFailure ? LocalizedStringKey("Failed") : LocalizedStringKey(status.capitalized)))
-                        .font(.caption2.weight(.bold))
+                    if isSuccess {
+                        Text("Success")
+                            .font(.caption2.weight(.bold))
+                    } else if isFailure {
+                        Text("Failed")
+                            .font(.caption2.weight(.bold))
+                    } else {
+                        Text(status.capitalized)
+                            .font(.caption2.weight(.bold))
+                    }
                 }
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2.5)

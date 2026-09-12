@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class PagesProjectDetailViewModel: BaseLoadableViewModel {
@@ -10,6 +9,34 @@ final class PagesProjectDetailViewModel: BaseLoadableViewModel {
 
     @Published var deployments: [PagesDeployment] = []
     @Published var domains: [PagesDomain] = []
+
+    var productionDeployments: [PagesDeployment] {
+        deployments.filter { ($0.environment ?? "").lowercased() == "production" }
+    }
+
+    var previewDeployments: [PagesDeployment] {
+        deployments.filter { ($0.environment ?? "").lowercased() != "production" }
+    }
+
+    func filteredDeployments(envFilter: String, searchText: String) -> [PagesDeployment] {
+        var list = deployments
+        if envFilter == "production" {
+            list = productionDeployments
+        } else if envFilter == "preview" {
+            list = previewDeployments
+        }
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return list
+        }
+        return list.filter { dep in
+            (dep.environment ?? "").localizedStandardContains(searchText) ||
+                (dep.latestStage?.status ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.branch ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedStandardContains(searchText) ||
+                dep.id.localizedStandardContains(searchText)
+        }
+    }
 
     init(accountId: String, project: PagesProject, pagesService: PagesServiceProtocol = PagesService.shared) {
         self.accountId = accountId

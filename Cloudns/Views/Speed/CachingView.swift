@@ -223,7 +223,7 @@ struct CachingView: View {
                         HapticManager.selection()
                         Task {
                             await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
-                            ToastManager.shared.showSuccess(newValue ? LocalizedStringKey("Dev Mode Enabled (Bypassing Cache)") : LocalizedStringKey("Dev Mode Disabled"), icon: "hammer.fill")
+                            ToastManager.shared.showSuccess(newValue ? "Dev Mode Enabled (Bypassing Cache)" : "Dev Mode Disabled", icon: "hammer.fill")
                         }
                     }
                 )) {

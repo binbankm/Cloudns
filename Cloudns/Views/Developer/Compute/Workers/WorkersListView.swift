@@ -70,7 +70,7 @@ struct WorkersListView: View {
             emptyAction: { showingCreateWorkerSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredWorkers.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.workers.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.workers.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchData() } }
         )
         .searchable(

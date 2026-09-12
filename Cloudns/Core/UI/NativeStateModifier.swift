@@ -50,31 +50,17 @@ public struct NativeLoadingStateView: View {
 
 public struct NativeErrorStateView: View {
     public var title: LocalizedStringKey = "Unable to Load"
-    public let message: LocalizedStringKey
+    public var message: String?
     public var onRetry: (() -> Void)?
 
-    public init(title: LocalizedStringKey = "Unable to Load", message: LocalizedStringKey, onRetry: (() -> Void)? = nil) {
+    public init(title: LocalizedStringKey = "Unable to Load", message: String? = nil, onRetry: (() -> Void)? = nil) {
         self.title = title
         self.message = message
         self.onRetry = onRetry
     }
 
-    public init(title: LocalizedStringKey = "Unable to Load", message: String, onRetry: (() -> Void)? = nil) {
-        self.title = title
-        self.message = LocalizedStringKey(message)
-        self.onRetry = onRetry
-    }
-
-    public init(errorMessage: String, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
-        self.title = title
-        message = LocalizedStringKey(errorMessage)
-        self.onRetry = onRetry
-    }
-
-    public init(errorMessage: LocalizedStringKey, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
-        self.title = title
-        message = errorMessage
-        self.onRetry = onRetry
+    public init(errorMessage: String?, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
+        self.init(title: title, message: errorMessage, onRetry: onRetry)
     }
 
     public var body: some View {
@@ -102,11 +88,13 @@ public struct NativeErrorStateView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
 
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
+            if let message, !message.isEmpty {
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
 
             if let onRetry {
                 Button("Try Again", action: onRetry)
@@ -149,25 +137,7 @@ public struct NativeEmptyStateView: View {
         actionTitle: LocalizedStringKey? = nil,
         action: (() -> Void)? = nil
     ) {
-        self.title = title
-        systemImage = icon
-        description = message
-        self.actionTitle = actionTitle
-        self.action = action
-    }
-
-    public init(
-        icon: String,
-        title: LocalizedStringKey,
-        message: String,
-        actionTitle: LocalizedStringKey? = nil,
-        action: (() -> Void)? = nil
-    ) {
-        self.title = title
-        systemImage = icon
-        description = LocalizedStringKey(message)
-        self.actionTitle = actionTitle
-        self.action = action
+        self.init(title: title, systemImage: icon, description: message, actionTitle: actionTitle, action: action)
     }
 
     public var body: some View {
@@ -300,14 +270,14 @@ public extension View {
         emptyAction: (() -> Void)? = nil,
         isSearchEmpty: Bool = false,
         searchQuery: String = "",
-        errorMessage: LocalizedStringKey? = nil,
+        errorMessage: String? = nil,
         retryAction: (() -> Void)? = nil
     ) -> some View {
         overlay {
             if isLoading {
                 NativeLoadingStateView(message: loadingMessage)
-            } else if let errorMessage {
-                NativeErrorStateView(message: errorMessage, onRetry: retryAction)
+            } else if let errorMessage, !errorMessage.isEmpty {
+                NativeErrorStateView(title: "Unable to Load", message: errorMessage, onRetry: retryAction)
             } else if isSearchEmpty, !searchQuery.isEmpty {
                 NativeSearchEmptyStateView(query: searchQuery)
             } else if isEmpty {

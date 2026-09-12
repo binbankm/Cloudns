@@ -73,7 +73,7 @@ struct GatewayRulesView: View {
             emptyAction: { showingAddSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && !viewModel.rules.isEmpty && viewModel.filteredRules.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchRules() } }
         )
         .scrollDismissesKeyboard(.interactively)

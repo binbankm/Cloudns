@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class IPAccessRulesViewModel: BaseLoadableViewModel {
@@ -47,10 +46,8 @@ final class IPAccessRulesViewModel: BaseLoadableViewModel {
         do {
             try await accessRulesService.deleteIPAccessRule(zoneId: zoneId, ruleId: ruleId)
             rules.removeAll { $0.id == ruleId }
-            HapticManager.notification(.success)
         } catch {
             errorMessage = error.localizedDescription
-            HapticManager.notification(.error)
         }
     }
 }

@@ -1,0 +1,22 @@
+# ==============================================================================
+# Cloudns - SwiftFormat 配置
+# 与 .swiftlint.yml 保持 100% 一致，避免冲突
+# ==============================================================================
+
+# Swift 版本
+--swiftversion 5.9
+
+# 禁用尾随逗号（与 SwiftLint 的 trailing_comma 保持一致）
+--commas inline
+
+# 大括号风格：强制放在同一行并保持单空格（与 SwiftLint 的 opening_brace 保持一致）
+--allman false
+
+# 缩进为 4 个空格
+--indent 4
+
+# 排除目录
+--exclude Pods,.build,DerivedData,CloudnsTests,CloudnsUITests
+
+# 保持行宽自由
+--maxwidth none

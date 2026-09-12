@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 class KVViewModel: BaseLoadableViewModel {
@@ -16,6 +15,29 @@ class KVViewModel: BaseLoadableViewModel {
     @Published var selectedKey: String?
     @Published var selectedKeyValue: String?
     @Published var isValueLoading = false
+
+    // MARK: - Filtered Collections
+
+    func filteredNamespaces(query: String) -> [KVNamespace] {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return namespaces }
+        return namespaces.filter {
+            $0.title.localizedStandardContains(query) ||
+                $0.id.localizedStandardContains(query)
+        }
+    }
+
+    func filteredDatabases(query: String) -> [D1Database] {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return d1Databases }
+        return d1Databases.filter {
+            $0.name.localizedStandardContains(query) ||
+                $0.uuid.localizedStandardContains(query)
+        }
+    }
+
+    func filteredKeys(query: String) -> [KVKey] {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return keys }
+        return keys.filter { $0.name.localizedStandardContains(query) }
+    }
 
     init(
         accountId: String,

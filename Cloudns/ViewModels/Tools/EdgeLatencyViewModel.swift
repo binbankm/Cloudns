@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class EdgeLatencyViewModel: BaseLoadableViewModel {
@@ -29,10 +28,8 @@ final class EdgeLatencyViewModel: BaseLoadableViewModel {
             let res = try await latencyService.performEdgeLatencyTest(host: clean, rounds: latencyRounds)
             latencyResult = res
             hasFetchedData = true
-            HapticManager.success()
         } catch {
             latencyError = error.localizedDescription
-            HapticManager.error()
         }
         isLatencyLoading = false
     }

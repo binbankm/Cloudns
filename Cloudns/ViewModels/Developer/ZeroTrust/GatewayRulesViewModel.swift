@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import SwiftUI
 
 @MainActor
 final class GatewayRulesViewModel: BaseLoadableViewModel {
@@ -66,9 +65,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
             enabled: enabled,
             filters: filters
         )
-        withAnimation {
-            self.rules.insert(newRule, at: 0)
-        }
+        rules.insert(newRule, at: 0)
         await fetchRules()
     }
 
@@ -76,9 +73,7 @@ final class GatewayRulesViewModel: BaseLoadableViewModel {
         do {
             let targetId = await resolveTargetAccountId()
             guard !targetId.isEmpty else { return }
-            withAnimation {
-                self.rules.removeAll { $0.id == id }
-            }
+            rules.removeAll { $0.id == id }
             try await gatewayService.deleteGatewayRule(accountId: targetId, ruleId: id)
             await fetchRules()
         } catch {}

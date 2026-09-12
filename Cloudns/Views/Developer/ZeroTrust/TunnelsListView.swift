@@ -52,7 +52,7 @@ struct TunnelsListView: View {
             emptyAction: { showingCreateTunnelSheet = true },
             isSearchEmpty: viewModel.hasFetchedData && !viewModel.tunnels.isEmpty && viewModel.filteredTunnels.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: viewModel.errorMessage.map { LocalizedStringKey($0) },
+            errorMessage: viewModel.errorMessage,
             retryAction: { Task { await viewModel.fetchTunnels() } }
         )
         .scrollDismissesKeyboard(.interactively)
@@ -118,14 +118,20 @@ struct TunnelRowView: View {
                     .lineLimit(1)
             }
 
-            Spacer()
-
-            Text(isHealthy ? LocalizedStringKey("Healthy") : LocalizedStringKey(tunnel.status?.capitalized ?? "Inactive"))
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(isHealthy ? .green : .orange)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Capsule().fill((isHealthy ? Color.green : Color.orange).opacity(0.12)))
+            Group {
+                if isHealthy {
+                    Text("Healthy")
+                } else if let status = tunnel.status?.capitalized {
+                    Text(status)
+                } else {
+                    Text("Inactive")
+                }
+            }
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(isHealthy ? .green : .orange)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill((isHealthy ? Color.green : Color.orange).opacity(0.12)))
         }
         .padding(.vertical, 2)
     }

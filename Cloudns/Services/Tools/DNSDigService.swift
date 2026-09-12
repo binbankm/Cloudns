@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 /// Protocol defining DoH DNS resolution and global propagation service
 protocol DNSDigServiceProtocol: Sendable {
@@ -98,16 +97,15 @@ final class DNSDigService: DNSDigServiceProtocol {
             let ip: String
             let dohEndpoint: String
             let icon: String
-            let color: SwiftUI.Color
         }
 
         let resolvers: [ResolverSpec] = [
-            ResolverSpec(name: "Cloudflare", ip: "1.1.1.1", dohEndpoint: "https://1.1.1.1/dns-query", icon: "cloud.fill", color: .orange),
-            ResolverSpec(name: "Google Public", ip: "8.8.8.8", dohEndpoint: "https://dns.google/resolve", icon: "g.circle.fill", color: .blue),
-            ResolverSpec(name: "Quad9 (Secured)", ip: "9.9.9.9", dohEndpoint: "https://dns.quad9.net/dns-query", icon: "shield.checkerboard", color: .purple),
-            ResolverSpec(name: "AliDNS (Alibaba)", ip: "223.5.5.5", dohEndpoint: "https://dns.alidns.com/resolve", icon: "bolt.horizontal.fill", color: .cyan),
-            ResolverSpec(name: "DNSPod (Tencent)", ip: "119.29.29.29", dohEndpoint: "https://doh.pub/dns-query", icon: "network", color: .green),
-            ResolverSpec(name: "OpenDNS (Cisco)", ip: "208.67.222.222", dohEndpoint: "https://doh.opendns.com/dns-query", icon: "lock.shield.fill", color: .indigo)
+            ResolverSpec(name: "Cloudflare", ip: "1.1.1.1", dohEndpoint: "https://1.1.1.1/dns-query", icon: "cloud.fill"),
+            ResolverSpec(name: "Google Public", ip: "8.8.8.8", dohEndpoint: "https://dns.google/resolve", icon: "g.circle.fill"),
+            ResolverSpec(name: "Quad9 (Secured)", ip: "9.9.9.9", dohEndpoint: "https://dns.quad9.net/dns-query", icon: "shield.checkerboard"),
+            ResolverSpec(name: "AliDNS (Alibaba)", ip: "223.5.5.5", dohEndpoint: "https://dns.alidns.com/resolve", icon: "bolt.horizontal.fill"),
+            ResolverSpec(name: "DNSPod (Tencent)", ip: "119.29.29.29", dohEndpoint: "https://doh.pub/dns-query", icon: "network"),
+            ResolverSpec(name: "OpenDNS (Cisco)", ip: "208.67.222.222", dohEndpoint: "https://doh.opendns.com/dns-query", icon: "lock.shield.fill")
         ]
 
         var benchmarkItems: [DNSBenchmarkItem] = []
@@ -116,14 +114,14 @@ final class DNSDigService: DNSDigServiceProtocol {
             for res in resolvers {
                 group.addTask {
                     guard var components = URLComponents(string: res.dohEndpoint) else {
-                        return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, color: res.color, status: "Error", isSuccess: false)
+                        return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, status: "Error", isSuccess: false)
                     }
                     components.queryItems = [
                         URLQueryItem(name: "name", value: cleanDomain),
                         URLQueryItem(name: "type", value: type)
                     ]
                     guard let url = components.url else {
-                        return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, color: res.color, status: "Error", isSuccess: false)
+                        return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, status: "Error", isSuccess: false)
                     }
 
                     var req = URLRequest(url: url)
@@ -135,7 +133,7 @@ final class DNSDigService: DNSDigServiceProtocol {
                         let latency = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
 
                         guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
-                            return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, color: res.color, status: "HTTP Error", isSuccess: false)
+                            return DNSBenchmarkItem(resolverName: res.name, resolverIP: res.ip, icon: res.icon, status: "HTTP Error", isSuccess: false)
                         }
 
                         struct Ans: Codable { let data: String }
@@ -148,7 +146,6 @@ final class DNSDigService: DNSDigServiceProtocol {
                             resolverName: res.name,
                             resolverIP: res.ip,
                             icon: res.icon,
-                            color: res.color,
                             latencyMs: latency,
                             resolvedRecords: records,
                             status: "Success",
@@ -159,7 +156,6 @@ final class DNSDigService: DNSDigServiceProtocol {
                             resolverName: res.name,
                             resolverIP: res.ip,
                             icon: res.icon,
-                            color: res.color,
                             latencyMs: nil,
                             resolvedRecords: [],
                             status: "Timeout",
@@ -183,7 +179,6 @@ final class DNSDigService: DNSDigServiceProtocol {
                 resolverName: item.resolverName,
                 resolverIP: item.resolverIP,
                 icon: item.icon,
-                color: item.color,
                 latencyMs: item.latencyMs,
                 resolvedRecords: item.resolvedRecords,
                 status: item.status,

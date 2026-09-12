@@ -8,26 +8,12 @@ struct SecurityEventsView: View {
     let zoneId: String
 
     @StateObject private var viewModel = SecurityEventsViewModel()
-    @State private var searchText = ""
-
-    private var displayedEvents: [SecurityEvent] {
-        if searchText.isEmpty {
-            return viewModel.events
-        }
-        return viewModel.events.filter {
-            $0.clientIP.localizedStandardContains(searchText) ||
-                $0.clientCountryName.localizedStandardContains(searchText) ||
-                $0.action.localizedStandardContains(searchText) ||
-                $0.host.localizedStandardContains(searchText) ||
-                ($0.clientAsn ?? "").localizedStandardContains(searchText)
-        }
-    }
 
     var body: some View {
         List {
-            if !displayedEvents.isEmpty {
-                Section(header: Text("Security Events (\(displayedEvents.count))")) {
-                    ForEach(displayedEvents) { event in
+            if !viewModel.filteredEvents.isEmpty {
+                Section(header: Text("Security Events (\(viewModel.filteredEvents.count))")) {
+                    ForEach(viewModel.filteredEvents) { event in
                         SecurityEventCardView(event: event)
                             .contextMenu {
                                 Button {
@@ -49,7 +35,7 @@ struct SecurityEventsView: View {
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
         .searchable(
-            text: $searchText,
+            text: $viewModel.searchQuery,
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Search IP, Country or Action"
         )
@@ -65,7 +51,7 @@ struct SecurityEventsView: View {
                 systemImage: "checkmark.shield",
                 description: "Your site hasn't blocked any threats recently. Everything is secure!"
             ),
-            searchQuery: (viewModel.hasFetchedData && displayedEvents.isEmpty && !searchText.isEmpty) ? searchText : nil,
+            searchQuery: (viewModel.hasFetchedData && viewModel.filteredEvents.isEmpty && !viewModel.searchQuery.isEmpty) ? viewModel.searchQuery : nil,
             onRetry: { Task { await viewModel.fetchEvents(zoneId: zoneId) } }
         )
         .task {

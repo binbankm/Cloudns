@@ -63,7 +63,7 @@ struct DurableObjectsView: View {
             emptyAction: { Task { await viewModel.fetchNamespaces() } },
             isSearchEmpty: viewModel.hasFetchedData && viewModel.filteredNamespaces.isEmpty && !viewModel.searchText.isEmpty,
             searchQuery: viewModel.searchText,
-            errorMessage: (viewModel.hasFetchedData && viewModel.namespaces.isEmpty) ? viewModel.errorMessage.map { LocalizedStringKey($0) } : nil,
+            errorMessage: (viewModel.hasFetchedData && viewModel.namespaces.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchNamespaces() } }
         )
         .task {
