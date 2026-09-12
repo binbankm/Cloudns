@@ -386,30 +386,57 @@ struct DashboardView: View {
                 .background(Color(uiColor: .secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             } else if viewModel.zones.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "globe.badge.plus")
-                        .font(.system(.largeTitle).weight(.light))
-                        .foregroundStyle(.secondary)
+                VStack(spacing: 14) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [accentColor, accentColor.opacity(0.85)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+                            .shadow(color: accentColor.opacity(0.25), radius: 8, x: 0, y: 4)
+                        
+                        Image(systemName: "globe.badge.plus")
+                            .font(.system(size: 28, weight: .semibold))
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(.white)
+                    }
+                    .accessibilityHidden(true)
                     
-                    Text("No Domains Added")
-                        .font(.headline)
+                    VStack(spacing: 4) {
+                        Text("No Domains Added")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        
+                        Text("Add your first domain to start managing DNS records and edge security.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                    }
                     
-                    Text("Add your first domain to start managing DNS records and edge security.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
-                    
-                    Button("Add Domain") {
+                    Button {
+                        HapticManager.selection()
                         showingAddZone = true
+                    } label: {
+                        Label("Add Domain", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold))
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(accentColor)
                     .padding(.top, 4)
                 }
-                .padding(.vertical, 24)
+                .padding(.vertical, 28)
                 .frame(maxWidth: .infinity)
                 .background(Color(uiColor: .secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+                )
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.recentZones.enumerated()), id: \.element.id) { index, zone in
@@ -477,12 +504,19 @@ struct DashboardMetricCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center) {
                 ZStack {
-                    Circle()
-                        .fill(iconColor.opacity(0.14))
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [iconColor, iconColor.opacity(0.88)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         .frame(width: 28, height: 28)
                     Image(systemName: icon)
+                        .symbolRenderingMode(.hierarchical)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(iconColor)
+                        .foregroundStyle(.white)
                 }
                 .accessibilityHidden(true)
                 
@@ -542,13 +576,21 @@ struct QuickDeckButton: View {
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(color.opacity(0.14))
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [color, color.opacity(0.88)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .frame(width: 44, height: 44)
+                    .shadow(color: color.opacity(0.20), radius: 4, x: 0, y: 2)
                 
                 Image(systemName: icon)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(color)
+                    .symbolRenderingMode(.hierarchical)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(.white)
             }
             .accessibilityHidden(true)
             

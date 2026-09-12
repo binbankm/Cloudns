@@ -278,7 +278,7 @@ struct SettingsView: View {
                     }) {
                         SettingsRowView(
                             icon: "github",
-                            color: .primary,
+                            color: .purple,
                             title: "GitHub Repository"
                         )
                     }

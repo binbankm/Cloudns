@@ -61,31 +61,15 @@ public struct WorkerAnalyticsView: View {
                     VStack(spacing: 16) {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            VStack(spacing: 12) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(.red)
-                                Text(errorMessage)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
-                                Button("Retry") {
-                                    Task { await viewModel.fetchAnalytics(isRefresh: true) }
-                                }
-                                .buttonStyle(.borderedProminent)
+                            NativeErrorStateView(errorMessage: errorMessage) {
+                                Task { await viewModel.fetchAnalytics(isRefresh: true) }
                             }
                         } else {
-                            VStack(spacing: 12) {
-                                Image(systemName: "chart.xyaxis.line")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(.secondary)
-                                Text("No Invocations Data")
-                                    .font(.headline)
-                                Text("No Worker invocations recorded for \(scriptName) in the selected time range.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
+                            NativeEmptyStateView(
+                                icon: "chart.xyaxis.line",
+                                title: "No Invocations Data",
+                                message: "No Worker invocations recorded for \(scriptName) in the selected time range."
+                            )
                         }
                         Spacer(minLength: 80)
                     }

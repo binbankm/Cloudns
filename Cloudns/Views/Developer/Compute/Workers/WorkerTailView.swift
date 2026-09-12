@@ -146,24 +146,16 @@ struct WorkerTailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            VStack(spacing: 12) {
-                Image(systemName: "pause.circle")
-                    .font(.system(size: 44))
-                    .foregroundStyle(.secondary)
-                Text("Log Stream Paused")
-                    .font(.headline)
-                Text("Stream is paused. Tap Resume to start listening for live edge execution events.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                Button("Resume Stream") {
+            NativeEmptyStateView(
+                icon: "pause.fill",
+                title: "Log Stream Paused",
+                message: "Stream is paused. Tap Resume to start listening for live edge execution events.",
+                actionTitle: "Resume Stream",
+                action: {
                     HapticManager.impact(.light)
                     Task { await viewModel.startStream() }
                 }
-                .buttonStyle(.borderedProminent)
-                .padding(.top, 4)
-            }
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

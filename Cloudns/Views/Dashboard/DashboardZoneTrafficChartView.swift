@@ -20,6 +20,7 @@ struct DashboardZoneTrafficChartView: View {
                 HStack(alignment: .center) {
                     HStack(spacing: 6) {
                         Image(systemName: "globe.americas.fill")
+                            .symbolRenderingMode(.hierarchical)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.blue)
                         

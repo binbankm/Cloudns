@@ -24,24 +24,38 @@ public struct ListRowIcon: View {
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(color.opacity(0.12))
+                .fill(
+                    LinearGradient(
+                        colors: effectiveGradientColors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
             
             if icon == "github" || icon == "github.mark" {
                 Image("github")
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundStyle(color)
+                    .foregroundStyle(.white)
                     .frame(width: glyphBoxSize, height: glyphBoxSize, alignment: .center)
             } else {
                 Image(systemName: icon)
+                    .symbolRenderingMode(.hierarchical)
                     .font(iconFont)
-                    .foregroundStyle(color)
+                    .foregroundStyle(.white)
                     .frame(width: glyphBoxSize, height: glyphBoxSize, alignment: .center)
             }
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+    
+    private var effectiveGradientColors: [Color] {
+        if color == .primary {
+            return [Color(red: 0.24, green: 0.25, blue: 0.28), Color(red: 0.16, green: 0.17, blue: 0.20)]
+        }
+        return [color, color.opacity(0.88)]
     }
     
     private var glyphBoxSize: CGFloat {
@@ -92,23 +106,21 @@ public struct HeroHeaderEmblemView: View {
     public var body: some View {
         let secColor = secondaryColor ?? primaryColor
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+            RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [primaryColor.opacity(0.18), secColor.opacity(0.10)],
+                        colors: [primaryColor, secColor.opacity(0.88)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
-                        .stroke(primaryColor.opacity(0.20), lineWidth: 1)
-                )
+                .shadow(color: primaryColor.opacity(0.24), radius: 8, x: 0, y: 4)
             
             Image(systemName: icon)
-                .font(.system(size: size * 0.42, weight: .semibold))
-                .foregroundStyle(primaryColor)
-                .frame(width: size * 0.50, height: size * 0.50, alignment: .center)
+                .symbolRenderingMode(.hierarchical)
+                .font(.system(size: size * 0.46, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: size * 0.55, height: size * 0.55, alignment: .center)
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)

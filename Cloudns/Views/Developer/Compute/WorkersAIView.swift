@@ -205,10 +205,13 @@ struct WorkersAIPlaygroundSheetView: View {
                     LazyVStack(spacing: 12) {
                         if viewModel.chatMessages.isEmpty {
                             VStack(spacing: 8) {
-                                Image(systemName: "brain.head.profile")
-                                    .font(.system(size: 40).weight(.medium))
-                                    .foregroundStyle(.purple)
-                                    .padding(.top, 24)
+                                HeroHeaderEmblemView(
+                                    icon: "brain.head.profile",
+                                    primaryColor: .purple,
+                                    secondaryColor: .indigo,
+                                    size: 56
+                                )
+                                .padding(.top, 24)
                                 
                                 Text(model.shortName)
                                     .font(.headline)

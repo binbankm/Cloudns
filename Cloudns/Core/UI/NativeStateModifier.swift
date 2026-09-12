@@ -64,11 +64,38 @@ public struct NativeErrorStateView: View {
         self.onRetry = onRetry
     }
     
+    public init(errorMessage: String, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
+        self.title = title
+        self.message = LocalizedStringKey(errorMessage)
+        self.onRetry = onRetry
+    }
+    
+    public init(errorMessage: LocalizedStringKey, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
+        self.title = title
+        self.message = errorMessage
+        self.onRetry = onRetry
+    }
+    
     public var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 44, weight: .light))
-                .foregroundStyle(.orange)
+        VStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.orange, Color.orange.opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 64, height: 64)
+                    .shadow(color: Color.orange.opacity(0.25), radius: 8, x: 0, y: 4)
+                
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 28, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white)
+            }
+            .padding(.bottom, 2)
             
             Text(title)
                 .font(.headline)
@@ -114,17 +141,52 @@ public struct NativeEmptyStateView: View {
         self.action = action
     }
     
+    public init(
+        icon: String,
+        title: LocalizedStringKey,
+        message: LocalizedStringKey? = nil,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = title
+        self.systemImage = icon
+        self.description = message
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+    
+    public init(
+        icon: String,
+        title: LocalizedStringKey,
+        message: String,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = title
+        self.systemImage = icon
+        self.description = LocalizedStringKey(message)
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+    
     public var body: some View {
         VStack(spacing: 14) {
             ZStack {
-                Circle()
-                    .fill(themeManager.accentColor.opacity(0.12))
-                    .frame(width: 88, height: 88)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [themeManager.accentColor, themeManager.accentColor.opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 76, height: 76)
+                    .shadow(color: themeManager.accentColor.opacity(0.25), radius: 10, x: 0, y: 5)
                 
                 Image(systemName: systemImage)
-                    .font(.system(size: 40, weight: .regular))
+                    .font(.system(size: 34, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(themeManager.accentColor)
+                    .foregroundStyle(.white)
             }
             .padding(.bottom, 4)
             
@@ -143,6 +205,7 @@ public struct NativeEmptyStateView: View {
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
                     .buttonStyle(.borderedProminent)
+                    .tint(themeManager.accentColor)
                     .padding(.top, 8)
             }
         }
@@ -159,10 +222,24 @@ public struct NativeSearchEmptyStateView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 44, weight: .light))
-                .foregroundStyle(.secondary)
+        VStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.secondary.opacity(0.24), Color.secondary.opacity(0.12)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 64, height: 64)
+                
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 28, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.bottom, 2)
             
             Text("No Results for \"\(query)\"")
                 .font(.headline)

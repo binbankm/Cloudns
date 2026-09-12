@@ -77,16 +77,8 @@ struct AuditLogRowView: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(log.actionColor.opacity(0.12))
-                    .frame(width: 38, height: 38)
-                Image(systemName: log.actionIcon)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(log.actionColor)
-            }
-            .accessibilityHidden(true)
-            .padding(.top, 2)
+            ListRowIcon(icon: log.actionIcon, color: log.actionColor, size: 34, cornerRadius: 8)
+                .padding(.top, 2)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -170,14 +162,7 @@ struct AuditLogDetailSheetView: View {
         List {
             Section {
                 VStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(log.actionColor.opacity(0.15))
-                            .frame(width: 56, height: 56)
-                        Image(systemName: log.actionIcon)
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(log.actionColor)
-                    }
+                    HeroHeaderEmblemView(icon: log.actionIcon, primaryColor: log.actionColor, size: 56)
                     
                     VStack(spacing: 4) {
                         HStack(spacing: 4) {

@@ -257,7 +257,7 @@ struct DNSPresetsSheetView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 12) {
-                            ListRowIcon(icon: group.icon, color: group.iconColor)
+                            HeroHeaderEmblemView(icon: group.icon, primaryColor: group.iconColor, size: 44)
                             Text(group.title)
                                 .font(.title3.weight(.bold))
                         }

@@ -25,16 +25,8 @@ struct WorkerDetailDeepLinkWrapper: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                VStack(spacing: 12) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundStyle(.secondary)
-                    Text(errorMessage ?? String(localized: "Unable to load worker"))
-                        .font(.headline)
-                    Button("Retry") {
-                        Task { await loadWorker() }
-                    }
-                    .buttonStyle(.bordered)
+                NativeErrorStateView(errorMessage: errorMessage ?? String(localized: "Unable to load worker")) {
+                    Task { await loadWorker() }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }

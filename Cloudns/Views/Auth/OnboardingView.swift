@@ -216,35 +216,23 @@ struct OnboardingPageView: View {
                     .frame(width: 220, height: 220)
                     .blur(radius: 20)
                 
-                Circle()
-                    .stroke(
+                RoundedRectangle(cornerRadius: 36, style: .continuous)
+                    .fill(
                         LinearGradient(
-                            colors: [color.opacity(0.6), color.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 2
-                    )
-                    .frame(width: 156, height: 156)
-                
-                Circle()
-                    .fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.85))
-                    .frame(width: 140, height: 140)
-                    .shadow(color: color.opacity(0.25), radius: 16, x: 0, y: 8)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 48, weight: .semibold))
-                    .imageScale(.large)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [color, color.opacity(0.8)],
+                            colors: [color, color.opacity(0.85)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .shadow(color: color.opacity(0.45), radius: 8, x: 0, y: 3)
-                    .accessibilityHidden(true)
+                    .frame(width: 140, height: 140)
+                    .shadow(color: color.opacity(0.32), radius: 18, x: 0, y: 8)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 58, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white)
             }
+            .accessibilityHidden(true)
             .frame(height: 230)
             
             Spacer(minLength: 24)

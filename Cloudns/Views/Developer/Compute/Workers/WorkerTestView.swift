@@ -198,10 +198,12 @@ struct WorkerTestView: View {
                 // Ready Guide Banner
                 Section {
                     VStack(spacing: 8) {
-                        Image(systemName: "bolt.horizontal.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundStyle(Color.orange)
-                            .accessibilityHidden(true)
+                        HeroHeaderEmblemView(
+                            icon: "bolt.horizontal.fill",
+                            primaryColor: .orange,
+                            secondaryColor: .orange.opacity(0.88),
+                            size: 48
+                        )
                         
                         Text("Ready to Probe Worker")
                             .font(.subheadline.weight(.semibold))

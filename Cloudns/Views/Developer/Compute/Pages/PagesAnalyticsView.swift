@@ -61,29 +61,15 @@ public struct PagesAnalyticsView: View {
                     VStack {
                         Spacer(minLength: 40)
                         if let errorMessage = viewModel.errorMessage {
-                            VStack(spacing: 12) {
-                                Image(systemName: "exclamationmark.triangle")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.secondary)
-                                Text(LocalizedStringKey(errorMessage))
-                                    .font(.headline)
-                                Button("Retry") {
-                                    Task { await viewModel.fetchAnalytics(isRefresh: true) }
-                                }
-                                .buttonStyle(.bordered)
+                            NativeErrorStateView(errorMessage: errorMessage) {
+                                Task { await viewModel.fetchAnalytics(isRefresh: true) }
                             }
                         } else {
-                            VStack(spacing: 12) {
-                                Image(systemName: "chart.xyaxis.line")
-                                    .font(.system(size: 48))
-                                    .foregroundStyle(.secondary)
-                                Text("No Pages Data")
-                                    .font(.headline)
-                                Text("No Functions invocations or deployments recorded for \(projectName) in the selected time range.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
+                            NativeEmptyStateView(
+                                icon: "chart.xyaxis.line",
+                                title: "No Pages Data",
+                                message: "No Functions invocations or deployments recorded for \(projectName) in the selected time range."
+                            )
                         }
                         Spacer(minLength: 80)
                     }

@@ -120,6 +120,13 @@ struct AddZoneView: View {
                                     .textInputAutocapitalization(.never)
                                     .autocorrectionDisabled()
                                     .keyboardType(.URL)
+                                    .submitLabel(.done)
+                                    .onSubmit {
+                                        let trimmed = domainName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                        if !trimmed.isEmpty && !isSubmitting {
+                                            performAddZone()
+                                        }
+                                    }
                             }
                         }
 
@@ -133,18 +140,7 @@ struct AddZoneView: View {
 
                         Section {
                             Button {
-                                Task {
-                                    isSubmitting = true
-                                    if let newZone = await viewModel.addZone(name: domainName.trimmingCharacters(in: .whitespacesAndNewlines)) {
-                                        ToastManager.shared.showSuccess("Domain Added", icon: "checkmark.circle.fill")
-                                        HapticManager.success()
-                                        createdZone = newZone
-                                    } else {
-                                        ToastManager.shared.showError(LocalizedStringKey(viewModel.addZoneError ?? "Failed to Add Domain"))
-                                        HapticManager.error()
-                                    }
-                                    isSubmitting = false
-                                }
+                                performAddZone()
                             } label: {
                                 HStack {
                                     Spacer()
@@ -188,6 +184,24 @@ struct AddZoneView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private func performAddZone() {
+        let name = domainName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, !isSubmitting else { return }
+        
+        Task {
+            isSubmitting = true
+            if let newZone = await viewModel.addZone(name: name) {
+                ToastManager.shared.showSuccess("Domain Added", icon: "checkmark.circle.fill")
+                HapticManager.success()
+                createdZone = newZone
+            } else {
+                ToastManager.shared.showError(LocalizedStringKey(viewModel.addZoneError ?? "Failed to Add Domain"))
+                HapticManager.error()
+            }
+            isSubmitting = false
         }
     }
 }

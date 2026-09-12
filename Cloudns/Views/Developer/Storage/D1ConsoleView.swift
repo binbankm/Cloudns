@@ -229,6 +229,15 @@ struct D1ConsoleView: View {
         }
         .navigationTitle(database.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    isEditorFocused = false
+                }
+                .fontWeight(.semibold)
+            }
+        }
         .task {
             await viewModel.fetchTables()
         }

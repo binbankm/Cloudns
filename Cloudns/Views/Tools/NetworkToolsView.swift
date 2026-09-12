@@ -74,17 +74,17 @@ struct NetworkToolsView: View {
         
         var icon: String {
             switch self {
-            case .cfTrace: return "antenna.radiowaves.left.and.right.circle.fill"
+            case .cfTrace: return "antenna.radiowaves.left.and.right"
             case .cfStatus: return "antenna.radiowaves.left.and.right"
-            case .dnsDig: return "magnifyingglass.circle.fill"
-            case .httpHeader: return "arrow.up.right.circle.fill"
+            case .dnsDig: return "magnifyingglass"
+            case .httpHeader: return "arrow.up.right"
             case .certInspect: return "checkmark.seal.fill"
             case .dnsPropagation: return "globe.americas.fill"
             case .edgeLatency: return "speedometer"
-            case .ipLookup: return "location.circle.fill"
+            case .ipLookup: return "location.fill"
             case .whois: return "person.text.rectangle.fill"
             case .cfIpRanges: return "network.badge.shield.half.filled"
-            case .cidrCalc: return "number.square.fill"
+            case .cidrCalc: return "number"
             }
         }
         

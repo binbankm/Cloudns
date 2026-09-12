@@ -39,20 +39,12 @@ struct WorkerDetailView: View {
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "bolt.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white)
-                            .frame(width: 44, height: 44)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.orange, Color.orange.opacity(0.8)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .shadow(color: Color.orange.opacity(0.25), radius: 6, x: 0, y: 3)
-                            .accessibilityHidden(true)
+                        HeroHeaderEmblemView(
+                            icon: "bolt.fill",
+                            primaryColor: .orange,
+                            secondaryColor: .orange.opacity(0.88),
+                            size: 44
+                        )
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text(viewModel.worker.id)

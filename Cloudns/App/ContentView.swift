@@ -200,7 +200,7 @@ struct ContentView: View {
                             Label("Developer", systemImage: "cpu")
                         }
                         NavigationLink(value: AppTab.tools) {
-                            Label("Tools", systemImage: "terminal")
+                            Label("Tools", systemImage: "briefcase")
                         }
                         NavigationLink(value: AppTab.settings) {
                             Label("Settings", systemImage: "gearshape")
@@ -242,7 +242,7 @@ struct ContentView: View {
                 
                 NetworkToolsView()
                     .tabItem {
-                        Label("Tools", systemImage: "terminal")
+                        Label("Tools", systemImage: "briefcase")
                     }
                     .tag(AppTab.tools)
                 
